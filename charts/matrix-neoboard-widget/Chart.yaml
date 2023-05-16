@@ -1,0 +1,7 @@
+apiVersion: v2
+name: matrix-neoboard-widget
+description: A whiteboard widget for the Element messenger
+type: application
+version: 0.1.0
+appVersion: "0.0.0"
+home: https://github.com/nordeck/matrix-neoboard

@@ -1,0 +1,8 @@
+# These folders will be skipped by prettier
+
+# Ignore artifacts
+build/
+coverage/
+
+# Ignore the helm chart
+charts/

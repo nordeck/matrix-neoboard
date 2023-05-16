@@ -1,0 +1,61 @@
+# This pipeline runs for every new tag. It will pull the docker container for
+# the commit hash of the tag, and will publish it as `:<tag-name>` and `latest`.
+name: Release Package
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      DOCKER_IMAGE: ghcr.io/nordeck/matrix-neoboard-widget
+    steps:
+      - name: Generate Docker metadata of the existing image
+        id: meta-existing-tag
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.DOCKER_IMAGE }}
+          tags: |
+            type=sha,prefix=
+
+      - name: Generate Docker metadata of the new image
+        id: meta-new-tags
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.DOCKER_IMAGE }}
+          labels: |
+            org.opencontainers.image.title=NeoBoard
+            org.opencontainers.image.description=A whiteboard widget for the Element messenger
+            org.opencontainers.image.vendor=Nordeck IT + Consulting GmbH
+          tags: |
+            type=semver,pattern={{version}}
+
+      - name: Generate Dockerfile
+        env:
+          SOURCE_IMAGE: ${{ fromJSON(steps.meta-existing-tag.outputs.json).tags[0] }}
+        run: |
+          echo "FROM $SOURCE_IMAGE" > Dockerfile
+
+      - name: Login to ghcr.io
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          context: .
+          tags: ${{ steps.meta-new-tags.outputs.tags }}
+          labels: ${{ steps.meta-new-tags.outputs.labels }}
+          platforms: linux/amd64,linux/arm64,linux/s390x

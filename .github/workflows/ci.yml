@@ -1,0 +1,194 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      DOCKER_IMAGE: ghcr.io/nordeck/matrix-neoboard-widget
+    outputs:
+      docker-tag: ${{ steps.meta.outputs.version }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          # required for changesets
+          fetch-depth: '0'
+          # don't persist the credentials so the changesets action doesn't use the
+          # github actions token but the git token provided via environment variable
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+          cache: 'yarn'
+
+      - name: yarn install
+        run: yarn install --frozen-lockfile
+
+      - name: prettier:check
+        run: yarn prettier:check
+
+      - name: depcheck
+        run: yarn depcheck
+
+      - name: Check Linting Rules
+        run: yarn lint
+
+      - name: type checking and declarations
+        run: yarn tsc
+
+      - name: Check Translations
+        run: yarn translate --fail-on-update
+
+      - name: test
+        run: yarn run test:all
+
+      - name: build
+        run: yarn build
+
+      - name: generate disclaimer
+        run: yarn generate-disclaimer
+
+      - name: Login to ghcr.io
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Generate Docker metadata
+        id: meta
+        uses: docker/metadata-action@v4
+        env:
+          DOCKER_METADATA_PR_HEAD_SHA: true
+        with:
+          images: ${{ env.DOCKER_IMAGE }}
+          labels: |
+            org.opencontainers.image.title=NeoBoard
+            org.opencontainers.image.description=A whiteboard widget for the Element messenger
+            org.opencontainers.image.vendor=Nordeck IT + Consulting GmbH
+          tags: |
+            type=sha,prefix=
+
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' || github.event_name == 'pull_request' && secrets.GH_APP_OS_APP_ID != '' }}
+          context: .
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          platforms: linux/amd64,linux/arm64,linux/s390x
+
+      - name: Generate GitHub token
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        id: generate_token
+        uses: tibdex/github-app-token@b62528385c34dbc9f38e5f4225ac829252d1ea92 # @v1.8.0
+        with:
+          app_id: ${{ secrets.GH_APP_OS_APP_ID }}
+          private_key: ${{ secrets.GH_APP_OS_PRIVATE_KEY }}
+
+      - name: Create Release Pull Request or Publish Packages
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        uses: changesets/action@e9cc34b540dd3ad1b030c57fd97269e8f6ad905a # @v1.4.1
+        with:
+          publish: yarn changeset tag
+        env:
+          GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
+
+  deploy-pages:
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    name: Deploy to GitHub Pages
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: build
+    # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    # Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+    # However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+    concurrency:
+      group: 'pages'
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+          cache: 'yarn'
+
+      - name: yarn install
+        run: yarn install --frozen-lockfile
+
+      - name: prepare environment specific configurations for the build
+        run: |
+          cat <<EOF > .env.local
+          REACT_APP_HOME_SERVER_URL=https://matrix-client.matrix.org
+          REACT_APP_HELP_CENTER_URL="https://github.com/nordeck/matrix-neoboard"
+          EOF
+
+          sed -i 's,"homepage": "/","homepage": "/matrix-neoboard",' package.json
+
+      - name: build
+        run: yarn build
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v3
+
+      - name: Upload artifact to GitHub pages
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: 'build'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2
+
+  deploy:
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    name: Deploy to Dev
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: build
+    steps:
+      - name: Generate GitHub token
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        id: generate_token
+        uses: tibdex/github-app-token@b62528385c34dbc9f38e5f4225ac829252d1ea92 # @v1.8.0
+        with:
+          app_id: ${{ secrets.GH_APP_OS_APP_ID }}
+          private_key: ${{ secrets.GH_APP_OS_PRIVATE_KEY }}
+
+      - name: Trigger Workflow
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ steps.generate_token.outputs.token }}
+          script: |
+            github.rest.actions.createWorkflowDispatch({
+              owner: 'nordeck',
+              repo: '${{ secrets.GITOPS_DEPLOY_REPOSITORY }}',
+              workflow_id: 'deployment.yml',
+              ref: 'main',
+              inputs: {
+                environment: '${{ secrets.GITOPS_DEPLOY_ENVIRONMENT}}',
+                application: 'matrix-neoboard',
+                tag: '${{ github.sha }}'
+              }
+            })

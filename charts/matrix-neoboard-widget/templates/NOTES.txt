@@ -1,0 +1,4 @@
+1. Get the application URL by running these commands:
+{{- if .Values.ingress.enabled }}
+  https://{{- include "app.fullname" . -}}.{{- .Values.settings.hostname -}}
+{{- end }}
