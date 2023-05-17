@@ -99,7 +99,7 @@ jobs:
 
       - name: Create Release Pull Request or Publish Packages
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
-        uses: changesets/action@e9cc34b540dd3ad1b030c57fd97269e8f6ad905a # @v1.4.1
+        uses: changesets/action@d89c1de63c7f28ac47ec85ed395f5f1d045d4697 # @v1.4.4
         with:
           publish: yarn changeset tag
         env:
