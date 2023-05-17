@@ -37,6 +37,8 @@ You need at least Moderator permissions (power level >50) in the room so it migh
 This is only a demo deployment that is not suited for production use.
 See the [Deployment](#deployment) section on how you can host the widget on your own.
 
+> 💡 Import the [NeoBoard quick start pack](./docs/NeoBoard%20QuickStart%20Pack.nwb) for some demo content to get started right away.
+
 ## Getting Started
 
 Development on the widget happens at [GitHub](https://github.com/nordeck/matrix-neoboard).

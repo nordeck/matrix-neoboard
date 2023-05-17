@@ -2708,10 +2708,10 @@
     hoist-non-react-statics "^3.3.0"
     redux "^4.0.0"
 
-"@types/react-transition-group@^4.4.5":
-  version "4.4.5"
-  resolved "https://registry.yarnpkg.com/@types/react-transition-group/-/react-transition-group-4.4.5.tgz#aae20dcf773c5aa275d5b9f7cdbca638abc5e416"
-  integrity sha512-juKD/eiSM3/xZYzjuzH6ZwpP+/lejltmiS3QEzV/vmb/Q8+HfDmxu+Baga8UEMGBqV88Nbg4l2hY/K2DkyaLLA==
+"@types/react-transition-group@^4.4.5", "@types/react-transition-group@^4.4.6":
+  version "4.4.6"
+  resolved "https://registry.yarnpkg.com/@types/react-transition-group/-/react-transition-group-4.4.6.tgz#18187bcda5281f8e10dfc48f0943e2fdf4f75e2e"
+  integrity sha512-VnCdSxfcm08KjsJVQcfBmhEQAPnLB8G08hAxn39azX1qYBQ/5RVQuoHuKIcfKOdncuaUvEpFKFzEvbtIMsfVew==
   dependencies:
     "@types/react" "*"
 
@@ -6419,10 +6419,10 @@ i18next-http-backend@^2.2.0:
   dependencies:
     cross-fetch "3.1.5"
 
-i18next-parser@^7.7.0:
-  version "7.7.0"
-  resolved "https://registry.yarnpkg.com/i18next-parser/-/i18next-parser-7.7.0.tgz#ce61f339ed0fe12ab2fdae101c59c77c62f26fc1"
-  integrity sha512-t64bvrr+G+wbZSEr3nZ61j3l7YFvJnPBNTlS90VM3KnxRf6gmtZv76ppUXBEdepr2CGkO+ZY6arzBJ8gGs2suQ==
+i18next-parser@^8.0.0:
+  version "8.0.0"
+  resolved "https://registry.yarnpkg.com/i18next-parser/-/i18next-parser-8.0.0.tgz#dae5da549ec4fccb08a7de93563e34e082cc68c3"
+  integrity sha512-WnpIXJlwgUTwnlEFLJpL5E8Y7faWCV/GVqIJXJos15Zwoic5k3QXV3QodP4uYp8W1T1w4y5wXrSEGS1Y4obxCg==
   dependencies:
     "@babel/runtime" "^7.15.4"
     broccoli-plugin "^4.0.7"
