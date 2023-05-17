@@ -1965,7 +1965,7 @@
     matrix-widget-api "^1.1.1"
     rxjs "^7.8.0"
 
-"@mui/base@5.0.0-beta.1", "@mui/base@^5.0.0-alpha.128":
+"@mui/base@5.0.0-beta.1", "@mui/base@^5.0.0-beta.1":
   version "5.0.0-beta.1"
   resolved "https://registry.yarnpkg.com/@mui/base/-/base-5.0.0-beta.1.tgz#53c4491b130747263c034e06a819d43f535424e9"
   integrity sha512-xrkDCeu3JQE+JjJUnJnOrdQJMXwKhbV4AW+FRjMIj5i9cHK3BAuatG/iqbf1M+jklVWLk0KdbgioKwK+03aYbA==
