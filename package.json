@@ -52,7 +52,7 @@
     "@types/jest": "^27.5.2",
     "@types/jest-axe": "^3.5.5",
     "@types/lodash": "^4.14.194",
-    "@types/node": "^16.18.25",
+    "@types/node": "^18.16.12",
     "@types/react": "^17.0.39",
     "@types/react-beautiful-dnd": "^13.1.4",
     "@types/react-dom": "^17.0.0",
