@@ -9,7 +9,7 @@
     "@matrix-widget-toolkit/api": "^3.1.0",
     "@matrix-widget-toolkit/mui": "^1.1.2",
     "@matrix-widget-toolkit/react": "^1.0.4",
-    "@mui/base": "^5.0.0-alpha.128",
+    "@mui/base": "^5.0.0-beta.1",
     "@mui/icons-material": "^5.11.16",
     "@mui/lab": "^5.0.0-alpha.129",
     "@mui/material": "^5.12.3",
