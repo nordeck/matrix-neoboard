@@ -25,6 +25,7 @@ import {
   useRef,
   useState,
 } from 'react';
+import { useFontsLoaded } from '../../../../lib';
 import {
   HOTKEY_SCOPE_WHITEBOARD,
   usePauseHotkeysScope,
@@ -184,6 +185,8 @@ export function TextEditor({
     }
   }, [textRef, editable]);
 
+  const fontsLoaded = useFontsLoaded();
+
   useLayoutEffect(() => {
     // Every time content or the shape changes, re-calculate the perfect font size
     if (textRef.current) {
@@ -192,9 +195,10 @@ export function TextEditor({
   }, [
     textRef,
     content,
-    // Width and height are used to trigger calculating the size
+    // Width, height, and fontsLoaded are used to trigger calculating the size
     width,
     height,
+    fontsLoaded,
   ]);
 
   return (

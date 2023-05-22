@@ -15,5 +15,6 @@
  */
 
 export { isDefined } from './isDefined';
+export { FontsLoadedContextProvider, useFontsLoaded } from './useFontsLoaded';
 export { useLatestValue } from './useLatestValue';
 export { getUserColor } from './userColor';
