@@ -27,6 +27,7 @@ import { GuidedTourProvider } from './components/GuidedTour';
 import { LayoutStateProvider } from './components/Layout';
 import { DraggableStyles } from './components/Whiteboard';
 import { WhiteboardHotkeysProvider } from './components/WhiteboardHotkeysProvider';
+import { FontsLoadedContextProvider } from './lib';
 import { WhiteboardManager, WhiteboardManagerProvider } from './state';
 import { StoreType } from './store';
 
@@ -56,13 +57,15 @@ export const AppContainer = ({
                 type: 'net.nordeck.whiteboard:pad',
               }}
             >
-              <LayoutStateProvider>
-                <WhiteboardHotkeysProvider>
-                  <GuidedTourProvider>
-                    <App />
-                  </GuidedTourProvider>
-                </WhiteboardHotkeysProvider>
-              </LayoutStateProvider>
+              <FontsLoadedContextProvider>
+                <LayoutStateProvider>
+                  <WhiteboardHotkeysProvider>
+                    <GuidedTourProvider>
+                      <App />
+                    </GuidedTourProvider>
+                  </WhiteboardHotkeysProvider>
+                </LayoutStateProvider>
+              </FontsLoadedContextProvider>
             </MuiWidgetApiProvider>
           </Suspense>
         </MuiThemeProvider>

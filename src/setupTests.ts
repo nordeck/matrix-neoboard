@@ -56,6 +56,12 @@ Object.defineProperty(window, 'location', {
   ),
 });
 
+// Provide a mock for the CSS Font Loading API
+Object.defineProperty(document, 'fonts', {
+  value: { ready: new Promise(() => {}) },
+  configurable: true,
+});
+
 setLocale('en');
 
 // Polyfills required for jsdom
