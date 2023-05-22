@@ -1912,12 +1912,12 @@
     globby "^11.0.0"
     read-yaml-file "^1.1.0"
 
-"@matrix-widget-toolkit/api@^3.0.0", "@matrix-widget-toolkit/api@^3.1.0":
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/@matrix-widget-toolkit/api/-/api-3.1.0.tgz#71c7495b54677b3680ce376cbe0a4cc58bd0c5b4"
-  integrity sha512-cvysIn2vY/4WNFQCs/ExLQkVyrgDDmJQxKH8Twi/fKyUyrm7jq8legOdOKCeAOmmqJ3iD3Ayhc1mcPOAaUYSIw==
+"@matrix-widget-toolkit/api@^3.0.0", "@matrix-widget-toolkit/api@^3.1.0", "@matrix-widget-toolkit/api@^3.2.0":
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/@matrix-widget-toolkit/api/-/api-3.2.0.tgz#ebff818801ee16fc7a24d0c2b1427061413f79c8"
+  integrity sha512-wm/WTY7QqnGFfNH46eRjKf7d9dM2rpakzdOtmoGlmB4Vt4NkYaaPg5DaEtmUJUkGiDSkczXJ5u/XyADEyhQ1xw==
   dependencies:
-    matrix-widget-api "^1.1.1"
+    matrix-widget-api "^1.3.1"
     qs "^6.11.0"
     rxjs "^7.8.0"
 
@@ -7895,10 +7895,10 @@ matcher-collection@^2.0.0:
     "@types/minimatch" "^3.0.3"
     minimatch "^3.0.2"
 
-matrix-widget-api@^1.1.1:
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/matrix-widget-api/-/matrix-widget-api-1.1.1.tgz#d3fec45033d0cbc14387a38ba92dac4dbb1be962"
-  integrity sha512-gNSgmgSwvOsOcWK9k2+tOhEMYBiIMwX95vMZu0JqY7apkM02xrOzUBuPRProzN8CnbIALH7e3GAhatF6QCNvtA==
+matrix-widget-api@^1.1.1, matrix-widget-api@^1.3.1:
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/matrix-widget-api/-/matrix-widget-api-1.4.0.tgz#e426ec16a013897f3a4a9c2bff423f54ab0ba745"
+  integrity sha512-dw0dRylGQzDUoiaY/g5xx1tBbS7aoov31PRtFMAvG58/4uerYllV9Gfou7w+I1aglwB6hihTREzKltVjARWV6A==
   dependencies:
     "@types/events" "^3.0.0"
     events "^3.2.0"
