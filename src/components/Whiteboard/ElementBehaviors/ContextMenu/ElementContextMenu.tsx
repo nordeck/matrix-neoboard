@@ -41,8 +41,7 @@ type ContextMenuState =
 export function ElementContextMenu({
   children,
   elementId,
-  readOnly,
-}: PropsWithChildren<{ elementId: string; readOnly?: boolean }>) {
+}: PropsWithChildren<{ elementId: string }>) {
   const { t } = useTranslation();
   const isLocked = useSlideIsLocked();
   const [state, setState] = useState<ContextMenuState>();
@@ -135,7 +134,7 @@ export function ElementContextMenu({
           dense: true,
           sx: { minWidth: '242px' },
         }}
-        open={open && !isLocked && !readOnly}
+        open={open && !isLocked}
         onClose={handleClose}
         anchorReference="anchorPosition"
         anchorPosition={state?.position}

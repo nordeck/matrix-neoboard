@@ -24,7 +24,6 @@ export type SelectableElementProps = PropsWithChildren<WithSelectionProps>;
 export function SelectableElement({
   children,
   elementId,
-  readOnly,
 }: SelectableElementProps) {
   const slideInstance = useWhiteboardSlideInstance();
   const { activeTool } = useLayoutState();
@@ -37,5 +36,5 @@ export function SelectableElement({
     }
   }
 
-  return <g onMouseDown={readOnly ? undefined : handleMouseDown}>{children}</g>;
+  return <g onMouseDown={handleMouseDown}>{children}</g>;
 }

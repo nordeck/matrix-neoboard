@@ -78,11 +78,10 @@ const TriangleDisplay = ({
       <MoveableElement
         customHeight={shape.height}
         customWidth={shape.width}
-        readOnly={readOnly}
         elementId={elementId}
         {...shape}
       >
-        <ElementContextMenu elementId={elementId} readOnly={readOnly}>
+        <ElementContextMenu elementId={elementId}>
           {renderedChild}
         </ElementContextMenu>
       </MoveableElement>

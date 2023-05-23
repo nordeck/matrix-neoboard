@@ -127,22 +127,6 @@ describe('<ElementContextMenu/>', () => {
     ).toBeInTheDocument();
   });
 
-  it('should not open the context menu when readonly', async () => {
-    render(<ElementContextMenu elementId="element-1" readOnly />, {
-      wrapper: Wrapper,
-    });
-
-    const contextMenuTarget = screen.getByTestId(
-      'element-context-menu-container'
-    );
-    await userEvent.pointer({
-      keys: '[MouseRight]',
-      target: contextMenuTarget,
-    });
-
-    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
-  });
-
   it('should have no accessibility violations', async () => {
     const { container } = render(<ElementContextMenu elementId="id" />, {
       wrapper: Wrapper,

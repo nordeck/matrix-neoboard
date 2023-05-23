@@ -66,11 +66,10 @@ const LineDisplay = ({
       <MoveableElement
         customHeight={box.height}
         customWidth={box.width}
-        readOnly={readOnly}
         elementId={elementId}
         {...element}
       >
-        <ElementContextMenu elementId={elementId} readOnly={readOnly}>
+        <ElementContextMenu elementId={elementId}>
           {renderedChild}
         </ElementContextMenu>
       </MoveableElement>
