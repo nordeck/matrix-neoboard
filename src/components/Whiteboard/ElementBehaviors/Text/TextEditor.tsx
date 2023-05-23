@@ -106,7 +106,7 @@ export function TextEditor({
 }: TextEditorProps) {
   const textRef = useRef<HTMLDivElement>(null);
   const [isEditMode, setEditMode] = useState(editModeOnMount);
-  usePauseHotkeysScope(HOTKEY_SCOPE_WHITEBOARD, isEditMode);
+  usePauseHotkeysScope(HOTKEY_SCOPE_WHITEBOARD, isEditMode && editable);
 
   useEffect(() => {
     if (!editable && isEditMode) {
