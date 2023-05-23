@@ -23,6 +23,7 @@ import {
   TextElement,
   WithSelectionProps,
 } from '../../Whiteboard';
+import { getRenderProperties } from './getRenderProperties';
 
 export type RectangleElementProps = ShapeElement & WithSelectionProps;
 
@@ -32,9 +33,7 @@ const RectangleDisplay = ({
   elementId,
   ...shape
 }: RectangleElementProps) => {
-  const strokeWidth = 2;
-  const strokeColor = shape.fillColor;
-  const padding = 10;
+  const { strokeColor, strokeWidth, text } = getRenderProperties(shape);
 
   return (
     <SelectableElement
@@ -50,24 +49,29 @@ const RectangleDisplay = ({
         {...shape}
       >
         <ElementContextMenu elementId={elementId} readOnly={readOnly}>
-          <g transform={`translate(${shape.position.x} ${shape.position.y})`}>
+          <g>
             <rect
+              x={shape.position.x}
+              y={shape.position.y}
               fill={shape.fillColor}
               height={shape.height}
               stroke={strokeColor}
               strokeWidth={strokeWidth}
-              transform={`rotate(0 ${shape.position.x} ${shape.position.y})`}
               width={shape.width}
             />
-            <TextElement
-              active={active}
-              elementId={elementId}
-              paddingBottom={padding}
-              paddingLeft={padding}
-              paddingRight={padding}
-              paddingTop={padding}
-              {...shape}
-            />
+
+            {text && (
+              <TextElement
+                active={active}
+                text={shape.text}
+                elementId={elementId}
+                x={text.position.x}
+                y={text.position.y}
+                width={text.width}
+                height={text.height}
+                fillColor={shape.fillColor}
+              />
+            )}
           </g>
         </ElementContextMenu>
       </MoveableElement>

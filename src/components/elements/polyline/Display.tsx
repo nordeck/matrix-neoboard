@@ -15,13 +15,14 @@
  */
 
 import React from 'react';
-import { calculateBoundingRectForPoints, PathElement } from '../../../state';
+import { PathElement } from '../../../state';
 import {
   ElementContextMenu,
   MoveableElement,
   SelectableElement,
   WithSelectionProps,
 } from '../../Whiteboard';
+import { getRenderProperties } from './getRenderProperties';
 
 export type PolylineElementProps = PathElement & WithSelectionProps;
 
@@ -31,8 +32,8 @@ const PolylineDisplay = ({
   elementId,
   ...element
 }: PolylineElementProps) => {
-  const strokeWidth = 4;
-  const { width, height } = calculateBoundingRectForPoints(element.points);
+  const { strokeColor, strokeWidth, points, box } =
+    getRenderProperties(element);
 
   return (
     <SelectableElement
@@ -41,8 +42,8 @@ const PolylineDisplay = ({
       elementId={elementId}
     >
       <MoveableElement
-        customHeight={height}
-        customWidth={width}
+        customHeight={box.height}
+        customWidth={box.width}
         readOnly={readOnly}
         elementId={elementId}
         {...element}
@@ -53,8 +54,8 @@ const PolylineDisplay = ({
           >
             <polyline
               fill="none"
-              points={element.points.map(({ x, y }) => `${x},${y}`).join(' ')}
-              stroke={element.strokeColor}
+              points={points.map(({ x, y }) => `${x},${y}`).join(' ')}
+              stroke={strokeColor}
               strokeLinejoin="round"
               strokeWidth={strokeWidth}
             />

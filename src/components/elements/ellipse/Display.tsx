@@ -23,6 +23,7 @@ import {
   TextElement,
   WithSelectionProps,
 } from '../../Whiteboard';
+import { getRenderProperties } from './getRenderProperties';
 
 export type EllipseElementProps = ShapeElement & WithSelectionProps;
 
@@ -32,8 +33,6 @@ const EllipseDisplay = ({
   elementId,
   ...shape
 }: EllipseElementProps) => {
-  const strokeWidth = 2;
-  const strokeColor = shape.fillColor;
   const width = shape.width;
   const height = shape.height;
 
@@ -42,12 +41,7 @@ const EllipseDisplay = ({
   const rx = width / 2;
   const ry = height / 2;
 
-  // Based on http://mathcentral.uregina.ca/QQ/database/QQ.09.04/bob1.html
-  // just for both axis individually
-  const fitSquareLengthX = Math.sqrt(width ** 2 / 2);
-  const fitSquareLengthY = Math.sqrt(height ** 2 / 2);
-  const horizontalPadding = (width - fitSquareLengthX) / 2;
-  const verticalPadding = (height - fitSquareLengthY) / 2;
+  const { strokeColor, strokeWidth, text } = getRenderProperties(shape);
 
   return (
     <SelectableElement
@@ -63,25 +57,29 @@ const EllipseDisplay = ({
         {...shape}
       >
         <ElementContextMenu elementId={elementId} readOnly={readOnly}>
-          <g transform={`translate(${shape.position.x} ${shape.position.y})`}>
+          <g>
             <ellipse
-              cx={cx}
-              cy={cy}
+              cx={shape.position.x + cx}
+              cy={shape.position.y + cy}
               fill={shape.fillColor}
               rx={rx}
               ry={ry}
               stroke={strokeColor}
               strokeWidth={strokeWidth}
             />
-            <TextElement
-              elementId={elementId}
-              active={active}
-              paddingBottom={verticalPadding}
-              paddingLeft={horizontalPadding}
-              paddingRight={horizontalPadding}
-              paddingTop={verticalPadding}
-              {...shape}
-            />
+
+            {text && (
+              <TextElement
+                active={active}
+                text={shape.text}
+                elementId={elementId}
+                x={text.position.x}
+                y={text.position.y}
+                width={text.width}
+                height={text.height}
+                fillColor={shape.fillColor}
+              />
+            )}
           </g>
         </ElementContextMenu>
       </MoveableElement>

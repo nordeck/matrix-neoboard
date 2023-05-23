@@ -15,13 +15,14 @@
  */
 
 import React from 'react';
-import { calculateBoundingRectForPoints, PathElement } from '../../../state';
+import { PathElement } from '../../../state';
 import {
   ElementContextMenu,
   MoveableElement,
   SelectableElement,
   WithSelectionProps,
 } from '../../Whiteboard';
+import { getRenderProperties } from './getRenderProperties';
 
 export type LineElementProps = PathElement & WithSelectionProps;
 
@@ -31,11 +32,12 @@ const LineDisplay = ({
   elementId,
   ...element
 }: LineElementProps) => {
-  const strokeWidth = 4;
-  const { width, height } = calculateBoundingRectForPoints(element.points);
-
-  const start = element.points[0];
-  const end = element.points[element.points.length - 1];
+  const {
+    strokeColor,
+    strokeWidth,
+    points: { start, end },
+    box,
+  } = getRenderProperties(element);
 
   return (
     <SelectableElement
@@ -44,8 +46,8 @@ const LineDisplay = ({
       elementId={elementId}
     >
       <MoveableElement
-        customHeight={height}
-        customWidth={width}
+        customHeight={box.height}
+        customWidth={box.width}
         readOnly={readOnly}
         elementId={elementId}
         {...element}
@@ -56,7 +58,7 @@ const LineDisplay = ({
           >
             <line
               fill="none"
-              stroke={element.strokeColor}
+              stroke={strokeColor}
               strokeWidth={strokeWidth}
               x1={start.x}
               x2={end.x}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Nordeck IT + Consulting GmbH
+ * Copyright 2023 Nordeck IT + Consulting GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,20 @@
  * limitations under the License.
  */
 
-export { gridCellSize, whiteboardHeight, whiteboardWidth } from './constants';
-export * from './Draft';
-export * from './ElementBehaviors';
-export * from './Grid';
-export { SlidePreview } from './SlidePreview';
-export type { ElementRenderProperties } from './types';
-export { WhiteboardHostConnected as WhiteboardHost } from './WhiteboardHost';
+/** Common properties of elements that describes the rendering */
+export type ElementRenderProperties = {
+  /** The color of the stroke */
+  strokeColor?: string;
+  /** The width of the stroke */
+  strokeWidth: number;
+
+  /**
+   * Properties for the text field is displayed on top of the element. Positions
+   * are absolute coordinates in the canvas.
+   */
+  text?: {
+    position: { x: number; y: number };
+    width: number;
+    height: number;
+  };
+};
