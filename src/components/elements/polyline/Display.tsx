@@ -35,6 +35,22 @@ const PolylineDisplay = ({
   const { strokeColor, strokeWidth, points, box } =
     getRenderProperties(element);
 
+  const renderedChild = (
+    <g transform={`translate(${element.position.x} ${element.position.y})`}>
+      <polyline
+        fill="none"
+        points={points.map(({ x, y }) => `${x},${y}`).join(' ')}
+        stroke={strokeColor}
+        strokeLinejoin="round"
+        strokeWidth={strokeWidth}
+      />
+    </g>
+  );
+
+  if (readOnly) {
+    return renderedChild;
+  }
+
   return (
     <SelectableElement
       active={active}
@@ -49,17 +65,7 @@ const PolylineDisplay = ({
         {...element}
       >
         <ElementContextMenu elementId={elementId} readOnly={readOnly}>
-          <g
-            transform={`translate(${element.position.x} ${element.position.y})`}
-          >
-            <polyline
-              fill="none"
-              points={points.map(({ x, y }) => `${x},${y}`).join(' ')}
-              stroke={strokeColor}
-              strokeLinejoin="round"
-              strokeWidth={strokeWidth}
-            />
-          </g>
+          {renderedChild}
         </ElementContextMenu>
       </MoveableElement>
     </SelectableElement>

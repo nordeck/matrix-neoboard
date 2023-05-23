@@ -39,6 +39,24 @@ const LineDisplay = ({
     box,
   } = getRenderProperties(element);
 
+  const renderedChild = (
+    <g transform={`translate(${element.position.x} ${element.position.y})`}>
+      <line
+        fill="none"
+        stroke={strokeColor}
+        strokeWidth={strokeWidth}
+        x1={start.x}
+        x2={end.x}
+        y1={start.y}
+        y2={end.y}
+      />
+    </g>
+  );
+
+  if (readOnly) {
+    return renderedChild;
+  }
+
   return (
     <SelectableElement
       active={active}
@@ -53,19 +71,7 @@ const LineDisplay = ({
         {...element}
       >
         <ElementContextMenu elementId={elementId} readOnly={readOnly}>
-          <g
-            transform={`translate(${element.position.x} ${element.position.y})`}
-          >
-            <line
-              fill="none"
-              stroke={strokeColor}
-              strokeWidth={strokeWidth}
-              x1={start.x}
-              x2={end.x}
-              y1={start.y}
-              y2={end.y}
-            />
-          </g>
+          {renderedChild}
         </ElementContextMenu>
       </MoveableElement>
     </SelectableElement>

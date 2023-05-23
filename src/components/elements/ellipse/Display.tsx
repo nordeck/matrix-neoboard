@@ -43,6 +43,37 @@ const EllipseDisplay = ({
 
   const { strokeColor, strokeWidth, text } = getRenderProperties(shape);
 
+  const renderedChild = (
+    <g>
+      <ellipse
+        cx={shape.position.x + cx}
+        cy={shape.position.y + cy}
+        fill={shape.fillColor}
+        rx={rx}
+        ry={ry}
+        stroke={strokeColor}
+        strokeWidth={strokeWidth}
+      />
+
+      {text && (
+        <TextElement
+          active={active}
+          text={shape.text}
+          elementId={elementId}
+          x={text.position.x}
+          y={text.position.y}
+          width={text.width}
+          height={text.height}
+          fillColor={shape.fillColor}
+        />
+      )}
+    </g>
+  );
+
+  if (readOnly) {
+    return renderedChild;
+  }
+
   return (
     <SelectableElement
       active={active}
@@ -57,30 +88,7 @@ const EllipseDisplay = ({
         {...shape}
       >
         <ElementContextMenu elementId={elementId} readOnly={readOnly}>
-          <g>
-            <ellipse
-              cx={shape.position.x + cx}
-              cy={shape.position.y + cy}
-              fill={shape.fillColor}
-              rx={rx}
-              ry={ry}
-              stroke={strokeColor}
-              strokeWidth={strokeWidth}
-            />
-
-            {text && (
-              <TextElement
-                active={active}
-                text={shape.text}
-                elementId={elementId}
-                x={text.position.x}
-                y={text.position.y}
-                width={text.width}
-                height={text.height}
-                fillColor={shape.fillColor}
-              />
-            )}
-          </g>
+          {renderedChild}
         </ElementContextMenu>
       </MoveableElement>
     </SelectableElement>

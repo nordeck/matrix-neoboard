@@ -35,6 +35,37 @@ const RectangleDisplay = ({
 }: RectangleElementProps) => {
   const { strokeColor, strokeWidth, text } = getRenderProperties(shape);
 
+  const renderedChild = (
+    <g>
+      <rect
+        x={shape.position.x}
+        y={shape.position.y}
+        fill={shape.fillColor}
+        height={shape.height}
+        stroke={strokeColor}
+        strokeWidth={strokeWidth}
+        width={shape.width}
+      />
+
+      {text && (
+        <TextElement
+          active={active}
+          text={shape.text}
+          elementId={elementId}
+          x={text.position.x}
+          y={text.position.y}
+          width={text.width}
+          height={text.height}
+          fillColor={shape.fillColor}
+        />
+      )}
+    </g>
+  );
+
+  if (readOnly) {
+    return renderedChild;
+  }
+
   return (
     <SelectableElement
       active={active}
@@ -49,30 +80,7 @@ const RectangleDisplay = ({
         {...shape}
       >
         <ElementContextMenu elementId={elementId} readOnly={readOnly}>
-          <g>
-            <rect
-              x={shape.position.x}
-              y={shape.position.y}
-              fill={shape.fillColor}
-              height={shape.height}
-              stroke={strokeColor}
-              strokeWidth={strokeWidth}
-              width={shape.width}
-            />
-
-            {text && (
-              <TextElement
-                active={active}
-                text={shape.text}
-                elementId={elementId}
-                x={text.position.x}
-                y={text.position.y}
-                width={text.width}
-                height={text.height}
-                fillColor={shape.fillColor}
-              />
-            )}
-          </g>
+          {renderedChild}
         </ElementContextMenu>
       </MoveableElement>
     </SelectableElement>

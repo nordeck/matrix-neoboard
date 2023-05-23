@@ -40,6 +40,35 @@ const TriangleDisplay = ({
     points: { p0X, p0Y, p1X, p1Y, p2X, p2Y },
   } = getRenderProperties(shape);
 
+  const renderedChild = (
+    <g>
+      <polygon
+        fill={shape.fillColor}
+        points={`${p0X},${p0Y} ${p1X},${p1Y} ${p2X},${p2Y}`}
+        stroke={strokeColor}
+        strokeWidth={strokeWidth}
+        transform={`translate(${shape.position.x} ${shape.position.y})`}
+      />
+
+      {text && (
+        <TextElement
+          active={active}
+          text={shape.text}
+          elementId={elementId}
+          x={text.position.x}
+          y={text.position.y}
+          width={text.width}
+          height={text.height}
+          fillColor={shape.fillColor}
+        />
+      )}
+    </g>
+  );
+
+  if (readOnly) {
+    return renderedChild;
+  }
+
   return (
     <SelectableElement
       active={active}
@@ -54,28 +83,7 @@ const TriangleDisplay = ({
         {...shape}
       >
         <ElementContextMenu elementId={elementId} readOnly={readOnly}>
-          <g>
-            <polygon
-              fill={shape.fillColor}
-              points={`${p0X},${p0Y} ${p1X},${p1Y} ${p2X},${p2Y}`}
-              stroke={strokeColor}
-              strokeWidth={strokeWidth}
-              transform={`translate(${shape.position.x} ${shape.position.y})`}
-            />
-
-            {text && (
-              <TextElement
-                active={active}
-                text={shape.text}
-                elementId={elementId}
-                x={text.position.x}
-                y={text.position.y}
-                width={text.width}
-                height={text.height}
-                fillColor={shape.fillColor}
-              />
-            )}
-          </g>
+          {renderedChild}
         </ElementContextMenu>
       </MoveableElement>
     </SelectableElement>
