@@ -36,7 +36,7 @@ const PolylineDisplay = ({
     getRenderProperties(element);
 
   const renderedChild = (
-    <g transform={`translate(${element.position.x} ${element.position.y})`}>
+    <g>
       <polyline
         fill="none"
         points={points.map(({ x, y }) => `${x},${y}`).join(' ')}

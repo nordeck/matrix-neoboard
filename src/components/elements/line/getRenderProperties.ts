@@ -38,7 +38,16 @@ export function getRenderProperties(
     strokeColor: element.strokeColor,
     strokeWidth: 4,
 
-    points: { start, end },
+    points: {
+      start: {
+        x: element.position.x + start.x,
+        y: element.position.y + start.y,
+      },
+      end: {
+        x: element.position.x + end.x,
+        y: element.position.y + end.y,
+      },
+    },
     box: { width, height },
   };
 }

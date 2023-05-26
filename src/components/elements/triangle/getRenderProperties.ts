@@ -54,12 +54,12 @@ export function getRenderProperties(
     },
 
     points: {
-      p0X: 0,
-      p0Y: height,
-      p1X: width / 2,
-      p1Y: 0,
-      p2X: width,
-      p2Y: height,
+      p0X: shape.position.x + 0,
+      p0Y: shape.position.y + height,
+      p1X: shape.position.x + width / 2,
+      p1Y: shape.position.y + 0,
+      p2X: shape.position.x + width,
+      p2Y: shape.position.y + height,
     },
   };
 }

@@ -40,7 +40,7 @@ const LineDisplay = ({
   } = getRenderProperties(element);
 
   const renderedChild = (
-    <g transform={`translate(${element.position.x} ${element.position.y})`}>
+    <g>
       <line
         fill="none"
         stroke={strokeColor}

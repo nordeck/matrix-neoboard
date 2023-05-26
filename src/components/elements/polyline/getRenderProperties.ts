@@ -35,7 +35,10 @@ export function getRenderProperties(
     strokeColor: element.strokeColor,
     strokeWidth: 4,
 
-    points: element.points,
+    points: element.points.map(({ x, y }) => ({
+      x: element.position.x + x,
+      y: element.position.y + y,
+    })),
     box: { width, height },
   };
 }

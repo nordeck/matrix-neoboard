@@ -39,8 +39,8 @@ export function getRenderProperties(
         x: shape.position.x + horizontalPadding,
         y: shape.position.y + verticalPadding,
       },
-      width: width - horizontalPadding * 2,
-      height: height - verticalPadding * 2,
+      width: fitSquareLengthX,
+      height: fitSquareLengthY,
     },
   };
 }

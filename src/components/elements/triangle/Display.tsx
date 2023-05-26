@@ -47,7 +47,6 @@ const TriangleDisplay = ({
         points={`${p0X},${p0Y} ${p1X},${p1Y} ${p2X},${p2Y}`}
         stroke={strokeColor}
         strokeWidth={strokeWidth}
-        transform={`translate(${shape.position.x} ${shape.position.y})`}
       />
 
       {text && (
