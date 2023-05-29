@@ -1965,20 +1965,6 @@
     matrix-widget-api "^1.1.1"
     rxjs "^7.8.0"
 
-"@mui/base@5.0.0-beta.1":
-  version "5.0.0-beta.1"
-  resolved "https://registry.yarnpkg.com/@mui/base/-/base-5.0.0-beta.1.tgz#53c4491b130747263c034e06a819d43f535424e9"
-  integrity sha512-xrkDCeu3JQE+JjJUnJnOrdQJMXwKhbV4AW+FRjMIj5i9cHK3BAuatG/iqbf1M+jklVWLk0KdbgioKwK+03aYbA==
-  dependencies:
-    "@babel/runtime" "^7.21.0"
-    "@emotion/is-prop-valid" "^1.2.0"
-    "@mui/types" "^7.2.4"
-    "@mui/utils" "^5.13.1"
-    "@popperjs/core" "^2.11.7"
-    clsx "^1.2.1"
-    prop-types "^15.8.1"
-    react-is "^18.2.0"
-
 "@mui/base@5.0.0-beta.3", "@mui/base@^5.0.0-beta.3":
   version "5.0.0-beta.3"
   resolved "https://registry.yarnpkg.com/@mui/base/-/base-5.0.0-beta.3.tgz#8e2a1fe7559a097845c70459c190d6231708fa36"
@@ -2005,14 +1991,14 @@
   dependencies:
     "@babel/runtime" "^7.21.0"
 
-"@mui/lab@^5.0.0-alpha.130":
-  version "5.0.0-alpha.130"
-  resolved "https://registry.yarnpkg.com/@mui/lab/-/lab-5.0.0-alpha.130.tgz#03b226ed23c8d6fd918adbcd6b3a1f77318f3ae1"
-  integrity sha512-pBZGIVXCzafvu7nwjfuKA3MhFyXnB4CIexfr8X4qS0GOY0UcDkO5LemWeeBKGXK2IanbQN4toO5mv8kzQIbp9Q==
+"@mui/lab@^5.0.0-alpha.132":
+  version "5.0.0-alpha.132"
+  resolved "https://registry.yarnpkg.com/@mui/lab/-/lab-5.0.0-alpha.132.tgz#d29f0def99f883a17dbb973fe5adca35148cd8c4"
+  integrity sha512-MCkQlZZSsRumgCD1rDhtkyaJmCHg20zaneJhSB55X4Rr6dA9p4vK70HvCEQKQibK3RqvEuWuRUYNKWD5SlFVww==
   dependencies:
     "@babel/runtime" "^7.21.0"
-    "@mui/base" "5.0.0-beta.1"
-    "@mui/system" "^5.13.1"
+    "@mui/base" "5.0.0-beta.3"
+    "@mui/system" "^5.13.2"
     "@mui/types" "^7.2.4"
     "@mui/utils" "^5.13.1"
     clsx "^1.2.1"
@@ -2056,7 +2042,7 @@
     csstype "^3.1.2"
     prop-types "^15.8.1"
 
-"@mui/system@^5.13.1", "@mui/system@^5.13.2":
+"@mui/system@^5.13.2":
   version "5.13.2"
   resolved "https://registry.yarnpkg.com/@mui/system/-/system-5.13.2.tgz#c9aa821049fc75d8ade1c0646dc4d2b67605b8fc"
   integrity sha512-TPyWmRJPt0JPVxacZISI4o070xEJ7ftxpVtu6LWuYVOUOINlhoGOclam4iV8PDT3EMQEHuUrwU49po34UdWLlw==
@@ -3869,9 +3855,9 @@ caniuse-api@^3.0.0:
     lodash.uniq "^4.5.0"
 
 caniuse-lite@^1.0.0, caniuse-lite@^1.0.30001400, caniuse-lite@^1.0.30001426:
-  version "1.0.30001442"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001442.tgz#40337f1cf3be7c637b061e2f78582dc1daec0614"
-  integrity sha512-239m03Pqy0hwxYPYR5JwOIxRJfLTWtle9FV8zosfV5pHg+/51uD4nxcUlM8+mWWGfwKtt8lJNHnD3cWw9VZ6ow==
+  version "1.0.30001492"
+  resolved "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001492.tgz"
+  integrity sha512-2efF8SAZwgAX1FJr87KWhvuJxnGJKOnctQa8xLOskAXNXq8oiuqgl6u1kk3fFpsp3GgvzlRjiK1sl63hNtFADw==
 
 case-sensitive-paths-webpack-plugin@^2.4.0:
   version "2.4.0"
