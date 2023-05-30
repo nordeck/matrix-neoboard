@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-import * as pdfMake from 'pdfmake/build/pdfmake';
-import { from, Observable, switchMap } from 'rxjs';
+import { from, fromEvent, map, Observable, switchMap, take, tap } from 'rxjs';
 import { WhiteboardInstance } from '../../../state';
 import { createWhiteboardPdfDefinition } from './createWhiteboardPdfDefinition';
 
@@ -24,10 +23,37 @@ export function createWhiteboardPdf(params: {
   roomName: string;
   authorName: string;
 }): Observable<Blob> {
-  return from(createWhiteboardPdfDefinition(params)).pipe(
-    switchMap((content) => {
-      const pdf = pdfMake.createPdf(content);
-      return new Promise<Blob>((resolve) => pdf.getBlob(resolve));
-    })
-  );
+  const contentObservable = from(createWhiteboardPdfDefinition(params));
+
+  if (window.Worker) {
+    const worker = new Worker(new URL('./pdf.worker.ts', import.meta.url));
+
+    return contentObservable.pipe(
+      switchMap((content) => {
+        const stream = fromEvent<MessageEvent<Blob>>(worker, 'message');
+
+        worker.postMessage(content);
+        return stream;
+      }),
+      map((e) => e.data),
+      take(1),
+      tap({
+        unsubscribe: () => {
+          // terminate the worker early
+          worker.terminate();
+        },
+        complete: () => {
+          // terminate the worker when ready
+          worker.terminate();
+        },
+      })
+    );
+  } else {
+    return from(import('./pdf.local')).pipe(
+      switchMap(({ generatePdf }) =>
+        contentObservable.pipe(switchMap(generatePdf))
+      ),
+      take(1)
+    );
+  }
 }

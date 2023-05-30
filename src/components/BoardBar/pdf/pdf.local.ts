@@ -14,4 +14,18 @@
  * limitations under the License.
  */
 
-export { createWhiteboardPdf } from './createWhiteboardPdf';
+// Always make sure to initialize fonts if PDFs are generated.
+import './initializeFonts';
+
+import * as pdfMake from 'pdfmake/build/pdfmake';
+import { TDocumentDefinitions } from 'pdfmake/interfaces';
+
+/**
+ * Generate the PDF in a separate module that can either:
+ *   1. be imported by a web worker
+ *   2. be imported lazily as a separate module
+ */
+export function generatePdf(content: TDocumentDefinitions): Promise<Blob> {
+  const pdf = pdfMake.createPdf(content);
+  return new Promise<Blob>((resolve) => pdf.getBlob(resolve));
+}

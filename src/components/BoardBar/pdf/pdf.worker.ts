@@ -14,4 +14,15 @@
  * limitations under the License.
  */
 
-export { createWhiteboardPdf } from './createWhiteboardPdf';
+/* eslint-disable no-restricted-globals */
+
+import { TDocumentDefinitions } from 'pdfmake/interfaces';
+import { generatePdf } from './pdf.local';
+
+// A Web Worker that generates the PDF in the background
+self.onmessage = async (e: MessageEvent<TDocumentDefinitions>) => {
+  const blob = await generatePdf(e.data);
+  self.postMessage(blob);
+};
+
+export {};
