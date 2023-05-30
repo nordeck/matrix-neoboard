@@ -16,21 +16,77 @@
 
 import { clamp } from 'lodash';
 
-export function fitText(
-  element: HTMLElement,
-  {
-    minFontSize = 10,
-    maxFontSize = 800,
-    maxSteps = 10,
-  }: { minFontSize?: number; maxFontSize?: number; maxSteps?: number } = {}
-) {
+const minFontSize = 10;
+const maxFontSize = 800;
+const maxSteps = 10;
+
+export function fitText(element: HTMLElement) {
   const width = element.clientWidth;
   const height = element.clientHeight;
 
-  // unset the height and reset the padding that we set in a previous execution
-  const previousHeight = element.style.height;
-  element.style.height = 'unset';
-  element.style.paddingTop = 'unset';
+  const { fontSize, paddingTop } = getTextSize(width, height, {
+    innerHTML: element.innerHTML,
+    innerText: element.innerText,
+  });
+
+  element.style.fontSize = `${fontSize}px`;
+  element.style.paddingTop = `${paddingTop}px`;
+}
+
+export function getTemporaryElement(): HTMLElement {
+  const id = 'fitTextTemporaryElement';
+
+  const el = document.getElementById(id);
+  if (el) {
+    return el;
+  } else {
+    const wrapper = document.createElement('div');
+    wrapper.style.overflow = 'hidden';
+    wrapper.style.height = '0px';
+    wrapper.style.width = '0px';
+    wrapper.style.visibility = 'hidden';
+
+    const d = document.createElement('div');
+    d.id = 'fitTextTemporaryElement';
+
+    wrapper.appendChild(d);
+    document.body.appendChild(wrapper);
+
+    return d;
+  }
+}
+
+export function getTextSize(
+  width: number,
+  height: number,
+  content: { innerHTML?: string; innerText: string },
+  opts: { disableLigatures?: boolean; fontFamily?: string } = {}
+): {
+  fontSize: number;
+  paddingTop: number;
+} {
+  width = Math.round(width);
+  height = Math.round(height);
+
+  const element = getTemporaryElement();
+  element.style.width = `${width}px`;
+
+  element.style.lineHeight = '1';
+  element.style.wordBreak = 'unset';
+  element.style.overflowWrap = 'unset';
+  element.style.textAlign = 'center';
+  element.style.overflow = 'visible';
+  element.style.fontFeatureSettings = '"tnum" 1';
+  element.style.fontVariantLigatures = opts?.disableLigatures
+    ? 'none'
+    : 'unset';
+  element.style.fontFamily = opts.fontFamily ?? 'unset';
+
+  if (content.innerHTML) {
+    element.innerHTML = content.innerHTML;
+  } else {
+    element.innerText = content.innerText;
+  }
 
   // Do a binary search to find the best matching text size, in a few steps
   let stepSize = maxFontSize - minFontSize;
@@ -50,12 +106,14 @@ export function fitText(
     }
   }
 
-  element.style.fontSize = `${Math.round(fontSize)}px`;
+  fontSize = Math.round(fontSize);
+
+  element.style.fontSize = `${fontSize}px`;
 
   // calculate the padding to center the text in the box
-  const paddingTop = `${Math.max(0, (height - element.clientHeight) / 2)}px`;
-  element.style.paddingTop = paddingTop;
+  const paddingTop = Math.max(0, (height - element.clientHeight) / 2);
 
-  // restore the height
-  element.style.height = previousHeight;
+  element.innerText = '';
+
+  return { fontSize, paddingTop };
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { fitText } from './fitText';
+import { fitText, getTemporaryElement } from './fitText';
 
 describe('fitText', () => {
   it('should render without exploding', () => {
@@ -127,14 +127,23 @@ function createContainerElement(
 ): HTMLElement {
   const container = document.createElement('div');
   jest.spyOn(container, 'clientWidth', 'get').mockReturnValue(width);
-  jest.spyOn(container, 'clientHeight', 'get').mockImplementation(() => {
-    return clientHeightLookup[container.style.fontSize] ?? height;
-  });
+  jest.spyOn(container, 'clientHeight', 'get').mockReturnValue(height);
+
+  const calculationContainer = getTemporaryElement();
   jest
-    .spyOn(container, 'scrollWidth', 'get')
-    .mockImplementation(() => scrollLookup[container.style.fontSize][0]);
+    .spyOn(calculationContainer, 'scrollWidth', 'get')
+    .mockImplementation(
+      () => scrollLookup[calculationContainer.style.fontSize][0]
+    );
   jest
-    .spyOn(container, 'scrollHeight', 'get')
-    .mockImplementation(() => scrollLookup[container.style.fontSize][1]);
+    .spyOn(calculationContainer, 'scrollHeight', 'get')
+    .mockImplementation(
+      () => scrollLookup[calculationContainer.style.fontSize][1]
+    );
+  jest
+    .spyOn(calculationContainer, 'clientHeight', 'get')
+    .mockImplementation(
+      () => clientHeightLookup[calculationContainer.style.fontSize] ?? height
+    );
   return container;
 }
