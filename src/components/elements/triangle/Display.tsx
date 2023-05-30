@@ -23,6 +23,7 @@ import {
   TextElement,
   WithSelectionProps,
 } from '../../Whiteboard';
+import { getRenderProperties } from './getRenderProperties';
 
 export type TriangleElementProps = ShapeElement & WithSelectionProps;
 
@@ -32,23 +33,40 @@ const TriangleDisplay = ({
   elementId,
   ...shape
 }: TriangleElementProps) => {
-  const strokeWidth = 2;
-  const strokeColor = shape.fillColor;
-  const width = shape.width;
-  const height = shape.height;
+  const {
+    strokeColor,
+    strokeWidth,
+    text,
+    points: { p0X, p0Y, p1X, p1Y, p2X, p2Y },
+  } = getRenderProperties(shape);
 
-  const p0X = 0;
-  const p0Y = height;
-  const p1X = width / 2;
-  const p1Y = 0;
-  const p2X = width;
-  const p2Y = height;
+  const renderedChild = (
+    <g>
+      <polygon
+        fill={shape.fillColor}
+        points={`${p0X},${p0Y} ${p1X},${p1Y} ${p2X},${p2Y}`}
+        stroke={strokeColor}
+        strokeWidth={strokeWidth}
+      />
 
-  // Based on https://puzzling.stackexchange.com/a/40221
-  const fitSquareLength = (width * height) / (width + height);
-  const defaultPadding = 10;
-  const paddingTop = height - fitSquareLength;
-  const horizontalPadding = (width - fitSquareLength) / 2;
+      {text && (
+        <TextElement
+          active={active}
+          text={shape.text}
+          elementId={elementId}
+          x={text.position.x}
+          y={text.position.y}
+          width={text.width}
+          height={text.height}
+          fillColor={shape.fillColor}
+        />
+      )}
+    </g>
+  );
+
+  if (readOnly) {
+    return renderedChild;
+  }
 
   return (
     <SelectableElement
@@ -59,29 +77,11 @@ const TriangleDisplay = ({
       <MoveableElement
         customHeight={shape.height}
         customWidth={shape.width}
-        readOnly={readOnly}
         elementId={elementId}
         {...shape}
       >
-        <ElementContextMenu elementId={elementId} readOnly={readOnly}>
-          <g transform={`translate(${shape.position.x} ${shape.position.y})`}>
-            <polygon
-              fill={shape.fillColor}
-              points={`${p0X},${p0Y} ${p1X},${p1Y} ${p2X},${p2Y}`}
-              stroke={strokeColor}
-              strokeWidth={strokeWidth}
-            />
-
-            <TextElement
-              active={active}
-              elementId={elementId}
-              paddingBottom={defaultPadding}
-              paddingLeft={horizontalPadding}
-              paddingRight={horizontalPadding}
-              paddingTop={paddingTop}
-              {...shape}
-            />
-          </g>
+        <ElementContextMenu elementId={elementId}>
+          {renderedChild}
         </ElementContextMenu>
       </MoveableElement>
     </SelectableElement>

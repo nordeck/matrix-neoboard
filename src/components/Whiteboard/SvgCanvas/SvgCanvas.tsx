@@ -20,9 +20,8 @@ import {
   PropsWithChildren,
   ReactNode,
   useCallback,
-  useLayoutEffect,
+  useMemo,
   useRef,
-  useState,
 } from 'react';
 import { Point } from '../../../state';
 import { SvgCanvasContext, SvgCanvasContextType } from './context';
@@ -71,25 +70,18 @@ export function SvgCanvas({
     },
     [svgRef]
   );
-  const [value, setValue] = useState<SvgCanvasContextType>({
-    width,
-    height,
-    viewportWidth,
-    viewportHeight,
-    scale: calculateScale(width, height, viewportWidth, viewportHeight),
-    calculateSvgCoords: calculateSvgCoordsFunc,
-  });
 
-  useLayoutEffect(() => {
-    setValue({
+  const value = useMemo<SvgCanvasContextType>(
+    () => ({
       width,
       height,
       viewportWidth,
       viewportHeight,
       scale: calculateScale(width, height, viewportWidth, viewportHeight),
       calculateSvgCoords: calculateSvgCoordsFunc,
-    });
-  }, [viewportWidth, viewportHeight, calculateSvgCoordsFunc, width, height]);
+    }),
+    [calculateSvgCoordsFunc, height, viewportHeight, viewportWidth, width]
+  );
 
   const aspectRatio = `${viewportWidth} / ${viewportHeight}`;
 
