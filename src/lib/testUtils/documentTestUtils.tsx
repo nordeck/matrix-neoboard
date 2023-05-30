@@ -23,6 +23,7 @@ import { NEVER, of, Subject } from 'rxjs';
 import {
   createWhiteboardDocument,
   Element,
+  PathElement,
   ShapeElement,
   Slide,
   SlideProvider,
@@ -223,7 +224,7 @@ export function mockEllipseElement(shape: Partial<ShapeElement> = {}): Element {
   };
 }
 
-export function mockLineElement(): Element {
+export function mockLineElement(path: Partial<PathElement> = {}): Element {
   return {
     type: 'path',
     kind: 'line',
@@ -233,5 +234,6 @@ export function mockLineElement(): Element {
       { x: 0, y: 1 },
       { x: 2, y: 3 },
     ],
+    ...path,
   };
 }
