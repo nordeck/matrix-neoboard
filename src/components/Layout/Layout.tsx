@@ -116,7 +116,11 @@ function ContentArea({ presentationMode }: { presentationMode?: boolean }) {
     <>
       <Shortcuts />
 
-      <ToolbarContainer justifyContent="end" top={(theme) => theme.spacing(1)}>
+      <ToolbarContainer
+        alignItems="flex-start"
+        justifyContent="end"
+        top={(theme) => theme.spacing(1)}
+      >
         {!presentationMode && (
           <>
             <BoardBar />
