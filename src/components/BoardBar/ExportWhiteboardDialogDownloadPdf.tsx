@@ -19,14 +19,7 @@ import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { LoadingButton } from '@mui/lab';
 import { Tooltip, Typography } from '@mui/material';
 import { unstable_useId as useId, visuallyHidden } from '@mui/utils';
-import {
-  Dispatch,
-  PropsWithChildren,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import { Dispatch, PropsWithChildren, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useActiveWhiteboardInstance } from '../../state';
 import { useGetRoomNameQuery, useUserDetails } from '../../store';
@@ -98,18 +91,10 @@ function useGeneratePdf(
   const [downloadUrl, setDownloadUrl] = useState<string>();
   const whiteboardInstance = useActiveWhiteboardInstance();
 
-  const urlRef = useRef<string | undefined>();
-  const revokeUrl = useCallback(() => {
-    if (urlRef.current) {
-      URL.revokeObjectURL(urlRef.current);
-      urlRef.current = undefined;
-    }
-  }, []);
-
   const { getUserDisplayName } = useUserDetails();
 
   useEffect(() => {
-    revokeUrl();
+    let url: string | undefined = undefined;
 
     setDownloadUrl(undefined);
     onError?.(undefined);
@@ -124,8 +109,7 @@ function useGeneratePdf(
       authorName,
     }).subscribe({
       next: (blob) => {
-        const url = URL.createObjectURL(blob);
-        urlRef.current = url;
+        url = URL.createObjectURL(blob);
         setDownloadUrl(url);
       },
       error: () => {
@@ -140,12 +124,13 @@ function useGeneratePdf(
 
     return () => {
       subscription.unsubscribe();
-      revokeUrl();
+      if (url) {
+        URL.revokeObjectURL(url);
+      }
     };
   }, [
     getUserDisplayName,
     onError,
-    revokeUrl,
     roomName,
     t,
     whiteboardInstance,

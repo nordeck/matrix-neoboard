@@ -16,13 +16,7 @@
 
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { LoadingButton } from '@mui/lab';
-import {
-  PropsWithChildren,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import { PropsWithChildren, useEffect, useState } from 'react';
 import { useActiveWhiteboardInstance } from '../../state';
 import { useGetRoomNameQuery } from '../../store';
 
@@ -55,28 +49,19 @@ function useGenerateFile() {
   const [downloadUrl, setDownloadUrl] = useState<string>();
   const whiteboardInstance = useActiveWhiteboardInstance();
 
-  const urlRef = useRef<string | undefined>();
-  const revokeUrl = useCallback(() => {
-    if (urlRef.current) {
-      URL.revokeObjectURL(urlRef.current);
-      urlRef.current = undefined;
-    }
-  }, []);
-
   useEffect(() => {
+    setDownloadUrl(undefined);
+
     const whiteboardContent = whiteboardInstance.export();
-
     const blob = new Blob([JSON.stringify(whiteboardContent)]);
-
     const url = URL.createObjectURL(blob);
 
-    urlRef.current = url;
     setDownloadUrl(url);
 
     return () => {
-      revokeUrl();
+      URL.revokeObjectURL(url);
     };
-  }, [revokeUrl, whiteboardInstance]);
+  }, [whiteboardInstance]);
 
   return downloadUrl;
 }

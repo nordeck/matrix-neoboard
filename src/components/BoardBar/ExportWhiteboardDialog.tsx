@@ -129,7 +129,6 @@ function ExportWhiteboardDialogContent({
           </InputLabel>
           <Select
             labelId={selectLabelId}
-            fullWidth
             onChange={handleFileFormatChange}
             value={fileFormat}
           >

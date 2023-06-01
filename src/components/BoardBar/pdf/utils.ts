@@ -70,8 +70,8 @@ export function textContent(
     fontFeatures: ['tnum'],
   };
 
-  // TODO: There are differences in the text layout of CSS and we try correct for those. It is not
-  //       perfectly centered vertically due to: https://github.com/bpampuch/pdfmake/issues/74
+  // TODO: There are differences in the text layout of CSS and we try to correct for those. It is
+  //       not perfectly centered vertically due to: https://github.com/bpampuch/pdfmake/issues/74
   const verticalCorrection = fontSize * (1 - 1 / 1.2);
 
   return {

@@ -26,7 +26,6 @@ import {
 } from '../../lib/testUtils/documentTestUtils';
 import { mockRoomName } from '../../lib/testUtils/matrixTestUtils';
 import { WhiteboardManager } from '../../state';
-import { LayoutStateProvider } from '../Layout';
 import { ExportWhiteboardDialogDownloadPdf } from './ExportWhiteboardDialogDownloadPdf';
 import { createWhiteboardPdf } from './pdf';
 
@@ -42,7 +41,7 @@ beforeEach(() => (widgetApi = mockWidgetApi()));
 describe('<ExportWhiteboardDialogDownloadPdf />', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
   let whiteboardManager: jest.Mocked<WhiteboardManager>;
-  const onClose = jest.fn();
+  const onClick = jest.fn();
 
   beforeEach(() => {
     ({ whiteboardManager } = mockWhiteboardManager());
@@ -53,7 +52,7 @@ describe('<ExportWhiteboardDialogDownloadPdf />', () => {
           whiteboardManager={whiteboardManager}
           widgetApi={widgetApi}
         >
-          <LayoutStateProvider>{children}</LayoutStateProvider>
+          {children}
         </WhiteboardTestingContextProvider>
       );
     };
@@ -64,7 +63,7 @@ describe('<ExportWhiteboardDialogDownloadPdf />', () => {
 
   it('should render without exploding', async () => {
     render(
-      <ExportWhiteboardDialogDownloadPdf onClick={onClose}>
+      <ExportWhiteboardDialogDownloadPdf onClick={onClick}>
         Download
       </ExportWhiteboardDialogDownloadPdf>,
       { wrapper: Wrapper }
@@ -80,7 +79,7 @@ describe('<ExportWhiteboardDialogDownloadPdf />', () => {
 
   it('should have no accessibility violations', async () => {
     const { container } = render(
-      <ExportWhiteboardDialogDownloadPdf onClick={onClose}>
+      <ExportWhiteboardDialogDownloadPdf onClick={onClick}>
         Download
       </ExportWhiteboardDialogDownloadPdf>,
       { wrapper: Wrapper }
@@ -95,7 +94,7 @@ describe('<ExportWhiteboardDialogDownloadPdf />', () => {
 
   it('should emit onClick on download', async () => {
     render(
-      <ExportWhiteboardDialogDownloadPdf onClick={onClose}>
+      <ExportWhiteboardDialogDownloadPdf onClick={onClick}>
         Download
       </ExportWhiteboardDialogDownloadPdf>,
       { wrapper: Wrapper }
@@ -103,12 +102,12 @@ describe('<ExportWhiteboardDialogDownloadPdf />', () => {
 
     await userEvent.click(screen.getByRole('link', { name: 'Download' }));
 
-    expect(onClose).toBeCalled();
+    expect(onClick).toBeCalled();
   });
 
   it('should provide download button', async () => {
     render(
-      <ExportWhiteboardDialogDownloadPdf onClick={onClose}>
+      <ExportWhiteboardDialogDownloadPdf onClick={onClick}>
         Download
       </ExportWhiteboardDialogDownloadPdf>,
       { wrapper: Wrapper }
@@ -124,7 +123,7 @@ describe('<ExportWhiteboardDialogDownloadPdf />', () => {
     widgetApi.mockSendStateEvent(mockRoomName());
 
     render(
-      <ExportWhiteboardDialogDownloadPdf onClick={onClose}>
+      <ExportWhiteboardDialogDownloadPdf onClick={onClick}>
         Download
       </ExportWhiteboardDialogDownloadPdf>,
       { wrapper: Wrapper }
@@ -139,14 +138,14 @@ describe('<ExportWhiteboardDialogDownloadPdf />', () => {
 
   it('should download the correct whiteboard content', async () => {
     render(
-      <ExportWhiteboardDialogDownloadPdf onClick={onClose}>
+      <ExportWhiteboardDialogDownloadPdf onClick={onClick}>
         Download
       </ExportWhiteboardDialogDownloadPdf>,
       { wrapper: Wrapper }
     );
 
-    expect(jest.mocked(createWhiteboardPdf)).toBeCalledTimes(1);
-    expect(jest.mocked(createWhiteboardPdf)).toBeCalledWith({
+    expect(createWhiteboardPdf).toBeCalledTimes(1);
+    expect(createWhiteboardPdf).toBeCalledWith({
       authorName: '@user-id',
       roomName: 'NeoBoard',
       whiteboardInstance: whiteboardManager.getActiveWhiteboardInstance(),
@@ -155,7 +154,7 @@ describe('<ExportWhiteboardDialogDownloadPdf />', () => {
 
   it('should revoke URL on unload', async () => {
     const { unmount } = render(
-      <ExportWhiteboardDialogDownloadPdf onClick={onClose}>
+      <ExportWhiteboardDialogDownloadPdf onClick={onClick}>
         Download
       </ExportWhiteboardDialogDownloadPdf>,
       { wrapper: Wrapper }
@@ -166,7 +165,7 @@ describe('<ExportWhiteboardDialogDownloadPdf />', () => {
 
     unmount();
 
-    expect(jest.mocked(URL.revokeObjectURL)).toBeCalledWith('blob:url');
+    expect(URL.revokeObjectURL).toBeCalledWith('blob:url');
   });
 
   it('should handle error while generating PDF', async () => {
@@ -177,7 +176,7 @@ describe('<ExportWhiteboardDialogDownloadPdf />', () => {
     const onError = jest.fn();
 
     render(
-      <ExportWhiteboardDialogDownloadPdf onClick={onClose} onError={onError}>
+      <ExportWhiteboardDialogDownloadPdf onClick={onClick} onError={onError}>
         Download
       </ExportWhiteboardDialogDownloadPdf>,
       { wrapper: Wrapper }
@@ -192,7 +191,7 @@ describe('<ExportWhiteboardDialogDownloadPdf />', () => {
     jest.mocked(createWhiteboardPdf).mockReturnValue(NEVER);
 
     render(
-      <ExportWhiteboardDialogDownloadPdf onClick={onClose}>
+      <ExportWhiteboardDialogDownloadPdf onClick={onClick}>
         Download
       </ExportWhiteboardDialogDownloadPdf>,
       { wrapper: Wrapper }
