@@ -19,6 +19,7 @@ import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { LoadingButton } from '@mui/lab';
 import { Tooltip, Typography } from '@mui/material';
 import { unstable_useId as useId, visuallyHidden } from '@mui/utils';
+import { getLogger } from 'loglevel';
 import { Dispatch, PropsWithChildren, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useActiveWhiteboardInstance } from '../../state';
@@ -112,7 +113,9 @@ function useGeneratePdf(
         url = URL.createObjectURL(blob);
         setDownloadUrl(url);
       },
-      error: () => {
+      error: (e) => {
+        const logger = getLogger('ExportWhiteboardDialogDownloadPdf');
+        logger.error('Error while generating the PDF', e);
         onError?.(
           t(
             'boardBar.exportWhiteboardDialog.pdfError',
