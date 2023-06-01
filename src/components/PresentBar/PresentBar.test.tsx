@@ -44,12 +44,12 @@ describe('<PresentBar/>', () => {
       slides: [
         ['slide-0', []],
         ['slide-1', []],
-        ['slide-3', []],
+        ['slide-2', []],
       ],
     }));
 
     activeWhiteboardInstance = whiteboardManager.getActiveWhiteboardInstance()!;
-    activeWhiteboardInstance.setActiveSlideId('slide-0');
+    activeWhiteboardInstance.setActiveSlideId('slide-1');
 
     widgetApi.mockSendStateEvent(mockRoomMember());
 
@@ -167,7 +167,7 @@ describe('<PresentBar/>', () => {
     ).toBeInTheDocument();
   });
 
-  it.only('should change to the next slide', async () => {
+  it('should change to the next slide', async () => {
     render(<PresentBar />, { wrapper: Wrapper });
 
     const toolbar = screen.getByRole('toolbar', { name: 'Present' });
@@ -179,9 +179,7 @@ describe('<PresentBar/>', () => {
       })
     );
 
-    expect(activeWhiteboardInstance.getActiveSlideId()).toBeCalledWith(
-      'slide-0'
-    );
+    expect(activeWhiteboardInstance.getActiveSlideId()).toBe('slide-1');
 
     await userEvent.click(
       within(toolbar).getByRole('button', {
@@ -189,12 +187,69 @@ describe('<PresentBar/>', () => {
       })
     );
 
-    expect(activeWhiteboardInstance.getActiveSlideId()).toBeCalledWith(
-      'slide-1'
-    );
+    expect(activeWhiteboardInstance.getActiveSlideId()).toBe('slide-2');
   });
 
-  it.todo('should change to the previous slide');
-  it.todo('should disabled next slide button if the last slide active');
-  it.todo('should disabled previous slide button if the first slide active');
+  it('should change to the previous slide', async () => {
+    render(<PresentBar />, { wrapper: Wrapper });
+
+    const toolbar = screen.getByRole('toolbar', { name: 'Present' });
+
+    await userEvent.click(
+      within(toolbar).getByRole('checkbox', {
+        name: 'Start presentation',
+        checked: false,
+      })
+    );
+
+    expect(activeWhiteboardInstance.getActiveSlideId()).toBe('slide-1');
+
+    await userEvent.click(
+      within(toolbar).getByRole('button', {
+        name: 'Previous slide',
+      })
+    );
+
+    expect(activeWhiteboardInstance.getActiveSlideId()).toBe('slide-0');
+  });
+
+  it('should disabled next slide button if the last slide active', async () => {
+    activeWhiteboardInstance.setActiveSlideId('slide-2');
+    render(<PresentBar />, { wrapper: Wrapper });
+
+    const toolbar = screen.getByRole('toolbar', { name: 'Present' });
+
+    await userEvent.click(
+      within(toolbar).getByRole('checkbox', {
+        name: 'Start presentation',
+        checked: false,
+      })
+    );
+
+    expect(
+      within(toolbar).getByRole('button', {
+        name: 'Next slide',
+      })
+    ).toBeDisabled();
+  });
+
+  it('should disabled previous slide button if the first slide active', async () => {
+    activeWhiteboardInstance.setActiveSlideId('slide-0');
+    render(<PresentBar />, { wrapper: Wrapper });
+
+    const toolbar = screen.getByRole('toolbar', { name: 'Present' });
+
+    await userEvent.click(
+      within(toolbar).getByRole('checkbox', {
+        name: 'Start presentation',
+        checked: false,
+      })
+    );
+
+    expect(
+      within(toolbar).getByRole('button', {
+        name: 'Previous slide',
+      })
+    ).toBeDisabled();
+  });
 });

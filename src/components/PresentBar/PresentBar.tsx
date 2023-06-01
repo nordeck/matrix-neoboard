@@ -81,7 +81,8 @@ export function PresentBar() {
   return (
     <Toolbar
       aria-label={presentBarTitle}
-      sx={{ flexDirection: 'column', pointerEvents: 'initial' }}
+      sx={{ pointerEvents: 'initial' }}
+      toolbarDirection="column"
     >
       {state.type !== 'presentation' && (
         <ToolbarToggle
