@@ -33,26 +33,38 @@ export function fitText(element: HTMLElement) {
   element.style.paddingTop = `${paddingTop}px`;
 }
 
-export function getTemporaryElement(): HTMLElement {
-  const id = 'fitTextTemporaryElement';
+export function getTemporaryElement(): {
+  textElement: HTMLElement;
+  wrapperElement: HTMLElement;
+} {
+  const textId = 'fitTextTextElement';
+  const wrapperId = 'fitTextWrapperElement';
 
-  const el = document.getElementById(id);
-  if (el) {
-    return el;
+  const textElement = document.getElementById(textId);
+  const wrapperElement = document.getElementById(wrapperId);
+  if (textElement && wrapperElement) {
+    return { textElement, wrapperElement };
   } else {
-    const wrapper = document.createElement('div');
-    wrapper.style.overflow = 'hidden';
-    wrapper.style.height = '0px';
-    wrapper.style.width = '0px';
-    wrapper.style.visibility = 'hidden';
+    const hiddenElement = document.createElement('div');
+    hiddenElement.style.overflow = 'hidden';
+    hiddenElement.style.height = '0px';
+    hiddenElement.style.width = '0px';
+    hiddenElement.style.visibility = 'hidden';
+    hiddenElement.style.display = 'flex';
+    document.body.appendChild(hiddenElement);
 
-    const d = document.createElement('div');
-    d.id = 'fitTextTemporaryElement';
+    const wrapperElement = document.createElement('div');
+    wrapperElement.id = wrapperId;
+    wrapperElement.style.flexShrink = '0';
 
-    wrapper.appendChild(d);
-    document.body.appendChild(wrapper);
+    hiddenElement.appendChild(wrapperElement);
 
-    return d;
+    const textElement = document.createElement('div');
+    textElement.id = textId;
+
+    wrapperElement.appendChild(textElement);
+
+    return { textElement, wrapperElement };
   }
 }
 
@@ -68,15 +80,15 @@ export function getTextSize(
   width = Math.round(width);
   height = Math.round(height);
 
-  const element = getTemporaryElement();
-  element.style.width = `${width}px`;
+  const { textElement: element, wrapperElement } = getTemporaryElement();
 
-  element.style.lineHeight = '1';
+  wrapperElement.style.flexBasis = `${width}px`;
+
+  element.style.lineHeight = '1.2';
   element.style.wordBreak = 'unset';
   element.style.overflowWrap = 'unset';
   element.style.textAlign = 'center';
   element.style.overflow = 'visible';
-  element.style.fontFeatureSettings = '"tnum" 1';
   element.style.fontVariantLigatures = opts?.disableLigatures
     ? 'none'
     : 'unset';
@@ -99,7 +111,10 @@ export function getTextSize(
 
     element.style.fontSize = `${Math.round(fontSize)}px`;
 
-    const fits = element.scrollWidth <= width && element.scrollHeight <= height;
+    const { width: scrollWidth, height: scrollHeight } =
+      element.getBoundingClientRect();
+
+    const fits = scrollWidth <= width && scrollHeight <= height;
 
     if (!fits) {
       fontSize = lastFontSize;

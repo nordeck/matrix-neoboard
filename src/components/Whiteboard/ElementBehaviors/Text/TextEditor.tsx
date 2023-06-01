@@ -40,7 +40,7 @@ type EditableProps = {
 const Editable = styled('div', {
   shouldForwardProp: (p) => p !== 'editMode',
 })<EditableProps>(({ editMode, contentEditable }) => ({
-  lineHeight: 1,
+  lineHeight: 1.2,
   wordBreak: 'unset',
   wordWrap: 'unset',
   overflowWrap: 'unset',
@@ -58,8 +58,6 @@ const Editable = styled('div', {
   // Remove UA styling
   outline: '0px solid transparent !important',
   boxShadow: 'none !important',
-  // Enable tabular number to unify the pdf and html font size rendering
-  fontFeatureSettings: '"tnum" 1',
 }));
 
 const setCaretToTheEnd = (element: HTMLDivElement) => {

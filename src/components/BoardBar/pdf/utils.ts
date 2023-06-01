@@ -64,15 +64,10 @@ export function textContent(
     alignment: 'center',
     color: findForegroundColor(element.fillColor),
     fontSize,
-    lineHeight: 1 / 1.2,
+    lineHeight: 1,
     margin: 0,
     font: 'Inter',
-    fontFeatures: ['tnum'],
   };
-
-  // TODO: There are differences in the text layout of CSS and we try to correct for those. It is
-  //       not perfectly centered vertically due to: https://github.com/bpampuch/pdfmake/issues/74
-  const verticalCorrection = fontSize * (1 - 1 / 1.2);
 
   return {
     layout: 'noBorders',
@@ -84,7 +79,7 @@ export function textContent(
 
     absolutePosition: {
       x: textProperties.position.x,
-      y: textProperties.position.y + paddingTop - verticalCorrection,
+      y: textProperties.position.y + paddingTop,
     },
     unbreakable: true,
   };

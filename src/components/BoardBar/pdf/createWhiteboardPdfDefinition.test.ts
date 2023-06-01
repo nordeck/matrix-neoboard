@@ -24,8 +24,19 @@ import * as font from './forceLoadFontFamily';
 
 describe('createWhiteboardPdfDefinition', () => {
   beforeEach(() => {
-    jest.spyOn(Element.prototype, 'scrollHeight', 'get').mockReturnValue(100);
-    jest.spyOn(Element.prototype, 'scrollWidth', 'get').mockReturnValue(100);
+    jest
+      .spyOn(Element.prototype, 'getBoundingClientRect')
+      .mockImplementation(() => ({
+        width: 100,
+        height: 100,
+        x: 0,
+        y: 0,
+        bottom: 0,
+        left: 0,
+        right: 0,
+        top: 0,
+        toJSON: jest.fn(),
+      }));
   });
 
   it('should generate a pdf header and table', async () => {

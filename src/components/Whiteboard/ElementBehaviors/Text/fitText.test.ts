@@ -91,6 +91,24 @@ describe('fitText', () => {
     expect(container.style.fontSize).toEqual('55px');
   });
 
+  it('should not get wrong font size if bounding rect is too large by a fraction', () => {
+    const container = createContainerElement(173, 162, {
+      '405px': [593, 526],
+      '208px': [347, 309],
+      '109px': [223, 201],
+      '59px': [173, 162],
+      '84px': [192, 173],
+      '72px': [177, 162],
+      '66px': [173, 162],
+      '69px': [173, 162],
+      '70px': [173.1, 162],
+    });
+
+    fitText(container);
+
+    expect(container.style.fontSize).toEqual('69px');
+  });
+
   it('should center the text with padding', () => {
     const container = createContainerElement(
       91,
@@ -129,21 +147,24 @@ function createContainerElement(
   jest.spyOn(container, 'clientWidth', 'get').mockReturnValue(width);
   jest.spyOn(container, 'clientHeight', 'get').mockReturnValue(height);
 
-  const calculationContainer = getTemporaryElement();
-  jest
-    .spyOn(calculationContainer, 'scrollWidth', 'get')
-    .mockImplementation(
-      () => scrollLookup[calculationContainer.style.fontSize][0]
-    );
-  jest
-    .spyOn(calculationContainer, 'scrollHeight', 'get')
-    .mockImplementation(
-      () => scrollLookup[calculationContainer.style.fontSize][1]
-    );
+  const { textElement: calculationContainer } = getTemporaryElement();
   jest
     .spyOn(calculationContainer, 'clientHeight', 'get')
     .mockImplementation(
       () => clientHeightLookup[calculationContainer.style.fontSize] ?? height
     );
+  jest
+    .spyOn(calculationContainer, 'getBoundingClientRect')
+    .mockImplementation(() => ({
+      width: scrollLookup[calculationContainer.style.fontSize][0],
+      height: scrollLookup[calculationContainer.style.fontSize][1],
+      x: 0,
+      y: 0,
+      bottom: 0,
+      left: 0,
+      right: 0,
+      top: 0,
+      toJSON: jest.fn(),
+    }));
   return container;
 }

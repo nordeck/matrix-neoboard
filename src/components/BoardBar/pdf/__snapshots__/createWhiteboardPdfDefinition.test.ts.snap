@@ -31,7 +31,7 @@ Object {
             Object {
               "absolutePosition": Object {
                 "x": 10,
-                "y": 49.333333333333336,
+                "y": 51,
               },
               "layout": "noBorders",
               "table": Object {
@@ -41,11 +41,8 @@ Object {
                       "alignment": "center",
                       "color": "#000",
                       "font": "Inter",
-                      "fontFeatures": Array [
-                        "tnum",
-                      ],
                       "fontSize": 10,
-                      "lineHeight": 0.8333333333333334,
+                      "lineHeight": 1,
                       "margin": 0,
                       "text": Array [
                         "Rectangle",
@@ -87,7 +84,7 @@ Object {
             Object {
               "absolutePosition": Object {
                 "x": 10,
-                "y": 49.333333333333336,
+                "y": 51,
               },
               "layout": "noBorders",
               "table": Object {
@@ -97,11 +94,8 @@ Object {
                       "alignment": "center",
                       "color": "#000",
                       "font": "Inter",
-                      "fontFeatures": Array [
-                        "tnum",
-                      ],
                       "fontSize": 10,
-                      "lineHeight": 0.8333333333333334,
+                      "lineHeight": 1,
                       "margin": 0,
                       "text": Array [
                         "Rectangle Text",
@@ -142,7 +136,7 @@ Object {
             Object {
               "absolutePosition": Object {
                 "x": 7.322330470336311,
-                "y": 49.47799427400596,
+                "y": 51.14466094067262,
               },
               "layout": "noBorders",
               "table": Object {
@@ -152,11 +146,8 @@ Object {
                       "alignment": "center",
                       "color": "#000",
                       "font": "Inter",
-                      "fontFeatures": Array [
-                        "tnum",
-                      ],
                       "fontSize": 10,
-                      "lineHeight": 0.8333333333333334,
+                      "lineHeight": 1,
                       "margin": 0,
                       "text": Array [
                         "Circle ",
@@ -201,7 +192,7 @@ Object {
             Object {
               "absolutePosition": Object {
                 "x": 7.322330470336311,
-                "y": 49.47799427400596,
+                "y": 51.14466094067262,
               },
               "layout": "noBorders",
               "table": Object {
@@ -211,11 +202,8 @@ Object {
                       "alignment": "center",
                       "color": "#000",
                       "font": "Inter",
-                      "fontFeatures": Array [
-                        "tnum",
-                      ],
                       "fontSize": 10,
-                      "lineHeight": 0.8333333333333334,
+                      "lineHeight": 1,
                       "margin": 0,
                       "text": Array [
                         "Ellipse",
@@ -267,7 +255,7 @@ Object {
             Object {
               "absolutePosition": Object {
                 "x": 8.333333333333332,
-                "y": 77.49999999999999,
+                "y": 79.16666666666666,
               },
               "layout": "noBorders",
               "table": Object {
@@ -277,11 +265,8 @@ Object {
                       "alignment": "center",
                       "color": "#000",
                       "font": "Inter",
-                      "fontFeatures": Array [
-                        "tnum",
-                      ],
                       "fontSize": 10,
-                      "lineHeight": 0.8333333333333334,
+                      "lineHeight": 1,
                       "margin": 0,
                       "text": Array [
                         "Triangle ",
