@@ -151,6 +151,10 @@
     "stopPresentation": "Präsentation beenden",
     "title": "Präsentieren"
   },
+  "presentToolsBar": {
+    "nextSlide": "Nächste Folie",
+    "previousSlide": "Vorherige Folie"
+  },
   "slideOverviewBar": {
     "addSlide": "Folie hinzufügen",
     "contextMenu": {

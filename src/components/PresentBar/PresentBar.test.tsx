@@ -24,7 +24,7 @@ import {
   WhiteboardTestingContextProvider,
 } from '../../lib/testUtils/documentTestUtils';
 import { mockRoomMember } from '../../lib/testUtils/matrixTestUtils';
-import { WhiteboardManager } from '../../state';
+import { WhiteboardInstance, WhiteboardManager } from '../../state';
 import { PresentBar } from './PresentBar';
 
 let widgetApi: MockedWidgetApi;
@@ -36,10 +36,20 @@ beforeEach(() => (widgetApi = mockWidgetApi()));
 describe('<PresentBar/>', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
   let whiteboardManager: jest.Mocked<WhiteboardManager>;
+  let activeWhiteboardInstance: WhiteboardInstance;
   let setPresentationMode: (enable: boolean) => void;
 
   beforeEach(() => {
-    ({ whiteboardManager, setPresentationMode } = mockWhiteboardManager());
+    ({ whiteboardManager, setPresentationMode } = mockWhiteboardManager({
+      slides: [
+        ['slide-0', []],
+        ['slide-1', []],
+        ['slide-3', []],
+      ],
+    }));
+
+    activeWhiteboardInstance = whiteboardManager.getActiveWhiteboardInstance()!;
+    activeWhiteboardInstance.setActiveSlideId('slide-0');
 
     widgetApi.mockSendStateEvent(mockRoomMember());
 
@@ -106,6 +116,16 @@ describe('<PresentBar/>', () => {
         checked: true,
       })
     ).toBeInTheDocument();
+    expect(
+      within(toolbar).getByRole('button', {
+        name: 'Next slide',
+      })
+    ).toBeInTheDocument();
+    expect(
+      within(toolbar).getByRole('button', {
+        name: 'Previous slide',
+      })
+    ).toBeInTheDocument();
   });
 
   it('should stop the presentation', async () => {
@@ -146,4 +166,35 @@ describe('<PresentBar/>', () => {
       })
     ).toBeInTheDocument();
   });
+
+  it.only('should change to the next slide', async () => {
+    render(<PresentBar />, { wrapper: Wrapper });
+
+    const toolbar = screen.getByRole('toolbar', { name: 'Present' });
+
+    await userEvent.click(
+      within(toolbar).getByRole('checkbox', {
+        name: 'Start presentation',
+        checked: false,
+      })
+    );
+
+    expect(activeWhiteboardInstance.getActiveSlideId()).toBeCalledWith(
+      'slide-0'
+    );
+
+    await userEvent.click(
+      within(toolbar).getByRole('button', {
+        name: 'Next slide',
+      })
+    );
+
+    expect(activeWhiteboardInstance.getActiveSlideId()).toBeCalledWith(
+      'slide-1'
+    );
+  });
+
+  it.todo('should change to the previous slide');
+  it.todo('should disabled next slide button if the last slide active');
+  it.todo('should disabled previous slide button if the first slide active');
 });

@@ -87,6 +87,9 @@ export function Toolbar({ children, ...props }: ToolbarProps) {
             currentFocus,
             previousItem
           );
+        } else {
+          event.preventDefault();
+          moveFocus(list, currentFocus, previousItem);
         }
         break;
       case 'ArrowDown':
@@ -97,6 +100,9 @@ export function Toolbar({ children, ...props }: ToolbarProps) {
             currentFocus,
             nextItem
           );
+        } else {
+          event.preventDefault();
+          moveFocus(list, currentFocus, nextItem);
         }
         break;
       case 'Home':

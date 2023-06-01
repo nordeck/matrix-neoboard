@@ -14,23 +14,69 @@
  * limitations under the License.
  */
 
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import PresentToAllIcon from '@mui/icons-material/PresentToAll';
 import { Box } from '@mui/material';
+import { findIndex } from 'lodash';
+import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { PresentationState, usePresentationMode } from '../../state';
+import {
+  PresentationState,
+  useActiveSlide,
+  useActiveWhiteboardInstance,
+  useActiveWhiteboardInstanceSlideIds,
+  usePresentationMode,
+} from '../../state';
 import { useUserDetails } from '../../store';
-import { Toolbar, ToolbarAvatar, ToolbarToggle } from '../common/Toolbar';
+import {
+  Toolbar,
+  ToolbarAvatar,
+  ToolbarButton,
+  ToolbarToggle,
+} from '../common/Toolbar';
 
 export function PresentBar() {
   const { t } = useTranslation();
-
+  const slideIds = useActiveWhiteboardInstanceSlideIds();
+  const whiteboardInstance = useActiveWhiteboardInstance();
+  const { activeSlideId, isFirstSlideActive, isLastSlideActive } =
+    useActiveSlide();
   const { state, togglePresentation } = usePresentationMode();
+
+  const isViewingPresentation = state.type === 'presenting';
+
+  const handleToNextSlideClick = useCallback(() => {
+    if (activeSlideId) {
+      const activeSlideIndex = findIndex(
+        slideIds,
+        (value) => value === activeSlideId
+      );
+      whiteboardInstance.setActiveSlideId(slideIds[activeSlideIndex + 1]);
+    }
+  }, [activeSlideId, slideIds, whiteboardInstance]);
+
+  const handleToPreviousSlideClick = useCallback(() => {
+    if (activeSlideId) {
+      const activeSlideIndex = findIndex(
+        slideIds,
+        (value) => value === activeSlideId
+      );
+      whiteboardInstance.setActiveSlideId(slideIds[activeSlideIndex - 1]);
+    }
+  }, [activeSlideId, slideIds, whiteboardInstance]);
 
   const presentBarTitle = t('presentBar.title', 'Present');
   const buttonTitle =
     state.type === 'presenting'
       ? t('presentBar.stopPresentation', 'Stop presentation')
       : t('presentBar.startPresentation', 'Start presentation');
+
+  const presentToolsBarNextSlide = t('presentToolsBar.nextSlide', 'Next slide');
+  const presentToolsBarPreviousSlide = t(
+    'presentToolsBar.previousSlide',
+    'Previous slide'
+  );
 
   return (
     <Toolbar
@@ -45,6 +91,24 @@ export function PresentBar() {
           icon={<PresentToAllIcon />}
           checkedIcon={<PresentToAllIcon />}
         />
+      )}
+      {isViewingPresentation && (
+        <>
+          <ToolbarButton
+            aria-label={presentToolsBarPreviousSlide}
+            disabled={isFirstSlideActive}
+            onClick={handleToPreviousSlideClick}
+          >
+            <ChevronLeftIcon />
+          </ToolbarButton>
+          <ToolbarButton
+            aria-label={presentToolsBarNextSlide}
+            disabled={isLastSlideActive}
+            onClick={handleToNextSlideClick}
+          >
+            <ChevronRightIcon />
+          </ToolbarButton>
+        </>
       )}
 
       {state.type === 'presentation' && <PresenterAvatar state={state} />}
