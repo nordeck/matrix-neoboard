@@ -15,24 +15,30 @@
  */
 
 import CloseIcon from '@mui/icons-material/Close';
-import FileDownloadIcon from '@mui/icons-material/FileDownload';
-import { LoadingButton } from '@mui/lab';
 import {
+  Alert,
   Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
+  FormControl,
   IconButton,
+  InputLabel,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
   Stack,
   Tooltip,
 } from '@mui/material';
-import { unstable_useId as useId } from '@mui/utils';
-import { useEffect, useState } from 'react';
+import { unstable_useId as useId, visuallyHidden } from '@mui/utils';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useActiveWhiteboardInstance } from '../../state';
-import { useGetRoomNameQuery } from '../../store';
+import { ExportWhiteboardDialogDownloadFile } from './ExportWhiteboardDialogDownloadFile';
+import { ExportWhiteboardDialogDownloadPdf } from './ExportWhiteboardDialogDownloadPdf';
+
+export type WhiteboardDocumentExportFileFormat = 'nwb' | 'pdf';
 
 export function ExportWhiteboardDialog({
   open,
@@ -41,8 +47,6 @@ export function ExportWhiteboardDialog({
   open: boolean;
   onClose: () => void;
 }) {
-  const { t } = useTranslation();
-
   const dialogTitleId = useId();
   const dialogDescriptionId = useId();
 
@@ -52,9 +56,50 @@ export function ExportWhiteboardDialog({
       aria-describedby={dialogDescriptionId}
       open={open}
       onClose={onClose}
+      maxWidth="sm"
+      fullWidth
     >
+      <ExportWhiteboardDialogContent
+        descriptionId={dialogDescriptionId}
+        titleId={dialogTitleId}
+        onClose={onClose}
+      />
+    </Dialog>
+  );
+}
+
+function ExportWhiteboardDialogContent({
+  titleId,
+  descriptionId,
+  onClose,
+}: {
+  titleId?: string;
+  descriptionId?: string;
+  onClose: () => void;
+}) {
+  const { t } = useTranslation();
+
+  const [error, setError] = useState<string>();
+
+  const [fileFormat, setFileFormat] =
+    useState<WhiteboardDocumentExportFileFormat>('pdf');
+
+  const handleFileFormatChange = (event: SelectChangeEvent) => {
+    setFileFormat(event.target.value as WhiteboardDocumentExportFileFormat);
+    setError(undefined);
+  };
+
+  const downloadTitle = t(
+    'boardBar.exportWhiteboardDialog.download',
+    'Download'
+  );
+
+  const selectLabelId = useId();
+
+  return (
+    <>
       <Stack alignItems="baseline" direction="row">
-        <DialogTitle component="h3" id={dialogTitleId} sx={{ flex: 1 }}>
+        <DialogTitle component="h3" id={titleId} sx={{ flex: 1 }}>
           {t('boardBar.exportWhiteboardDialog.title', 'Export the content')}
         </DialogTitle>
         <Tooltip
@@ -68,61 +113,72 @@ export function ExportWhiteboardDialog({
       </Stack>
 
       <DialogContent sx={{ pt: 0 }}>
-        <DialogContentText id={dialogDescriptionId}>
+        <DialogContentText id={descriptionId} paragraph>
           {t(
             'boardBar.exportWhiteboardDialog.description',
-            'Download a copy of your content. You can import the file into a different room with the import feature.'
+            'Please choose your preferred format.'
           )}
         </DialogContentText>
+
+        <FormControl fullWidth>
+          <InputLabel id={selectLabelId} sx={visuallyHidden}>
+            {t(
+              'boardBar.exportWhiteboardDialog.fileFormat.title',
+              'File format'
+            )}
+          </InputLabel>
+          <Select
+            labelId={selectLabelId}
+            fullWidth
+            onChange={handleFileFormatChange}
+            value={fileFormat}
+          >
+            <MenuItem value="pdf">
+              {t(
+                'boardBar.exportWhiteboardDialog.fileFormat.pdf',
+                'PDF-File (.pdf)'
+              )}
+            </MenuItem>
+            <MenuItem value="nwb">
+              {t(
+                'boardBar.exportWhiteboardDialog.fileFormat.nwb',
+                'NeoBoard-File (.nwb)'
+              )}
+            </MenuItem>
+          </Select>
+        </FormControl>
+
+        {error && (
+          <Alert role="status" severity="error" sx={{ mt: 2 }}>
+            {error}
+          </Alert>
+        )}
       </DialogContent>
 
       <DialogActions>
-        <Button autoFocus onClick={onClose} variant="outlined">
+        <Button
+          autoFocus
+          onClick={onClose}
+          variant="outlined"
+          sx={{ marginRight: 1 }}
+        >
           {t('boardBar.exportWhiteboardDialog.cancel', 'Cancel')}
         </Button>
 
-        <ExportWhiteboardButton onClick={onClose} />
+        {fileFormat === 'nwb' ? (
+          <ExportWhiteboardDialogDownloadFile onClick={onClose}>
+            {downloadTitle}
+          </ExportWhiteboardDialogDownloadFile>
+        ) : (
+          <ExportWhiteboardDialogDownloadPdf
+            error={error}
+            onClick={onClose}
+            onError={setError}
+          >
+            {downloadTitle}
+          </ExportWhiteboardDialogDownloadPdf>
+        )}
       </DialogActions>
-    </Dialog>
-  );
-}
-
-function ExportWhiteboardButton({ onClick }: { onClick: () => void }) {
-  const { t } = useTranslation();
-
-  const whiteboardInstance = useActiveWhiteboardInstance();
-  const [downloadUrl, setDownloadUrl] = useState<string>();
-
-  const { data: roomNameStateEvent } = useGetRoomNameQuery();
-  const roomName = roomNameStateEvent?.event?.content.name ?? 'NeoBoard';
-
-  useEffect(() => {
-    const whiteboardContent = whiteboardInstance.export();
-
-    const blob = new Blob([JSON.stringify(whiteboardContent)]);
-
-    const url = URL.createObjectURL(blob);
-    setDownloadUrl(url);
-
-    return () => {
-      setDownloadUrl(undefined);
-      URL.revokeObjectURL(url);
-    };
-  }, [whiteboardInstance]);
-
-  return (
-    <LoadingButton
-      component="a"
-      download={`${roomName}.nwb`}
-      loading={!downloadUrl}
-      href={downloadUrl}
-      onClick={onClick}
-      startIcon={<FileDownloadIcon />}
-      target="_blank"
-      variant="contained"
-      sx={{ marginLeft: 1 }}
-    >
-      {t('boardBar.exportWhiteboardDialog.download', 'Download')}
-    </LoadingButton>
+    </>
   );
 }
