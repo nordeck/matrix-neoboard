@@ -1,5 +1,17 @@
 # @nordeck/matrix-neoboard-widget
 
+## 0.3.0
+
+### Minor Changes
+
+- 3389d46: Add a presentation mode to present slides to remote users.
+- 3389d46: Use NeoBoard as the product name.
+- 3389d46: Display just the active users in the collaboration bar.
+
+### Patch Changes
+
+- 17274e6: Recalculate the text size after all fonts are loaded.
+
 ## 0.2.0
 
 ### Minor Changes
