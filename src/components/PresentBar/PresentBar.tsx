@@ -41,8 +41,6 @@ export function PresentBar() {
     useActiveSlide();
   const { state, togglePresentation } = usePresentationMode();
 
-  const isViewingPresentation = state.type === 'presenting';
-
   const handleToNextSlideClick = useCallback(() => {
     if (activeSlideId) {
       const slideIds = whiteboardInstance.getSlideIds();
@@ -86,7 +84,7 @@ export function PresentBar() {
           checkedIcon={<PresentToAllIcon />}
         />
       )}
-      {isViewingPresentation && (
+      {state.type === 'presenting' && (
         <>
           <ToolbarButton
             aria-label={presentToolsBarPreviousSlide}
