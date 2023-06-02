@@ -33,8 +33,8 @@ import {
 } from './utils';
 
 const ToolbarStyled = styled(MuiToolbar)<{
-  toolbarDirection: ToolbarDirection;
-}>(({ theme, toolbarDirection }) => ({
+  toolbardirection: ToolbarDirection;
+}>(({ theme, toolbardirection }) => ({
   border: `1px solid ${theme.palette.divider}`,
   padding: 2,
   gap: 2,
@@ -42,7 +42,8 @@ const ToolbarStyled = styled(MuiToolbar)<{
   backgroundColor: theme.palette.background.default,
   borderRadius: theme.shape.borderRadius,
   boxShadow: theme.shadows[2],
-  flexDirection: toolbarDirection,
+  flexDirection: toolbardirection,
+  ariaOrientation: toolbardirection,
 }));
 
 export type ToolbarDirection = 'row' | 'column';
@@ -50,14 +51,14 @@ export type ToolbarDirection = 'row' | 'column';
 export type ToolbarProps = PropsWithChildren<
   Partial<
     React.ComponentPropsWithRef<'div'> & { sx?: SxProps<Theme> } & {
-      toolbarDirection?: ToolbarDirection;
+      toolbardirection?: ToolbarDirection;
     }
   >
 >;
 
 export function Toolbar({
   children,
-  toolbarDirection = 'row',
+  toolbardirection = 'row',
   ...props
 }: ToolbarProps) {
   const ref = useRef<HTMLDivElement>(null);
@@ -84,12 +85,16 @@ export function Toolbar({
       // https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/toolbar_role#keyboard_interactions
       switch (event.key) {
         case 'ArrowLeft':
-          event.preventDefault();
-          moveFocus(list, currentFocus, previousItem);
+          if (toolbardirection === 'row') {
+            event.preventDefault();
+            moveFocus(list, currentFocus, previousItem);
+          }
           break;
         case 'ArrowRight':
-          event.preventDefault();
-          moveFocus(list, currentFocus, nextItem);
+          if (toolbardirection === 'row') {
+            event.preventDefault();
+            moveFocus(list, currentFocus, nextItem);
+          }
           break;
         case 'ArrowUp':
           // Up and down arrow keys are used to navigate in a single radio group in a toolbar
@@ -101,7 +106,7 @@ export function Toolbar({
               currentFocus,
               previousItem
             );
-          } else if (toolbarDirection && toolbarDirection === 'column') {
+          } else if (toolbardirection === 'column') {
             event.preventDefault();
             moveFocus(list, currentFocus, previousItem);
           }
@@ -114,7 +119,7 @@ export function Toolbar({
               currentFocus,
               nextItem
             );
-          } else if (toolbarDirection && toolbarDirection === 'column') {
+          } else if (toolbardirection === 'column') {
             event.preventDefault();
             moveFocus(list, currentFocus, nextItem);
           }
@@ -129,7 +134,7 @@ export function Toolbar({
           break;
       }
     },
-    [toolbarDirection]
+    [toolbardirection]
   );
 
   return (
@@ -139,7 +144,7 @@ export function Toolbar({
       onKeyDown={handleKeyDown}
       disableGutters
       variant="dense"
-      toolbarDirection={toolbarDirection}
+      toolbardirection={toolbardirection}
       {...props}
     >
       <ToolbarStateContext.Provider value={context}>
