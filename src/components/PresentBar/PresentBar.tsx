@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
+import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import PresentToAllIcon from '@mui/icons-material/PresentToAll';
 import { Box } from '@mui/material';
@@ -93,7 +93,7 @@ export function PresentBar() {
             disabled={isFirstSlideActive}
             onClick={handleToPreviousSlideClick}
           >
-            <ArrowBackIosIcon />
+            <ArrowBackIosNewIcon />
           </ToolbarButton>
           <ToolbarButton
             aria-label={presentToolsBarNextSlide}
