@@ -32,33 +32,29 @@ import {
   previousItem,
 } from './utils';
 
-const ToolbarStyled = styled(MuiToolbar)<{
-  toolbardirection: ToolbarDirection;
-}>(({ theme, toolbardirection }) => ({
-  border: `1px solid ${theme.palette.divider}`,
-  padding: 2,
-  gap: 2,
-  minHeight: 'auto',
-  backgroundColor: theme.palette.background.default,
-  borderRadius: theme.shape.borderRadius,
-  boxShadow: theme.shadows[2],
-  flexDirection: toolbardirection,
-  ariaOrientation: toolbardirection,
-}));
-
-export type ToolbarDirection = 'row' | 'column';
+const ToolbarStyled = styled(MuiToolbar)(
+  ({ theme, 'aria-orientation': ariaOrientation }) => ({
+    border: `1px solid ${theme.palette.divider}`,
+    padding: 2,
+    gap: 2,
+    minHeight: 'auto',
+    backgroundColor: theme.palette.background.default,
+    borderRadius: theme.shape.borderRadius,
+    boxShadow: theme.shadows[2],
+    flexDirection: ariaOrientation === 'vertical' ? 'column' : 'row',
+  })
+);
 
 export type ToolbarProps = PropsWithChildren<
-  Partial<
-    React.ComponentPropsWithRef<'div'> & { sx?: SxProps<Theme> } & {
-      toolbardirection?: ToolbarDirection;
-    }
-  >
+  Partial<React.ComponentPropsWithRef<'div'>> & {
+    sx?: SxProps<Theme>;
+    orientation?: 'vertical' | 'horizontal';
+  }
 >;
 
 export function Toolbar({
   children,
-  toolbardirection = 'row',
+  orientation = 'horizontal',
   ...props
 }: ToolbarProps) {
   const ref = useRef<HTMLDivElement>(null);
@@ -85,13 +81,13 @@ export function Toolbar({
       // https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/toolbar_role#keyboard_interactions
       switch (event.key) {
         case 'ArrowLeft':
-          if (toolbardirection === 'row') {
+          if (orientation === 'horizontal') {
             event.preventDefault();
             moveFocus(list, currentFocus, previousItem);
           }
           break;
         case 'ArrowRight':
-          if (toolbardirection === 'row') {
+          if (orientation === 'horizontal') {
             event.preventDefault();
             moveFocus(list, currentFocus, nextItem);
           }
@@ -106,7 +102,7 @@ export function Toolbar({
               currentFocus,
               previousItem
             );
-          } else if (toolbardirection === 'column') {
+          } else if (orientation === 'vertical') {
             event.preventDefault();
             moveFocus(list, currentFocus, previousItem);
           }
@@ -119,7 +115,7 @@ export function Toolbar({
               currentFocus,
               nextItem
             );
-          } else if (toolbardirection === 'column') {
+          } else if (orientation === 'vertical') {
             event.preventDefault();
             moveFocus(list, currentFocus, nextItem);
           }
@@ -134,7 +130,7 @@ export function Toolbar({
           break;
       }
     },
-    [toolbardirection]
+    [orientation]
   );
 
   return (
@@ -144,7 +140,7 @@ export function Toolbar({
       onKeyDown={handleKeyDown}
       disableGutters
       variant="dense"
-      toolbardirection={toolbardirection}
+      aria-orientation={orientation}
       {...props}
     >
       <ToolbarStateContext.Provider value={context}>

@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import PresentToAllIcon from '@mui/icons-material/PresentToAll';
 import { Box } from '@mui/material';
-import { findIndex } from 'lodash';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -48,20 +47,14 @@ export function PresentBar() {
 
   const handleToNextSlideClick = useCallback(() => {
     if (activeSlideId) {
-      const activeSlideIndex = findIndex(
-        slideIds,
-        (value) => value === activeSlideId
-      );
+      const activeSlideIndex = slideIds.indexOf(activeSlideId);
       whiteboardInstance.setActiveSlideId(slideIds[activeSlideIndex + 1]);
     }
   }, [activeSlideId, slideIds, whiteboardInstance]);
 
   const handleToPreviousSlideClick = useCallback(() => {
     if (activeSlideId) {
-      const activeSlideIndex = findIndex(
-        slideIds,
-        (value) => value === activeSlideId
-      );
+      const activeSlideIndex = slideIds.indexOf(activeSlideId);
       whiteboardInstance.setActiveSlideId(slideIds[activeSlideIndex - 1]);
     }
   }, [activeSlideId, slideIds, whiteboardInstance]);
@@ -82,7 +75,7 @@ export function PresentBar() {
     <Toolbar
       aria-label={presentBarTitle}
       sx={{ pointerEvents: 'initial' }}
-      toolbardirection="column"
+      orientation="vertical"
     >
       {state.type !== 'presentation' && (
         <ToolbarToggle
@@ -100,14 +93,14 @@ export function PresentBar() {
             disabled={isFirstSlideActive}
             onClick={handleToPreviousSlideClick}
           >
-            <ChevronLeftIcon />
+            <ArrowBackIosIcon />
           </ToolbarButton>
           <ToolbarButton
             aria-label={presentToolsBarNextSlide}
             disabled={isLastSlideActive}
             onClick={handleToNextSlideClick}
           >
-            <ChevronRightIcon />
+            <ArrowForwardIosIcon />
           </ToolbarButton>
         </>
       )}

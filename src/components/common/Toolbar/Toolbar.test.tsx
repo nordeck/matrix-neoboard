@@ -122,7 +122,7 @@ describe('Toolbar', () => {
 
   it('should focus the next item if arrow down key is pressed for vertical toolbar', async () => {
     render(
-      <Toolbar aria-label="Toolbar" toolbardirection="column">
+      <Toolbar aria-label="Toolbar" orientation="vertical">
         <ToolbarToggle inputProps={{ 'aria-label': 'A' }} />
         <ToolbarButton>B</ToolbarButton>
         <ToolbarSubMenu>C</ToolbarSubMenu>
@@ -136,7 +136,7 @@ describe('Toolbar', () => {
 
   it('should focus the previous item if arrow up key is pressed for vertical toolbar', async () => {
     render(
-      <Toolbar aria-label="Toolbar" toolbardirection="column">
+      <Toolbar aria-label="Toolbar" orientation="vertical">
         <ToolbarToggle inputProps={{ 'aria-label': 'A' }} />
         <ToolbarButton>B</ToolbarButton>
         <ToolbarSubMenu>C</ToolbarSubMenu>
