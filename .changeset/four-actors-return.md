@@ -2,4 +2,4 @@
 '@nordeck/matrix-neoboard-widget': minor
 ---
 
-Add slides navigation button forward and backwards to the presentBar
+Add buttons to navigate to the next or previous slide in a presentation.

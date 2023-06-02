@@ -24,7 +24,6 @@ import {
   PresentationState,
   useActiveSlide,
   useActiveWhiteboardInstance,
-  useActiveWhiteboardInstanceSlideIds,
   usePresentationMode,
 } from '../../state';
 import { useUserDetails } from '../../store';
@@ -37,7 +36,6 @@ import {
 
 export function PresentBar() {
   const { t } = useTranslation();
-  const slideIds = useActiveWhiteboardInstanceSlideIds();
   const whiteboardInstance = useActiveWhiteboardInstance();
   const { activeSlideId, isFirstSlideActive, isLastSlideActive } =
     useActiveSlide();
@@ -47,17 +45,19 @@ export function PresentBar() {
 
   const handleToNextSlideClick = useCallback(() => {
     if (activeSlideId) {
+      const slideIds = whiteboardInstance.getSlideIds();
       const activeSlideIndex = slideIds.indexOf(activeSlideId);
       whiteboardInstance.setActiveSlideId(slideIds[activeSlideIndex + 1]);
     }
-  }, [activeSlideId, slideIds, whiteboardInstance]);
+  }, [activeSlideId, whiteboardInstance]);
 
   const handleToPreviousSlideClick = useCallback(() => {
     if (activeSlideId) {
+      const slideIds = whiteboardInstance.getSlideIds();
       const activeSlideIndex = slideIds.indexOf(activeSlideId);
       whiteboardInstance.setActiveSlideId(slideIds[activeSlideIndex - 1]);
     }
-  }, [activeSlideId, slideIds, whiteboardInstance]);
+  }, [activeSlideId, whiteboardInstance]);
 
   const presentBarTitle = t('presentBar.title', 'Present');
   const buttonTitle =
