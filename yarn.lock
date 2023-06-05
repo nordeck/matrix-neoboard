@@ -1944,13 +1944,13 @@
     react-i18next "^12.0.0"
     react-use "^17.4.0"
 
-"@matrix-widget-toolkit/react@^1.0.4":
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/@matrix-widget-toolkit/react/-/react-1.0.4.tgz#4613ee029603a4b4a5c0eff3030d6880980924dc"
-  integrity sha512-C0ydI323UwALIMSuY4omZbtLUw+P1un6Irq/E8jNrnb5MzEsqZvM2+Hwj7YbaOGBSyvzjYGuLqhU43Bmtojzvw==
+"@matrix-widget-toolkit/react@^1.0.4", "@matrix-widget-toolkit/react@^1.0.5":
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/@matrix-widget-toolkit/react/-/react-1.0.5.tgz#65c0af604649d98d57fcb887da46085aa3c19d10"
+  integrity sha512-K6gcF3gKkrUt/LHwhSqqyICS9PyjDPaGlfenFzq7WG5rNJHKT8cWgxSWsZQ3M5PTLFkOdgRxAKieG9sfQm6i9A==
   dependencies:
-    "@matrix-widget-toolkit/api" "^3.0.0"
-    matrix-widget-api "^1.1.1"
+    "@matrix-widget-toolkit/api" "^3.2.0"
+    matrix-widget-api "^1.3.1"
     react "^17.0.2"
     react-error-boundary "^3.1.4"
     react-use "^17.4.0"
