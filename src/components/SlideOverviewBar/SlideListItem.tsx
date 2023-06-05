@@ -68,12 +68,16 @@ export function SlideListItem({
       index={slideIndex}
       disableInteractiveElementBlocking={true}
     >
-      {(provided) => (
+      {(provided, snapshot) => (
         <TabWithContextMenu
           slots={{ root: 'div' }}
           innerRef={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
+          // disable the item on dragging to trigger an internal resorting of
+          // the tab order for the keyboard navigation. See also
+          // https://github.com/mui/material-ui/issues/36800
+          disabled={snapshot.isDragging || snapshot.isDropAnimating}
           role="tab"
           tabIndex={active ? 0 : -1}
           value={slideId}

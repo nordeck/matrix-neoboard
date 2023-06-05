@@ -15,13 +15,14 @@
  */
 
 import React from 'react';
-import { calculateBoundingRectForPoints, PathElement } from '../../../state';
+import { PathElement } from '../../../state';
 import {
   ElementContextMenu,
   MoveableElement,
   SelectableElement,
   WithSelectionProps,
 } from '../../Whiteboard';
+import { getRenderProperties } from './getRenderProperties';
 
 export type LineElementProps = PathElement & WithSelectionProps;
 
@@ -31,11 +32,30 @@ const LineDisplay = ({
   elementId,
   ...element
 }: LineElementProps) => {
-  const strokeWidth = 4;
-  const { width, height } = calculateBoundingRectForPoints(element.points);
+  const {
+    strokeColor,
+    strokeWidth,
+    points: { start, end },
+    box,
+  } = getRenderProperties(element);
 
-  const start = element.points[0];
-  const end = element.points[element.points.length - 1];
+  const renderedChild = (
+    <g>
+      <line
+        fill="none"
+        stroke={strokeColor}
+        strokeWidth={strokeWidth}
+        x1={start.x}
+        x2={end.x}
+        y1={start.y}
+        y2={end.y}
+      />
+    </g>
+  );
+
+  if (readOnly) {
+    return renderedChild;
+  }
 
   return (
     <SelectableElement
@@ -44,26 +64,13 @@ const LineDisplay = ({
       elementId={elementId}
     >
       <MoveableElement
-        customHeight={height}
-        customWidth={width}
-        readOnly={readOnly}
+        customHeight={box.height}
+        customWidth={box.width}
         elementId={elementId}
         {...element}
       >
-        <ElementContextMenu elementId={elementId} readOnly={readOnly}>
-          <g
-            transform={`translate(${element.position.x} ${element.position.y})`}
-          >
-            <line
-              fill="none"
-              stroke={element.strokeColor}
-              strokeWidth={strokeWidth}
-              x1={start.x}
-              x2={end.x}
-              y1={start.y}
-              y2={end.y}
-            />
-          </g>
+        <ElementContextMenu elementId={elementId}>
+          {renderedChild}
         </ElementContextMenu>
       </MoveableElement>
     </SelectableElement>

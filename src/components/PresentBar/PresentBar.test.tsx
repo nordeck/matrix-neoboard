@@ -24,7 +24,7 @@ import {
   WhiteboardTestingContextProvider,
 } from '../../lib/testUtils/documentTestUtils';
 import { mockRoomMember } from '../../lib/testUtils/matrixTestUtils';
-import { WhiteboardManager } from '../../state';
+import { WhiteboardInstance, WhiteboardManager } from '../../state';
 import { PresentBar } from './PresentBar';
 
 let widgetApi: MockedWidgetApi;
@@ -36,10 +36,20 @@ beforeEach(() => (widgetApi = mockWidgetApi()));
 describe('<PresentBar/>', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
   let whiteboardManager: jest.Mocked<WhiteboardManager>;
+  let activeWhiteboardInstance: WhiteboardInstance;
   let setPresentationMode: (enable: boolean) => void;
 
   beforeEach(() => {
-    ({ whiteboardManager, setPresentationMode } = mockWhiteboardManager());
+    ({ whiteboardManager, setPresentationMode } = mockWhiteboardManager({
+      slides: [
+        ['slide-0', []],
+        ['slide-1', []],
+        ['slide-2', []],
+      ],
+    }));
+
+    activeWhiteboardInstance = whiteboardManager.getActiveWhiteboardInstance()!;
+    activeWhiteboardInstance.setActiveSlideId('slide-1');
 
     widgetApi.mockSendStateEvent(mockRoomMember());
 
@@ -106,6 +116,16 @@ describe('<PresentBar/>', () => {
         checked: true,
       })
     ).toBeInTheDocument();
+    expect(
+      within(toolbar).getByRole('button', {
+        name: 'Next slide',
+      })
+    ).toBeInTheDocument();
+    expect(
+      within(toolbar).getByRole('button', {
+        name: 'Previous slide',
+      })
+    ).toBeInTheDocument();
   });
 
   it('should stop the presentation', async () => {
@@ -145,5 +165,91 @@ describe('<PresentBar/>', () => {
         name: 'Alice is presenting',
       })
     ).toBeInTheDocument();
+  });
+
+  it('should change to the next slide', async () => {
+    render(<PresentBar />, { wrapper: Wrapper });
+
+    const toolbar = screen.getByRole('toolbar', { name: 'Present' });
+
+    await userEvent.click(
+      within(toolbar).getByRole('checkbox', {
+        name: 'Start presentation',
+        checked: false,
+      })
+    );
+
+    expect(activeWhiteboardInstance.getActiveSlideId()).toBe('slide-1');
+
+    await userEvent.click(
+      within(toolbar).getByRole('button', {
+        name: 'Next slide',
+      })
+    );
+
+    expect(activeWhiteboardInstance.getActiveSlideId()).toBe('slide-2');
+  });
+
+  it('should change to the previous slide', async () => {
+    render(<PresentBar />, { wrapper: Wrapper });
+
+    const toolbar = screen.getByRole('toolbar', { name: 'Present' });
+
+    await userEvent.click(
+      within(toolbar).getByRole('checkbox', {
+        name: 'Start presentation',
+        checked: false,
+      })
+    );
+
+    expect(activeWhiteboardInstance.getActiveSlideId()).toBe('slide-1');
+
+    await userEvent.click(
+      within(toolbar).getByRole('button', {
+        name: 'Previous slide',
+      })
+    );
+
+    expect(activeWhiteboardInstance.getActiveSlideId()).toBe('slide-0');
+  });
+
+  it('should disabled next slide button if the last slide active', async () => {
+    activeWhiteboardInstance.setActiveSlideId('slide-2');
+    render(<PresentBar />, { wrapper: Wrapper });
+
+    const toolbar = screen.getByRole('toolbar', { name: 'Present' });
+
+    await userEvent.click(
+      within(toolbar).getByRole('checkbox', {
+        name: 'Start presentation',
+        checked: false,
+      })
+    );
+
+    expect(
+      within(toolbar).getByRole('button', {
+        name: 'Next slide',
+      })
+    ).toBeDisabled();
+  });
+
+  it('should disabled previous slide button if the first slide active', async () => {
+    activeWhiteboardInstance.setActiveSlideId('slide-0');
+    render(<PresentBar />, { wrapper: Wrapper });
+
+    const toolbar = screen.getByRole('toolbar', { name: 'Present' });
+
+    await userEvent.click(
+      within(toolbar).getByRole('checkbox', {
+        name: 'Start presentation',
+        checked: false,
+      })
+    );
+
+    expect(
+      within(toolbar).getByRole('button', {
+        name: 'Previous slide',
+      })
+    ).toBeDisabled();
   });
 });

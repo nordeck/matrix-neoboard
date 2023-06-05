@@ -151,6 +151,10 @@
     "stopPresentation": "Stop presentation",
     "title": "Present"
   },
+  "presentToolsBar": {
+    "nextSlide": "Next slide",
+    "previousSlide": "Previous slide"
+  },
   "slideOverviewBar": {
     "addSlide": "Add slide",
     "contextMenu": {

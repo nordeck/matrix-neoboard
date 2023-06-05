@@ -18,8 +18,7 @@ import { styled } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
 import { useUnmount } from 'react-use';
 import tinycolor2 from 'tinycolor2';
-import { ShapeElement, useWhiteboardSlideInstance } from '../../../../state';
-import { useMeasure } from '../../SvgCanvas';
+import { useWhiteboardSlideInstance } from '../../../../state';
 import { TextEditor } from './TextEditor';
 
 function findForegroundColor(backgroundColor: string) {
@@ -42,59 +41,57 @@ const ForeignObjectNoInteraction = styled('foreignObject')({
   pointerEvents: 'none',
 });
 
-export type TextElementProps = ShapeElement & {
+export type TextElementProps = {
   active?: boolean;
-  paddingLeft?: number;
-  paddingRight?: number;
-  paddingTop?: number;
-  paddingBottom?: number;
+  text: string;
+
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+
+  fillColor: string;
   elementId: string;
 };
 
 export const TextElement = ({
-  paddingTop = 0,
-  paddingLeft = 0,
-  paddingBottom = 0,
-  paddingRight = 0,
   active,
+  text,
+  x,
+  y,
+  width,
+  height,
+  fillColor,
   elementId,
-  ...shape
 }: TextElementProps) => {
-  const [ref, { width, height }] = useMeasure<SVGForeignObjectElement>();
   const slideInstance = useWhiteboardSlideInstance();
-  const [unsubmittedText, setUnsubmittedText] = useState<string>(shape.text);
+  const [unsubmittedText, setUnsubmittedText] = useState(text);
   const activeElement = slideInstance.getElement(elementId);
 
   useEffect(() => {
-    setUnsubmittedText(shape.text);
-  }, [shape.text]);
+    setUnsubmittedText(text);
+  }, [text]);
 
   const handleTextChange = useCallback((text: string) => {
     setUnsubmittedText(text);
   }, []);
 
   const handleBlur = useCallback(() => {
-    if (unsubmittedText !== shape.text) {
+    if (unsubmittedText !== text) {
       // TODO: Implement concurrent editing of text
       slideInstance.updateElement(elementId, {
         text: unsubmittedText,
       });
     }
-  }, [elementId, shape.text, slideInstance, unsubmittedText]);
+  }, [elementId, slideInstance, text, unsubmittedText]);
 
   // If text editing is exited before the blur is received force a submit
   useUnmount(handleBlur);
 
   return (
-    <ForeignObjectNoInteraction
-      ref={ref}
-      x={paddingLeft}
-      y={paddingTop}
-      height={shape.height - paddingTop - paddingBottom}
-      width={shape.width - paddingLeft - paddingRight}
-    >
+    <ForeignObjectNoInteraction x={x} y={y} height={height} width={width}>
       <TextEditor
-        color={findForegroundColor(shape.fillColor)}
+        color={findForegroundColor(fillColor)}
         content={unsubmittedText}
         editModeOnMount={
           activeElement?.type === 'shape' &&

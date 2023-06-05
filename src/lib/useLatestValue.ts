@@ -33,12 +33,22 @@ export function useLatestValue<T>(
   valueProvider: () => T,
   observable?: Observable<unknown>
 ): T {
+  // memoize the latest value of the valueProvider
+  const newValue = valueProvider();
+  const latestValueRef = useRef<T>(newValue);
+  if (!isEqual(newValue, latestValueRef.current)) {
+    latestValueRef.current = newValue;
+  }
+
   // rerender this hook whenever the observable emits a new value
   const [, setRenderTimer] = useState(0);
   useEffect(() => {
     if (observable) {
       const subscription = observable.subscribe(() => {
-        setRenderTimer((old) => old + 1);
+        const newValue = valueProvider();
+        if (!isEqual(newValue, latestValueRef.current)) {
+          setRenderTimer((old) => old + 1);
+        }
       });
 
       return () => {
@@ -47,14 +57,7 @@ export function useLatestValue<T>(
     }
 
     return () => {};
-  }, [observable]);
-
-  // memoize the latest value of the valueProvider
-  const newValue = valueProvider();
-  const latestValueRef = useRef<T>(newValue);
-  if (!isEqual(newValue, latestValueRef.current)) {
-    latestValueRef.current = newValue;
-  }
+  }, [observable, valueProvider]);
 
   return latestValueRef.current;
 }

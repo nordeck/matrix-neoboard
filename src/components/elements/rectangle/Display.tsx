@@ -23,6 +23,7 @@ import {
   TextElement,
   WithSelectionProps,
 } from '../../Whiteboard';
+import { getRenderProperties } from './getRenderProperties';
 
 export type RectangleElementProps = ShapeElement & WithSelectionProps;
 
@@ -32,9 +33,38 @@ const RectangleDisplay = ({
   elementId,
   ...shape
 }: RectangleElementProps) => {
-  const strokeWidth = 2;
-  const strokeColor = shape.fillColor;
-  const padding = 10;
+  const { strokeColor, strokeWidth, text } = getRenderProperties(shape);
+
+  const renderedChild = (
+    <g>
+      <rect
+        x={shape.position.x}
+        y={shape.position.y}
+        fill={shape.fillColor}
+        height={shape.height}
+        stroke={strokeColor}
+        strokeWidth={strokeWidth}
+        width={shape.width}
+      />
+
+      {text && (
+        <TextElement
+          active={active}
+          text={shape.text}
+          elementId={elementId}
+          x={text.position.x}
+          y={text.position.y}
+          width={text.width}
+          height={text.height}
+          fillColor={shape.fillColor}
+        />
+      )}
+    </g>
+  );
+
+  if (readOnly) {
+    return renderedChild;
+  }
 
   return (
     <SelectableElement
@@ -45,30 +75,11 @@ const RectangleDisplay = ({
       <MoveableElement
         customHeight={shape.height}
         customWidth={shape.width}
-        readOnly={readOnly}
         elementId={elementId}
         {...shape}
       >
-        <ElementContextMenu elementId={elementId} readOnly={readOnly}>
-          <g transform={`translate(${shape.position.x} ${shape.position.y})`}>
-            <rect
-              fill={shape.fillColor}
-              height={shape.height}
-              stroke={strokeColor}
-              strokeWidth={strokeWidth}
-              transform={`rotate(0 ${shape.position.x} ${shape.position.y})`}
-              width={shape.width}
-            />
-            <TextElement
-              active={active}
-              elementId={elementId}
-              paddingBottom={padding}
-              paddingLeft={padding}
-              paddingRight={padding}
-              paddingTop={padding}
-              {...shape}
-            />
-          </g>
+        <ElementContextMenu elementId={elementId}>
+          {renderedChild}
         </ElementContextMenu>
       </MoveableElement>
     </SelectableElement>

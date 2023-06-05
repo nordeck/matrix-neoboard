@@ -81,4 +81,31 @@ describe('useLatestValue', () => {
 
     expect(result.current).toBe(value);
   });
+
+  it('should only rerender when a new value is available after the observable emits', () => {
+    const value = { a: 1 };
+    const valueProvider = jest
+      .fn()
+      .mockReturnValueOnce(1)
+      .mockReturnValueOnce(1)
+      .mockReturnValue(value);
+
+    const renderSubject = new Subject<void>();
+
+    let renderCounter = 0;
+    const { result } = renderHook(() => {
+      renderCounter++;
+      return useLatestValue(valueProvider, renderSubject);
+    });
+
+    expect(result.current).toBe(1);
+
+    act(() => renderSubject.next());
+
+    act(() => renderSubject.next());
+
+    expect(result.current).toBe(value);
+
+    expect(renderCounter).toBe(2);
+  });
 });

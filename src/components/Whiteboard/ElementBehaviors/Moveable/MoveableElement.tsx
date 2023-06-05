@@ -33,16 +33,13 @@ import { snapToGrid } from '../../Grid';
 import { useSvgCanvasContext } from '../../SvgCanvas';
 import { addUserSelectStyles, removeUserSelectStyles } from './DraggableStyles';
 
-const DraggableGroup = styled('g', {
-  shouldForwardProp: (p) => p !== 'readOnly',
-})<{ readOnly: boolean }>(({ readOnly }) => ({
-  cursor: readOnly ? 'inherit' : 'move',
-}));
+const DraggableGroup = styled('g')({
+  cursor: 'move',
+});
 
 export type MoveableElementProps = PropsWithChildren<
   Element & {
     elementId: string;
-    readOnly: boolean;
     customWidth: number;
     customHeight: number;
   }
@@ -51,7 +48,6 @@ export type MoveableElementProps = PropsWithChildren<
 export function MoveableElement({
   children,
   elementId,
-  readOnly,
   customWidth,
   customHeight,
   ...element
@@ -136,7 +132,6 @@ export function MoveableElement({
 
   return (
     <DraggableCore
-      disabled={readOnly}
       // disable the hack since we already added it via <DraggableStyles>.
       enableUserSelectHack={false}
       nodeRef={nodeRef as unknown as RefObject<HTMLElement>}
@@ -145,9 +140,7 @@ export function MoveableElement({
       onStart={handleStart}
       scale={scale}
     >
-      <DraggableGroup readOnly={readOnly} ref={nodeRef}>
-        {children}
-      </DraggableGroup>
+      <DraggableGroup ref={nodeRef}>{children}</DraggableGroup>
     </DraggableCore>
   );
 }
