@@ -32,21 +32,31 @@ import {
   previousItem,
 } from './utils';
 
-const ToolbarStyled = styled(MuiToolbar)(({ theme }) => ({
-  border: `1px solid ${theme.palette.divider}`,
-  padding: 2,
-  gap: 2,
-  minHeight: 'auto',
-  backgroundColor: theme.palette.background.default,
-  borderRadius: theme.shape.borderRadius,
-  boxShadow: theme.shadows[2],
-}));
+const ToolbarStyled = styled(MuiToolbar)(
+  ({ theme, 'aria-orientation': ariaOrientation }) => ({
+    border: `1px solid ${theme.palette.divider}`,
+    padding: 2,
+    gap: 2,
+    minHeight: 'auto',
+    backgroundColor: theme.palette.background.default,
+    borderRadius: theme.shape.borderRadius,
+    boxShadow: theme.shadows[2],
+    flexDirection: ariaOrientation === 'vertical' ? 'column' : 'row',
+  })
+);
 
 export type ToolbarProps = PropsWithChildren<
-  Partial<React.ComponentPropsWithRef<'div'> & { sx?: SxProps<Theme> }>
+  Partial<React.ComponentPropsWithRef<'div'>> & {
+    sx?: SxProps<Theme>;
+    orientation?: 'vertical' | 'horizontal';
+  }
 >;
 
-export function Toolbar({ children, ...props }: ToolbarProps) {
+export function Toolbar({
+  children,
+  orientation = 'horizontal',
+  ...props
+}: ToolbarProps) {
   const ref = useRef<HTMLDivElement>(null);
   const [focusedToolbarKey, setFocusedToolbarKey] = useState<
     string | undefined
@@ -62,53 +72,66 @@ export function Toolbar({ children, ...props }: ToolbarProps) {
     [focusedToolbarKey]
   );
 
-  const handleKeyDown = useCallback((event: KeyboardEvent) => {
-    const list = ref.current;
-    const currentFocus = document.activeElement;
+  const handleKeyDown = useCallback(
+    (event: KeyboardEvent) => {
+      const list = ref.current;
+      const currentFocus = document.activeElement;
 
-    // Keyboard interactions are based on
-    // https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/toolbar_role#keyboard_interactions
-    switch (event.key) {
-      case 'ArrowLeft':
-        event.preventDefault();
-        moveFocus(list, currentFocus, previousItem);
-        break;
-      case 'ArrowRight':
-        event.preventDefault();
-        moveFocus(list, currentFocus, nextItem);
-        break;
-      case 'ArrowUp':
-        // Up and down arrow keys are used to navigate in a single radio group in a toolbar
-        // https://developer.mozilla.org/en-US/docs/web/accessibility/aria/roles/radiogroup_role#keyboard_interactions
-        if (isRadioInput(currentFocus)) {
+      // Keyboard interactions are based on
+      // https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/toolbar_role#keyboard_interactions
+      switch (event.key) {
+        case 'ArrowLeft':
+          if (orientation === 'horizontal') {
+            event.preventDefault();
+            moveFocus(list, currentFocus, previousItem);
+          }
+          break;
+        case 'ArrowRight':
+          if (orientation === 'horizontal') {
+            event.preventDefault();
+            moveFocus(list, currentFocus, nextItem);
+          }
+          break;
+        case 'ArrowUp':
+          // Up and down arrow keys are used to navigate in a single radio group in a toolbar
+          // https://developer.mozilla.org/en-US/docs/web/accessibility/aria/roles/radiogroup_role#keyboard_interactions
+          if (isRadioInput(currentFocus)) {
+            event.preventDefault();
+            moveFocus(
+              findParentRadioGroup(currentFocus, list),
+              currentFocus,
+              previousItem
+            );
+          } else if (orientation === 'vertical') {
+            event.preventDefault();
+            moveFocus(list, currentFocus, previousItem);
+          }
+          break;
+        case 'ArrowDown':
+          if (isRadioInput(currentFocus)) {
+            event.preventDefault();
+            moveFocus(
+              findParentRadioGroup(currentFocus, list),
+              currentFocus,
+              nextItem
+            );
+          } else if (orientation === 'vertical') {
+            event.preventDefault();
+            moveFocus(list, currentFocus, nextItem);
+          }
+          break;
+        case 'Home':
           event.preventDefault();
-          moveFocus(
-            findParentRadioGroup(currentFocus, list),
-            currentFocus,
-            previousItem
-          );
-        }
-        break;
-      case 'ArrowDown':
-        if (isRadioInput(currentFocus)) {
+          moveFocus(list, null, nextItem);
+          break;
+        case 'End':
           event.preventDefault();
-          moveFocus(
-            findParentRadioGroup(currentFocus, list),
-            currentFocus,
-            nextItem
-          );
-        }
-        break;
-      case 'Home':
-        event.preventDefault();
-        moveFocus(list, null, nextItem);
-        break;
-      case 'End':
-        event.preventDefault();
-        moveFocus(list, null, previousItem);
-        break;
-    }
-  }, []);
+          moveFocus(list, null, previousItem);
+          break;
+      }
+    },
+    [orientation]
+  );
 
   return (
     <ToolbarStyled
@@ -117,6 +140,7 @@ export function Toolbar({ children, ...props }: ToolbarProps) {
       onKeyDown={handleKeyDown}
       disableGutters
       variant="dense"
+      aria-orientation={orientation}
       {...props}
     >
       <ToolbarStateContext.Provider value={context}>

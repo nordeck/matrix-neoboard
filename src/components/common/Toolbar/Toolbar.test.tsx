@@ -120,6 +120,34 @@ describe('Toolbar', () => {
     expect(screen.getByRole('checkbox', { name: 'A' })).toHaveFocus();
   });
 
+  it('should focus the next item if arrow down key is pressed for vertical toolbar', async () => {
+    render(
+      <Toolbar aria-label="Toolbar" orientation="vertical">
+        <ToolbarToggle inputProps={{ 'aria-label': 'A' }} />
+        <ToolbarButton>B</ToolbarButton>
+        <ToolbarSubMenu>C</ToolbarSubMenu>
+      </Toolbar>
+    );
+
+    screen.getByRole('button', { name: 'B' }).focus();
+    await userEvent.keyboard('[ArrowDown]');
+    expect(screen.getByRole('button', { name: 'C' })).toHaveFocus();
+  });
+
+  it('should focus the previous item if arrow up key is pressed for vertical toolbar', async () => {
+    render(
+      <Toolbar aria-label="Toolbar" orientation="vertical">
+        <ToolbarToggle inputProps={{ 'aria-label': 'A' }} />
+        <ToolbarButton>B</ToolbarButton>
+        <ToolbarSubMenu>C</ToolbarSubMenu>
+      </Toolbar>
+    );
+
+    screen.getByRole('button', { name: 'B' }).focus();
+    await userEvent.keyboard('[ArrowUp]');
+    expect(screen.getByRole('checkbox', { name: 'A' })).toHaveFocus();
+  });
+
   it('should wrap focus to the previous item if arrow left key is pressed while the first item is focused', async () => {
     render(
       <Toolbar aria-label="Toolbar">
