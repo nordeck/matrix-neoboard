@@ -14,17 +14,48 @@
  * limitations under the License.
  */
 
+import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import PresentToAllIcon from '@mui/icons-material/PresentToAll';
 import { Box } from '@mui/material';
+import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { PresentationState, usePresentationMode } from '../../state';
+import {
+  PresentationState,
+  useActiveSlide,
+  useActiveWhiteboardInstance,
+  usePresentationMode,
+} from '../../state';
 import { useUserDetails } from '../../store';
-import { Toolbar, ToolbarAvatar, ToolbarToggle } from '../common/Toolbar';
+import {
+  Toolbar,
+  ToolbarAvatar,
+  ToolbarButton,
+  ToolbarToggle,
+} from '../common/Toolbar';
 
 export function PresentBar() {
   const { t } = useTranslation();
-
+  const whiteboardInstance = useActiveWhiteboardInstance();
+  const { activeSlideId, isFirstSlideActive, isLastSlideActive } =
+    useActiveSlide();
   const { state, togglePresentation } = usePresentationMode();
+
+  const handleToNextSlideClick = useCallback(() => {
+    if (activeSlideId) {
+      const slideIds = whiteboardInstance.getSlideIds();
+      const activeSlideIndex = slideIds.indexOf(activeSlideId);
+      whiteboardInstance.setActiveSlideId(slideIds[activeSlideIndex + 1]);
+    }
+  }, [activeSlideId, whiteboardInstance]);
+
+  const handleToPreviousSlideClick = useCallback(() => {
+    if (activeSlideId) {
+      const slideIds = whiteboardInstance.getSlideIds();
+      const activeSlideIndex = slideIds.indexOf(activeSlideId);
+      whiteboardInstance.setActiveSlideId(slideIds[activeSlideIndex - 1]);
+    }
+  }, [activeSlideId, whiteboardInstance]);
 
   const presentBarTitle = t('presentBar.title', 'Present');
   const buttonTitle =
@@ -32,8 +63,18 @@ export function PresentBar() {
       ? t('presentBar.stopPresentation', 'Stop presentation')
       : t('presentBar.startPresentation', 'Start presentation');
 
+  const presentToolsBarNextSlide = t('presentToolsBar.nextSlide', 'Next slide');
+  const presentToolsBarPreviousSlide = t(
+    'presentToolsBar.previousSlide',
+    'Previous slide'
+  );
+
   return (
-    <Toolbar aria-label={presentBarTitle} sx={{ pointerEvents: 'initial' }}>
+    <Toolbar
+      aria-label={presentBarTitle}
+      sx={{ pointerEvents: 'initial' }}
+      orientation="vertical"
+    >
       {state.type !== 'presentation' && (
         <ToolbarToggle
           inputProps={{ 'aria-label': buttonTitle }}
@@ -42,6 +83,24 @@ export function PresentBar() {
           icon={<PresentToAllIcon />}
           checkedIcon={<PresentToAllIcon />}
         />
+      )}
+      {state.type === 'presenting' && (
+        <>
+          <ToolbarButton
+            aria-label={presentToolsBarPreviousSlide}
+            disabled={isFirstSlideActive}
+            onClick={handleToPreviousSlideClick}
+          >
+            <ArrowBackIosNewIcon />
+          </ToolbarButton>
+          <ToolbarButton
+            aria-label={presentToolsBarNextSlide}
+            disabled={isLastSlideActive}
+            onClick={handleToNextSlideClick}
+          >
+            <ArrowForwardIosIcon />
+          </ToolbarButton>
+        </>
       )}
 
       {state.type === 'presentation' && <PresenterAvatar state={state} />}
