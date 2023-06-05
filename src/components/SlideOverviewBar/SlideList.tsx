@@ -25,7 +25,6 @@ import {
 } from '../../state';
 import { SlideListItem } from './SlideListItem';
 import { SlidesDragDropContext } from './SlidesDragDropContext';
-import { useUpdatedTabsListProviderValue } from './useUpdatedTabsListProviderValue';
 
 export function SlideList() {
   const { t } = useTranslation();
@@ -77,10 +76,8 @@ const SlideListTabs = forwardRef<
     tabProps.onKeyDown = undefined;
   }
 
-  const value = useUpdatedTabsListProviderValue(contextValue);
-
   return (
-    <TabsListProvider value={value}>
+    <TabsListProvider value={contextValue}>
       <Box
         flex="1"
         display="flex"
