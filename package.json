@@ -43,7 +43,7 @@
   "devDependencies": {
     "@changesets/cli": "^2.26.1",
     "@craco/craco": "^7.1.0",
-    "@matrix-widget-toolkit/testing": "^2.2.1",
+    "@matrix-widget-toolkit/testing": "^2.3.0",
     "@testing-library/dom": "^8.20.0",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^12.1.5",
@@ -51,7 +51,7 @@
     "@testing-library/user-event": "^14.4.3",
     "@types/jest": "^27.5.2",
     "@types/jest-axe": "^3.5.5",
-    "@types/lodash": "^4.14.194",
+    "@types/lodash": "^4.14.195",
     "@types/node": "^16.18.25",
     "@types/react": "^17.0.39",
     "@types/react-beautiful-dnd": "^13.1.4",
