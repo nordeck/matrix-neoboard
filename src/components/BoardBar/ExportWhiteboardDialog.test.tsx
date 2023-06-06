@@ -15,18 +15,22 @@
  */
 
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { axe } from 'jest-axe';
 import { ComponentType, PropsWithChildren } from 'react';
+import { of, throwError } from 'rxjs';
 import {
   mockWhiteboardManager,
   WhiteboardTestingContextProvider,
 } from '../../lib/testUtils/documentTestUtils';
-import { mockRoomName } from '../../lib/testUtils/matrixTestUtils';
 import { WhiteboardManager } from '../../state';
 import { LayoutStateProvider } from '../Layout';
 import { ExportWhiteboardDialog } from './ExportWhiteboardDialog';
+import { createWhiteboardPdf } from './pdf';
+
+// The pdf library doesn't work in test, so we mock pdf generation completely
+jest.mock('./pdf', () => ({ createWhiteboardPdf: jest.fn() }));
 
 let widgetApi: MockedWidgetApi;
 
@@ -54,6 +58,7 @@ describe('<ExportWhiteboardDialog/>', () => {
     };
 
     jest.mocked(URL.createObjectURL).mockReturnValue('blob:url');
+    jest.mocked(createWhiteboardPdf).mockReturnValue(of(new Blob(['value'])));
   });
 
   it('should render without exploding', async () => {
@@ -63,9 +68,12 @@ describe('<ExportWhiteboardDialog/>', () => {
 
     const dialog = screen.getByRole('dialog', {
       name: 'Export the content',
-      description:
-        'Download a copy of your content. You can import the file into a different room with the import feature.',
+      description: 'Please choose your preferred format.',
     });
+
+    expect(
+      within(dialog).getByRole('button', { name: 'File format' })
+    ).toHaveTextContent('PDF-File (.pdf)');
 
     expect(
       within(dialog).getByRole('button', { name: 'Cancel' })
@@ -118,7 +126,7 @@ describe('<ExportWhiteboardDialog/>', () => {
     expect(onClose).toBeCalled();
   });
 
-  it('should close dialog on download', async () => {
+  it('should close dialog on download pdf', async () => {
     render(<ExportWhiteboardDialog open onClose={onClose} />, {
       wrapper: Wrapper,
     });
@@ -132,57 +140,38 @@ describe('<ExportWhiteboardDialog/>', () => {
     expect(onClose).toBeCalled();
   });
 
-  it('should provide download button', async () => {
+  it('should close dialog on download file', async () => {
     render(<ExportWhiteboardDialog open onClose={onClose} />, {
       wrapper: Wrapper,
     });
 
     const dialog = screen.getByRole('dialog');
 
-    const downloadButton = within(dialog).getByRole('link', {
-      name: 'Download',
-    });
+    await userEvent.click(
+      within(dialog).getByRole('button', { name: 'File format' })
+    );
+    await userEvent.click(
+      screen.getByRole('option', { name: 'NeoBoard-File (.nwb)' })
+    );
 
-    expect(downloadButton).toHaveAttribute('href', 'blob:url');
-    expect(downloadButton).toHaveAttribute('download', 'NeoBoard.nwb');
+    await userEvent.click(
+      within(dialog).getByRole('link', { name: 'Download' })
+    );
+
+    expect(onClose).toBeCalled();
   });
 
-  it('should use the room name for the file name', async () => {
-    widgetApi.mockSendStateEvent(mockRoomName());
+  it('should handle error while generating PDF', async () => {
+    jest
+      .mocked(createWhiteboardPdf)
+      .mockReturnValue(throwError(() => new Error('Failed')));
 
     render(<ExportWhiteboardDialog open onClose={onClose} />, {
       wrapper: Wrapper,
     });
 
-    const dialog = screen.getByRole('dialog');
-
-    const downloadButton = within(dialog).getByRole('link', {
-      name: 'Download',
-    });
-
-    await waitFor(() => {
-      expect(downloadButton).toHaveAttribute('download', 'My Room.nwb');
-    });
-  });
-
-  it('should download the correct whiteboard content', async () => {
-    const blobSpy = jest.spyOn(global, 'Blob').mockReturnValue({
-      size: 0,
-      type: '',
-      arrayBuffer: jest.fn(),
-      slice: jest.fn(),
-      stream: jest.fn(),
-      text: jest.fn(),
-    });
-
-    widgetApi.mockSendStateEvent(mockRoomName());
-
-    render(<ExportWhiteboardDialog open onClose={onClose} />, {
-      wrapper: Wrapper,
-    });
-
-    expect(blobSpy).toBeCalledWith([
-      '{"version":"net.nordeck.whiteboard@v1","whiteboard":{"slides":[{"elements":[{"type":"shape","kind":"ellipse","position":{"x":0,"y":1},"fillColor":"#ffffff","height":100,"width":50,"text":""}]}]}}',
-    ]);
+    await expect(screen.findByRole('status')).resolves.toHaveTextContent(
+      'Something went wrong while generating the PDF.'
+    );
   });
 });

@@ -40,7 +40,7 @@ type EditableProps = {
 const Editable = styled('div', {
   shouldForwardProp: (p) => p !== 'editMode',
 })<EditableProps>(({ editMode, contentEditable }) => ({
-  lineHeight: 1,
+  lineHeight: 1.2,
   wordBreak: 'unset',
   wordWrap: 'unset',
   overflowWrap: 'unset',
@@ -51,7 +51,7 @@ const Editable = styled('div', {
   cursor: editMode ? 'text' : 'inherit',
   // We disabled pointer event on the outer container, enable it here again
   pointerEvents: contentEditable ? 'all' : 'none',
-  // Hide the carret till we are actually editing
+  // Hide the caret till we are actually editing
   caretColor: editMode ? 'inherit' : 'transparent',
   // We need the overflow to trigger scrollWidth/scrollHeight changes for fitText
   overflow: 'visible',

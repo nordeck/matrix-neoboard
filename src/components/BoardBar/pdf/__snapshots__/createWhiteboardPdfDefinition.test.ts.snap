@@ -1,0 +1,360 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`createWhiteboardPdfDefinition should generate a pdf header and table 1`] = `
+Object {
+  "content": Array [
+    Object {
+      "pageBreak": undefined,
+      "stack": Array [
+        Array [
+          Array [
+            Object {
+              "absolutePosition": Object {
+                "x": 0,
+                "y": 0,
+              },
+              "canvas": Array [
+                Object {
+                  "color": "#ffffff",
+                  "h": 100,
+                  "lineColor": "#ffffff",
+                  "lineWidth": 2,
+                  "strokeOpacity": 1,
+                  "type": "rect",
+                  "w": 50,
+                  "x": 0,
+                  "y": 1,
+                },
+              ],
+              "unbreakable": true,
+            },
+            Object {
+              "absolutePosition": Object {
+                "x": 10,
+                "y": 51,
+              },
+              "layout": "noBorders",
+              "table": Object {
+                "body": Array [
+                  Array [
+                    Object {
+                      "alignment": "center",
+                      "color": "#000",
+                      "font": "Inter",
+                      "fontSize": 10,
+                      "lineHeight": 1,
+                      "margin": 0,
+                      "text": Array [
+                        "Rectangle",
+                      ],
+                    },
+                  ],
+                ],
+                "heights": Array [
+                  40,
+                ],
+                "widths": Array [
+                  30,
+                ],
+              },
+              "unbreakable": true,
+            },
+          ],
+          Array [
+            Object {
+              "absolutePosition": Object {
+                "x": 0,
+                "y": 0,
+              },
+              "canvas": Array [
+                Object {
+                  "color": undefined,
+                  "h": 100,
+                  "lineColor": undefined,
+                  "lineWidth": 2,
+                  "strokeOpacity": 0,
+                  "type": "rect",
+                  "w": 50,
+                  "x": 0,
+                  "y": 1,
+                },
+              ],
+              "unbreakable": true,
+            },
+            Object {
+              "absolutePosition": Object {
+                "x": 10,
+                "y": 51,
+              },
+              "layout": "noBorders",
+              "table": Object {
+                "body": Array [
+                  Array [
+                    Object {
+                      "alignment": "center",
+                      "color": "#000",
+                      "font": "Inter",
+                      "fontSize": 10,
+                      "lineHeight": 1,
+                      "margin": 0,
+                      "text": Array [
+                        "Rectangle Text",
+                      ],
+                    },
+                  ],
+                ],
+                "heights": Array [
+                  40,
+                ],
+                "widths": Array [
+                  30,
+                ],
+              },
+              "unbreakable": true,
+            },
+          ],
+          Array [
+            Object {
+              "absolutePosition": Object {
+                "x": 0,
+                "y": 0,
+              },
+              "canvas": Array [
+                Object {
+                  "color": "#ffffff",
+                  "lineColor": "#ffffff",
+                  "lineWidth": 2,
+                  "r1": 25,
+                  "r2": 50,
+                  "type": "ellipse",
+                  "x": 25,
+                  "y": 51,
+                },
+              ],
+              "unbreakable": true,
+            },
+            Object {
+              "absolutePosition": Object {
+                "x": 7.322330470336311,
+                "y": 51.14466094067262,
+              },
+              "layout": "noBorders",
+              "table": Object {
+                "body": Array [
+                  Array [
+                    Object {
+                      "alignment": "center",
+                      "color": "#000",
+                      "font": "Inter",
+                      "fontSize": 10,
+                      "lineHeight": 1,
+                      "margin": 0,
+                      "text": Array [
+                        "Circle ",
+                        Object {
+                          "style": "emoji",
+                          "text": "✅",
+                        },
+                      ],
+                    },
+                  ],
+                ],
+                "heights": Array [
+                  35.210678118654755,
+                ],
+                "widths": Array [
+                  35.35533905932738,
+                ],
+              },
+              "unbreakable": true,
+            },
+          ],
+          Array [
+            Object {
+              "absolutePosition": Object {
+                "x": 0,
+                "y": 0,
+              },
+              "canvas": Array [
+                Object {
+                  "color": "#ffffff",
+                  "lineColor": "#ffffff",
+                  "lineWidth": 2,
+                  "r1": 25,
+                  "r2": 50,
+                  "type": "ellipse",
+                  "x": 25,
+                  "y": 51,
+                },
+              ],
+              "unbreakable": true,
+            },
+            Object {
+              "absolutePosition": Object {
+                "x": 7.322330470336311,
+                "y": 51.14466094067262,
+              },
+              "layout": "noBorders",
+              "table": Object {
+                "body": Array [
+                  Array [
+                    Object {
+                      "alignment": "center",
+                      "color": "#000",
+                      "font": "Inter",
+                      "fontSize": 10,
+                      "lineHeight": 1,
+                      "margin": 0,
+                      "text": Array [
+                        "Ellipse",
+                      ],
+                    },
+                  ],
+                ],
+                "heights": Array [
+                  35.210678118654755,
+                ],
+                "widths": Array [
+                  35.35533905932738,
+                ],
+              },
+              "unbreakable": true,
+            },
+          ],
+          Array [
+            Object {
+              "absolutePosition": Object {
+                "x": 0,
+                "y": 0,
+              },
+              "canvas": Array [
+                Object {
+                  "closePath": true,
+                  "color": "#ffffff",
+                  "lineColor": "#ffffff",
+                  "lineWidth": 2,
+                  "points": Array [
+                    Object {
+                      "x": 0,
+                      "y": 101,
+                    },
+                    Object {
+                      "x": 25,
+                      "y": 1,
+                    },
+                    Object {
+                      "x": 50,
+                      "y": 101,
+                    },
+                  ],
+                  "type": "polyline",
+                },
+              ],
+              "unbreakable": true,
+            },
+            Object {
+              "absolutePosition": Object {
+                "x": 8.333333333333332,
+                "y": 79.16666666666666,
+              },
+              "layout": "noBorders",
+              "table": Object {
+                "body": Array [
+                  Array [
+                    Object {
+                      "alignment": "center",
+                      "color": "#000",
+                      "font": "Inter",
+                      "fontSize": 10,
+                      "lineHeight": 1,
+                      "margin": 0,
+                      "text": Array [
+                        "Triangle ",
+                        Object {
+                          "style": "emoji",
+                          "text": "👍",
+                        },
+                      ],
+                    },
+                  ],
+                ],
+                "heights": Array [
+                  11.833333333333343,
+                ],
+                "widths": Array [
+                  33.333333333333336,
+                ],
+              },
+              "unbreakable": true,
+            },
+          ],
+        ],
+      ],
+    },
+    Object {
+      "pageBreak": "before",
+      "stack": Array [
+        Array [
+          Object {
+            "absolutePosition": Object {
+              "x": 0,
+              "y": 0,
+            },
+            "canvas": Array [
+              Object {
+                "lineColor": "#ffffff",
+                "lineWidth": 4,
+                "type": "line",
+                "x1": 0,
+                "x2": 2,
+                "y1": 2,
+                "y2": 4,
+              },
+            ],
+            "unbreakable": true,
+          },
+          Object {
+            "absolutePosition": Object {
+              "x": 0,
+              "y": 0,
+            },
+            "canvas": Array [
+              Object {
+                "lineColor": "#ffffff",
+                "lineWidth": 4,
+                "points": Array [
+                  Object {
+                    "x": 0,
+                    "y": 2,
+                  },
+                  Object {
+                    "x": 2,
+                    "y": 4,
+                  },
+                ],
+                "type": "polyline",
+              },
+            ],
+            "unbreakable": true,
+          },
+        ],
+      ],
+    },
+  ],
+  "info": Object {
+    "author": "Alice",
+    "title": "My Room",
+  },
+  "pageMargins": 0,
+  "pageSize": Object {
+    "height": 1080,
+    "width": 1920,
+  },
+  "styles": Object {
+    "emoji": Object {
+      "font": "Noto Emoji",
+    },
+  },
+  "version": "1.5",
+}
+`;

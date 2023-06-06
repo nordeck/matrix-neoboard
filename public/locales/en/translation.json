@@ -3,8 +3,15 @@
     "exportWhiteboardDialog": {
       "cancel": "Cancel",
       "close": "Close",
-      "description": "Download a copy of your content. You can import the file into a different room with the import feature.",
+      "description": "Please choose your preferred format.",
       "download": "Download",
+      "fileFormat": {
+        "nwb": "NeoBoard-File (.nwb)",
+        "pdf": "PDF-File (.pdf)",
+        "title": "File format"
+      },
+      "notAccessibleTooltip": "The provided PDF is currently not accessible and can not be read using a screen reader.",
+      "pdfError": "Something went wrong while generating the PDF.",
       "title": "Export the content"
     },
     "hideSlideBarTitle": "Close slide overview",

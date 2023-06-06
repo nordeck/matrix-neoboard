@@ -58,7 +58,7 @@ Object.defineProperty(window, 'location', {
 
 // Provide a mock for the CSS Font Loading API
 Object.defineProperty(document, 'fonts', {
-  value: { ready: new Promise(() => {}) },
+  value: { ready: Promise.resolve([]) },
   configurable: true,
 });
 
