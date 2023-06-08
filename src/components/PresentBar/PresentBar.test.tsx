@@ -252,4 +252,36 @@ describe('<PresentBar/>', () => {
       })
     ).toBeDisabled();
   });
+
+  it('should toggle the edit mode', async () => {
+    whiteboardManager
+      .getActiveWhiteboardInstance()
+      ?.getPresentationManager()
+      .startPresentation();
+
+    render(<PresentBar />, { wrapper: Wrapper });
+
+    const toolbar = screen.getByRole('toolbar', { name: 'Present' });
+
+    await userEvent.click(
+      within(toolbar).getByRole('checkbox', {
+        name: 'Enable editing',
+        checked: false,
+      })
+    );
+
+    await userEvent.click(
+      within(toolbar).getByRole('checkbox', {
+        name: 'Disable editing',
+        checked: true,
+      })
+    );
+
+    expect(
+      within(toolbar).getByRole('checkbox', {
+        name: 'Enable editing',
+        checked: false,
+      })
+    ).toBeInTheDocument();
+  });
 });

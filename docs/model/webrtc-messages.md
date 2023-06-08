@@ -79,10 +79,11 @@ This message is used to notify the peers that a slide if currently presented.
 
 ### Content
 
-| Field          | Type                  | Description                           |
-| -------------- | --------------------- | ------------------------------------- |
-| `view`         | `object \| undefined` | If defined, the sender is presenting. |
-| `view.slideId` | `string`              | The id of the presented slide.        |
+| Field             | Type                  | Description                                            |
+| ----------------- | --------------------- | ------------------------------------------------------ |
+| `view`            | `object \| undefined` | If defined, the sender is presenting.                  |
+| `view.isEditMode` | `boolean`             | The edit mode is disabled/enabled during presentation. |
+| `view.slideId`    | `string`              | The id of the presented slide.                         |
 
 ### Example
 
@@ -91,6 +92,7 @@ This message is used to notify the peers that a slide if currently presented.
   "type": "net.nordeck.whiteboard.present_slide",
   "content": {
     "view": {
+      "isEditMode": false,
       "slideId": "<slide-id>"
     }
   }

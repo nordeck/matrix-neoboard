@@ -44,6 +44,7 @@ describe('usePresentationMode', () => {
 
     expect(result.current).toEqual({
       state: { type: 'idle' },
+      toggleEditMode: expect.any(Function),
       togglePresentation: expect.any(Function),
     });
   });
@@ -58,7 +59,8 @@ describe('usePresentationMode', () => {
     });
 
     expect(result.current).toEqual({
-      state: { type: 'presenting' },
+      state: { type: 'presenting', isEditMode: false },
+      toggleEditMode: expect.any(Function),
       togglePresentation: expect.any(Function),
     });
 
@@ -68,6 +70,34 @@ describe('usePresentationMode', () => {
 
     expect(result.current).toEqual({
       state: { type: 'idle' },
+      toggleEditMode: expect.any(Function),
+      togglePresentation: expect.any(Function),
+    });
+  });
+
+  it('should toggle the edit mode', async () => {
+    const { result } = renderHook(() => usePresentationMode(), {
+      wrapper: Wrapper,
+    });
+
+    act(() => {
+      result.current.togglePresentation();
+      result.current.toggleEditMode();
+    });
+
+    expect(result.current).toEqual({
+      state: { type: 'presenting', isEditMode: true },
+      toggleEditMode: expect.any(Function),
+      togglePresentation: expect.any(Function),
+    });
+
+    act(() => {
+      result.current.toggleEditMode();
+    });
+
+    expect(result.current).toEqual({
+      state: { type: 'presenting', isEditMode: false },
+      toggleEditMode: expect.any(Function),
       togglePresentation: expect.any(Function),
     });
   });

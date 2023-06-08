@@ -14,12 +14,20 @@
  * limitations under the License.
  */
 
-import { IconButton, IconButtonProps, styled, Tooltip } from '@mui/material';
+import {
+  IconButton,
+  IconButtonProps,
+  styled,
+  Tooltip,
+  TooltipProps,
+} from '@mui/material';
 import { forwardRef } from 'react';
 import { TooltipDisabledChildWrapper } from '../TooltipDisabledChildWrapper';
 import { useToolbarItem } from './useToolbarItem';
 
-export type ToolbarButtonProps = IconButtonProps;
+export type ToolbarButtonProps = IconButtonProps & {
+  placement?: TooltipProps['placement'];
+};
 
 const IconButtonStyled = styled(IconButton)(({ theme }) => ({
   borderRadius: theme.shape.borderRadius,
@@ -32,11 +40,11 @@ const IconButtonStyled = styled(IconButton)(({ theme }) => ({
 }));
 
 export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
-  (props, ref) => {
+  ({ placement, ...props }, ref) => {
     const { additionalProps } = useToolbarItem();
 
     return (
-      <Tooltip title={props['aria-label']}>
+      <Tooltip title={props['aria-label']} placement={placement}>
         {/* Wrap in span to allow tooltips on disabled button */}
         <TooltipDisabledChildWrapper>
           <IconButtonStyled

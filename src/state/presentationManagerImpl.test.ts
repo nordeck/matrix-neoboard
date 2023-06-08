@@ -71,6 +71,7 @@ describe('presentationManager', () => {
 
     whiteboardInstance = {
       addSlide: jest.fn(),
+      clearUndoManager: jest.fn(),
       export: jest.fn(),
       focusOn: jest.fn(),
       getActiveSlideId: jest
@@ -112,10 +113,13 @@ describe('presentationManager', () => {
 
     presentationManager.startPresentation();
 
-    expect(await states).toEqual([{ type: 'idle' }, { type: 'presenting' }]);
+    expect(await states).toEqual([
+      { type: 'idle' },
+      { type: 'presenting', isEditMode: false },
+    ]);
     expect(communicationChannel.broadcastMessage).toBeCalledWith(
       'net.nordeck.whiteboard.present_slide',
-      { view: { slideId: 'slide-0' } }
+      { view: { isEditMode: false, slideId: 'slide-0' } }
     );
     expect(whiteboardInstance.setActiveSlideId).not.toBeCalled();
   });
@@ -129,7 +133,10 @@ describe('presentationManager', () => {
 
     presentationManager.stopPresentation();
 
-    expect(await states).toEqual([{ type: 'presenting' }, { type: 'idle' }]);
+    expect(await states).toEqual([
+      { type: 'presenting', isEditMode: false },
+      { type: 'idle' },
+    ]);
     expect(communicationChannel.broadcastMessage).toBeCalledWith(
       'net.nordeck.whiteboard.present_slide',
       { view: undefined }
@@ -147,14 +154,15 @@ describe('presentationManager', () => {
       senderSessionId: 'session-0',
       type: 'net.nordeck.whiteboard.present_slide',
       content: {
-        view: { slideId: 'slide-0' },
+        view: { isEditMode: false, slideId: 'slide-0' },
       },
     });
 
     expect(await states).toEqual([
       { type: 'idle' },
-      { type: 'presentation', presenterUserId: '@user-bob' },
+      { type: 'presentation', presenterUserId: '@user-bob', isEditMode: false },
     ]);
+    expect(whiteboardInstance.clearUndoManager).not.toBeCalled();
     expect(whiteboardInstance.setActiveSlideId).toBeCalledWith('slide-0');
   });
 
@@ -164,7 +172,7 @@ describe('presentationManager', () => {
       senderSessionId: 'session-0',
       type: 'net.nordeck.whiteboard.present_slide',
       content: {
-        view: { slideId: 'slide-0' },
+        view: { isEditMode: false, slideId: 'slide-0' },
       },
     });
 
@@ -182,10 +190,34 @@ describe('presentationManager', () => {
     });
 
     expect(await states).toEqual([
-      { type: 'presentation', presenterUserId: '@user-bob' },
+      { type: 'presentation', presenterUserId: '@user-bob', isEditMode: false },
       { type: 'idle' },
     ]);
+    expect(whiteboardInstance.clearUndoManager).not.toBeCalled();
     expect(whiteboardInstance.setActiveSlideId).not.toBeCalled();
+  });
+
+  it('should accept the edit mode from a different user', async () => {
+    const states = firstValueFrom(
+      presentationManager.observePresentationState().pipe(take(3), toArray())
+    );
+
+    messageSubject.next({
+      senderUserId: '@user-bob',
+      senderSessionId: 'session-0',
+      type: 'net.nordeck.whiteboard.present_slide',
+      content: {
+        view: { isEditMode: true, slideId: 'slide-0' },
+      },
+    });
+
+    expect(await states).toEqual([
+      { type: 'idle' },
+      { type: 'presentation', presenterUserId: '@user-bob', isEditMode: false },
+      { type: 'presentation', presenterUserId: '@user-bob', isEditMode: true },
+    ]);
+    expect(whiteboardInstance.clearUndoManager).toBeCalled();
+    expect(whiteboardInstance.setActiveSlideId).toBeCalledWith('slide-0');
   });
 
   it('should update the presentation state when a presenting user becomes disconnected', async () => {
@@ -194,7 +226,7 @@ describe('presentationManager', () => {
       senderSessionId: 'session-0',
       type: 'net.nordeck.whiteboard.present_slide',
       content: {
-        view: { slideId: 'slide-0' },
+        view: { isEditMode: false, slideId: 'slide-0' },
       },
     });
 
@@ -217,7 +249,7 @@ describe('presentationManager', () => {
     observeCommunicationStatisticsSubject.next(communicationStatistics);
 
     expect(await states).toEqual([
-      { type: 'presentation', presenterUserId: '@user-bob' },
+      { type: 'presentation', presenterUserId: '@user-bob', isEditMode: false },
       { type: 'idle' },
     ]);
     expect(whiteboardInstance.setActiveSlideId).not.toBeCalled();
@@ -233,17 +265,17 @@ describe('presentationManager', () => {
     expect(communicationChannel.broadcastMessage).toHaveBeenNthCalledWith(
       1,
       'net.nordeck.whiteboard.present_slide',
-      { view: { slideId: 'slide-0' } }
+      { view: { isEditMode: false, slideId: 'slide-0' } }
     );
     expect(communicationChannel.broadcastMessage).toHaveBeenNthCalledWith(
       2,
       'net.nordeck.whiteboard.present_slide',
-      { view: { slideId: 'slide-1' } }
+      { view: { isEditMode: false, slideId: 'slide-1' } }
     );
     expect(communicationChannel.broadcastMessage).toHaveBeenNthCalledWith(
       3,
       'net.nordeck.whiteboard.present_slide',
-      { view: { slideId: 'slide-2' } }
+      { view: { isEditMode: false, slideId: 'slide-2' } }
     );
   });
 
@@ -276,7 +308,7 @@ describe('presentationManager', () => {
 
     expect(communicationChannel.broadcastMessage).toBeCalledWith(
       'net.nordeck.whiteboard.present_slide',
-      { view: { slideId: 'slide-0' } }
+      { view: { isEditMode: false, slideId: 'slide-0' } }
     );
   });
 
@@ -296,12 +328,12 @@ describe('presentationManager', () => {
     expect(communicationChannel.broadcastMessage).toHaveBeenNthCalledWith(
       1,
       'net.nordeck.whiteboard.present_slide',
-      { view: { slideId: 'slide-0' } }
+      { view: { isEditMode: false, slideId: 'slide-0' } }
     );
     expect(communicationChannel.broadcastMessage).toHaveBeenNthCalledWith(
       2,
       'net.nordeck.whiteboard.present_slide',
-      { view: { slideId: 'slide-1' } }
+      { view: { isEditMode: false, slideId: 'slide-1' } }
     );
   });
 
@@ -318,7 +350,7 @@ describe('presentationManager', () => {
       senderSessionId: 'session-0',
       type: 'net.nordeck.whiteboard.present_slide',
       content: {
-        view: { slideId: 'slide-0' },
+        view: { isEditMode: false, slideId: 'slide-0' },
       },
     });
 
@@ -333,5 +365,99 @@ describe('presentationManager', () => {
     presentationManager.destroy();
 
     expect(await states).toEqual([{ type: 'idle' }]);
+  });
+
+  it('should toggle the edit mode', async () => {
+    const states = firstValueFrom(
+      presentationManager.observePresentationState().pipe(take(4), toArray())
+    );
+
+    presentationManager.startPresentation();
+    presentationManager.toggleEditMode();
+    presentationManager.toggleEditMode();
+
+    expect(await states).toEqual([
+      { type: 'idle' },
+      { type: 'presenting', isEditMode: false },
+      { type: 'presenting', isEditMode: true },
+      { type: 'presenting', isEditMode: false },
+    ]);
+    expect(communicationChannel.broadcastMessage).toBeCalledTimes(3);
+    expect(communicationChannel.broadcastMessage).toHaveBeenNthCalledWith(
+      1,
+      'net.nordeck.whiteboard.present_slide',
+      { view: { isEditMode: false, slideId: 'slide-0' } }
+    );
+    expect(communicationChannel.broadcastMessage).toHaveBeenNthCalledWith(
+      2,
+      'net.nordeck.whiteboard.present_slide',
+      { view: { isEditMode: true, slideId: 'slide-0' } }
+    );
+    expect(communicationChannel.broadcastMessage).toHaveBeenNthCalledWith(
+      3,
+      'net.nordeck.whiteboard.present_slide',
+      { view: { isEditMode: false, slideId: 'slide-0' } }
+    );
+  });
+
+  it('should deactivate the edit mode when the slide changes', async () => {
+    const states = firstValueFrom(
+      presentationManager.observePresentationState().pipe(take(4), toArray())
+    );
+
+    presentationManager.startPresentation();
+    presentationManager.toggleEditMode();
+    observeActiveSlideIdSubject.next('slide-1');
+
+    expect(await states).toEqual([
+      { type: 'idle' },
+      { type: 'presenting', isEditMode: false },
+      { type: 'presenting', isEditMode: true },
+      { type: 'presenting', isEditMode: false },
+    ]);
+    expect(communicationChannel.broadcastMessage).toBeCalledTimes(3);
+    expect(communicationChannel.broadcastMessage).toHaveBeenNthCalledWith(
+      1,
+      'net.nordeck.whiteboard.present_slide',
+      { view: { isEditMode: false, slideId: 'slide-0' } }
+    );
+    expect(communicationChannel.broadcastMessage).toHaveBeenNthCalledWith(
+      2,
+      'net.nordeck.whiteboard.present_slide',
+      { view: { isEditMode: true, slideId: 'slide-0' } }
+    );
+    expect(communicationChannel.broadcastMessage).toHaveBeenNthCalledWith(
+      3,
+      'net.nordeck.whiteboard.present_slide',
+      { view: { isEditMode: false, slideId: 'slide-1' } }
+    );
+  });
+
+  it('should clear the undo manager', async () => {
+    messageSubject.next({
+      senderUserId: '@user-bob',
+      senderSessionId: 'session-0',
+      type: 'net.nordeck.whiteboard.present_slide',
+      content: {
+        view: { isEditMode: true, slideId: 'slide-0' },
+      },
+    });
+
+    expect(whiteboardInstance.clearUndoManager).toBeCalled();
+  });
+
+  it('should not clear the undo manager', async () => {
+    presentationManager.toggleEditMode();
+
+    messageSubject.next({
+      senderUserId: '@user-bob',
+      senderSessionId: 'session-0',
+      type: 'net.nordeck.whiteboard.present_slide',
+      content: {
+        view: { isEditMode: true, slideId: 'slide-0' },
+      },
+    });
+
+    expect(whiteboardInstance.clearUndoManager).not.toBeCalled();
   });
 });

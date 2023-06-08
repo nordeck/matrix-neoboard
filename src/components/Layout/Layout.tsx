@@ -78,7 +78,7 @@ export function Layout() {
             <TabPanelStyled value={slideId} key={slideId}>
               <SlideProvider slideId={slideId}>
                 <ElementOverridesProvider>
-                  <ContentArea presentationMode={isViewingPresentation} />
+                  <ContentArea />
                 </ElementOverridesProvider>
               </SlideProvider>
             </TabPanelStyled>
@@ -111,7 +111,12 @@ function AnimatedSidebar({
   );
 }
 
-function ContentArea({ presentationMode }: { presentationMode?: boolean }) {
+function ContentArea() {
+  const { state } = usePresentationMode();
+  const isViewingPresentation = state.type === 'presentation';
+  const isViewingPresentationInEditMode =
+    isViewingPresentation && state.isEditMode;
+
   return (
     <>
       <Shortcuts />
@@ -121,7 +126,7 @@ function ContentArea({ presentationMode }: { presentationMode?: boolean }) {
         justifyContent="end"
         top={(theme) => theme.spacing(1)}
       >
-        {!presentationMode && (
+        {!isViewingPresentation && (
           <>
             <BoardBar />
             <CollaborationBar />
@@ -132,7 +137,7 @@ function ContentArea({ presentationMode }: { presentationMode?: boolean }) {
 
       <WhiteboardHost />
 
-      {!presentationMode && (
+      {(!isViewingPresentation || isViewingPresentationInEditMode) && (
         <ToolbarContainer bottom={(theme) => theme.spacing(1)}>
           <Box flex="1" />
 

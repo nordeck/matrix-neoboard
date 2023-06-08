@@ -16,6 +16,7 @@
 
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import LockOpenIcon from '@mui/icons-material/LockOpen';
 import PresentToAllIcon from '@mui/icons-material/PresentToAll';
 import { Box } from '@mui/material';
 import { useCallback } from 'react';
@@ -39,7 +40,7 @@ export function PresentBar() {
   const whiteboardInstance = useActiveWhiteboardInstance();
   const { activeSlideId, isFirstSlideActive, isLastSlideActive } =
     useActiveSlide();
-  const { state, togglePresentation } = usePresentationMode();
+  const { state, toggleEditMode, togglePresentation } = usePresentationMode();
 
   const handleToNextSlideClick = useCallback(() => {
     if (activeSlideId) {
@@ -57,6 +58,9 @@ export function PresentBar() {
     }
   }, [activeSlideId, whiteboardInstance]);
 
+  const isPresenting = state.type === 'presenting';
+  const isPresentingInEditMode = isPresenting && state.isEditMode;
+
   const presentBarTitle = t('presentBar.title', 'Present');
   const buttonTitle =
     state.type === 'presenting'
@@ -68,6 +72,10 @@ export function PresentBar() {
     'presentToolsBar.previousSlide',
     'Previous slide'
   );
+
+  const lockOpenButtonTitle = isPresentingInEditMode
+    ? t('presentBar.disableEditing', 'Disable editing')
+    : t('presentBar.enableEditing', 'Enable editing');
 
   return (
     <Toolbar
@@ -82,6 +90,7 @@ export function PresentBar() {
           onClick={togglePresentation}
           icon={<PresentToAllIcon />}
           checkedIcon={<PresentToAllIcon />}
+          placement={isPresenting ? 'left' : 'bottom'}
         />
       )}
       {state.type === 'presenting' && (
@@ -90,6 +99,7 @@ export function PresentBar() {
             aria-label={presentToolsBarPreviousSlide}
             disabled={isFirstSlideActive}
             onClick={handleToPreviousSlideClick}
+            placement="left"
           >
             <ArrowBackIosNewIcon />
           </ToolbarButton>
@@ -97,9 +107,18 @@ export function PresentBar() {
             aria-label={presentToolsBarNextSlide}
             disabled={isLastSlideActive}
             onClick={handleToNextSlideClick}
+            placement="left"
           >
             <ArrowForwardIosIcon />
           </ToolbarButton>
+          <ToolbarToggle
+            inputProps={{ 'aria-label': lockOpenButtonTitle }}
+            checked={isPresentingInEditMode}
+            onClick={toggleEditMode}
+            icon={<LockOpenIcon />}
+            checkedIcon={<LockOpenIcon />}
+            placement="left"
+          />
         </>
       )}
 

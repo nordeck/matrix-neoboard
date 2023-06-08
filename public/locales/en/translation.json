@@ -152,6 +152,8 @@
     "space_macos": "␣"
   },
   "presentBar": {
+    "disableEditing": "Disable editing",
+    "enableEditing": "Enable editing",
     "isPresenting": "is presenting",
     "isPresentingUser": "{{displayName}} is presenting",
     "startPresentation": "Start presentation",

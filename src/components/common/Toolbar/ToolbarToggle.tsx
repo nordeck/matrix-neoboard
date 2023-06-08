@@ -14,11 +14,19 @@
  * limitations under the License.
  */
 
-import { Checkbox, CheckboxProps, styled, Tooltip } from '@mui/material';
+import {
+  Checkbox,
+  CheckboxProps,
+  styled,
+  Tooltip,
+  TooltipProps,
+} from '@mui/material';
 import { TooltipDisabledChildWrapper } from '../TooltipDisabledChildWrapper';
 import { useToolbarItem } from './useToolbarItem';
 
-export type ToolbarToggleProps = CheckboxProps;
+export type ToolbarToggleProps = CheckboxProps & {
+  placement?: TooltipProps['placement'];
+};
 
 const CheckboxStyled = styled(Checkbox)(({ theme }) => ({
   borderRadius: theme.shape.borderRadius,
@@ -60,12 +68,13 @@ const CheckboxStyled = styled(Checkbox)(({ theme }) => ({
 
 export function ToolbarToggle({
   inputProps = {},
+  placement,
   ...props
 }: ToolbarToggleProps) {
   const { additionalProps } = useToolbarItem();
 
   return (
-    <Tooltip title={inputProps['aria-label']}>
+    <Tooltip title={inputProps['aria-label']} placement={placement}>
       {/* Wrap in span to allow tooltips on disabled button */}
       <TooltipDisabledChildWrapper>
         <CheckboxStyled

@@ -152,6 +152,8 @@
     "space_macos": "␣"
   },
   "presentBar": {
+    "disableEditing": "Bearbeitung sperren",
+    "enableEditing": "Bearbeitung freigeben",
     "isPresenting": "präsentiert",
     "isPresentingUser": "{{displayName}} präsentiert",
     "startPresentation": "Präsentation starten",

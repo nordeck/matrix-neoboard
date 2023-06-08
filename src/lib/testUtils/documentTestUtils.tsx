@@ -148,7 +148,7 @@ export function mockWhiteboardManager(
         senderSessionId: 'other',
         type: 'net.nordeck.whiteboard.present_slide',
         content: {
-          view: enable ? { slideId: 'slide-0' } : undefined,
+          view: enable ? { isEditMode: false, slideId: 'slide-0' } : undefined,
         },
       });
     },
