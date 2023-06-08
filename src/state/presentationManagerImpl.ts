@@ -54,6 +54,9 @@ export class PresentationManagerImpl implements PresentationManager {
 
   private activeSlidePublisher: Subscription | undefined;
 
+  private isEditMode: boolean = false;
+  private isEditModeSubject = new BehaviorSubject(false);
+
   constructor(
     private readonly whiteboardInstance: WhiteboardInstance,
     private readonly communicationChannel: CommunicationChannel,
@@ -82,7 +85,7 @@ export class PresentationManagerImpl implements PresentationManager {
         if (activeSlideId) {
           this.communicationChannel.broadcastMessage<PresentSlide>(
             PRESENT_SLIDE_MESSAGE,
-            { view: { slideId: activeSlideId } }
+            { view: { isEditMode: this.isEditMode, slideId: activeSlideId } }
           );
         }
       });
@@ -93,9 +96,17 @@ export class PresentationManagerImpl implements PresentationManager {
       .subscribe(({ senderSessionId, content }) => {
         if (content.view) {
           this.setCurrentPresenter(senderSessionId);
+
+          // clear the undo manager unless the user is already in edit mode
+          if (!this.isEditMode && content.view.isEditMode) {
+            whiteboardInstance.clearUndoManager();
+          }
+
+          this.setEditMode(content.view.isEditMode);
           whiteboardInstance.setActiveSlideId(content.view.slideId);
         } else {
           this.setCurrentPresenter(undefined);
+          this.setEditMode(false);
         }
       });
 
@@ -132,15 +143,18 @@ export class PresentationManagerImpl implements PresentationManager {
         )
       )
       .subscribe((slideId) => {
+        this.setEditMode(false);
+
         this.communicationChannel.broadcastMessage<PresentSlide>(
           PRESENT_SLIDE_MESSAGE,
-          { view: { slideId } }
+          { view: { isEditMode: false, slideId } }
         );
       });
   }
 
   stopPresentation(): void {
     this.setCurrentPresenter(undefined);
+    this.setEditMode(false);
 
     this.communicationChannel.broadcastMessage<PresentSlide>(
       PRESENT_SLIDE_MESSAGE,
@@ -156,9 +170,10 @@ export class PresentationManagerImpl implements PresentationManager {
         this.communicationChannel.observeStatistics()
       ),
       this.currentPresenterSessionIdSubject,
+      this.isEditModeSubject,
     ]).pipe(
       takeUntil(this.destroySubject),
-      map(([statistics, presenterSessionId]): PresentationState => {
+      map(([statistics, presenterSessionId, isEditMode]): PresentationState => {
         const presenterSession = presenterSessionId
           ? Object.values(statistics.peerConnections).find(
               (c) => c.remoteSessionId === presenterSessionId
@@ -169,13 +184,14 @@ export class PresentationManagerImpl implements PresentationManager {
           presenterSessionId &&
           presenterSessionId === statistics.localSessionId
         ) {
-          return { type: 'presenting' };
+          return { type: 'presenting', isEditMode };
         }
 
         if (presenterSession && isPeerConnected(presenterSession)) {
           return {
             type: 'presentation',
             presenterUserId: presenterSession.remoteUserId,
+            isEditMode,
           };
         }
 
@@ -185,15 +201,35 @@ export class PresentationManagerImpl implements PresentationManager {
     );
   }
 
+  toggleEditMode(): void {
+    const isEditMode = !this.isEditMode;
+    const slideId = this.whiteboardInstance.getActiveSlideId();
+
+    this.setEditMode(isEditMode);
+
+    if (slideId) {
+      this.communicationChannel.broadcastMessage<PresentSlide>(
+        PRESENT_SLIDE_MESSAGE,
+        { view: { isEditMode, slideId } }
+      );
+    }
+  }
+
   destroy() {
     this.destroySubject.next();
     this.activeSlidePublisher?.unsubscribe();
     this.activeSlidePublisher = undefined;
     this.currentPresenterSessionId = undefined;
+    this.isEditMode = false;
   }
 
   private setCurrentPresenter(presenterSessionId: string | undefined) {
     this.currentPresenterSessionId = presenterSessionId;
     this.currentPresenterSessionIdSubject.next(presenterSessionId);
+  }
+
+  private setEditMode(isEditMode: boolean) {
+    this.isEditMode = isEditMode;
+    this.isEditModeSubject.next(isEditMode);
   }
 }

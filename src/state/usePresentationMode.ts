@@ -21,6 +21,7 @@ import { useActiveWhiteboardInstance } from './useActiveWhiteboardInstance';
 
 type UsePresentationMode = {
   state: PresentationState;
+  toggleEditMode: () => void;
   togglePresentation: () => void;
 };
 
@@ -40,6 +41,9 @@ export function usePresentationMode(): UsePresentationMode {
   return useMemo<UsePresentationMode>(
     () => ({
       state: presentationState,
+      toggleEditMode: () => {
+        activeWhiteboardInstance.getPresentationManager().toggleEditMode();
+      },
       togglePresentation: () => {
         if (presentationState.type === 'idle') {
           activeWhiteboardInstance.getPresentationManager().startPresentation();

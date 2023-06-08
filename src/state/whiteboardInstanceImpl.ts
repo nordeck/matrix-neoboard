@@ -412,6 +412,10 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
     this.presentationManager.destroy();
     this.communicationChannel.destroy();
   }
+
+  clearUndoManager(): void {
+    this.synchronizedDocument.getDocument().getUndoManager().clear();
+  }
 }
 
 export function findNewActiveSlideId(

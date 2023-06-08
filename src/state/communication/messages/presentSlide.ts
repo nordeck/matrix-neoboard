@@ -21,11 +21,12 @@ import { Message } from '../connection';
 export const PRESENT_SLIDE_MESSAGE = 'net.nordeck.whiteboard.present_slide';
 
 export type PresentSlide = {
-  view: { slideId: string } | undefined;
+  view: { isEditMode: boolean; slideId: string } | undefined;
 };
 
 const presentSlideSchema = Joi.object<PresentSlide, true>({
   view: Joi.object({
+    isEditMode: Joi.boolean().required(),
     slideId: Joi.string().required(),
   }).unknown(),
 }).unknown();

@@ -43,11 +43,13 @@ const WhiteboardHost = ({
   elementIds,
   readOnly = false,
   hideCursors = false,
+  hideDotGrid = false,
   withOutline = false,
 }: {
   elementIds: string[];
   readOnly?: boolean;
   hideCursors?: boolean;
+  hideDotGrid?: boolean;
   withOutline?: boolean;
 }) => {
   const slideInstance = useWhiteboardSlideInstance();
@@ -82,7 +84,7 @@ const WhiteboardHost = ({
         rounded
         withOutline={withOutline}
       >
-        <DotGrid />
+        {!hideDotGrid && <DotGrid />}
         {!readOnly && <UnselectElementHandler />}
 
         {elementIds.map((e) => (
@@ -111,6 +113,8 @@ export const WhiteboardHostConnected = () => {
   const { state: presentationState } = usePresentationMode();
   const isPresenting = presentationState.type === 'presenting';
   const isViewingPresentation = presentationState.type === 'presentation';
+  const isViewingPresentationInEditMode =
+    isViewingPresentation && presentationState.isEditMode;
 
   if (loading) {
     return <SlideSkeleton />;
@@ -119,8 +123,11 @@ export const WhiteboardHostConnected = () => {
   return (
     <WhiteboardHost
       elementIds={elementIds}
-      readOnly={isLocked || isViewingPresentation}
+      readOnly={
+        isLocked || (isViewingPresentation && !isViewingPresentationInEditMode)
+      }
       hideCursors={isViewingPresentation}
+      hideDotGrid={isPresenting || isViewingPresentation}
       withOutline={isPresenting}
     />
   );

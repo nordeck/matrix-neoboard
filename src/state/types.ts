@@ -107,6 +107,9 @@ export type WhiteboardInstance = {
 
   /** Get access to the presentation manager */
   getPresentationManager(): PresentationManager;
+
+  /** Clear the undo manager */
+  clearUndoManager(): void;
 };
 
 /** An instance of a whiteboard slide that can be used to read and manipulate it. */
@@ -178,8 +181,8 @@ export type SynchronizedDocument<T extends Record<string, unknown>> = {
 
 export type PresentationState =
   | { type: 'idle' }
-  | { type: 'presenting' }
-  | { type: 'presentation'; presenterUserId: string };
+  | { type: 'presenting'; isEditMode: boolean }
+  | { type: 'presentation'; presenterUserId: string; isEditMode: boolean };
 
 /** Creates and holds the currently selected {@link WhiteboardInstance} based on a whiteboard state event */
 export type PresentationManager = {
@@ -189,6 +192,8 @@ export type PresentationManager = {
   stopPresentation(): void;
   /** Observe whether a presentation is active. */
   observePresentationState(): Observable<PresentationState>;
+  /** Toggle the edit mode for all other users. */
+  toggleEditMode(): void;
 };
 
 /** The data that is stored in the UndoManager */

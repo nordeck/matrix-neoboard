@@ -33,7 +33,7 @@ describe('isValidPresentSlideMessage', () => {
       isValidPresentSlideMessage({
         senderSessionId: 'sender-session-id',
         senderUserId: '@sender-user-id',
-        content: { view: { slideId: 'slide-0' } },
+        content: { view: { isEditMode: false, slideId: 'slide-0' } },
         type: 'net.nordeck.whiteboard.present_slide',
       })
     ).toBe(true);
@@ -45,7 +45,7 @@ describe('isValidPresentSlideMessage', () => {
         senderSessionId: 'sender-session-id',
         senderUserId: '@sender-user-id',
         content: {
-          view: { slideId: 'slide-0', additional: 'tmp' },
+          view: { isEditMode: false, slideId: 'slide-0', additional: 'tmp' },
           additional: 'tmp',
         },
         type: 'net.nordeck.whiteboard.present_slide',
@@ -57,10 +57,14 @@ describe('isValidPresentSlideMessage', () => {
     { view: null },
     { view: 111 },
     { view: {} },
-    { view: { slideId: undefined } },
-    { view: { slideId: null } },
-    { view: { slideId: 111 } },
-    { view: { slideId: '' } },
+    { view: { isEditMode: false, slideId: undefined } },
+    { view: { isEditMode: false, slideId: null } },
+    { view: { isEditMode: false, slideId: 111 } },
+    { view: { isEditMode: false, slideId: '' } },
+    { view: { isEditMode: undefined, slideId: 'slide-0' } },
+    { view: { isEditMode: null, slideId: 'slide-0' } },
+    { view: { isEditMode: 111, slideId: 'slide-0' } },
+    { view: { isEditMode: '', slideId: 'slide-0' } },
   ])('should reject message with patch %j', (patch: Object) => {
     expect(
       isValidPresentSlideMessage({
