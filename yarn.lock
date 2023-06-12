@@ -1949,14 +1949,14 @@
     globby "^11.0.0"
     read-yaml-file "^1.1.0"
 
-"@matrix-widget-toolkit/api@^3.2.0":
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/@matrix-widget-toolkit/api/-/api-3.2.0.tgz#ebff818801ee16fc7a24d0c2b1427061413f79c8"
-  integrity sha512-wm/WTY7QqnGFfNH46eRjKf7d9dM2rpakzdOtmoGlmB4Vt4NkYaaPg5DaEtmUJUkGiDSkczXJ5u/XyADEyhQ1xw==
+"@matrix-widget-toolkit/api@^3.2.0", "@matrix-widget-toolkit/api@^3.2.1":
+  version "3.2.1"
+  resolved "https://registry.yarnpkg.com/@matrix-widget-toolkit/api/-/api-3.2.1.tgz#f32d0a618243bf52fa8dfd11cbe330fb8ef7fd49"
+  integrity sha512-oSeccnRHjXCw7i8PGtPcq4ufZySjvUmgR98tq8fIecKEiIrmlQru81975XrnjyE5u99d55FMoV4oTaVIJaXPdw==
   dependencies:
     matrix-widget-api "^1.3.1"
-    qs "^6.11.0"
-    rxjs "^7.8.0"
+    qs "^6.11.2"
+    rxjs "^7.8.1"
 
 "@matrix-widget-toolkit/mui@^1.1.3":
   version "1.1.3"
@@ -9670,10 +9670,17 @@ q@^1.1.2:
   resolved "https://registry.npmjs.org/q/-/q-1.5.1.tgz"
   integrity sha1-fjL3W0E4EpHQRhHxvxQQmsAGUdc=
 
-qs@6.11.0, qs@^6.11.0:
+qs@6.11.0:
   version "6.11.0"
   resolved "https://registry.yarnpkg.com/qs/-/qs-6.11.0.tgz#fd0d963446f7a65e1367e01abd85429453f0c37a"
   integrity sha512-MvjoMCJwEarSbUYk5O+nmoSzSutSsTwF85zcHPQ9OrlFoZOYIjaqBAJIqIXjptyD5vThxGq52Xu/MaJzRkIk4Q==
+  dependencies:
+    side-channel "^1.0.4"
+
+qs@^6.11.2:
+  version "6.11.2"
+  resolved "https://registry.yarnpkg.com/qs/-/qs-6.11.2.tgz#64bea51f12c1f5da1bc01496f48ffcff7c69d7d9"
+  integrity sha512-tDNIz22aBzCDxLtVH++VnTfzxlfeK5CbqohpSqpJgj1Wg/cQbStNAz3NuqCs5vV+pjBsK4x4pN9HlVh7rcYRiA==
   dependencies:
     side-channel "^1.0.4"
 
