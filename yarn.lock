@@ -12545,10 +12545,10 @@ yarn-deduplicate@^6.0.2:
     semver "^7.5.0"
     tslib "^2.5.0"
 
-yjs@^13.6.0:
-  version "13.6.0"
-  resolved "https://registry.yarnpkg.com/yjs/-/yjs-13.6.0.tgz#3ede38b3c57653c302fd63d7294e63892514fb0a"
-  integrity sha512-tFZtuQV6XamtDa9SfZhUsxchUcTBWe7fzpo1UWZDLXGejTZ5t9MCswGYzyvq7+BDzfEc9oX54QEbzI/4NyS6+g==
+yjs@^13.6.4:
+  version "13.6.4"
+  resolved "https://registry.yarnpkg.com/yjs/-/yjs-13.6.4.tgz#8c3c89cdf244de33cf1488fe4d98dcb3ae8d5bca"
+  integrity sha512-AirXWU/Qws6gmaz4MMluFqahweQUyLzX7QbjHmhyqbokQIki2WpE3F/NkUyOdcgEmfdTJKVys+LGgph6smZFbg==
   dependencies:
     lib0 "^0.2.74"
 
