@@ -49,8 +49,6 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           env:
-            - name: REACT_APP_VERSION
-              value: "{{ .Values.image.tag | default .Chart.AppVersion }}"
             {{- if .Values.env }}
               {{- toYaml .Values.env | nindent 12 }}
             {{- end }}
