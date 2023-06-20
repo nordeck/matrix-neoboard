@@ -12,6 +12,10 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
     env:
       DOCKER_IMAGE: ghcr.io/nordeck/matrix-neoboard-widget
     steps:
@@ -48,10 +52,14 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@dd6b2e2b610a11fd73dd187a43d57cc1394e35f9 # @v3.0.5
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
       - name: Build and push
+        id: build_and_push
         uses: docker/build-push-action@v4
         with:
           push: true
@@ -59,3 +67,8 @@ jobs:
           tags: ${{ steps.meta-new-tags.outputs.tags }}
           labels: ${{ steps.meta-new-tags.outputs.labels }}
           platforms: linux/amd64,linux/arm64,linux/s390x
+
+      - name: Sign the images with GitHub OIDC Token
+        env:
+          DIGEST: ${{ steps.build_and_push.outputs.digest }}
+        run: cosign sign --yes "${DOCKER_IMAGE}@${DIGEST}"
