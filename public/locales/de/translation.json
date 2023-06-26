@@ -163,7 +163,9 @@
   },
   "presentBar": {
     "disableEditing": "Bearbeitung sperren",
+    "disableFullscreen": "Vollbildmodus verlassen",
     "enableEditing": "Bearbeitung freigeben",
+    "enableFullscreen": "Vollbildmodus betreten",
     "isPresenting": "präsentiert",
     "isPresentingUser": "{{displayName}} präsentiert",
     "startPresentation": "Präsentation starten",

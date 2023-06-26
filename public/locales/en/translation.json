@@ -163,7 +163,9 @@
   },
   "presentBar": {
     "disableEditing": "Disable editing",
+    "disableFullscreen": "Disable fullscreen",
     "enableEditing": "Enable editing",
+    "enableFullscreen": "Enable fullscreen",
     "isPresenting": "is presenting",
     "isPresentingUser": "{{displayName}} is presenting",
     "startPresentation": "Start presentation",

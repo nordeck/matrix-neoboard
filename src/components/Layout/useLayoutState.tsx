@@ -18,7 +18,9 @@ import { grey } from '@mui/material/colors';
 import {
   createContext,
   PropsWithChildren,
+  useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from 'react';
@@ -39,12 +41,14 @@ type LayoutState = {
   isShowGrid: boolean;
   activeTool: ActiveTool;
   activeColor: string;
+  isFullscreen: boolean;
   setSlideOverviewVisible: (value: boolean) => void;
   setDeveloperToolsVisible: (value: boolean) => void;
   setShowCollaboratorsCursors: (value: boolean) => void;
   setShowGrid: (value: boolean) => void;
   setActiveTool: (tool: ActiveTool) => void;
   setActiveColor: (color: string) => void;
+  setFullscreen: (value: boolean) => void;
 };
 
 const LayoutStateContext = createContext<LayoutState | undefined>(undefined);
@@ -59,6 +63,27 @@ export function LayoutStateProvider({ children }: PropsWithChildren<{}>) {
   const [isShowGrid, setShowGrid] = useState<boolean>(true);
   const [activeTool, setActiveTool] = useState<ActiveTool>('select');
   const [activeColor, setActiveColor] = useState<string>(grey[500]);
+  const [isFullscreen, setFullscreenRaw] = useState(false);
+
+  const setFullscreen = useCallback((value: boolean) => {
+    if (value && !document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+    } else if (!value && document.fullscreenElement) {
+      document.exitFullscreen();
+    }
+  }, []);
+
+  useEffect(() => {
+    function listener(e: unknown) {
+      setFullscreenRaw(document.fullscreenElement !== null);
+    }
+
+    document.addEventListener('fullscreenchange', listener);
+
+    return () => {
+      document.removeEventListener('fullscreenchange', listener);
+    };
+  }, [isFullscreen]);
 
   const value = useMemo(
     () => ({
@@ -68,20 +93,24 @@ export function LayoutStateProvider({ children }: PropsWithChildren<{}>) {
       isShowGrid,
       activeTool,
       activeColor,
+      isFullscreen,
       setSlideOverviewVisible,
       setDeveloperToolsVisible,
       setShowCollaboratorsCursors,
       setShowGrid,
       setActiveTool,
       setActiveColor,
+      setFullscreen,
     }),
     [
       activeColor,
       activeTool,
       isDeveloperToolsVisible,
+      isFullscreen,
       isShowCollaboratorsCursors,
       isShowGrid,
       isSlideOverviewVisible,
+      setFullscreen,
     ]
   );
 
