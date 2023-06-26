@@ -92,13 +92,14 @@ export function ResizeHandleWrapper({
 }
 
 export type ResizeElementProps = {
-  elementId: string;
+  elementIds: string[];
 };
 
-export function ResizeElement({ elementId }: ResizeElementProps) {
+export function ResizeElement({ elementIds }: ResizeElementProps) {
   const setElementOverride = useSetElementOverride();
   const slideInstance = useWhiteboardSlideInstance();
 
+  const elementId = elementIds[0];
   const element = useElementOverride(elementId);
 
   const [startDimensions, setStartDimensions] = useState<

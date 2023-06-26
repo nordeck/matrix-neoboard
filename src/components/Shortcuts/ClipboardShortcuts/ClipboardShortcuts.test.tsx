@@ -58,7 +58,7 @@ describe('<CopyAndPasteShortcuts>', () => {
     activeWhiteboardInstance = whiteboardManager.getActiveWhiteboardInstance()!;
 
     const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
-    activeSlide.setActiveElementId('element-1');
+    activeSlide.setActiveElementIds(['element-1']);
 
     Wrapper = ({ children }) => (
       <WhiteboardHotkeysProvider>
@@ -86,7 +86,7 @@ describe('<CopyAndPasteShortcuts>', () => {
 
   it('should ignore copy if no element is selected', () => {
     const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
-    activeSlide.setActiveElementId(undefined);
+    activeSlide.setActiveElementIds([]);
 
     render(<ClipboardShortcuts />, { wrapper: Wrapper });
 
@@ -131,7 +131,7 @@ describe('<CopyAndPasteShortcuts>', () => {
       expect.stringContaining('<span data-meta=')
     );
 
-    expect(activeSlide.getActiveElementId()).toBe(undefined);
+    expect(activeSlide.getActiveElementIds()).toEqual([]);
     expect(activeSlide.getElement('element-1')).toBeUndefined();
   });
 
@@ -148,7 +148,7 @@ describe('<CopyAndPasteShortcuts>', () => {
 
   it('should ignore cut if no element is selected', () => {
     const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
-    activeSlide.setActiveElementId(undefined);
+    activeSlide.setActiveElementIds([]);
 
     render(<ClipboardShortcuts />, { wrapper: Wrapper });
 
@@ -190,9 +190,9 @@ describe('<CopyAndPasteShortcuts>', () => {
       'text/html': '<span>Invalid HTML</span>',
     });
 
-    const activeElementId = activeSlide.getActiveElementId();
-    expect(activeElementId).not.toBe('element-1');
-    const activeElement = activeSlide.getElement(activeElementId!);
+    const activeElementIds = activeSlide.getActiveElementIds();
+    expect(activeElementIds).not.toEqual(['element-1']);
+    const activeElement = activeSlide.getElement(activeElementIds[0]);
     expect(activeElement).toEqual({
       fillColor: '#FFFFFF',
       height: 300,

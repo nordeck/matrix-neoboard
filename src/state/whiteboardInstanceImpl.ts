@@ -229,10 +229,10 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
 
         if (
           state.currentSlideId === this.activeSlideId &&
-          state.currentElementId
+          state.currentElementIds
         ) {
-          this.getSlide(state.currentSlideId).setActiveElementId(
-            state.currentElementId
+          this.getSlide(state.currentSlideId).setActiveElementIds(
+            state.currentElementIds
           );
         }
       });
@@ -349,7 +349,7 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
 
   setActiveSlideId(slideId: string): void {
     if (this.getSlideIds().includes(slideId)) {
-      this.getSlide(slideId).setActiveElementId(undefined);
+      this.getSlide(slideId).setActiveElementIds([]);
 
       this.activeSlideId = slideId;
       this.activeSlideIdSubject.next(slideId);

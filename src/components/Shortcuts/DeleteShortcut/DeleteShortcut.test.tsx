@@ -68,7 +68,7 @@ describe('<DeleteShortcut>', () => {
     'should delete an element with %s key',
     async (key) => {
       const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
-      activeSlide.setActiveElementId('element-1');
+      activeSlide.setActiveElementIds(['element-1']);
 
       render(<DeleteShortcut />, { wrapper: Wrapper });
 
@@ -77,7 +77,7 @@ describe('<DeleteShortcut>', () => {
       await userEvent.keyboard(key);
 
       expect(activeSlide.getElement('element-1')).toBeUndefined();
-      expect(activeSlide.getActiveElementId()).toBeUndefined();
+      expect(activeSlide.getActiveElementIds()).toEqual([]);
     }
   );
 });

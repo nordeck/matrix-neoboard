@@ -101,7 +101,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
     const element0 = slideInstance.addElement(element);
 
     expect(slideInstance.getElement(element0)).toEqual(element);
-    expect(slideInstance.getActiveElementId()).toEqual(element0);
+    expect(slideInstance.getActiveElementIds()).toEqual([element0]);
   });
 
   it('should throw when adding element to a locked slide', () => {
@@ -130,7 +130,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
 
     const setActiveElementIdSpy = jest.spyOn(
       slideInstance,
-      'setActiveElementId'
+      'setActiveElementIds'
     );
 
     const performChangeSpy = jest
@@ -140,14 +140,14 @@ describe('WhiteboardSlideInstanceImpl', () => {
 
         callback(document.getData());
 
-        expect(elementId).toEqual(expect.any(String));
-        expect(elementId).toEqual(slideInstance.getActiveElementId());
+        expect(elementId).toHaveLength(1);
+        expect(elementId).toEqual(slideInstance.getActiveElementIds());
       });
 
     const element0 = slideInstance.addElement(mockLineElement());
 
     expect(performChangeSpy).toBeCalled();
-    expect(slideInstance.getActiveElementId()).toEqual(element0);
+    expect(slideInstance.getActiveElementIds()).toEqual([element0]);
   });
 
   it('should remove element', () => {
@@ -671,15 +671,15 @@ describe('WhiteboardSlideInstanceImpl', () => {
     );
 
     const observedActiveElement = firstValueFrom(
-      slideInstance.observeActiveElementId().pipe(take(2), toArray())
+      slideInstance.observeActiveElementIds().pipe(take(2), toArray())
     );
 
     const element0 = slideInstance.addElement(mockLineElement());
-    slideInstance.setActiveElementId('not-exists');
-    slideInstance.setActiveElementId(element0);
+    slideInstance.setActiveElementIds(['not-exists']);
+    slideInstance.setActiveElementIds([element0]);
 
-    expect(slideInstance.getActiveElementId()).toEqual(element0);
-    expect(await observedActiveElement).toEqual([undefined, element0]);
+    expect(slideInstance.getActiveElementIds()).toEqual([element0]);
+    expect(await observedActiveElement).toEqual([[], [element0]]);
   });
 
   it('should unset a selected element to a specific element', async () => {
@@ -691,19 +691,15 @@ describe('WhiteboardSlideInstanceImpl', () => {
     );
 
     const observedActiveElement = firstValueFrom(
-      slideInstance.observeActiveElementId().pipe(take(3), toArray())
+      slideInstance.observeActiveElementIds().pipe(take(3), toArray())
     );
 
     const element0 = slideInstance.addElement(mockLineElement());
 
-    slideInstance.setActiveElementId(undefined);
+    slideInstance.setActiveElementIds([]);
 
-    expect(slideInstance.getActiveElementId()).toEqual(undefined);
-    expect(await observedActiveElement).toEqual([
-      undefined,
-      element0,
-      undefined,
-    ]);
+    expect(slideInstance.getActiveElementIds()).toEqual([]);
+    expect(await observedActiveElement).toEqual([[], [element0], []]);
   });
 
   it('should keep the selected element id to a specific element', async () => {
@@ -720,16 +716,16 @@ describe('WhiteboardSlideInstanceImpl', () => {
     );
     const removeElement = generateRemoveElement(slide0, element0);
 
-    slideInstance.setActiveElementId(element0);
+    slideInstance.setActiveElementIds([element0]);
 
     document.performChange(addElement);
-    expect(slideInstance.getActiveElementId()).toEqual(element0);
+    expect(slideInstance.getActiveElementIds()).toEqual([element0]);
 
     document.performChange(removeElement);
-    expect(slideInstance.getActiveElementId()).toEqual(undefined);
+    expect(slideInstance.getActiveElementIds()).toEqual([]);
 
     document.performChange(addElement);
-    expect(slideInstance.getActiveElementId()).toEqual(element0);
+    expect(slideInstance.getActiveElementIds()).toEqual([element0]);
   });
 
   it('should deselect the active element when removed', async () => {
@@ -741,20 +737,16 @@ describe('WhiteboardSlideInstanceImpl', () => {
     );
 
     const observedActiveElement = firstValueFrom(
-      slideInstance.observeActiveElementId().pipe(take(3), toArray())
+      slideInstance.observeActiveElementIds().pipe(take(3), toArray())
     );
 
     const element0 = slideInstance.addElement(mockLineElement());
 
-    slideInstance.setActiveElementId(element0);
+    slideInstance.setActiveElementIds([element0]);
     slideInstance.removeElement(element0);
 
-    expect(slideInstance.getActiveElementId()).toEqual(undefined);
-    expect(await observedActiveElement).toEqual([
-      undefined,
-      element0,
-      undefined,
-    ]);
+    expect(slideInstance.getActiveElementIds()).toEqual([]);
+    expect(await observedActiveElement).toEqual([[], [element0], []]);
   });
 
   it('should observe locked state', async () => {
@@ -797,7 +789,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       slideInstance.observeCursorPositions().pipe(toArray())
     );
     const activeElement = firstValueFrom(
-      slideInstance.observeActiveElementId().pipe(toArray())
+      slideInstance.observeActiveElementIds().pipe(toArray())
     );
     const isLocked = firstValueFrom(
       slideInstance.observeIsLocked().pipe(toArray())
@@ -808,7 +800,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
     expect(await elementIds).toEqual([[element0]]);
     expect(await elementUpdates).toEqual([element]);
     expect(await cursorPositions).toEqual([]);
-    expect(await activeElement).toEqual([element0]);
+    expect(await activeElement).toEqual([[element0]]);
     expect(await isLocked).toEqual([false]);
   });
 });

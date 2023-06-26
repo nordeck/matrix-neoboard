@@ -69,23 +69,23 @@ export function useElement(elementId: string | undefined): Element | undefined {
 }
 
 type ActiveElement = {
-  activeElementId: string | undefined;
+  activeElementIds: string[];
 };
 
-export function useActiveElement(): ActiveElement {
+export function useActiveElements(): ActiveElement {
   const slideInstance = useWhiteboardSlideInstance();
 
   const observable = useMemo(
-    () => slideInstance.observeActiveElementId(),
+    () => slideInstance.observeActiveElementIds(),
     [slideInstance]
   );
 
-  const activeElementId = useLatestValue(
-    () => slideInstance.getActiveElementId(),
+  const activeElementIds = useLatestValue(
+    () => slideInstance.getActiveElementIds(),
     observable
   );
 
-  return { activeElementId };
+  return { activeElementIds };
 }
 
 export function useSlideIsLocked(slideId?: string): boolean {

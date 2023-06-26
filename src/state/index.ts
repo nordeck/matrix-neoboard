@@ -43,7 +43,7 @@ export {
 } from './useWhiteboardManager';
 export {
   SlideProvider,
-  useActiveElement,
+  useActiveElements,
   useElement,
   useSlideElementIds,
   useSlideIsLocked,

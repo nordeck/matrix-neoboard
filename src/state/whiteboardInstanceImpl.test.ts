@@ -452,13 +452,13 @@ describe('WhiteboardInstanceImpl', () => {
     const slide1 = whiteboardInstance.addSlide();
     const slideInstance = whiteboardInstance.getSlide(slide1);
     const element0 = slideInstance.addElement(mockLineElement());
-    whiteboardInstance.getSlide(slide1).setActiveElementId(element0);
+    whiteboardInstance.getSlide(slide1).setActiveElementIds([element0]);
 
     whiteboardInstance.setActiveSlideId(slide1);
 
-    expect(
-      whiteboardInstance.getSlide(slide1).getActiveElementId()
-    ).toBeUndefined();
+    expect(whiteboardInstance.getSlide(slide1).getActiveElementIds()).toEqual(
+      []
+    );
   });
 
   it('should undo and redo change', () => {
@@ -493,11 +493,11 @@ describe('WhiteboardInstanceImpl', () => {
     const slide1Instance = whiteboardInstance.getSlide(slide1);
     whiteboardInstance.setActiveSlideId(slide1);
     const element0 = slide1Instance.addElement(mockLineElement());
-    slide1Instance.setActiveElementId(element0);
+    slide1Instance.setActiveElementIds([element0]);
 
     // change the element and switch back to slide0
     slide1Instance.updateElement(element0, { strokeColor: '#ff0000' });
-    slide1Instance.setActiveElementId(undefined);
+    slide1Instance.setActiveElementIds([]);
     whiteboardInstance.setActiveSlideId(slide0);
 
     // delete slide 0
@@ -505,16 +505,16 @@ describe('WhiteboardInstanceImpl', () => {
 
     expect(whiteboardInstance.getSlideIds()).toEqual([slide1]);
     expect(whiteboardInstance.getActiveSlideId()).toEqual(slide1);
-    expect(slide1Instance.getActiveElementId()).toEqual(undefined);
+    expect(slide1Instance.getActiveElementIds()).toEqual([]);
 
     whiteboardInstance.undo();
 
     expect(whiteboardInstance.getSlideIds()).toEqual([slide0, slide1]);
     expect(whiteboardInstance.getActiveSlideId()).toEqual(slide0);
-    expect(whiteboardInstance.getSlide(slide0).getActiveElementId()).toEqual(
-      undefined
+    expect(whiteboardInstance.getSlide(slide0).getActiveElementIds()).toEqual(
+      []
     );
-    expect(slide1Instance.getActiveElementId()).toEqual(undefined);
+    expect(slide1Instance.getActiveElementIds()).toEqual([]);
     expect(slide1Instance.getElement(element0)).toMatchObject({
       strokeColor: '#ff0000',
     });
@@ -523,7 +523,7 @@ describe('WhiteboardInstanceImpl', () => {
 
     expect(whiteboardInstance.getSlideIds()).toEqual([slide0, slide1]);
     expect(whiteboardInstance.getActiveSlideId()).toEqual(slide1);
-    expect(slide1Instance.getActiveElementId()).toEqual(element0);
+    expect(slide1Instance.getActiveElementIds()).toEqual([element0]);
     expect(slide1Instance.getElement(element0)).toMatchObject({
       strokeColor: '#ffffff',
     });

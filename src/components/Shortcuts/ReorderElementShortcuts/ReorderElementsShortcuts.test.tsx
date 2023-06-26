@@ -69,7 +69,7 @@ describe('<ReorderElementsShortcuts>', () => {
 
   it('should move element forward to the top and stay on top on windows', async () => {
     const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
-    activeSlide.setActiveElementId('element-1');
+    activeSlide.setActiveElementIds(['element-1']);
     render(<ReorderElementsShortcuts />, { wrapper: Wrapper });
 
     expect(activeSlide.getElementIds()).toEqual([
@@ -98,7 +98,7 @@ describe('<ReorderElementsShortcuts>', () => {
 
   it('should move element forward to the top and stay on top on mac', async () => {
     const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
-    activeSlide.setActiveElementId('element-1');
+    activeSlide.setActiveElementIds(['element-1']);
     render(<ReorderElementsShortcuts />, { wrapper: Wrapper });
 
     expect(activeSlide.getElementIds()).toEqual([
@@ -127,7 +127,7 @@ describe('<ReorderElementsShortcuts>', () => {
 
   it('should move element backward to the bottom and stay on bottom on windows', async () => {
     const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
-    activeSlide.setActiveElementId('element-1');
+    activeSlide.setActiveElementIds(['element-1']);
     render(<ReorderElementsShortcuts />, { wrapper: Wrapper });
 
     expect(activeSlide.getElementIds()).toEqual([
@@ -156,7 +156,7 @@ describe('<ReorderElementsShortcuts>', () => {
 
   it('should move element backward to the bottom and stay on bottom on mac', async () => {
     const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
-    activeSlide.setActiveElementId('element-1');
+    activeSlide.setActiveElementIds(['element-1']);
     render(<ReorderElementsShortcuts />, { wrapper: Wrapper });
 
     expect(activeSlide.getElementIds()).toEqual([

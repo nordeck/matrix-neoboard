@@ -26,9 +26,10 @@ import { useMeasure, useSvgCanvasContext } from '../../SvgCanvas';
 
 export function ElementBarWrapper({
   children,
-  elementId,
-}: PropsWithChildren<{ elementId: string }>) {
+  elementIds,
+}: PropsWithChildren<{ elementIds: string[] }>) {
   const isLocked = useSlideIsLocked();
+  const elementId = elementIds[0];
   const element = useElementOverride(elementId);
   const [sizeRef, { width: elementBarWidth, height: elementBarHeight }] =
     useMeasure<HTMLDivElement>();

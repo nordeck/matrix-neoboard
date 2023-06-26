@@ -32,7 +32,7 @@ export function SelectableElement({
   function handleMouseDown(event: MouseEvent) {
     if (isInSelectionMode) {
       event.stopPropagation();
-      slideInstance.setActiveElementId(elementId);
+      slideInstance.setActiveElementIds([elementId]);
     }
   }
 

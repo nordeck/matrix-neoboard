@@ -47,7 +47,7 @@ describe('<ElementBar/>', () => {
 
     activeWhiteboardInstance = whiteboardManager.getActiveWhiteboardInstance()!;
     const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
-    activeSlide.setActiveElementId('element-1');
+    activeSlide.setActiveElementIds(['element-1']);
 
     Wrapper = ({ children }) => (
       <WhiteboardTestingContextProvider

@@ -15,14 +15,16 @@
  */
 
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
+import { first } from 'lodash';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useActiveElement, useWhiteboardSlideInstance } from '../../../state';
+import { useActiveElements, useWhiteboardSlideInstance } from '../../../state';
 import { ToolbarButton } from '../../common/Toolbar';
 
 export function DeleteActiveElementButton() {
   const { t } = useTranslation();
-  const { activeElementId } = useActiveElement();
+  const { activeElementIds } = useActiveElements();
+  const activeElementId = first(activeElementIds);
   const slideInstance = useWhiteboardSlideInstance();
 
   const handleDelete = useCallback(() => {

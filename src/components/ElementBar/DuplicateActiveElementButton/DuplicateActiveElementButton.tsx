@@ -15,13 +15,14 @@
  */
 
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import { first } from 'lodash';
 import log from 'loglevel';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   calculateBoundingRectForPoints,
   Element,
-  useActiveElement,
+  useActiveElements,
   useWhiteboardSlideInstance,
 } from '../../../state';
 import { ToolbarButton } from '../../common/Toolbar';
@@ -60,7 +61,8 @@ export function duplicate(
 export function DuplicateActiveElementButton() {
   const { t } = useTranslation();
   const slideInstance = useWhiteboardSlideInstance();
-  const { activeElementId } = useActiveElement();
+  const { activeElementIds } = useActiveElements();
+  const activeElementId = first(activeElementIds);
 
   const handleDuplicate = useCallback(() => {
     if (activeElementId) {

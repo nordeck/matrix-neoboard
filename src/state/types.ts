@@ -15,6 +15,7 @@
  */
 
 import { StateEvent } from '@matrix-widget-toolkit/api';
+import Joi from 'joi';
 import { Observable } from 'rxjs';
 import { Whiteboard } from '../model';
 import { CommunicationChannelStatistics } from './communication';
@@ -157,11 +158,11 @@ export type WhiteboardSlideInstance = {
   observeIsLocked(): Observable<boolean>;
 
   /** Return the active element */
-  getActiveElementId(): string | undefined;
+  getActiveElementIds(): string[];
   /** Observe the active element */
-  observeActiveElementId(): Observable<string | undefined>;
+  observeActiveElementIds(): Observable<string[]>;
   /** Select the active element */
-  setActiveElementId(elementId: string | undefined): void;
+  setActiveElementIds(elementIds: string[]): void;
 };
 
 /**
@@ -199,24 +200,28 @@ export type PresentationManager = {
 /** The data that is stored in the UndoManager */
 export type WhiteboardUndoManagerContext = {
   currentSlideId: string;
-  currentElementId?: string;
+  currentElementIds: string[];
 };
+
+const whiteboardUndoManagerContextSchema = Joi.object<
+  WhiteboardUndoManagerContext,
+  true
+>({
+  currentSlideId: Joi.string().required(),
+  currentElementIds: Joi.array().items(Joi.string()).required(),
+})
+  .unknown()
+  .required();
 
 /** Validate if the value that was stored in the context is valid */
 export function isWhiteboardUndoManagerContext(
   context: unknown
 ): context is WhiteboardUndoManagerContext {
-  if (
-    context &&
-    typeof context === 'object' &&
-    'currentSlideId' in context &&
-    typeof context.currentSlideId === 'string' &&
-    (!('currentElementId' in context) ||
-      context.currentElementId === undefined ||
-      typeof context.currentElementId === 'string')
-  ) {
-    return true;
+  const result = whiteboardUndoManagerContextSchema.validate(context);
+
+  if (result.error) {
+    return false;
   }
 
-  return false;
+  return true;
 }

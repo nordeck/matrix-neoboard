@@ -60,8 +60,8 @@ import { WhiteboardSlideInstance, WhiteboardUndoManagerContext } from './types';
 export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
   private readonly destroySubject = new Subject<void>();
 
-  private readonly activeElementIdSubject = new Subject<string | undefined>();
-  private activeElementId: string | undefined = undefined;
+  private readonly activeElementIdsSubject = new Subject<string[]>();
+  private activeElementIds: string[] = [];
 
   private readonly dataObservable = concat(
     defer(() => of(this.document.getData())),
@@ -109,7 +109,7 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
     this.observeElementIds()
       .pipe(takeUntil(this.destroySubject))
       .subscribe(() => {
-        this.activeElementIdSubject.next(this.getActiveElementId());
+        this.activeElementIdsSubject.next(this.getActiveElementIds());
       });
 
     this.cursorPositionSubject
@@ -142,7 +142,7 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
     const [changeFn, elementId] = generateAddElement(this.slideId, element);
 
     // set the active element id first so it is captured in the undomanager
-    this.setActiveElementId(elementId);
+    this.setActiveElementIds([elementId]);
 
     this.document.performChange(changeFn);
 
@@ -218,27 +218,26 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
     this.cursorPositionSubject.next(position);
   }
 
-  getActiveElementId(): string | undefined {
-    return this.activeElementId &&
-      this.getElementIds().includes(this.activeElementId)
-      ? this.activeElementId
-      : undefined;
+  getActiveElementIds(): string[] {
+    return this.activeElementIds.filter((id) =>
+      this.getElementIds().includes(id)
+    );
   }
 
-  observeActiveElementId(): Observable<string | undefined> {
+  observeActiveElementIds(): Observable<string[]> {
     return concat(
-      defer(() => of(this.getActiveElementId())),
-      this.activeElementIdSubject
-    ).pipe(distinctUntilChanged());
+      defer(() => of(this.getActiveElementIds())),
+      this.activeElementIdsSubject
+    ).pipe(distinctUntilChanged((a, b) => isEqual(a, b)));
   }
 
-  setActiveElementId(elementId: string | undefined): void {
-    this.activeElementId = elementId;
-    this.activeElementIdSubject.next(this.getActiveElementId());
+  setActiveElementIds(elementIds: string[]): void {
+    this.activeElementIds = elementIds;
+    this.activeElementIdsSubject.next(this.getActiveElementIds());
 
     this.document.getUndoManager().setContext<WhiteboardUndoManagerContext>({
       currentSlideId: this.slideId,
-      currentElementId: this.activeElementId,
+      currentElementIds: this.activeElementIds,
     });
   }
 
@@ -255,7 +254,7 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
 
   destroy() {
     this.destroySubject.next();
-    this.activeElementIdSubject.complete();
+    this.activeElementIdsSubject.complete();
     this.cursorPositionSubject.complete();
   }
 

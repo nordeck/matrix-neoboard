@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { first } from 'lodash';
 import { useEffect } from 'react';
 import { useHotkeysContext } from 'react-hotkeys-hook';
 import {
@@ -61,7 +62,8 @@ export function ClipboardShortcuts() {
         return;
       }
 
-      const activeElementId = slideInstance.getActiveElementId();
+      const activeElementIds = slideInstance.getActiveElementIds();
+      const activeElementId = first(activeElementIds);
 
       if (!activeElementId) {
         return;
@@ -98,7 +100,8 @@ export function ClipboardShortcuts() {
         return;
       }
 
-      const activeElementId = slideInstance.getActiveElementId();
+      const activeElementIds = slideInstance.getActiveElementIds();
+      const activeElementId = first(activeElementIds);
 
       if (!activeElementId) {
         return;

@@ -17,28 +17,20 @@
 import { isWhiteboardUndoManagerContext } from './types';
 
 describe('isWhiteboardUndoManagerContext', () => {
-  it('should accept context with slide id', () => {
+  it('should accept context with slide id and empty element ids', () => {
     expect(
       isWhiteboardUndoManagerContext({
         currentSlideId: 'slide-0',
+        currentElementIds: [],
       })
     ).toBe(true);
   });
 
-  it('should accept context with slide id and undefined element id', () => {
+  it('should accept context with slide id and element ids', () => {
     expect(
       isWhiteboardUndoManagerContext({
         currentSlideId: 'slide-0',
-        currentElementId: undefined,
-      })
-    ).toBe(true);
-  });
-
-  it('should accept context with slide id and element id', () => {
-    expect(
-      isWhiteboardUndoManagerContext({
-        currentSlideId: 'slide-0',
-        currentElementId: 'element-0',
+        currentElementIds: ['element-0'],
       })
     ).toBe(true);
   });
@@ -47,22 +39,29 @@ describe('isWhiteboardUndoManagerContext', () => {
     expect(
       isWhiteboardUndoManagerContext({
         currentSlideId: 'slide-0',
-        currentElementId: 'element-0',
+        currentElementIds: ['element-0'],
         additional: 'data',
       })
     ).toBe(true);
+  });
+
+  it('should reject undefined context', () => {
+    expect(isWhiteboardUndoManagerContext(undefined)).toBe(false);
   });
 
   it.each<Object>([
     { currentSlideId: undefined },
     { currentSlideId: null },
     { currentSlideId: 111 },
-    { currentElementId: null },
-    { currentElementId: 111 },
+    { currentElementIds: null },
+    { currentElementIds: 111 },
+    { currentElementIds: [undefined] },
+    { currentElementIds: [null] },
+    { currentElementIds: [111] },
   ])('should reject context with patch %j', (patch: Object) => {
     const data = {
       currentSlideId: 'slide-0',
-      currentElementId: 'element-0',
+      currentElementIds: ['element-0'],
       ...patch,
     };
 

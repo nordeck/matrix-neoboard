@@ -189,7 +189,7 @@ describe('<ElementContextMenu/>', () => {
 
   it('should move element forward', async () => {
     const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
-    activeSlide.setActiveElementId('element-1');
+    activeSlide.setActiveElementIds(['element-1']);
     render(<ElementContextMenu elementId="element-1" />, {
       wrapper: Wrapper,
     });
@@ -223,7 +223,7 @@ describe('<ElementContextMenu/>', () => {
 
   it('should move element to top', async () => {
     const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
-    activeSlide.setActiveElementId('element-0');
+    activeSlide.setActiveElementIds(['element-0']);
     render(<ElementContextMenu elementId="element-0" />, {
       wrapper: Wrapper,
     });
@@ -257,7 +257,7 @@ describe('<ElementContextMenu/>', () => {
 
   it('should move element backward', async () => {
     const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
-    activeSlide.setActiveElementId('element-1');
+    activeSlide.setActiveElementIds(['element-1']);
     render(<ElementContextMenu elementId="element-1" />, {
       wrapper: Wrapper,
     });
@@ -291,7 +291,7 @@ describe('<ElementContextMenu/>', () => {
 
   it('should move element to bottom', async () => {
     const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
-    activeSlide.setActiveElementId('element-2');
+    activeSlide.setActiveElementIds(['element-2']);
     render(<ElementContextMenu elementId="element-2" />, {
       wrapper: Wrapper,
     });
@@ -325,7 +325,7 @@ describe('<ElementContextMenu/>', () => {
 
   it('should delete element', async () => {
     const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
-    activeSlide.setActiveElementId('element-1');
+    activeSlide.setActiveElementIds(['element-1']);
     render(<ElementContextMenu elementId="element-1" />, {
       wrapper: Wrapper,
     });

@@ -18,17 +18,18 @@ import { first, last } from 'lodash';
 import { useCallback } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import {
-  useActiveElement,
+  useActiveElements,
   useSlideElementIds,
   useWhiteboardSlideInstance,
 } from '../../../state';
 import { HOTKEY_SCOPE_WHITEBOARD } from '../../WhiteboardHotkeysProvider';
 
 export function ReorderElementsShortcuts() {
-  const { activeElementId } = useActiveElement();
+  const { activeElementIds } = useActiveElements();
   const slideInstance = useWhiteboardSlideInstance();
   const elementIds = useSlideElementIds();
 
+  const activeElementId = first(activeElementIds);
   const canMoveUp = activeElementId && last(elementIds) !== activeElementId;
   const canMoveDown = activeElementId && first(elementIds) !== activeElementId;
 

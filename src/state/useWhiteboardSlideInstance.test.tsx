@@ -25,7 +25,7 @@ import { WhiteboardInstance, WhiteboardManager } from './types';
 import { WhiteboardManagerProvider } from './useWhiteboardManager';
 import {
   SlideProvider,
-  useActiveElement,
+  useActiveElements,
   useElement,
   useSlideElementIds,
   useSlideIsLocked,
@@ -59,7 +59,7 @@ describe('<SlideProvider/>', () => {
   });
 
   it('should provide ActiveElementProvider', () => {
-    const { result } = renderHook(() => useActiveElement(), {
+    const { result } = renderHook(() => useActiveElements(), {
       wrapper: Wrapper,
     });
 
@@ -161,7 +161,7 @@ describe('useElement', () => {
   });
 });
 
-describe('useActiveElement', () => {
+describe('useActiveElements', () => {
   beforeEach(() => {
     ({ whiteboardManager } = mockWhiteboardManager({
       slides: [
@@ -179,40 +179,40 @@ describe('useActiveElement', () => {
     activeWhiteboardInstance = whiteboardManager.getActiveWhiteboardInstance()!;
   });
 
-  it('should return undefined element', () => {
-    const { result } = renderHook(() => useActiveElement(), {
+  it('should return empty element', () => {
+    const { result } = renderHook(() => useActiveElements(), {
       wrapper: Wrapper,
     });
 
-    expect(result.current).toEqual({ activeElementId: undefined });
+    expect(result.current).toEqual({ activeElementIds: [] });
   });
 
   it('should return selected element', () => {
     activeWhiteboardInstance
       .getSlide('slide-0')
-      .setActiveElementId('element-0');
+      .setActiveElementIds(['element-0']);
 
-    const { result } = renderHook(() => useActiveElement(), {
+    const { result } = renderHook(() => useActiveElements(), {
       wrapper: Wrapper,
     });
 
-    expect(result.current).toEqual({ activeElementId: 'element-0' });
+    expect(result.current).toEqual({ activeElementIds: ['element-0'] });
   });
 
   it('should observe elements', () => {
-    const { result } = renderHook(() => useActiveElement(), {
+    const { result } = renderHook(() => useActiveElements(), {
       wrapper: Wrapper,
     });
 
-    expect(result.current).toEqual({ activeElementId: undefined });
+    expect(result.current).toEqual({ activeElementIds: [] });
 
     act(() => {
       activeWhiteboardInstance
         .getSlide('slide-0')
-        .setActiveElementId('element-1');
+        .setActiveElementIds(['element-1']);
     });
 
-    expect(result.current).toEqual({ activeElementId: 'element-1' });
+    expect(result.current).toEqual({ activeElementIds: ['element-1'] });
   });
 });
 

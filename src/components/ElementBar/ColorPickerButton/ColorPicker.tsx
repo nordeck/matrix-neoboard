@@ -16,10 +16,11 @@
 
 import { Popover } from '@mui/material';
 import { unstable_useId as useId } from '@mui/utils';
+import { first } from 'lodash';
 import { MouseEvent, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  useActiveElement,
+  useActiveElements,
   useElement,
   useWhiteboardSlideInstance,
 } from '../../../state';
@@ -34,7 +35,8 @@ export function ColorPicker() {
   const { activeColor, setActiveColor } = useLayoutState();
   const slideInstance = useWhiteboardSlideInstance();
 
-  const { activeElementId } = useActiveElement();
+  const { activeElementIds } = useActiveElements();
+  const activeElementId = first(activeElementIds);
   const activeElement = useElement(activeElementId);
   const color = activeElement
     ? activeElement.type === 'path'
@@ -58,7 +60,8 @@ export function ColorPicker() {
     (color: string) => {
       setActiveColor(color);
 
-      const activeElementId = slideInstance.getActiveElementId();
+      const activeElementIds = slideInstance.getActiveElementIds();
+      const activeElementId = first(activeElementIds);
 
       if (activeElementId) {
         const activeElement = slideInstance.getElement(activeElementId);

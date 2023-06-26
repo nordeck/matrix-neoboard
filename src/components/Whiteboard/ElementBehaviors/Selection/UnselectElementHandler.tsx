@@ -17,20 +17,20 @@
 import { useCallback } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import {
-  useActiveElement,
+  useActiveElements,
   useWhiteboardSlideInstance,
 } from '../../../../state';
 import { HOTKEY_SCOPE_WHITEBOARD } from '../../../WhiteboardHotkeysProvider';
 
 export function UnselectElementHandler() {
-  const { activeElementId } = useActiveElement();
+  const { activeElementIds } = useActiveElements();
   const slideInstance = useWhiteboardSlideInstance();
 
   const unselectElement = useCallback(() => {
-    if (activeElementId) {
-      slideInstance.setActiveElementId(undefined);
+    if (activeElementIds.length > 0) {
+      slideInstance.setActiveElementIds([]);
     }
-  }, [activeElementId, slideInstance]);
+  }, [activeElementIds, slideInstance]);
 
   useHotkeys(
     'Escape',

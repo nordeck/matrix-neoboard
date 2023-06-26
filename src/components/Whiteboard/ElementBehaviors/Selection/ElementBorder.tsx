@@ -55,15 +55,16 @@ function SelectionAnchor({
 }
 
 export type ElementBorderProps = {
-  elementId: string;
+  elementIds: string[];
   padding?: number;
 };
 
-export function ElementBorder({ elementId, padding = 1 }: ElementBorderProps) {
+export function ElementBorder({ elementIds, padding = 1 }: ElementBorderProps) {
   const theme = useTheme();
   const { activeTool } = useLayoutState();
   const isInSelectionMode = activeTool === 'select';
   const { scale } = useSvgCanvasContext();
+  const elementId = elementIds[0];
   const element = useElementOverride(elementId);
   const x = element?.position.x ?? 0;
   const y = element?.position.y ?? 0;
