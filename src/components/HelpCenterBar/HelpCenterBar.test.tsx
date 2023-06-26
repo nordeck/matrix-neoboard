@@ -15,7 +15,7 @@
  */
 
 import { getEnvironment } from '@matrix-widget-toolkit/mui';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { axe } from 'jest-axe';
 import { ComponentType, PropsWithChildren } from 'react';
@@ -62,7 +62,10 @@ describe('<HelpCenterBar/>', () => {
     expect(
       within(menu).getByRole('menuitem', { name: 'Reset onboarding' })
     ).toBeInTheDocument();
-    expect(within(menu).getAllByRole('menuitem')).toHaveLength(1);
+    expect(
+      within(menu).getByRole('menuitem', { name: 'About NeoBoard' })
+    ).toBeInTheDocument();
+    expect(within(menu).getAllByRole('menuitem')).toHaveLength(2);
 
     await userEvent.keyboard('[Escape]');
 
@@ -108,6 +111,33 @@ describe('<HelpCenterBar/>', () => {
 
     await userEvent.click(helpCenterButton);
 
+    expect(menu).not.toBeInTheDocument();
+  });
+
+  it('should open the about dialog and close the menu', async () => {
+    render(<HelpCenterBar />, { wrapper: Wrapper });
+
+    const toolbar = screen.getByRole('toolbar', { name: 'Help center' });
+
+    await userEvent.click(
+      within(toolbar).getByRole('button', { name: 'Help' })
+    );
+
+    const menu = screen.getByRole('menu', { name: 'Help' });
+
+    await userEvent.click(
+      screen.getByRole('menuitem', { name: 'About NeoBoard' })
+    );
+
+    const dialog = screen.getByRole('dialog', { name: 'About NeoBoard' });
+
+    await userEvent.click(
+      within(dialog).getByRole('button', { name: 'Close' })
+    );
+
+    await waitFor(() => {
+      expect(dialog).not.toBeInTheDocument();
+    });
     expect(menu).not.toBeInTheDocument();
   });
 

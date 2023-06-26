@@ -120,6 +120,18 @@ We also provide a [HELM chart](./charts/).
 > It can work without them, but there is a high chance that it won't!
 > The official matrix.org homeserver will work; see for example how to configure them for [Synapse](https://matrix-org.github.io/synapse/latest/turn-howto.html).
 
+## Verify the Container Images
+
+The container images releases are signed by [cosign](https://github.com/sigstore/cosign) using identity-based ("keyless") signing and transparency.
+Execute the following command to verify the signature of a container image:
+
+```sh
+cosign verify \
+--certificate-identity-regexp https://github.com/nordeck/matrix-neoboard/.github/workflows/publish-release.yml@refs/tags/v \
+--certificate-oidc-issuer https://token.actions.githubusercontent.com \
+ghcr.io/nordeck/matrix-neoboard-widget:<version> | jq
+```
+
 ## License
 
 This project is licensed under [APACHE 2.0](./LICENSE).

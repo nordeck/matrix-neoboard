@@ -22,6 +22,7 @@ import { useTranslation } from 'react-i18next';
 import { ToolbarSubMenu } from '../common/Toolbar';
 import { useGuidedTour } from '../GuidedTour';
 import { HelpIcon } from '../icons/HelpIcon';
+import { InfoDialog } from './InfoDialog';
 
 export function HelpMenu() {
   const { t } = useTranslation();
@@ -43,6 +44,17 @@ export function HelpMenu() {
     restartGuidedTour();
     handleClose();
   }, [handleClose, restartGuidedTour]);
+
+  const [openAbout, setOpenAbout] = useState(false);
+
+  const handleClickAbout = useCallback(() => {
+    setOpenAbout(true);
+    handleClose();
+  }, [handleClose]);
+
+  const handleCloseAbout = useCallback(() => {
+    setOpenAbout(false);
+  }, []);
 
   const menuTitle = t('helpCenter.menu.title', 'Help');
   const buttonId = useId();
@@ -108,7 +120,15 @@ export function HelpMenu() {
             {t('helpCenter.menu.resetOnboarding', 'Reset onboarding')}
           </ListItemText>
         </MenuItem>
+
+        <MenuItem onClick={handleClickAbout}>
+          <ListItemText>
+            {t('helpCenter.menu.about', 'About NeoBoard')}
+          </ListItemText>
+        </MenuItem>
       </Menu>
+
+      <InfoDialog open={openAbout} onClose={handleCloseAbout} />
     </>
   );
 }

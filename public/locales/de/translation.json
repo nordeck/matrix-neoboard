@@ -122,7 +122,13 @@
     }
   },
   "helpCenter": {
+    "info": {
+      "close": "Schließen",
+      "title": "Über NeoBoard",
+      "version": "Version {{version}} ({{revision}})"
+    },
     "menu": {
+      "about": "Über NeoBoard",
       "helpCenter": "Hilfezentrum",
       "resetOnboarding": "Einführung zurücksetzen",
       "title": "Hilfe"
