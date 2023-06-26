@@ -61,7 +61,7 @@ export function textContent(
 
   const textContent: ContentText = {
     text,
-    alignment: 'center',
+    alignment: textProperties.align,
     color: findForegroundColor(element.fillColor),
     fontSize,
     lineHeight: 1,

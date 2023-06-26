@@ -79,6 +79,10 @@
     "title": "Pick a color"
   },
   "elementBar": {
+    "alignment": "Text Alignment",
+    "alignmentCenter": "Center",
+    "alignmentLeft": "Left",
+    "alignmentRight": "Right",
     "deleteElement": "Delete element",
     "duplicateActiveElement": "Duplicate the active element",
     "title": "Element"

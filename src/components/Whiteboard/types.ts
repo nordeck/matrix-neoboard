@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import { TextAlignment } from '../../state';
+
 /** Common properties of elements that describes the rendering */
 export type ElementRenderProperties = {
   /** The color of the stroke */
@@ -29,5 +31,6 @@ export type ElementRenderProperties = {
     position: { x: number; y: number };
     width: number;
     height: number;
+    align: TextAlignment;
   };
 };

@@ -36,6 +36,7 @@ describe('getRenderProperties', () => {
         position: { x: expect.any(Number), y: expect.any(Number) },
         width: expect.any(Number),
         height: expect.any(Number),
+        align: 'center',
       },
 
       points: {
@@ -52,5 +53,39 @@ describe('getRenderProperties', () => {
     expect(view.text?.position.y).toBeCloseTo(31.66, 1);
     expect(view.text?.width).toBeCloseTo(33.33, 1);
     expect(view.text?.height).toBeCloseTo(23.33, 1);
+  });
+
+  it('should provide the properties for a triangle element with custom text alignment', () => {
+    const view = getRenderProperties({
+      type: 'shape',
+      kind: 'triangle',
+      position: { x: 10, y: 15 },
+      fillColor: '#00ffff',
+      width: 100,
+      height: 50,
+      text: 'My Text',
+      textAlign: 'right',
+    });
+
+    expect(view).toEqual({
+      strokeColor: '#00ffff',
+      strokeWidth: 2,
+
+      text: {
+        position: { x: expect.any(Number), y: expect.any(Number) },
+        width: expect.any(Number),
+        height: expect.any(Number),
+        align: 'right',
+      },
+
+      points: {
+        p0X: 10,
+        p0Y: 65,
+        p1X: 60,
+        p1Y: 15,
+        p2X: 110,
+        p2Y: 65,
+      },
+    });
   });
 });

@@ -41,6 +41,7 @@ export function getRenderProperties(
       },
       width: fitSquareLengthX,
       height: fitSquareLengthY,
+      align: shape.textAlign ?? 'center',
     },
   };
 }

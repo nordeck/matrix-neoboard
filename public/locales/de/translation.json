@@ -79,6 +79,10 @@
     "title": "Wähle eine Farbe"
   },
   "elementBar": {
+    "alignment": "Text Ausrichtung",
+    "alignmentCenter": "Zentriert",
+    "alignmentLeft": "Links",
+    "alignmentRight": "Rechts",
     "deleteElement": "Element löschen",
     "duplicateActiveElement": "Element duplizieren",
     "title": "Element"

@@ -130,6 +130,7 @@ An Element that has a shape attached, that has a text and a fill color.
 | `height`    | `number`                                             | Scaling of the shape on the y-axis.                         |
 | `fillColor` | `string`                                             | The fill color of the shape as [CSS color value][csscolor]. |
 | `text`      | `YText` / `string`                                   | Text that is displayed in the shape.                        |
+| `textAlign` | `'left' \| 'center' \| 'right'`                      | The alignment of the text in the shape.                     |
 
 #### Example
 

@@ -22,6 +22,7 @@ export type {
   PathKind,
   ShapeElement,
   ShapeKind,
+  TextAlignment,
 } from './elements';
 export {
   generateAddElement,

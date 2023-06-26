@@ -56,6 +56,7 @@ const RectangleDisplay = ({
           y={text.position.y}
           width={text.width}
           height={text.height}
+          align={text.align}
           fillColor={shape.fillColor}
         />
       )}
