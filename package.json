@@ -76,7 +76,7 @@
     "husky": "^8.0.3",
     "i18next-parser": "^8.0.0",
     "jest-axe": "^7.0.1",
-    "lint-staged": "^13.2.2",
+    "lint-staged": "^13.2.3",
     "prettier": "^2.8.8",
     "prettier-plugin-organize-imports": "^3.2.2",
     "react-scripts": "5.0.1",
