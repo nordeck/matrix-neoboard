@@ -283,6 +283,19 @@ describe('WhiteboardInstanceImpl', () => {
     expect(whiteboardInstance.getSlide(slide1)).toBeDefined();
   });
 
+  it('should duplicate a slide', async () => {
+    const whiteboardInstance = new WhiteboardInstanceImpl(
+      synchronizedDocument,
+      communicationChannel,
+      mockWhiteboard(),
+      '@user-id'
+    );
+
+    const slide1 = whiteboardInstance.duplicateSlide(slide0);
+
+    expect(whiteboardInstance.getSlide(slide1)).toBeDefined();
+  });
+
   it('should move a slide', async () => {
     const whiteboardInstance = new WhiteboardInstanceImpl(
       synchronizedDocument,

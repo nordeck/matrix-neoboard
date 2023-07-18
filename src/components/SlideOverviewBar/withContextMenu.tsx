@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import PeopleAltOutlinedIcon from '@mui/icons-material/PeopleAltOutlined';
@@ -65,6 +66,12 @@ export const withContextMenu = <P extends object>(
 
     const handleClickBringEveryoneToSlide = useCallback(() => {
       whiteboardInstance.focusOn(slideId);
+      handleClose();
+    }, [handleClose, slideId, whiteboardInstance]);
+
+    const handleCopySlide = useCallback(() => {
+      const newSlideId = whiteboardInstance.duplicateSlide(slideId);
+      whiteboardInstance.setActiveSlideId(newSlideId);
       handleClose();
     }, [handleClose, slideId, whiteboardInstance]);
 
@@ -147,6 +154,17 @@ export const withContextMenu = <P extends object>(
             onClick={handleLockClick}
             onChange={handleLockChange}
           />
+          <MenuItem onClick={handleCopySlide}>
+            <ListItemIcon sx={{ color: 'text.primary' }}>
+              <ContentCopyIcon />
+            </ListItemIcon>
+            <ListItemText>
+              {t(
+                'slideOverviewBar.contextMenu.duplicateSlide',
+                'Duplicate slide'
+              )}
+            </ListItemText>
+          </MenuItem>
           <MenuItem divider onClick={handleClickBringEveryoneToSlide}>
             <ListItemIcon sx={{ color: 'text.primary' }}>
               <PeopleAltOutlinedIcon />
