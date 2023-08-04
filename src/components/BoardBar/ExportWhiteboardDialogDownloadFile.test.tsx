@@ -131,7 +131,7 @@ describe('<ExportWhiteboardDialogDownloadFile />', () => {
       slice: jest.fn(),
       stream: jest.fn(),
       text: jest.fn(),
-    });
+    } as unknown as Blob);
 
     render(
       <ExportWhiteboardDialogDownloadFile onClick={onClick}>
