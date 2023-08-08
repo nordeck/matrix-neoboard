@@ -15,6 +15,7 @@
  */
 
 import { getEnvironment } from '@matrix-widget-toolkit/mui';
+import CloseIcon from '@mui/icons-material/Close';
 import {
   Button,
   Dialog,
@@ -22,10 +23,14 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  IconButton,
+  Stack,
+  Tooltip,
 } from '@mui/material';
 import { unstable_useId as useId } from '@mui/utils';
-import { DispatchWithoutAction } from 'react';
+import { DispatchWithoutAction, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { CopyableText } from './CopyableText';
 
 type InfoDialogProps = {
   open: boolean;
@@ -34,9 +39,14 @@ type InfoDialogProps = {
 
 export function InfoDialog({ open, onClose }: InfoDialogProps) {
   const { t } = useTranslation();
+  const [showRevision, setShowRevision] = useState(false);
 
   const version = getEnvironment('REACT_APP_VERSION', 'unset');
   const revision = getEnvironment('REACT_APP_REVISION', 'unset');
+
+  const onClickShowRevision = useCallback(() => {
+    setShowRevision(!showRevision);
+  }, [showRevision]);
 
   const dialogTitleId = useId();
   const dialogDescriptionId = useId();
@@ -45,25 +55,44 @@ export function InfoDialog({ open, onClose }: InfoDialogProps) {
     <Dialog
       open={open}
       onClose={onClose}
+      fullWidth
+      maxWidth="sm"
       aria-labelledby={dialogTitleId}
       aria-describedby={dialogDescriptionId}
     >
-      <DialogTitle id={dialogTitleId}>
-        {t('helpCenter.info.title', 'About NeoBoard')}
-      </DialogTitle>
+      <Stack alignItems="baseline" direction="row">
+        <DialogTitle component="h3" id={dialogTitleId} sx={{ flex: 1 }}>
+          {t('helpCenter.info.title', 'About NeoBoard')}
+        </DialogTitle>
+        <Tooltip title={t('helpCenter.info.close', 'Close')}>
+          <IconButton
+            sx={{ mr: 3 }}
+            aria-label={t('helpCenter.info.close', 'Close')}
+            onClick={onClose}
+          >
+            <CloseIcon />
+          </IconButton>
+        </Tooltip>
+      </Stack>
       <DialogContent>
         <DialogContentText
           id={dialogDescriptionId}
           sx={{ wordBreak: 'break-all' }}
         >
-          {t('helpCenter.info.version', 'Version {{version}} ({{revision}})', {
+          {t('helpCenter.info.version', 'Version {{version}}', {
             version,
             revision,
           })}
         </DialogContentText>
+        <Button sx={{ pl: 0 }} variant="text" onClick={onClickShowRevision}>
+          {!showRevision
+            ? t('helpCenter.info.showMore', 'Show more')
+            : t('helpCenter.info.showLess', 'Show less')}
+        </Button>
+        {showRevision && <CopyableText label="" text={revision} />}
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} autoFocus>
+        <Button onClick={onClose} autoFocus variant="contained">
           {t('helpCenter.info.close', 'Close')}
         </Button>
       </DialogActions>
