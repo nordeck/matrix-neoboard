@@ -39,7 +39,6 @@ export function CopyableText({
 
   return (
     <TextField
-      sx={{ mt: 0 }}
       InputProps={{
         readOnly: true,
         endAdornment: (

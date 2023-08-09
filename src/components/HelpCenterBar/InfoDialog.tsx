@@ -30,7 +30,7 @@ import {
 import { unstable_useId as useId } from '@mui/utils';
 import { DispatchWithoutAction, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CopyableText } from './CopyableText';
+import { CopyableText } from '../common/CopyableText';
 
 type InfoDialogProps = {
   open: boolean;
@@ -74,7 +74,7 @@ export function InfoDialog({ open, onClose }: InfoDialogProps) {
           </IconButton>
         </Tooltip>
       </Stack>
-      <DialogContent>
+      <DialogContent sx={{ pt: 0 }}>
         <DialogContentText
           id={dialogDescriptionId}
           sx={{ wordBreak: 'break-all' }}
@@ -89,7 +89,12 @@ export function InfoDialog({ open, onClose }: InfoDialogProps) {
             ? t('helpCenter.info.showMore', 'Show more')
             : t('helpCenter.info.showLess', 'Show less')}
         </Button>
-        {showRevision && <CopyableText label="" text={revision} />}
+        {showRevision && (
+          <CopyableText
+            label={t('helpCenter.info.commitHash', 'Commit hash')}
+            text={revision}
+          />
+        )}
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} autoFocus variant="contained">

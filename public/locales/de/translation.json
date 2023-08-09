@@ -127,6 +127,7 @@
   "helpCenter": {
     "info": {
       "close": "Schließen",
+      "commitHash": "Commit hash",
       "showLess": "Weniger anzeigen",
       "showMore": "Mehr anzeigen",
       "title": "Über NeoBoard",

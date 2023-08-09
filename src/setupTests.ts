@@ -77,3 +77,8 @@ window.URL.revokeObjectURL = jest.fn();
 // definition in jsdom
 const { webcrypto } = require('node:crypto');
 Object.defineProperty(global.globalThis, 'crypto', { value: webcrypto });
+
+// Provide a mock for the Clipboard API
+Object.defineProperty(navigator, 'clipboard', {
+  value: { writeText: jest.fn() },
+});
