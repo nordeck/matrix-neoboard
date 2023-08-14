@@ -24,8 +24,10 @@ import {
   DialogContentText,
   DialogTitle,
   IconButton,
+  Link,
   Stack,
   Tooltip,
+  Typography,
 } from '@mui/material';
 import { unstable_useId as useId } from '@mui/utils';
 import { DispatchWithoutAction, useCallback, useState } from 'react';
@@ -84,11 +86,17 @@ export function InfoDialog({ open, onClose }: InfoDialogProps) {
             revision,
           })}
         </DialogContentText>
-        <Button sx={{ pl: 0 }} variant="text" onClick={onClickShowRevision}>
-          {!showRevision
-            ? t('helpCenter.info.showMore', 'Show more')
-            : t('helpCenter.info.showLess', 'Show less')}
-        </Button>
+        <Typography my={1} fontWeight="bold">
+          <Link
+            component="button"
+            onClick={onClickShowRevision}
+            underline="none"
+          >
+            {!showRevision
+              ? t('helpCenter.info.showMore', 'Show more')
+              : t('helpCenter.info.showLess', 'Show less')}
+          </Link>
+        </Typography>
         {showRevision && (
           <CopyableText
             label={t('helpCenter.info.commitHash', 'Commit hash')}
