@@ -45,8 +45,8 @@ export function InfoDialog({ open, onClose }: InfoDialogProps) {
   const revision = getEnvironment('REACT_APP_REVISION', 'unset');
 
   const onClickShowRevision = useCallback(() => {
-    setShowRevision(!showRevision);
-  }, [showRevision]);
+    setShowRevision((old) => !old);
+  }, []);
 
   const dialogTitleId = useId();
   const dialogDescriptionId = useId();
