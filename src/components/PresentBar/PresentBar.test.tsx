@@ -25,6 +25,7 @@ import {
 } from '../../lib/testUtils/documentTestUtils';
 import { mockRoomMember } from '../../lib/testUtils/matrixTestUtils';
 import { WhiteboardInstance, WhiteboardManager } from '../../state';
+import { LayoutStateProvider } from '../Layout';
 import { PresentBar } from './PresentBar';
 
 let widgetApi: MockedWidgetApi;
@@ -58,7 +59,7 @@ describe('<PresentBar/>', () => {
         whiteboardManager={whiteboardManager}
         widgetApi={widgetApi}
       >
-        {children}
+        <LayoutStateProvider>{children}</LayoutStateProvider>
       </WhiteboardTestingContextProvider>
     );
   });

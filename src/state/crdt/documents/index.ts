@@ -22,10 +22,12 @@ export type {
   PathKind,
   ShapeElement,
   ShapeKind,
+  TextAlignment,
 } from './elements';
 export {
   generateAddElement,
   generateAddSlide,
+  generateDuplicateSlide,
   generateLockSlide,
   generateMoveDown,
   generateMoveElement,

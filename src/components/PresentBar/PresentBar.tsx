@@ -16,6 +16,8 @@
 
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import FullscreenIcon from '@mui/icons-material/Fullscreen';
+import FullscreenExitIcon from '@mui/icons-material/FullscreenExit';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import PresentToAllIcon from '@mui/icons-material/PresentToAll';
 import { Box } from '@mui/material';
@@ -34,6 +36,7 @@ import {
   ToolbarButton,
   ToolbarToggle,
 } from '../common/Toolbar';
+import { useLayoutState } from '../Layout';
 
 export function PresentBar() {
   const { t } = useTranslation();
@@ -41,6 +44,7 @@ export function PresentBar() {
   const { activeSlideId, isFirstSlideActive, isLastSlideActive } =
     useActiveSlide();
   const { state, toggleEditMode, togglePresentation } = usePresentationMode();
+  const { isFullscreen, setFullscreen } = useLayoutState();
 
   const handleToNextSlideClick = useCallback(() => {
     if (activeSlideId) {
@@ -57,6 +61,10 @@ export function PresentBar() {
       whiteboardInstance.setActiveSlideId(slideIds[activeSlideIndex - 1]);
     }
   }, [activeSlideId, whiteboardInstance]);
+
+  const toggleFullscreen = useCallback(() => {
+    setFullscreen(!isFullscreen);
+  }, [isFullscreen, setFullscreen]);
 
   const isPresenting = state.type === 'presenting';
   const isPresentingInEditMode = isPresenting && state.isEditMode;
@@ -77,12 +85,24 @@ export function PresentBar() {
     ? t('presentBar.disableEditing', 'Disable editing')
     : t('presentBar.enableEditing', 'Enable editing');
 
+  const fullScreenButtonTitle = isFullscreen
+    ? t('presentBar.disableFullscreen', 'Disable fullscreen')
+    : t('presentBar.enableFullscreen', 'Enable fullscreen');
+
   return (
     <Toolbar
       aria-label={presentBarTitle}
       sx={{ pointerEvents: 'initial' }}
       orientation="vertical"
     >
+      <ToolbarToggle
+        inputProps={{ 'aria-label': fullScreenButtonTitle }}
+        checked={isFullscreen}
+        onClick={toggleFullscreen}
+        icon={<FullscreenIcon />}
+        placement="bottom"
+        checkedIcon={<FullscreenExitIcon />}
+      />
       {state.type !== 'presentation' && (
         <ToolbarToggle
           inputProps={{ 'aria-label': buttonTitle }}

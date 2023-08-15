@@ -14,11 +14,15 @@
  * limitations under the License.
  */
 
-import { mockLineElement } from '../../../lib/testUtils/documentTestUtils';
+import {
+  mockEllipseElement,
+  mockLineElement,
+} from '../../../lib/testUtils/documentTestUtils';
 import { Document } from '../types';
 import {
   generateAddElement,
   generateAddSlide,
+  generateDuplicateSlide,
   generateLockSlide,
   generateMoveDown,
   generateMoveElement,
@@ -115,6 +119,63 @@ describe('generateAddSlide', () => {
       elementIds: [],
     });
     expect(getNormalizedSlideIds(doc.getData())).toEqual([slide0, slideId]);
+  });
+});
+
+describe('generateDuplicateSlide', () => {
+  it('should duplicate the slide', () => {
+    const doc = createWhiteboardDocument();
+
+    const [changeFn1, slide1] = generateAddSlide();
+    doc.performChange(changeFn1);
+
+    const lineElement = mockLineElement();
+    const ellipseElement = mockEllipseElement();
+    const [addElement0, element0] = generateAddElement(slide0, lineElement);
+    doc.performChange(addElement0);
+    const [addElement1, element1] = generateAddElement(slide0, ellipseElement);
+    doc.performChange(addElement1);
+    const moveElement = generateMoveElement(slide0, element1, 0);
+    doc.performChange(moveElement);
+
+    const [changeFn2, slide2] = generateDuplicateSlide(slide0);
+    doc.performChange(changeFn2);
+
+    const [newElement1, newElement0] = getNormalizedElementIds(
+      doc.getData(),
+      slide2
+    );
+
+    expect(slide2).toEqual(expect.any(String));
+    expect(slide2).not.toEqual(slide0);
+
+    expect(newElement0).toEqual(expect.any(String));
+    expect(newElement0).not.toEqual(element0);
+    expect(newElement1).toEqual(expect.any(String));
+    expect(newElement1).not.toEqual(element1);
+
+    expect(getSlide(doc.getData(), slide2)?.toJSON()).toEqual({
+      elements: {
+        [newElement0]: lineElement,
+        [newElement1]: ellipseElement,
+      },
+      elementIds: [newElement1, newElement0],
+    });
+    expect(getNormalizedSlideIds(doc.getData())).toEqual([
+      slide0,
+      slide2,
+      slide1,
+    ]);
+  });
+
+  it('should throw if the slide does not exist', () => {
+    const doc = createWhiteboardDocument();
+
+    const [changeFn] = generateDuplicateSlide('not-exists');
+
+    expect(() => doc.performChange(changeFn)).toThrow(
+      'Slide not found: not-exists'
+    );
   });
 });
 

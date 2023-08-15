@@ -36,6 +36,32 @@ describe('getRenderProperties', () => {
         position: { x: 20, y: 25 },
         width: 80,
         height: 30,
+        align: 'center',
+      },
+    });
+  });
+
+  it('should provide the properties for a rectangle element with custom text alignment', () => {
+    const view = getRenderProperties({
+      type: 'shape',
+      kind: 'rectangle',
+      position: { x: 10, y: 15 },
+      fillColor: '#00ffff',
+      width: 100,
+      height: 50,
+      text: 'My Text',
+      textAlign: 'right',
+    });
+
+    expect(view).toEqual({
+      strokeColor: '#00ffff',
+      strokeWidth: 2,
+
+      text: {
+        position: { x: 20, y: 25 },
+        width: 80,
+        height: 30,
+        align: 'right',
       },
     });
   });

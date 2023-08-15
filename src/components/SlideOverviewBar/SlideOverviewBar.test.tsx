@@ -152,6 +152,25 @@ describe('<SideOverviewBar/>', () => {
     ).toBeInTheDocument();
   });
 
+  it('should duplicate a slide', async () => {
+    render(<SlideOverviewBar />, { wrapper: Wrapper });
+
+    const tab = screen.getByRole('tab', { name: 'Slide 2' });
+    await userEvent.pointer({ keys: '[MouseRight]', target: tab });
+
+    const menu = screen.getByRole('menu', { name: 'Slide 2' });
+    await userEvent.click(
+      within(menu).getByRole('menuitem', { name: 'Duplicate slide' })
+    );
+
+    await waitFor(() => expect(menu).not.toBeInTheDocument());
+
+    expect(screen.getAllByRole('tab')).toHaveLength(4);
+    expect(
+      screen.getByRole('tab', { name: 'Slide 3', selected: true })
+    ).toBeInTheDocument();
+  });
+
   it('should delete a slide', async () => {
     render(<SlideOverviewBar />, { wrapper: Wrapper });
 

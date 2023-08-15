@@ -82,6 +82,10 @@
     "copy-to-clipboard": "Copy to clipboard"
   },
   "elementBar": {
+    "alignment": "Text Alignment",
+    "alignmentCenter": "Center",
+    "alignmentLeft": "Left",
+    "alignmentRight": "Right",
     "deleteElement": "Delete element",
     "duplicateActiveElement": "Duplicate the active element",
     "title": "Element"
@@ -165,7 +169,9 @@
   },
   "presentBar": {
     "disableEditing": "Disable editing",
+    "disableFullscreen": "Disable fullscreen",
     "enableEditing": "Enable editing",
+    "enableFullscreen": "Enable fullscreen",
     "isPresenting": "is presenting",
     "isPresentingUser": "{{displayName}} is presenting",
     "startPresentation": "Start presentation",
@@ -181,6 +187,7 @@
     "contextMenu": {
       "bringEveryoneToSlide": "Bring all here",
       "deleteSlide": "Delete",
+      "duplicateSlide": "Duplicate slide",
       "lockSlide": "Lock",
       "title": "Slide {{index}}"
     },

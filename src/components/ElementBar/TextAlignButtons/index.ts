@@ -14,29 +14,4 @@
  * limitations under the License.
  */
 
-import { ShapeElement } from '../../../state';
-import { ElementRenderProperties } from '../../Whiteboard';
-
-export function getRenderProperties(
-  shape: ShapeElement
-): ElementRenderProperties {
-  const padding = 10;
-
-  const width = shape.width;
-  const height = shape.height;
-
-  return {
-    strokeColor: shape.fillColor,
-    strokeWidth: 2,
-
-    text: {
-      position: {
-        x: shape.position.x + padding,
-        y: shape.position.y + padding,
-      },
-      width: width - padding * 2,
-      height: height - padding * 2,
-      align: shape.textAlign ?? 'center',
-    },
-  };
-}
+export { TextAlignButtons } from './TextAlignButtons';

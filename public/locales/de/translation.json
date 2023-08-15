@@ -82,6 +82,10 @@
     "copy-to-clipboard": "In die Zwischenablage kopieren"
   },
   "elementBar": {
+    "alignment": "Text Ausrichtung",
+    "alignmentCenter": "Zentriert",
+    "alignmentLeft": "Links",
+    "alignmentRight": "Rechts",
     "deleteElement": "Element löschen",
     "duplicateActiveElement": "Element duplizieren",
     "title": "Element"
@@ -165,7 +169,9 @@
   },
   "presentBar": {
     "disableEditing": "Bearbeitung sperren",
+    "disableFullscreen": "Vollbildmodus verlassen",
     "enableEditing": "Bearbeitung freigeben",
+    "enableFullscreen": "Vollbildmodus betreten",
     "isPresenting": "präsentiert",
     "isPresentingUser": "{{displayName}} präsentiert",
     "startPresentation": "Präsentation starten",
@@ -181,6 +187,7 @@
     "contextMenu": {
       "bringEveryoneToSlide": "Bring alle hierhin",
       "deleteSlide": "Löschen",
+      "duplicateSlide": "Folie duplizieren",
       "lockSlide": "Sperren",
       "title": "Folie {{index}}"
     },
