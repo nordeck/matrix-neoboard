@@ -11,6 +11,20 @@ updates:
     rebase-strategy: 'disabled'
     schedule:
       interval: 'weekly'
+    groups:
+      development-dependencies:
+        dependency-type: 'development'
+      matrix-widget-toolkit:
+        # Group all dependencies that are managed by the widget toolkit
+        patterns:
+          - '@matrix-widget-toolkit/*'
+          - '@mui/*'
+          - 'i18next'
+          - 'lodash'
+          - 'matrix-widget-api'
+          - 'react-i18next'
+          - 'react-use'
+          - 'rxjs'
   - package-ecosystem: 'github-actions'
     directory: '/'
     open-pull-requests-limit: 15
