@@ -19,14 +19,14 @@ import { act, render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ComponentType, PropsWithChildren } from 'react';
 import {
-  mockWhiteboardManager,
   WhiteboardTestingContextProvider,
+  mockWhiteboardManager,
 } from '../../../lib/testUtils/documentTestUtils';
 import { WhiteboardManager } from '../../../state';
 import {
   HOTKEY_SCOPE_WHITEBOARD,
-  usePauseHotkeysScope,
   WhiteboardHotkeysProvider,
+  usePauseHotkeysScope,
 } from '../../WhiteboardHotkeysProvider';
 import { UndoRedoShortcuts } from './UndoRedoShortcuts';
 

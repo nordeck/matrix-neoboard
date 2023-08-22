@@ -19,17 +19,17 @@ import { WidgetApiMockProvider } from '@matrix-widget-toolkit/react';
 import { range } from 'lodash';
 import { Fragment, PropsWithChildren, useState } from 'react';
 import { Provider } from 'react-redux';
-import { NEVER, of, Subject } from 'rxjs';
+import { NEVER, Subject, of } from 'rxjs';
 import {
-  createWhiteboardDocument,
   Element,
   PathElement,
   ShapeElement,
   Slide,
   SlideProvider,
-  useActiveSlide,
   WhiteboardManager,
   WhiteboardManagerProvider,
+  createWhiteboardDocument,
+  useActiveSlide,
 } from '../../state';
 import {
   CommunicationChannel,

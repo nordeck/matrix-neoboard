@@ -19,8 +19,8 @@ import { render, screen, within } from '@testing-library/react';
 import { axe } from 'jest-axe';
 import { ComponentType, PropsWithChildren } from 'react';
 import {
-  mockWhiteboardManager,
   WhiteboardTestingContextProvider,
+  mockWhiteboardManager,
 } from '../../lib/testUtils/documentTestUtils';
 import { WhiteboardManager } from '../../state';
 import { LayoutStateProvider } from '../Layout';

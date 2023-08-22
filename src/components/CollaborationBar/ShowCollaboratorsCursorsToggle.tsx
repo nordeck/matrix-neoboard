@@ -17,8 +17,8 @@
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ToolbarToggle } from '../common/Toolbar';
 import { useLayoutState } from '../Layout';
+import { ToolbarToggle } from '../common/Toolbar';
 
 export function ShowCollaboratorsCursorsToggle() {
   const { t } = useTranslation();

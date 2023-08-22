@@ -20,9 +20,9 @@ import userEvent from '@testing-library/user-event';
 import { axe } from 'jest-axe';
 import { ComponentType, PropsWithChildren } from 'react';
 import {
+  WhiteboardTestingContextProvider,
   mockPeerConnectionStatistics,
   mockWhiteboardManager,
-  WhiteboardTestingContextProvider,
 } from '../../../lib/testUtils/documentTestUtils';
 import { mockRoomMember } from '../../../lib/testUtils/matrixTestUtils';
 import { WhiteboardManager, WhiteboardStatistics } from '../../../state';

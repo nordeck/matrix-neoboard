@@ -28,9 +28,9 @@ import { useUnmount } from 'react-use';
 import { Element, useWhiteboardSlideInstance } from '../../../../state';
 import { useSetElementOverride } from '../../../ElementOverridesProvider';
 import { useLayoutState } from '../../../Layout';
-import { gridCellSize } from '../../constants';
 import { snapToGrid } from '../../Grid';
 import { useSvgCanvasContext } from '../../SvgCanvas';
+import { gridCellSize } from '../../constants';
 import { addUserSelectStyles, removeUserSelectStyles } from './DraggableStyles';
 
 const DraggableGroup = styled('g')({

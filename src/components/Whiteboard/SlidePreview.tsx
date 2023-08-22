@@ -16,10 +16,10 @@
 
 import { Box } from '@mui/material';
 import { useIsWhiteboardLoading, useSlideElementIds } from '../../state';
-import { whiteboardHeight, whiteboardWidth } from './constants';
 import { ConnectedElement } from './Element';
 import { SlideSkeleton } from './SlideSkeleton';
 import { SvgCanvas } from './SvgCanvas';
+import { whiteboardHeight, whiteboardWidth } from './constants';
 
 export function SlidePreview() {
   const { loading } = useIsWhiteboardLoading();

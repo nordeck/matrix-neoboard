@@ -34,11 +34,11 @@ import {
   WhiteboardSessions,
 } from '../../model';
 import {
-  createWhiteboardDocument,
   Document,
+  WhiteboardDocument,
+  createWhiteboardDocument,
   generateAddElement,
   generateAddSlide,
-  WhiteboardDocument,
 } from '../../state';
 import { createChunks } from '../../store/api/documentSnapshotApi';
 

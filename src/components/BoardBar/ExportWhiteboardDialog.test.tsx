@@ -21,8 +21,8 @@ import { axe } from 'jest-axe';
 import { ComponentType, PropsWithChildren } from 'react';
 import { of, throwError } from 'rxjs';
 import {
-  mockWhiteboardManager,
   WhiteboardTestingContextProvider,
+  mockWhiteboardManager,
 } from '../../lib/testUtils/documentTestUtils';
 import { WhiteboardManager } from '../../state';
 import { LayoutStateProvider } from '../Layout';

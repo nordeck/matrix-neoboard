@@ -24,10 +24,10 @@ import {
   DocumentChunk,
   DocumentCreate,
   DocumentSnapshot,
-  isValidDocumentChunkRoomEvent,
-  isValidDocumentSnapshotRoomEvent,
   ROOM_EVENT_DOCUMENT_CHUNK,
   ROOM_EVENT_DOCUMENT_SNAPSHOT,
+  isValidDocumentChunkRoomEvent,
+  isValidDocumentSnapshotRoomEvent,
 } from '../../model';
 import { ROOM_EVENT_DOCUMENT_CREATE } from '../../model/documentCreate';
 import { ThunkExtraArgument } from '../store';
