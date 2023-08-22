@@ -26,8 +26,8 @@ import { DocumentChunk, DocumentSnapshot } from '../../model';
 import { Document, WhiteboardDocument } from '../../state';
 import { createChunks } from './documentSnapshotApi';
 import {
-  combineChunks,
   DocumentSnapshotBacklog,
+  combineChunks,
 } from './documentSnapshotBacklog';
 
 describe('DocumentSnapshotBacklog', () => {

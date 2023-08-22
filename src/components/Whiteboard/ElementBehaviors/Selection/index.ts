@@ -17,5 +17,5 @@
 export { ElementBarWrapper } from './ElementBarWrapper';
 export { ElementBorder } from './ElementBorder';
 export { SelectableElement } from './SelectableElement';
-export type { WithSelectionProps } from './types';
 export { UnselectElementHandler } from './UnselectElementHandler';
+export type { WithSelectionProps } from './types';

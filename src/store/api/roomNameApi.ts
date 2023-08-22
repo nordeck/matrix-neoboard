@@ -18,9 +18,9 @@ import { StateEvent } from '@matrix-widget-toolkit/api';
 import { first, isError } from 'lodash';
 import { filter } from 'rxjs';
 import {
-  isValidRoomNameEvent,
   RoomNameEvent,
   STATE_EVENT_ROOM_NAME,
+  isValidRoomNameEvent,
 } from '../../model';
 import { ThunkExtraArgument } from '../store';
 import { baseApi } from './baseApi';

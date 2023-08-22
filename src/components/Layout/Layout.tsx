@@ -25,7 +25,6 @@ import {
 } from '../../state';
 import { BoardBar } from '../BoardBar';
 import { CollaborationBar } from '../CollaborationBar';
-import { PageLoader } from '../common/PageLoader';
 import { DeveloperTools } from '../DeveloperTools/DeveloperTools';
 import { ElementOverridesProvider } from '../ElementOverridesProvider';
 import { GuidedTour } from '../GuidedTour';
@@ -36,6 +35,7 @@ import { SlideOverviewBar } from '../SlideOverviewBar';
 import { ToolsBar } from '../ToolsBar';
 import { UndoRedoBar } from '../UndoRedoBar';
 import { WhiteboardHost } from '../Whiteboard';
+import { PageLoader } from '../common/PageLoader';
 import { SlidesProvider } from './SlidesProvider';
 import { ToolbarContainer } from './ToolbarContainer';
 import { useLayoutState } from './useLayoutState';

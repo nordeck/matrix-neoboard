@@ -31,12 +31,12 @@ import {
 } from '../../../state';
 import { useUserDetails } from '../../../store';
 import { CollaboratorAvatar } from '../../common/CollaboratorAvatar';
-import { ellipsis } from '../../common/ellipsis';
 import {
   ToolbarAvatar,
   ToolbarAvatarGroup,
   ToolbarAvatarMoreButton,
 } from '../../common/Toolbar';
+import { ellipsis } from '../../common/ellipsis';
 import { orderMembersByState } from './orderMembersByState';
 
 export function Collaborators() {

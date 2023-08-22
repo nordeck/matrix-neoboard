@@ -38,8 +38,8 @@ export type { ActiveWhiteboardMember } from './useActiveWhiteboardMembers';
 export { useOwnedWhiteboard } from './useOwnedWhiteboard';
 export { usePresentationMode } from './usePresentationMode';
 export {
-  useWhiteboardManager,
   WhiteboardManagerProvider,
+  useWhiteboardManager,
 } from './useWhiteboardManager';
 export {
   SlideProvider,

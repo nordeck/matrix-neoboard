@@ -19,20 +19,20 @@ import { nanoid } from '@reduxjs/toolkit';
 import { clone, isEqual } from 'lodash';
 import { getLogger } from 'loglevel';
 import {
+  Observable,
+  Subject,
   filter,
   from,
   interval,
-  Observable,
-  Subject,
   switchMap,
   takeUntil,
 } from 'rxjs';
 import {
-  isNotExpired,
-  isValidWhiteboardSessionsStateEvent,
   STATE_EVENT_WHITEBOARD_SESSIONS,
   WhiteboardSession,
   WhiteboardSessions,
+  isNotExpired,
+  isValidWhiteboardSessionsStateEvent,
 } from '../../../model';
 import { Session, SessionManager } from './types';
 

@@ -22,10 +22,10 @@ import {
   useWhiteboardSlideInstance,
 } from '../../../state';
 import { useLayoutState } from '../../Layout';
-import { gridCellSize } from '../constants';
 import { WithSelectionProps } from '../ElementBehaviors';
-import { createShape } from './createShape';
+import { gridCellSize } from '../constants';
 import { DraftMouseHandler } from './DraftMouseHandler';
+import { createShape } from './createShape';
 
 export type DraftShapeChildProps = {
   kind: ShapeKind;

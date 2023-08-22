@@ -39,8 +39,8 @@ import { Whiteboard } from '../model';
 import { StoreType } from '../store';
 import {
   CommunicationChannel,
-  FocusOn,
   FOCUS_ON_MESSAGE,
+  FocusOn,
   isValidFocusOnMessage,
   SessionManager,
   SignalingChannel,

@@ -20,10 +20,10 @@ import userEvent from '@testing-library/user-event';
 import { axe } from 'jest-axe';
 import { ComponentType, PropsWithChildren } from 'react';
 import {
+  WhiteboardTestingContextProvider,
   mockEllipseElement,
   mockLineElement,
   mockWhiteboardManager,
-  WhiteboardTestingContextProvider,
 } from '../../../../lib/testUtils/documentTestUtils';
 import { WhiteboardInstance, WhiteboardManager } from '../../../../state';
 import { LayoutStateProvider } from '../../../Layout';
