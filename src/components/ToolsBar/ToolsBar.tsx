@@ -21,12 +21,12 @@ import TitleRoundedIcon from '@mui/icons-material/TitleRounded';
 import { ChangeEvent, ReactElement, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSlideIsLocked } from '../../state';
+import { ActiveTool, useLayoutState } from '../Layout';
 import { Toolbar, ToolbarRadioGroup } from '../common/Toolbar';
 import { ToolbarRadio } from '../common/Toolbar/ToolbarRadio';
 import { CursorDefaultIcon } from '../icons/CursorDefaultIcon';
 import { LineIcon } from '../icons/LineIcon';
 import { TriangleIcon } from '../icons/TriangleIcon';
-import { ActiveTool, useLayoutState } from '../Layout';
 
 export function ToolsBar() {
   const { t } = useTranslation();

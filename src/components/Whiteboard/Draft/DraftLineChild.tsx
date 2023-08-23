@@ -22,10 +22,10 @@ import {
   useWhiteboardSlideInstance,
 } from '../../../state';
 import { useLayoutState } from '../../Layout';
-import { gridCellSize } from '../constants';
 import { WithSelectionProps } from '../ElementBehaviors';
-import { createShapeFromPoints } from './createShape';
+import { gridCellSize } from '../constants';
 import { DraftMouseHandler } from './DraftMouseHandler';
+import { createShapeFromPoints } from './createShape';
 
 export type DraftLineChildProps = {
   kind: PathKind;

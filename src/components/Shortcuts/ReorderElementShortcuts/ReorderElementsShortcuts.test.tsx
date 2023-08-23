@@ -19,10 +19,10 @@ import { render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ComponentType, PropsWithChildren } from 'react';
 import {
+  WhiteboardTestingContextProvider,
   mockEllipseElement,
   mockLineElement,
   mockWhiteboardManager,
-  WhiteboardTestingContextProvider,
 } from '../../../lib/testUtils/documentTestUtils';
 import { WhiteboardInstance, WhiteboardManager } from '../../../state';
 import { WhiteboardHotkeysProvider } from '../../WhiteboardHotkeysProvider';

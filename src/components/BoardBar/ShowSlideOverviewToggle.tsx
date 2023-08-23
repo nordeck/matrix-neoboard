@@ -16,9 +16,9 @@
 
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useLayoutState } from '../Layout';
 import { ToolbarToggle } from '../common/Toolbar';
 import { SidebarLeftIcon } from '../icons/SidebarLeftIcon';
-import { useLayoutState } from '../Layout';
 
 export function ShowSlideOverviewToggle() {
   const { t } = useTranslation();

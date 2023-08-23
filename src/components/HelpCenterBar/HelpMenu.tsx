@@ -19,8 +19,8 @@ import { Link, ListItemText, Menu, MenuItem } from '@mui/material';
 import { unstable_useId as useId } from '@mui/utils';
 import { MouseEvent, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ToolbarSubMenu } from '../common/Toolbar';
 import { useGuidedTour } from '../GuidedTour';
+import { ToolbarSubMenu } from '../common/Toolbar';
 import { HelpIcon } from '../icons/HelpIcon';
 import { InfoDialog } from './InfoDialog';
 

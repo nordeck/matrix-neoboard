@@ -17,12 +17,12 @@
 import { render, screen } from '@testing-library/react';
 import { ComponentType, PropsWithChildren } from 'react';
 import { useHotkeysContext } from 'react-hotkeys-hook';
-import { usePauseHotkeysScope } from './usePauseHotkeysScope';
 import {
   HOTKEY_SCOPE_GLOBAL,
   HOTKEY_SCOPE_WHITEBOARD,
   WhiteboardHotkeysProvider,
 } from './WhiteboardHotkeysProvider';
+import { usePauseHotkeysScope } from './usePauseHotkeysScope';
 
 function EnabledScopes() {
   const { enabledScopes } = useHotkeysContext();

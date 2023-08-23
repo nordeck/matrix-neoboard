@@ -15,10 +15,10 @@
  */
 
 import {
-  isValidPowerLevelStateEvent,
   PowerLevelsStateEvent,
-  StateEvent,
   STATE_EVENT_POWER_LEVELS,
+  StateEvent,
+  isValidPowerLevelStateEvent,
 } from '@matrix-widget-toolkit/api';
 import { isEqual, isError, last, merge } from 'lodash';
 import { bufferTime, filter } from 'rxjs';

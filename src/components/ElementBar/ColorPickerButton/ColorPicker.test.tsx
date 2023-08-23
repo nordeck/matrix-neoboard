@@ -31,12 +31,12 @@ import userEvent from '@testing-library/user-event';
 import { axe } from 'jest-axe';
 import { ComponentType, PropsWithChildren } from 'react';
 import {
-  mockWhiteboardManager,
   WhiteboardTestingContextProvider,
+  mockWhiteboardManager,
 } from '../../../lib/testUtils/documentTestUtils';
 import { WhiteboardManager } from '../../../state';
-import { Toolbar } from '../../common/Toolbar';
 import { LayoutStateProvider, useLayoutState } from '../../Layout';
+import { Toolbar } from '../../common/Toolbar';
 import { ColorPicker } from './ColorPicker';
 
 let widgetApi: MockedWidgetApi;
