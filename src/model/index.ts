@@ -15,8 +15,8 @@
  */
 
 export {
-  isValidConnectionSignalingMessage,
   TO_DEVICE_MESSAGE_CONNECTION_SIGNALING,
+  isValidConnectionSignalingMessage,
 } from './connectionSignaling';
 export type {
   Candidate,
@@ -24,28 +24,28 @@ export type {
   Description,
 } from './connectionSignaling';
 export {
-  isValidDocumentChunkRoomEvent,
   ROOM_EVENT_DOCUMENT_CHUNK,
+  isValidDocumentChunkRoomEvent,
 } from './documentChunk';
 export type { DocumentChunk } from './documentChunk';
 export { ROOM_EVENT_DOCUMENT_CREATE } from './documentCreate';
 export type { DocumentCreate } from './documentCreate';
 export {
-  isValidDocumentSnapshotRoomEvent,
   ROOM_EVENT_DOCUMENT_SNAPSHOT,
+  isValidDocumentSnapshotRoomEvent,
 } from './documentSnapshot';
 export type { DocumentSnapshot } from './documentSnapshot';
-export { isValidRoomNameEvent, STATE_EVENT_ROOM_NAME } from './roomNameEvent';
+export { STATE_EVENT_ROOM_NAME, isValidRoomNameEvent } from './roomNameEvent';
 export type { RoomNameEvent } from './roomNameEvent';
 export {
-  isValidWhiteboardStateEvent,
   STATE_EVENT_WHITEBOARD,
+  isValidWhiteboardStateEvent,
 } from './whiteboard';
 export type { Whiteboard } from './whiteboard';
 export {
+  STATE_EVENT_WHITEBOARD_SESSIONS,
   isNotExpired,
   isValidWhiteboardSessionsStateEvent,
-  STATE_EVENT_WHITEBOARD_SESSIONS,
 } from './whiteboardSessions';
 export type {
   WhiteboardSession,

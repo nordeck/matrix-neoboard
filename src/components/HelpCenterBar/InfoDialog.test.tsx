@@ -44,14 +44,15 @@ describe('<InfoDialog/>', () => {
 
     const dialog = screen.getByRole('dialog', {
       name: 'About NeoBoard',
-      description: 'Version unset (unset)',
+      description: 'Version unset',
     });
 
     expect(
       within(dialog).getByRole('heading', { name: 'About NeoBoard' })
     ).toBeInTheDocument();
+    expect(within(dialog).getByText('Version unset')).toBeInTheDocument();
     expect(
-      within(dialog).getByText('Version unset (unset)')
+      within(dialog).getByRole('button', { name: 'Show more' })
     ).toBeInTheDocument();
   });
 
@@ -79,25 +80,35 @@ describe('<InfoDialog/>', () => {
 
     const dialog = screen.getByRole('dialog', {
       name: 'About NeoBoard',
-      description: 'Version 1.0.0 (8070e9546f2f13732cd8db0bd29b4b61d9abc70e)',
+      description: 'Version 1.0.0',
     });
 
     expect(
       within(dialog).getByRole('heading', { name: 'About NeoBoard' })
     ).toBeInTheDocument();
-    expect(
-      within(dialog).getByText(
-        'Version 1.0.0 (8070e9546f2f13732cd8db0bd29b4b61d9abc70e)'
-      )
-    ).toBeInTheDocument();
+    expect(within(dialog).getByText('Version 1.0.0')).toBeInTheDocument();
 
-    await userEvent.click(screen.getByRole('button', { name: 'Close' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Show more' }));
+
+    const revisionTextBox = within(dialog).getByRole('textbox', {
+      name: 'Commit hash',
+    });
+
+    expect(revisionTextBox).toHaveValue(
+      '8070e9546f2f13732cd8db0bd29b4b61d9abc70e'
+    );
+
+    await userEvent.click(screen.getByRole('button', { name: 'Show less' }));
+
+    expect(revisionTextBox).not.toBeInTheDocument();
+
+    await userEvent.click(screen.getAllByRole('button', { name: 'Close' })[0]);
   });
 
   it('should close the dialog on click', async () => {
     render(<InfoDialog open onClose={onClose} />, { wrapper: Wrapper });
 
-    await userEvent.click(screen.getByRole('button', { name: 'Close' }));
+    await userEvent.click(screen.getAllByRole('button', { name: 'Close' })[1]);
 
     expect(onClose).toHaveBeenCalled();
   });

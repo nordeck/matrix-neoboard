@@ -27,8 +27,8 @@ import {
 import { applyMigrations } from './migrations';
 import { SharedMap } from './types';
 import {
-  UndoRedoItemValidator,
   UNDO_MANAGER_SCOPE,
+  UndoRedoItemValidator,
   YDocumentUndoManager,
 } from './yDocumentUndoManager';
 

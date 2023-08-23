@@ -22,11 +22,11 @@ import {
 import { Suspense } from 'react';
 import { Provider } from 'react-redux';
 import { App } from './App';
-import { PageLoader } from './components/common/PageLoader';
 import { GuidedTourProvider } from './components/GuidedTour';
 import { LayoutStateProvider } from './components/Layout';
 import { DraggableStyles } from './components/Whiteboard';
 import { WhiteboardHotkeysProvider } from './components/WhiteboardHotkeysProvider';
+import { PageLoader } from './components/common/PageLoader';
 import { FontsLoadedContextProvider } from './lib';
 import { WhiteboardManager, WhiteboardManagerProvider } from './state';
 import { StoreType } from './store';

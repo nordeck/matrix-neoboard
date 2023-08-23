@@ -32,8 +32,8 @@ import {
 } from 'rxjs';
 import {
   CommunicationChannel,
-  CursorUpdate,
   CURSOR_UPDATE_MESSAGE,
+  CursorUpdate,
   isValidCursorUpdateMessage,
 } from './communication';
 import {

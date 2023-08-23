@@ -15,12 +15,12 @@
  */
 
 import {
-  isValidRoomMemberStateEvent,
   RoomMemberStateEventContent,
-  StateEvent,
   STATE_EVENT_ROOM_MEMBER,
+  StateEvent,
+  isValidRoomMemberStateEvent,
 } from '@matrix-widget-toolkit/api';
-import { createEntityAdapter, EntityState } from '@reduxjs/toolkit';
+import { EntityState, createEntityAdapter } from '@reduxjs/toolkit';
 import { isError } from 'lodash';
 import { bufferTime, filter } from 'rxjs';
 import { ThunkExtraArgument } from '../store';

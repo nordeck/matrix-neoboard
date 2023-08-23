@@ -15,12 +15,12 @@
  */
 
 import { ReactElement } from 'react';
+import { useLayoutState } from '../../Layout';
 import EllipseDraft from '../../elements/ellipse/Draft';
 import LineDraft from '../../elements/line/Draft';
 import PolylineDraft from '../../elements/polyline/Draft';
 import RectangleDraft from '../../elements/rectangle/Draft';
 import TriangleDraft from '../../elements/triangle/Draft';
-import { useLayoutState } from '../../Layout';
 
 export const DraftPicker = (): ReactElement | null => {
   const { activeTool } = useLayoutState();

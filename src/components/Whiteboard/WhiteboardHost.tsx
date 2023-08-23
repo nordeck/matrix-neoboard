@@ -25,7 +25,6 @@ import {
 } from '../../state';
 import { ElementBar } from '../ElementBar';
 import { useLayoutState } from '../Layout';
-import { whiteboardHeight, whiteboardWidth } from './constants';
 import { CursorRenderer } from './CursorRenderer';
 import { DraftPicker } from './Draft/DraftPicker';
 import { ConnectedElement } from './Element';
@@ -38,6 +37,7 @@ import {
 import { DotGrid } from './Grid';
 import { SlideSkeleton } from './SlideSkeleton';
 import { SvgCanvas } from './SvgCanvas';
+import { whiteboardHeight, whiteboardWidth } from './constants';
 
 const WhiteboardHost = ({
   elementIds,

@@ -22,8 +22,8 @@ import {
   useSetElementOverride,
 } from '../../../ElementOverridesProvider';
 import { useLayoutState } from '../../../Layout';
-import { gridCellSize } from '../../constants';
 import { useSvgCanvasContext } from '../../SvgCanvas';
+import { gridCellSize } from '../../constants';
 import { DragEvent, ResizeHandle } from './ResizeHandle';
 import { Dimensions, ResizeHandlePosition } from './types';
 import { calculateDimensions } from './utils';
