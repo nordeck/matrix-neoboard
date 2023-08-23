@@ -1,5 +1,15 @@
 # @nordeck/matrix-neoboard-widget
 
+## 0.4.0
+
+### Minor Changes
+
+- 807a72c: Add an “about” dialog that shows version information.
+- 965251f: Add buttons to navigate to the next or previous slide in a presentation.
+- 00a59e8: Add a PDF export.
+- a195baa: Support editing in presentation mode.
+- 2b248b0: Sign the release containers with cosign.
+
 ## 0.3.0
 
 ### Minor Changes
