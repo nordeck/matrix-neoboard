@@ -1036,7 +1036,7 @@
     core-js-pure "^3.0.0"
     regenerator-runtime "^0.13.4"
 
-"@babel/runtime@^7.1.2", "@babel/runtime@^7.10.2", "@babel/runtime@^7.11.2", "@babel/runtime@^7.12.5", "@babel/runtime@^7.15.4", "@babel/runtime@^7.16.3", "@babel/runtime@^7.18.3", "@babel/runtime@^7.19.4", "@babel/runtime@^7.20.1", "@babel/runtime@^7.20.6", "@babel/runtime@^7.21.0", "@babel/runtime@^7.21.5", "@babel/runtime@^7.22.5", "@babel/runtime@^7.22.6", "@babel/runtime@^7.5.5", "@babel/runtime@^7.8.4", "@babel/runtime@^7.8.7", "@babel/runtime@^7.9.2":
+"@babel/runtime@^7.1.2", "@babel/runtime@^7.10.2", "@babel/runtime@^7.11.2", "@babel/runtime@^7.12.5", "@babel/runtime@^7.15.4", "@babel/runtime@^7.16.3", "@babel/runtime@^7.18.3", "@babel/runtime@^7.19.4", "@babel/runtime@^7.20.1", "@babel/runtime@^7.20.6", "@babel/runtime@^7.21.0", "@babel/runtime@^7.21.5", "@babel/runtime@^7.22.3", "@babel/runtime@^7.22.5", "@babel/runtime@^7.22.6", "@babel/runtime@^7.5.5", "@babel/runtime@^7.8.4", "@babel/runtime@^7.8.7", "@babel/runtime@^7.9.2":
   version "7.22.10"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.22.10.tgz#ae3e9631fd947cb7e3610d3e9d8fef5f76696682"
   integrity sha512-21t/fkKLMZI4pqP2wlmsQAWnYW1PDyKyyUV4vCi+B25ydmdaYTKXPwCj0BzSUnZf4seIiYvSA3jcZ3gdsMFkLQ==
@@ -6851,12 +6851,13 @@ i18next-browser-languagedetector@^7.1.0:
   dependencies:
     "@babel/runtime" "^7.19.4"
 
-i18next-chained-backend@^4.2.0:
-  version "4.2.0"
-  resolved "https://registry.yarnpkg.com/i18next-chained-backend/-/i18next-chained-backend-4.2.0.tgz#8d2ccba6f2faca14d2bc5023ba61c759215b99a9"
-  integrity sha512-p3qhv6GMouhpcFPnOBqSDsQyVrwZu+PKr+kXaEAGE+w9O39t4pbpBsFYjxh4Nvhn8MUEXstaDx4ZuQvsNlI5fg==
+i18next-chained-backend@^4.4.0:
+  version "4.4.0"
+  resolved "https://registry.yarnpkg.com/i18next-chained-backend/-/i18next-chained-backend-4.4.0.tgz#e81ab29bd62ba3ad68f448de506aab8ceb1fa7b1"
+  integrity sha512-I+mG0Bly9lbUk8kPZYbJuV7zPY0QDueOJ9yiUqz9o/RX2Mb7eC8RrfwtTX1QhVZmT9KSs9Oq5VDVLxPOeXBIgg==
   dependencies:
-    "@babel/runtime" "^7.19.4"
+    "@babel/runtime" "^7.22.3"
+    i18next-resources-to-backend "1.1.4"
 
 i18next-http-backend@^2.2.1:
   version "2.2.1"
@@ -6888,7 +6889,7 @@ i18next-parser@^8.6.0:
     vinyl-fs "^3.0.2"
     vue-template-compiler "^2.6.11"
 
-i18next-resources-to-backend@^1.1.3:
+i18next-resources-to-backend@1.1.4, i18next-resources-to-backend@^1.1.3:
   version "1.1.4"
   resolved "https://registry.yarnpkg.com/i18next-resources-to-backend/-/i18next-resources-to-backend-1.1.4.tgz#d139ca0cacc270dcc90b7926e192f4cd5aa4db60"
   integrity sha512-hMyr9AOmIea17AOaVe1srNxK/l3mbk81P7Uf3fdcjlw3ehZy3UNTd0OP3EEi6yu4J02kf9jzhCcjokz6AFlEOg==
