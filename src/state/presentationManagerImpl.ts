@@ -34,8 +34,8 @@ import { isDefined } from '../lib';
 import {
   CommunicationChannel,
   isValidPresentSlideMessage,
-  PresentSlide,
   PRESENT_SLIDE_MESSAGE,
+  PresentSlide,
 } from './communication';
 import { isPeerConnected } from './communication/connection';
 import {

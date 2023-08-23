@@ -18,12 +18,12 @@ import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { waitFor } from '@testing-library/react';
 import { Base64 } from 'js-base64';
 import {
+  NEVER,
+  Subject,
   filter,
   firstValueFrom,
   lastValueFrom,
-  NEVER,
   skip,
-  Subject,
   take,
   toArray,
 } from 'rxjs';
@@ -36,7 +36,7 @@ import {
 import { createStore } from '../store';
 import { CommunicationChannel, Message } from './communication';
 import { ChangeFn, Document } from './crdt';
-import { createMigrations, SharedMap, YDocument, YMap } from './crdt/y';
+import { SharedMap, YDocument, YMap, createMigrations } from './crdt/y';
 import { DocumentStorage } from './storage';
 import { SynchronizedDocumentImpl } from './synchronizedDocumentImpl';
 

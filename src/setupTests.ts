@@ -18,7 +18,7 @@
 // allows you to do things like:
 // expect(element).toHaveTextContent(/react/i)
 // learn more: https://github.com/testing-library/jest-dom
-import '@testing-library/jest-dom/extend-expect';
+import '@testing-library/jest-dom';
 import { toHaveNoViolations } from 'jest-axe';
 import log from 'loglevel';
 import { TextDecoder, TextEncoder } from 'util';
@@ -77,3 +77,8 @@ window.URL.revokeObjectURL = jest.fn();
 // definition in jsdom
 const { webcrypto } = require('node:crypto');
 Object.defineProperty(global.globalThis, 'crypto', { value: webcrypto });
+
+// Provide a mock for the Clipboard API
+Object.defineProperty(navigator, 'clipboard', {
+  value: { writeText: jest.fn() },
+});
