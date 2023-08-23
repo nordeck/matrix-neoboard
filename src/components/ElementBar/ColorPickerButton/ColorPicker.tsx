@@ -23,8 +23,8 @@ import {
   useElement,
   useWhiteboardSlideInstance,
 } from '../../../state';
-import { ToolbarSubMenu } from '../../common/Toolbar';
 import { useLayoutState } from '../../Layout';
+import { ToolbarSubMenu } from '../../common/Toolbar';
 import { ColorPickerIcon } from './ColorPickerIcon';
 import { ColorsGrid } from './ColorsGrid';
 

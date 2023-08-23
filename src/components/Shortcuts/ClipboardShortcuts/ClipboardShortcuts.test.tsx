@@ -18,16 +18,16 @@ import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { fireEvent, render } from '@testing-library/react';
 import { ComponentType, PropsWithChildren } from 'react';
 import {
+  WhiteboardTestingContextProvider,
   mockEllipseElement,
   mockLineElement,
   mockWhiteboardManager,
-  WhiteboardTestingContextProvider,
 } from '../../../lib/testUtils/documentTestUtils';
 import { WhiteboardInstance, WhiteboardManager } from '../../../state';
 import {
   HOTKEY_SCOPE_WHITEBOARD,
-  usePauseHotkeysScope,
   WhiteboardHotkeysProvider,
+  usePauseHotkeysScope,
 } from '../../WhiteboardHotkeysProvider';
 import { ClipboardShortcuts } from './ClipboardShortcuts';
 

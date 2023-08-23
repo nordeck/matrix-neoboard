@@ -20,9 +20,9 @@ import { ComponentType, PropsWithChildren } from 'react';
 import { act } from 'react-dom/test-utils';
 import { Subject } from 'rxjs';
 import {
+  WhiteboardTestingContextProvider,
   mockPeerConnectionStatistics,
   mockWhiteboardManager,
-  WhiteboardTestingContextProvider,
 } from '../lib/testUtils/documentTestUtils';
 import { WhiteboardManager, WhiteboardStatistics } from './types';
 import { useActiveWhiteboardMembers } from './useActiveWhiteboardMembers';

@@ -16,8 +16,8 @@
 
 import { useHotkeys } from 'react-hotkeys-hook';
 import { usePresentationMode, useWhiteboardManager } from '../../../state';
-import { isMacOS } from '../../common/platform';
 import { HOTKEY_SCOPE_WHITEBOARD } from '../../WhiteboardHotkeysProvider';
+import { isMacOS } from '../../common/platform';
 
 export function UndoRedoShortcuts() {
   const whiteboardManager = useWhiteboardManager();

@@ -38,8 +38,8 @@ import { documentSnapshotApi, StoreType } from '../store';
 import { DocumentSnapshotValidator } from '../store/api/documentSnapshotBacklog';
 import {
   CommunicationChannel,
-  DocumentUpdate,
   DOCUMENT_UPDATE_MESSAGE,
+  DocumentUpdate,
   isValidDocumentUpdateMessage,
 } from './communication';
 import { Document, DocumentValidator } from './crdt';

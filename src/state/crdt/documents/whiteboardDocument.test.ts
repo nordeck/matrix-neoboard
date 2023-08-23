@@ -18,7 +18,7 @@ import Joi from 'joi';
 import * as Y from 'yjs';
 import { mockLineElement } from '../../../lib/testUtils/documentTestUtils';
 import { ChangeFn, Document } from '../types';
-import { applyMigrations, YArray, YMap, YText } from '../y';
+import { YArray, YMap, YText, applyMigrations } from '../y';
 import {
   generateAddElement,
   generateAddSlide,
@@ -28,11 +28,11 @@ import {
   generateUpdateElement,
 } from './operations';
 import {
+  WhiteboardDocument,
   createWhiteboardDocument,
   isValidWhiteboardDocument,
   isValidWhiteboardDocumentSnapshot,
   keepWhiteboardUndoRedoItem,
-  WhiteboardDocument,
   whiteboardDocumentMigrations,
   whiteboardDocumentSchema,
 } from './whiteboardDocument';
