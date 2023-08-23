@@ -19,9 +19,9 @@ import { act } from '@testing-library/react';
 import { renderHook } from '@testing-library/react-hooks';
 import { ComponentType, PropsWithChildren } from 'react';
 import {
+  WhiteboardTestingContextProvider,
   mockEllipseElement,
   mockWhiteboardManager,
-  WhiteboardTestingContextProvider,
 } from '../../lib/testUtils/documentTestUtils';
 import { WhiteboardManager } from '../../state';
 import { LayoutStateProvider } from '../Layout';

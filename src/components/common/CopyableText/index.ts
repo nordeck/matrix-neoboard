@@ -14,9 +14,4 @@
  * limitations under the License.
  */
 
-export {
-  HOTKEY_SCOPE_GLOBAL,
-  HOTKEY_SCOPE_WHITEBOARD,
-  WhiteboardHotkeysProvider,
-} from './WhiteboardHotkeysProvider';
-export { usePauseHotkeysScope } from './usePauseHotkeysScope';
+export { CopyableText } from './CopyableText';

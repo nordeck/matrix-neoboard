@@ -19,8 +19,8 @@ import { render, screen } from '@testing-library/react';
 import { ComponentType, PropsWithChildren } from 'react';
 import { Subject } from 'rxjs';
 import {
-  mockWhiteboardManager,
   WhiteboardTestingContextProvider,
+  mockWhiteboardManager,
 } from '../../../lib/testUtils/documentTestUtils';
 import { mockRoomMember } from '../../../lib/testUtils/matrixTestUtils';
 import { WhiteboardManager } from '../../../state';

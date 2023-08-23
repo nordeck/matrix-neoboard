@@ -18,8 +18,8 @@ import { renderHook } from '@testing-library/react-hooks';
 import { ComponentType, PropsWithChildren } from 'react';
 import { WhiteboardManager } from './types';
 import {
-  useWhiteboardManager,
   WhiteboardManagerProvider,
+  useWhiteboardManager,
 } from './useWhiteboardManager';
 
 describe('useWhiteboardManager', () => {

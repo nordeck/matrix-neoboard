@@ -16,7 +16,7 @@
 
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { waitFor } from '@testing-library/react';
-import { BehaviorSubject, firstValueFrom, NEVER, Subject, toArray } from 'rxjs';
+import { BehaviorSubject, NEVER, Subject, firstValueFrom, toArray } from 'rxjs';
 import { mockDocumentVisibilityState } from '../../lib/testUtils/domTestUtils';
 import {
   Message,

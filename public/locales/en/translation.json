@@ -78,6 +78,9 @@
     "gridTitle": "Colors",
     "title": "Pick a color"
   },
+  "copyableTextButton": {
+    "copy-to-clipboard": "Copy to clipboard"
+  },
   "elementBar": {
     "deleteElement": "Delete element",
     "duplicateActiveElement": "Duplicate the active element",
@@ -124,8 +127,11 @@
   "helpCenter": {
     "info": {
       "close": "Close",
+      "commitHash": "Commit hash",
+      "showLess": "Show less",
+      "showMore": "Show more",
       "title": "About NeoBoard",
-      "version": "Version {{version}} ({{revision}})"
+      "version": "Version {{version}}"
     },
     "menu": {
       "about": "About NeoBoard",

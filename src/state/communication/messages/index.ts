@@ -27,7 +27,7 @@ export type { DocumentUpdate } from './documentUpdate';
 export { FOCUS_ON_MESSAGE, isValidFocusOnMessage } from './focusOn';
 export type { FocusOn } from './focusOn';
 export {
-  isValidPresentSlideMessage,
   PRESENT_SLIDE_MESSAGE,
+  isValidPresentSlideMessage,
 } from './presentSlide';
 export type { PresentSlide } from './presentSlide';

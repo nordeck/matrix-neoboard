@@ -16,7 +16,7 @@
 
 import { act, renderHook } from '@testing-library/react-hooks';
 import { ComponentType, PropsWithChildren } from 'react';
-import { of, Subject } from 'rxjs';
+import { Subject, of } from 'rxjs';
 import {
   mockPeerConnectionStatistics,
   mockWhiteboardManager,

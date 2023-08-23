@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { styled, SxProps, Theme, Toolbar as MuiToolbar } from '@mui/material';
+import { Toolbar as MuiToolbar, SxProps, Theme, styled } from '@mui/material';
 import React, {
   KeyboardEvent,
   PropsWithChildren,

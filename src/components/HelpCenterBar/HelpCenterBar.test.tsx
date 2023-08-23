@@ -132,7 +132,7 @@ describe('<HelpCenterBar/>', () => {
     const dialog = screen.getByRole('dialog', { name: 'About NeoBoard' });
 
     await userEvent.click(
-      within(dialog).getByRole('button', { name: 'Close' })
+      within(dialog).getAllByRole('button', { name: 'Close' })[0]
     );
 
     await waitFor(() => {

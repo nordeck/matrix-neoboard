@@ -158,7 +158,7 @@ jobs:
         uses: actions/configure-pages@v3
 
       - name: Upload artifact to GitHub pages
-        uses: actions/upload-pages-artifact@v1
+        uses: actions/upload-pages-artifact@v2
         with:
           path: 'build'
 

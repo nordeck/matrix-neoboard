@@ -37,8 +37,8 @@ import {
   getSlideLock,
 } from './operations';
 import {
-  createWhiteboardDocument,
   WhiteboardDocument,
+  createWhiteboardDocument,
 } from './whiteboardDocument';
 
 // createWhiteboardDocument() always contains a slide with this id
