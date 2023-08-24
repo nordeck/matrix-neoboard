@@ -21,7 +21,7 @@ import { Dimensions, ResizeHandlePosition } from './types';
 
 export function calculateDragOrigin(
   handlePosition: ResizeHandlePosition,
-  startDimensions: Dimensions
+  startDimensions: Dimensions,
 ): { dragOriginX: number; dragOriginY: number } {
   switch (handlePosition) {
     case 'left':
@@ -55,7 +55,7 @@ export function calculateDragDimension(
   dragOrigin: number,
   dragPosition: number,
   lowerSizeLimit?: number,
-  upperSizeLimit?: number
+  upperSizeLimit?: number,
 ): { position: number; size: number; inverted: boolean } {
   const inverted = dragPosition < dragOrigin;
   const constrainedDragPosition =
@@ -64,7 +64,7 @@ export function calculateDragDimension(
       : clamp(
           dragPosition,
           dragOrigin - lowerSizeLimit,
-          dragOrigin + (upperSizeLimit ?? lowerSizeLimit)
+          dragOrigin + (upperSizeLimit ?? lowerSizeLimit),
         );
   const position = inverted ? constrainedDragPosition : dragOrigin;
   const dimension = inverted
@@ -87,7 +87,7 @@ export function calculateDimensions(
   viewportWidth: number,
   viewportHeight: number,
   forceLockAspectRatio: boolean = false,
-  gridCellSize?: number
+  gridCellSize?: number,
 ): Dimensions {
   const rawDragX = clamp(event.x, 0, viewportWidth);
   const rawDragY = clamp(event.y, 0, viewportHeight);
@@ -100,7 +100,7 @@ export function calculateDimensions(
   const lockAspectRatio = forceLockAspectRatio || event.lockAspectRatio;
   const { dragOriginX, dragOriginY } = calculateDragOrigin(
     handlePosition,
-    startDimensions
+    startDimensions,
   );
   const dimensions = {
     x: startDimensions.x,
@@ -134,7 +134,7 @@ export function calculateDimensions(
         dragOriginX,
         dragX,
         maxWidthDown,
-        maxWidthUp
+        maxWidthUp,
       );
 
       dimensions.x = position;
@@ -155,7 +155,7 @@ export function calculateDimensions(
       const { position, size } = calculateDragDimension(
         dragOriginY,
         dragY,
-        maxHeight
+        maxHeight,
       );
 
       dimensions.y = position;
@@ -173,7 +173,7 @@ export function calculateDimensions(
       const { position, size } = calculateDragDimension(
         dragOriginX,
         dragX,
-        maxWidth
+        maxWidth,
       );
 
       dimensions.x = position;

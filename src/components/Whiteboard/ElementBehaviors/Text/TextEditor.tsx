@@ -128,7 +128,7 @@ export function TextEditor({
         event.preventDefault();
       }
     },
-    [editable, isEditMode]
+    [editable, isEditMode],
   );
 
   const handleFocus = useCallback(() => {
@@ -145,7 +145,7 @@ export function TextEditor({
         event.preventDefault();
       }
     },
-    [isEditMode]
+    [isEditMode],
   );
 
   const handleKeyDown = useCallback(() => {

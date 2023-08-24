@@ -70,19 +70,19 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
     validation?: {
       snapshotValidator: DocumentSnapshotValidator;
       documentValidator: DocumentValidator<T>;
-    }
+    },
   ) {
     communicationChannel
       .observeMessages()
       .pipe(
         takeUntil(this.destroySubject),
-        filter(isValidDocumentUpdateMessage)
+        filter(isValidDocumentUpdateMessage),
       )
       .subscribe((message) => {
         if (message.content.documentId === documentId) {
           this.document.applyChange(
             Base64.toUint8Array(message.content.data),
-            validation?.documentValidator
+            validation?.documentValidator,
           );
         }
       });
@@ -96,23 +96,23 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
           {
             documentId,
             data: Base64.fromUint8Array(change),
-          }
+          },
         );
       });
 
     const storageObservable = from(storage.load(documentId)).pipe(
       filter(isDefined),
-      filter((data) => !validation || validation.snapshotValidator(data))
+      filter((data) => !validation || validation.snapshotValidator(data)),
     );
     const snapshotsObservable = this.observeSnapshots(
       documentId,
-      validation?.snapshotValidator
+      validation?.snapshotValidator,
     ).pipe(
       tap(() => {
         this.statistics.snapshotsReceived += 1;
         this.notifyStatistics();
       }),
-      map((snapshotData) => Base64.toUint8Array(snapshotData))
+      map((snapshotData) => Base64.toUint8Array(snapshotData)),
     );
 
     concat(storageObservable, snapshotsObservable)
@@ -129,7 +129,7 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
       .observeChanges()
       .pipe(
         takeUntil(this.destroySubject),
-        concatMap(() => storage.store(documentId, document.store()))
+        concatMap(() => storage.store(documentId, document.store())),
       )
       .subscribe();
 
@@ -139,7 +139,7 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
         tap(() => {
           this.statistics.snapshotOutstanding = true;
           this.notifyStatistics();
-        })
+        }),
       ),
     })
       .pipe(
@@ -159,8 +159,8 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
               this.logger.error('Could not store snapshot for', documentId, e);
             }
           },
-          { leading: true, trailing: true }
-        )
+          { leading: true, trailing: true },
+        ),
       )
       .subscribe();
 
@@ -196,21 +196,21 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
 
   private async createDocumentSnapshot(
     documentId: string,
-    data: Uint8Array
+    data: Uint8Array,
   ): Promise<void> {
     await this.store
       .dispatch(
         documentSnapshotApi.endpoints.createDocumentSnapshot.initiate({
           documentId,
           data,
-        })
+        }),
       )
       .unwrap();
   }
 
   private observeSnapshots(
     documentId: string,
-    validator?: DocumentSnapshotValidator
+    validator?: DocumentSnapshotValidator,
   ) {
     return new Observable<string>((observer) => {
       const unsubscribe = this.store.subscribe(() => {
@@ -220,7 +220,7 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
           {
             documentId,
             validator,
-          }
+          },
         )(state);
 
         if (!result.isLoading) {
@@ -238,7 +238,7 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
         documentSnapshotApi.endpoints.getDocumentSnapshot.initiate({
           documentId,
           validator,
-        })
+        }),
       );
 
       return () => {

@@ -31,7 +31,7 @@ const cursorUpdateSchema = Joi.object<DocumentUpdate, true>({
 }).unknown();
 
 export function isValidDocumentUpdateMessage(
-  message: Message
+  message: Message,
 ): message is Message<DocumentUpdate> {
   if (message.type !== DOCUMENT_UPDATE_MESSAGE) {
     return false;
@@ -42,7 +42,7 @@ export function isValidDocumentUpdateMessage(
   if (result.error) {
     loglevel.error(
       'Error while validating document update message',
-      result.error
+      result.error,
     );
     return false;
   }

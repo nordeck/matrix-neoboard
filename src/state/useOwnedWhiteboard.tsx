@@ -40,7 +40,7 @@ export function useOwnedWhiteboard(): AsyncState<StateEvent<Whiteboard>> {
 
   const whiteboardState = useAsync(async () => {
     const whiteboardsState = await dispatch(
-      whiteboardApi.endpoints.getWhiteboards.initiate()
+      whiteboardApi.endpoints.getWhiteboards.initiate(),
     ).unwrap();
 
     // TODO: Build UI to select the whiteboard to display it in the widget

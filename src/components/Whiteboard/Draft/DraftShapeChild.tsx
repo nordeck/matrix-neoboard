@@ -57,7 +57,7 @@ export const DraftShapeChild = ({
           fillColor: fixedColor || activeColor,
           gridCellSize: isShowGrid ? gridCellSize : undefined,
           sameLength,
-        })
+        }),
       );
       setActiveTool('select');
     }
@@ -81,7 +81,7 @@ export const DraftShapeChild = ({
         setEndCoords(point);
       }
     },
-    [startCoords]
+    [startCoords],
   );
 
   const handleMouseDown = useCallback((point: Point) => {
@@ -108,7 +108,7 @@ export const DraftShapeChild = ({
       sameLength,
       startCoords,
       fixedColor,
-    ]
+    ],
   );
 
   return (

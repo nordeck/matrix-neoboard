@@ -29,7 +29,7 @@ import { gridCellSize, whiteboardWidth } from '../../Whiteboard';
 
 export function duplicate(
   element: Element,
-  gridCellSize: number
+  gridCellSize: number,
 ): Element | undefined {
   const activeElementX = element.position.x;
 
@@ -73,7 +73,7 @@ export function DuplicateActiveElementButton() {
           slideInstance.addElement(element);
         } else {
           log.warn(
-            'Duplication failed. The element is neither a shape element nor a points element.'
+            'Duplication failed. The element is neither a shape element nor a points element.',
           );
         }
       }
@@ -82,7 +82,7 @@ export function DuplicateActiveElementButton() {
 
   const duplicateActiveElementLabel = t(
     'elementBar.duplicateActiveElement',
-    'Duplicate the active element'
+    'Duplicate the active element',
   );
 
   return (

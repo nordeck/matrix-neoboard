@@ -66,14 +66,14 @@ describe('<ExportWhiteboardDialogDownloadPdf />', () => {
       <ExportWhiteboardDialogDownloadPdf onClick={onClick}>
         Download
       </ExportWhiteboardDialogDownloadPdf>,
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
 
     expect(
       await screen.findByRole('link', {
         name: 'Download',
         description: /not accessible/i,
-      })
+      }),
     ).toBeInTheDocument();
   });
 
@@ -82,11 +82,11 @@ describe('<ExportWhiteboardDialogDownloadPdf />', () => {
       <ExportWhiteboardDialogDownloadPdf onClick={onClick}>
         Download
       </ExportWhiteboardDialogDownloadPdf>,
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
 
     expect(
-      await screen.findByRole('link', { name: 'Download' })
+      await screen.findByRole('link', { name: 'Download' }),
     ).toBeInTheDocument();
 
     expect(await axe(container)).toHaveNoViolations();
@@ -97,7 +97,7 @@ describe('<ExportWhiteboardDialogDownloadPdf />', () => {
       <ExportWhiteboardDialogDownloadPdf onClick={onClick}>
         Download
       </ExportWhiteboardDialogDownloadPdf>,
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
 
     await userEvent.click(screen.getByRole('link', { name: 'Download' }));
@@ -110,7 +110,7 @@ describe('<ExportWhiteboardDialogDownloadPdf />', () => {
       <ExportWhiteboardDialogDownloadPdf onClick={onClick}>
         Download
       </ExportWhiteboardDialogDownloadPdf>,
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
 
     const downloadButton = screen.getByRole('link', { name: 'Download' });
@@ -126,7 +126,7 @@ describe('<ExportWhiteboardDialogDownloadPdf />', () => {
       <ExportWhiteboardDialogDownloadPdf onClick={onClick}>
         Download
       </ExportWhiteboardDialogDownloadPdf>,
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
 
     const downloadButton = screen.getByRole('link', { name: 'Download' });
@@ -141,7 +141,7 @@ describe('<ExportWhiteboardDialogDownloadPdf />', () => {
       <ExportWhiteboardDialogDownloadPdf onClick={onClick}>
         Download
       </ExportWhiteboardDialogDownloadPdf>,
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
 
     expect(createWhiteboardPdf).toBeCalledTimes(1);
@@ -157,7 +157,7 @@ describe('<ExportWhiteboardDialogDownloadPdf />', () => {
       <ExportWhiteboardDialogDownloadPdf onClick={onClick}>
         Download
       </ExportWhiteboardDialogDownloadPdf>,
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
 
     const link = await screen.findByRole('link', { name: 'Download' });
@@ -179,11 +179,11 @@ describe('<ExportWhiteboardDialogDownloadPdf />', () => {
       <ExportWhiteboardDialogDownloadPdf onClick={onClick} onError={onError}>
         Download
       </ExportWhiteboardDialogDownloadPdf>,
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
 
     expect(onError).toBeCalledWith(
-      'Something went wrong while generating the PDF.'
+      'Something went wrong while generating the PDF.',
     );
   });
 
@@ -194,11 +194,11 @@ describe('<ExportWhiteboardDialogDownloadPdf />', () => {
       <ExportWhiteboardDialogDownloadPdf onClick={onClick}>
         Download
       </ExportWhiteboardDialogDownloadPdf>,
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
 
     expect(
-      screen.getByRole('progressbar', { name: 'Download' })
+      screen.getByRole('progressbar', { name: 'Download' }),
     ).toBeInTheDocument();
   });
 });

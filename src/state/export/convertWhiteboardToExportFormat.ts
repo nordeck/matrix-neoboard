@@ -26,7 +26,7 @@ import { SharedMap } from '../crdt/y';
 import { WhiteboardDocumentExport } from './whiteboardDocumentExport';
 
 export function convertWhiteboardToExportFormat(
-  doc: SharedMap<WhiteboardDocument>
+  doc: SharedMap<WhiteboardDocument>,
 ): WhiteboardDocumentExport {
   return {
     version: 'net.nordeck.whiteboard@v1',

@@ -21,7 +21,7 @@ describe('isWhiteboardUndoManagerContext', () => {
     expect(
       isWhiteboardUndoManagerContext({
         currentSlideId: 'slide-0',
-      })
+      }),
     ).toBe(true);
   });
 
@@ -30,7 +30,7 @@ describe('isWhiteboardUndoManagerContext', () => {
       isWhiteboardUndoManagerContext({
         currentSlideId: 'slide-0',
         currentElementId: undefined,
-      })
+      }),
     ).toBe(true);
   });
 
@@ -39,7 +39,7 @@ describe('isWhiteboardUndoManagerContext', () => {
       isWhiteboardUndoManagerContext({
         currentSlideId: 'slide-0',
         currentElementId: 'element-0',
-      })
+      }),
     ).toBe(true);
   });
 
@@ -49,7 +49,7 @@ describe('isWhiteboardUndoManagerContext', () => {
         currentSlideId: 'slide-0',
         currentElementId: 'element-0',
         additional: 'data',
-      })
+      }),
     ).toBe(true);
   });
 

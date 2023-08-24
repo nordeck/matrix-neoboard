@@ -72,7 +72,7 @@ describe('<PresentBar/>', () => {
       within(toolbar).getByRole('checkbox', {
         name: 'Start presentation',
         checked: false,
-      })
+      }),
     ).toBeInTheDocument();
   });
 
@@ -80,7 +80,7 @@ describe('<PresentBar/>', () => {
     const { container } = render(<PresentBar />, { wrapper: Wrapper });
 
     expect(
-      screen.getByRole('checkbox', { name: 'Start presentation' })
+      screen.getByRole('checkbox', { name: 'Start presentation' }),
     ).toBeInTheDocument();
 
     expect(await axe(container)).toHaveNoViolations();
@@ -92,7 +92,7 @@ describe('<PresentBar/>', () => {
     const { container } = render(<PresentBar />, { wrapper: Wrapper });
 
     expect(
-      await screen.findByRole('button', { name: 'Alice is presenting' })
+      await screen.findByRole('button', { name: 'Alice is presenting' }),
     ).toBeInTheDocument();
 
     expect(await axe(container)).toHaveNoViolations();
@@ -107,24 +107,24 @@ describe('<PresentBar/>', () => {
       within(toolbar).getByRole('checkbox', {
         name: 'Start presentation',
         checked: false,
-      })
+      }),
     );
 
     expect(
       within(toolbar).getByRole('checkbox', {
         name: 'Stop presentation',
         checked: true,
-      })
+      }),
     ).toBeInTheDocument();
     expect(
       within(toolbar).getByRole('button', {
         name: 'Next slide',
-      })
+      }),
     ).toBeInTheDocument();
     expect(
       within(toolbar).getByRole('button', {
         name: 'Previous slide',
-      })
+      }),
     ).toBeInTheDocument();
   });
 
@@ -142,14 +142,14 @@ describe('<PresentBar/>', () => {
       within(toolbar).getByRole('checkbox', {
         name: 'Stop presentation',
         checked: true,
-      })
+      }),
     );
 
     expect(
       within(toolbar).getByRole('checkbox', {
         name: 'Start presentation',
         checked: false,
-      })
+      }),
     ).toBeInTheDocument();
   });
 
@@ -163,7 +163,7 @@ describe('<PresentBar/>', () => {
     expect(
       await within(toolbar).findByRole('button', {
         name: 'Alice is presenting',
-      })
+      }),
     ).toBeInTheDocument();
   });
 
@@ -176,7 +176,7 @@ describe('<PresentBar/>', () => {
       within(toolbar).getByRole('checkbox', {
         name: 'Start presentation',
         checked: false,
-      })
+      }),
     );
 
     expect(activeWhiteboardInstance.getActiveSlideId()).toBe('slide-1');
@@ -184,7 +184,7 @@ describe('<PresentBar/>', () => {
     await userEvent.click(
       within(toolbar).getByRole('button', {
         name: 'Next slide',
-      })
+      }),
     );
 
     expect(activeWhiteboardInstance.getActiveSlideId()).toBe('slide-2');
@@ -199,7 +199,7 @@ describe('<PresentBar/>', () => {
       within(toolbar).getByRole('checkbox', {
         name: 'Start presentation',
         checked: false,
-      })
+      }),
     );
 
     expect(activeWhiteboardInstance.getActiveSlideId()).toBe('slide-1');
@@ -207,7 +207,7 @@ describe('<PresentBar/>', () => {
     await userEvent.click(
       within(toolbar).getByRole('button', {
         name: 'Previous slide',
-      })
+      }),
     );
 
     expect(activeWhiteboardInstance.getActiveSlideId()).toBe('slide-0');
@@ -223,13 +223,13 @@ describe('<PresentBar/>', () => {
       within(toolbar).getByRole('checkbox', {
         name: 'Start presentation',
         checked: false,
-      })
+      }),
     );
 
     expect(
       within(toolbar).getByRole('button', {
         name: 'Next slide',
-      })
+      }),
     ).toBeDisabled();
   });
 
@@ -243,13 +243,13 @@ describe('<PresentBar/>', () => {
       within(toolbar).getByRole('checkbox', {
         name: 'Start presentation',
         checked: false,
-      })
+      }),
     );
 
     expect(
       within(toolbar).getByRole('button', {
         name: 'Previous slide',
-      })
+      }),
     ).toBeDisabled();
   });
 
@@ -267,21 +267,21 @@ describe('<PresentBar/>', () => {
       within(toolbar).getByRole('checkbox', {
         name: 'Enable editing',
         checked: false,
-      })
+      }),
     );
 
     await userEvent.click(
       within(toolbar).getByRole('checkbox', {
         name: 'Disable editing',
         checked: true,
-      })
+      }),
     );
 
     expect(
       within(toolbar).getByRole('checkbox', {
         name: 'Enable editing',
         checked: false,
-      })
+      }),
     ).toBeInTheDocument();
   });
 });

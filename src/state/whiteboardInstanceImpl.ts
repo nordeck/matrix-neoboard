@@ -89,7 +89,7 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
   private presentationManager = new PresentationManagerImpl(
     this,
     this.communicationChannel,
-    this.enableObserveVisibilityStateSubject
+    this.enableObserveVisibilityStateSubject,
   );
 
   private readonly slides = new Map<string, WhiteboardSlideInstanceImpl>();
@@ -98,10 +98,10 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
     defer(() =>
       of(
         this.synchronizedDocument.getDocument().getData(),
-        this.synchronizedDocument.getDocument().getData()
-      )
+        this.synchronizedDocument.getDocument().getData(),
+      ),
     ),
-    this.synchronizedDocument.getDocument().observeChanges()
+    this.synchronizedDocument.getDocument().observeChanges(),
   ).pipe(
     map(getNormalizedSlideIds),
 
@@ -113,7 +113,7 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
     // create slide instances
     tap(([previousSlideIds, slideIds]) => {
       const toRemove = Array.from(this.slides.keys()).filter(
-        (slideId) => !slideIds.includes(slideId)
+        (slideId) => !slideIds.includes(slideId),
       );
       const toAdd = slideIds.filter((slideId) => !this.slides.has(slideId));
 
@@ -121,7 +121,7 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
       toAdd.forEach((slideId) => {
         const slideMetadata = getSlide(
           this.synchronizedDocument.getDocument().getData(),
-          slideId
+          slideId,
         );
 
         if (!slideMetadata) {
@@ -132,7 +132,7 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
           this.communicationChannel,
           slideId,
           this.synchronizedDocument.getDocument(),
-          this.userId
+          this.userId,
         );
         this.slides.set(slideId, slideInstance);
       });
@@ -142,7 +142,7 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
       const newActiveSlideId = findNewActiveSlideId(
         this.activeSlideId,
         slideIds,
-        previousSlideIds
+        previousSlideIds,
       );
       if (this.activeSlideId !== newActiveSlideId) {
         this.activeSlideId = newActiveSlideId;
@@ -159,7 +159,7 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
     map(([_, slideIds]) => slideIds),
 
     takeUntil(this.destroySubject),
-    shareReplay(1)
+    shareReplay(1),
   );
 
   static create(
@@ -167,7 +167,7 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
     widgetApiPromise: Promise<WidgetApi>,
     sessionManager: SessionManager,
     signalingChannel: SignalingChannel,
-    whiteboardEvent: StateEvent<Whiteboard>
+    whiteboardEvent: StateEvent<Whiteboard>,
   ): WhiteboardInstanceImpl {
     const enableObserveVisibilityStateSubject = new BehaviorSubject(true);
     const communicationChannel = new WebRtcCommunicationChannel(
@@ -175,7 +175,7 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
       sessionManager,
       signalingChannel,
       whiteboardEvent.event_id,
-      enableObserveVisibilityStateSubject
+      enableObserveVisibilityStateSubject,
     );
     const storage = new LocalForageDocumentStorage();
 
@@ -188,7 +188,7 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
       {
         documentValidator: isValidWhiteboardDocument,
         snapshotValidator: isValidWhiteboardDocumentSnapshot,
-      }
+      },
     );
 
     const userId = extractWidgetParameters().userId;
@@ -201,7 +201,7 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
       communicationChannel,
       whiteboardEvent,
       userId,
-      enableObserveVisibilityStateSubject
+      enableObserveVisibilityStateSubject,
     );
   }
 
@@ -210,12 +210,12 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
     private readonly communicationChannel: CommunicationChannel,
     private readonly whiteboardEvent: StateEvent<Whiteboard>,
     private readonly userId: string,
-    private readonly enableObserveVisibilityStateSubject?: Subject<boolean>
+    private readonly enableObserveVisibilityStateSubject?: Subject<boolean>,
   ) {
     this.whiteboardStatistics = {
       document: undefined,
       communicationChannel: cloneDeep(
-        this.communicationChannel.getStatistics()
+        this.communicationChannel.getStatistics(),
       ),
     };
 
@@ -232,7 +232,7 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
           state.currentElementId
         ) {
           this.getSlide(state.currentSlideId).setActiveElementId(
-            state.currentElementId
+            state.currentElementId,
           );
         }
       });
@@ -320,7 +320,7 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
 
   getSlideIds(): string[] {
     return getNormalizedSlideIds(
-      this.synchronizedDocument.getDocument().getData()
+      this.synchronizedDocument.getDocument().getData(),
     );
   }
 
@@ -343,7 +343,7 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
   observeActiveSlideId(): Observable<string | undefined> {
     return concat(
       defer(() => of(this.getActiveSlideId())),
-      this.activeSlideIdSubject
+      this.activeSlideIdSubject,
     ).pipe(distinctUntilChanged());
   }
 
@@ -370,7 +370,7 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
 
   export(): WhiteboardDocumentExport {
     return convertWhiteboardToExportFormat(
-      this.synchronizedDocument.getDocument().getData()
+      this.synchronizedDocument.getDocument().getData(),
     );
   }
 
@@ -378,7 +378,7 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
     this.synchronizedDocument
       .getDocument()
       .performChange(
-        generateLoadWhiteboardFromExport(whiteboardDocumentExport, this.userId)
+        generateLoadWhiteboardFromExport(whiteboardDocumentExport, this.userId),
       );
   }
 
@@ -421,7 +421,7 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
 export function findNewActiveSlideId(
   slideId: string | undefined,
   slideIds: string[],
-  previousSlideIds: string[]
+  previousSlideIds: string[],
 ): string | undefined {
   // select the first slide if nothing is selected
   if (slideId === undefined) {
@@ -432,7 +432,7 @@ export function findNewActiveSlideId(
   if (!slideIds.includes(slideId)) {
     const lastIndex = Math.min(
       slideIds.length - 1,
-      Math.max(0, previousSlideIds.indexOf(slideId))
+      Math.max(0, previousSlideIds.indexOf(slideId)),
     );
     return slideIds[lastIndex];
   }

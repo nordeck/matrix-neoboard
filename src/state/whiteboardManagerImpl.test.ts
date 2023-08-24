@@ -31,7 +31,7 @@ describe('WhiteboardManagerImpl', () => {
     const store = createStore({ widgetApi });
     const whiteboardManager = createWhiteboardManager(
       store,
-      Promise.resolve(widgetApi)
+      Promise.resolve(widgetApi),
     );
 
     expect(whiteboardManager.getActiveWhiteboardInstance()).toBeUndefined();
@@ -41,7 +41,7 @@ describe('WhiteboardManagerImpl', () => {
     const store = createStore({ widgetApi });
     const whiteboardManager = createWhiteboardManager(
       store,
-      Promise.resolve(widgetApi)
+      Promise.resolve(widgetApi),
     );
 
     const event = widgetApi.mockSendStateEvent(mockWhiteboard());
@@ -49,7 +49,7 @@ describe('WhiteboardManagerImpl', () => {
     whiteboardManager.selectActiveWhiteboardInstance(event);
 
     expect(whiteboardManager.getActiveWhiteboardInstance()).toBeInstanceOf(
-      WhiteboardInstanceImpl
+      WhiteboardInstanceImpl,
     );
   });
 
@@ -57,19 +57,19 @@ describe('WhiteboardManagerImpl', () => {
     const store = createStore({ widgetApi });
     const whiteboardManager = createWhiteboardManager(
       store,
-      Promise.resolve(widgetApi)
+      Promise.resolve(widgetApi),
     );
 
     const event0 = widgetApi.mockSendStateEvent(mockWhiteboard());
     const event1 = widgetApi.mockSendStateEvent(
-      mockWhiteboard({ event_id: '$event-id-1', state_key: 'whiteboard-1' })
+      mockWhiteboard({ event_id: '$event-id-1', state_key: 'whiteboard-1' }),
     );
 
     whiteboardManager.selectActiveWhiteboardInstance(event0);
 
     const destroySpy = jest.spyOn(
       whiteboardManager.getActiveWhiteboardInstance() as WhiteboardInstanceImpl,
-      'destroy'
+      'destroy',
     );
 
     // send same event

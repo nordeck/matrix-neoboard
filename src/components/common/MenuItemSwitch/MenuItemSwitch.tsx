@@ -50,7 +50,7 @@ export function MenuItemSwitch({
         e.preventDefault();
       }
     },
-    [onChange, checked]
+    [onChange, checked],
   );
 
   const handleMenuItemClick = useCallback(() => {
@@ -68,7 +68,7 @@ export function MenuItemSwitch({
     (_, value: boolean) => {
       onChange(value);
     },
-    [onChange]
+    [onChange],
   );
 
   const titleId = useId();

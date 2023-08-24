@@ -23,7 +23,7 @@ export function useElementOverride(elementId: string): Element | undefined {
 
   if (!getElementOverride) {
     throw new Error(
-      'useElementOverride can only be used inside of <ElementOverridesProvider>'
+      'useElementOverride can only be used inside of <ElementOverridesProvider>',
     );
   }
 

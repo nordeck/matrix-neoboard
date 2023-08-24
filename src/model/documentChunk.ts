@@ -41,7 +41,7 @@ const documentChunkSchema = Joi.object<DocumentChunk, true>({
 }).unknown();
 
 export function isValidDocumentChunkRoomEvent(
-  event: RoomEvent<unknown>
+  event: RoomEvent<unknown>,
 ): event is RoomEvent<DocumentChunk> {
   return isValidEvent(event, ROOM_EVENT_DOCUMENT_CHUNK, documentChunkSchema);
 }

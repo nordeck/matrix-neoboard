@@ -53,7 +53,7 @@ export function DraftMouseHandler({
         onMouseUp(point);
       }
     },
-    [onMouseUp, calculateSvgCoords]
+    [onMouseUp, calculateSvgCoords],
   );
 
   const handleMouseDown = useCallback(
@@ -63,7 +63,7 @@ export function DraftMouseHandler({
         onMouseDown(point);
       }
     },
-    [onMouseDown, calculateSvgCoords]
+    [onMouseDown, calculateSvgCoords],
   );
 
   const handleMouseMove = useCallback(
@@ -73,7 +73,7 @@ export function DraftMouseHandler({
         onMouseMove(point);
       }
     },
-    [onMouseMove, calculateSvgCoords]
+    [onMouseMove, calculateSvgCoords],
   );
 
   const handleMouseLeave = useCallback(
@@ -83,7 +83,7 @@ export function DraftMouseHandler({
         onMouseLeave(point);
       }
     },
-    [onMouseLeave, calculateSvgCoords]
+    [onMouseLeave, calculateSvgCoords],
   );
 
   return (

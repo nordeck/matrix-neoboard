@@ -122,7 +122,7 @@ describe('serializeAsPlainText', () => {
     expect(
       serializeAsPlainText({
         elements: [mockEllipseElement({ text: 'Hello World' })],
-      })
+      }),
     ).toBe('Hello World');
   });
 
@@ -133,7 +133,7 @@ describe('serializeAsPlainText', () => {
           mockEllipseElement({ text: 'Hello World' }),
           mockEllipseElement({ text: 'With\nLine\nBreaks' }),
         ],
-      })
+      }),
     ).toBe('Hello World With\nLine\nBreaks');
   });
 
@@ -141,7 +141,7 @@ describe('serializeAsPlainText', () => {
     expect(
       serializeAsPlainText({
         elements: [mockLineElement()],
-      })
+      }),
     ).toBe('');
   });
 });
@@ -173,7 +173,7 @@ describe('serializeAsHtml', () => {
     });
 
     expect(content).toBe(
-      '<span data-meta="<--(net.nordeck.whiteboard)eyJlbGVtZW50cyI6W3sidHlwZSI6InNoYXBlIiwia2luZCI6ImVsbGlwc2UiLCJwb3NpdGlvbiI6eyJ4IjowLCJ5IjoxfSwiZmlsbENvbG9yIjoiI2ZmZmZmZiIsImhlaWdodCI6MTAwLCJ3aWR0aCI6NTAsInRleHQiOiJIZWxsbyBXb3JsZCJ9XX0=(/net.nordeck.whiteboard)-->"></span><div>Hello World</div>'
+      '<span data-meta="<--(net.nordeck.whiteboard)eyJlbGVtZW50cyI6W3sidHlwZSI6InNoYXBlIiwia2luZCI6ImVsbGlwc2UiLCJwb3NpdGlvbiI6eyJ4IjowLCJ5IjoxfSwiZmlsbENvbG9yIjoiI2ZmZmZmZiIsImhlaWdodCI6MTAwLCJ3aWR0aCI6NTAsInRleHQiOiJIZWxsbyBXb3JsZCJ9XX0=(/net.nordeck.whiteboard)-->"></span><div>Hello World</div>',
     );
   });
 
@@ -187,7 +187,7 @@ describe('serializeAsHtml', () => {
     });
 
     expect(content).toBe(
-      '<span data-meta="<--(net.nordeck.whiteboard)eyJlbGVtZW50cyI6W3sidHlwZSI6InNoYXBlIiwia2luZCI6ImVsbGlwc2UiLCJwb3NpdGlvbiI6eyJ4IjowLCJ5IjoxfSwiZmlsbENvbG9yIjoiI2ZmZmZmZiIsImhlaWdodCI6MTAwLCJ3aWR0aCI6NTAsInRleHQiOiJIZWxsbyBXb3JsZCJ9LHsidHlwZSI6InNoYXBlIiwia2luZCI6ImVsbGlwc2UiLCJwb3NpdGlvbiI6eyJ4IjowLCJ5IjoxfSwiZmlsbENvbG9yIjoiI2ZmZmZmZiIsImhlaWdodCI6MTAwLCJ3aWR0aCI6NTAsInRleHQiOiJNdWx0aVxuTGluZSJ9LHsidHlwZSI6InBhdGgiLCJraW5kIjoibGluZSIsInBvc2l0aW9uIjp7IngiOjAsInkiOjF9LCJzdHJva2VDb2xvciI6IiNmZmZmZmYiLCJwb2ludHMiOlt7IngiOjAsInkiOjF9LHsieCI6MiwieSI6M31dfV19(/net.nordeck.whiteboard)-->"></span><div>Hello World</div><div>Multi<br>Line</div>'
+      '<span data-meta="<--(net.nordeck.whiteboard)eyJlbGVtZW50cyI6W3sidHlwZSI6InNoYXBlIiwia2luZCI6ImVsbGlwc2UiLCJwb3NpdGlvbiI6eyJ4IjowLCJ5IjoxfSwiZmlsbENvbG9yIjoiI2ZmZmZmZiIsImhlaWdodCI6MTAwLCJ3aWR0aCI6NTAsInRleHQiOiJIZWxsbyBXb3JsZCJ9LHsidHlwZSI6InNoYXBlIiwia2luZCI6ImVsbGlwc2UiLCJwb3NpdGlvbiI6eyJ4IjowLCJ5IjoxfSwiZmlsbENvbG9yIjoiI2ZmZmZmZiIsImhlaWdodCI6MTAwLCJ3aWR0aCI6NTAsInRleHQiOiJNdWx0aVxuTGluZSJ9LHsidHlwZSI6InBhdGgiLCJraW5kIjoibGluZSIsInBvc2l0aW9uIjp7IngiOjAsInkiOjF9LCJzdHJva2VDb2xvciI6IiNmZmZmZmYiLCJwb2ludHMiOlt7IngiOjAsInkiOjF9LHsieCI6MiwieSI6M31dfV19(/net.nordeck.whiteboard)-->"></span><div>Hello World</div><div>Multi<br>Line</div>',
     );
   });
 });
@@ -195,7 +195,7 @@ describe('serializeAsHtml', () => {
 describe('deserializeFromHtml', () => {
   it('should deserialize elements from HTML', () => {
     const content = deserializeFromHtml(
-      '<span data-meta="<--(net.nordeck.whiteboard)eyJlbGVtZW50cyI6W3sidHlwZSI6InNoYXBlIiwia2luZCI6ImVsbGlwc2UiLCJwb3NpdGlvbiI6eyJ4IjowLCJ5IjoxfSwiZmlsbENvbG9yIjoiI2ZmZmZmZiIsImhlaWdodCI6MTAwLCJ3aWR0aCI6NTAsInRleHQiOiJIZWxsbyBXb3JsZCJ9XX0=(/net.nordeck.whiteboard)-->"></span><div>Hello World</div>'
+      '<span data-meta="<--(net.nordeck.whiteboard)eyJlbGVtZW50cyI6W3sidHlwZSI6InNoYXBlIiwia2luZCI6ImVsbGlwc2UiLCJwb3NpdGlvbiI6eyJ4IjowLCJ5IjoxfSwiZmlsbENvbG9yIjoiI2ZmZmZmZiIsImhlaWdodCI6MTAwLCJ3aWR0aCI6NTAsInRleHQiOiJIZWxsbyBXb3JsZCJ9XX0=(/net.nordeck.whiteboard)-->"></span><div>Hello World</div>',
     );
 
     expect(content).toEqual({
@@ -215,7 +215,7 @@ describe('deserializeFromHtml', () => {
 
   it('should ignore invalid elements', () => {
     const content = deserializeFromHtml(
-      '<span data-meta="<--(net.nordeck.whiteboard)eyJlbGVtZW50cyI6W3sidHlwZSI6InNoYXBlIiwia2luZCI6Im32Yml1c3N0cmlwIiwicG9zaXRpb24iOnsieCI6MCwieSI6MX0sImZpbGxDb2xvciI6IiNmZmZmZmYiLCJoZWlnaHQiOjEwMCwid2lkdGgiOjUwLCJ0ZXh0IjoiSGVsbG8gV29ybGQifV19(/net.nordeck.whiteboard)-->"></span><div>Hello World</div>'
+      '<span data-meta="<--(net.nordeck.whiteboard)eyJlbGVtZW50cyI6W3sidHlwZSI6InNoYXBlIiwia2luZCI6Im32Yml1c3N0cmlwIiwicG9zaXRpb24iOnsieCI6MCwieSI6MX0sImZpbGxDb2xvciI6IiNmZmZmZmYiLCJoZWlnaHQiOjEwMCwid2lkdGgiOjUwLCJ0ZXh0IjoiSGVsbG8gV29ybGQifV19(/net.nordeck.whiteboard)-->"></span><div>Hello World</div>',
     );
 
     expect(content).toEqual({ elements: [] });
@@ -223,7 +223,7 @@ describe('deserializeFromHtml', () => {
 
   it('should ignore invalid JSON', () => {
     const content = deserializeFromHtml(
-      '<span data-meta="<--(net.nordeck.whiteboard)eyJl(/net.nordeck.whiteboard)-->"></span><div>Hello World</div>'
+      '<span data-meta="<--(net.nordeck.whiteboard)eyJl(/net.nordeck.whiteboard)-->"></span><div>Hello World</div>',
     );
 
     expect(content).toEqual({});
@@ -237,7 +237,7 @@ describe('deserializeFromHtml', () => {
 
   it('should ignore missing end marker', () => {
     const content = deserializeFromHtml(
-      '<span data-meta="<--(net.nordeck.whiteboard)eyJlbGVtZW50cyI6W3sidHlwZSI6InNoYXBlIiwia2luZCI6Im32Yml1c3N0cmlwIiwicG9zaXRpb24iOnsieCI6MCwieSI6MX0sImZpbGxDb2xvciI6IiNmZmZmZmYiLCJoZWlnaHQiOjEwMCwid2lkdGgiOjUwLCJ0ZXh0IjoiSGVsbG8gV29ybGQifV19"></span><div>Hello World</div>'
+      '<span data-meta="<--(net.nordeck.whiteboard)eyJlbGVtZW50cyI6W3sidHlwZSI6InNoYXBlIiwia2luZCI6Im32Yml1c3N0cmlwIiwicG9zaXRpb24iOnsieCI6MCwieSI6MX0sImZpbGxDb2xvciI6IiNmZmZmZmYiLCJoZWlnaHQiOjEwMCwid2lkdGgiOjUwLCJ0ZXh0IjoiSGVsbG8gV29ybGQifV19"></span><div>Hello World</div>',
     );
 
     expect(content).toEqual({});
@@ -247,13 +247,13 @@ describe('deserializeFromHtml', () => {
 describe('escapeTextAsHtml', () => {
   it('should convert a single line string and escape HTML', () => {
     expect(escapeTextAsHtml('Hello <b>World</b>')).toEqual(
-      'Hello &lt;b&gt;World&lt;/b&gt;'
+      'Hello &lt;b&gt;World&lt;/b&gt;',
     );
   });
 
   it('should convert a multiline line string and escape HTML', () => {
     expect(escapeTextAsHtml('Hello\n\nWorld\n2 > 1')).toEqual(
-      'Hello<br><br>World<br>2 &gt; 1'
+      'Hello<br><br>World<br>2 &gt; 1',
     );
   });
 });

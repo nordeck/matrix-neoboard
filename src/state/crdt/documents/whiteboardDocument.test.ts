@@ -64,7 +64,7 @@ describe('initializeWhiteboardDocument', () => {
         73, 100, 115, 0, 39, 1, 1, 48, 8, 115, 108, 105, 100, 101, 73, 100, 115,
         0, 8, 0, 0, 4, 1, 119, 21, 73, 78, 52, 104, 55, 52, 115, 117, 77, 105,
         73, 65, 75, 52, 65, 86, 77, 65, 100, 108, 95, 0,
-      ])
+      ]),
     );
   });
 });
@@ -186,7 +186,7 @@ describe('whiteboardDocumentSchema', () => {
     };
 
     expect(whiteboardDocumentSchema.validate(data).error).toBeInstanceOf(
-      Joi.ValidationError
+      Joi.ValidationError,
     );
   });
 });
@@ -247,7 +247,7 @@ describe('isValidWhiteboardDocumentSnapshot', () => {
     const document = createWhiteboardDocument();
 
     expect(
-      isValidWhiteboardDocumentSnapshot(document.store().subarray(0, 10))
+      isValidWhiteboardDocumentSnapshot(document.store().subarray(0, 10)),
     ).toBe(false);
   });
 
@@ -275,7 +275,7 @@ describe('keepWhiteboardUndoRedoItem', () => {
           isInsertion: true,
           isDeletion: true,
         },
-      ])
+      ]),
     ).toBe(true);
   });
 
@@ -292,7 +292,7 @@ describe('keepWhiteboardUndoRedoItem', () => {
           isInsertion: true,
           isDeletion: true,
         },
-      ])
+      ]),
     ).toBe(false);
   });
 
@@ -309,7 +309,7 @@ describe('keepWhiteboardUndoRedoItem', () => {
           isInsertion: true,
           isDeletion: true,
         },
-      ])
+      ]),
     ).toBe(false);
 
     expect(
@@ -319,7 +319,7 @@ describe('keepWhiteboardUndoRedoItem', () => {
           isInsertion: true,
           isDeletion: false,
         },
-      ])
+      ]),
     ).toBe(true);
 
     expect(
@@ -329,7 +329,7 @@ describe('keepWhiteboardUndoRedoItem', () => {
           isInsertion: true,
           isDeletion: true,
         },
-      ])
+      ]),
     ).toBe(true);
   });
 
@@ -345,7 +345,7 @@ describe('keepWhiteboardUndoRedoItem', () => {
           isInsertion: true,
           isDeletion: true,
         },
-      ])
+      ]),
     ).toBe(true);
 
     expect(
@@ -355,7 +355,7 @@ describe('keepWhiteboardUndoRedoItem', () => {
           isInsertion: true,
           isDeletion: false,
         },
-      ])
+      ]),
     ).toBe(true);
   });
 
@@ -374,7 +374,7 @@ describe('keepWhiteboardUndoRedoItem', () => {
           isInsertion: true,
           isDeletion: false,
         },
-      ])
+      ]),
     ).toBe(true);
   });
 
@@ -395,7 +395,7 @@ describe('keepWhiteboardUndoRedoItem', () => {
           isInsertion: false,
           isDeletion: true,
         },
-      ])
+      ]),
     ).toBe(true);
   });
 
@@ -411,7 +411,7 @@ describe('keepWhiteboardUndoRedoItem', () => {
           isInsertion: true,
           isDeletion: false,
         },
-      ])
+      ]),
     ).toBe(false);
   });
 
@@ -420,7 +420,7 @@ describe('keepWhiteboardUndoRedoItem', () => {
 
     const [addElement, element0] = generateAddElement(
       slide0,
-      mockLineElement()
+      mockLineElement(),
     );
 
     const moveElement = generateUpdateElement(slide0, element0, {
@@ -485,7 +485,7 @@ describe('keepWhiteboardUndoRedoItem', () => {
 
     const [addElement, element0] = generateAddElement(
       slide0,
-      mockLineElement()
+      mockLineElement(),
     );
 
     const moveElement = generateUpdateElement(slide0, element0, {
@@ -605,7 +605,7 @@ describe('keepWhiteboardUndoRedoItem', () => {
 
 function performRemoteChange(
   document: Document<WhiteboardDocument>,
-  callback: ChangeFn<WhiteboardDocument>
+  callback: ChangeFn<WhiteboardDocument>,
 ) {
   const documentClone = document.clone();
   documentClone.performChange(callback);

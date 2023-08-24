@@ -52,7 +52,7 @@ describe('pointSchema', () => {
     };
 
     expect(pointSchema.validate(data).error).toBeInstanceOf(
-      Joi.ValidationError
+      Joi.ValidationError,
     );
   });
 });

@@ -91,7 +91,7 @@ function ExportWhiteboardDialogContent({
 
   const downloadTitle = t(
     'boardBar.exportWhiteboardDialog.download',
-    'Download'
+    'Download',
   );
 
   const selectLabelId = useId();
@@ -116,7 +116,7 @@ function ExportWhiteboardDialogContent({
         <DialogContentText id={descriptionId} paragraph>
           {t(
             'boardBar.exportWhiteboardDialog.description',
-            'Please choose your preferred format.'
+            'Please choose your preferred format.',
           )}
         </DialogContentText>
 
@@ -124,7 +124,7 @@ function ExportWhiteboardDialogContent({
           <InputLabel id={selectLabelId} sx={visuallyHidden}>
             {t(
               'boardBar.exportWhiteboardDialog.fileFormat.title',
-              'File format'
+              'File format',
             )}
           </InputLabel>
           <Select
@@ -135,13 +135,13 @@ function ExportWhiteboardDialogContent({
             <MenuItem value="pdf">
               {t(
                 'boardBar.exportWhiteboardDialog.fileFormat.pdf',
-                'PDF-File (.pdf)'
+                'PDF-File (.pdf)',
               )}
             </MenuItem>
             <MenuItem value="nwb">
               {t(
                 'boardBar.exportWhiteboardDialog.fileFormat.nwb',
-                'NeoBoard-File (.nwb)'
+                'NeoBoard-File (.nwb)',
               )}
             </MenuItem>
           </Select>

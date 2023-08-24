@@ -33,8 +33,8 @@ export function createStore({
         autoBatchEnhancer(
           // Disable the auto batching when running tests in JSDOM, as it
           // conflicts with fake timers.
-          navigator.userAgent.includes('jsdom') ? { type: 'tick' } : undefined
-        )
+          navigator.userAgent.includes('jsdom') ? { type: 'tick' } : undefined,
+        ),
       ),
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({

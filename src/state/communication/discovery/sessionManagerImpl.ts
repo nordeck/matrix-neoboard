@@ -50,7 +50,7 @@ export class SessionManagerImpl implements SessionManager {
   constructor(
     private readonly widgetApiPromise: Promise<WidgetApi> | WidgetApi,
     private readonly sessionTimeout = 30 * 60 * 1000,
-    private readonly cleanupInterval = 10 * 1000
+    private readonly cleanupInterval = 10 * 1000,
   ) {}
 
   getSessionId(): string | undefined {
@@ -81,18 +81,18 @@ export class SessionManagerImpl implements SessionManager {
     this.joinState = { sessionId, whiteboardId };
 
     this.logger.log(
-      `Joining whiteboard ${whiteboardId} as session ${sessionId}`
+      `Joining whiteboard ${whiteboardId} as session ${sessionId}`,
     );
 
     // Handle session events
     from(Promise.resolve(this.widgetApiPromise))
       .pipe(
         switchMap((widgetApi) =>
-          widgetApi.observeStateEvents(STATE_EVENT_WHITEBOARD_SESSIONS)
+          widgetApi.observeStateEvents(STATE_EVENT_WHITEBOARD_SESSIONS),
         ),
         filter(isValidWhiteboardSessionsStateEvent),
         takeUntil(this.destroySubject),
-        takeUntil(this.leaveSubject)
+        takeUntil(this.leaveSubject),
       )
       .subscribe((whiteboardSessions) => {
         this.handleWhiteboardSessionsEvent(whiteboardSessions);
@@ -106,7 +106,7 @@ export class SessionManagerImpl implements SessionManager {
           .filter((s) => !isNotExpired(s))
           .forEach((session) => {
             this.logger.log(
-              `Session ${session.sessionId} by ${session.userId} expired from whiteboard ${session.whiteboardId}`
+              `Session ${session.sessionId} by ${session.userId} expired from whiteboard ${session.whiteboardId}`,
             );
             this.removeSession(session);
           });
@@ -118,7 +118,7 @@ export class SessionManagerImpl implements SessionManager {
       .pipe(
         takeUntil(this.destroySubject),
         takeUntil(this.leaveSubject),
-        switchMap(() => this.refreshOwnSession(whiteboardId, sessionId))
+        switchMap(() => this.refreshOwnSession(whiteboardId, sessionId)),
       )
       .subscribe();
 
@@ -139,7 +139,7 @@ export class SessionManagerImpl implements SessionManager {
     this.leaveSubject.next();
 
     this.logger.log(
-      `Leaving whiteboard ${whiteboardId} as session ${sessionId}`
+      `Leaving whiteboard ${whiteboardId} as session ${sessionId}`,
     );
 
     while (this.sessions.length > 0) {
@@ -156,7 +156,7 @@ export class SessionManagerImpl implements SessionManager {
   }
 
   private handleWhiteboardSessionsEvent(
-    event: StateEvent<WhiteboardSessions>
+    event: StateEvent<WhiteboardSessions>,
   ): void {
     const userId = event.state_key;
     const eventSessions = event.content.sessions.filter(isNotExpired);
@@ -168,8 +168,8 @@ export class SessionManagerImpl implements SessionManager {
         !eventSessions.find(
           (s) =>
             s.sessionId === existingSession.sessionId &&
-            s.whiteboardId === existingSession.whiteboardId
-        )
+            s.whiteboardId === existingSession.whiteboardId,
+        ),
     );
 
     sessionsToRemove
@@ -182,7 +182,7 @@ export class SessionManagerImpl implements SessionManager {
         const updatedSession = eventSessions.find(
           (s) =>
             s.sessionId === existingSession.sessionId &&
-            s.whiteboardId === existingSession.whiteboardId
+            s.whiteboardId === existingSession.whiteboardId,
         );
         if (updatedSession) {
           return { userId, ...updatedSession };
@@ -197,7 +197,7 @@ export class SessionManagerImpl implements SessionManager {
         (s) =>
           s.userId === userId &&
           s.sessionId === newSession.sessionId &&
-          s.whiteboardId === newSession.whiteboardId
+          s.whiteboardId === newSession.whiteboardId,
       );
     });
 
@@ -207,7 +207,7 @@ export class SessionManagerImpl implements SessionManager {
         this.addSession({
           userId,
           ...newSession,
-        })
+        }),
       );
   }
 
@@ -215,7 +215,7 @@ export class SessionManagerImpl implements SessionManager {
     const { userId, sessionId, whiteboardId } = session;
 
     this.logger.log(
-      `Session ${sessionId} by ${userId} joined whiteboard ${whiteboardId}`
+      `Session ${sessionId} by ${userId} joined whiteboard ${whiteboardId}`,
     );
 
     this.sessions = [...this.sessions, session];
@@ -226,7 +226,7 @@ export class SessionManagerImpl implements SessionManager {
     const { userId, sessionId, whiteboardId } = session;
 
     this.logger.log(
-      `Session ${sessionId} by ${userId} left whiteboard ${whiteboardId}`
+      `Session ${sessionId} by ${userId} left whiteboard ${whiteboardId}`,
     );
 
     this.sessions = this.sessions.filter((s) => s !== session);
@@ -235,33 +235,33 @@ export class SessionManagerImpl implements SessionManager {
 
   private async removeOwnSession(
     whiteboardId: string,
-    sessionId: string
+    sessionId: string,
   ): Promise<void> {
     this.logger.log(
-      `Removing own session ${sessionId} from whiteboard ${whiteboardId}`
+      `Removing own session ${sessionId} from whiteboard ${whiteboardId}`,
     );
 
     await this.patchOwnSessions((whiteboardSessions) => ({
       ...whiteboardSessions,
       sessions: whiteboardSessions.sessions.filter(
-        (s) => s.sessionId !== sessionId || s.whiteboardId !== whiteboardId
+        (s) => s.sessionId !== sessionId || s.whiteboardId !== whiteboardId,
       ),
     }));
   }
 
   private async refreshOwnSession(
     whiteboardId: string,
-    sessionId: string
+    sessionId: string,
   ): Promise<void> {
     this.logger.log(
-      `Updating own session ${sessionId} for whiteboard ${whiteboardId}`
+      `Updating own session ${sessionId} for whiteboard ${whiteboardId}`,
     );
 
     await this.patchOwnSessions((whiteboardSessions) => ({
       ...whiteboardSessions,
       sessions: [
         ...whiteboardSessions.sessions.filter(
-          (s) => s.sessionId !== sessionId || s.whiteboardId !== whiteboardId
+          (s) => s.sessionId !== sessionId || s.whiteboardId !== whiteboardId,
         ),
         {
           sessionId,
@@ -273,7 +273,7 @@ export class SessionManagerImpl implements SessionManager {
   }
 
   private async patchOwnSessions(
-    patchFn: (patchOwnSessions: WhiteboardSessions) => WhiteboardSessions
+    patchFn: (patchOwnSessions: WhiteboardSessions) => WhiteboardSessions,
   ): Promise<void> {
     const widgetApi = await this.widgetApiPromise;
     const { userId } = widgetApi.widgetParameters;
@@ -284,7 +284,7 @@ export class SessionManagerImpl implements SessionManager {
 
     const sessionsEvent = await widgetApi.receiveSingleStateEvent(
       STATE_EVENT_WHITEBOARD_SESSIONS,
-      userId
+      userId,
     );
 
     const whiteboardSessions =
@@ -303,7 +303,7 @@ export class SessionManagerImpl implements SessionManager {
         await widgetApi.sendStateEvent(
           STATE_EVENT_WHITEBOARD_SESSIONS,
           updatedWhiteboardSessions,
-          { stateKey: userId }
+          { stateKey: userId },
         );
       } catch (ex) {
         this.logger.error('Error while sending whiteboard sessions', ex);

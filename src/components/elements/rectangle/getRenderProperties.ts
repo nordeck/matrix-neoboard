@@ -18,7 +18,7 @@ import { ShapeElement } from '../../../state';
 import { ElementRenderProperties } from '../../Whiteboard';
 
 export function getRenderProperties(
-  shape: ShapeElement
+  shape: ShapeElement,
 ): ElementRenderProperties {
   const padding = 10;
 

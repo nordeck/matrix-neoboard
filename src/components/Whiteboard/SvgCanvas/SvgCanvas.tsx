@@ -68,7 +68,7 @@ export function SvgCanvas({
 
       return calculateSvgCoords(position, svgRef.current);
     },
-    [svgRef]
+    [svgRef],
   );
 
   const value = useMemo<SvgCanvasContextType>(
@@ -80,7 +80,7 @@ export function SvgCanvas({
       scale: calculateScale(width, height, viewportWidth, viewportHeight),
       calculateSvgCoords: calculateSvgCoordsFunc,
     }),
-    [calculateSvgCoordsFunc, height, viewportHeight, viewportWidth, width]
+    [calculateSvgCoordsFunc, height, viewportHeight, viewportWidth, width],
   );
 
   const aspectRatio = `${viewportWidth} / ${viewportHeight}`;

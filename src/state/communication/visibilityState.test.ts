@@ -75,7 +75,7 @@ describe('observeVisibilityState', () => {
     untilSubject.next();
 
     await waitFor(() =>
-      expect(events).toEqual(['visible', 'hidden', 'visible'])
+      expect(events).toEqual(['visible', 'hidden', 'visible']),
     );
   });
 });

@@ -27,18 +27,18 @@ export function ShowCollaboratorsCursorsToggle() {
   const title = isShowCollaboratorsCursors
     ? t(
         'collaborationBar.hideCollaboratorsCursors',
-        "Hide collaborators' cursors"
+        "Hide collaborators' cursors",
       )
     : t(
         'collaborationBar.showCollaboratorsCursors',
-        "Show collaborators' cursors"
+        "Show collaborators' cursors",
       );
 
   const handleChange = useCallback(
     (_, checked: boolean) => {
       setShowCollaboratorsCursors(checked);
     },
-    [setShowCollaboratorsCursors]
+    [setShowCollaboratorsCursors],
   );
 
   return (

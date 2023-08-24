@@ -64,7 +64,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id'
+      '@user-id',
     );
 
     slideInstance.lockSlide();
@@ -80,7 +80,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id'
+      '@user-id',
     );
 
     slideInstance.lockSlide();
@@ -94,7 +94,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id'
+      '@user-id',
     );
 
     const element = mockLineElement();
@@ -109,14 +109,14 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id'
+      '@user-id',
     );
     slideInstance.lockSlide();
 
     const element = mockLineElement();
 
     expect(() => slideInstance.addElement(element)).toThrowError(
-      'Can not modify slide, slide is locked'
+      'Can not modify slide, slide is locked',
     );
   });
 
@@ -125,12 +125,12 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id'
+      '@user-id',
     );
 
     const setActiveElementIdSpy = jest.spyOn(
       slideInstance,
-      'setActiveElementId'
+      'setActiveElementId',
     );
 
     const performChangeSpy = jest
@@ -155,7 +155,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id'
+      '@user-id',
     );
 
     const element = mockLineElement();
@@ -173,14 +173,14 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id'
+      '@user-id',
     );
     const element = mockLineElement();
     const element0 = slideInstance.addElement(element);
     slideInstance.lockSlide();
 
     expect(() => slideInstance.removeElement(element0)).toThrowError(
-      'Can not modify slide, slide is locked'
+      'Can not modify slide, slide is locked',
     );
   });
 
@@ -189,7 +189,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id'
+      '@user-id',
     );
 
     const element = mockLineElement();
@@ -212,7 +212,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id'
+      '@user-id',
     );
     const element = mockLineElement();
     const element0 = slideInstance.addElement(element);
@@ -221,7 +221,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
     expect(() =>
       slideInstance.updateElement(element0, {
         strokeColor: '#000000',
-      })
+      }),
     ).toThrowError('Can not modify slide, slide is locked');
   });
 
@@ -230,7 +230,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id'
+      '@user-id',
     );
 
     const element = mockLineElement();
@@ -258,7 +258,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id'
+      '@user-id',
     );
 
     const element = mockLineElement();
@@ -266,7 +266,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
     slideInstance.lockSlide();
 
     expect(() => slideInstance.moveElementToBottom(element0)).toThrowError(
-      'Can not modify slide, slide is locked'
+      'Can not modify slide, slide is locked',
     );
   });
 
@@ -275,7 +275,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id'
+      '@user-id',
     );
 
     const element = mockLineElement();
@@ -303,7 +303,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id'
+      '@user-id',
     );
 
     const element = mockLineElement();
@@ -311,7 +311,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
     slideInstance.lockSlide();
 
     expect(() => slideInstance.moveElementDown(element0)).toThrowError(
-      'Can not modify slide, slide is locked'
+      'Can not modify slide, slide is locked',
     );
   });
 
@@ -320,7 +320,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id'
+      '@user-id',
     );
 
     const element = mockLineElement();
@@ -348,7 +348,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id'
+      '@user-id',
     );
 
     const element = mockLineElement();
@@ -356,7 +356,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
     slideInstance.lockSlide();
 
     expect(() => slideInstance.moveElementUp(element0)).toThrowError(
-      'Can not modify slide, slide is locked'
+      'Can not modify slide, slide is locked',
     );
   });
 
@@ -365,7 +365,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id'
+      '@user-id',
     );
 
     const element = mockLineElement();
@@ -393,7 +393,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id'
+      '@user-id',
     );
 
     const element = mockLineElement();
@@ -401,7 +401,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
     slideInstance.lockSlide();
 
     expect(() => slideInstance.moveElementToTop(element0)).toThrowError(
-      'Can not modify slide, slide is locked'
+      'Can not modify slide, slide is locked',
     );
   });
 
@@ -410,14 +410,14 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id'
+      '@user-id',
     );
 
     const element = mockLineElement();
     const element0 = slideInstance.addElement(element);
 
     const elementUpdates = firstValueFrom(
-      slideInstance.observeElement(element0).pipe(take(3), toArray())
+      slideInstance.observeElement(element0).pipe(take(3), toArray()),
     );
 
     slideInstance.updateElement(element0, {
@@ -437,11 +437,11 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id'
+      '@user-id',
     );
 
     const elementIds = firstValueFrom(
-      slideInstance.observeElementIds().pipe(take(4), toArray())
+      slideInstance.observeElementIds().pipe(take(4), toArray()),
     );
 
     const element = mockLineElement();
@@ -464,11 +464,11 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id'
+      '@user-id',
     );
 
     const cursorPositions = firstValueFrom(
-      slideInstance.observeCursorPositions().pipe(take(1), toArray())
+      slideInstance.observeCursorPositions().pipe(take(1), toArray()),
     );
 
     messageChannel.next({
@@ -505,11 +505,11 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id'
+      '@user-id',
     );
 
     const cursorPositions = firstValueFrom(
-      slideInstance.observeCursorPositions().pipe(take(2), toArray())
+      slideInstance.observeCursorPositions().pipe(take(2), toArray()),
     );
 
     messageChannel.next({
@@ -549,11 +549,11 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id'
+      '@user-id',
     );
 
     const cursorPositions = firstValueFrom(
-      slideInstance.observeCursorPositions().pipe(take(1), toArray())
+      slideInstance.observeCursorPositions().pipe(take(1), toArray()),
     );
 
     messageChannel.next({
@@ -590,14 +590,14 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id'
+      '@user-id',
     );
 
     const firstCursorPosition = firstValueFrom(
-      slideInstance.observeCursorPositions().pipe(take(1))
+      slideInstance.observeCursorPositions().pipe(take(1)),
     );
     const secondCursorPosition = firstValueFrom(
-      slideInstance.observeCursorPositions().pipe(skip(1), take(1))
+      slideInstance.observeCursorPositions().pipe(skip(1), take(1)),
     );
 
     messageChannel.next({
@@ -622,7 +622,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id'
+      '@user-id',
     );
 
     slideInstance.publishCursorPosition({ x: 1, y: 2 });
@@ -630,7 +630,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
     await waitFor(() => {
       expect(communicationChannel.broadcastMessage).toBeCalledWith(
         'net.nordeck.whiteboard.cursor_update',
-        { slideId: slide0, position: { x: 1, y: 2 } }
+        { slideId: slide0, position: { x: 1, y: 2 } },
       );
     });
   });
@@ -640,7 +640,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id'
+      '@user-id',
     );
 
     slideInstance.publishCursorPosition({ x: 1, y: 2 });
@@ -654,11 +654,11 @@ describe('WhiteboardSlideInstanceImpl', () => {
 
     expect(communicationChannel.broadcastMessage).toBeCalledWith(
       'net.nordeck.whiteboard.cursor_update',
-      { slideId: slide0, position: { x: 1, y: 2 } }
+      { slideId: slide0, position: { x: 1, y: 2 } },
     );
     expect(communicationChannel.broadcastMessage).toBeCalledWith(
       'net.nordeck.whiteboard.cursor_update',
-      { slideId: slide0, position: { x: 7, y: 8 } }
+      { slideId: slide0, position: { x: 7, y: 8 } },
     );
   });
 
@@ -667,11 +667,11 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id'
+      '@user-id',
     );
 
     const observedActiveElement = firstValueFrom(
-      slideInstance.observeActiveElementId().pipe(take(2), toArray())
+      slideInstance.observeActiveElementId().pipe(take(2), toArray()),
     );
 
     const element0 = slideInstance.addElement(mockLineElement());
@@ -687,11 +687,11 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id'
+      '@user-id',
     );
 
     const observedActiveElement = firstValueFrom(
-      slideInstance.observeActiveElementId().pipe(take(3), toArray())
+      slideInstance.observeActiveElementId().pipe(take(3), toArray()),
     );
 
     const element0 = slideInstance.addElement(mockLineElement());
@@ -711,12 +711,12 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id'
+      '@user-id',
     );
 
     const [addElement, element0] = generateAddElement(
       slide0,
-      mockLineElement()
+      mockLineElement(),
     );
     const removeElement = generateRemoveElement(slide0, element0);
 
@@ -737,11 +737,11 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id'
+      '@user-id',
     );
 
     const observedActiveElement = firstValueFrom(
-      slideInstance.observeActiveElementId().pipe(take(3), toArray())
+      slideInstance.observeActiveElementId().pipe(take(3), toArray()),
     );
 
     const element0 = slideInstance.addElement(mockLineElement());
@@ -762,11 +762,11 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id'
+      '@user-id',
     );
 
     const lockUpdates = firstValueFrom(
-      slideInstance.observeIsLocked().pipe(take(3), toArray())
+      slideInstance.observeIsLocked().pipe(take(3), toArray()),
     );
 
     slideInstance.lockSlide();
@@ -781,26 +781,26 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id'
+      '@user-id',
     );
 
     const element = mockLineElement();
     const element0 = slideInstance.addElement(element);
 
     const elementIds = firstValueFrom(
-      slideInstance.observeElementIds().pipe(toArray())
+      slideInstance.observeElementIds().pipe(toArray()),
     );
     const elementUpdates = firstValueFrom(
-      slideInstance.observeElement(element0).pipe(toArray())
+      slideInstance.observeElement(element0).pipe(toArray()),
     );
     const cursorPositions = firstValueFrom(
-      slideInstance.observeCursorPositions().pipe(toArray())
+      slideInstance.observeCursorPositions().pipe(toArray()),
     );
     const activeElement = firstValueFrom(
-      slideInstance.observeActiveElementId().pipe(toArray())
+      slideInstance.observeActiveElementId().pipe(toArray()),
     );
     const isLocked = firstValueFrom(
-      slideInstance.observeIsLocked().pipe(toArray())
+      slideInstance.observeIsLocked().pipe(toArray()),
     );
 
     slideInstance.destroy();

@@ -59,7 +59,7 @@ export function Collaborators() {
     (event: MouseEvent<HTMLButtonElement>) => {
       setAnchorEl(event.currentTarget);
     },
-    []
+    [],
   );
 
   const handleClose = useCallback(() => {

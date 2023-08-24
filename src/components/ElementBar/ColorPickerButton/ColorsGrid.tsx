@@ -262,7 +262,7 @@ export function ColorsGrid({
                 </td>
               ))}
             </tr>
-          )
+          ),
         )}
       </tbody>
     </table>

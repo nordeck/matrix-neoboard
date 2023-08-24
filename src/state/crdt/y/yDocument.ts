@@ -45,20 +45,20 @@ export class YDocument<T extends Record<string, unknown>>
     this.getRoot(),
     this.keepUndoRedoItem,
     this.applyAndNotifyChanges.bind(this),
-    this.changesSubject
+    this.changesSubject,
   );
 
   private constructor(
     private readonly documentVersion: string,
     private readonly keepUndoRedoItem?: (
-      documentRoot: SharedMap<T>
-    ) => UndoRedoItemValidator
+      documentRoot: SharedMap<T>,
+    ) => UndoRedoItemValidator,
   ) {}
 
   static create<T extends Record<string, unknown>>(
     migrations: Uint8Array[],
     documentVersion: string,
-    keepUndoRedoItem?: (documentRoot: SharedMap<T>) => UndoRedoItemValidator
+    keepUndoRedoItem?: (documentRoot: SharedMap<T>) => UndoRedoItemValidator,
   ): YDocument<T> {
     const doc = new YDocument<T>(documentVersion, keepUndoRedoItem);
 
@@ -95,7 +95,7 @@ export class YDocument<T extends Record<string, unknown>>
 
     const hasOutstandingLocalChanges = !Y.equalSnapshots(
       remoteSnapshot,
-      appliedSnapshot
+      appliedSnapshot,
     );
 
     if (hasOutstandingLocalChanges) {
@@ -146,7 +146,7 @@ export class YDocument<T extends Record<string, unknown>>
           documentSizeInBytes,
           contentSizeInBytes,
         };
-      })
+      }),
     );
   }
 

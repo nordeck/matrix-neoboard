@@ -74,7 +74,7 @@ export function ColorPicker() {
         }
       }
     },
-    [setActiveColor, slideInstance]
+    [setActiveColor, slideInstance],
   );
 
   const colorPickerTitle = t('colorPicker.title', 'Pick a color');

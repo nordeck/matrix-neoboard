@@ -204,7 +204,7 @@ export type WhiteboardUndoManagerContext = {
 
 /** Validate if the value that was stored in the context is valid */
 export function isWhiteboardUndoManagerContext(
-  context: unknown
+  context: unknown,
 ): context is WhiteboardUndoManagerContext {
   if (
     context &&

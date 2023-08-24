@@ -29,7 +29,7 @@ describe('isValidRoomNameEvent', () => {
         state_key: '',
         sender: '@user-id',
         type: 'm.room.name',
-      })
+      }),
     ).toBe(true);
   });
 
@@ -46,7 +46,7 @@ describe('isValidRoomNameEvent', () => {
         state_key: '',
         sender: '@user-id',
         type: 'm.room.name',
-      })
+      }),
     ).toBe(true);
   });
 
@@ -65,8 +65,8 @@ describe('isValidRoomNameEvent', () => {
           state_key: '',
           sender: '@user-id',
           type: 'm.room.name',
-        })
+        }),
       ).toBe(false);
-    }
+    },
   );
 });

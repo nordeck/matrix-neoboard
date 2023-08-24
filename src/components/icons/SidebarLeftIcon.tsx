@@ -18,5 +18,5 @@ import { createSvgIcon } from '@mui/material';
 
 export const SidebarLeftIcon = createSvgIcon(
   <path d="M 8,20 H 22 V 4 H 8 Z M 6,8 H 2 V 4 H 6 Z M 6,20 H 2 V 16 H 6 Z M 6,14 H 2 v -4 h 4 z" />,
-  'SidebarLeft'
+  'SidebarLeft',
 );

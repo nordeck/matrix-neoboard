@@ -29,7 +29,7 @@ const focusOnSchema = Joi.object<FocusOn, true>({
 }).unknown();
 
 export function isValidFocusOnMessage(
-  message: Message
+  message: Message,
 ): message is Message<FocusOn> {
   if (message.type !== FOCUS_ON_MESSAGE) {
     return false;

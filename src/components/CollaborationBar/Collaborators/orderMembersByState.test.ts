@@ -27,8 +27,8 @@ describe('orderMembersByState', () => {
           { userId: '@user-dave' },
           { userId: '@user-id' },
         ],
-        '@user-id'
-      )
+        '@user-id',
+      ),
     ).toEqual([
       { userId: '@user-id' },
       { userId: '@user-alice' },

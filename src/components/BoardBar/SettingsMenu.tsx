@@ -112,7 +112,7 @@ export function SettingsMenu() {
 
       reader.readAsText(file);
     },
-    []
+    [],
   );
 
   const {
@@ -145,7 +145,7 @@ export function SettingsMenu() {
     (value: boolean) => {
       setShowGrid(value);
     },
-    [setShowGrid]
+    [setShowGrid],
   );
 
   const handleDebugClick = useCallback(() => {
@@ -156,7 +156,7 @@ export function SettingsMenu() {
     (value: boolean) => {
       setDeveloperToolsVisible(value);
     },
-    [setDeveloperToolsVisible]
+    [setDeveloperToolsVisible],
   );
 
   const menuTitle = t('boardBar.menu.title', 'Settings');

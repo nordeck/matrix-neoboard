@@ -18,5 +18,5 @@ import { createSvgIcon } from '@mui/material';
 
 export const TriangleIcon = createSvgIcon(
   <path d="M1 21H23L12 2" />,
-  'Triangle'
+  'Triangle',
 );

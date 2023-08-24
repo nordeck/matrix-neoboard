@@ -51,7 +51,7 @@ const whiteboardDocumentExportSchema = Joi.object<
   .required();
 
 export function isValidWhiteboardExportDocument(
-  document: unknown
+  document: unknown,
 ): document is WhiteboardDocumentExport {
   const result = whiteboardDocumentExportSchema.validate(document);
 

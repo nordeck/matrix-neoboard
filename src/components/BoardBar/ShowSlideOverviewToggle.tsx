@@ -32,7 +32,7 @@ export function ShowSlideOverviewToggle() {
     (_, checked) => {
       setSlideOverviewVisible(checked);
     },
-    [setSlideOverviewVisible]
+    [setSlideOverviewVisible],
   );
   return (
     <ToolbarToggle

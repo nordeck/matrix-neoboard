@@ -51,9 +51,9 @@ describe('getDocumentSnapshot', () => {
         .dispatch(
           documentSnapshotApi.endpoints.getDocumentSnapshot.initiate({
             documentId: '$document-0',
-          })
+          }),
         )
-        .unwrap()
+        .unwrap(),
     ).resolves.toEqual({
       event: snapshotEvent,
       data: chunks[0].content.data,
@@ -70,9 +70,9 @@ describe('getDocumentSnapshot', () => {
         .dispatch(
           documentSnapshotApi.endpoints.getDocumentSnapshot.initiate({
             documentId: '$document-0',
-          })
+          }),
         )
-        .unwrap()
+        .unwrap(),
     ).rejects.toEqual({
       name: 'LoadFailed',
       message: 'Could not find the document',
@@ -97,9 +97,9 @@ describe('getDocumentSnapshot', () => {
         .dispatch(
           documentSnapshotApi.endpoints.getDocumentSnapshot.initiate({
             documentId: '$document-0',
-          })
+          }),
         )
-        .unwrap()
+        .unwrap(),
     ).rejects.toEqual({
       name: 'LoadFailed',
       message: 'Could not find the document',
@@ -133,9 +133,9 @@ describe('getDocumentSnapshot', () => {
           documentSnapshotApi.endpoints.getDocumentSnapshot.initiate({
             documentId: '$document-0',
             validator,
-          })
+          }),
         )
-        .unwrap()
+        .unwrap(),
     ).rejects.toEqual({
       name: 'LoadFailed',
       message: 'Could not find the document',
@@ -152,9 +152,9 @@ describe('getDocumentSnapshot', () => {
         .dispatch(
           documentSnapshotApi.endpoints.getDocumentSnapshot.initiate({
             documentId: '$document-0',
-          })
+          }),
         )
-        .unwrap()
+        .unwrap(),
     ).rejects.toEqual({
       message: 'Could not load the document: Some Error',
       name: 'LoadFailed',
@@ -177,18 +177,18 @@ describe('getDocumentSnapshot', () => {
     store.dispatch(
       documentSnapshotApi.endpoints.getDocumentSnapshot.initiate({
         documentId: '$document-0',
-      })
+      }),
     );
 
     await waitFor(() =>
       expect(
         documentSnapshotApi.endpoints.getDocumentSnapshot.select({
           documentId: '$document-0',
-        })(store.getState()).data
+        })(store.getState()).data,
       ).toEqual({
         event: snapshotEvent1,
         data: chunks1[0].content.data,
-      })
+      }),
     );
 
     const document2 = mockWhiteboardDocumentSnapshot();
@@ -204,11 +204,11 @@ describe('getDocumentSnapshot', () => {
       expect(
         documentSnapshotApi.endpoints.getDocumentSnapshot.select({
           documentId: '$document-0',
-        })(store.getState()).data
+        })(store.getState()).data,
       ).toEqual({
         event: snapshotEvent2,
         data: chunks2[0].content.data,
-      })
+      }),
     );
   });
 
@@ -228,18 +228,18 @@ describe('getDocumentSnapshot', () => {
     store.dispatch(
       documentSnapshotApi.endpoints.getDocumentSnapshot.initiate({
         documentId: '$document-0',
-      })
+      }),
     );
 
     await waitFor(() =>
       expect(
         documentSnapshotApi.endpoints.getDocumentSnapshot.select({
           documentId: '$document-0',
-        })(store.getState()).data
+        })(store.getState()).data,
       ).toEqual({
         event: snapshotEvent1,
         data: chunks1[0].content.data,
-      })
+      }),
     );
 
     const document2 = mockWhiteboardDocumentSnapshot();
@@ -255,11 +255,11 @@ describe('getDocumentSnapshot', () => {
       expect(
         documentSnapshotApi.endpoints.getDocumentSnapshot.select({
           documentId: '$document-0',
-        })(store.getState()).data
+        })(store.getState()).data,
       ).toEqual({
         event: snapshotEvent2,
         data: chunks2[0].content.data,
-      })
+      }),
     );
   });
 
@@ -271,14 +271,14 @@ describe('getDocumentSnapshot', () => {
     store.dispatch(
       documentSnapshotApi.endpoints.getDocumentSnapshot.initiate({
         documentId: '$document-0',
-      })
+      }),
     );
 
     await waitFor(() =>
       expect(
         documentSnapshotApi.endpoints.getDocumentSnapshot.select({
           documentId: '$document-0',
-        })(store.getState())
+        })(store.getState()),
       ).toEqual(
         expect.objectContaining({
           isError: true,
@@ -286,8 +286,8 @@ describe('getDocumentSnapshot', () => {
             name: 'LoadFailed',
             message: 'Could not find the document',
           },
-        })
-      )
+        }),
+      ),
     );
 
     const document2 = mockWhiteboardDocumentSnapshot();
@@ -302,11 +302,11 @@ describe('getDocumentSnapshot', () => {
       expect(
         documentSnapshotApi.endpoints.getDocumentSnapshot.select({
           documentId: '$document-0',
-        })(store.getState()).data
+        })(store.getState()).data,
       ).toEqual({
         event: snapshotEvent2,
         data: chunks2[0].content.data,
-      })
+      }),
     );
   });
 });
@@ -318,7 +318,7 @@ describe('createDocument', () => {
     await expect(
       store
         .dispatch(documentSnapshotApi.endpoints.createDocument.initiate())
-        .unwrap()
+        .unwrap(),
     ).resolves.toEqual({
       event: expect.objectContaining({
         content: {},
@@ -328,7 +328,7 @@ describe('createDocument', () => {
 
     expect(widgetApi.sendRoomEvent).toBeCalledWith(
       'net.nordeck.whiteboard.document.create',
-      {}
+      {},
     );
   });
 
@@ -340,7 +340,7 @@ describe('createDocument', () => {
     await expect(
       store
         .dispatch(documentSnapshotApi.endpoints.createDocument.initiate())
-        .unwrap()
+        .unwrap(),
     ).rejects.toEqual({
       name: 'UpdateFailed',
       message: 'Could not create a document: Some Error',
@@ -359,7 +359,7 @@ describe('createDocumentSnapshot', () => {
         documentSnapshotApi.endpoints.createDocumentSnapshot.initiate({
           documentId: '$document-0',
           data: new Uint8Array([0, 8, 15]),
-        })
+        }),
       )
       .unwrap();
 
@@ -384,7 +384,7 @@ describe('createDocumentSnapshot', () => {
           rel_type: 'm.reference',
           event_id: '$document-0',
         },
-      }
+      },
     );
     expect(widgetApi.sendRoomEvent).toBeCalledWith(
       'net.nordeck.whiteboard.document.chunk',
@@ -396,7 +396,7 @@ describe('createDocumentSnapshot', () => {
           rel_type: 'm.reference',
           event_id: result.event.event_id,
         },
-      }
+      },
     );
   });
 
@@ -419,7 +419,7 @@ describe('createDocumentSnapshot', () => {
         documentSnapshotApi.endpoints.createDocumentSnapshot.initiate({
           documentId: '$document-0',
           data: new Uint8Array([0, 8, 15, ...range(0, 60000)]),
-        })
+        }),
       )
       .unwrap();
 
@@ -444,7 +444,7 @@ describe('createDocumentSnapshot', () => {
           rel_type: 'm.reference',
           event_id: '$document-0',
         },
-      }
+      },
     );
     expect(widgetApi.sendRoomEvent).toBeCalledWith(
       'net.nordeck.whiteboard.document.chunk',
@@ -456,7 +456,7 @@ describe('createDocumentSnapshot', () => {
           rel_type: 'm.reference',
           event_id: result.event.event_id,
         },
-      }
+      },
     );
     expect(widgetApi.sendRoomEvent).toBeCalledWith(
       'net.nordeck.whiteboard.document.chunk',
@@ -468,7 +468,7 @@ describe('createDocumentSnapshot', () => {
           rel_type: 'm.reference',
           event_id: result.event.event_id,
         },
-      }
+      },
     );
   });
 
@@ -483,9 +483,9 @@ describe('createDocumentSnapshot', () => {
           documentSnapshotApi.endpoints.createDocumentSnapshot.initiate({
             documentId: '$document-0',
             data: new Uint8Array([0, 8, 15]),
-          })
+          }),
         )
-        .unwrap()
+        .unwrap(),
     ).rejects.toEqual({
       name: 'UpdateFailed',
       message: 'Could not create document snapshot: Some Error',
@@ -508,7 +508,7 @@ describe('findLatestSnapshot', () => {
       });
 
     await expect(
-      findLatestSnapshot(widgetApi, '$document-0')
+      findLatestSnapshot(widgetApi, '$document-0'),
     ).resolves.toBeUndefined();
 
     expect(widgetApi.readEventRelations).toBeCalledTimes(2);
@@ -542,7 +542,7 @@ describe('findLatestSnapshot', () => {
       });
 
     await expect(
-      findLatestSnapshot(widgetApi, '$document-0')
+      findLatestSnapshot(widgetApi, '$document-0'),
     ).resolves.toBeUndefined();
 
     expect(widgetApi.readEventRelations).toBeCalledTimes(3);
@@ -559,7 +559,7 @@ describe('findLatestSnapshot', () => {
         from: undefined,
         limit: 1,
         relationType: 'm.reference',
-      }
+      },
     );
     expect(widgetApi.readEventRelations).toBeCalledWith(
       '$document-snapshot-0',
@@ -568,7 +568,7 @@ describe('findLatestSnapshot', () => {
         from: 'next-token',
         limit: 1,
         relationType: 'm.reference',
-      }
+      },
     );
   });
 
@@ -586,7 +586,7 @@ describe('findLatestSnapshot', () => {
       });
 
     await expect(
-      findLatestSnapshot(widgetApi, '$document-0')
+      findLatestSnapshot(widgetApi, '$document-0'),
     ).resolves.toBeUndefined();
 
     expect(widgetApi.readEventRelations).toBeCalledTimes(2);
@@ -603,7 +603,7 @@ describe('findLatestSnapshot', () => {
         from: undefined,
         limit: 50,
         relationType: 'm.reference',
-      }
+      },
     );
   });
 });

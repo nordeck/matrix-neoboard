@@ -49,14 +49,14 @@ export type StackItemChangeEntry = {
  * original operation was executed.
  */
 export type UndoRedoItemValidator = (
-  changes: StackItemChangeEntry[]
+  changes: StackItemChangeEntry[],
 ) => boolean;
 
 export class YDocumentUndoManager<T> implements DocumentUndoManager {
   private readonly didOperationSubject = new Subject<void>();
   private readonly undoManager: Y.UndoManager = new Y.UndoManager(
     this.docRoot,
-    { trackedOrigins: new Set([UNDO_MANAGER_SCOPE]), captureTimeout: 0 }
+    { trackedOrigins: new Set([UNDO_MANAGER_SCOPE]), captureTimeout: 0 },
   );
   private context: unknown | undefined;
 
@@ -69,10 +69,10 @@ export class YDocumentUndoManager<T> implements DocumentUndoManager {
      * item, beginning at the item that will be undo/redo'ed next.
      */
     private readonly keepUndoRedoItem: (
-      documentRoot: SharedMap<T>
+      documentRoot: SharedMap<T>,
     ) => UndoRedoItemValidator = () => () => true,
     private readonly applyAndNotifyChanges: (changes: () => void) => void,
-    private readonly documentDidChange: Observable<unknown>
+    private readonly documentDidChange: Observable<unknown>,
   ) {
     // save the current context (e.g. focused object) on the stack-item
     this.undoManager.on(
@@ -81,7 +81,7 @@ export class YDocumentUndoManager<T> implements DocumentUndoManager {
         if (this.context !== undefined) {
           event.stackItem.meta.set('context', this.context);
         }
-      }
+      },
     );
 
     this.documentDidChange.subscribe(() => {
@@ -95,12 +95,12 @@ export class YDocumentUndoManager<T> implements DocumentUndoManager {
       fromEvent(this.undoManager, 'stack-item-added'),
       fromEvent(this.undoManager, 'stack-item-popped'),
       fromEvent(this.undoManager, 'stack-cleared'),
-      this.didOperationSubject
+      this.didOperationSubject,
     ).pipe(
       map(() => ({
         canUndo: this.undoManager.canUndo(),
         canRedo: this.undoManager.canRedo(),
-      }))
+      })),
     );
   }
 
@@ -112,7 +112,7 @@ export class YDocumentUndoManager<T> implements DocumentUndoManager {
     return fromEvent(this.undoManager, 'stack-item-popped').pipe(
       mergeMap<unknown, T[]>((rawEvent) => {
         const [event] = rawEvent as [
-          { stackItem: StackItem; type: 'undo' | 'redo' }
+          { stackItem: StackItem; type: 'undo' | 'redo' },
         ];
 
         const context = event.stackItem.meta.get('context');
@@ -131,7 +131,7 @@ export class YDocumentUndoManager<T> implements DocumentUndoManager {
         }
 
         return [];
-      })
+      }),
     );
   }
 
@@ -172,12 +172,12 @@ export class YDocumentUndoManager<T> implements DocumentUndoManager {
 
       this.undoManager.undoStack = this.filterUndoRedoStack(
         transaction,
-        this.undoManager.undoStack
+        this.undoManager.undoStack,
       );
 
       this.undoManager.redoStack = this.filterUndoRedoStack(
         transaction,
-        this.undoManager.redoStack
+        this.undoManager.redoStack,
       );
 
       // emit the notification that the stack was updated
@@ -214,13 +214,13 @@ export class YDocumentUndoManager<T> implements DocumentUndoManager {
 /** Inspects a {@link StackItem} and extracts information about its contents. */
 function calculateStackItemChanges(
   transaction: Y.Transaction,
-  stackItem: StackItem
+  stackItem: StackItem,
 ): StackItemChangeEntry[] {
   const changes = new Map<string, StackItemChangeEntry>();
 
   function process(
     deletionSet: StackItem['deletions'],
-    type: 'insertion' | 'deletion'
+    type: 'insertion' | 'deletion',
   ) {
     Y.iterateDeletedStructs(transaction, deletionSet, (iitem) => {
       let next: Y.GC | Y.Item | null = iitem;

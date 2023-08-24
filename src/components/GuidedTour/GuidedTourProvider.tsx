@@ -39,7 +39,7 @@ type GuidedTourContextType = {
 };
 
 const GuidedTourContext = createContext<GuidedTourContextType | undefined>(
-  undefined
+  undefined,
 );
 
 export function useGuidedTour(): GuidedTourContextType {
@@ -47,7 +47,7 @@ export function useGuidedTour(): GuidedTourContextType {
 
   if (!context) {
     throw new Error(
-      'useGuidedTour can only be used inside a GuidedTourProvider'
+      'useGuidedTour can only be used inside a GuidedTourProvider',
     );
   }
 
@@ -91,7 +91,7 @@ export function GuidedTourProvider({ children }: PropsWithChildren<{}>) {
         }));
       },
     }),
-    [state]
+    [state],
   );
 
   return (

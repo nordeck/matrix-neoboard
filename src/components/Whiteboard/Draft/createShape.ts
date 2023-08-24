@@ -121,7 +121,7 @@ export function createShapeFromPoints({
               x: snapToGrid(e.x, gridCellSize),
               y: snapToGrid(e.y, gridCellSize),
             }
-          : e
+          : e,
       )
     : cursorPoints;
   const { offsetX, offsetY } = calculateBoundingRectForPoints(points);

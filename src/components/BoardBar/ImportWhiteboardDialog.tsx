@@ -58,7 +58,7 @@ export function ImportWhiteboardDialog({
   const selectFileButtonLabel = t(
     'boardBar.importWhiteboardDialog.selectFileLabel',
     'Selected file: “{{fileName}}”. Click to select a different file.',
-    { fileName: importedWhiteboard?.name ?? '' }
+    { fileName: importedWhiteboard?.name ?? '' },
   );
 
   const dialogTitleId = useId();
@@ -131,7 +131,7 @@ export function ImportWhiteboardDialog({
             </AlertTitle>
             {t(
               'boardBar.importWhiteboardDialog.successDescription',
-              "Your contents will be replaced. This operation can't be reverted."
+              "Your contents will be replaced. This operation can't be reverted.",
             )}
           </Alert>
         ) : (
@@ -141,7 +141,7 @@ export function ImportWhiteboardDialog({
             </AlertTitle>
             {t(
               'boardBar.importWhiteboardDialog.errorDescription',
-              "Your file can't be loaded. Please try again by selecting a different file."
+              "Your file can't be loaded. Please try again by selecting a different file.",
             )}
           </Alert>
         )}

@@ -39,7 +39,7 @@ export function useWhiteboardManager(): WhiteboardManager {
 
   if (!whiteboardManager) {
     throw new Error(
-      'useWhiteboardManager can only be used inside of <WhiteboardManagerProvider>'
+      'useWhiteboardManager can only be used inside of <WhiteboardManagerProvider>',
     );
   }
 

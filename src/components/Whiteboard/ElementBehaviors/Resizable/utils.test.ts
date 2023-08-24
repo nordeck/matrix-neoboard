@@ -87,7 +87,7 @@ describe('calculateDragOrigin', () => {
         dragOriginX: expectedDragOriginX,
         dragOriginY: expectedDragOriginY,
       });
-    }
+    },
   );
 });
 
@@ -147,15 +147,15 @@ describe('calculateDimensions', () => {
           event,
           startDimension,
           viewportWidth,
-          viewportHeight
-        )
+          viewportHeight,
+        ),
       ).toEqual({
         x: expectedX,
         y: expectedY,
         width: expectedWidth,
         height: expectedHeight,
       });
-    }
+    },
   );
 
   it.each`
@@ -188,15 +188,15 @@ describe('calculateDimensions', () => {
           event,
           startDimension,
           viewportWidth,
-          viewportHeight
-        )
+          viewportHeight,
+        ),
       ).toEqual({
         x: expectedX,
         y: expectedY,
         width: expectedWidth,
         height: expectedHeight,
       });
-    }
+    },
   );
 
   it('should ensure a minimum size', () => {
@@ -213,8 +213,8 @@ describe('calculateDimensions', () => {
         event,
         startDimension,
         viewportWidth,
-        viewportHeight
-      )
+        viewportHeight,
+      ),
     ).toEqual({
       x: 15,
       y: 30,
@@ -265,15 +265,15 @@ describe('calculateDimensions', () => {
           event,
           startDimension,
           viewportWidth,
-          viewportHeight
-        )
+          viewportHeight,
+        ),
       ).toEqual({
         x: expectedX,
         y: expectedY,
         width: expectedWidth,
         height: expectedHeight,
       });
-    }
+    },
   );
 
   it.each`
@@ -314,15 +314,15 @@ describe('calculateDimensions', () => {
           event,
           startDimension,
           viewportWidth,
-          viewportHeight
-        )
+          viewportHeight,
+        ),
       ).toEqual({
         x: expectedX,
         y: expectedY,
         width: expectedWidth,
         height: expectedHeight,
       });
-    }
+    },
   );
 
   it.each`
@@ -357,14 +357,14 @@ describe('calculateDimensions', () => {
           viewportWidth,
           viewportHeight,
           false,
-          40
-        )
+          40,
+        ),
       ).toEqual({
         x: expectedX,
         y: expectedY,
         width: expectedWidth,
         height: expectedHeight,
       });
-    }
+    },
   );
 });

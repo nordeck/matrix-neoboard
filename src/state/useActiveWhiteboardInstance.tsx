@@ -37,7 +37,7 @@ export function useActiveWhiteboardInstanceSlideIds(): string[] {
 
   return useLatestValue(
     () => whiteboardInstance.getSlideIds(),
-    whiteboardInstance.observeSlideIds()
+    whiteboardInstance.observeSlideIds(),
   );
 }
 
@@ -46,7 +46,7 @@ export function useActiveWhiteboardInstanceStatistics(): WhiteboardStatistics {
 
   return useLatestValue(
     () => whiteboardInstance.getWhiteboardStatistics(),
-    whiteboardInstance.observeWhiteboardStatistics()
+    whiteboardInstance.observeWhiteboardStatistics(),
   );
 }
 
@@ -62,11 +62,11 @@ export function useActiveSlide(): ActiveSlide {
   const whiteboardInstance = useActiveWhiteboardInstance();
   const observable = useMemo(
     () => whiteboardInstance.observeActiveSlideId(),
-    [whiteboardInstance]
+    [whiteboardInstance],
   );
   const activeSlideId = useLatestValue(
     () => whiteboardInstance.getActiveSlideId(),
-    observable
+    observable,
   );
 
   return {
@@ -83,7 +83,7 @@ export function useIsWhiteboardLoading(): { loading: boolean } {
   const whiteboardInstance = useActiveWhiteboardInstance();
   const loading = useLatestValue(
     () => whiteboardInstance.isLoading(),
-    whiteboardInstance.observeIsLoading()
+    whiteboardInstance.observeIsLoading(),
   );
 
   return { loading };
@@ -93,7 +93,7 @@ export function useUndoRedoState(): { canUndo: boolean; canRedo: boolean } {
   const whiteboardInstance = useActiveWhiteboardInstance();
   const observable = useMemo(
     () => whiteboardInstance.observeUndoRedoState(),
-    [whiteboardInstance]
+    [whiteboardInstance],
   );
 
   return useObservable(observable, { canUndo: false, canRedo: false });

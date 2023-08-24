@@ -33,19 +33,21 @@ describe('getWhiteboards', () => {
     const whiteboard0 = widgetApi.mockSendStateEvent(
       mockWhiteboard({
         origin_server_ts: 5,
-      })
+      }),
     );
     const whiteboard1 = widgetApi.mockSendStateEvent(
       mockWhiteboard({
         state_key: 'whiteboard-1',
         origin_server_ts: 4,
-      })
+      }),
     );
 
     const store = createStore({ widgetApi });
 
     await expect(
-      store.dispatch(whiteboardApi.endpoints.getWhiteboards.initiate()).unwrap()
+      store
+        .dispatch(whiteboardApi.endpoints.getWhiteboards.initiate())
+        .unwrap(),
     ).resolves.toEqual({
       entities: {
         [whiteboard0.state_key]: whiteboard0,
@@ -59,7 +61,9 @@ describe('getWhiteboards', () => {
     const store = createStore({ widgetApi });
 
     await expect(
-      store.dispatch(whiteboardApi.endpoints.getWhiteboards.initiate()).unwrap()
+      store
+        .dispatch(whiteboardApi.endpoints.getWhiteboards.initiate())
+        .unwrap(),
     ).resolves.toEqual({ entities: {}, ids: [] });
   });
 
@@ -69,7 +73,9 @@ describe('getWhiteboards', () => {
     const store = createStore({ widgetApi });
 
     await expect(
-      store.dispatch(whiteboardApi.endpoints.getWhiteboards.initiate()).unwrap()
+      store
+        .dispatch(whiteboardApi.endpoints.getWhiteboards.initiate())
+        .unwrap(),
     ).rejects.toEqual({
       message: 'Could not load whiteboards: Some Error',
       name: 'LoadFailed',
@@ -83,21 +89,21 @@ describe('getWhiteboards', () => {
 
     await waitFor(() =>
       expect(
-        whiteboardApi.endpoints.getWhiteboards.select()(store.getState()).data
-      ).toEqual({ entities: {}, ids: [] })
+        whiteboardApi.endpoints.getWhiteboards.select()(store.getState()).data,
+      ).toEqual({ entities: {}, ids: [] }),
     );
 
     const whiteboard = widgetApi.mockSendStateEvent(mockWhiteboard());
 
     await waitFor(() =>
       expect(
-        whiteboardApi.endpoints.getWhiteboards.select()(store.getState()).data
+        whiteboardApi.endpoints.getWhiteboards.select()(store.getState()).data,
       ).toEqual({
         entities: {
           [whiteboard.state_key]: whiteboard,
         },
         ids: [whiteboard.state_key],
-      })
+      }),
     );
   });
 
@@ -109,13 +115,13 @@ describe('getWhiteboards', () => {
 
     await waitFor(() =>
       expect(
-        whiteboardApi.endpoints.getWhiteboards.select()(store.getState()).data
+        whiteboardApi.endpoints.getWhiteboards.select()(store.getState()).data,
       ).toEqual({
         entities: {
           [whiteboard.state_key]: whiteboard,
         },
         ids: [whiteboard.state_key],
-      })
+      }),
     );
 
     // Delete whiteboard
@@ -131,8 +137,8 @@ describe('getWhiteboards', () => {
 
     await waitFor(() =>
       expect(
-        whiteboardApi.endpoints.getWhiteboards.select()(store.getState()).data
-      ).toEqual({ entities: {}, ids: [] })
+        whiteboardApi.endpoints.getWhiteboards.select()(store.getState()).data,
+      ).toEqual({ entities: {}, ids: [] }),
     );
   });
 });
@@ -148,9 +154,9 @@ describe('updateWhiteboard', () => {
           whiteboardApi.endpoints.updateWhiteboard.initiate({
             whiteboardId: 'whiteboard-0',
             content: whiteboard,
-          })
+          }),
         )
-        .unwrap()
+        .unwrap(),
     ).resolves.toEqual({
       event: expect.objectContaining({
         content: whiteboard,
@@ -163,7 +169,7 @@ describe('updateWhiteboard', () => {
       whiteboard,
       {
         stateKey: 'whiteboard-0',
-      }
+      },
     );
   });
 
@@ -184,9 +190,9 @@ describe('updateWhiteboard', () => {
           whiteboardApi.endpoints.updateWhiteboard.initiate({
             whiteboardId: 'whiteboard-0',
             content: whiteboard,
-          })
+          }),
         )
-        .unwrap()
+        .unwrap(),
     ).resolves.toEqual({
       event: expect.objectContaining({
         content: whiteboard,
@@ -197,7 +203,7 @@ describe('updateWhiteboard', () => {
     expect(widgetApi.sendStateEvent).toBeCalledWith(
       'net.nordeck.whiteboard',
       whiteboard,
-      { stateKey: 'whiteboard-0' }
+      { stateKey: 'whiteboard-0' },
     );
   });
 
@@ -212,9 +218,9 @@ describe('updateWhiteboard', () => {
           whiteboardApi.endpoints.updateWhiteboard.initiate({
             whiteboardId: 'whiteboard-0',
             content: mockWhiteboard().content,
-          })
+          }),
         )
-        .unwrap()
+        .unwrap(),
     ).rejects.toEqual({
       name: 'UpdateFailed',
       message: 'Could not update whiteboard: Some Error',
@@ -232,7 +238,7 @@ describe('updateWhiteboard', () => {
         whiteboardApi.endpoints.updateWhiteboard.initiate({
           whiteboardId: 'whiteboard-0',
           content: whiteboard,
-        })
+        }),
       )
       .unwrap();
     await store
@@ -240,7 +246,7 @@ describe('updateWhiteboard', () => {
         whiteboardApi.endpoints.updateWhiteboard.initiate({
           whiteboardId: 'whiteboard-0',
           content: whiteboard,
-        })
+        }),
       )
       .unwrap();
   });

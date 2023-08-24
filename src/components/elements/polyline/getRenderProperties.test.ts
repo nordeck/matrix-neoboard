@@ -29,7 +29,7 @@ describe('getRenderProperties', () => {
           { x: 2, y: 3 },
           { x: 5, y: 10 },
         ],
-      })
+      }),
     ).toEqual({
       strokeColor: '#00ffff',
       strokeWidth: 4,

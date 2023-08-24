@@ -60,7 +60,7 @@ export class PresentationManagerImpl implements PresentationManager {
   constructor(
     private readonly whiteboardInstance: WhiteboardInstance,
     private readonly communicationChannel: CommunicationChannel,
-    enableObserveVisibilityStateSubject?: Subject<boolean>
+    enableObserveVisibilityStateSubject?: Subject<boolean>,
   ) {
     this.communicationChannel
       .observeStatistics()
@@ -68,14 +68,14 @@ export class PresentationManagerImpl implements PresentationManager {
         filter(
           (statistics) =>
             this.currentPresenterSessionId !== undefined &&
-            this.currentPresenterSessionId === statistics.localSessionId
+            this.currentPresenterSessionId === statistics.localSessionId,
         ),
         map((statistics) =>
           Object.values(statistics.peerConnections)
             .filter(isPeerConnected)
-            .map((peer) => peer.remoteSessionId)
+            .map((peer) => peer.remoteSessionId),
         ),
-        distinctUntilChanged((a, b) => isEqual(a, b))
+        distinctUntilChanged((a, b) => isEqual(a, b)),
       )
       .subscribe(() => {
         // broadcast the current presentation state to also update users
@@ -85,7 +85,7 @@ export class PresentationManagerImpl implements PresentationManager {
         if (activeSlideId) {
           this.communicationChannel.broadcastMessage<PresentSlide>(
             PRESENT_SLIDE_MESSAGE,
-            { view: { isEditMode: this.isEditMode, slideId: activeSlideId } }
+            { view: { isEditMode: this.isEditMode, slideId: activeSlideId } },
           );
         }
       });
@@ -139,15 +139,15 @@ export class PresentationManagerImpl implements PresentationManager {
           () =>
             this.currentPresenterSessionId !== undefined &&
             this.currentPresenterSessionId ===
-              this.communicationChannel.getStatistics().localSessionId
-        )
+              this.communicationChannel.getStatistics().localSessionId,
+        ),
       )
       .subscribe((slideId) => {
         this.setEditMode(false);
 
         this.communicationChannel.broadcastMessage<PresentSlide>(
           PRESENT_SLIDE_MESSAGE,
-          { view: { isEditMode: false, slideId } }
+          { view: { isEditMode: false, slideId } },
         );
       });
   }
@@ -158,7 +158,7 @@ export class PresentationManagerImpl implements PresentationManager {
 
     this.communicationChannel.broadcastMessage<PresentSlide>(
       PRESENT_SLIDE_MESSAGE,
-      { view: undefined }
+      { view: undefined },
     );
     this.activeSlidePublisher?.unsubscribe();
   }
@@ -167,7 +167,7 @@ export class PresentationManagerImpl implements PresentationManager {
     return combineLatest([
       concat(
         defer(() => of(this.communicationChannel.getStatistics())),
-        this.communicationChannel.observeStatistics()
+        this.communicationChannel.observeStatistics(),
       ),
       this.currentPresenterSessionIdSubject,
       this.isEditModeSubject,
@@ -176,7 +176,7 @@ export class PresentationManagerImpl implements PresentationManager {
       map(([statistics, presenterSessionId, isEditMode]): PresentationState => {
         const presenterSession = presenterSessionId
           ? Object.values(statistics.peerConnections).find(
-              (c) => c.remoteSessionId === presenterSessionId
+              (c) => c.remoteSessionId === presenterSessionId,
             )
           : undefined;
 
@@ -197,7 +197,7 @@ export class PresentationManagerImpl implements PresentationManager {
 
         return { type: 'idle' };
       }),
-      distinctUntilChanged(isEqual)
+      distinctUntilChanged(isEqual),
     );
   }
 
@@ -210,7 +210,7 @@ export class PresentationManagerImpl implements PresentationManager {
     if (slideId) {
       this.communicationChannel.broadcastMessage<PresentSlide>(
         PRESENT_SLIDE_MESSAGE,
-        { view: { isEditMode, slideId } }
+        { view: { isEditMode, slideId } },
       );
     }
   }

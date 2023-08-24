@@ -121,7 +121,7 @@ export function CommunicationChannelStatisticsView({
                 </table>
               </td>
             </tr>
-          )
+          ),
         )}
       </tbody>
     </table>

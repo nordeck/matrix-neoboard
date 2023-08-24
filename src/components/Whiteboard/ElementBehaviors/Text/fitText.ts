@@ -72,7 +72,7 @@ export function getTextSize(
   width: number,
   height: number,
   content: { innerHTML?: string; innerText: string },
-  opts: { disableLigatures?: boolean; fontFamily?: string } = {}
+  opts: { disableLigatures?: boolean; fontFamily?: string } = {},
 ): {
   fontSize: number;
   paddingTop: number;

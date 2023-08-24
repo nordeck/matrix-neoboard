@@ -42,12 +42,12 @@ const whiteboardSessionsSchema = Joi.object<WhiteboardSessions, true>({
 }).unknown();
 
 export function isValidWhiteboardSessionsStateEvent(
-  event: StateEvent<unknown>
+  event: StateEvent<unknown>,
 ): event is StateEvent<WhiteboardSessions> {
   return isValidEvent(
     event,
     STATE_EVENT_WHITEBOARD_SESSIONS,
-    whiteboardSessionsSchema
+    whiteboardSessionsSchema,
   );
 }
 

@@ -74,7 +74,7 @@ describe('<SideOverviewBar/>', () => {
     const nav = screen.getByRole('navigation', { name: 'Slide Overview' });
 
     expect(
-      within(nav).getByRole('button', { name: 'Add slide' })
+      within(nav).getByRole('button', { name: 'Add slide' }),
     ).toBeInTheDocument();
 
     const tabList = within(nav).getByRole('tablist', { name: 'Slides' });
@@ -84,21 +84,21 @@ describe('<SideOverviewBar/>', () => {
 
     expect(tabs[0]).toHaveAccessibleName('Slide 1');
     expect(tabs[0]).toHaveAccessibleDescription(
-      /Press the M key to start a drag./
+      /Press the M key to start a drag./,
     );
     expect(tabs[0]).toHaveAttribute('aria-selected', 'true');
     expect(tabs[0]).toHaveAttribute('aria-haspopup', 'menu');
 
     expect(tabs[1]).toHaveAccessibleName('Slide 2');
     expect(tabs[1]).toHaveAccessibleDescription(
-      /Press the M key to start a drag./
+      /Press the M key to start a drag./,
     );
     expect(tabs[1]).toHaveAttribute('aria-selected', 'false');
     expect(tabs[1]).toHaveAttribute('aria-haspopup', 'menu');
 
     expect(tabs[2]).toHaveAccessibleName('Slide 3');
     expect(tabs[2]).toHaveAccessibleDescription(
-      /Press the M key to start a drag./
+      /Press the M key to start a drag./,
     );
     expect(tabs[2]).toHaveAttribute('aria-selected', 'false');
     expect(tabs[2]).toHaveAttribute('aria-haspopup', 'menu');
@@ -126,7 +126,7 @@ describe('<SideOverviewBar/>', () => {
           // we accept it for now.
           'nested-interactive': { enabled: false },
         },
-      })
+      }),
     ).toHaveNoViolations();
   });
 
@@ -137,7 +137,7 @@ describe('<SideOverviewBar/>', () => {
 
     expect(toolbar).toHaveAttribute(
       'data-guided-tour-target',
-      'slide-overview'
+      'slide-overview',
     );
   });
 
@@ -148,7 +148,7 @@ describe('<SideOverviewBar/>', () => {
 
     expect(screen.getAllByRole('tab')).toHaveLength(4);
     expect(
-      screen.getByRole('tab', { name: 'Slide 4', selected: true })
+      screen.getByRole('tab', { name: 'Slide 4', selected: true }),
     ).toBeInTheDocument();
   });
 
@@ -160,7 +160,7 @@ describe('<SideOverviewBar/>', () => {
 
     const menu = screen.getByRole('menu', { name: 'Slide 2' });
     await userEvent.click(
-      within(menu).getByRole('menuitem', { name: 'Delete' })
+      within(menu).getByRole('menuitem', { name: 'Delete' }),
     );
     await waitFor(() => expect(menu).not.toBeInTheDocument());
 
@@ -178,7 +178,7 @@ describe('<SideOverviewBar/>', () => {
     const menu = screen.getByRole('menu', { name: 'Slide 1' });
 
     expect(
-      within(menu).getByRole('menuitem', { name: 'Delete' })
+      within(menu).getByRole('menuitem', { name: 'Delete' }),
     ).toHaveAttribute('aria-disabled', 'true');
   });
 
@@ -196,7 +196,7 @@ describe('<SideOverviewBar/>', () => {
     const menu = screen.getByRole('menu', { name: 'Slide 2' });
 
     expect(
-      within(menu).getByRole('menuitem', { name: 'Delete' })
+      within(menu).getByRole('menuitem', { name: 'Delete' }),
     ).toHaveAttribute('aria-disabled', 'true');
   });
 
@@ -210,13 +210,13 @@ describe('<SideOverviewBar/>', () => {
     await userEvent.click(
       within(menu).getByRole('menuitem', {
         name: 'Bring all here',
-      })
+      }),
     );
     await waitFor(() => expect(menu).not.toBeInTheDocument());
 
     expect(communicationChannel.broadcastMessage).toBeCalledWith(
       'net.nordeck.whiteboard.focus_on',
-      { slideId: 'slide-1' }
+      { slideId: 'slide-1' },
     );
   });
 
@@ -231,12 +231,12 @@ describe('<SideOverviewBar/>', () => {
       within(menu).getByRole('menuitemcheckbox', {
         name: 'Lock',
         checked: false,
-      })
+      }),
     );
     await waitFor(() => expect(menu).not.toBeInTheDocument());
 
     expect(
-      screen.getByRole('tab', { name: 'Slide 2 (locked)' })
+      screen.getByRole('tab', { name: 'Slide 2 (locked)' }),
     ).toBeInTheDocument();
   });
 
@@ -256,7 +256,7 @@ describe('<SideOverviewBar/>', () => {
       within(menu).getByRole('menuitemcheckbox', {
         name: 'Lock',
         checked: true,
-      })
+      }),
     );
     await waitFor(() => expect(menu).not.toBeInTheDocument());
 
@@ -310,28 +310,28 @@ describe('<SideOverviewBar/>', () => {
 
     await waitForAnnouncement(
       baseElement,
-      /You have lifted a slide\. It is in position 2 of 3 in the list\./
+      /You have lifted a slide\. It is in position 2 of 3 in the list\./,
     );
 
     await userEvent.keyboard('{ArrowUp}');
 
     await waitForAnnouncement(
       baseElement,
-      'You have moved the slide to position 1 of 3.'
+      'You have moved the slide to position 1 of 3.',
     );
 
     await userEvent.keyboard('M');
 
     await waitForAnnouncement(
       baseElement,
-      /You have dropped the slide\. It has moved from position 2 to 1\./
+      /You have dropped the slide\. It has moved from position 2 to 1\./,
     );
 
     expect(tab).toHaveAccessibleName('Slide 1');
 
     // Moving the slide should not influence which slide is active
     expect(
-      screen.getByRole('tab', { name: 'Slide 2', selected: true })
+      screen.getByRole('tab', { name: 'Slide 2', selected: true }),
     ).toBeInTheDocument();
   });
 
@@ -366,13 +366,13 @@ describe('<SideOverviewBar/>', () => {
 
 async function waitForAnnouncement(
   element: HTMLElement,
-  message: string | RegExp
+  message: string | RegExp,
 ) {
   await waitFor(() => {
     expect(
       // We are not able to access an aria-live region via the testing library
       // eslint-disable-next-line testing-library/no-node-access
-      element.querySelector('[aria-live=assertive]')
+      element.querySelector('[aria-live=assertive]'),
     ).toHaveTextContent(message);
   });
 }

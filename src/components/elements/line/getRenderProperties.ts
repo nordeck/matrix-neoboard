@@ -27,7 +27,7 @@ type PolylineRenderProperties = {
 };
 
 export function getRenderProperties(
-  element: PathElement
+  element: PathElement,
 ): ElementRenderProperties & PolylineRenderProperties {
   const { width, height } = calculateBoundingRectForPoints(element.points);
 

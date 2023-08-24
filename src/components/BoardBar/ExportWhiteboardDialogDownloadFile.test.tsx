@@ -60,7 +60,7 @@ describe('<ExportWhiteboardDialogDownloadFile />', () => {
       <ExportWhiteboardDialogDownloadFile onClick={onClick}>
         Download
       </ExportWhiteboardDialogDownloadFile>,
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
 
     expect(screen.getByRole('link', { name: 'Download' })).toBeInTheDocument();
@@ -71,7 +71,7 @@ describe('<ExportWhiteboardDialogDownloadFile />', () => {
       <ExportWhiteboardDialogDownloadFile onClick={onClick}>
         Download
       </ExportWhiteboardDialogDownloadFile>,
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
 
     expect(screen.getByRole('link', { name: 'Download' })).toBeInTheDocument();
@@ -84,7 +84,7 @@ describe('<ExportWhiteboardDialogDownloadFile />', () => {
       <ExportWhiteboardDialogDownloadFile onClick={onClick}>
         Download
       </ExportWhiteboardDialogDownloadFile>,
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
 
     await userEvent.click(screen.getByRole('link', { name: 'Download' }));
@@ -97,7 +97,7 @@ describe('<ExportWhiteboardDialogDownloadFile />', () => {
       <ExportWhiteboardDialogDownloadFile onClick={onClick}>
         Download
       </ExportWhiteboardDialogDownloadFile>,
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
 
     const downloadButton = screen.getByRole('link', { name: 'Download' });
@@ -113,7 +113,7 @@ describe('<ExportWhiteboardDialogDownloadFile />', () => {
       <ExportWhiteboardDialogDownloadFile onClick={onClick}>
         Download
       </ExportWhiteboardDialogDownloadFile>,
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
 
     const downloadButton = screen.getByRole('link', { name: 'Download' });
@@ -137,7 +137,7 @@ describe('<ExportWhiteboardDialogDownloadFile />', () => {
       <ExportWhiteboardDialogDownloadFile onClick={onClick}>
         Download
       </ExportWhiteboardDialogDownloadFile>,
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
 
     expect(blobSpy).toBeCalledWith([
@@ -150,7 +150,7 @@ describe('<ExportWhiteboardDialogDownloadFile />', () => {
       <ExportWhiteboardDialogDownloadFile onClick={onClick}>
         Download
       </ExportWhiteboardDialogDownloadFile>,
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
 
     const link = await screen.findByRole('link', { name: 'Download' });

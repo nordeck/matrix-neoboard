@@ -27,7 +27,7 @@ import { WhiteboardDocumentExport } from './whiteboardDocumentExport';
 
 export function generateLoadWhiteboardFromExport(
   whiteboard: WhiteboardDocumentExport,
-  ownUserId: string
+  ownUserId: string,
 ): ChangeFn<WhiteboardDocument> {
   return (doc) => {
     const oldSlideIds = getNormalizedSlideIds(doc);

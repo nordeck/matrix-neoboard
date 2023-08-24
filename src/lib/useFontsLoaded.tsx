@@ -36,9 +36,9 @@ export function FontsLoadedContextProvider({
     const subscription = from(document.fonts.ready)
       .pipe(
         switchMap((fontFaceSet) =>
-          [...fontFaceSet].map((fontFace) => fontFace.loaded)
+          [...fontFaceSet].map((fontFace) => fontFace.loaded),
         ),
-        mergeAll()
+        mergeAll(),
       )
       .subscribe(() => {
         setFontsLoaded(true);

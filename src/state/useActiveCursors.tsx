@@ -27,14 +27,14 @@ export function useActiveCursors(): Record<string, Point> {
 
   const allActiveCursors = useObservable(
     slideInstance.observeCursorPositions(),
-    {}
+    {},
   );
   const activeCursors = useMemo(() => {
     return Object.fromEntries(
       Object.entries(allActiveCursors)
         // In case you want to test cursor behavior locally with two tabs but a
         // single user, remove this filter condition.
-        .filter(([userId]) => userId !== ownUserId)
+        .filter(([userId]) => userId !== ownUserId),
     );
   }, [allActiveCursors, ownUserId]);
 

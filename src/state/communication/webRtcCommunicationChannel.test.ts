@@ -124,7 +124,7 @@ describe('WebRtcCommunicationChannel', () => {
       signalingChannel,
       'whiteboard-id',
       enableObserveVisibilityStateSubject,
-      250
+      250,
     );
   });
 
@@ -150,7 +150,7 @@ describe('WebRtcCommunicationChannel', () => {
           urls: ['turn:turn.matrix.org'],
           username: 'user',
         },
-      }
+      },
     );
   });
 
@@ -257,10 +257,10 @@ describe('WebRtcCommunicationChannel', () => {
     joinedSubject.next(anotherSession);
 
     const messagesPromise = firstValueFrom(
-      channel.observeMessages().pipe(toArray())
+      channel.observeMessages().pipe(toArray()),
     );
     const statisticsPromise = firstValueFrom(
-      channel.observeMessages().pipe(toArray())
+      channel.observeMessages().pipe(toArray()),
     );
 
     channel.destroy();

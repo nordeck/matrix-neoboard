@@ -48,7 +48,7 @@ describe('ToDeviceMessageSignalingChannel', () => {
           new RTCIceCandidate({ candidate: 'candidate-0' }),
           new RTCIceCandidate({ candidate: 'candidate-1' }),
           null,
-        ]
+        ],
       );
 
       expect(widgetApi.sendToDeviceMessage).toBeCalledWith(
@@ -60,7 +60,7 @@ describe('ToDeviceMessageSignalingChannel', () => {
               sessionId: '@peer-session-id',
             }).content,
           },
-        }
+        },
       );
     });
 
@@ -72,7 +72,7 @@ describe('ToDeviceMessageSignalingChannel', () => {
         new RTCSessionDescription({
           type: 'offer',
           sdp: 'sdp',
-        })
+        }),
       );
 
       expect(widgetApi.sendToDeviceMessage).toBeCalledWith(
@@ -84,7 +84,7 @@ describe('ToDeviceMessageSignalingChannel', () => {
               sessionId: '@peer-session-id',
             }).content,
           },
-        }
+        },
       );
     });
 
@@ -93,8 +93,8 @@ describe('ToDeviceMessageSignalingChannel', () => {
         channel.observeSignaling(
           '@peer-user-id',
           '@session-id',
-          '@connection-id'
-        )
+          '@connection-id',
+        ),
       );
 
       widgetApi.mockSendToDeviceMessage(mockConnectionSignalingCandidates());
@@ -114,8 +114,8 @@ describe('ToDeviceMessageSignalingChannel', () => {
         channel.observeSignaling(
           '@peer-user-id',
           '@session-id',
-          '@connection-id'
-        )
+          '@connection-id',
+        ),
       );
 
       widgetApi.mockSendToDeviceMessage(mockConnectionSignalingDescription());
@@ -134,9 +134,9 @@ describe('ToDeviceMessageSignalingChannel', () => {
           channel.observeSignaling(
             '@peer-user-id',
             '@session-id',
-            '@connection-id'
-          )
-        )
+            '@connection-id',
+          ),
+        ),
       ).resolves.toEqual({
         candidates: undefined,
         description: new RTCSessionDescription({ type: 'offer', sdp: 'sdp' }),
@@ -148,20 +148,22 @@ describe('ToDeviceMessageSignalingChannel', () => {
         channel.observeSignaling(
           '@peer-user-id',
           '@session-id',
-          '@connection-id'
-        )
+          '@connection-id',
+        ),
       );
 
       widgetApi.mockSendToDeviceMessage(
-        mockConnectionSignalingDescription({ sender: '@another-user-id' })
+        mockConnectionSignalingDescription({ sender: '@another-user-id' }),
       );
       widgetApi.mockSendToDeviceMessage(
-        mockConnectionSignalingDescription({ sessionId: '@another-session-id' })
+        mockConnectionSignalingDescription({
+          sessionId: '@another-session-id',
+        }),
       );
       widgetApi.mockSendToDeviceMessage(
         mockConnectionSignalingDescription({
           connectionId: '@another-connection-id',
-        })
+        }),
       );
       widgetApi.mockSendToDeviceMessage(mockConnectionSignalingDescription());
 
@@ -176,8 +178,8 @@ describe('ToDeviceMessageSignalingChannel', () => {
         channel.observeSignaling(
           '@peer-user-id',
           '@session-id',
-          '@connection-id'
-        )
+          '@connection-id',
+        ),
       );
 
       widgetApi.mockSendToDeviceMessage(
@@ -185,7 +187,7 @@ describe('ToDeviceMessageSignalingChannel', () => {
           description: {
             type: 'wrongType' as 'offer',
           },
-        })
+        }),
       );
 
       widgetApi.mockSendToDeviceMessage(mockConnectionSignalingDescription());
@@ -200,7 +202,7 @@ describe('ToDeviceMessageSignalingChannel', () => {
       const signalingPromise = firstValueFrom(
         channel
           .observeSignaling('@peer-user-id', '@session-id', '@connection-id')
-          .pipe(toArray())
+          .pipe(toArray()),
       );
 
       channel.destroy();
@@ -224,7 +226,7 @@ describe('ToDeviceMessageSignalingChannel', () => {
         new RTCSessionDescription({
           type: 'offer',
           sdp: 'sdp',
-        })
+        }),
       );
 
       const { content, type } = mockConnectionSignalingDescription({
@@ -238,7 +240,7 @@ describe('ToDeviceMessageSignalingChannel', () => {
           '@peer-user-id': {
             '*': { content, type },
           },
-        }
+        },
       );
     });
 
@@ -247,8 +249,8 @@ describe('ToDeviceMessageSignalingChannel', () => {
         channel.observeSignaling(
           '@peer-user-id',
           '@session-id',
-          '@connection-id'
-        )
+          '@connection-id',
+        ),
       );
 
       widgetApi.mockSendToDeviceMessage(mockConnectionSignalingDescription());
@@ -256,7 +258,7 @@ describe('ToDeviceMessageSignalingChannel', () => {
         mockConnectionSignalingDescription({
           encrypted: true,
           description: { type: 'offer', sdp: 'encrypted-sdp' },
-        })
+        }),
       );
 
       await expect(signalingPromise).resolves.toEqual({

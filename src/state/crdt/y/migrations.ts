@@ -31,12 +31,12 @@ import { SharedMap } from './types';
  * - Change the value of fields (otherwise they can't be constant)
  */
 export type MigrationFn<T extends Record<string, unknown>> = (
-  doc: SharedMap<T>
+  doc: SharedMap<T>,
 ) => void;
 
 export function createMigrations<T extends Record<string, unknown>>(
   migrationFns: MigrationFn<T>[],
-  version: string
+  version: string,
 ): Uint8Array[] {
   const doc = new Y.Doc();
   // Don't change the hardcoded clientID, as it makes sure that the

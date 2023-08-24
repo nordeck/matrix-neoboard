@@ -78,6 +78,6 @@ describe('<DeleteShortcut>', () => {
 
       expect(activeSlide.getElement('element-1')).toBeUndefined();
       expect(activeSlide.getActiveElementId()).toBeUndefined();
-    }
+    },
   );
 });

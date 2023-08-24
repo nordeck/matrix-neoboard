@@ -93,7 +93,7 @@ describe('<ColorPicker/>', () => {
     expect(
       within(firstRow)
         .getAllByRole('button')
-        .map((e) => [e.getAttribute('aria-label'), e.getAttribute('tabindex')])
+        .map((e) => [e.getAttribute('aria-label'), e.getAttribute('tabindex')]),
     ).toEqual([
       ['White', '-1'],
       ['Red', '-1'],
@@ -111,7 +111,7 @@ describe('<ColorPicker/>', () => {
     expect(
       within(secondRow)
         .getAllByRole('button')
-        .map((e) => [e.getAttribute('aria-label'), e.getAttribute('tabindex')])
+        .map((e) => [e.getAttribute('aria-label'), e.getAttribute('tabindex')]),
     ).toEqual([
       ['Light green', '-1'],
       ['Lime', '-1'],
@@ -130,7 +130,7 @@ describe('<ColorPicker/>', () => {
     const { container } = render(<ColorPicker />, { wrapper: Wrapper });
 
     expect(
-      screen.getByRole('button', { name: 'Pick a color' })
+      screen.getByRole('button', { name: 'Pick a color' }),
     ).toBeInTheDocument();
 
     expect(await axe(container)).toHaveNoViolations();
@@ -142,7 +142,7 @@ describe('<ColorPicker/>', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Pick a color' }));
 
     expect(
-      await screen.findByRole('grid', { name: 'Colors' })
+      await screen.findByRole('grid', { name: 'Colors' }),
     ).toBeInTheDocument();
 
     expect(
@@ -152,7 +152,7 @@ describe('<ColorPicker/>', () => {
           // i.e. <body/>. In that case we get false positive warning
           region: { enabled: false },
         },
-      })
+      }),
     ).toHaveNoViolations();
   });
 
@@ -210,7 +210,7 @@ describe('<ColorPicker/>', () => {
       act(() => setActiveColor(fromColor));
 
       await userEvent.click(
-        screen.getByRole('button', { name: 'Pick a color' })
+        screen.getByRole('button', { name: 'Pick a color' }),
       );
       const grid = await screen.findByRole('grid', { name: 'Colors' });
 
@@ -234,7 +234,7 @@ describe('<ColorPicker/>', () => {
       expect(activeColor).toBe(fromColor);
       await userEvent.keyboard('[Enter]');
       expect(activeColor).toBe(toColor);
-    }
+    },
   );
 
   it('should not move focus to left if the focus on the first element', async () => {

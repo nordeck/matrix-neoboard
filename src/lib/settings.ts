@@ -16,7 +16,7 @@
 
 export function getSetting(
   name: string,
-  defaultValue: unknown = undefined
+  defaultValue: unknown = undefined,
 ): unknown {
   try {
     const value = localStorage.getItem(name);

@@ -39,7 +39,7 @@ export function UndoRedoShortcuts() {
       }
     },
     { scopes: HOTKEY_SCOPE_WHITEBOARD, enableOnContentEditable: true },
-    [isViewingPresentation, whiteboardManager]
+    [isViewingPresentation, whiteboardManager],
   );
 
   useHotkeys(
@@ -57,7 +57,7 @@ export function UndoRedoShortcuts() {
       }
     },
     { scopes: HOTKEY_SCOPE_WHITEBOARD, enableOnContentEditable: true },
-    [isViewingPresentation, whiteboardManager]
+    [isViewingPresentation, whiteboardManager],
   );
 
   return null;

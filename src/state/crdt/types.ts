@@ -19,7 +19,7 @@ import { SharedMap } from './y';
 
 /** A callback for modifying a document. */
 export type ChangeFn<T extends Record<string, unknown>> = (
-  doc: SharedMap<T>
+  doc: SharedMap<T>,
 ) => void;
 
 /** Statistics of a document. */
@@ -32,7 +32,7 @@ export type DocumentStatistics = {
 
 /** Validate the content of the document */
 export type DocumentValidator<T extends Record<string, unknown>> = (
-  document: Document<Record<string, unknown>>
+  document: Document<Record<string, unknown>>,
 ) => document is Document<T>;
 
 /** A Conflict-free Replicated Data Type (CRDT). */
@@ -105,7 +105,7 @@ export type DocumentUndoManager = {
    * @param validation - a type guard filter and cast the emitted values
    */
   onPop<T = unknown>(
-    validation: (context: unknown) => context is T
+    validation: (context: unknown) => context is T,
   ): Observable<T>;
 
   /**

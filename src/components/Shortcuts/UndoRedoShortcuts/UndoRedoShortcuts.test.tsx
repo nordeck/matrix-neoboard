@@ -69,13 +69,13 @@ describe('<UndoRedoShortcuts>', () => {
     });
 
     expect(
-      whiteboardManager.getActiveWhiteboardInstance()?.getSlideIds()
+      whiteboardManager.getActiveWhiteboardInstance()?.getSlideIds(),
     ).toHaveLength(2);
 
     await userEvent.keyboard('{Control>}z{/Control}');
 
     expect(
-      whiteboardManager.getActiveWhiteboardInstance()?.getSlideIds()
+      whiteboardManager.getActiveWhiteboardInstance()?.getSlideIds(),
     ).toHaveLength(1);
   });
 
@@ -91,13 +91,13 @@ describe('<UndoRedoShortcuts>', () => {
     });
 
     expect(
-      whiteboardManager.getActiveWhiteboardInstance()?.getSlideIds()
+      whiteboardManager.getActiveWhiteboardInstance()?.getSlideIds(),
     ).toHaveLength(2);
 
     await userEvent.keyboard('{Meta>}z{/Meta}');
 
     expect(
-      whiteboardManager.getActiveWhiteboardInstance()?.getSlideIds()
+      whiteboardManager.getActiveWhiteboardInstance()?.getSlideIds(),
     ).toHaveLength(1);
   });
 
@@ -106,7 +106,7 @@ describe('<UndoRedoShortcuts>', () => {
       <DisableWhiteboardHotkeys>
         <UndoRedoShortcuts />
       </DisableWhiteboardHotkeys>,
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
 
     act(() => {
@@ -114,13 +114,13 @@ describe('<UndoRedoShortcuts>', () => {
     });
 
     expect(
-      whiteboardManager.getActiveWhiteboardInstance()?.getSlideIds()
+      whiteboardManager.getActiveWhiteboardInstance()?.getSlideIds(),
     ).toHaveLength(2);
 
     await userEvent.keyboard('{Control>}z{/Control}');
 
     expect(
-      whiteboardManager.getActiveWhiteboardInstance()?.getSlideIds()
+      whiteboardManager.getActiveWhiteboardInstance()?.getSlideIds(),
     ).toHaveLength(2);
   });
 
@@ -134,13 +134,13 @@ describe('<UndoRedoShortcuts>', () => {
     });
 
     expect(
-      whiteboardManager.getActiveWhiteboardInstance()?.getSlideIds()
+      whiteboardManager.getActiveWhiteboardInstance()?.getSlideIds(),
     ).toHaveLength(2);
 
     await userEvent.keyboard('{Control>}z{/Control}');
 
     expect(
-      whiteboardManager.getActiveWhiteboardInstance()?.getSlideIds()
+      whiteboardManager.getActiveWhiteboardInstance()?.getSlideIds(),
     ).toHaveLength(2);
   });
 
@@ -155,15 +155,15 @@ describe('<UndoRedoShortcuts>', () => {
       });
 
       expect(
-        whiteboardManager.getActiveWhiteboardInstance()?.getSlideIds()
+        whiteboardManager.getActiveWhiteboardInstance()?.getSlideIds(),
       ).toHaveLength(1);
 
       await userEvent.keyboard(text);
 
       expect(
-        whiteboardManager.getActiveWhiteboardInstance()?.getSlideIds()
+        whiteboardManager.getActiveWhiteboardInstance()?.getSlideIds(),
       ).toHaveLength(2);
-    }
+    },
   );
 
   it('should redo with meta+shift+z on mac os', async () => {
@@ -179,13 +179,13 @@ describe('<UndoRedoShortcuts>', () => {
     });
 
     expect(
-      whiteboardManager.getActiveWhiteboardInstance()?.getSlideIds()
+      whiteboardManager.getActiveWhiteboardInstance()?.getSlideIds(),
     ).toHaveLength(1);
 
     await userEvent.keyboard('{Meta>}{Shift>}z{/Shift}{/Meta}');
 
     expect(
-      whiteboardManager.getActiveWhiteboardInstance()?.getSlideIds()
+      whiteboardManager.getActiveWhiteboardInstance()?.getSlideIds(),
     ).toHaveLength(2);
   });
 
@@ -194,7 +194,7 @@ describe('<UndoRedoShortcuts>', () => {
       <DisableWhiteboardHotkeys>
         <UndoRedoShortcuts />
       </DisableWhiteboardHotkeys>,
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
 
     act(() => {
@@ -203,13 +203,13 @@ describe('<UndoRedoShortcuts>', () => {
     });
 
     expect(
-      whiteboardManager.getActiveWhiteboardInstance()?.getSlideIds()
+      whiteboardManager.getActiveWhiteboardInstance()?.getSlideIds(),
     ).toHaveLength(1);
 
     await userEvent.keyboard('{Control>}{Shift>}z{/Shift}{/Control}');
 
     expect(
-      whiteboardManager.getActiveWhiteboardInstance()?.getSlideIds()
+      whiteboardManager.getActiveWhiteboardInstance()?.getSlideIds(),
     ).toHaveLength(1);
   });
 
@@ -224,13 +224,13 @@ describe('<UndoRedoShortcuts>', () => {
     });
 
     expect(
-      whiteboardManager.getActiveWhiteboardInstance()?.getSlideIds()
+      whiteboardManager.getActiveWhiteboardInstance()?.getSlideIds(),
     ).toHaveLength(1);
 
     await userEvent.keyboard('{Control>}{Shift>}z{/Shift}{/Control}');
 
     expect(
-      whiteboardManager.getActiveWhiteboardInstance()?.getSlideIds()
+      whiteboardManager.getActiveWhiteboardInstance()?.getSlideIds(),
     ).toHaveLength(1);
   });
 });

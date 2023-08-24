@@ -33,7 +33,7 @@ export function usePresentationMode(): UsePresentationMode {
       activeWhiteboardInstance
         .getPresentationManager()
         .observePresentationState(),
-    [activeWhiteboardInstance]
+    [activeWhiteboardInstance],
   );
 
   const presentationState = useObservable(observable, { type: 'idle' });
@@ -52,6 +52,6 @@ export function usePresentationMode(): UsePresentationMode {
         }
       },
     }),
-    [activeWhiteboardInstance, presentationState]
+    [activeWhiteboardInstance, presentationState],
   );
 }

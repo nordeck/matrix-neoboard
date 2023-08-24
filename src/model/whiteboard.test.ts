@@ -29,7 +29,7 @@ describe('isValidWhiteboardStateEvent', () => {
         state_key: '',
         sender: '@user-id',
         type: 'net.nordeck.whiteboard',
-      })
+      }),
     ).toBe(true);
   });
 
@@ -46,7 +46,7 @@ describe('isValidWhiteboardStateEvent', () => {
         state_key: '',
         sender: '@user-id',
         type: 'net.nordeck.whiteboard',
-      })
+      }),
     ).toBe(true);
   });
 
@@ -68,7 +68,7 @@ describe('isValidWhiteboardStateEvent', () => {
         state_key: '',
         sender: '@user-id',
         type: 'net.nordeck.whiteboard',
-      })
+      }),
     ).toBe(false);
   });
 });

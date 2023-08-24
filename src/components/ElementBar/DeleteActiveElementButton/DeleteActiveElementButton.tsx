@@ -33,7 +33,7 @@ export function DeleteActiveElementButton() {
 
   const deleteActiveElementLabel = t(
     'elementBar.deleteElement',
-    'Delete element'
+    'Delete element',
   );
 
   return (

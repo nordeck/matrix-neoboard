@@ -58,11 +58,11 @@ describe('<UndoRedoBar/>', () => {
     const toolbar = screen.getByRole('toolbar', { name: 'Undo' });
 
     expect(
-      within(toolbar).getByRole('button', { name: 'Undo' })
+      within(toolbar).getByRole('button', { name: 'Undo' }),
     ).toBeInTheDocument();
 
     expect(
-      within(toolbar).getByRole('button', { name: 'Redo' })
+      within(toolbar).getByRole('button', { name: 'Redo' }),
     ).toBeInTheDocument();
   });
 
@@ -87,7 +87,7 @@ describe('<UndoRedoBar/>', () => {
     });
 
     expect(
-      whiteboardManager.getActiveWhiteboardInstance()?.getSlideIds()
+      whiteboardManager.getActiveWhiteboardInstance()?.getSlideIds(),
     ).toHaveLength(2);
     expect(undoButton).toBeEnabled();
     expect(redoButton).toBeDisabled();
@@ -95,7 +95,7 @@ describe('<UndoRedoBar/>', () => {
     await userEvent.click(undoButton);
 
     expect(
-      whiteboardManager.getActiveWhiteboardInstance()?.getSlideIds()
+      whiteboardManager.getActiveWhiteboardInstance()?.getSlideIds(),
     ).toHaveLength(1);
     expect(undoButton).toBeDisabled();
     expect(redoButton).toBeEnabled();
@@ -103,7 +103,7 @@ describe('<UndoRedoBar/>', () => {
     await userEvent.click(redoButton);
 
     expect(
-      whiteboardManager.getActiveWhiteboardInstance()?.getSlideIds()
+      whiteboardManager.getActiveWhiteboardInstance()?.getSlideIds(),
     ).toHaveLength(2);
     expect(undoButton).toBeEnabled();
     expect(redoButton).toBeDisabled();

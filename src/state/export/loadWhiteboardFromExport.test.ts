@@ -40,7 +40,7 @@ describe('generateLoadWhiteboardFromExport', () => {
 
     const importWhiteboard = generateLoadWhiteboardFromExport(
       exportDocument,
-      '@user-id'
+      '@user-id',
     );
     document.performChange(importWhiteboard);
 
@@ -97,7 +97,7 @@ describe('generateLoadWhiteboardFromExport', () => {
 
     const importWhiteboard = generateLoadWhiteboardFromExport(
       exportDocument,
-      '@user-id'
+      '@user-id',
     );
     document.performChange(importWhiteboard);
 
@@ -138,7 +138,7 @@ describe('generateLoadWhiteboardFromExport', () => {
 
     const importWhiteboard = generateLoadWhiteboardFromExport(
       exportDocument,
-      '@user-id'
+      '@user-id',
     );
     document.performChange(importWhiteboard);
 

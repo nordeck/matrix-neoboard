@@ -61,25 +61,25 @@ describe('<ToolsBar/>', () => {
     });
 
     expect(
-      within(radiogroup).getByRole('radio', { name: 'Select' })
+      within(radiogroup).getByRole('radio', { name: 'Select' }),
     ).toBeChecked();
     expect(
-      within(radiogroup).getByRole('radio', { name: 'Text' })
+      within(radiogroup).getByRole('radio', { name: 'Text' }),
     ).not.toBeChecked();
     expect(
-      within(radiogroup).getByRole('radio', { name: 'Pen' })
+      within(radiogroup).getByRole('radio', { name: 'Pen' }),
     ).not.toBeChecked();
     expect(
-      within(radiogroup).getByRole('radio', { name: 'Ellipse' })
+      within(radiogroup).getByRole('radio', { name: 'Ellipse' }),
     ).not.toBeChecked();
     expect(
-      within(radiogroup).getByRole('radio', { name: 'Rectangle' })
+      within(radiogroup).getByRole('radio', { name: 'Rectangle' }),
     ).not.toBeChecked();
     expect(
-      within(radiogroup).getByRole('radio', { name: 'Triangle' })
+      within(radiogroup).getByRole('radio', { name: 'Triangle' }),
     ).not.toBeChecked();
     expect(
-      within(radiogroup).getByRole('radio', { name: 'Line' })
+      within(radiogroup).getByRole('radio', { name: 'Line' }),
     ).not.toBeChecked();
   });
 

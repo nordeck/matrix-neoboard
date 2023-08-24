@@ -23,7 +23,7 @@ export function calculateResizeHandlePosition(
   position: ResizeHandlePosition,
   containerWidth: number,
   containerHeight: number,
-  scale: number
+  scale: number,
 ): {
   x: number;
   y: number;
@@ -42,7 +42,7 @@ export function calculateResizeHandlePosition(
         // Make sure we never get negative dimensions, if the element is too small
         width: Math.max(
           0,
-          containerWidth + 2 * selectionBorderPadding - handleWidth
+          containerWidth + 2 * selectionBorderPadding - handleWidth,
         ),
         height: handleWidth,
         cursor: 'ns-resize',
@@ -62,7 +62,7 @@ export function calculateResizeHandlePosition(
         width: handleWidth,
         height: Math.max(
           0,
-          containerHeight + 2 * selectionBorderPadding - handleWidth
+          containerHeight + 2 * selectionBorderPadding - handleWidth,
         ),
         cursor: 'ew-resize',
       };
@@ -80,7 +80,7 @@ export function calculateResizeHandlePosition(
         y: containerHeight - handleWidth / 2 + selectionBorderPadding,
         width: Math.max(
           0,
-          containerWidth + 2 * selectionBorderPadding - handleWidth
+          containerWidth + 2 * selectionBorderPadding - handleWidth,
         ),
         height: handleWidth,
         cursor: 'ns-resize',
@@ -100,7 +100,7 @@ export function calculateResizeHandlePosition(
         width: handleWidth,
         height: Math.max(
           0,
-          containerHeight + 2 * selectionBorderPadding - handleWidth
+          containerHeight + 2 * selectionBorderPadding - handleWidth,
         ),
         cursor: 'ew-resize',
       };
@@ -146,14 +146,14 @@ export function ResizeHandle({
     handlePosition,
     containerWidth,
     containerHeight,
-    scale
+    scale,
   );
 
   const dispatchDragEvent = useCallback(
     (
       dragEvent: Dispatch<DragEvent> | undefined,
       event: DraggableEvent,
-      data: DraggableData
+      data: DraggableData,
     ) => {
       if (dragEvent) {
         dragEvent({
@@ -167,28 +167,28 @@ export function ResizeHandle({
         });
       }
     },
-    [calculateSvgCoords, scale]
+    [calculateSvgCoords, scale],
   );
 
   const handleDrag = useCallback(
     (event: DraggableEvent, data: DraggableData) => {
       dispatchDragEvent(onDrag, event, data);
     },
-    [onDrag, dispatchDragEvent]
+    [onDrag, dispatchDragEvent],
   );
 
   const handleStart = useCallback(
     (event: DraggableEvent, data: DraggableData) => {
       dispatchDragEvent(onDragStart, event, data);
     },
-    [onDragStart, dispatchDragEvent]
+    [onDragStart, dispatchDragEvent],
   );
 
   const handleStop = useCallback(
     (event: DraggableEvent, data: DraggableData) => {
       dispatchDragEvent(onDragStop, event, data);
     },
-    [onDragStop, dispatchDragEvent]
+    [onDragStop, dispatchDragEvent],
   );
 
   const handleMouseDown = useCallback((ev: MouseEvent) => {

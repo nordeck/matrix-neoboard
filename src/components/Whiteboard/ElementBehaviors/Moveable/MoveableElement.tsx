@@ -100,7 +100,7 @@ export function MoveableElement({
       setElementOverride,
       viewportHeight,
       viewportWidth,
-    ]
+    ],
   );
 
   const handleStop = useCallback(() => {

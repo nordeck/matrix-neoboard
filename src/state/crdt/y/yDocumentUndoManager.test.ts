@@ -72,7 +72,7 @@ describe('YDocumentUndoManager', () => {
     });
 
     const changes = firstValueFrom(
-      yDoc.observeChanges().pipe(map((d) => d.toJSON()))
+      yDoc.observeChanges().pipe(map((d) => d.toJSON())),
     );
     const persist = firstValueFrom(yDoc.observePersist());
     const publish = firstValueFrom(yDoc.observePublish());
@@ -96,7 +96,7 @@ describe('YDocumentUndoManager', () => {
     yUndoManager.undo();
 
     const changes = firstValueFrom(
-      yDoc.observeChanges().pipe(map((d) => d.toJSON()))
+      yDoc.observeChanges().pipe(map((d) => d.toJSON())),
     );
     const persist = firstValueFrom(yDoc.observePersist());
     const publish = firstValueFrom(yDoc.observePublish());
@@ -204,7 +204,7 @@ describe('YDocumentUndoManager', () => {
 
     const validate = (context: unknown): context is true => context === true;
     const undoContextValues = firstValueFrom(
-      undoManager.onPop(validate).pipe(take(2), toArray())
+      undoManager.onPop(validate).pipe(take(2), toArray()),
     );
 
     undoManager.undo(); // true
@@ -232,7 +232,7 @@ describe('YDocumentUndoManager', () => {
     const yDoc = YDocument.create<Example>(
       exampleMigrations,
       '0',
-      keepUndoRedoItem
+      keepUndoRedoItem,
     );
     const undoManager = yDoc.getUndoManager();
 
@@ -312,7 +312,7 @@ describe('YDocumentUndoManager', () => {
       const yUndoManager = yDoc.getUndoManager();
 
       const state = firstValueFrom(
-        yUndoManager.observeState().pipe(take(2), toArray())
+        yUndoManager.observeState().pipe(take(2), toArray()),
       );
 
       yDoc.performChange((doc) => {
@@ -335,7 +335,7 @@ describe('YDocumentUndoManager', () => {
       });
 
       const state = firstValueFrom(
-        yUndoManager.observeState().pipe(take(2), toArray())
+        yUndoManager.observeState().pipe(take(2), toArray()),
       );
 
       yUndoManager.undo();
@@ -362,7 +362,7 @@ describe('YDocumentUndoManager', () => {
       yDoc.mergeFrom(remoteDocument.store());
 
       const state = firstValueFrom(
-        yUndoManager.observeState().pipe(take(2), toArray())
+        yUndoManager.observeState().pipe(take(2), toArray()),
       );
 
       yUndoManager.undo();
@@ -385,7 +385,7 @@ describe('YDocumentUndoManager', () => {
       yUndoManager.undo();
 
       const state = firstValueFrom(
-        yUndoManager.observeState().pipe(take(2), toArray())
+        yUndoManager.observeState().pipe(take(2), toArray()),
       );
 
       yUndoManager.redo();
@@ -414,7 +414,7 @@ describe('YDocumentUndoManager', () => {
       yDoc.mergeFrom(remoteDocument.store());
 
       const state = firstValueFrom(
-        yUndoManager.observeState().pipe(take(2), toArray())
+        yUndoManager.observeState().pipe(take(2), toArray()),
       );
 
       yUndoManager.redo();
@@ -435,7 +435,7 @@ describe('YDocumentUndoManager', () => {
       const yDoc = YDocument.create<Example>(
         exampleMigrations,
         '0',
-        keepUndoRedoItem
+        keepUndoRedoItem,
       );
 
       const yUndoManager = yDoc.getUndoManager();
@@ -449,7 +449,7 @@ describe('YDocumentUndoManager', () => {
       yUndoManager.undo();
 
       const state = firstValueFrom(
-        yUndoManager.observeState().pipe(take(2), toArray())
+        yUndoManager.observeState().pipe(take(2), toArray()),
       );
 
       keepUndoRedoItem.mockReturnValue(() => false);

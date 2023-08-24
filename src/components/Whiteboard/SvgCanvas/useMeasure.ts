@@ -19,7 +19,7 @@ import { useMeasure as useMeasureInternal } from 'react-use';
 import { UseMeasureResult } from 'react-use/lib/useMeasure';
 
 export function useMeasure<
-  E extends HTMLElement | SVGElement = HTMLElement
+  E extends HTMLElement | SVGElement = HTMLElement,
 >(): UseMeasureResult<E> {
   const [ref, measuredRect] = useMeasureInternal<E>();
   const refObject = ref as unknown as RefObject<HTMLDivElement>;

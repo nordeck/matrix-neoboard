@@ -18,7 +18,7 @@
 
 export const nextItem = (
   list: Element | null,
-  item: Element | null
+  item: Element | null,
 ): Element | null => {
   if (!list) {
     return null;
@@ -44,7 +44,7 @@ export const nextItem = (
 
 export const previousItem = (
   list: Element | null,
-  item: Element | null
+  item: Element | null,
 ): Element | null => {
   function lastChild(element: Element | null): Element | null {
     while (element?.lastElementChild) {
@@ -73,8 +73,8 @@ export const moveFocus = (
   currentFocus: Element | null,
   traversalFunction: (
     list: Element | null,
-    currentFocus: Element | null
-  ) => Element | null
+    currentFocus: Element | null,
+  ) => Element | null,
 ) => {
   let wrappedOnce = false;
   let nextFocus = traversalFunction(list, currentFocus);
@@ -105,7 +105,7 @@ export const moveFocus = (
 
 export function findParentRadioGroup(
   current: Element,
-  list: Element | null
+  list: Element | null,
 ): Element | null {
   const parent = current.parentElement;
 
@@ -128,7 +128,7 @@ export function findParentRadioGroup(
 }
 
 export function isRadioInput(
-  element: Element | null
+  element: Element | null,
 ): element is HTMLInputElement {
   return (
     element?.tagName === 'INPUT' &&

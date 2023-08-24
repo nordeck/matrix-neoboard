@@ -22,7 +22,7 @@ import { getRenderProperties as getRenderTriangleProperties } from '../../elemen
 import { canvas, textContent } from './utils';
 
 export function createWhiteboardPdfElementShape(
-  element: ShapeElement
+  element: ShapeElement,
 ): Content {
   switch (element.kind) {
     case 'rectangle':

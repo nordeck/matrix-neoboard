@@ -29,7 +29,7 @@ type TriangleRenderProperties = {
 };
 
 export function getRenderProperties(
-  shape: ShapeElement
+  shape: ShapeElement,
 ): ElementRenderProperties & TriangleRenderProperties {
   const width = shape.width;
   const height = shape.height;

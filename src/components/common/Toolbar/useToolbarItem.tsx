@@ -31,7 +31,7 @@ export type ToolbarState = {
 };
 
 export const ToolbarStateContext = createContext<ToolbarState | undefined>(
-  undefined
+  undefined,
 );
 
 export function useToolbarItem() {

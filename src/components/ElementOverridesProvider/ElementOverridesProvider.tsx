@@ -26,26 +26,26 @@ export type ElementOverride = {
 export type ElementOverrides = Record<string, ElementOverride>;
 
 export type ElementOverrideGetter = (
-  elementId: string
+  elementId: string,
 ) => ElementOverride | undefined;
 export const ElementOverrideGetterContext =
   createContext<ElementOverrideGetter>(() => undefined);
 
 export type ElementOverrideSetter = (
   elementId: string,
-  elementCoords: ElementOverride | undefined
+  elementCoords: ElementOverride | undefined,
 ) => void;
 export const ElementOverrideSetterContext =
   createContext<ElementOverrideSetter>(() => {});
 
 export function ElementOverridesProvider({ children }: PropsWithChildren<{}>) {
   const [elementOverrides, setElementOverrides] = useState<ElementOverrides>(
-    {}
+    {},
   );
 
   const getElementOverride = useCallback(
     (elementId: string) => elementOverrides[elementId],
-    [elementOverrides]
+    [elementOverrides],
   );
 
   const setElementOverride = useCallback(
@@ -62,7 +62,7 @@ export function ElementOverridesProvider({ children }: PropsWithChildren<{}>) {
         return newState;
       });
     },
-    []
+    [],
   );
 
   return (

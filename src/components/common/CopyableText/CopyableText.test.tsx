@@ -28,7 +28,7 @@ describe('<CopyableText/>', () => {
     expect(input).toHaveAttribute('readonly');
 
     expect(
-      screen.getByRole('button', { name: /copy to clipboard/i })
+      screen.getByRole('button', { name: /copy to clipboard/i }),
     ).toBeInTheDocument();
   });
 
@@ -51,7 +51,7 @@ describe('<CopyableText/>', () => {
 
   it('should have no accessibility violations', async () => {
     const { container } = render(
-      <CopyableText label="Example" text="Hello World" />
+      <CopyableText label="Example" text="Hello World" />,
     );
 
     expect(await axe(container)).toHaveNoViolations();

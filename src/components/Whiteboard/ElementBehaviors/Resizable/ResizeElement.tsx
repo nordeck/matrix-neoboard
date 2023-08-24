@@ -63,8 +63,8 @@ export function ResizeHandleWrapper({
             viewportWidth,
             viewportHeight,
             forceLockAspectRatio,
-            isShowGrid ? gridCellSize : undefined
-          )
+            isShowGrid ? gridCellSize : undefined,
+          ),
         );
       }
     },
@@ -76,7 +76,7 @@ export function ResizeHandleWrapper({
       viewportHeight,
       forceLockAspectRatio,
       isShowGrid,
-    ]
+    ],
   );
 
   return (
@@ -154,7 +154,7 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
         position: { x: dimensions.x, y: dimensions.y },
       });
     },
-    [elementId, setElementOverride]
+    [elementId, setElementOverride],
   );
 
   if (element?.type !== 'shape') {

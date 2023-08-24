@@ -90,7 +90,7 @@ export function SlideListItem({
           <Typography sx={visuallyHidden} id={descriptionId}>
             {t(
               'slideOverviewBar.dragAndDrop.dragInstructions',
-              'Press the M key to start a drag. When dragging you can use the arrow keys to move the item around and escape to cancel. Ensure your screen reader is in focus mode or forms mode.'
+              'Press the M key to start a drag. When dragging you can use the arrow keys to move the item around and escape to cancel. Ensure your screen reader is in focus mode or forms mode.',
             )}
           </Typography>
 
@@ -109,7 +109,7 @@ export function SlideListItem({
               active
                 ? alpha(
                     theme.palette.primary.main,
-                    theme.palette.action.activatedOpacity
+                    theme.palette.action.activatedOpacity,
                   )
                 : undefined
             }
