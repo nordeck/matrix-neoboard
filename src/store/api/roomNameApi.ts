@@ -45,7 +45,7 @@ export const roomNameApi = baseApi.injectEndpoints({
 
         try {
           const events = await widgetApi.receiveStateEvents(
-            STATE_EVENT_ROOM_NAME
+            STATE_EVENT_ROOM_NAME,
           );
 
           return {
@@ -65,7 +65,7 @@ export const roomNameApi = baseApi.injectEndpoints({
 
       async onCacheEntryAdded(
         _,
-        { cacheDataLoaded, cacheEntryRemoved, extra, updateCachedData }
+        { cacheDataLoaded, cacheEntryRemoved, extra, updateCachedData },
       ) {
         const widgetApi = await (extra as ThunkExtraArgument).widgetApi;
 

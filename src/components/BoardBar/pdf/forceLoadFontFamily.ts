@@ -22,10 +22,10 @@ export async function forceLoadFontFamily(family: string) {
       switchMap((fontFaceSet) =>
         [...fontFaceSet]
           .filter((fontFace) => fontFace.family === family)
-          .map((fontFace) => fontFace.load())
+          .map((fontFace) => fontFace.load()),
       ),
       mergeAll(),
-      toArray()
-    )
+      toArray(),
+    ),
   );
 }

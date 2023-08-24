@@ -52,7 +52,7 @@ export function ReorderElementsShortcuts() {
       enableOnContentEditable: true,
       scopes: HOTKEY_SCOPE_WHITEBOARD,
     },
-    [handleClickBringForward]
+    [handleClickBringForward],
   );
 
   useHotkeys(
@@ -63,7 +63,7 @@ export function ReorderElementsShortcuts() {
       enableOnContentEditable: true,
       scopes: HOTKEY_SCOPE_WHITEBOARD,
     },
-    [handleClickBringBackward]
+    [handleClickBringBackward],
   );
 
   return null;

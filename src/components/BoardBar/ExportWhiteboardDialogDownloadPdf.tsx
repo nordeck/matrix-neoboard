@@ -46,7 +46,7 @@ export function ExportWhiteboardDialogDownloadPdf({
   const descriptionId = useId();
   const description = t(
     'boardBar.exportWhiteboardDialog.notAccessibleTooltip',
-    'The provided PDF is currently not accessible and can not be read using a screen reader.'
+    'The provided PDF is currently not accessible and can not be read using a screen reader.',
   );
   return (
     <>
@@ -84,7 +84,7 @@ export function ExportWhiteboardDialogDownloadPdf({
 
 function useGeneratePdf(
   roomName: string,
-  onError?: Dispatch<string | undefined>
+  onError?: Dispatch<string | undefined>,
 ) {
   const { t } = useTranslation();
   const widgetApi = useWidgetApi();
@@ -119,8 +119,8 @@ function useGeneratePdf(
         onError?.(
           t(
             'boardBar.exportWhiteboardDialog.pdfError',
-            'Something went wrong while generating the PDF.'
-          )
+            'Something went wrong while generating the PDF.',
+          ),
         );
       },
     });

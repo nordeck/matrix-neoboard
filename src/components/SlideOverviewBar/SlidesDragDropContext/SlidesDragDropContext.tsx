@@ -44,11 +44,11 @@ export function SlidesDragDropContext({ children }: PropsWithChildren<{}>) {
           {
             startPosition: initial.source.index + 1,
             totalCount: whiteboardInstance.getSlideIds().length,
-          }
-        )
+          },
+        ),
       );
     },
-    [t, whiteboardInstance]
+    [t, whiteboardInstance],
   );
 
   const handleDragUpdate = useCallback(
@@ -57,8 +57,8 @@ export function SlidesDragDropContext({ children }: PropsWithChildren<{}>) {
         announce(
           t(
             'slideOverviewBar.dragAndDrop.notOverDropTarget',
-            'You are currently not dragging over any droppable area.'
-          )
+            'You are currently not dragging over any droppable area.',
+          ),
         );
       } else {
         announce(
@@ -68,12 +68,12 @@ export function SlidesDragDropContext({ children }: PropsWithChildren<{}>) {
             {
               position: update.destination.index + 1,
               totalCount: whiteboardInstance.getSlideIds().length,
-            }
-          )
+            },
+          ),
         );
       }
     },
-    [t, whiteboardInstance]
+    [t, whiteboardInstance],
   );
 
   const handleDragEnd = useCallback(
@@ -89,8 +89,8 @@ export function SlidesDragDropContext({ children }: PropsWithChildren<{}>) {
             'Movement cancelled. The slide has returned to its starting position of {{startPosition}}.',
             {
               startPosition: result.source.index + 1,
-            }
-          )
+            },
+          ),
         );
         return;
       }
@@ -100,8 +100,8 @@ export function SlidesDragDropContext({ children }: PropsWithChildren<{}>) {
           t(
             'slideOverviewBar.dragAndDrop.droppedOnNoDropTarget',
             'The slide has been dropped while not over a location. The slide has returned to its starting position of {{startPosition}}.',
-            { startPosition: result.source.index + 1 }
-          )
+            { startPosition: result.source.index + 1 },
+          ),
         );
         return;
       }
@@ -113,8 +113,8 @@ export function SlidesDragDropContext({ children }: PropsWithChildren<{}>) {
           {
             startPosition: result.source.index + 1,
             destinationPosition: result.destination.index + 1,
-          }
-        )
+          },
+        ),
       );
 
       if (result.destination.index === result.source.index) {
@@ -127,7 +127,7 @@ export function SlidesDragDropContext({ children }: PropsWithChildren<{}>) {
 
       whiteboardInstance.moveSlide(sourceSlideId, targetIndex);
     },
-    [t, whiteboardInstance]
+    [t, whiteboardInstance],
   );
 
   return (

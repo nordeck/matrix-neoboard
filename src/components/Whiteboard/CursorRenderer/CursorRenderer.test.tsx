@@ -74,7 +74,7 @@ describe('<CursorRenderer>', () => {
 
     await expect(screen.findByText('Alice')).resolves.toBeInTheDocument();
     await expect(
-      screen.findByText('@another-user-id')
+      screen.findByText('@another-user-id'),
     ).resolves.toBeInTheDocument();
   });
 });

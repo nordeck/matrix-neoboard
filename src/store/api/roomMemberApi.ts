@@ -55,13 +55,13 @@ export const roomMemberApi = baseApi.injectEndpoints({
           const initialState = roomMemberEventEntityAdapter.getInitialState();
 
           const events = await widgetApi.receiveStateEvents(
-            STATE_EVENT_ROOM_MEMBER
+            STATE_EVENT_ROOM_MEMBER,
           );
 
           return {
             data: roomMemberEventEntityAdapter.addMany(
               initialState,
-              events.filter(isValidRoomMemberStateEvent)
+              events.filter(isValidRoomMemberStateEvent),
             ),
           };
         } catch (e) {
@@ -78,7 +78,7 @@ export const roomMemberApi = baseApi.injectEndpoints({
 
       async onCacheEntryAdded(
         _,
-        { cacheDataLoaded, cacheEntryRemoved, extra, updateCachedData }
+        { cacheDataLoaded, cacheEntryRemoved, extra, updateCachedData },
       ) {
         const widgetApi = await (extra as ThunkExtraArgument).widgetApi;
 
@@ -90,11 +90,11 @@ export const roomMemberApi = baseApi.injectEndpoints({
           .pipe(
             filter(isValidRoomMemberStateEvent),
             bufferTime(0),
-            filter((list) => list.length > 0)
+            filter((list) => list.length > 0),
           )
           .subscribe(async (events) => {
             updateCachedData((state) =>
-              roomMemberEventEntityAdapter.upsertMany(state, events)
+              roomMemberEventEntityAdapter.upsertMany(state, events),
             );
           });
 

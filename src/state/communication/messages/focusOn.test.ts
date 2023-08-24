@@ -26,7 +26,7 @@ describe('isValidFocusOnMessage', () => {
           slideId: 'slide-id',
         },
         type: 'net.nordeck.whiteboard.focus_on',
-      })
+      }),
     ).toBe(true);
   });
 
@@ -40,7 +40,7 @@ describe('isValidFocusOnMessage', () => {
           additional: 'tmp',
         },
         type: 'net.nordeck.whiteboard.focus_on',
-      })
+      }),
     ).toBe(true);
   });
 
@@ -59,7 +59,7 @@ describe('isValidFocusOnMessage', () => {
           ...patch,
         },
         type: 'net.nordeck.whiteboard.focus_on',
-      })
+      }),
     ).toBe(false);
   });
 });

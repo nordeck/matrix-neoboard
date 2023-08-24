@@ -55,7 +55,7 @@ describe('isValidElement', () => {
       };
 
       expect(isValidElement(data)).toBe(true);
-    }
+    },
   );
 
   it('should accept additional properties for shape event', () => {

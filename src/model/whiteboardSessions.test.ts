@@ -43,7 +43,7 @@ describe('isValidWhiteboardSessionsStateEvent', () => {
         state_key: '',
         sender: '@user-id',
         type: 'net.nordeck.whiteboard.sessions',
-      })
+      }),
     ).toBe(true);
   });
 
@@ -67,7 +67,7 @@ describe('isValidWhiteboardSessionsStateEvent', () => {
         state_key: '',
         sender: '@user-id',
         type: 'net.nordeck.whiteboard.sessions',
-      })
+      }),
     ).toBe(true);
   });
 
@@ -83,7 +83,7 @@ describe('isValidWhiteboardSessionsStateEvent', () => {
         state_key: '',
         sender: '@user-id',
         type: 'net.nordeck.whiteboard.sessions',
-      })
+      }),
     ).toBe(true);
   });
 
@@ -210,7 +210,7 @@ describe('isValidWhiteboardSessionsStateEvent', () => {
         state_key: '',
         sender: '@user-id',
         type: 'net.nordeck.whiteboard.sessions',
-      })
+      }),
     ).toBe(false);
   });
 });
@@ -222,7 +222,7 @@ describe('isNotExpired', () => {
         sessionId: 'session-id',
         whiteboardId: 'whiteboard-id',
         expiresTs: +new Date('2050-01-12T11:25:20.143Z'),
-      })
+      }),
     ).toBe(true);
   });
 
@@ -232,7 +232,7 @@ describe('isNotExpired', () => {
         sessionId: 'session-id',
         whiteboardId: 'whiteboard-id',
         expiresTs: +new Date('2020-01-12T11:25:20.143Z'),
-      })
+      }),
     ).toBe(false);
   });
 });

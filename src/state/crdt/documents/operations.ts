@@ -23,14 +23,14 @@ import { Slide, SlideLock, WhiteboardDocument } from './whiteboardDocument';
 
 export function getSlide(
   doc: SharedMap<WhiteboardDocument>,
-  slideId: string
+  slideId: string,
 ): SharedMap<Slide> | undefined {
   return doc.get('slides').get(slideId);
 }
 
 /** Get the ordered list of slides. */
 export function getNormalizedSlideIds(
-  doc: SharedMap<WhiteboardDocument>
+  doc: SharedMap<WhiteboardDocument>,
 ): string[] {
   const slideIds = doc.get('slideIds').toArray();
   const slides = doc.get('slides');
@@ -47,7 +47,7 @@ export function getNormalizedSlideIds(
 /** Return the lock state of the slide. */
 export function getSlideLock(
   doc: SharedMap<WhiteboardDocument>,
-  slideId: string
+  slideId: string,
 ): SlideLock | undefined {
   const slide = getSlide(doc, slideId);
 
@@ -77,7 +77,7 @@ export function generateAddSlide(): [ChangeFn<WhiteboardDocument>, string] {
 /** Move a slide identified by its id to a different position */
 export function generateMoveSlide(
   slideId: string,
-  index: number
+  index: number,
 ): ChangeFn<WhiteboardDocument> {
   return (doc) => {
     cleanupSlideIds(doc);
@@ -104,7 +104,7 @@ export function generateMoveSlide(
 
 /** Soft delete a slide by slide id. */
 export function generateRemoveSlide(
-  slideId: string
+  slideId: string,
 ): ChangeFn<WhiteboardDocument> {
   return (doc) => {
     doc.get('slides').delete(slideId);
@@ -115,7 +115,7 @@ export function generateRemoveSlide(
 /** Lock a slide to disable all edit operations in the UI. */
 export function generateLockSlide(
   slideId: string,
-  userId: string
+  userId: string,
 ): ChangeFn<WhiteboardDocument> {
   return (doc) => {
     const slide = getSlide(doc, slideId);
@@ -130,7 +130,7 @@ export function generateLockSlide(
 
 /** Unlock a slide. */
 export function generateUnlockSlide(
-  slideId: string
+  slideId: string,
 ): ChangeFn<WhiteboardDocument> {
   return (doc) => {
     const slide = getSlide(doc, slideId);
@@ -172,7 +172,7 @@ function cleanupSlideIds(doc: SharedMap<WhiteboardDocument>): void {
 export function getElement(
   doc: SharedMap<WhiteboardDocument>,
   slideId: string,
-  elementId: string
+  elementId: string,
 ): SharedMap<Element> | undefined {
   const slide = getSlide(doc, slideId);
 
@@ -186,7 +186,7 @@ export function getElement(
 /** Get the ordered list of elements, */
 export function getNormalizedElementIds(
   doc: SharedMap<WhiteboardDocument>,
-  slideId: string
+  slideId: string,
 ): string[] {
   const slide = getSlide(doc, slideId);
 
@@ -211,7 +211,7 @@ export function getNormalizedElementIds(
  */
 export function generateAddElement(
   slideId: string,
-  element: Element
+  element: Element,
 ): [ChangeFn<WhiteboardDocument>, string] {
   const elementId = nanoid();
 
@@ -237,7 +237,7 @@ export function generateAddElement(
 export function generateMoveElement(
   slideId: string,
   elementId: string,
-  index: number | ((elementIds: string[], currentIndex: number) => number)
+  index: number | ((elementIds: string[], currentIndex: number) => number),
 ): ChangeFn<WhiteboardDocument> {
   return (doc) => {
     const slide = getSlide(doc, slideId);
@@ -279,7 +279,7 @@ export function generateMoveElement(
 /** Move the element to the bottom. */
 export function generateMoveToBottom(
   slideId: string,
-  elementId: string
+  elementId: string,
 ): ChangeFn<WhiteboardDocument> {
   return generateMoveElement(slideId, elementId, 0);
 }
@@ -287,36 +287,36 @@ export function generateMoveToBottom(
 /** Move the element to the top. */
 export function generateMoveToTop(
   slideId: string,
-  elementId: string
+  elementId: string,
 ): ChangeFn<WhiteboardDocument> {
   return generateMoveElement(
     slideId,
     elementId,
-    (elementIds) => elementIds.length - 1
+    (elementIds) => elementIds.length - 1,
   );
 }
 
 /** Move the element one step upwards to the top. */
 export function generateMoveUp(
   slideId: string,
-  elementId: string
+  elementId: string,
 ): ChangeFn<WhiteboardDocument> {
   return generateMoveElement(
     slideId,
     elementId,
-    (_, currentIndex) => currentIndex + 1
+    (_, currentIndex) => currentIndex + 1,
   );
 }
 
 /** Move the element one step downwards to the bottom. */
 export function generateMoveDown(
   slideId: string,
-  elementId: string
+  elementId: string,
 ): ChangeFn<WhiteboardDocument> {
   return generateMoveElement(
     slideId,
     elementId,
-    (_, currentIndex) => currentIndex - 1
+    (_, currentIndex) => currentIndex - 1,
   );
 }
 
@@ -329,7 +329,7 @@ export type UpdateElementPatch = Partial<
 export function generateUpdateElement(
   slideId: string,
   elementId: string,
-  patch: UpdateElementPatch
+  patch: UpdateElementPatch,
 ): ChangeFn<WhiteboardDocument> {
   return (doc) => {
     const slide = getSlide(doc, slideId);
@@ -351,7 +351,7 @@ export function generateUpdateElement(
 /** Delete an element by element id. */
 export function generateRemoveElement(
   slideId: string,
-  elementId: string
+  elementId: string,
 ): ChangeFn<WhiteboardDocument> {
   return (doc) => {
     const slide = getSlide(doc, slideId);

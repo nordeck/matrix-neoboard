@@ -25,7 +25,7 @@ export function useSetElementOverride(): ElementOverrideSetter {
 
   if (!setElementOverride) {
     throw new Error(
-      'useSetElementOverride can only be used inside of <ElementOverridesProvider>'
+      'useSetElementOverride can only be used inside of <ElementOverridesProvider>',
     );
   }
 

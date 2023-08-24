@@ -48,13 +48,13 @@ export const whiteboardApi = baseApi.injectEndpoints({
         try {
           const initialState = whiteboardsEntityAdapter.getInitialState();
           const events = await widgetApi.receiveStateEvents(
-            STATE_EVENT_WHITEBOARD
+            STATE_EVENT_WHITEBOARD,
           );
 
           return {
             data: whiteboardsEntityAdapter.addMany(
               initialState,
-              events.filter(isValidWhiteboardStateEvent)
+              events.filter(isValidWhiteboardStateEvent),
             ),
           };
         } catch (e) {
@@ -73,7 +73,7 @@ export const whiteboardApi = baseApi.injectEndpoints({
       // see also https://redux-toolkit.js.org/rtk-query/usage/streaming-updates#using-the-oncacheentryadded-lifecycle
       async onCacheEntryAdded(
         _,
-        { cacheDataLoaded, cacheEntryRemoved, extra, updateCachedData }
+        { cacheDataLoaded, cacheEntryRemoved, extra, updateCachedData },
       ) {
         const widgetApi = await (extra as ThunkExtraArgument).widgetApi;
 
@@ -84,7 +84,7 @@ export const whiteboardApi = baseApi.injectEndpoints({
           .observeStateEvents(STATE_EVENT_WHITEBOARD)
           .pipe(
             bufferTime(0),
-            filter((list) => list.length > 0)
+            filter((list) => list.length > 0),
           )
           .subscribe((events) => {
             // update the cached data if the event changes in the room
@@ -92,7 +92,7 @@ export const whiteboardApi = baseApi.injectEndpoints({
             const eventIdsToDelete = events
               .filter(
                 (e) =>
-                  e.type === STATE_EVENT_WHITEBOARD && isEqual(e.content, {})
+                  e.type === STATE_EVENT_WHITEBOARD && isEqual(e.content, {}),
               )
               .map((e) => e.state_key);
 
@@ -122,10 +122,10 @@ export const whiteboardApi = baseApi.injectEndpoints({
         try {
           const whiteboardEvents = await widgetApi.receiveStateEvents(
             STATE_EVENT_WHITEBOARD,
-            { stateKey: whiteboardId }
+            { stateKey: whiteboardId },
           );
           const whiteboardEvent = last(
-            whiteboardEvents.filter(isValidWhiteboardStateEvent)
+            whiteboardEvents.filter(isValidWhiteboardStateEvent),
           );
 
           // No recursive merge!
@@ -142,7 +142,7 @@ export const whiteboardApi = baseApi.injectEndpoints({
           const event = await widgetApi.sendStateEvent(
             STATE_EVENT_WHITEBOARD,
             whiteboard,
-            { stateKey: whiteboardId }
+            { stateKey: whiteboardId },
           );
 
           return { data: { event } };

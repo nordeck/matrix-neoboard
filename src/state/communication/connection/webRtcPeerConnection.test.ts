@@ -56,7 +56,7 @@ describe('WebRtcPeerConnection', () => {
     const connection = new WebRtcPeerConnection(
       signalingChannel,
       { sessionId: politeSessionId, userId: '@other-user' },
-      impoliteSessionId
+      impoliteSessionId,
     );
 
     expect(jest.spyOn(window, 'RTCPeerConnection')).toBeCalledWith({
@@ -80,7 +80,7 @@ describe('WebRtcPeerConnection', () => {
       signalingChannel,
       { sessionId: politeSessionId, userId: '@other-user' },
       impoliteSessionId,
-      { turnServer }
+      { turnServer },
     );
 
     expect(jest.spyOn(window, 'RTCPeerConnection')).toBeCalledWith({
@@ -94,14 +94,14 @@ describe('WebRtcPeerConnection', () => {
     const connection = new WebRtcPeerConnection(
       signalingChannel,
       { sessionId: politeSessionId, userId: '@other-user' },
-      impoliteSessionId
+      impoliteSessionId,
     );
 
     const statisticsPromise = firstValueFrom(
-      connection.observeStatistics().pipe(toArray())
+      connection.observeStatistics().pipe(toArray()),
     );
     const messagesPromise = firstValueFrom(
-      connection.observeMessages().pipe(toArray())
+      connection.observeMessages().pipe(toArray()),
     );
 
     connection.close();
@@ -118,7 +118,7 @@ describe('WebRtcPeerConnection', () => {
       connection = new WebRtcPeerConnection(
         signalingChannel,
         { sessionId: politeSessionId, userId: '@other-user' },
-        impoliteSessionId
+        impoliteSessionId,
       );
     });
 
@@ -140,8 +140,8 @@ describe('WebRtcPeerConnection', () => {
           '@other-user',
           'session-a',
           'session-b_session-a',
-          new RTCSessionDescription({ type: 'offer', sdp: 'sdp' })
-        )
+          new RTCSessionDescription({ type: 'offer', sdp: 'sdp' }),
+        ),
       );
 
       signalingSubject.next({
@@ -166,8 +166,8 @@ describe('WebRtcPeerConnection', () => {
           '@other-user',
           'session-a',
           'session-b_session-a',
-          new RTCSessionDescription({ type: 'offer', sdp: 'sdp' })
-        )
+          new RTCSessionDescription({ type: 'offer', sdp: 'sdp' }),
+        ),
       );
 
       signalingSubject.next({
@@ -208,8 +208,8 @@ describe('WebRtcPeerConnection', () => {
           '@other-user',
           'session-a',
           'session-b_session-a',
-          new RTCSessionDescription({ type: 'answer', sdp: 'sdp' })
-        )
+          new RTCSessionDescription({ type: 'answer', sdp: 'sdp' }),
+        ),
       );
     });
   });
@@ -221,7 +221,7 @@ describe('WebRtcPeerConnection', () => {
       connection = new WebRtcPeerConnection(
         signalingChannel,
         { sessionId: impoliteSessionId, userId: '@user-id' },
-        politeSessionId
+        politeSessionId,
       );
     });
 
@@ -238,7 +238,7 @@ describe('WebRtcPeerConnection', () => {
       const messagePromise = firstValueFrom(connection.observeMessages());
 
       rtcDataChannel.emitMessage(
-        '{"type":"com.example.test","content":{"key":"value"}}'
+        '{"type":"com.example.test","content":{"key":"value"}}',
       );
 
       await expect(messagePromise).resolves.toEqual({
@@ -261,8 +261,8 @@ describe('WebRtcPeerConnection', () => {
           '@user-id',
           'session-b',
           'session-b_session-a',
-          new RTCSessionDescription({ type: 'offer', sdp: 'sdp' })
-        )
+          new RTCSessionDescription({ type: 'offer', sdp: 'sdp' }),
+        ),
       );
 
       signalingSubject.next({
@@ -285,8 +285,8 @@ describe('WebRtcPeerConnection', () => {
           '@user-id',
           'session-b',
           'session-b_session-a',
-          new RTCSessionDescription({ type: 'answer', sdp: 'sdp' })
-        )
+          new RTCSessionDescription({ type: 'answer', sdp: 'sdp' }),
+        ),
       );
     });
 
@@ -300,8 +300,8 @@ describe('WebRtcPeerConnection', () => {
           '@user-id',
           'session-b',
           'session-b_session-a',
-          new RTCSessionDescription({ type: 'offer', sdp: 'sdp' })
-        )
+          new RTCSessionDescription({ type: 'offer', sdp: 'sdp' }),
+        ),
       );
 
       signalingSubject.next({
@@ -337,8 +337,8 @@ describe('WebRtcPeerConnection', () => {
           '@user-id',
           'session-b',
           'session-b_session-a',
-          new RTCSessionDescription({ type: 'answer', sdp: 'sdp' })
-        )
+          new RTCSessionDescription({ type: 'answer', sdp: 'sdp' }),
+        ),
       );
     });
   });
@@ -353,7 +353,7 @@ describe('WebRtcPeerConnection', () => {
       connection = new WebRtcPeerConnection(
         signalingChannel,
         { sessionId: politeSessionId, userId: '@other-user' },
-        impoliteSessionId
+        impoliteSessionId,
       );
     });
 
@@ -374,7 +374,7 @@ describe('WebRtcPeerConnection', () => {
         '@other-user',
         'session-a',
         'session-b_session-a',
-        [candidate0, candidate1, null]
+        [candidate0, candidate1, null],
       );
     });
 
@@ -387,7 +387,7 @@ describe('WebRtcPeerConnection', () => {
         '@other-user',
         'session-a',
         'session-b_session-a',
-        [candidate0, emptyCandidate]
+        [candidate0, emptyCandidate],
       );
     });
 
@@ -400,7 +400,7 @@ describe('WebRtcPeerConnection', () => {
           '@other-user',
           'session-a',
           'session-b_session-a',
-          [candidate0, candidate1]
+          [candidate0, candidate1],
         );
       });
     });
@@ -422,15 +422,15 @@ describe('WebRtcPeerConnection', () => {
       });
       expect(rtcPeerConnection.addIceCandidate).toHaveBeenNthCalledWith(
         1,
-        candidate0
+        candidate0,
       );
       expect(rtcPeerConnection.addIceCandidate).toHaveBeenNthCalledWith(
         2,
-        candidate1
+        candidate1,
       );
       expect(rtcPeerConnection.addIceCandidate).toHaveBeenNthCalledWith(
         3,
-        emptyCandidate
+        emptyCandidate,
       );
       expect(rtcPeerConnection.addIceCandidate).toHaveBeenNthCalledWith(4);
     });
@@ -445,7 +445,7 @@ describe('WebRtcPeerConnection', () => {
       connection.sendMessage('com.example.test', { key: 'value' });
 
       expect(rtcDataChannel.send).toBeCalledWith(
-        '{"type":"com.example.test","content":{"key":"value"}}'
+        '{"type":"com.example.test","content":{"key":"value"}}',
       );
     });
 
@@ -453,7 +453,7 @@ describe('WebRtcPeerConnection', () => {
       const messagePromise = firstValueFrom(connection.observeMessages());
 
       rtcDataChannel.emitMessage(
-        '{"type":"com.example.test","content":{"key":"value"}}'
+        '{"type":"com.example.test","content":{"key":"value"}}',
       );
 
       await expect(messagePromise).resolves.toEqual({
@@ -468,7 +468,7 @@ describe('WebRtcPeerConnection', () => {
 
     it('should ignore invalid payload JSON', async () => {
       const messagePromise = firstValueFrom(
-        connection.observeMessages().pipe(bufferTime(100))
+        connection.observeMessages().pipe(bufferTime(100)),
       );
 
       rtcDataChannel.emitMessage('invalid-json');
@@ -478,7 +478,7 @@ describe('WebRtcPeerConnection', () => {
 
     it('should ignore invalid payload schema', async () => {
       const messagePromise = firstValueFrom(
-        connection.observeMessages().pipe(bufferTime(100))
+        connection.observeMessages().pipe(bufferTime(100)),
       );
 
       rtcDataChannel.emitMessage('{}');
@@ -518,7 +518,7 @@ describe('WebRtcPeerConnection', () => {
         signalingChannel,
         { sessionId: politeSessionId, userId: '@other-user' },
         impoliteSessionId,
-        { statisticsInterval: 100 }
+        { statisticsInterval: 100 },
       );
     });
 
@@ -579,7 +579,7 @@ describe('WebRtcPeerConnection', () => {
 
     it('should gather statistics regularly', async () => {
       const statisticsPromise = firstValueFrom(
-        connection.observeStatistics().pipe(take(2), toArray())
+        connection.observeStatistics().pipe(take(2), toArray()),
       );
 
       await expect(statisticsPromise).resolves.toMatchObject([

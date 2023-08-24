@@ -54,7 +54,7 @@ export const DraftLineChild = ({
             strokeColor,
             gridCellSize: isShowGrid ? gridCellSize : undefined,
             onlyStartAndEndPoints,
-          })
+          }),
         );
         if (kind !== 'polyline') {
           setActiveTool('select');
@@ -78,7 +78,7 @@ export const DraftLineChild = ({
         setCursorPoints((p) => (p ? [...p, point] : []));
       }
     },
-    [cursorPoints]
+    [cursorPoints],
   );
 
   const handleMouseDown = useCallback((point: Point) => {
@@ -96,7 +96,7 @@ export const DraftLineChild = ({
             onlyStartAndEndPoints,
           })
         : undefined,
-    [cursorPoints, kind, strokeColor, isShowGrid, onlyStartAndEndPoints]
+    [cursorPoints, kind, strokeColor, isShowGrid, onlyStartAndEndPoints],
   );
 
   return (

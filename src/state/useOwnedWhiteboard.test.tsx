@@ -54,7 +54,7 @@ describe('useOwnedWhiteboard', () => {
 
     const { result, waitForNextUpdate } = renderHook(
       () => useOwnedWhiteboard(),
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
 
     expect(result.current).toEqual({ loading: true });
@@ -70,7 +70,7 @@ describe('useOwnedWhiteboard', () => {
   it('should create a new whiteboard', async () => {
     const { result, waitForNextUpdate } = renderHook(
       () => useOwnedWhiteboard(),
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
 
     expect(result.current).toEqual({ loading: true });
@@ -84,17 +84,17 @@ describe('useOwnedWhiteboard', () => {
 
     expect(widgetApi.sendRoomEvent).toBeCalledWith(
       'net.nordeck.whiteboard.document.create',
-      {}
+      {},
     );
 
     const documentId = await widgetApi.sendRoomEvent.mock.results[0].value.then(
-      (e: RoomEvent) => e.event_id
+      (e: RoomEvent) => e.event_id,
     );
 
     expect(widgetApi.sendStateEvent).toBeCalledWith(
       'net.nordeck.whiteboard',
       { documentId },
-      { stateKey: 'widget-id' }
+      { stateKey: 'widget-id' },
     );
 
     expect(result.current).toEqual({
@@ -115,7 +115,7 @@ describe('useOwnedWhiteboard', () => {
 
     const { result, waitForNextUpdate } = renderHook(
       () => useOwnedWhiteboard(),
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
 
     expect(result.current).toEqual({ loading: true });
@@ -145,7 +145,7 @@ describe('useOwnedWhiteboard', () => {
 
     const { result, waitForNextUpdate } = renderHook(
       () => useOwnedWhiteboard(),
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
 
     expect(result.current).toEqual({ loading: true });
@@ -153,7 +153,7 @@ describe('useOwnedWhiteboard', () => {
     await waitForNextUpdate();
 
     expect(result.error).toEqual(
-      new Error('Could not update whiteboard: Error on sending state events')
+      new Error('Could not update whiteboard: Error on sending state events'),
     );
   });
 });

@@ -65,7 +65,7 @@ export class WebRtcPeerConnection implements PeerConnection {
       turnServer?: TurnServer;
       statisticsInterval?: number;
       relay?: boolean;
-    } = {}
+    } = {},
   ) {
     const impolite = isImpolite(this.ownSessionId, this.session.sessionId);
     this.connectionId = impolite
@@ -73,7 +73,7 @@ export class WebRtcPeerConnection implements PeerConnection {
       : `${this.session.sessionId}_${this.ownSessionId}`;
 
     this.logger.log(
-      `Creating connection ${this.connectionId} to ${session.sessionId} (${session.userId})`
+      `Creating connection ${this.connectionId} to ${session.sessionId} (${session.userId})`,
     );
 
     this.connection = new RTCPeerConnection({
@@ -100,7 +100,7 @@ export class WebRtcPeerConnection implements PeerConnection {
     interval(statisticsInterval)
       .pipe(
         takeUntil(this.destroySubject),
-        switchMap(async () => await this.connection.getStats())
+        switchMap(async () => await this.connection.getStats()),
       )
       .subscribe((report) => {
         this.updateStatistics(extractPeerConnectionStatistics(report));
@@ -112,7 +112,7 @@ export class WebRtcPeerConnection implements PeerConnection {
         const { connectionState } = this.connection;
 
         this.logger.log(
-          `Connection state of connection ${this.connectionId} changed: ${connectionState}`
+          `Connection state of connection ${this.connectionId} changed: ${connectionState}`,
         );
 
         this.updateStatistics({ connectionState });
@@ -124,7 +124,7 @@ export class WebRtcPeerConnection implements PeerConnection {
         const { signalingState } = this.connection;
 
         this.logger.log(
-          `Signaling state of connection ${this.connectionId} changed: ${signalingState}`
+          `Signaling state of connection ${this.connectionId} changed: ${signalingState}`,
         );
 
         this.updateStatistics({ signalingState });
@@ -136,7 +136,7 @@ export class WebRtcPeerConnection implements PeerConnection {
         const { iceGatheringState } = this.connection;
 
         this.logger.log(
-          `ICE gathering state of connection ${this.connectionId} changed: ${iceGatheringState}`
+          `ICE gathering state of connection ${this.connectionId} changed: ${iceGatheringState}`,
         );
 
         this.updateStatistics({ iceGatheringState });
@@ -148,7 +148,7 @@ export class WebRtcPeerConnection implements PeerConnection {
         const { iceConnectionState } = this.connection;
 
         this.logger.log(
-          `ICE connection state of connection ${this.connectionId} changed: ${iceConnectionState}`
+          `ICE connection state of connection ${this.connectionId} changed: ${iceConnectionState}`,
         );
 
         this.updateStatistics({ iceConnectionState });
@@ -164,7 +164,7 @@ export class WebRtcPeerConnection implements PeerConnection {
       .subscribe((error) => {
         this.logger.error(
           `ICE candidate error for connection ${this.connectionId}:`,
-          error
+          error,
         );
       });
 
@@ -177,7 +177,7 @@ export class WebRtcPeerConnection implements PeerConnection {
         .subscribe(({ channel }) => {
           if (channel.label !== DATA_CHANNEL_VERSION) {
             this.logger.warn(
-              `Received unsupported data channel ${channel.label}`
+              `Received unsupported data channel ${channel.label}`,
             );
             return;
           }
@@ -196,7 +196,7 @@ export class WebRtcPeerConnection implements PeerConnection {
       .observeSignaling(
         this.session.userId,
         this.ownSessionId,
-        this.connectionId
+        this.connectionId,
       )
       .pipe(
         takeUntil(this.destroySubject),
@@ -205,7 +205,7 @@ export class WebRtcPeerConnection implements PeerConnection {
             if (description) {
               this.logger.log(
                 `Received description for connection ${this.connectionId}`,
-                description
+                description,
               );
 
               const offerCollision =
@@ -216,7 +216,7 @@ export class WebRtcPeerConnection implements PeerConnection {
 
               if (ignoreOffer) {
                 this.logger.log(
-                  `Ignoring description offer for connection ${this.connectionId}`
+                  `Ignoring description offer for connection ${this.connectionId}`,
                 );
 
                 return;
@@ -229,14 +229,14 @@ export class WebRtcPeerConnection implements PeerConnection {
                 if (this.connection.localDescription) {
                   this.logger.log(
                     `Sending description answer for connection ${this.connectionId}`,
-                    this.connection.localDescription
+                    this.connection.localDescription,
                   );
 
                   await this.signalingChannel.sendDescription(
                     this.session.userId,
                     this.session.sessionId,
                     this.connectionId,
-                    this.connection.localDescription
+                    this.connection.localDescription,
                   );
                 }
               }
@@ -246,7 +246,7 @@ export class WebRtcPeerConnection implements PeerConnection {
               try {
                 this.logger.log(
                   `Received candidates for connection ${this.connectionId}`,
-                  candidates
+                  candidates,
                 );
 
                 for (const candidate of candidates) {
@@ -265,10 +265,10 @@ export class WebRtcPeerConnection implements PeerConnection {
           } catch (err) {
             this.logger.error(
               `Error while processing signaling message for connection ${this.connectionId}`,
-              err
+              err,
             );
           }
-        })
+        }),
       )
       .subscribe();
 
@@ -278,7 +278,7 @@ export class WebRtcPeerConnection implements PeerConnection {
     const candidates = fromEvent(
       this.connection,
       'icecandidate',
-      ({ candidate }: RTCPeerConnectionIceEvent) => candidate
+      ({ candidate }: RTCPeerConnectionIceEvent) => candidate,
     ).pipe(takeUntil(this.destroySubject));
     candidates
       .pipe(
@@ -288,22 +288,22 @@ export class WebRtcPeerConnection implements PeerConnection {
             interval(500),
             candidates.pipe(
               // Firefox uses empty string, while Chrome uses null
-              filter((candidate) => !candidate || !candidate.candidate)
-            )
-          )
+              filter((candidate) => !candidate || !candidate.candidate),
+            ),
+          ),
         ),
-        filter((c) => c.length > 0)
+        filter((c) => c.length > 0),
       )
       .subscribe((candidates) => {
         this.logger.log(
           `Sending candidates for connection ${this.connectionId}`,
-          candidates
+          candidates,
         );
         this.signalingChannel.sendCandidates(
           this.session.userId,
           this.session.sessionId,
           this.connectionId,
-          candidates
+          candidates,
         );
       });
 
@@ -318,25 +318,25 @@ export class WebRtcPeerConnection implements PeerConnection {
             if (this.connection.localDescription) {
               this.logger.log(
                 `Sending description offer for connection ${this.connectionId}`,
-                this.connection.localDescription
+                this.connection.localDescription,
               );
 
               await this.signalingChannel.sendDescription(
                 this.session.userId,
                 this.session.sessionId,
                 this.connectionId,
-                this.connection.localDescription
+                this.connection.localDescription,
               );
             }
           } catch (err) {
             this.logger.log(
               `Error while sending description offer for connection ${this.connectionId}`,
-              err
+              err,
             );
           } finally {
             makingOffer = false;
           }
-        })
+        }),
       )
       .subscribe();
   }
@@ -351,7 +351,7 @@ export class WebRtcPeerConnection implements PeerConnection {
 
   close(): void {
     this.logger.log(
-      `Closing connection ${this.connectionId} to ${this.session.sessionId} (${this.session.userId})`
+      `Closing connection ${this.connectionId} to ${this.session.sessionId} (${this.session.userId})`,
     );
 
     this.connection.close();
@@ -404,13 +404,13 @@ export class WebRtcPeerConnection implements PeerConnection {
           } else {
             this.logger.warn(
               `Received invalid message for connection ${this.connectionId}`,
-              message
+              message,
             );
           }
         } catch (err) {
           this.logger.warn(
             `Received invalid message JSON for connection ${this.connectionId}`,
-            data
+            data,
           );
         }
       });

@@ -27,7 +27,7 @@ describe('isValidDocumentUpdateMessage', () => {
           data: 'base64',
         },
         type: 'net.nordeck.whiteboard.document_update',
-      })
+      }),
     ).toBe(true);
   });
 
@@ -42,7 +42,7 @@ describe('isValidDocumentUpdateMessage', () => {
           additional: 'tmp',
         },
         type: 'net.nordeck.whiteboard.document_update',
-      })
+      }),
     ).toBe(true);
   });
 
@@ -66,7 +66,7 @@ describe('isValidDocumentUpdateMessage', () => {
           ...patch,
         },
         type: 'net.nordeck.whiteboard.document_update',
-      })
+      }),
     ).toBe(false);
   });
 });

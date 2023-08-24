@@ -80,10 +80,10 @@ describe('SynchronizedDocumentImpl', () => {
       store,
       communicationChannel,
       storage,
-      '$document-0'
+      '$document-0',
     );
     const loading = await firstValueFrom(
-      synchronizedDocument.observeIsLoading()
+      synchronizedDocument.observeIsLoading(),
     );
 
     expect(loading).toBe(true);
@@ -98,10 +98,10 @@ describe('SynchronizedDocumentImpl', () => {
       store,
       communicationChannel,
       storage,
-      '$document-0'
+      '$document-0',
     );
     const statistics = firstValueFrom(
-      synchronizedDocument.observeDocumentStatistics()
+      synchronizedDocument.observeDocumentStatistics(),
     );
 
     const { diff } = await mockUpdate((doc) => doc.set('num', 10));
@@ -142,14 +142,14 @@ describe('SynchronizedDocumentImpl', () => {
       {
         documentValidator: isValidExampleDocument,
         snapshotValidator: isValidExampleDocumentSnapshot,
-      }
+      },
     );
     const statistics = firstValueFrom(
-      synchronizedDocument.observeDocumentStatistics()
+      synchronizedDocument.observeDocumentStatistics(),
     );
 
     const { diff: diff0 } = await mockUpdate((doc) =>
-      (doc as YMap<unknown>).set('text', 10)
+      (doc as YMap<unknown>).set('text', 10),
     );
     messageChannel.next({
       type: 'net.nordeck.whiteboard.document_update',
@@ -195,14 +195,14 @@ describe('SynchronizedDocumentImpl', () => {
       store,
       communicationChannel,
       storage,
-      '$document-0'
+      '$document-0',
     );
     const statistics = firstValueFrom(
-      synchronizedDocument.observeDocumentStatistics()
+      synchronizedDocument.observeDocumentStatistics(),
     );
 
     const { diff: diff0 } = await mockUpdate((doc) =>
-      doc.get('text').insert(0, 'Hello')
+      doc.get('text').insert(0, 'Hello'),
     );
     messageChannel.next({
       type: 'net.nordeck.whiteboard.document_update',
@@ -248,14 +248,14 @@ describe('SynchronizedDocumentImpl', () => {
       store,
       communicationChannel,
       storage,
-      '$document-0'
+      '$document-0',
     );
     const statistics = firstValueFrom(
-      synchronizedDocument.observeDocumentStatistics()
+      synchronizedDocument.observeDocumentStatistics(),
     );
 
     const { diff: diff0 } = await mockUpdate((doc) =>
-      doc.get('text').insert(0, 'Hello')
+      doc.get('text').insert(0, 'Hello'),
     );
     messageChannel.next({
       type: 'other_message',
@@ -301,17 +301,17 @@ describe('SynchronizedDocumentImpl', () => {
       store,
       communicationChannel,
       storage,
-      '$document-0'
+      '$document-0',
     );
     const statistics = firstValueFrom(
-      synchronizedDocument.observeDocumentStatistics()
+      synchronizedDocument.observeDocumentStatistics(),
     );
 
     doc.performChange((doc) => doc.set('num', 10));
 
     expect(communicationChannel.broadcastMessage).toBeCalledWith(
       'net.nordeck.whiteboard.document_update',
-      { documentId: '$document-0', data: expect.any(String) }
+      { documentId: '$document-0', data: expect.any(String) },
     );
 
     expect(await statistics).toEqual({
@@ -329,7 +329,7 @@ describe('SynchronizedDocumentImpl', () => {
 
     const { document } = await mockUpdate((doc) => doc.set('num', 10));
     storage.load.mockImplementation(async (documentId) =>
-      documentId === '$document-0' ? document.store() : undefined
+      documentId === '$document-0' ? document.store() : undefined,
     );
 
     const synchronizedDocument = new SynchronizedDocumentImpl(
@@ -337,10 +337,10 @@ describe('SynchronizedDocumentImpl', () => {
       store,
       communicationChannel,
       storage,
-      '$document-0'
+      '$document-0',
     );
     const statistics = firstValueFrom(
-      synchronizedDocument.observeDocumentStatistics()
+      synchronizedDocument.observeDocumentStatistics(),
     );
 
     await waitFor(() => {
@@ -367,7 +367,7 @@ describe('SynchronizedDocumentImpl', () => {
       (doc as YMap<unknown>).set('text', 5);
     });
     storage.load.mockImplementation(async (documentId) =>
-      documentId === '$document-0' ? invalidDocument.store() : undefined
+      documentId === '$document-0' ? invalidDocument.store() : undefined,
     );
 
     const synchronizedDocument = new SynchronizedDocumentImpl(
@@ -379,10 +379,10 @@ describe('SynchronizedDocumentImpl', () => {
       {
         documentValidator: isValidExampleDocument,
         snapshotValidator: isValidExampleDocumentSnapshot,
-      }
+      },
     );
     const statistics = firstValueFrom(
-      synchronizedDocument.observeDocumentStatistics()
+      synchronizedDocument.observeDocumentStatistics(),
     );
 
     const { document } = await mockUpdate((doc) => doc.set('num', 10));
@@ -415,13 +415,13 @@ describe('SynchronizedDocumentImpl', () => {
       store,
       communicationChannel,
       storage,
-      '$document-0'
+      '$document-0',
     );
     const statistics = firstValueFrom(
-      synchronizedDocument.observeDocumentStatistics().pipe(take(2), toArray())
+      synchronizedDocument.observeDocumentStatistics().pipe(take(2), toArray()),
     );
     const loading = firstValueFrom(
-      synchronizedDocument.observeIsLoading().pipe(take(2), toArray())
+      synchronizedDocument.observeIsLoading().pipe(take(2), toArray()),
     );
 
     const { document } = await mockUpdate((doc) => doc.set('num', 10));
@@ -470,7 +470,7 @@ describe('SynchronizedDocumentImpl', () => {
       {
         documentValidator: isValidExampleDocument,
         snapshotValidator: isValidExampleDocumentSnapshot,
-      }
+      },
     );
 
     // send an invalid snapshot that is newer than the correct one
@@ -508,11 +508,11 @@ describe('SynchronizedDocumentImpl', () => {
       store,
       communicationChannel,
       storage,
-      '$document-0'
+      '$document-0',
     );
 
     const outstandingStatistics = firstValueFrom(
-      synchronizedDocument.observeDocumentStatistics()
+      synchronizedDocument.observeDocumentStatistics(),
     );
 
     doc.performChange((doc) => doc.set('num', 10));
@@ -539,20 +539,20 @@ describe('SynchronizedDocumentImpl', () => {
       store,
       communicationChannel,
       storage,
-      '$document-0'
+      '$document-0',
     );
 
     const outstandingStatistics = firstValueFrom(
-      synchronizedDocument.observeDocumentStatistics().pipe(take(2), toArray())
+      synchronizedDocument.observeDocumentStatistics().pipe(take(2), toArray()),
     );
     const statistics = firstValueFrom(
-      synchronizedDocument.observeDocumentStatistics().pipe(skip(2))
+      synchronizedDocument.observeDocumentStatistics().pipe(skip(2)),
     );
 
     const isReady = firstValueFrom(
       synchronizedDocument
         .observeIsLoading()
-        .pipe(filter((loading) => !loading))
+        .pipe(filter((loading) => !loading)),
     );
 
     doc.performChange((doc) => doc.set('num', 10));
@@ -633,13 +633,13 @@ describe('SynchronizedDocumentImpl', () => {
       store,
       communicationChannel,
       storage,
-      '$document-0'
+      '$document-0',
     );
 
     const isReady = firstValueFrom(
       synchronizedDocument
         .observeIsLoading()
-        .pipe(filter((loading) => !loading))
+        .pipe(filter((loading) => !loading)),
     );
     await isReady;
 
@@ -674,7 +674,7 @@ describe('SynchronizedDocumentImpl', () => {
       store,
       communicationChannel,
       storage,
-      '$document-0'
+      '$document-0',
     );
 
     expect(synchronizedDocument.getDocument()).toEqual(doc);
@@ -689,14 +689,14 @@ describe('SynchronizedDocumentImpl', () => {
       store,
       communicationChannel,
       storage,
-      '$document-0'
+      '$document-0',
     );
 
     const statistics = firstValueFrom(
-      synchronizedDocument.observeDocumentStatistics().pipe(toArray())
+      synchronizedDocument.observeDocumentStatistics().pipe(toArray()),
     );
     const loading = firstValueFrom(
-      synchronizedDocument.observeDocumentStatistics().pipe(toArray())
+      synchronizedDocument.observeDocumentStatistics().pipe(toArray()),
     );
 
     synchronizedDocument.destroy();
@@ -723,7 +723,7 @@ function createExampleDocument(): Document<Example> {
 }
 
 async function mockUpdate(
-  callback: ChangeFn<Example>
+  callback: ChangeFn<Example>,
 ): Promise<{ diff: Uint8Array; document: Document<Example> }> {
   const document = createExampleDocument();
   const change = firstValueFrom(document.observePublish());
@@ -733,7 +733,7 @@ async function mockUpdate(
 }
 
 function isValidExampleDocument(
-  document: Document<Record<string, unknown>>
+  document: Document<Record<string, unknown>>,
 ): document is Document<Example> {
   const doc = document as Document<Example>;
 

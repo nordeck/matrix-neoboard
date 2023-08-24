@@ -45,7 +45,7 @@ describe('YDocument', () => {
   it('should perform change', async () => {
     const yDoc = YDocument.create<Example>(exampleMigrations, '0');
     const changes = firstValueFrom(
-      yDoc.observeChanges().pipe(map((d) => d.toJSON()))
+      yDoc.observeChanges().pipe(map((d) => d.toJSON())),
     );
     const persist = firstValueFrom(yDoc.observePersist());
     const publish = firstValueFrom(yDoc.observePublish());
@@ -69,7 +69,7 @@ describe('YDocument', () => {
   it('should handle errors in perform change callback', async () => {
     const yDoc = YDocument.create<Example>(exampleMigrations, '0');
     const changes = firstValueFrom(
-      yDoc.observeChanges().pipe(map((d) => d.toJSON()))
+      yDoc.observeChanges().pipe(map((d) => d.toJSON())),
     );
     const persist = firstValueFrom(yDoc.observePersist());
     const publish = firstValueFrom(yDoc.observePublish());
@@ -101,7 +101,7 @@ describe('YDocument', () => {
   it('should apply change', async () => {
     const yDoc = YDocument.create<Example>(exampleMigrations, '0');
     const changes = firstValueFrom(
-      yDoc.observeChanges().pipe(map((d) => d.toJSON()))
+      yDoc.observeChanges().pipe(map((d) => d.toJSON())),
     );
 
     yDoc.applyChange(await mockChange());
@@ -119,7 +119,7 @@ describe('YDocument', () => {
   it('should skip apply change if the resulting document is invalid', async () => {
     const yDoc = YDocument.create<Example>(exampleMigrations, '0');
     const changes = firstValueFrom(
-      yDoc.observeChanges().pipe(map((d) => d.toJSON()))
+      yDoc.observeChanges().pipe(map((d) => d.toJSON())),
     );
 
     yDoc.applyChange(await mockChange(), (_): _ is YDocument<Example> => false);
@@ -151,7 +151,7 @@ describe('YDocument', () => {
   it('should merge from remote document', async () => {
     const yDoc = YDocument.create<Example>(exampleMigrations, '0');
     const changes = firstValueFrom(
-      yDoc.observeChanges().pipe(map((d) => d.toJSON()))
+      yDoc.observeChanges().pipe(map((d) => d.toJSON())),
     );
 
     yDoc.mergeFrom(mockRemoteData());
@@ -221,7 +221,7 @@ describe('YDocument', () => {
   it('should emit statistics', async () => {
     const yDoc = YDocument.create<Example>(exampleMigrations, '0');
     const statisticsPromise = firstValueFrom(
-      yDoc.observeStatistics().pipe(take(2), toArray())
+      yDoc.observeStatistics().pipe(take(2), toArray()),
     );
 
     yDoc.applyChange(await mockChange());

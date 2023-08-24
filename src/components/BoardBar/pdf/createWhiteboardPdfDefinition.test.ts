@@ -87,7 +87,7 @@ describe('createWhiteboardPdfDefinition', () => {
         whiteboardInstance,
         roomName: 'My Room',
         authorName: 'Alice',
-      })
+      }),
     ).toMatchSnapshot();
   });
 

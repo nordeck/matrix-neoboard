@@ -53,37 +53,37 @@ describe('usePauseHotkeysScope', () => {
       wrapper: Wrapper,
     });
     expect(screen.getByTestId('enabled-scopes').textContent).toEqual(
-      HOTKEY_SCOPE_GLOBAL
+      HOTKEY_SCOPE_GLOBAL,
     );
   });
 
   it('should pause hotkeys scope and unpause on unmount', () => {
     const { rerender } = render(
       <PauseScope scope={HOTKEY_SCOPE_WHITEBOARD} pause />,
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
     expect(screen.getByTestId('enabled-scopes').textContent).toEqual(
-      HOTKEY_SCOPE_GLOBAL
+      HOTKEY_SCOPE_GLOBAL,
     );
 
     rerender(<></>);
     expect(screen.getByTestId('enabled-scopes').textContent).toEqual(
-      `${HOTKEY_SCOPE_GLOBAL},${HOTKEY_SCOPE_WHITEBOARD}`
+      `${HOTKEY_SCOPE_GLOBAL},${HOTKEY_SCOPE_WHITEBOARD}`,
     );
   });
 
   it('should unpause hotkey', () => {
     const { rerender } = render(
       <PauseScope scope={HOTKEY_SCOPE_WHITEBOARD} pause />,
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
     expect(screen.getByTestId('enabled-scopes').textContent).toEqual(
-      HOTKEY_SCOPE_GLOBAL
+      HOTKEY_SCOPE_GLOBAL,
     );
 
     rerender(<PauseScope scope={HOTKEY_SCOPE_WHITEBOARD} pause={false} />);
     expect(screen.getByTestId('enabled-scopes').textContent).toEqual(
-      `${HOTKEY_SCOPE_GLOBAL},${HOTKEY_SCOPE_WHITEBOARD}`
+      `${HOTKEY_SCOPE_GLOBAL},${HOTKEY_SCOPE_WHITEBOARD}`,
     );
   });
 
@@ -93,30 +93,30 @@ describe('usePauseHotkeysScope', () => {
         <PauseScope scope={HOTKEY_SCOPE_WHITEBOARD} pause />
         <PauseScope scope={HOTKEY_SCOPE_WHITEBOARD} pause />
       </>,
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
     expect(screen.getByTestId('enabled-scopes').textContent).toEqual(
-      HOTKEY_SCOPE_GLOBAL
+      HOTKEY_SCOPE_GLOBAL,
     );
 
     rerender(
       <>
         <PauseScope scope={HOTKEY_SCOPE_WHITEBOARD} pause />
         <PauseScope scope={HOTKEY_SCOPE_WHITEBOARD} pause={false} />
-      </>
+      </>,
     );
     expect(screen.getByTestId('enabled-scopes').textContent).toEqual(
-      HOTKEY_SCOPE_GLOBAL
+      HOTKEY_SCOPE_GLOBAL,
     );
 
     rerender(
       <>
         <PauseScope scope={HOTKEY_SCOPE_WHITEBOARD} pause={false} />
         <PauseScope scope={HOTKEY_SCOPE_WHITEBOARD} pause={false} />
-      </>
+      </>,
     );
     expect(screen.getByTestId('enabled-scopes').textContent).toEqual(
-      `${HOTKEY_SCOPE_GLOBAL},${HOTKEY_SCOPE_WHITEBOARD}`
+      `${HOTKEY_SCOPE_GLOBAL},${HOTKEY_SCOPE_WHITEBOARD}`,
     );
   });
 });

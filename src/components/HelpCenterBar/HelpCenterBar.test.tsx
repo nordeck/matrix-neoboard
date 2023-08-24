@@ -54,16 +54,16 @@ describe('<HelpCenterBar/>', () => {
     const toolbar = screen.getByRole('toolbar', { name: 'Help center' });
 
     await userEvent.click(
-      within(toolbar).getByRole('button', { name: 'Help' })
+      within(toolbar).getByRole('button', { name: 'Help' }),
     );
 
     const menu = screen.getByRole('menu', { name: 'Help' });
 
     expect(
-      within(menu).getByRole('menuitem', { name: 'Reset onboarding' })
+      within(menu).getByRole('menuitem', { name: 'Reset onboarding' }),
     ).toBeInTheDocument();
     expect(
-      within(menu).getByRole('menuitem', { name: 'About NeoBoard' })
+      within(menu).getByRole('menuitem', { name: 'About NeoBoard' }),
     ).toBeInTheDocument();
     expect(within(menu).getAllByRole('menuitem')).toHaveLength(2);
 
@@ -92,14 +92,14 @@ describe('<HelpCenterBar/>', () => {
       .mockImplementation((name, defaultValue) =>
         name === 'REACT_APP_HELP_CENTER_URL'
           ? 'https://example.com'
-          : defaultValue
+          : defaultValue,
       );
     render(<HelpCenterBar />, { wrapper: Wrapper });
 
     const toolbar = screen.getByRole('toolbar', { name: 'Help center' });
 
     await userEvent.click(
-      within(toolbar).getByRole('button', { name: 'Help' })
+      within(toolbar).getByRole('button', { name: 'Help' }),
     );
 
     const menu = screen.getByRole('menu', { name: 'Help' });
@@ -120,19 +120,19 @@ describe('<HelpCenterBar/>', () => {
     const toolbar = screen.getByRole('toolbar', { name: 'Help center' });
 
     await userEvent.click(
-      within(toolbar).getByRole('button', { name: 'Help' })
+      within(toolbar).getByRole('button', { name: 'Help' }),
     );
 
     const menu = screen.getByRole('menu', { name: 'Help' });
 
     await userEvent.click(
-      screen.getByRole('menuitem', { name: 'About NeoBoard' })
+      screen.getByRole('menuitem', { name: 'About NeoBoard' }),
     );
 
     const dialog = screen.getByRole('dialog', { name: 'About NeoBoard' });
 
     await userEvent.click(
-      within(dialog).getAllByRole('button', { name: 'Close' })[0]
+      within(dialog).getAllByRole('button', { name: 'Close' })[0],
     );
 
     await waitFor(() => {
@@ -147,7 +147,7 @@ describe('<HelpCenterBar/>', () => {
       .mockImplementation((name, defaultValue) =>
         name === 'REACT_APP_HELP_CENTER_URL'
           ? 'https://example.com'
-          : defaultValue
+          : defaultValue,
       );
 
     const { rerender } = render(<HelpCenterBar />, { wrapper: Wrapper });

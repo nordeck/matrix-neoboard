@@ -28,7 +28,7 @@ export type SvgCanvasContextType = {
 };
 
 export const SvgCanvasContext = createContext<SvgCanvasContextType | undefined>(
-  undefined
+  undefined,
 );
 
 export const useSvgCanvasContext = (): SvgCanvasContextType => {

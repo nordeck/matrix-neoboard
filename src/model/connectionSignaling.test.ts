@@ -45,7 +45,7 @@ describe('isValidConnectionSignalingMessage', () => {
         sender: '@user-id',
         encrypted: false,
         type: 'net.nordeck.whiteboard.connection_signaling',
-      })
+      }),
     ).toBe(true);
   });
 
@@ -74,7 +74,7 @@ describe('isValidConnectionSignalingMessage', () => {
         sender: '@user-id',
         encrypted: false,
         type: 'net.nordeck.whiteboard.connection_signaling',
-      })
+      }),
     ).toBe(true);
   });
 
@@ -113,7 +113,7 @@ describe('isValidConnectionSignalingMessage', () => {
         sender: '@user-id',
         encrypted: false,
         type: 'net.nordeck.whiteboard.connection_signaling',
-      })
+      }),
     ).toBe(true);
   });
 
@@ -163,7 +163,7 @@ describe('isValidConnectionSignalingMessage', () => {
         sender: '@user-id',
         encrypted: false,
         type: 'net.nordeck.whiteboard.connection_signaling',
-      })
+      }),
     ).toBe(false);
   });
 });

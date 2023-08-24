@@ -32,7 +32,7 @@ export function canvas(element: CanvasElement): Content {
 
 export function textContent(
   element: ShapeElement,
-  textProperties: NonNullable<ElementRenderProperties['text']>
+  textProperties: NonNullable<ElementRenderProperties['text']>,
 ): Content {
   if (!element.text) {
     return [];
@@ -42,7 +42,7 @@ export function textContent(
     textProperties.width,
     textProperties.height,
     { innerText: element.text },
-    { disableLigatures: true, fontFamily: 'Inter,"Noto Emoji"' }
+    { disableLigatures: true, fontFamily: 'Inter,"Noto Emoji"' },
   );
 
   const regex = emojiRegex();

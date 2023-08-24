@@ -57,7 +57,7 @@ describe('<UploadBar/>', () => {
     const toolbar = screen.getByRole('toolbar', { name: 'Upload' });
 
     expect(
-      within(toolbar).getByRole('button', { name: 'Upload' })
+      within(toolbar).getByRole('button', { name: 'Upload' }),
     ).toBeInTheDocument();
   });
 
@@ -72,7 +72,7 @@ describe('<UploadBar/>', () => {
     const toolbar = screen.getByRole('toolbar', { name: 'Upload' });
 
     expect(
-      within(toolbar).getByRole('button', { name: 'Upload' })
+      within(toolbar).getByRole('button', { name: 'Upload' }),
     ).toBeDisabled();
   });
 

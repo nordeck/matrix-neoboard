@@ -30,7 +30,7 @@ const roomNameEventSchema = Joi.object<RoomNameEvent, true>({
 }).unknown();
 
 export function isValidRoomNameEvent(
-  event: StateEvent<unknown>
+  event: StateEvent<unknown>,
 ): event is StateEvent<RoomNameEvent> {
   return isValidEvent(event, STATE_EVENT_ROOM_NAME, roomNameEventSchema);
 }

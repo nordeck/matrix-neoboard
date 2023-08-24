@@ -43,19 +43,19 @@ describe('convertWhiteboardToExportFormat', () => {
 
       const [addElementToSlide0] = generateAddElement(
         slide0,
-        mockEllipseElement({ kind: 'circle' })
+        mockEllipseElement({ kind: 'circle' }),
       );
       addElementToSlide0(doc);
 
       const [addElementToSlide1] = generateAddElement(
         slide1,
-        mockEllipseElement({ kind: 'ellipse' })
+        mockEllipseElement({ kind: 'ellipse' }),
       );
       addElementToSlide1(doc);
 
       const [addElementToSlide2] = generateAddElement(
         slide2,
-        mockEllipseElement({ kind: 'triangle' })
+        mockEllipseElement({ kind: 'triangle' }),
       );
       addElementToSlide2(doc);
     });
@@ -78,19 +78,19 @@ describe('convertWhiteboardToExportFormat', () => {
     document.performChange((doc) => {
       const [addElement0] = generateAddElement(
         slide0,
-        mockEllipseElement({ kind: 'circle' })
+        mockEllipseElement({ kind: 'circle' }),
       );
       addElement0(doc);
 
       const [addElement1, element1] = generateAddElement(
         slide0,
-        mockEllipseElement({ kind: 'ellipse' })
+        mockEllipseElement({ kind: 'ellipse' }),
       );
       addElement1(doc);
 
       const [addElement2] = generateAddElement(
         slide0,
-        mockEllipseElement({ kind: 'triangle' })
+        mockEllipseElement({ kind: 'triangle' }),
       );
       addElement2(doc);
 

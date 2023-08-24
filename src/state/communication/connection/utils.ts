@@ -17,7 +17,7 @@
 import { PeerConnectionStatistics } from './types';
 
 export function extractPeerConnectionStatistics(
-  report: RTCStatsReport
+  report: RTCStatsReport,
 ): Partial<PeerConnectionStatistics> {
   const stats: Partial<PeerConnectionStatistics> = {};
 
@@ -50,14 +50,14 @@ export function extractPeerConnectionStatistics(
 
 export function isImpolite(
   ownSessionId: string,
-  otherSessionId: string
+  otherSessionId: string,
 ): boolean {
   // The session with the higher lexical ordering is the impolite peer
   return ownSessionId > otherSessionId;
 }
 
 export function isPeerConnected(
-  peerConnectionStatistics: PeerConnectionStatistics
+  peerConnectionStatistics: PeerConnectionStatistics,
 ) {
   const dataChannelOpen = peerConnectionStatistics.dataChannelState === 'open';
 

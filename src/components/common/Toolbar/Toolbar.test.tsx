@@ -35,28 +35,28 @@ describe('Toolbar', () => {
           <ToolbarRadio value="D" inputProps={{ 'aria-label': 'D' }} />
           <ToolbarRadio value="E" inputProps={{ 'aria-label': 'E' }} />
         </ToolbarRadioGroup>
-      </Toolbar>
+      </Toolbar>,
     );
 
     const toolbar = screen.getByRole('toolbar', { name: 'Toolbar' });
 
     expect(
-      within(toolbar).getByRole('checkbox', { name: 'A' })
+      within(toolbar).getByRole('checkbox', { name: 'A' }),
     ).toBeInTheDocument();
     expect(
-      within(toolbar).getByRole('button', { name: 'B' })
+      within(toolbar).getByRole('button', { name: 'B' }),
     ).toBeInTheDocument();
     expect(
-      within(toolbar).getByRole('button', { name: 'C' })
+      within(toolbar).getByRole('button', { name: 'C' }),
     ).toBeInTheDocument();
     const radioGroup = within(toolbar).getByRole('radiogroup', {
       name: 'Radio Group',
     });
     expect(
-      within(radioGroup).getByRole('radio', { name: 'D' })
+      within(radioGroup).getByRole('radio', { name: 'D' }),
     ).toBeInTheDocument();
     expect(
-      within(radioGroup).getByRole('radio', { name: 'E' })
+      within(radioGroup).getByRole('radio', { name: 'E' }),
     ).toBeInTheDocument();
   });
 
@@ -71,7 +71,7 @@ describe('Toolbar', () => {
           <ToolbarRadio value="D" inputProps={{ 'aria-label': 'D' }} />
           <ToolbarRadio value="E" inputProps={{ 'aria-label': 'E' }} />
         </ToolbarRadioGroup>
-      </Toolbar>
+      </Toolbar>,
     );
 
     expect(await axe(container)).toHaveNoViolations();
@@ -83,12 +83,12 @@ describe('Toolbar', () => {
         <ToolbarToggle inputProps={{ 'aria-label': 'A' }} />
         <ToolbarButton>B</ToolbarButton>
         <ToolbarSubMenu>C</ToolbarSubMenu>
-      </Toolbar>
+      </Toolbar>,
     );
 
     expect(screen.getByRole('checkbox', { name: 'A' })).toHaveAttribute(
       'tabindex',
-      '0'
+      '0',
     );
   });
 
@@ -98,7 +98,7 @@ describe('Toolbar', () => {
         <ToolbarToggle inputProps={{ 'aria-label': 'A' }} />
         <ToolbarButton>B</ToolbarButton>
         <ToolbarSubMenu>C</ToolbarSubMenu>
-      </Toolbar>
+      </Toolbar>,
     );
 
     screen.getByRole('button', { name: 'B' }).focus();
@@ -112,7 +112,7 @@ describe('Toolbar', () => {
         <ToolbarToggle inputProps={{ 'aria-label': 'A' }} />
         <ToolbarButton>B</ToolbarButton>
         <ToolbarSubMenu>C</ToolbarSubMenu>
-      </Toolbar>
+      </Toolbar>,
     );
 
     screen.getByRole('button', { name: 'B' }).focus();
@@ -126,7 +126,7 @@ describe('Toolbar', () => {
         <ToolbarToggle inputProps={{ 'aria-label': 'A' }} />
         <ToolbarButton>B</ToolbarButton>
         <ToolbarSubMenu>C</ToolbarSubMenu>
-      </Toolbar>
+      </Toolbar>,
     );
 
     screen.getByRole('button', { name: 'B' }).focus();
@@ -140,7 +140,7 @@ describe('Toolbar', () => {
         <ToolbarToggle inputProps={{ 'aria-label': 'A' }} />
         <ToolbarButton>B</ToolbarButton>
         <ToolbarSubMenu>C</ToolbarSubMenu>
-      </Toolbar>
+      </Toolbar>,
     );
 
     screen.getByRole('button', { name: 'B' }).focus();
@@ -158,7 +158,7 @@ describe('Toolbar', () => {
           <ToolbarRadio value="D" inputProps={{ 'aria-label': 'D' }} />
           <ToolbarRadio value="E" inputProps={{ 'aria-label': 'E' }} />
         </ToolbarRadioGroup>
-      </Toolbar>
+      </Toolbar>,
     );
 
     screen.getByRole('checkbox', { name: 'A' }).focus();
@@ -176,7 +176,7 @@ describe('Toolbar', () => {
           <ToolbarRadio value="D" inputProps={{ 'aria-label': 'D' }} />
           <ToolbarRadio value="E" inputProps={{ 'aria-label': 'E' }} />
         </ToolbarRadioGroup>
-      </Toolbar>
+      </Toolbar>,
     );
 
     screen.getByRole('radio', { name: 'E' }).focus();
@@ -190,7 +190,7 @@ describe('Toolbar', () => {
         <ToolbarToggle inputProps={{ 'aria-label': 'A' }} />
         <ToolbarButton>B</ToolbarButton>
         <ToolbarSubMenu>C</ToolbarSubMenu>
-      </Toolbar>
+      </Toolbar>,
     );
 
     screen.getByRole('button', { name: 'C' }).focus();
@@ -204,7 +204,7 @@ describe('Toolbar', () => {
         <ToolbarToggle inputProps={{ 'aria-label': 'A' }} />
         <ToolbarButton>B</ToolbarButton>
         <ToolbarSubMenu>C</ToolbarSubMenu>
-      </Toolbar>
+      </Toolbar>,
     );
 
     screen.getByRole('checkbox', { name: 'A' }).focus();
@@ -221,7 +221,7 @@ describe('Toolbar', () => {
           <ToolbarSubMenu>C</ToolbarSubMenu>
         </Toolbar>
         <button>Outside</button>
-      </>
+      </>,
     );
 
     screen.getByRole('checkbox', { name: 'A' }).focus();
@@ -246,7 +246,7 @@ describe('Toolbar', () => {
           <ToolbarSubMenu>C</ToolbarSubMenu>
         </Toolbar>
         <button>Outside</button>
-      </>
+      </>,
     );
 
     const buttonB = screen.getByRole('button', { name: 'B' });
@@ -275,7 +275,7 @@ describe('Toolbar', () => {
           <ToolbarRadio value="G" inputProps={{ 'aria-label': 'G' }} />
         </ToolbarRadioGroup>
         <ToolbarButton>H</ToolbarButton>
-      </Toolbar>
+      </Toolbar>,
     );
 
     screen.getByRole('radio', { name: 'B' }).focus();
@@ -298,7 +298,7 @@ describe('Toolbar', () => {
           <ToolbarRadio value="G" inputProps={{ 'aria-label': 'G' }} />
         </ToolbarRadioGroup>
         <ToolbarButton>H</ToolbarButton>
-      </Toolbar>
+      </Toolbar>,
     );
 
     screen.getByRole('radio', { name: 'F' }).focus();
@@ -321,7 +321,7 @@ describe('Toolbar', () => {
           <ToolbarRadio value="G" inputProps={{ 'aria-label': 'G' }} />
         </ToolbarRadioGroup>
         <ToolbarButton>H</ToolbarButton>
-      </Toolbar>
+      </Toolbar>,
     );
 
     screen.getByRole('radio', { name: 'E' }).focus();
@@ -344,7 +344,7 @@ describe('Toolbar', () => {
           <ToolbarRadio value="G" inputProps={{ 'aria-label': 'G' }} />
         </ToolbarRadioGroup>
         <ToolbarButton>H</ToolbarButton>
-      </Toolbar>
+      </Toolbar>,
     );
 
     screen.getByRole('radio', { name: 'D' }).focus();
@@ -369,13 +369,13 @@ describe('Toolbar', () => {
             <ToolbarRadio value="G" inputProps={{ 'aria-label': 'G' }} />
           </ToolbarRadioGroup>
           <ToolbarButton>H</ToolbarButton>
-        </Toolbar>
+        </Toolbar>,
       );
 
       screen.getByRole('radio', { name: 'D', checked: false }).focus();
       await userEvent.keyboard(key);
       expect(screen.getByRole('radio', { name: 'D' })).toBeChecked();
-    }
+    },
   );
 
   it('should restore focus if the toolbar is focused when the focus is on an uncheck radio', async () => {
@@ -389,7 +389,7 @@ describe('Toolbar', () => {
           </ToolbarRadioGroup>
         </Toolbar>
         <button>Outside</button>
-      </>
+      </>,
     );
 
     const radioB = screen.getByRole('radio', { name: 'B' });
@@ -410,7 +410,7 @@ describe('Toolbar', () => {
           <ToolbarRadio value="B" inputProps={{ 'aria-label': 'B' }} />
           <ToolbarRadio value="C" inputProps={{ 'aria-label': 'C' }} />
         </ToolbarRadioGroup>
-      </Toolbar>
+      </Toolbar>,
     );
 
     const radioB = screen.getByRole('radio', { name: 'B' });
@@ -426,7 +426,7 @@ describe('Toolbar', () => {
     render(
       <Toolbar aria-label="Toolbar">
         <ToolbarSubMenu onClick={onClick}>A</ToolbarSubMenu>
-      </Toolbar>
+      </Toolbar>,
     );
 
     screen.getByRole('button', { name: 'A' }).focus();

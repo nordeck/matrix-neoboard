@@ -64,7 +64,7 @@ type UnbindFn = () => void;
 
 function getOptions(
   shared?: EventOptions,
-  fromBinding?: EventOptions
+  fromBinding?: EventOptions,
 ): EventOptions {
   return {
     ...shared,
@@ -75,7 +75,7 @@ function getOptions(
 export function bindEvents(
   el: Window,
   bindings: EventBinding[],
-  sharedOptions?: EventOptions
+  sharedOptions?: EventOptions,
 ): () => void {
   const unbindings: UnbindFn[] = bindings.map(
     (binding: EventBinding): UnbindFn => {
@@ -86,7 +86,7 @@ export function bindEvents(
       return function unbind() {
         el.removeEventListener(binding.eventName, binding.fn, options);
       };
-    }
+    },
   );
 
   // Return a function to unbind events
@@ -109,7 +109,7 @@ const scrollJumpKeys: KeyMap = {
 
 function getDraggingBindings(
   actions: SnapDragActions,
-  stop: () => void
+  stop: () => void,
 ): EventBinding[] {
   function cancel() {
     stop();
@@ -241,7 +241,7 @@ export function useCustomKeyboardSensor(api: SensorAPI) {
           // abort function not defined yet
           // eslint-disable-next-line no-use-before-define
           stop,
-          { sourceEvent: event }
+          { sourceEvent: event },
         );
 
         // Cannot start capturing at this time
@@ -272,13 +272,13 @@ export function useCustomKeyboardSensor(api: SensorAPI) {
         unbindEventsRef.current = bindEvents(
           window,
           getDraggingBindings(actions, stop),
-          { capture: true, passive: false }
+          { capture: true, passive: false },
         );
       },
     }),
     // not including startPendingDrag as it is not defined initially
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [api]
+    [api],
   );
 
   const listenForCapture = useCallback(
@@ -291,10 +291,10 @@ export function useCustomKeyboardSensor(api: SensorAPI) {
       unbindEventsRef.current = bindEvents(
         window,
         [startCaptureBinding],
-        options
+        options,
       );
     },
-    [startCaptureBinding]
+    [startCaptureBinding],
   );
 
   useLayoutEffect(
@@ -306,6 +306,6 @@ export function useCustomKeyboardSensor(api: SensorAPI) {
         unbindEventsRef.current();
       };
     },
-    [listenForCapture]
+    [listenForCapture],
   );
 }

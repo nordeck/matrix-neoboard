@@ -65,11 +65,11 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
 
   private readonly dataObservable = concat(
     defer(() => of(this.document.getData())),
-    this.document.observeChanges()
+    this.document.observeChanges(),
   ).pipe(takeUntil(this.destroySubject));
   private readonly elementIdsObservable = this.dataObservable.pipe(
     map((doc) => getNormalizedElementIds(doc, this.slideId)),
-    distinctUntilChanged(isEqual)
+    distinctUntilChanged(isEqual),
   );
   private readonly cursorPositionSubject = new Subject<Point>();
   private readonly cursorPositionObservable: Observable<Record<string, Point>> =
@@ -77,15 +77,18 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
       this.communicationChannel.observeMessages().pipe(
         filter(isValidCursorUpdateMessage),
         filter((m) => m.content.slideId === this.slideId),
-        scan((acc, m) => {
-          return {
-            ...acc,
-            [m.senderUserId]: {
-              position: m.content.position as Point,
-              timestamp: Date.now(),
-            },
-          };
-        }, {} as Record<string, { position: Point; timestamp: number }>)
+        scan(
+          (acc, m) => {
+            return {
+              ...acc,
+              [m.senderUserId]: {
+                position: m.content.position as Point,
+                timestamp: Date.now(),
+              },
+            };
+          },
+          {} as Record<string, { position: Point; timestamp: number }>,
+        ),
       ),
       timer(0, 1000),
     ]).pipe(
@@ -93,18 +96,18 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
         Object.fromEntries<Point>(
           Object.entries(data)
             .filter(([_key, value]) => value.timestamp + 5000 > Date.now())
-            .map(([key, value]) => [key, value.position])
-        )
+            .map(([key, value]) => [key, value.position]),
+        ),
       ),
       distinctUntilChanged(isEqual),
-      takeUntil(this.destroySubject)
+      takeUntil(this.destroySubject),
     );
 
   constructor(
     private readonly communicationChannel: CommunicationChannel,
     private readonly slideId: string,
     private readonly document: Document<WhiteboardDocument>,
-    private readonly userId: string
+    private readonly userId: string,
   ) {
     this.observeElementIds()
       .pipe(takeUntil(this.destroySubject))
@@ -115,7 +118,7 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
     this.cursorPositionSubject
       .pipe(
         takeUntil(this.destroySubject),
-        throttleTime(100, undefined, { leading: true, trailing: true })
+        throttleTime(100, undefined, { leading: true, trailing: true }),
       )
       .subscribe((position) => {
         this.communicationChannel.broadcastMessage<CursorUpdate>(
@@ -123,7 +126,7 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
           {
             slideId: this.slideId,
             position,
-          }
+          },
         );
       });
   }
@@ -159,7 +162,7 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
     this.assertLocked();
 
     this.document.performChange(
-      generateUpdateElement(this.slideId, elementId, patch)
+      generateUpdateElement(this.slideId, elementId, patch),
     );
   }
 
@@ -191,14 +194,14 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
     return getElement(
       this.document.getData(),
       this.slideId,
-      elementId
+      elementId,
     )?.toJSON();
   }
 
   observeElement(elementId: string): Observable<Element | undefined> {
     return this.dataObservable.pipe(
       map((doc) => getElement(doc, this.slideId, elementId)?.toJSON()),
-      distinctUntilChanged(isEqual)
+      distinctUntilChanged(isEqual),
     );
   }
 
@@ -228,7 +231,7 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
   observeActiveElementId(): Observable<string | undefined> {
     return concat(
       defer(() => of(this.getActiveElementId())),
-      this.activeElementIdSubject
+      this.activeElementIdSubject,
     ).pipe(distinctUntilChanged());
   }
 
@@ -249,7 +252,7 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
   observeIsLocked(): Observable<boolean> {
     return this.dataObservable.pipe(
       map((doc) => getSlideLock(doc, this.slideId) !== undefined),
-      distinctUntilChanged()
+      distinctUntilChanged(),
     );
   }
 

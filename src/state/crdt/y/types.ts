@@ -19,7 +19,7 @@ export { Array as YArray, Map as YMap, Text as YText } from 'yjs';
 
 export interface SharedMap<
   Data,
-  Keys extends keyof Data & string = keyof Data & string
+  Keys extends keyof Data & string = keyof Data & string,
 > extends YMap<unknown> {
   clone(): SharedMap<Data, Keys>;
   delete(key: Keys & string): void;

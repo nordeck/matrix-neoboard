@@ -37,11 +37,11 @@ const documentSnapshotSchema = Joi.object<DocumentSnapshot, true>({
 }).unknown();
 
 export function isValidDocumentSnapshotRoomEvent(
-  event: RoomEvent<unknown>
+  event: RoomEvent<unknown>,
 ): event is RoomEvent<DocumentSnapshot> {
   return isValidEvent(
     event,
     ROOM_EVENT_DOCUMENT_SNAPSHOT,
-    documentSnapshotSchema
+    documentSnapshotSchema,
   );
 }

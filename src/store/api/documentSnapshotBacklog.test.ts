@@ -258,7 +258,7 @@ describe('combineChunks', () => {
     ];
 
     expect(Base64.fromUint8Array(combineChunks(chunks)!)).toEqual(
-      'RXhhbXBsZQ==' // Example
+      'RXhhbXBsZQ==', // Example
     );
   });
 
@@ -288,7 +288,7 @@ describe('combineChunks', () => {
     ];
 
     expect(Base64.fromUint8Array(combineChunks(chunks)!)).toEqual(
-      'RXhhbXBsZQ==' // Example
+      'RXhhbXBsZQ==', // Example
     );
   });
 
@@ -318,7 +318,7 @@ describe('combineChunks', () => {
     ];
 
     expect(Base64.fromUint8Array(combineChunks(chunks)!)).toEqual(
-      'RXhhbXBsZQ==' // Example
+      'RXhhbXBsZQ==', // Example
     );
   });
 

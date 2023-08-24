@@ -124,7 +124,7 @@ describe('fitText', () => {
         '56px': [91, 96],
         '55px': [91, 70],
       },
-      { '55px': 60 }
+      { '55px': 60 },
     );
 
     container.style.height = '70px';
@@ -141,7 +141,7 @@ function createContainerElement(
   width: number,
   height: number,
   scrollLookup: Record<string, number[]>,
-  clientHeightLookup: Record<string, number> = {}
+  clientHeightLookup: Record<string, number> = {},
 ): HTMLElement {
   const container = document.createElement('div');
   jest.spyOn(container, 'clientWidth', 'get').mockReturnValue(width);
@@ -151,7 +151,7 @@ function createContainerElement(
   jest
     .spyOn(calculationContainer, 'clientHeight', 'get')
     .mockImplementation(
-      () => clientHeightLookup[calculationContainer.style.fontSize] ?? height
+      () => clientHeightLookup[calculationContainer.style.fontSize] ?? height,
     );
   jest
     .spyOn(calculationContainer, 'getBoundingClientRect')

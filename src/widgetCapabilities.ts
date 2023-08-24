@@ -39,75 +39,75 @@ const { userId } = extractWidgetParameters();
 export const widgetCapabilities = [
   WidgetEventCapability.forRoomEvent(
     EventDirection.Send,
-    ROOM_EVENT_DOCUMENT_CREATE
+    ROOM_EVENT_DOCUMENT_CREATE,
   ),
   WidgetEventCapability.forRoomEvent(
     EventDirection.Receive,
-    ROOM_EVENT_DOCUMENT_CREATE
+    ROOM_EVENT_DOCUMENT_CREATE,
   ),
   WidgetEventCapability.forRoomEvent(
     EventDirection.Send,
-    ROOM_EVENT_DOCUMENT_SNAPSHOT
+    ROOM_EVENT_DOCUMENT_SNAPSHOT,
   ),
   WidgetEventCapability.forRoomEvent(
     EventDirection.Receive,
-    ROOM_EVENT_DOCUMENT_SNAPSHOT
+    ROOM_EVENT_DOCUMENT_SNAPSHOT,
   ),
   WidgetEventCapability.forRoomEvent(
     EventDirection.Send,
-    ROOM_EVENT_DOCUMENT_CHUNK
+    ROOM_EVENT_DOCUMENT_CHUNK,
   ),
   WidgetEventCapability.forRoomEvent(
     EventDirection.Receive,
-    ROOM_EVENT_DOCUMENT_CHUNK
+    ROOM_EVENT_DOCUMENT_CHUNK,
   ),
 
   WidgetEventCapability.forStateEvent(
     EventDirection.Send,
     STATE_EVENT_POWER_LEVELS,
-    ''
+    '',
   ),
   WidgetEventCapability.forStateEvent(
     EventDirection.Receive,
     STATE_EVENT_POWER_LEVELS,
-    ''
+    '',
   ),
 
   WidgetEventCapability.forStateEvent(
     EventDirection.Receive,
-    STATE_EVENT_ROOM_MEMBER
+    STATE_EVENT_ROOM_MEMBER,
   ),
 
   WidgetEventCapability.forStateEvent(
     EventDirection.Send,
-    STATE_EVENT_WHITEBOARD
+    STATE_EVENT_WHITEBOARD,
   ),
   WidgetEventCapability.forStateEvent(
     EventDirection.Receive,
-    STATE_EVENT_WHITEBOARD
+    STATE_EVENT_WHITEBOARD,
   ),
   WidgetEventCapability.forStateEvent(
     EventDirection.Send,
     STATE_EVENT_WHITEBOARD_SESSIONS,
     // We only need to write the own state, but read state from everyone
-    userId
+    userId,
   ),
   WidgetEventCapability.forStateEvent(
     EventDirection.Receive,
-    STATE_EVENT_WHITEBOARD_SESSIONS
+    STATE_EVENT_WHITEBOARD_SESSIONS,
   ),
   WidgetEventCapability.forStateEvent(
     EventDirection.Receive,
-    STATE_EVENT_ROOM_NAME
+    STATE_EVENT_ROOM_NAME,
   ),
 
   WidgetEventCapability.forToDeviceEvent(
     EventDirection.Send,
-    TO_DEVICE_MESSAGE_CONNECTION_SIGNALING
+    TO_DEVICE_MESSAGE_CONNECTION_SIGNALING,
   ),
   WidgetEventCapability.forToDeviceEvent(
     EventDirection.Receive,
-    TO_DEVICE_MESSAGE_CONNECTION_SIGNALING
+    TO_DEVICE_MESSAGE_CONNECTION_SIGNALING,
   ),
 
   MatrixCapabilities.MSC3846TurnServers,

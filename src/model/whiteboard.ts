@@ -31,7 +31,7 @@ const whiteboardSchema = Joi.object<Whiteboard, true>({
 }).unknown();
 
 export function isValidWhiteboardStateEvent(
-  event: StateEvent<unknown>
+  event: StateEvent<unknown>,
 ): event is StateEvent<Whiteboard> {
   return isValidEvent(event, STATE_EVENT_WHITEBOARD, whiteboardSchema);
 }

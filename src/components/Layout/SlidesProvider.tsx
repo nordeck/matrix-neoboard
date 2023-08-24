@@ -28,7 +28,7 @@ export function SlidesProvider({ children }: PropsWithChildren<{}>) {
         whiteboardInstance.setActiveSlideId(slideId);
       }
     },
-    [whiteboardInstance]
+    [whiteboardInstance],
   );
 
   return (

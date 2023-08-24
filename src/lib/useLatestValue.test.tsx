@@ -36,7 +36,7 @@ describe('useLatestValue', () => {
       .mockReturnValueOnce({ a: 1 });
 
     const { result, rerender } = renderHook(() =>
-      useLatestValue(valueProvider)
+      useLatestValue(valueProvider),
     );
 
     rerender();
@@ -52,7 +52,7 @@ describe('useLatestValue', () => {
       .mockReturnValueOnce(value);
 
     const { result, rerender } = renderHook(() =>
-      useLatestValue(valueProvider)
+      useLatestValue(valueProvider),
     );
 
     expect(result.current).toBe(1);
@@ -72,7 +72,7 @@ describe('useLatestValue', () => {
     const renderSubject = new Subject<void>();
 
     const { result } = renderHook(() =>
-      useLatestValue(valueProvider, renderSubject)
+      useLatestValue(valueProvider, renderSubject),
     );
 
     expect(result.current).toBe(1);

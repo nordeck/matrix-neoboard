@@ -86,10 +86,10 @@ export function ElementContextMenu({
               position: { left: event.clientX + 2, top: event.clientY - 6 },
               elementId,
             }
-          : undefined
+          : undefined,
       );
     },
-    [elementId]
+    [elementId],
   );
 
   const handleClickBringForward = useCallback(() => {

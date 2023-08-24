@@ -35,25 +35,25 @@ export type DocumentVisibilityState = Document['visibilityState'];
  *                        a hysteresis when going into the hidden state.
  */
 export function observeVisibilityState(
-  hiddenTimeout: number
+  hiddenTimeout: number,
 ): Observable<DocumentVisibilityState> {
   const visibility = fromEvent(
     document,
     'visibilitychange',
-    () => document.visibilityState
+    () => document.visibilityState,
   );
   const visibilityVisible = visibility.pipe(filter((v) => v === 'visible'));
   const visibilityHidden = visibility.pipe(
     filter((v) => v === 'hidden'),
     // Is it still hidden after the timeout?
     delay(hiddenTimeout),
-    filter(() => document.visibilityState === 'hidden')
+    filter(() => document.visibilityState === 'hidden'),
   );
 
   return merge(
     // Always emit a start value
     defer(() => of(document.visibilityState)),
     visibilityVisible,
-    visibilityHidden
+    visibilityHidden,
   ).pipe(distinctUntilChanged());
 }

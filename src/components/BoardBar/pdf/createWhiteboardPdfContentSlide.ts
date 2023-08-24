@@ -20,7 +20,7 @@ import { createWhiteboardPdfElementPath } from './createWhiteboardPdfElementPath
 import { createWhiteboardPdfElementShape } from './createWhiteboardPdfElementShape';
 
 export function createWhiteboardPdfContentSlide(
-  slideInstance: WhiteboardSlideInstance
+  slideInstance: WhiteboardSlideInstance,
 ): Content {
   return slideInstance.getElementIds().map((elementId) => {
     const element = slideInstance.getElement(elementId);

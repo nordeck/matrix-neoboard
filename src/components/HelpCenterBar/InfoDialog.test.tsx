@@ -48,11 +48,11 @@ describe('<InfoDialog/>', () => {
     });
 
     expect(
-      within(dialog).getByRole('heading', { name: 'About NeoBoard' })
+      within(dialog).getByRole('heading', { name: 'About NeoBoard' }),
     ).toBeInTheDocument();
     expect(within(dialog).getByText('Version unset')).toBeInTheDocument();
     expect(
-      within(dialog).getByRole('button', { name: 'Show more' })
+      within(dialog).getByRole('button', { name: 'Show more' }),
     ).toBeInTheDocument();
   });
 
@@ -84,7 +84,7 @@ describe('<InfoDialog/>', () => {
     });
 
     expect(
-      within(dialog).getByRole('heading', { name: 'About NeoBoard' })
+      within(dialog).getByRole('heading', { name: 'About NeoBoard' }),
     ).toBeInTheDocument();
     expect(within(dialog).getByText('Version 1.0.0')).toBeInTheDocument();
 
@@ -95,7 +95,7 @@ describe('<InfoDialog/>', () => {
     });
 
     expect(revisionTextBox).toHaveValue(
-      '8070e9546f2f13732cd8db0bd29b4b61d9abc70e'
+      '8070e9546f2f13732cd8db0bd29b4b61d9abc70e',
     );
 
     await userEvent.click(screen.getByRole('button', { name: 'Show less' }));

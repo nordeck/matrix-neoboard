@@ -31,7 +31,7 @@ import { Observable } from 'rxjs';
  */
 export function useLatestValue<T>(
   valueProvider: () => T,
-  observable?: Observable<unknown>
+  observable?: Observable<unknown>,
 ): T {
   // memoize the latest value of the valueProvider
   const newValue = valueProvider();

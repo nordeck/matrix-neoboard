@@ -17,7 +17,7 @@
 type DocumentVisibilityState = Document['visibilityState'];
 
 export function mockDocumentVisibilityState(
-  visibility: DocumentVisibilityState
+  visibility: DocumentVisibilityState,
 ): void {
   jest.spyOn(document, 'visibilityState', 'get').mockReturnValue(visibility);
   document.dispatchEvent(new Event('visibilitychange'));

@@ -40,7 +40,7 @@ export type WhiteboardDocument = {
 
 /** Initialize the data object */
 export function initializeWhiteboardDocument(
-  doc: SharedMap<WhiteboardDocument>
+  doc: SharedMap<WhiteboardDocument>,
 ) {
   // Generate an initial slide. All whiteboards will have this slide id!
   const slideId = 'IN4h74suMiIAK4AVMAdl_';
@@ -58,14 +58,14 @@ export const whiteboardDocumentMigrations = createMigrations(
   // Never change or remove a migration, always add new migrations to the end
   // of the list!
   [initializeWhiteboardDocument],
-  WHITEBOARD_DOCUMENT_VERSION
+  WHITEBOARD_DOCUMENT_VERSION,
 );
 
 export function createWhiteboardDocument(): Document<WhiteboardDocument> {
   return YDocument.create(
     whiteboardDocumentMigrations,
     WHITEBOARD_DOCUMENT_VERSION,
-    keepWhiteboardUndoRedoItem
+    keepWhiteboardUndoRedoItem,
   );
 }
 
@@ -87,7 +87,7 @@ export const whiteboardDocumentSchema = Joi.object({
   .required();
 
 export function isValidWhiteboardDocument(
-  document: Document<Record<string, unknown>>
+  document: Document<Record<string, unknown>>,
 ): document is Document<WhiteboardDocument> {
   const result = whiteboardDocumentSchema.validate(document.getData().toJSON());
 
@@ -122,12 +122,12 @@ export function isValidWhiteboardDocumentSnapshot(data: Uint8Array): boolean {
  *    the last slide of the whiteboard.
  */
 export function keepWhiteboardUndoRedoItem(
-  doc: SharedMap<WhiteboardDocument>
+  doc: SharedMap<WhiteboardDocument>,
 ): UndoRedoItemValidator {
   const lockedSlides = new Set(
     getNormalizedSlideIds(doc).filter(
-      (slideId) => getSlideLock(doc, slideId) !== undefined
-    )
+      (slideId) => getSlideLock(doc, slideId) !== undefined,
+    ),
   );
 
   return (changes) => {
@@ -137,7 +137,7 @@ export function keepWhiteboardUndoRedoItem(
     const undoStackUnlocksSlides = changes
       .filter(
         ({ props: [slides, _, lock], isInsertion, isDeletion }) =>
-          slides === 'slides' && lock === 'lock' && isInsertion && !isDeletion
+          slides === 'slides' && lock === 'lock' && isInsertion && !isDeletion,
       )
       .map(({ props: [_, slideId] }) => slideId);
     undoStackUnlocksSlides.forEach((s) => lockedSlides.delete(s));
@@ -145,7 +145,7 @@ export function keepWhiteboardUndoRedoItem(
     // ignore all changes if they edit a slide that is locked
     if (
       changes.some(
-        (c) => c.props[0] === 'slides' && lockedSlides.has(c.props[1])
+        (c) => c.props[0] === 'slides' && lockedSlides.has(c.props[1]),
       )
     ) {
       return false;
@@ -153,7 +153,7 @@ export function keepWhiteboardUndoRedoItem(
 
     // ignore all changes that will result in the deletion of the last slide
     const allSlideChanges = changes.filter(
-      (c) => c.props.length === 2 && c.props[0] === 'slides'
+      (c) => c.props.length === 2 && c.props[0] === 'slides',
     );
     const allSlideDeletionsInChanges = allSlideChanges
       .filter((c) => c.isInsertion && !c.isDeletion)
@@ -165,7 +165,7 @@ export function keepWhiteboardUndoRedoItem(
     if (allSlideDeletionsInChanges.length > 0) {
       const remainingSlides = without(
         getNormalizedSlideIds(doc).concat(...allSlideAdditionsInChanges),
-        ...allSlideDeletionsInChanges
+        ...allSlideDeletionsInChanges,
       );
 
       if (remainingSlides.length === 0) {

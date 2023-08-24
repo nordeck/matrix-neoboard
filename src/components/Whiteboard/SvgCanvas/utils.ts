@@ -31,7 +31,7 @@ export function calculateScale(
   width: number,
   height: number,
   viewportWidth: number,
-  viewportHeight: number
+  viewportHeight: number,
 ): number {
   const widthRatio = width / viewportWidth;
   const heightRatio = height / viewportHeight;

@@ -27,7 +27,7 @@ export type WhiteboardClipboardContent = {
 };
 
 export function serializeToClipboard(
-  content: WhiteboardClipboardContent
+  content: WhiteboardClipboardContent,
 ): ClipboardContent {
   return {
     'text/html': serializeAsHtml(content),
@@ -36,7 +36,7 @@ export function serializeToClipboard(
 }
 
 export function deserializeFromClipboard(
-  content: ClipboardContent
+  content: ClipboardContent,
 ): WhiteboardClipboardContent {
   if (content['text/html']) {
     const { elements } = deserializeFromHtml(content['text/html']);
@@ -79,7 +79,7 @@ export function serializeAsPlainText({
 }
 
 export function deserializeFromPlainText(
-  text: string
+  text: string,
 ): WhiteboardClipboardContent {
   const width = 600;
   const height = 300;
@@ -112,7 +112,7 @@ export function serializeAsHtml(content: WhiteboardClipboardContent): string {
   const elementsText =
     content.elements
       ?.map((element) =>
-        escapeTextAsHtml(serializeAsPlainText({ elements: [element] }))
+        escapeTextAsHtml(serializeAsPlainText({ elements: [element] })),
       )
       .filter((text) => text.length > 0)
       .map((text) => `<div>${text}</div>`)
@@ -126,7 +126,7 @@ export function serializeAsHtml(content: WhiteboardClipboardContent): string {
 }
 
 export function deserializeFromHtml(
-  content: string
+  content: string,
 ): WhiteboardClipboardContent {
   const metadataStartIndex = content.indexOf(HTML_METADATA_START);
 
@@ -142,7 +142,7 @@ export function deserializeFromHtml(
 
   const encodedJson = content.substring(
     metadataStartIndex + HTML_METADATA_START.length,
-    metadataEndIndex
+    metadataEndIndex,
   );
 
   try {

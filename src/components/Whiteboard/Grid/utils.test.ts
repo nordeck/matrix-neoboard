@@ -30,6 +30,6 @@ describe('snapToGrid', () => {
     '$value should snap to $result for grid cell size $gridCellSize',
     ({ value, gridCellSize, result }) => {
       expect(snapToGrid(value, gridCellSize)).toEqual(result);
-    }
+    },
   );
 });

@@ -22,14 +22,14 @@ export type SignalingChannel = {
     userId: string,
     sessionId: string,
     connectionId: string,
-    candidates: (RTCIceCandidate | null)[]
+    candidates: (RTCIceCandidate | null)[],
   ): Promise<void>;
   /** Sends the session description to the other peer. */
   sendDescription(
     userId: string,
     sessionId: string,
     connectionId: string,
-    description: RTCSessionDescription
+    description: RTCSessionDescription,
   ): Promise<void>;
   /**
    * Observable to receive session descriptions and ICE candidates from the
@@ -38,7 +38,7 @@ export type SignalingChannel = {
   observeSignaling(
     userId: string,
     sessionId: string,
-    connectionId: string
+    connectionId: string,
   ): Observable<{
     description?: RTCSessionDescription;
     candidates?: (RTCIceCandidate | null)[];

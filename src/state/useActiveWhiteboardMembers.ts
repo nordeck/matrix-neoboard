@@ -35,7 +35,7 @@ export function useActiveWhiteboardMembers(): ActiveWhiteboardMember[] {
             userId: p.remoteUserId,
           });
         }
-      }
+      },
     );
 
     return Array.from(activeWhiteboardMembers.values());

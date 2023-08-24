@@ -32,7 +32,7 @@ export function ToolbarAvatarGroup({
   const showMoreButton = React.Children.count(children) > maxAvatars;
   const processedChildren = React.Children.toArray(children).slice(
     0,
-    maxAvatars
+    maxAvatars,
   );
 
   return (

@@ -32,7 +32,7 @@ const cursorUpdateSchema = Joi.object<CursorUpdate, true>({
 }).unknown();
 
 export function isValidCursorUpdateMessage(
-  message: Message
+  message: Message,
 ): message is Message<CursorUpdate> {
   if (message.type !== CURSOR_UPDATE_MESSAGE) {
     return false;
@@ -43,7 +43,7 @@ export function isValidCursorUpdateMessage(
   if (result.error) {
     loglevel.error(
       'Error while validating cursor update message',
-      result.error
+      result.error,
     );
     return false;
   }

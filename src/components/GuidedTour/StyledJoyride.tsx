@@ -110,7 +110,7 @@ export function StyledJoyride({ steps, disabled }: StyledJoyrideProps) {
 
         logger.log(
           `Status: ${status}, Action: ${action}, Index: ${index}, Type: ${type}`,
-          controlled
+          controlled,
         );
       }}
       spotlightPadding={0}

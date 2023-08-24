@@ -26,7 +26,7 @@ export function usePauseHotkeysScope(scope: string, paused = true): void {
 
   if (!scopePauseReferenceCount) {
     throw new Error(
-      'usePauseHotkeysScope can only be used inside a WhiteboardHotkeysProvider'
+      'usePauseHotkeysScope can only be used inside a WhiteboardHotkeysProvider',
     );
   }
 

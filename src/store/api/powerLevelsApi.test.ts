@@ -33,7 +33,7 @@ describe('getPowerLevels', () => {
     await expect(
       store
         .dispatch(powerLevelsApi.endpoints.getPowerLevels.initiate())
-        .unwrap()
+        .unwrap(),
     ).resolves.toEqual({ event: undefined });
   });
 
@@ -45,7 +45,7 @@ describe('getPowerLevels', () => {
     await expect(
       store
         .dispatch(powerLevelsApi.endpoints.getPowerLevels.initiate())
-        .unwrap()
+        .unwrap(),
     ).resolves.toEqual({
       event: expect.objectContaining({
         content: {
@@ -63,7 +63,7 @@ describe('getPowerLevels', () => {
     await expect(
       store
         .dispatch(powerLevelsApi.endpoints.getPowerLevels.initiate())
-        .unwrap()
+        .unwrap(),
     ).rejects.toEqual({
       message: 'Could not load power levels: Some Error',
       name: 'LoadFailed',
@@ -79,30 +79,30 @@ describe('getPowerLevels', () => {
 
     await waitFor(() =>
       expect(
-        powerLevelsApi.endpoints.getPowerLevels.select()(store.getState()).data
+        powerLevelsApi.endpoints.getPowerLevels.select()(store.getState()).data,
       ).toEqual({
         event: expect.objectContaining({
           content: {
             users_default: 100,
           },
         }),
-      })
+      }),
     );
 
     widgetApi.mockSendStateEvent(
-      mockPowerLevelsEvent({ content: { users_default: 50 } })
+      mockPowerLevelsEvent({ content: { users_default: 50 } }),
     );
 
     await waitFor(() =>
       expect(
-        powerLevelsApi.endpoints.getPowerLevels.select()(store.getState()).data
+        powerLevelsApi.endpoints.getPowerLevels.select()(store.getState()).data,
       ).toEqual({
         event: expect.objectContaining({
           content: {
             users_default: 50,
           },
         }),
-      })
+      }),
     );
   });
 });
@@ -115,7 +115,7 @@ describe('patchPowerLevels', () => {
           users: { '@user-id': 100 },
           users_default: 100,
         },
-      })
+      }),
     );
 
     const store = createStore({ widgetApi });
@@ -124,8 +124,8 @@ describe('patchPowerLevels', () => {
       store.dispatch(
         powerLevelsApi.endpoints.patchPowerLevels.initiate({
           changes: { users_default: 0, events_default: 0 },
-        })
-      )
+        }),
+      ),
     ).resolves.toEqual({
       data: expect.objectContaining({
         content: {
@@ -151,7 +151,7 @@ describe('patchPowerLevels', () => {
           users: { '@user-id': 100 },
           users_default: 100,
         },
-      })
+      }),
     );
 
     const store = createStore({ widgetApi });
@@ -160,8 +160,8 @@ describe('patchPowerLevels', () => {
       store.dispatch(
         powerLevelsApi.endpoints.patchPowerLevels.initiate({
           changes: { users_default: 100 },
-        })
-      )
+        }),
+      ),
     ).resolves.toEqual({
       data: expect.objectContaining({
         content: {

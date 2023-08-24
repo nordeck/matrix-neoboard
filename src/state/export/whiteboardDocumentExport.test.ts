@@ -24,7 +24,7 @@ describe('isValidWhiteboardExportDocument', () => {
         whiteboard: {
           slides: [],
         },
-      })
+      }),
     ).toBe(true);
   });
 
@@ -35,7 +35,7 @@ describe('isValidWhiteboardExportDocument', () => {
         whiteboard: {
           slides: [{ elements: [] }],
         },
-      })
+      }),
     ).toBe(true);
   });
 
@@ -59,7 +59,7 @@ describe('isValidWhiteboardExportDocument', () => {
             },
           ],
         },
-      })
+      }),
     ).toBe(true);
   });
 
@@ -88,7 +88,7 @@ describe('isValidWhiteboardExportDocument', () => {
           ],
           additional: 'tmp',
         },
-      })
+      }),
     ).toBe(true);
   });
 
@@ -124,7 +124,7 @@ describe('isValidWhiteboardExportDocument', () => {
           slides: [],
         },
         ...patch,
-      })
+      }),
     ).toBe(false);
   });
 });

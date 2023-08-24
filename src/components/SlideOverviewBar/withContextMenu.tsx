@@ -44,7 +44,7 @@ type WithContextMenuProps = {
 };
 
 export const withContextMenu = <P extends object>(
-  Component: React.ComponentType<P>
+  Component: React.ComponentType<P>,
 ): React.FC<P & WithContextMenuProps> => {
   return ({
     slideId,
@@ -80,7 +80,7 @@ export const withContextMenu = <P extends object>(
           whiteboardInstance.getSlide(slideId).unlockSlide();
         }
       },
-      [slideId, whiteboardInstance]
+      [slideId, whiteboardInstance],
     );
 
     const handleDelete = useCallback(() => {
@@ -99,16 +99,16 @@ export const withContextMenu = <P extends object>(
                 position: { left: event.clientX + 2, top: event.clientY - 6 },
                 slideId,
               }
-            : undefined
+            : undefined,
         );
       },
-      [slideId]
+      [slideId],
     );
 
     const menuTitle = t(
       'slideOverviewBar.contextMenu.title',
       'Slide {{index}}',
-      { index: slideIndex + 1 }
+      { index: slideIndex + 1 },
     );
     const open = Boolean(state);
     return (
@@ -154,7 +154,7 @@ export const withContextMenu = <P extends object>(
             <ListItemText>
               {t(
                 'slideOverviewBar.contextMenu.bringEveryoneToSlide',
-                'Bring all here'
+                'Bring all here',
               )}
             </ListItemText>
           </MenuItem>

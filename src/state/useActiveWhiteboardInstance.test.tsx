@@ -110,7 +110,7 @@ describe('useActiveWhiteboardInstanceStatistics', () => {
   it('should return the statistics of the active whiteboard instance', () => {
     const { result } = renderHook(
       () => useActiveWhiteboardInstanceStatistics(),
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
 
     expect(result.current).toEqual({
@@ -128,7 +128,7 @@ describe('useActiveWhiteboardInstanceStatistics', () => {
 
     const getWhiteboardStatisticsSpy = jest.spyOn(
       activeWhiteboardInstance,
-      'getWhiteboardStatistics'
+      'getWhiteboardStatistics',
     );
     jest
       .spyOn(activeWhiteboardInstance, 'observeWhiteboardStatistics')
@@ -136,7 +136,7 @@ describe('useActiveWhiteboardInstanceStatistics', () => {
 
     const { result } = renderHook(
       () => useActiveWhiteboardInstanceStatistics(),
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
 
     expect(result.current).toEqual({
@@ -180,7 +180,7 @@ describe('useActiveWhiteboardInstanceStatistics', () => {
 
     const { result } = renderHook(
       () => useActiveWhiteboardInstanceStatistics(),
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
 
     expect(result.error?.message).toMatch('No active whiteboard instance');

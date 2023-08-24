@@ -51,19 +51,19 @@ export class ToDeviceMessageSignalingChannel implements SignalingChannel {
     private readonly timeout: number = 10000,
     // TODO: Encryption for to device messages is disabled for now, see the
     // caveats described in the sendToDevice function below
-    private readonly encryption: boolean = false
+    private readonly encryption: boolean = false,
   ) {
     from(Promise.resolve(widgetApiPromise))
       .pipe(
         takeUntil(this.destroySubject),
         switchMap((widgetApi) =>
           widgetApi.observeToDeviceMessages(
-            TO_DEVICE_MESSAGE_CONNECTION_SIGNALING
-          )
+            TO_DEVICE_MESSAGE_CONNECTION_SIGNALING,
+          ),
         ),
         // If we expect encryption, only process events that are encrypted!
         filter(({ encrypted }) => encrypted || !this.encryption),
-        filter(isValidConnectionSignalingMessage)
+        filter(isValidConnectionSignalingMessage),
       )
       .subscribe(({ sender, content }) => {
         const {
@@ -93,7 +93,7 @@ export class ToDeviceMessageSignalingChannel implements SignalingChannel {
     userId: string,
     sessionId: string,
     connectionId: string,
-    candidates: (RTCIceCandidate | null)[]
+    candidates: (RTCIceCandidate | null)[],
   ): Promise<void> {
     this.sendToDevice<ConnectionSignaling>(
       TO_DEVICE_MESSAGE_CONNECTION_SIGNALING,
@@ -102,7 +102,7 @@ export class ToDeviceMessageSignalingChannel implements SignalingChannel {
         sessionId,
         connectionId,
         candidates: candidates.map((c) => c?.toJSON() ?? null),
-      }
+      },
     );
   }
 
@@ -110,7 +110,7 @@ export class ToDeviceMessageSignalingChannel implements SignalingChannel {
     userId: string,
     sessionId: string,
     connectionId: string,
-    description: RTCSessionDescription
+    description: RTCSessionDescription,
   ): Promise<void> {
     this.sendToDevice<ConnectionSignaling>(
       TO_DEVICE_MESSAGE_CONNECTION_SIGNALING,
@@ -119,14 +119,14 @@ export class ToDeviceMessageSignalingChannel implements SignalingChannel {
         sessionId,
         connectionId,
         description: description.toJSON(),
-      }
+      },
     );
   }
 
   observeSignaling(
     userId: string,
     sessionId: string,
-    connectionId: string
+    connectionId: string,
   ): Observable<{
     description?: RTCSessionDescription | undefined;
     candidates?: (RTCIceCandidate | null)[] | undefined;
@@ -136,9 +136,9 @@ export class ToDeviceMessageSignalingChannel implements SignalingChannel {
         (e) =>
           e.sender === userId &&
           e.sessionId === sessionId &&
-          e.connectionId === connectionId
+          e.connectionId === connectionId,
       ),
-      map(({ candidates, description }) => ({ candidates, description }))
+      map(({ candidates, description }) => ({ candidates, description })),
     );
   }
 
@@ -150,7 +150,7 @@ export class ToDeviceMessageSignalingChannel implements SignalingChannel {
   private async sendToDevice<T extends object>(
     eventType: string,
     userId: string,
-    content: T
+    content: T,
   ): Promise<void> {
     const widgetApi = await this.widgetApiPromise;
 

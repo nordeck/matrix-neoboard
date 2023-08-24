@@ -56,16 +56,16 @@ export class WebRtcCommunicationChannel implements CommunicationChannel {
     private readonly signalingChannel: SignalingChannel,
     private readonly whiteboardId: string,
     onEnableObserveVisibilityState: Observable<boolean> = new BehaviorSubject(
-      true
+      true,
     ),
-    visibilityTimeout = 30 * 1000
+    visibilityTimeout = 30 * 1000,
   ) {
     this.logger.log('Creating communication channel');
 
     from(Promise.resolve(this.widgetApiPromise))
       .pipe(
         switchMap((widgetApi) => widgetApi.observeTurnServers()),
-        takeUntil(this.destroySubject)
+        takeUntil(this.destroySubject),
       )
       .subscribe((turnServers) => {
         this.logger.log('Received new turn servers', turnServers);
@@ -89,7 +89,7 @@ export class WebRtcCommunicationChannel implements CommunicationChannel {
           this.signalingChannel,
           session,
           sessionId,
-          { turnServer: this.turnServers }
+          { turnServer: this.turnServers },
         );
         this.peerConnections.push(peerConnection);
 
@@ -101,7 +101,7 @@ export class WebRtcCommunicationChannel implements CommunicationChannel {
           next: (peerConnectionStatistics) => {
             this.addPeerConnectionStatistics(
               peerConnection.getConnectionId(),
-              peerConnectionStatistics
+              peerConnectionStatistics,
             );
           },
           complete: () => {
@@ -119,16 +119,16 @@ export class WebRtcCommunicationChannel implements CommunicationChannel {
           this.destroySubject.pipe(
             mergeMap(async () => {
               this.logger.log(
-                'Communication channel destroyed, disconnecting…'
+                'Communication channel destroyed, disconnecting…',
               );
               await this.disconnect();
-            })
-          )
-        )
+            }),
+          ),
+        ),
       )
       .subscribe((session) => {
         const index = this.peerConnections.findIndex(
-          (c) => c.getRemoteSessionId() === session.sessionId
+          (c) => c.getRemoteSessionId() === session.sessionId,
         );
 
         if (index >= 0) {
@@ -153,25 +153,25 @@ export class WebRtcCommunicationChannel implements CommunicationChannel {
                 } catch (err) {
                   this.logger.error(
                     'Error while connecting to whiteboard',
-                    err
+                    err,
                   );
                 }
               } else if (enableObserveVisibilityState) {
                 try {
                   this.logger.log(
-                    'Visibility changed to hidden, disconnecting…'
+                    'Visibility changed to hidden, disconnecting…',
                   );
                   await this.disconnect();
                 } catch (err) {
                   this.logger.error(
                     'Error while disconnecting from whiteboard',
-                    err
+                    err,
                   );
                 }
               }
-            })
-          )
-        )
+            }),
+          ),
+        ),
       )
       .subscribe();
   }
@@ -224,7 +224,7 @@ export class WebRtcCommunicationChannel implements CommunicationChannel {
 
   private addPeerConnectionStatistics(
     connectionId: string,
-    peerConnectionStatistics?: PeerConnectionStatistics
+    peerConnectionStatistics?: PeerConnectionStatistics,
   ) {
     if (!peerConnectionStatistics) {
       delete this.statistics.peerConnections[connectionId];

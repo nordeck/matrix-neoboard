@@ -46,14 +46,14 @@ export function createWhiteboardPdf(params: {
           // terminate the worker when ready
           worker.terminate();
         },
-      })
+      }),
     );
   } else {
     return from(import('./pdf.local')).pipe(
       switchMap(({ generatePdf }) =>
-        contentObservable.pipe(switchMap(generatePdf))
+        contentObservable.pipe(switchMap(generatePdf)),
       ),
-      take(1)
+      take(1),
     );
   }
 }

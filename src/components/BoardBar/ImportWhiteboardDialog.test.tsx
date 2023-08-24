@@ -72,7 +72,7 @@ describe('<ImportWhiteboardDialog/>', () => {
         importedWhiteboard={{ name: 'file.nwb', isError: false, data }}
         onRetry={onRetry}
       />,
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
 
     const dialog = screen.getByRole('dialog', {
@@ -84,16 +84,16 @@ describe('<ImportWhiteboardDialog/>', () => {
     expect(
       within(dialog).getByRole('button', {
         name: 'Selected file: “file.nwb”. Click to select a different file.',
-      })
+      }),
     ).toBeInTheDocument();
     expect(
-      within(dialog).getByRole('button', { name: 'Cancel' })
+      within(dialog).getByRole('button', { name: 'Cancel' }),
     ).toHaveFocus();
     expect(
-      within(dialog).getByRole('button', { name: 'Close' })
+      within(dialog).getByRole('button', { name: 'Close' }),
     ).toBeInTheDocument();
     expect(
-      within(dialog).getByRole('button', { name: 'Import' })
+      within(dialog).getByRole('button', { name: 'Import' }),
     ).toBeEnabled();
   });
 
@@ -105,7 +105,7 @@ describe('<ImportWhiteboardDialog/>', () => {
         importedWhiteboard={{ name: 'file.nwb', isError: true }}
         onRetry={onRetry}
       />,
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
 
     const dialog = screen.getByRole('dialog', {
@@ -117,16 +117,16 @@ describe('<ImportWhiteboardDialog/>', () => {
     expect(
       within(dialog).getByRole('button', {
         name: 'Selected file: “file.nwb”. Click to select a different file.',
-      })
+      }),
     ).toBeInTheDocument();
     expect(
-      within(dialog).getByRole('button', { name: 'Cancel' })
+      within(dialog).getByRole('button', { name: 'Cancel' }),
     ).toBeInTheDocument();
     expect(
-      within(dialog).getByRole('button', { name: 'Close' })
+      within(dialog).getByRole('button', { name: 'Close' }),
     ).toBeInTheDocument();
     expect(
-      within(dialog).getByRole('button', { name: 'Import' })
+      within(dialog).getByRole('button', { name: 'Import' }),
     ).toBeDisabled();
   });
 
@@ -138,7 +138,7 @@ describe('<ImportWhiteboardDialog/>', () => {
         onClose={onClose}
         onRetry={onRetry}
       />,
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
 
     expect(screen.getByRole('button', { name: 'Import' })).toBeEnabled();
@@ -155,7 +155,7 @@ describe('<ImportWhiteboardDialog/>', () => {
         onClose={onClose}
         onRetry={onRetry}
       />,
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
 
     expect(screen.getByRole('button', { name: 'Import' })).toBeDisabled();
@@ -171,13 +171,13 @@ describe('<ImportWhiteboardDialog/>', () => {
         onClose={onClose}
         onRetry={onRetry}
       />,
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
 
     const dialog = screen.getByRole('dialog');
 
     await userEvent.click(
-      within(dialog).getByRole('button', { name: 'Close' })
+      within(dialog).getByRole('button', { name: 'Close' }),
     );
 
     expect(onClose).toBeCalled();
@@ -191,13 +191,13 @@ describe('<ImportWhiteboardDialog/>', () => {
         onClose={onClose}
         onRetry={onRetry}
       />,
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
 
     const dialog = screen.getByRole('dialog');
 
     await userEvent.click(
-      within(dialog).getByRole('button', { name: 'Cancel' })
+      within(dialog).getByRole('button', { name: 'Cancel' }),
     );
 
     expect(onClose).toBeCalled();
@@ -211,7 +211,7 @@ describe('<ImportWhiteboardDialog/>', () => {
         onClose={onClose}
         onRetry={onRetry}
       />,
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
 
     const dialog = screen.getByRole('dialog');
@@ -219,7 +219,7 @@ describe('<ImportWhiteboardDialog/>', () => {
     await userEvent.click(
       within(dialog).getByRole('button', {
         name: 'Selected file: “file.nwb”. Click to select a different file.',
-      })
+      }),
     );
 
     expect(onRetry).toBeCalled();
@@ -234,17 +234,17 @@ describe('<ImportWhiteboardDialog/>', () => {
         onClose={onClose}
         onRetry={onRetry}
       />,
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
 
     const dialog = screen.getByRole('dialog');
 
     await userEvent.click(
-      within(dialog).getByRole('button', { name: 'Import' })
+      within(dialog).getByRole('button', { name: 'Import' }),
     );
 
     expect(whiteboardManager.getActiveWhiteboardInstance()?.export()).toEqual(
-      data
+      data,
     );
 
     expect(onClose).toBeCalled();

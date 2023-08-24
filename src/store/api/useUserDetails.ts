@@ -42,7 +42,7 @@ export function useUserDetails(): UseUserDetailsReturn {
         ? getRoomMemberDisplayName(memberEvent, allRoomMembers)
         : userId;
     },
-    [allRoomMembers, roomMembers]
+    [allRoomMembers, roomMembers],
   );
 
   const getUserAvatarUrl = useCallback(
@@ -52,7 +52,7 @@ export function useUserDetails(): UseUserDetailsReturn {
         : undefined;
       return memberEvent?.content.avatar_url ?? undefined;
     },
-    [roomMembers]
+    [roomMembers],
   );
 
   return {

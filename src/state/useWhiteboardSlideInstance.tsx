@@ -37,7 +37,7 @@ export function useWhiteboardSlideInstance(): WhiteboardSlideInstance {
 
   if (!slideId) {
     throw new Error(
-      'useWhiteboardSlideInstance can only be used inside of <SlideProvider>'
+      'useWhiteboardSlideInstance can only be used inside of <SlideProvider>',
     );
   }
 
@@ -50,7 +50,7 @@ export function useSlideElementIds(): string[] {
 
   return useLatestValue(
     () => slideInstance.getElementIds(),
-    slideInstance.observeElementIds()
+    slideInstance.observeElementIds(),
   );
 }
 
@@ -59,12 +59,12 @@ export function useElement(elementId: string | undefined): Element | undefined {
 
   const observable = useMemo(
     () => (elementId ? slideInstance.observeElement(elementId) : EMPTY),
-    [elementId, slideInstance]
+    [elementId, slideInstance],
   );
 
   return useLatestValue(
     () => (elementId ? slideInstance.getElement(elementId) : undefined),
-    observable
+    observable,
   );
 }
 
@@ -77,12 +77,12 @@ export function useActiveElement(): ActiveElement {
 
   const observable = useMemo(
     () => slideInstance.observeActiveElementId(),
-    [slideInstance]
+    [slideInstance],
   );
 
   const activeElementId = useLatestValue(
     () => slideInstance.getActiveElementId(),
-    observable
+    observable,
   );
 
   return { activeElementId };
@@ -93,18 +93,18 @@ export function useSlideIsLocked(slideId?: string): boolean {
 
   if (!slideIdContext && !slideId) {
     throw new Error(
-      'useSlideIsLocked without slideId can only be used inside of <SlideProvider>'
+      'useSlideIsLocked without slideId can only be used inside of <SlideProvider>',
     );
   }
 
   const whiteboardInstance = useActiveWhiteboardInstance();
   const slideInstance = whiteboardInstance.getSlide(
-    slideId ?? slideIdContext ?? ''
+    slideId ?? slideIdContext ?? '',
   );
 
   const observable = useMemo(
     () => slideInstance.observeIsLocked(),
-    [slideInstance]
+    [slideInstance],
   );
 
   return useLatestValue(() => slideInstance.isLocked(), observable);

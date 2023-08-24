@@ -42,7 +42,7 @@ const ToolbarStyled = styled(MuiToolbar)(
     borderRadius: theme.shape.borderRadius,
     boxShadow: theme.shadows[2],
     flexDirection: ariaOrientation === 'vertical' ? 'column' : 'row',
-  })
+  }),
 );
 
 export type ToolbarProps = PropsWithChildren<
@@ -69,7 +69,7 @@ export function Toolbar({
       registerToolbarKey: (toolbarKey) =>
         setFocusedToolbarKey((oldKey) => (oldKey ? oldKey : toolbarKey)),
     }),
-    [focusedToolbarKey]
+    [focusedToolbarKey],
   );
 
   const handleKeyDown = useCallback(
@@ -100,7 +100,7 @@ export function Toolbar({
             moveFocus(
               findParentRadioGroup(currentFocus, list),
               currentFocus,
-              previousItem
+              previousItem,
             );
           } else if (orientation === 'vertical') {
             event.preventDefault();
@@ -113,7 +113,7 @@ export function Toolbar({
             moveFocus(
               findParentRadioGroup(currentFocus, list),
               currentFocus,
-              nextItem
+              nextItem,
             );
           } else if (orientation === 'vertical') {
             event.preventDefault();
@@ -130,7 +130,7 @@ export function Toolbar({
           break;
       }
     },
-    [orientation]
+    [orientation],
   );
 
   return (

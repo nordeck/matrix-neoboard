@@ -40,7 +40,7 @@ export function UnselectElementHandler() {
       enableOnContentEditable: true,
       scopes: HOTKEY_SCOPE_WHITEBOARD,
     },
-    [unselectElement]
+    [unselectElement],
   );
 
   return (

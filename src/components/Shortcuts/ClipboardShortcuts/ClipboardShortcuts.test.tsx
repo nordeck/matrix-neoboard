@@ -80,7 +80,7 @@ describe('<CopyAndPasteShortcuts>', () => {
     expect(clipboardData.setData).toBeCalledWith('text/plain', 'Hello World');
     expect(clipboardData.setData).toBeCalledWith(
       'text/html',
-      expect.stringContaining('<span data-meta=')
+      expect.stringContaining('<span data-meta='),
     );
   });
 
@@ -100,7 +100,7 @@ describe('<CopyAndPasteShortcuts>', () => {
       <DisableWhiteboardHotkeys>
         <ClipboardShortcuts />
       </DisableWhiteboardHotkeys>,
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
 
     const clipboardData = fireClipboardEvent('copy');
@@ -128,7 +128,7 @@ describe('<CopyAndPasteShortcuts>', () => {
     expect(clipboardData.setData).toBeCalledWith('text/plain', 'Hello World');
     expect(clipboardData.setData).toBeCalledWith(
       'text/html',
-      expect.stringContaining('<span data-meta=')
+      expect.stringContaining('<span data-meta='),
     );
 
     expect(activeSlide.getActiveElementId()).toBe(undefined);
@@ -162,7 +162,7 @@ describe('<CopyAndPasteShortcuts>', () => {
       <DisableWhiteboardHotkeys>
         <ClipboardShortcuts />
       </DisableWhiteboardHotkeys>,
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
 
     const clipboardData = fireClipboardEvent('cut');
@@ -225,7 +225,7 @@ describe('<CopyAndPasteShortcuts>', () => {
       <DisableWhiteboardHotkeys>
         <ClipboardShortcuts />
       </DisableWhiteboardHotkeys>,
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
 
     const clipboardData = fireClipboardEvent('paste', {
@@ -252,7 +252,7 @@ type Writeable<T> = { -readonly [P in keyof T]: T[P] };
 
 function fireClipboardEvent(
   eventType: 'copy' | 'cut' | 'paste',
-  data: Record<string, string> = {}
+  data: Record<string, string> = {},
 ): Partial<jest.Mocked<DataTransfer>> {
   const clipboardData = {
     getData: jest.fn((type) => data[type]),

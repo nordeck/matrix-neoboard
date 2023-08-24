@@ -54,7 +54,7 @@ type MockWhiteboardOptions =
  * @remarks Only use for tests
  */
 export function mockWhiteboardManager(
-  opts: MockWhiteboardOptions = { slideCount: 1 }
+  opts: MockWhiteboardOptions = { slideCount: 1 },
 ): {
   whiteboardManager: jest.Mocked<WhiteboardManager>;
   communicationChannel: jest.Mocked<CommunicationChannel>;
@@ -85,13 +85,13 @@ export function mockWhiteboardManager(
               elements.map(([id, element]) => [
                 id,
                 new YMap(Object.entries(element)),
-              ])
-            )
+              ]),
+            ),
           );
           slide.set('elementIds', YArray.from(elements.map(([id]) => id)));
           return [slideId, slide];
-        })
-      )
+        }),
+      ),
     );
   });
 
@@ -114,7 +114,7 @@ export function mockWhiteboardManager(
         peerConnections: {
           'peer-0': mockPeerConnectionStatistics('@user-alice', 'connected'),
         },
-      })
+      }),
     ),
     destroy: jest.fn(),
   };
@@ -130,7 +130,7 @@ export function mockWhiteboardManager(
     synchronizedDocument,
     communicationChannel,
     mockWhiteboard(),
-    '@user-id'
+    '@user-id',
   );
 
   const whiteboardManager: jest.Mocked<WhiteboardManager> = {
@@ -193,7 +193,7 @@ function ProvideActiveSlide({ children }: PropsWithChildren<{}>) {
 export function mockPeerConnectionStatistics(
   remoteUserId: string,
   connectionState: string,
-  remoteSessionId: string = 'other'
+  remoteSessionId: string = 'other',
 ): PeerConnectionStatistics {
   return {
     remoteUserId,

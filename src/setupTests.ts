@@ -52,7 +52,7 @@ expect.extend(toHaveNoViolations);
 // Provide a mock location to make extractWidgetApiParameters work
 Object.defineProperty(window, 'location', {
   value: new URL(
-    'http://widget.local/?parentUrl=http://element.local&widgetId=widget-id#/?matrix_user_id=@user-id'
+    'http://widget.local/?parentUrl=http://element.local&widgetId=widget-id#/?matrix_user_id=@user-id',
   ),
 });
 

@@ -37,7 +37,7 @@ export function DeleteShortcut() {
       enableOnContentEditable: true,
       scopes: HOTKEY_SCOPE_WHITEBOARD,
     },
-    [handleDelete]
+    [handleDelete],
   );
 
   return null;

@@ -34,7 +34,7 @@ describe('isValidDocumentChunkRoomEvent', () => {
         room_id: '!room-id',
         sender: '@user-id',
         type: 'net.nordeck.whiteboard.document.chunk',
-      })
+      }),
     ).toBe(true);
   });
 
@@ -57,7 +57,7 @@ describe('isValidDocumentChunkRoomEvent', () => {
         room_id: '!room-id',
         sender: '@user-id',
         type: 'net.nordeck.whiteboard.document.chunk',
-      })
+      }),
     ).toBe(true);
   });
 
@@ -103,7 +103,7 @@ describe('isValidDocumentChunkRoomEvent', () => {
         room_id: '!room-id',
         sender: '@user-id',
         type: 'net.nordeck.whiteboard.document.chunk',
-      })
+      }),
     ).toBe(false);
   });
 });

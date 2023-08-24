@@ -39,7 +39,7 @@ export function ToolsBar() {
         setActiveTool(event.target.value as ActiveTool);
       }
     },
-    [setActiveTool]
+    [setActiveTool],
   );
 
   const tools: Array<{ label: string; icon: ReactElement; value: ActiveTool }> =

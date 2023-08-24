@@ -83,7 +83,7 @@ describe('useWhiteboardSlideInstance', () => {
     const { result } = renderHook(() => useWhiteboardSlideInstance());
 
     expect(result.error?.message).toMatch(
-      'useWhiteboardSlideInstance can only be used inside of <SlideProvider>'
+      'useWhiteboardSlideInstance can only be used inside of <SlideProvider>',
     );
   });
 });
@@ -268,7 +268,7 @@ describe('useSlideIsLocked', () => {
     const { result } = renderHook(() => useSlideIsLocked());
 
     expect(result.error?.message).toMatch(
-      'useSlideIsLocked without slideId can only be used inside of <SlideProvider>'
+      'useSlideIsLocked without slideId can only be used inside of <SlideProvider>',
     );
   });
 });

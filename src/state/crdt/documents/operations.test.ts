@@ -232,7 +232,7 @@ describe('generateMoveSlide', () => {
       expect(bobSlideIds.slice(0, 2)).toEqual(
         // There is no guarantee for the order of the two operations, as the
         // conflict resolution depends on the random actor ids.
-        expect.arrayContaining([slide1, slide3])
+        expect.arrayContaining([slide1, slide3]),
       );
       expect(bobSlideIds.slice(2)).toEqual([slide0, slide2]);
     });
@@ -263,7 +263,7 @@ describe('generateMoveSlide', () => {
       expect(bobSlideIds.slice(3)).toEqual(
         // There is no guarantee for the order of the two operations, as the
         // conflict resolution depends on the random actor ids.
-        expect.arrayContaining([slide0, slide4])
+        expect.arrayContaining([slide0, slide4]),
       );
     });
 
@@ -481,7 +481,7 @@ describe('generateLockSlide', () => {
 
     // both will have the same result
     expect(getSlide(aliceDoc.getData(), slide0)?.toJSON().lock).toEqual(
-      getSlide(bobDoc.getData(), slide0)?.toJSON().lock
+      getSlide(bobDoc.getData(), slide0)?.toJSON().lock,
     );
 
     expect(getSlide(bobDoc.getData(), slide0)?.toJSON().lock).toEqual({
@@ -532,7 +532,7 @@ describe('getElement', () => {
     document.performChange(addElement);
 
     expect(getElement(document.getData(), slide0, elementId)?.toJSON()).toEqual(
-      element
+      element,
     );
   });
 
@@ -540,7 +540,7 @@ describe('getElement', () => {
     const document = createWhiteboardDocument();
 
     expect(
-      getElement(document.getData(), 'not-exists', 'not-relevant')
+      getElement(document.getData(), 'not-exists', 'not-relevant'),
     ).toBeUndefined();
   });
 
@@ -548,7 +548,7 @@ describe('getElement', () => {
     const document = createWhiteboardDocument();
 
     expect(
-      getElement(document.getData(), slide0, 'not-exists')
+      getElement(document.getData(), slide0, 'not-exists'),
     ).toBeUndefined();
   });
 });
@@ -588,7 +588,7 @@ describe('getNormalizedElementIds', () => {
     const document = createWhiteboardDocument();
 
     expect(getNormalizedElementIds(document.getData(), 'not-exists')).toEqual(
-      []
+      [],
     );
   });
 });
@@ -604,7 +604,7 @@ describe('generateAddElement', () => {
 
     expect(elementId).toEqual(expect.any(String));
     expect(getElement(doc.getData(), slide0, elementId)?.toJSON()).toEqual(
-      element
+      element,
     );
     expect(getNormalizedElementIds(doc.getData(), slide0)).toEqual([elementId]);
   });
@@ -616,7 +616,7 @@ describe('generateAddElement', () => {
     const [changeFn] = generateAddElement('not-exists', element);
 
     expect(() => doc.performChange(changeFn)).toThrow(
-      'Slide not found: not-exists'
+      'Slide not found: not-exists',
     );
   });
 });
@@ -662,8 +662,8 @@ describe('generateMoveElement', () => {
       generateMoveElement(
         slide0,
         element3,
-        (elementIds, currentIndex) => elementIds.length % currentIndex // 4 % 3 = 1
-      )
+        (elementIds, currentIndex) => elementIds.length % currentIndex, // 4 % 3 = 1
+      ),
     );
 
     expect(getNormalizedElementIds(doc.getData(), slide0)).toEqual([
@@ -792,7 +792,7 @@ describe('generateMoveElement', () => {
       expect(bobElementIds.slice(0, 2)).toEqual(
         // There is no guarantee for the order of the two operations, as the
         // conflict resolution depends on the random actor ids.
-        expect.arrayContaining([element1, element3])
+        expect.arrayContaining([element1, element3]),
       );
       expect(bobElementIds.slice(2)).toEqual([element0, element2]);
     });
@@ -824,7 +824,7 @@ describe('generateMoveElement', () => {
       expect(bobElementIds.slice(3)).toEqual(
         // There is no guarantee for the order of the two operations, as the
         // conflict resolution depends on the random actor ids.
-        expect.arrayContaining([element0, element4])
+        expect.arrayContaining([element0, element4]),
       );
     });
 
@@ -1034,7 +1034,7 @@ describe('generateUpdateElement', () => {
     doc.performChange(
       generateUpdateElement(slide0, element1, {
         strokeColor: '#000000',
-      })
+      }),
     );
 
     expect(getSlide(doc.getData(), slide0)?.toJSON()).toEqual({
@@ -1072,17 +1072,17 @@ describe('generateUpdateElement', () => {
       const element = mockLineElement();
 
       aliceDoc.performChange(
-        generateUpdateElement(slide0, element1, { strokeColor: 'red' })
+        generateUpdateElement(slide0, element1, { strokeColor: 'red' }),
       );
       expect(
-        getElement(aliceDoc.getData(), slide0, element1)?.toJSON()
+        getElement(aliceDoc.getData(), slide0, element1)?.toJSON(),
       ).toEqual({
         ...element,
         strokeColor: 'red',
       });
 
       bobDoc.performChange(
-        generateUpdateElement(slide0, element1, { strokeColor: 'red' })
+        generateUpdateElement(slide0, element1, { strokeColor: 'red' }),
       );
       expect(getElement(bobDoc.getData(), slide0, element1)?.toJSON()).toEqual({
         ...element,
@@ -1100,17 +1100,17 @@ describe('generateUpdateElement', () => {
       const element = mockLineElement();
 
       aliceDoc.performChange(
-        generateUpdateElement(slide0, element1, { strokeColor: 'red' })
+        generateUpdateElement(slide0, element1, { strokeColor: 'red' }),
       );
       expect(
-        getElement(aliceDoc.getData(), slide0, element1)?.toJSON()
+        getElement(aliceDoc.getData(), slide0, element1)?.toJSON(),
       ).toEqual({
         ...element,
         strokeColor: 'red',
       });
 
       bobDoc.performChange(
-        generateUpdateElement(slide0, element1, { position: { x: 4, y: 3 } })
+        generateUpdateElement(slide0, element1, { position: { x: 4, y: 3 } }),
       );
       expect(getElement(bobDoc.getData(), slide0, element1)?.toJSON()).toEqual({
         ...element,
@@ -1129,10 +1129,10 @@ describe('generateUpdateElement', () => {
       const element = mockLineElement();
 
       aliceDoc.performChange(
-        generateUpdateElement(slide0, element1, { strokeColor: 'red' })
+        generateUpdateElement(slide0, element1, { strokeColor: 'red' }),
       );
       expect(
-        getElement(aliceDoc.getData(), slide0, element1)?.toJSON()
+        getElement(aliceDoc.getData(), slide0, element1)?.toJSON(),
       ).toEqual({
         ...element,
         strokeColor: 'red',
@@ -1140,12 +1140,12 @@ describe('generateUpdateElement', () => {
 
       bobDoc.performChange(generateRemoveElement(slide0, element1));
       expect(
-        getElement(bobDoc.getData(), slide0, element1)?.toJSON()
+        getElement(bobDoc.getData(), slide0, element1)?.toJSON(),
       ).toBeUndefined();
 
       bobDoc.mergeFrom(aliceDoc.store());
       expect(
-        getElement(bobDoc.getData(), slide0, element1)?.toJSON()
+        getElement(bobDoc.getData(), slide0, element1)?.toJSON(),
       ).toBeUndefined();
     });
   });

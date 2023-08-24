@@ -29,7 +29,7 @@ export class DocumentSnapshotBacklog {
   constructor(
     private documentId: string,
     private originServerTs?: number,
-    private validator: DocumentSnapshotValidator = () => true
+    private validator: DocumentSnapshotValidator = () => true,
   ) {}
 
   /**
@@ -69,12 +69,12 @@ export class DocumentSnapshotBacklog {
         (c) =>
           c.content['m.relates_to'].event_id ===
             event.content['m.relates_to'].event_id &&
-          c.content.sequenceNumber === event.content.sequenceNumber
+          c.content.sequenceNumber === event.content.sequenceNumber,
       )
     ) {
       this.chunks.push(event);
       this.chunks.sort(
-        (a, b) => a.content.sequenceNumber - b.content.sequenceNumber
+        (a, b) => a.content.sequenceNumber - b.content.sequenceNumber,
       );
     }
   }
@@ -98,7 +98,7 @@ export class DocumentSnapshotBacklog {
       }
 
       const chunks = this.chunks.filter(
-        (c) => c.content['m.relates_to'].event_id === snapshot.event_id
+        (c) => c.content['m.relates_to'].event_id === snapshot.event_id,
       );
 
       if (snapshot.content.chunkCount === chunks.length) {
@@ -127,19 +127,19 @@ export class DocumentSnapshotBacklog {
 
     this.snapshots = this.snapshots.filter(
       (s) =>
-        s.origin_server_ts > originServerTs && s.event_id !== relatedEventId
+        s.origin_server_ts > originServerTs && s.event_id !== relatedEventId,
     );
 
     this.chunks = this.chunks.filter(
       (c) =>
         c.origin_server_ts > originServerTs &&
-        c.content['m.relates_to'].event_id !== relatedEventId
+        c.content['m.relates_to'].event_id !== relatedEventId,
     );
   }
 }
 
 export function combineChunks(
-  chunks: RoomEvent<DocumentChunk>[]
+  chunks: RoomEvent<DocumentChunk>[],
 ): Uint8Array | undefined {
   try {
     const sortedChunks = chunks

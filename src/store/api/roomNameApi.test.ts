@@ -33,7 +33,7 @@ describe('getRoomName', () => {
     const store = createStore({ widgetApi });
 
     await expect(
-      store.dispatch(roomNameApi.endpoints.getRoomName.initiate()).unwrap()
+      store.dispatch(roomNameApi.endpoints.getRoomName.initiate()).unwrap(),
     ).resolves.toEqual({ event });
   });
 
@@ -41,7 +41,7 @@ describe('getRoomName', () => {
     const store = createStore({ widgetApi });
 
     await expect(
-      store.dispatch(roomNameApi.endpoints.getRoomName.initiate()).unwrap()
+      store.dispatch(roomNameApi.endpoints.getRoomName.initiate()).unwrap(),
     ).resolves.toEqual({ event: undefined });
   });
 
@@ -51,7 +51,7 @@ describe('getRoomName', () => {
     const store = createStore({ widgetApi });
 
     await expect(
-      store.dispatch(roomNameApi.endpoints.getRoomName.initiate()).unwrap()
+      store.dispatch(roomNameApi.endpoints.getRoomName.initiate()).unwrap(),
     ).rejects.toEqual({
       message: 'Could not load room name: Some Error',
       name: 'LoadFailed',
@@ -65,16 +65,16 @@ describe('getRoomName', () => {
 
     await waitFor(() =>
       expect(
-        roomNameApi.endpoints.getRoomName.select()(store.getState()).data
-      ).toEqual({ event: undefined })
+        roomNameApi.endpoints.getRoomName.select()(store.getState()).data,
+      ).toEqual({ event: undefined }),
     );
 
     const event = widgetApi.mockSendStateEvent(mockRoomName());
 
     await waitFor(() =>
       expect(
-        roomNameApi.endpoints.getRoomName.select()(store.getState()).data
-      ).toEqual({ event })
+        roomNameApi.endpoints.getRoomName.select()(store.getState()).data,
+      ).toEqual({ event }),
     );
   });
 });

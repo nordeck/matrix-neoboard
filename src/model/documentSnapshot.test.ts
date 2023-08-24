@@ -32,7 +32,7 @@ describe('isValidDocumentSnapshotRoomEvent', () => {
         room_id: '!room-id',
         sender: '@user-id',
         type: 'net.nordeck.whiteboard.document.snapshot',
-      })
+      }),
     ).toBe(true);
   });
 
@@ -53,7 +53,7 @@ describe('isValidDocumentSnapshotRoomEvent', () => {
         room_id: '!room-id',
         sender: '@user-id',
         type: 'net.nordeck.whiteboard.document.snapshot',
-      })
+      }),
     ).toBe(true);
   });
 
@@ -89,7 +89,7 @@ describe('isValidDocumentSnapshotRoomEvent', () => {
         room_id: '!room-id',
         sender: '@user-id',
         type: 'net.nordeck.whiteboard.document.snapshot',
-      })
+      }),
     ).toBe(false);
   });
 });

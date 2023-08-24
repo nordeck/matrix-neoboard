@@ -64,11 +64,11 @@ const sessionSignalingSchema = Joi.object<ConnectionSignaling, true>({
 }).unknown();
 
 export function isValidConnectionSignalingMessage(
-  event: ToDeviceMessageEvent<unknown>
+  event: ToDeviceMessageEvent<unknown>,
 ): event is ToDeviceMessageEvent<ConnectionSignaling> {
   return isValidEvent(
     event,
     TO_DEVICE_MESSAGE_CONNECTION_SIGNALING,
-    sessionSignalingSchema
+    sessionSignalingSchema,
   );
 }

@@ -45,7 +45,7 @@ export function CopyableText({
           <Tooltip
             title={t(
               'copyableTextButton.copy-to-clipboard',
-              'Copy to clipboard'
+              'Copy to clipboard',
             )}
           >
             <IconButton onBlur={handleOnBlur} onClick={handleOnClick}>

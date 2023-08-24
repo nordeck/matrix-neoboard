@@ -57,15 +57,14 @@ describe('SessionManagerImpl', () => {
           },
         ],
       },
-      { stateKey: '@user-id' }
+      { stateKey: '@user-id' },
     );
     expect(sessionManager.getSessions()).toEqual([]);
   });
 
   it('should join another whiteboard', async () => {
-    const { sessionId: firstSessionId } = await sessionManager.join(
-      'whiteboard-id-0'
-    );
+    const { sessionId: firstSessionId } =
+      await sessionManager.join('whiteboard-id-0');
 
     expect(widgetApi.sendStateEvent).toBeCalledWith(
       'net.nordeck.whiteboard.sessions',
@@ -78,12 +77,11 @@ describe('SessionManagerImpl', () => {
           },
         ],
       },
-      { stateKey: '@user-id' }
+      { stateKey: '@user-id' },
     );
 
-    const { sessionId: secondSessionId } = await sessionManager.join(
-      'whiteboard-id-1'
-    );
+    const { sessionId: secondSessionId } =
+      await sessionManager.join('whiteboard-id-1');
 
     expect(widgetApi.sendStateEvent).toBeCalledWith(
       'net.nordeck.whiteboard.sessions',
@@ -96,7 +94,7 @@ describe('SessionManagerImpl', () => {
           },
         ],
       },
-      { stateKey: '@user-id' }
+      { stateKey: '@user-id' },
     );
   });
 
@@ -121,7 +119,7 @@ describe('SessionManagerImpl', () => {
           },
         ],
       },
-      { stateKey: '@user-id' }
+      { stateKey: '@user-id' },
     );
   });
 
@@ -135,7 +133,7 @@ describe('SessionManagerImpl', () => {
             whiteboardId: 'whiteboard-id',
           },
         ],
-      })
+      }),
     );
 
     const { sessionId } = await sessionManager.join('whiteboard-id');
@@ -151,7 +149,7 @@ describe('SessionManagerImpl', () => {
           },
         ],
       },
-      { stateKey: '@user-id' }
+      { stateKey: '@user-id' },
     );
   });
 
@@ -180,7 +178,7 @@ describe('SessionManagerImpl', () => {
           },
         ],
       },
-      { stateKey: '@user-id' }
+      { stateKey: '@user-id' },
     );
   });
 
@@ -189,7 +187,7 @@ describe('SessionManagerImpl', () => {
       mockWhiteboardSessions({
         // Invalid session event
         sessions: [{} as WhiteboardSession],
-      })
+      }),
     );
 
     const { sessionId } = await sessionManager.join('whiteboard-id');
@@ -205,17 +203,17 @@ describe('SessionManagerImpl', () => {
           },
         ],
       },
-      { stateKey: '@user-id' }
+      { stateKey: '@user-id' },
     );
   });
 
   it('should handle new sessions while joining', async () => {
     widgetApi.mockSendStateEvent(
-      mockWhiteboardSessions({ state_key: '@another-user' })
+      mockWhiteboardSessions({ state_key: '@another-user' }),
     );
 
     const joinedPromise = firstValueFrom(
-      sessionManager.observeSessionJoined().pipe(take(1), toArray())
+      sessionManager.observeSessionJoined().pipe(take(1), toArray()),
     );
     await sessionManager.join('whiteboard-id');
 
@@ -226,12 +224,12 @@ describe('SessionManagerImpl', () => {
 
   it('should handle new sessions joining a whiteboard', async () => {
     const joinedPromise = firstValueFrom(
-      sessionManager.observeSessionJoined().pipe(take(1), toArray())
+      sessionManager.observeSessionJoined().pipe(take(1), toArray()),
     );
     await sessionManager.join('whiteboard-id');
 
     widgetApi.mockSendStateEvent(
-      mockWhiteboardSessions({ state_key: '@another-user' })
+      mockWhiteboardSessions({ state_key: '@another-user' }),
     );
 
     await expect(joinedPromise).resolves.toEqual([
@@ -241,17 +239,17 @@ describe('SessionManagerImpl', () => {
 
   it('should handle sessions leaving a whiteboard', async () => {
     const leftPromise = firstValueFrom(
-      sessionManager.observeSessionLeft().pipe(take(1), toArray())
+      sessionManager.observeSessionLeft().pipe(take(1), toArray()),
     );
 
     widgetApi.mockSendStateEvent(
-      mockWhiteboardSessions({ state_key: '@another-user' })
+      mockWhiteboardSessions({ state_key: '@another-user' }),
     );
 
     await sessionManager.join('whiteboard-id');
 
     widgetApi.mockSendStateEvent(
-      mockWhiteboardSessions({ state_key: '@another-user', sessions: [] })
+      mockWhiteboardSessions({ state_key: '@another-user', sessions: [] }),
     );
 
     await expect(leftPromise).resolves.toEqual([
@@ -261,13 +259,13 @@ describe('SessionManagerImpl', () => {
 
   it('should handle expiring sessions', async () => {
     widgetApi.mockSendStateEvent(
-      mockWhiteboardSessions({ state_key: '@another-user' })
+      mockWhiteboardSessions({ state_key: '@another-user' }),
     );
 
     await sessionManager.join('whiteboard-id');
 
     const leftPromise = firstValueFrom(
-      sessionManager.observeSessionLeft().pipe(take(1), toArray())
+      sessionManager.observeSessionLeft().pipe(take(1), toArray()),
     );
 
     jest
@@ -283,14 +281,14 @@ describe('SessionManagerImpl', () => {
     await sessionManager.join('whiteboard-id');
 
     widgetApi.mockSendStateEvent(
-      mockWhiteboardSessions({ state_key: '@another-user' })
+      mockWhiteboardSessions({ state_key: '@another-user' }),
     );
     widgetApi.mockSendStateEvent(
-      mockWhiteboardSessions({ state_key: '@expiring-user' })
+      mockWhiteboardSessions({ state_key: '@expiring-user' }),
     );
 
     const leftPromise = firstValueFrom(
-      sessionManager.observeSessionLeft().pipe(take(1), toArray())
+      sessionManager.observeSessionLeft().pipe(take(1), toArray()),
     );
 
     widgetApi.mockSendStateEvent(
@@ -303,7 +301,7 @@ describe('SessionManagerImpl', () => {
             whiteboardId: 'whiteboard-id',
           },
         ],
-      })
+      }),
     );
 
     jest
@@ -317,7 +315,7 @@ describe('SessionManagerImpl', () => {
 
   it('should ignore invalid sessions events', async () => {
     const joinedPromise = firstValueFrom(
-      sessionManager.observeSessionJoined().pipe(take(1), toArray())
+      sessionManager.observeSessionJoined().pipe(take(1), toArray()),
     );
 
     await sessionManager.join('whiteboard-id');
@@ -327,10 +325,10 @@ describe('SessionManagerImpl', () => {
         // Invalid event
         sessions: {} as [],
         state_key: '@invalid-user',
-      })
+      }),
     );
     widgetApi.mockSendStateEvent(
-      mockWhiteboardSessions({ state_key: '@another-user' })
+      mockWhiteboardSessions({ state_key: '@another-user' }),
     );
 
     await expect(joinedPromise).resolves.toEqual([
@@ -344,7 +342,7 @@ describe('SessionManagerImpl', () => {
     await sessionManager.join('whiteboard-id');
 
     const leftPromise = firstValueFrom(
-      sessionManager.observeSessionLeft().pipe(take(1), toArray())
+      sessionManager.observeSessionLeft().pipe(take(1), toArray()),
     );
 
     await sessionManager.leave();
@@ -365,16 +363,16 @@ describe('SessionManagerImpl', () => {
           },
         ],
       },
-      { stateKey: '@user-id' }
+      { stateKey: '@user-id' },
     );
   });
 
   it('should close observables', async () => {
     const joinedPromise = firstValueFrom(
-      sessionManager.observeSessionJoined().pipe(toArray())
+      sessionManager.observeSessionJoined().pipe(toArray()),
     );
     const leftPromise = firstValueFrom(
-      sessionManager.observeSessionJoined().pipe(toArray())
+      sessionManager.observeSessionJoined().pipe(toArray()),
     );
 
     sessionManager.destroy();

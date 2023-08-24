@@ -56,7 +56,7 @@ describe('<StyledJoyride/>', () => {
           },
         ]}
       />,
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
 
     const firstDialog = await screen.findByRole('alertdialog', {
@@ -65,23 +65,23 @@ describe('<StyledJoyride/>', () => {
     });
 
     expect(
-      within(firstDialog).getByRole('heading', { name: 'Step 1', level: 3 })
+      within(firstDialog).getByRole('heading', { name: 'Step 1', level: 3 }),
     ).toBeInTheDocument();
     expect(
-      within(firstDialog).getByText('Details for the first element')
+      within(firstDialog).getByText('Details for the first element'),
     ).toBeInTheDocument();
     expect(within(firstDialog).getByText('1 of 2')).toBeInTheDocument();
     expect(
-      within(firstDialog).getByRole('button', { name: 'Close' })
+      within(firstDialog).getByRole('button', { name: 'Close' }),
     ).toBeInTheDocument();
     expect(
-      within(firstDialog).queryByRole('button', { name: 'Back' })
+      within(firstDialog).queryByRole('button', { name: 'Back' }),
     ).not.toBeInTheDocument();
     expect(
-      within(firstDialog).queryByRole('button', { name: 'Complete' })
+      within(firstDialog).queryByRole('button', { name: 'Complete' }),
     ).not.toBeInTheDocument();
     expect(
-      within(firstDialog).getByRole('button', { name: 'Next' })
+      within(firstDialog).getByRole('button', { name: 'Next' }),
     ).toBeInTheDocument();
   });
 
@@ -103,11 +103,11 @@ describe('<StyledJoyride/>', () => {
           },
         ]}
       />,
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
 
     expect(
-      await screen.findByRole('alertdialog', { name: 'Step 1' })
+      await screen.findByRole('alertdialog', { name: 'Step 1' }),
     ).toBeInTheDocument();
 
     // the popover is opened in a portal, so we check the baseElement, i.e. <body/>.
@@ -118,7 +118,7 @@ describe('<StyledJoyride/>', () => {
           // i.e. <body/>. In that case we get false positive warning
           region: { enabled: false },
         },
-      })
+      }),
     ).toHaveNoViolations();
   });
 
@@ -140,7 +140,7 @@ describe('<StyledJoyride/>', () => {
           },
         ]}
       />,
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
 
     const firstDialog = await screen.findByRole('alertdialog', {
@@ -151,7 +151,7 @@ describe('<StyledJoyride/>', () => {
     expect(within(firstDialog).getByText('1 of 2')).toBeInTheDocument();
 
     await userEvent.click(
-      within(firstDialog).getByRole('button', { name: 'Next' })
+      within(firstDialog).getByRole('button', { name: 'Next' }),
     );
 
     const secondDialog = await screen.findByRole('alertdialog', {
@@ -162,14 +162,14 @@ describe('<StyledJoyride/>', () => {
     expect(within(secondDialog).getByText('2 of 2')).toBeInTheDocument();
 
     await userEvent.click(
-      within(secondDialog).getByRole('button', { name: 'Back' })
+      within(secondDialog).getByRole('button', { name: 'Back' }),
     );
 
     expect(
       await screen.findByRole('alertdialog', {
         name: 'Step 1',
         description: 'Details for the first element',
-      })
+      }),
     ).toBeInTheDocument();
   });
 
@@ -185,7 +185,7 @@ describe('<StyledJoyride/>', () => {
           },
         ]}
       />,
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
 
     const firstDialog = await screen.findByRole('alertdialog', {
@@ -194,7 +194,7 @@ describe('<StyledJoyride/>', () => {
     });
 
     await userEvent.click(
-      within(firstDialog).getByRole('button', { name: 'Complete' })
+      within(firstDialog).getByRole('button', { name: 'Complete' }),
     );
 
     await waitFor(() => {
@@ -222,7 +222,7 @@ describe('<StyledJoyride/>', () => {
           },
         ]}
       />,
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
 
     const firstDialog = await screen.findByRole('alertdialog', {
@@ -231,7 +231,7 @@ describe('<StyledJoyride/>', () => {
     });
 
     await userEvent.click(
-      within(firstDialog).getByRole('button', { name: 'Close' })
+      within(firstDialog).getByRole('button', { name: 'Close' }),
     );
 
     await waitFor(() => {
@@ -253,15 +253,15 @@ describe('<StyledJoyride/>', () => {
           },
         ]}
       />,
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
 
     expect(
-      screen.getByText('Details for the first element')
+      screen.getByText('Details for the first element'),
     ).toBeInTheDocument();
 
     await userEvent.click(
-      await screen.findByRole('button', { name: 'Complete' })
+      await screen.findByRole('button', { name: 'Complete' }),
     );
 
     expect(localStorage.getItem('guided_tour_completed')).toBe('true');
@@ -281,11 +281,11 @@ describe('<StyledJoyride/>', () => {
           },
         ]}
       />,
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
 
     expect(
-      screen.queryByText('Details for the first element')
+      screen.queryByText('Details for the first element'),
     ).not.toBeInTheDocument();
   });
 
@@ -312,7 +312,7 @@ describe('<StyledJoyride/>', () => {
           },
         ]}
       />,
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
 
     await userEvent.click(await screen.findByRole('button', { name: 'Next' }));
@@ -321,7 +321,7 @@ describe('<StyledJoyride/>', () => {
       await screen.findByRole('alertdialog', {
         name: 'Step 2',
         description: 'Details for the second element',
-      })
+      }),
     ).toBeInTheDocument();
 
     expect(onEnter).toBeCalled();
@@ -363,7 +363,7 @@ describe('<StyledJoyride/>', () => {
       await screen.findByRole('alertdialog', {
         name: 'Step 1',
         description: 'Details for the first element',
-      })
+      }),
     ).toBeInTheDocument();
   });
 });

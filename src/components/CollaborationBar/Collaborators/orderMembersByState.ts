@@ -18,7 +18,7 @@ import { ActiveWhiteboardMember } from '../../../state';
 
 export function orderMembersByState(
   activeMembers: ActiveWhiteboardMember[],
-  ownUserId: string
+  ownUserId: string,
 ): ActiveWhiteboardMember[] {
   const ownUser = { userId: ownUserId };
   const connectedUsers = activeMembers.filter((u) => u.userId !== ownUserId);

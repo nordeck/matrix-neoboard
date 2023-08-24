@@ -72,24 +72,24 @@ describe('<ExportWhiteboardDialog/>', () => {
     });
 
     expect(
-      within(dialog).getByRole('button', { name: 'File format' })
+      within(dialog).getByRole('button', { name: 'File format' }),
     ).toHaveTextContent('PDF-File (.pdf)');
 
     expect(
-      within(dialog).getByRole('button', { name: 'Cancel' })
+      within(dialog).getByRole('button', { name: 'Cancel' }),
     ).toHaveFocus();
     expect(
-      within(dialog).getByRole('button', { name: 'Close' })
+      within(dialog).getByRole('button', { name: 'Close' }),
     ).toBeInTheDocument();
     expect(
-      within(dialog).getByRole('link', { name: 'Download' })
+      within(dialog).getByRole('link', { name: 'Download' }),
     ).toBeInTheDocument();
   });
 
   it('should have no accessibility violations', async () => {
     const { baseElement } = render(
       <ExportWhiteboardDialog open onClose={onClose} />,
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
 
     expect(screen.getByRole('link', { name: 'Download' })).toBeInTheDocument();
@@ -106,7 +106,7 @@ describe('<ExportWhiteboardDialog/>', () => {
     const dialog = screen.getByRole('dialog');
 
     await userEvent.click(
-      within(dialog).getByRole('button', { name: 'Close' })
+      within(dialog).getByRole('button', { name: 'Close' }),
     );
 
     expect(onClose).toBeCalled();
@@ -120,7 +120,7 @@ describe('<ExportWhiteboardDialog/>', () => {
     const dialog = screen.getByRole('dialog');
 
     await userEvent.click(
-      within(dialog).getByRole('button', { name: 'Cancel' })
+      within(dialog).getByRole('button', { name: 'Cancel' }),
     );
 
     expect(onClose).toBeCalled();
@@ -134,7 +134,7 @@ describe('<ExportWhiteboardDialog/>', () => {
     const dialog = screen.getByRole('dialog');
 
     await userEvent.click(
-      within(dialog).getByRole('link', { name: 'Download' })
+      within(dialog).getByRole('link', { name: 'Download' }),
     );
 
     expect(onClose).toBeCalled();
@@ -148,14 +148,14 @@ describe('<ExportWhiteboardDialog/>', () => {
     const dialog = screen.getByRole('dialog');
 
     await userEvent.click(
-      within(dialog).getByRole('button', { name: 'File format' })
+      within(dialog).getByRole('button', { name: 'File format' }),
     );
     await userEvent.click(
-      screen.getByRole('option', { name: 'NeoBoard-File (.nwb)' })
+      screen.getByRole('option', { name: 'NeoBoard-File (.nwb)' }),
     );
 
     await userEvent.click(
-      within(dialog).getByRole('link', { name: 'Download' })
+      within(dialog).getByRole('link', { name: 'Download' }),
     );
 
     expect(onClose).toBeCalled();
@@ -171,7 +171,7 @@ describe('<ExportWhiteboardDialog/>', () => {
     });
 
     await expect(screen.findByRole('status')).resolves.toHaveTextContent(
-      'Something went wrong while generating the PDF.'
+      'Something went wrong while generating the PDF.',
     );
   });
 });

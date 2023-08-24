@@ -33,7 +33,7 @@ export class WhiteboardManagerImpl implements WhiteboardManager {
     private readonly store: StoreType,
     private readonly widgetApiPromise: Promise<WidgetApi>,
     private readonly sessionManager: SessionManager,
-    private readonly signalingChannel: SignalingChannel
+    private readonly signalingChannel: SignalingChannel,
   ) {}
 
   selectActiveWhiteboardInstance(whiteboardEvent: StateEvent<Whiteboard>) {
@@ -44,7 +44,7 @@ export class WhiteboardManagerImpl implements WhiteboardManager {
         this.widgetApiPromise,
         this.sessionManager,
         this.signalingChannel,
-        whiteboardEvent
+        whiteboardEvent,
       );
     }
   }
@@ -56,11 +56,11 @@ export class WhiteboardManagerImpl implements WhiteboardManager {
 
 export function createWhiteboardManager(
   store: StoreType,
-  widgetApiPromise: Promise<WidgetApi>
+  widgetApiPromise: Promise<WidgetApi>,
 ): WhiteboardManager {
   // We never destroy these, but this is fine
   const signalingChannel = new ToDeviceMessageSignalingChannel(
-    widgetApiPromise
+    widgetApiPromise,
   );
   const sessionManager = new SessionManagerImpl(widgetApiPromise);
 
@@ -68,6 +68,6 @@ export function createWhiteboardManager(
     store,
     widgetApiPromise,
     sessionManager,
-    signalingChannel
+    signalingChannel,
   );
 }

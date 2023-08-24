@@ -96,12 +96,12 @@ describe('applyMigrations', () => {
 
     applyMigrations(
       aliceDoc,
-      createMigrations([initMigration, migrateToList], '0')
+      createMigrations([initMigration, migrateToList], '0'),
     );
 
     applyMigrations(
       bobDoc,
-      createMigrations([initMigration, migrateToList], '0')
+      createMigrations([initMigration, migrateToList], '0'),
     );
 
     const bobRoot = aliceDoc.getMap('0') as SharedMap<Example>;

@@ -50,7 +50,7 @@ describe('<Collaborators>', () => {
         content: {
           displayname: 'Bob',
         },
-      })
+      }),
     );
     widgetApi.mockSendStateEvent(
       mockRoomMember({
@@ -58,7 +58,7 @@ describe('<Collaborators>', () => {
         content: {
           displayname: 'Charlie',
         },
-      })
+      }),
     );
     widgetApi.mockSendStateEvent(
       mockRoomMember({
@@ -66,7 +66,7 @@ describe('<Collaborators>', () => {
         content: {
           displayname: 'Dave',
         },
-      })
+      }),
     );
     widgetApi.mockSendStateEvent(
       mockRoomMember({
@@ -74,7 +74,7 @@ describe('<Collaborators>', () => {
         content: {
           displayname: 'Erin',
         },
-      })
+      }),
     );
     widgetApi.mockSendStateEvent(
       mockRoomMember({
@@ -82,7 +82,7 @@ describe('<Collaborators>', () => {
         content: {
           displayname: 'Frank',
         },
-      })
+      }),
     );
     widgetApi.mockSendStateEvent(
       mockRoomMember({
@@ -90,7 +90,7 @@ describe('<Collaborators>', () => {
         content: {
           displayname: 'Grace',
         },
-      })
+      }),
     );
 
     statistics = {
@@ -141,10 +141,10 @@ describe('<Collaborators>', () => {
     });
 
     expect(
-      within(ownAvatarButton).getByRole('img', { hidden: true })
+      within(ownAvatarButton).getByRole('img', { hidden: true }),
     ).toHaveAttribute(
       'src',
-      expect.stringMatching(/\/_matrix\/media\/r0\/thumbnail\/alice/i)
+      expect.stringMatching(/\/_matrix\/media\/r0\/thumbnail\/alice/i),
     );
   });
 
@@ -170,7 +170,7 @@ describe('<Collaborators>', () => {
       expect(
         within(group)
           .getAllByRole('button')
-          .map((b) => b.getAttribute('aria-label'))
+          .map((b) => b.getAttribute('aria-label')),
       ).toEqual(['Alice (You)', 'Bob', 'Erin']);
     });
   });
@@ -190,7 +190,7 @@ describe('<Collaborators>', () => {
     const menu = screen.getByRole('menu', { name: 'One further collaborator' });
 
     expect(
-      within(menu).getByRole('menuitem', { name: '@user-heidi' })
+      within(menu).getByRole('menuitem', { name: '@user-heidi' }),
     ).toBeInTheDocument();
 
     await userEvent.keyboard('[Space]');
@@ -223,10 +223,10 @@ describe('<Collaborators>', () => {
     const menu = screen.getByRole('menu', { name: '2 further collaborators' });
 
     expect(
-      within(menu).getByRole('menuitem', { name: 'Grace' })
+      within(menu).getByRole('menuitem', { name: 'Grace' }),
     ).toBeInTheDocument();
     expect(
-      within(menu).getByRole('menuitem', { name: '@user-heidi' })
+      within(menu).getByRole('menuitem', { name: '@user-heidi' }),
     ).toBeInTheDocument();
 
     await userEvent.keyboard('[Escape]');

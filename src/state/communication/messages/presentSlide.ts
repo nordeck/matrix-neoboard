@@ -32,7 +32,7 @@ const presentSlideSchema = Joi.object<PresentSlide, true>({
 }).unknown();
 
 export function isValidPresentSlideMessage(
-  message: Message
+  message: Message,
 ): message is Message<PresentSlide> {
   if (message.type !== PRESENT_SLIDE_MESSAGE) {
     return false;
@@ -43,7 +43,7 @@ export function isValidPresentSlideMessage(
   if (result.error) {
     loglevel.error(
       'Error while validating present slide message',
-      result.error
+      result.error,
     );
     return false;
   }

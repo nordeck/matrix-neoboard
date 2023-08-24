@@ -82,7 +82,7 @@ export function LayoutStateProvider({ children }: PropsWithChildren<{}>) {
       isShowCollaboratorsCursors,
       isShowGrid,
       isSlideOverviewVisible,
-    ]
+    ],
   );
 
   return (
@@ -97,7 +97,7 @@ export function useLayoutState(): LayoutState {
 
   if (!layoutState) {
     throw new Error(
-      'useLayoutState can only be used inside of <LayoutStateProvider>'
+      'useLayoutState can only be used inside of <LayoutStateProvider>',
     );
   }
 

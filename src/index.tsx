@@ -38,7 +38,7 @@ const version = getEnvironment('REACT_APP_VERSION');
 const revision = getEnvironment('REACT_APP_REVISION');
 if (version) {
   console.log(
-    `You are running version "${version}" (${revision}) of the matrix-neoboard-widget!`
+    `You are running version "${version}" (${revision}) of the matrix-neoboard-widget!`,
   );
 }
 
@@ -61,5 +61,5 @@ ReactDOM.render(
       whiteboardManager={whiteboardManager}
     />
   </React.StrictMode>,
-  document.getElementById('root')
+  document.getElementById('root'),
 );

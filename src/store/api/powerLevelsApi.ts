@@ -47,7 +47,7 @@ export const powerLevelsApi = baseApi.injectEndpoints({
         try {
           const events = await widgetApi.receiveStateEvents(
             STATE_EVENT_POWER_LEVELS,
-            { stateKey: '' }
+            { stateKey: '' },
           );
 
           return {
@@ -67,7 +67,7 @@ export const powerLevelsApi = baseApi.injectEndpoints({
 
       async onCacheEntryAdded(
         _,
-        { cacheDataLoaded, cacheEntryRemoved, extra, updateCachedData }
+        { cacheDataLoaded, cacheEntryRemoved, extra, updateCachedData },
       ) {
         const widgetApi = await (extra as ThunkExtraArgument).widgetApi;
 
@@ -81,7 +81,7 @@ export const powerLevelsApi = baseApi.injectEndpoints({
           .pipe(
             filter(isValidPowerLevelStateEvent),
             bufferTime(0),
-            filter((list) => list.length > 0)
+            filter((list) => list.length > 0),
           )
           .subscribe(async (events) => {
             updateCachedData((state) => {
@@ -106,15 +106,15 @@ export const powerLevelsApi = baseApi.injectEndpoints({
         try {
           const powerLevelsEvents = await widgetApi.receiveStateEvents(
             STATE_EVENT_POWER_LEVELS,
-            { stateKey: '' }
+            { stateKey: '' },
           );
           const powerLevelEvent = last(
-            powerLevelsEvents.filter(isValidPowerLevelStateEvent)
+            powerLevelsEvents.filter(isValidPowerLevelStateEvent),
           );
           const powerLevels = merge(
             {},
             powerLevelEvent?.content ?? {},
-            changes
+            changes,
           );
 
           if (
@@ -126,7 +126,7 @@ export const powerLevelsApi = baseApi.injectEndpoints({
 
           const data = await widgetApi.sendStateEvent(
             STATE_EVENT_POWER_LEVELS,
-            powerLevels
+            powerLevels,
           );
 
           return { data };

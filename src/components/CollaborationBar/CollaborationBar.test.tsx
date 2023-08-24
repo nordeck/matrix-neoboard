@@ -62,10 +62,10 @@ describe('<CollaborationBar>', () => {
       within(toolbar).getByRole('checkbox', {
         name: "Show collaborators' cursors",
         checked: false,
-      })
+      }),
     ).toBeInTheDocument();
     expect(
-      within(toolbar).getByRole('button', { name: '@user-id (You)' })
+      within(toolbar).getByRole('button', { name: '@user-id (You)' }),
     ).toBeInTheDocument();
   });
 
@@ -82,7 +82,7 @@ describe('<CollaborationBar>', () => {
 
     expect(toolbar).toHaveAttribute(
       'data-guided-tour-target',
-      'collaborationbar'
+      'collaborationbar',
     );
   });
 
@@ -93,14 +93,14 @@ describe('<CollaborationBar>', () => {
       screen.getByRole('checkbox', {
         name: "Show collaborators' cursors",
         checked: false,
-      })
+      }),
     );
 
     expect(
       screen.getByRole('checkbox', {
         name: "Hide collaborators' cursors",
         checked: true,
-      })
+      }),
     ).toBeInTheDocument();
   });
 });

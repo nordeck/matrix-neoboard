@@ -89,7 +89,7 @@ describe('useElementCoordsState', () => {
         const setElementOverride = useSetElementOverride();
         return { element, setElementOverride };
       },
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
 
     act(() => {
@@ -116,7 +116,7 @@ describe('useElementCoordsState', () => {
         const setElementOverride = useSetElementOverride();
         return { element, setElementOverride };
       },
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
 
     act(() => {
@@ -144,7 +144,7 @@ describe('useElementCoordsState', () => {
         const setElementOverride = useSetElementOverride();
         return { element, setElementOverride };
       },
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
 
     act(() => {

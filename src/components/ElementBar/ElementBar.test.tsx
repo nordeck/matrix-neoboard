@@ -67,17 +67,17 @@ describe('<ElementBar/>', () => {
     expect(
       within(toolbar).getByRole('button', {
         name: 'Pick a color',
-      })
+      }),
     ).toBeInTheDocument();
 
     expect(
       within(toolbar).getByRole('button', {
         name: 'Duplicate the active element',
-      })
+      }),
     ).toBeInTheDocument();
 
     expect(
-      within(toolbar).getByRole('button', { name: 'Delete element' })
+      within(toolbar).getByRole('button', { name: 'Delete element' }),
     ).toBeInTheDocument();
   });
 
@@ -87,7 +87,7 @@ describe('<ElementBar/>', () => {
 
     const toolbar = screen.getByRole('toolbar', { name: 'Element' });
     await userEvent.click(
-      within(toolbar).getByRole('button', { name: /Delete element/ })
+      within(toolbar).getByRole('button', { name: /Delete element/ }),
     );
 
     expect(activeSlide.getElementIds()).toEqual([]);

@@ -70,7 +70,7 @@ export function PresentBar() {
   const presentToolsBarNextSlide = t('presentToolsBar.nextSlide', 'Next slide');
   const presentToolsBarPreviousSlide = t(
     'presentToolsBar.previousSlide',
-    'Previous slide'
+    'Previous slide',
   );
 
   const lockOpenButtonTitle = isPresentingInEditMode
@@ -140,7 +140,7 @@ function PresenterAvatar({
   const presenterTitle = t(
     'presentBar.isPresentingUser',
     '{{displayName}} is presenting',
-    { displayName }
+    { displayName },
   );
 
   return (

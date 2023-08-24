@@ -84,14 +84,14 @@ describe('<ElementContextMenu/>', () => {
       <ElementContextMenu elementId="element-1">
         <text data-testid="example-text" />
       </ElementContextMenu>,
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
 
     const contextMenuTarget = screen.getByTestId(
-      'element-context-menu-container'
+      'element-context-menu-container',
     );
     expect(
-      within(contextMenuTarget).getByTestId('example-text')
+      within(contextMenuTarget).getByTestId('example-text'),
     ).toBeInTheDocument();
   });
 
@@ -101,7 +101,7 @@ describe('<ElementContextMenu/>', () => {
     });
 
     const contextMenuTarget = screen.getByTestId(
-      'element-context-menu-container'
+      'element-context-menu-container',
     );
     await userEvent.pointer({
       keys: '[MouseRight]',
@@ -111,19 +111,19 @@ describe('<ElementContextMenu/>', () => {
     const menu = screen.getByRole('menu', { name: 'Element' });
 
     expect(
-      within(menu).getByRole('menuitem', { name: 'Bring forward Ctrl + ↑' })
+      within(menu).getByRole('menuitem', { name: 'Bring forward Ctrl + ↑' }),
     ).toBeInTheDocument();
     expect(
-      within(menu).getByRole('menuitem', { name: 'Bring backward Ctrl + ↓' })
+      within(menu).getByRole('menuitem', { name: 'Bring backward Ctrl + ↓' }),
     ).toBeInTheDocument();
     expect(
-      within(menu).getByRole('menuitem', { name: 'Bring to front' })
+      within(menu).getByRole('menuitem', { name: 'Bring to front' }),
     ).toBeInTheDocument();
     expect(
-      within(menu).getByRole('menuitem', { name: 'Bring to back' })
+      within(menu).getByRole('menuitem', { name: 'Bring to back' }),
     ).toBeInTheDocument();
     expect(
-      within(menu).getByRole('menuitem', { name: 'Delete Del' })
+      within(menu).getByRole('menuitem', { name: 'Delete Del' }),
     ).toBeInTheDocument();
   });
 
@@ -141,7 +141,7 @@ describe('<ElementContextMenu/>', () => {
     });
 
     const contextMenuTarget = screen.getByTestId(
-      'element-context-menu-container'
+      'element-context-menu-container',
     );
     await userEvent.pointer({
       keys: '[MouseRight]',
@@ -161,7 +161,7 @@ describe('<ElementContextMenu/>', () => {
     });
 
     const contextMenuTarget = screen.getByTestId(
-      'element-context-menu-container'
+      'element-context-menu-container',
     );
     await userEvent.pointer({
       keys: '[MouseRight]',
@@ -171,19 +171,19 @@ describe('<ElementContextMenu/>', () => {
     const menu = screen.getByRole('menu', { name: 'Element' });
 
     expect(
-      within(menu).getByRole('menuitem', { name: 'Bring forward ⌘ ↑' })
+      within(menu).getByRole('menuitem', { name: 'Bring forward ⌘ ↑' }),
     ).toBeInTheDocument();
     expect(
-      within(menu).getByRole('menuitem', { name: 'Bring backward ⌘ ↓' })
+      within(menu).getByRole('menuitem', { name: 'Bring backward ⌘ ↓' }),
     ).toBeInTheDocument();
     expect(
-      within(menu).getByRole('menuitem', { name: 'Bring to front' })
+      within(menu).getByRole('menuitem', { name: 'Bring to front' }),
     ).toBeInTheDocument();
     expect(
-      within(menu).getByRole('menuitem', { name: 'Bring to back' })
+      within(menu).getByRole('menuitem', { name: 'Bring to back' }),
     ).toBeInTheDocument();
     expect(
-      within(menu).getByRole('menuitem', { name: 'Delete ⌫' })
+      within(menu).getByRole('menuitem', { name: 'Delete ⌫' }),
     ).toBeInTheDocument();
   });
 
@@ -195,7 +195,7 @@ describe('<ElementContextMenu/>', () => {
     });
 
     const contextMenuTarget = screen.getByTestId(
-      'element-context-menu-container'
+      'element-context-menu-container',
     );
     await userEvent.pointer({
       keys: '[MouseRight]',
@@ -211,7 +211,7 @@ describe('<ElementContextMenu/>', () => {
     ]);
 
     await userEvent.click(
-      within(menu).getByRole('menuitem', { name: /Bring forward/ })
+      within(menu).getByRole('menuitem', { name: /Bring forward/ }),
     );
 
     expect(activeSlide.getElementIds()).toEqual([
@@ -229,7 +229,7 @@ describe('<ElementContextMenu/>', () => {
     });
 
     const contextMenuTarget = screen.getByTestId(
-      'element-context-menu-container'
+      'element-context-menu-container',
     );
     await userEvent.pointer({
       keys: '[MouseRight]',
@@ -245,7 +245,7 @@ describe('<ElementContextMenu/>', () => {
     ]);
 
     await userEvent.click(
-      within(menu).getByRole('menuitem', { name: /Bring to front/ })
+      within(menu).getByRole('menuitem', { name: /Bring to front/ }),
     );
 
     expect(activeSlide.getElementIds()).toEqual([
@@ -263,7 +263,7 @@ describe('<ElementContextMenu/>', () => {
     });
 
     const contextMenuTarget = screen.getByTestId(
-      'element-context-menu-container'
+      'element-context-menu-container',
     );
     await userEvent.pointer({
       keys: '[MouseRight]',
@@ -279,7 +279,7 @@ describe('<ElementContextMenu/>', () => {
     ]);
 
     await userEvent.click(
-      within(menu).getByRole('menuitem', { name: /Bring backward/ })
+      within(menu).getByRole('menuitem', { name: /Bring backward/ }),
     );
 
     expect(activeSlide.getElementIds()).toEqual([
@@ -297,7 +297,7 @@ describe('<ElementContextMenu/>', () => {
     });
 
     const contextMenuTarget = screen.getByTestId(
-      'element-context-menu-container'
+      'element-context-menu-container',
     );
     await userEvent.pointer({
       keys: '[MouseRight]',
@@ -313,7 +313,7 @@ describe('<ElementContextMenu/>', () => {
     ]);
 
     await userEvent.click(
-      within(menu).getByRole('menuitem', { name: /Bring to back/ })
+      within(menu).getByRole('menuitem', { name: /Bring to back/ }),
     );
 
     expect(activeSlide.getElementIds()).toEqual([
@@ -331,7 +331,7 @@ describe('<ElementContextMenu/>', () => {
     });
 
     const contextMenuTarget = screen.getByTestId(
-      'element-context-menu-container'
+      'element-context-menu-container',
     );
     await userEvent.pointer({
       keys: '[MouseRight]',
@@ -347,7 +347,7 @@ describe('<ElementContextMenu/>', () => {
     ]);
 
     await userEvent.click(
-      within(menu).getByRole('menuitem', { name: /Delete/ })
+      within(menu).getByRole('menuitem', { name: /Delete/ }),
     );
 
     expect(activeSlide.getElementIds()).toEqual(['element-0', 'element-2']);

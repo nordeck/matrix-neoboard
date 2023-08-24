@@ -27,7 +27,7 @@ describe('isValidCursorUpdateMessage', () => {
           position: { x: 1, y: 2 },
         },
         type: 'net.nordeck.whiteboard.cursor_update',
-      })
+      }),
     ).toBe(true);
   });
 
@@ -42,7 +42,7 @@ describe('isValidCursorUpdateMessage', () => {
           additional: 'tmp',
         },
         type: 'net.nordeck.whiteboard.cursor_update',
-      })
+      }),
     ).toBe(true);
   });
 
@@ -73,7 +73,7 @@ describe('isValidCursorUpdateMessage', () => {
           ...patch,
         },
         type: 'net.nordeck.whiteboard.cursor_update',
-      })
+      }),
     ).toBe(false);
   });
 });

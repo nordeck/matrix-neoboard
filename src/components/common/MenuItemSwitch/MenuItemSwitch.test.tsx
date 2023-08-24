@@ -49,7 +49,7 @@ describe('<MenuItemSwitch>', () => {
         onChange={onChange}
         onClick={onClick}
       />,
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
 
     const item = screen.getByRole('menuitemcheckbox', {
@@ -58,7 +58,7 @@ describe('<MenuItemSwitch>', () => {
     });
 
     expect(
-      within(item).getByRole('checkbox', { name: 'Title', checked: true })
+      within(item).getByRole('checkbox', { name: 'Title', checked: true }),
     ).toBeInTheDocument();
     expect(within(item).getByTestId('LockOutlinedIcon')).toBeInTheDocument();
   });
@@ -72,7 +72,7 @@ describe('<MenuItemSwitch>', () => {
         onChange={onChange}
         onClick={onClick}
       />,
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
 
     expect(
@@ -85,7 +85,7 @@ describe('<MenuItemSwitch>', () => {
           // accept it for now.
           'nested-interactive': { enabled: false },
         },
-      })
+      }),
     ).toHaveNoViolations();
   });
 
@@ -98,7 +98,7 @@ describe('<MenuItemSwitch>', () => {
         onChange={onChange}
         onClick={onClick}
       />,
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
 
     await userEvent.click(screen.getByRole('menuitemcheckbox'));
@@ -116,7 +116,7 @@ describe('<MenuItemSwitch>', () => {
         onChange={onChange}
         onClick={onClick}
       />,
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
 
     await userEvent.click(screen.getByRole('checkbox'));
@@ -134,7 +134,7 @@ describe('<MenuItemSwitch>', () => {
         onChange={onChange}
         onClick={onClick}
       />,
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
 
     await userEvent.keyboard('[Space]');
@@ -152,7 +152,7 @@ describe('<MenuItemSwitch>', () => {
         onChange={onChange}
         onClick={onClick}
       />,
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
     );
 
     await userEvent.keyboard('[Enter]');

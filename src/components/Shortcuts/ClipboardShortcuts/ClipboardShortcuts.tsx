@@ -153,19 +153,19 @@ export function ClipboardShortcuts() {
 
 function writeIntoClipboardData(
   clipboardData: DataTransfer | null,
-  content: ClipboardContent
+  content: ClipboardContent,
 ): void {
   if (!clipboardData) {
     return;
   }
 
   Object.entries(content).forEach(([type, value]) =>
-    clipboardData.setData(type, value)
+    clipboardData.setData(type, value),
   );
 }
 
 function readFromClipboardData(
-  clipboardData: DataTransfer | null
+  clipboardData: DataTransfer | null,
 ): ClipboardContent {
   if (!clipboardData) {
     return {};

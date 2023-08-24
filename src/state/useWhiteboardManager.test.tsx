@@ -53,7 +53,7 @@ describe('useWhiteboardManager', () => {
     const { result } = renderHook(() => useWhiteboardManager());
 
     expect(result.error?.message).toMatch(
-      'useWhiteboardManager can only be used inside of <WhiteboardManagerProvider>'
+      'useWhiteboardManager can only be used inside of <WhiteboardManagerProvider>',
     );
   });
 });

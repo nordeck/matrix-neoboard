@@ -56,5 +56,5 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
         </TooltipDisabledChildWrapper>
       </Tooltip>
     );
-  }
+  },
 );

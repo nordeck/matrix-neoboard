@@ -24,7 +24,7 @@ describe('isValidPresentSlideMessage', () => {
         senderUserId: '@sender-user-id',
         content: {},
         type: 'net.nordeck.whiteboard.present_slide',
-      })
+      }),
     ).toBe(true);
   });
 
@@ -35,7 +35,7 @@ describe('isValidPresentSlideMessage', () => {
         senderUserId: '@sender-user-id',
         content: { view: { isEditMode: false, slideId: 'slide-0' } },
         type: 'net.nordeck.whiteboard.present_slide',
-      })
+      }),
     ).toBe(true);
   });
 
@@ -49,7 +49,7 @@ describe('isValidPresentSlideMessage', () => {
           additional: 'tmp',
         },
         type: 'net.nordeck.whiteboard.present_slide',
-      })
+      }),
     ).toBe(true);
   });
 
@@ -75,7 +75,7 @@ describe('isValidPresentSlideMessage', () => {
           ...patch,
         },
         type: 'net.nordeck.whiteboard.present_slide',
-      })
+      }),
     ).toBe(false);
   });
 });

@@ -147,7 +147,7 @@ describe('isPeerConnected', () => {
         iceGatheringState: '',
         dataChannelState: 'open',
         ...patch,
-      })
+      }),
     ).toBe(true);
   });
 
@@ -184,7 +184,7 @@ describe('isPeerConnected', () => {
         iceGatheringState: '',
         dataChannelState: 'open',
         ...patch,
-      })
+      }),
     ).toBe(false);
   });
 });

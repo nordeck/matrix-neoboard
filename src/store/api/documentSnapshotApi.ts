@@ -75,7 +75,7 @@ export const documentSnapshotApi = baseApi.injectEndpoints({
           const snapshotResult = await findLatestSnapshot(
             widgetApi,
             documentId,
-            validator
+            validator,
           );
 
           if (!snapshotResult) {
@@ -107,14 +107,14 @@ export const documentSnapshotApi = baseApi.injectEndpoints({
 
       async onCacheEntryAdded(
         { documentId, validator },
-        { cacheEntryRemoved, extra, getCacheEntry, dispatch }
+        { cacheEntryRemoved, extra, getCacheEntry, dispatch },
       ) {
         const widgetApi = await (extra as ThunkExtraArgument).widgetApi;
 
         const snapshotBacklog = new DocumentSnapshotBacklog(
           documentId,
           getCacheEntry().data?.event.origin_server_ts,
-          validator
+          validator,
         );
 
         const snapshotSubscription = widgetApi
@@ -129,8 +129,8 @@ export const documentSnapshotApi = baseApi.injectEndpoints({
                 documentSnapshotApi.util.upsertQueryData(
                   'getDocumentSnapshot',
                   { documentId, validator },
-                  { event: result.snapshot, data: result.data }
-                )
+                  { event: result.snapshot, data: result.data },
+                ),
               );
             }
           });
@@ -147,8 +147,8 @@ export const documentSnapshotApi = baseApi.injectEndpoints({
                 documentSnapshotApi.util.upsertQueryData(
                   'getDocumentSnapshot',
                   { documentId },
-                  { event: result.snapshot, data: result.data }
-                )
+                  { event: result.snapshot, data: result.data },
+                ),
               );
             }
           });
@@ -172,7 +172,7 @@ export const documentSnapshotApi = baseApi.injectEndpoints({
         try {
           const event = await widgetApi.sendRoomEvent<DocumentCreate>(
             ROOM_EVENT_DOCUMENT_CREATE,
-            {}
+            {},
           );
 
           return { data: { event } };
@@ -213,7 +213,7 @@ export const documentSnapshotApi = baseApi.injectEndpoints({
                 rel_type: 'm.reference',
                 event_id: documentId,
               },
-            }
+            },
           );
 
           await Promise.all(
@@ -238,8 +238,8 @@ export const documentSnapshotApi = baseApi.injectEndpoints({
                   .catch((e) => {
                     const logger = getLogger('documentSnapshotApi');
                     logger.warn('Error while writing a chunk into the room', e);
-                  })
-            )
+                  }),
+            ),
           );
 
           return { data: { event: snapshotEvent } };
@@ -269,7 +269,7 @@ export const documentSnapshotApi = baseApi.injectEndpoints({
 export async function findLatestSnapshot(
   widgetApi: WidgetApi,
   documentId: string,
-  validator?: DocumentSnapshotValidator
+  validator?: DocumentSnapshotValidator,
 ): Promise<
   | undefined
   | {
@@ -294,7 +294,7 @@ export async function findLatestSnapshot(
       const backlog = new DocumentSnapshotBacklog(
         documentId,
         undefined,
-        validator
+        validator,
       );
       backlog.registerSnapshot(snapshot);
 
@@ -324,7 +324,7 @@ export async function findLatestSnapshot(
 async function* findChunks(
   widgetApi: WidgetApi,
   documentId: string,
-  snapshotEvent: RoomEvent<DocumentSnapshot>
+  snapshotEvent: RoomEvent<DocumentSnapshot>,
 ): AsyncGenerator<RoomEvent<DocumentChunk>> {
   let fromChunk: string | undefined = undefined;
 
@@ -347,7 +347,7 @@ async function* findChunks(
 export function createChunks(
   data: Uint8Array,
   chunkCount: number,
-  chunkSize?: number
+  chunkSize?: number,
 ): Array<{ i: number; data: string }> {
   const size = chunkSize ?? data.length / chunkCount;
 

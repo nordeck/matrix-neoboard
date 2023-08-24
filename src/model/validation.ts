@@ -28,7 +28,7 @@ export function isValidEvent(
     | StateEvent<unknown>
     | ToDeviceMessageEvent<unknown>,
   eventType: string,
-  schema: Joi.AnySchema
+  schema: Joi.AnySchema,
 ): boolean {
   if (event.type !== eventType) {
     return false;

@@ -89,11 +89,11 @@ describe('WhiteboardInstanceImpl', () => {
       synchronizedDocument,
       communicationChannel,
       mockWhiteboard(),
-      '@user-id'
+      '@user-id',
     );
 
     expect(whiteboardInstance.getSlide(slide0)).toBeInstanceOf(
-      WhiteboardSlideInstanceImpl
+      WhiteboardSlideInstanceImpl,
     );
   });
 
@@ -102,7 +102,7 @@ describe('WhiteboardInstanceImpl', () => {
       synchronizedDocument,
       communicationChannel,
       mockWhiteboard(),
-      '@user-id'
+      '@user-id',
     );
 
     expect(whiteboardInstance.getWhiteboardId()).toBe('$event-id-0');
@@ -113,14 +113,14 @@ describe('WhiteboardInstanceImpl', () => {
       synchronizedDocument,
       communicationChannel,
       mockWhiteboard(),
-      '@user-id'
+      '@user-id',
     );
 
     const [changeFn, slideId] = generateAddSlide();
     document.performChange(changeFn);
 
     expect(whiteboardInstance.getSlide(slideId)).toBeInstanceOf(
-      WhiteboardSlideInstanceImpl
+      WhiteboardSlideInstanceImpl,
     );
   });
 
@@ -129,12 +129,12 @@ describe('WhiteboardInstanceImpl', () => {
       synchronizedDocument,
       communicationChannel,
       mockWhiteboard(),
-      '@user-id'
+      '@user-id',
     );
 
     const destroySlideSpy = jest.spyOn(
       whiteboardInstance.getSlide(slide0) as WhiteboardSlideInstanceImpl,
-      'destroy'
+      'destroy',
     );
 
     const changeFn = generateRemoveSlide(slide0);
@@ -142,7 +142,7 @@ describe('WhiteboardInstanceImpl', () => {
 
     expect(destroySlideSpy).toBeCalled();
     expect(() => whiteboardInstance.getSlide(slide0)).toThrowError(
-      'SlideId does not exist'
+      'SlideId does not exist',
     );
   });
 
@@ -151,7 +151,7 @@ describe('WhiteboardInstanceImpl', () => {
       synchronizedDocument,
       communicationChannel,
       mockWhiteboard(),
-      '@user-id'
+      '@user-id',
     );
 
     expect(whiteboardInstance.getWhiteboardStatistics()).toEqual({
@@ -159,7 +159,7 @@ describe('WhiteboardInstanceImpl', () => {
     });
 
     const statistics = firstValueFrom(
-      whiteboardInstance.observeWhiteboardStatistics()
+      whiteboardInstance.observeWhiteboardStatistics(),
     );
 
     const peerConnectionStatistics: PeerConnectionStatistics = {
@@ -194,7 +194,7 @@ describe('WhiteboardInstanceImpl', () => {
       synchronizedDocument,
       communicationChannel,
       mockWhiteboard(),
-      '@user-id'
+      '@user-id',
     );
 
     expect(whiteboardInstance.getWhiteboardStatistics()).toEqual({
@@ -202,7 +202,7 @@ describe('WhiteboardInstanceImpl', () => {
     });
 
     const statistics = firstValueFrom(
-      whiteboardInstance.observeWhiteboardStatistics()
+      whiteboardInstance.observeWhiteboardStatistics(),
     );
 
     observeDocumentStatisticsSubject.next({
@@ -224,13 +224,13 @@ describe('WhiteboardInstanceImpl', () => {
       synchronizedDocument,
       communicationChannel,
       mockWhiteboard(),
-      '@user-id'
+      '@user-id',
     );
 
     expect(whiteboardInstance.isLoading()).toBe(true);
 
     const loading = firstValueFrom(
-      whiteboardInstance.observeIsLoading().pipe(take(2), toArray())
+      whiteboardInstance.observeIsLoading().pipe(take(2), toArray()),
     );
 
     observeIsLoadingSubject.next(false);
@@ -244,7 +244,7 @@ describe('WhiteboardInstanceImpl', () => {
       synchronizedDocument,
       communicationChannel,
       mockWhiteboard(),
-      '@user-id'
+      '@user-id',
     );
 
     // initially, the whiteboard is initiated with the initial slide
@@ -275,7 +275,7 @@ describe('WhiteboardInstanceImpl', () => {
       synchronizedDocument,
       communicationChannel,
       mockWhiteboard(),
-      '@user-id'
+      '@user-id',
     );
 
     const slide1 = whiteboardInstance.addSlide();
@@ -288,7 +288,7 @@ describe('WhiteboardInstanceImpl', () => {
       synchronizedDocument,
       communicationChannel,
       mockWhiteboard(),
-      '@user-id'
+      '@user-id',
     );
 
     const slide1 = whiteboardInstance.addSlide();
@@ -306,7 +306,7 @@ describe('WhiteboardInstanceImpl', () => {
       synchronizedDocument,
       communicationChannel,
       mockWhiteboard(),
-      '@user-id'
+      '@user-id',
     );
 
     const slide1 = whiteboardInstance.addSlide();
@@ -316,7 +316,7 @@ describe('WhiteboardInstanceImpl', () => {
 
     const destroySlideSpy = jest.spyOn(
       whiteboardInstance.getSlide(slide1) as WhiteboardSlideInstanceImpl,
-      'destroy'
+      'destroy',
     );
 
     whiteboardInstance.removeSlide(slide1);
@@ -330,14 +330,14 @@ describe('WhiteboardInstanceImpl', () => {
       synchronizedDocument,
       communicationChannel,
       mockWhiteboard(),
-      '@user-id'
+      '@user-id',
     );
 
     whiteboardInstance.focusOn(slide0);
 
     expect(communicationChannel.broadcastMessage).toBeCalledWith(
       'net.nordeck.whiteboard.focus_on',
-      { slideId: slide0 }
+      { slideId: slide0 },
     );
   });
 
@@ -346,7 +346,7 @@ describe('WhiteboardInstanceImpl', () => {
       synchronizedDocument,
       communicationChannel,
       mockWhiteboard(),
-      '@user-id'
+      '@user-id',
     );
 
     const slide1 = whiteboardInstance.addSlide();
@@ -366,11 +366,11 @@ describe('WhiteboardInstanceImpl', () => {
       synchronizedDocument,
       communicationChannel,
       mockWhiteboard(),
-      '@user-id'
+      '@user-id',
     );
 
     expect(() => whiteboardInstance.getSlide('not-exists')).toThrowError(
-      'SlideId does not exist'
+      'SlideId does not exist',
     );
   });
 
@@ -379,11 +379,11 @@ describe('WhiteboardInstanceImpl', () => {
       synchronizedDocument,
       communicationChannel,
       mockWhiteboard(),
-      '@user-id'
+      '@user-id',
     );
 
     const slideIds = firstValueFrom(
-      whiteboardInstance.observeSlideIds().pipe(take(2), toArray())
+      whiteboardInstance.observeSlideIds().pipe(take(2), toArray()),
     );
 
     const slide1 = whiteboardInstance.addSlide();
@@ -396,7 +396,7 @@ describe('WhiteboardInstanceImpl', () => {
       synchronizedDocument,
       communicationChannel,
       mockWhiteboard(),
-      '@user-id'
+      '@user-id',
     );
 
     expect(whiteboardInstance.getActiveSlideId()).toEqual(slide0);
@@ -407,11 +407,11 @@ describe('WhiteboardInstanceImpl', () => {
       synchronizedDocument,
       communicationChannel,
       mockWhiteboard(),
-      '@user-id'
+      '@user-id',
     );
 
     const observedActiveSlides = firstValueFrom(
-      whiteboardInstance.observeActiveSlideId().pipe(take(2), toArray())
+      whiteboardInstance.observeActiveSlideId().pipe(take(2), toArray()),
     );
 
     const slide1 = whiteboardInstance.addSlide();
@@ -426,11 +426,11 @@ describe('WhiteboardInstanceImpl', () => {
       synchronizedDocument,
       communicationChannel,
       mockWhiteboard(),
-      '@user-id'
+      '@user-id',
     );
 
     const observedActiveSlides = firstValueFrom(
-      whiteboardInstance.observeActiveSlideId().pipe(take(2), toArray())
+      whiteboardInstance.observeActiveSlideId().pipe(take(2), toArray()),
     );
 
     const slide1 = whiteboardInstance.addSlide();
@@ -446,7 +446,7 @@ describe('WhiteboardInstanceImpl', () => {
       synchronizedDocument,
       communicationChannel,
       mockWhiteboard(),
-      '@user-id'
+      '@user-id',
     );
 
     const slide1 = whiteboardInstance.addSlide();
@@ -457,7 +457,7 @@ describe('WhiteboardInstanceImpl', () => {
     whiteboardInstance.setActiveSlideId(slide1);
 
     expect(
-      whiteboardInstance.getSlide(slide1).getActiveElementId()
+      whiteboardInstance.getSlide(slide1).getActiveElementId(),
     ).toBeUndefined();
   });
 
@@ -466,7 +466,7 @@ describe('WhiteboardInstanceImpl', () => {
       synchronizedDocument,
       communicationChannel,
       mockWhiteboard(),
-      '@user-id'
+      '@user-id',
     );
 
     const slideInstance = whiteboardInstance.getSlide(slide0);
@@ -485,7 +485,7 @@ describe('WhiteboardInstanceImpl', () => {
       synchronizedDocument,
       communicationChannel,
       mockWhiteboard(),
-      '@user-id'
+      '@user-id',
     );
 
     // prepare a new slide
@@ -512,7 +512,7 @@ describe('WhiteboardInstanceImpl', () => {
     expect(whiteboardInstance.getSlideIds()).toEqual([slide0, slide1]);
     expect(whiteboardInstance.getActiveSlideId()).toEqual(slide0);
     expect(whiteboardInstance.getSlide(slide0).getActiveElementId()).toEqual(
-      undefined
+      undefined,
     );
     expect(slide1Instance.getActiveElementId()).toEqual(undefined);
     expect(slide1Instance.getElement(element0)).toMatchObject({
@@ -534,11 +534,11 @@ describe('WhiteboardInstanceImpl', () => {
       synchronizedDocument,
       communicationChannel,
       mockWhiteboard(),
-      '@user-id'
+      '@user-id',
     );
 
     const undoRedoStates = firstValueFrom(
-      whiteboardInstance.observeUndoRedoState().pipe(take(4), toArray())
+      whiteboardInstance.observeUndoRedoState().pipe(take(4), toArray()),
     );
 
     const slide1 = whiteboardInstance.addSlide();
@@ -563,30 +563,30 @@ describe('WhiteboardInstanceImpl', () => {
       synchronizedDocument,
       communicationChannel,
       mockWhiteboard(),
-      '@user-id'
+      '@user-id',
     );
 
     const statistics = firstValueFrom(
-      whiteboardInstance.observeWhiteboardStatistics().pipe(toArray())
+      whiteboardInstance.observeWhiteboardStatistics().pipe(toArray()),
     );
     const slideIds = firstValueFrom(
-      whiteboardInstance.observeSlideIds().pipe(toArray())
+      whiteboardInstance.observeSlideIds().pipe(toArray()),
     );
     const activeSlideId = firstValueFrom(
-      whiteboardInstance.observeActiveSlideId().pipe(toArray())
+      whiteboardInstance.observeActiveSlideId().pipe(toArray()),
     );
     const destroySlideSpy = jest.spyOn(
       whiteboardInstance.getSlide(slide0) as WhiteboardSlideInstanceImpl,
-      'destroy'
+      'destroy',
     );
     const undoRedoState = firstValueFrom(
-      whiteboardInstance.observeUndoRedoState().pipe(toArray())
+      whiteboardInstance.observeUndoRedoState().pipe(toArray()),
     );
     const presentationState = firstValueFrom(
       whiteboardInstance
         .getPresentationManager()
         .observePresentationState()
-        .pipe(toArray())
+        .pipe(toArray()),
     );
 
     whiteboardInstance.destroy();
@@ -610,8 +610,8 @@ describe('findNewActiveSlideId', () => {
       findNewActiveSlideId(
         'slide-1',
         ['slide-0', 'slide-1'],
-        ['slide-0', 'slide-1']
-      )
+        ['slide-0', 'slide-1'],
+      ),
     ).toEqual('slide-1');
   });
 
@@ -620,8 +620,8 @@ describe('findNewActiveSlideId', () => {
       findNewActiveSlideId(
         undefined,
         ['slide-0', 'slide-1'],
-        ['slide-0', 'slide-1']
-      )
+        ['slide-0', 'slide-1'],
+      ),
     ).toEqual('slide-0');
   });
 
@@ -634,14 +634,14 @@ describe('findNewActiveSlideId', () => {
       findNewActiveSlideId(
         'slide-1',
         ['slide-0', 'slide-2', 'slide-3'],
-        ['slide-0', 'slide-1', 'slide-2', 'slide-3']
-      )
+        ['slide-0', 'slide-1', 'slide-2', 'slide-3'],
+      ),
     ).toEqual('slide-2');
   });
 
   it('should handle if last slide is removed', () => {
     expect(
-      findNewActiveSlideId('slide-1', ['slide-0'], ['slide-0', 'slide-1'])
+      findNewActiveSlideId('slide-1', ['slide-0'], ['slide-0', 'slide-1']),
     ).toEqual('slide-0');
   });
 });

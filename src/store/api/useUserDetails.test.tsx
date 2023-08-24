@@ -50,7 +50,7 @@ describe('useUserDetails', () => {
       expect(result.current.getUserDisplayName('@user-alice')).toBe('Alice');
     });
     expect(result.current.getUserDisplayName('@other-user-id')).toBe(
-      '@other-user-id'
+      '@other-user-id',
     );
   });
 
@@ -61,7 +61,7 @@ describe('useUserDetails', () => {
 
     await waitFor(() => {
       expect(result.current.getUserAvatarUrl('@user-alice')).toBe(
-        'mxc://alice.png'
+        'mxc://alice.png',
       );
     });
     expect(result.current.getUserAvatarUrl('@other-user-id')).toBeUndefined();

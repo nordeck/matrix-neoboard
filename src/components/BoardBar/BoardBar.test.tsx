@@ -58,11 +58,11 @@ describe('<BoardBar/>', () => {
     expect(
       within(toolbar).getByRole('checkbox', {
         name: 'Open slide overview',
-      })
+      }),
     ).toBeInTheDocument();
 
     expect(
-      within(toolbar).getByRole('button', { name: 'Settings' })
+      within(toolbar).getByRole('button', { name: 'Settings' }),
     ).toBeInTheDocument();
   });
 
@@ -89,14 +89,14 @@ describe('<BoardBar/>', () => {
       within(toolbar).getByRole('checkbox', {
         name: 'Open slide overview',
         checked: false,
-      })
+      }),
     );
 
     expect(
       within(toolbar).getByRole('checkbox', {
         name: 'Close slide overview',
         checked: true,
-      })
+      }),
     ).toBeInTheDocument();
   });
 
@@ -116,18 +116,18 @@ describe('<BoardBar/>', () => {
     });
 
     expect(
-      within(settingsMenu).getByRole('menuitem', { name: 'Import…' })
+      within(settingsMenu).getByRole('menuitem', { name: 'Import…' }),
     ).toBeInTheDocument();
     expect(
-      within(settingsMenu).getByRole('menuitem', { name: 'Export…' })
+      within(settingsMenu).getByRole('menuitem', { name: 'Export…' }),
     ).toBeInTheDocument();
     expect(
-      within(settingsMenu).getByRole('menuitemcheckbox', { name: 'Grid' })
+      within(settingsMenu).getByRole('menuitemcheckbox', { name: 'Grid' }),
     ).toBeInTheDocument();
     expect(
       within(settingsMenu).getByRole('menuitemcheckbox', {
         name: 'Developer Tools',
-      })
+      }),
     ).toBeInTheDocument();
 
     await userEvent.keyboard('[Escape]');
@@ -151,7 +151,7 @@ describe('<BoardBar/>', () => {
 
     await userEvent.upload(
       filePickerInput,
-      new File([JSON.stringify(data)], 'my-file.nwb', { type: '' })
+      new File([JSON.stringify(data)], 'my-file.nwb', { type: '' }),
     );
 
     const dialog = await screen.findByRole('dialog', {
@@ -161,11 +161,11 @@ describe('<BoardBar/>', () => {
     });
 
     await userEvent.click(
-      within(dialog).getByRole('button', { name: 'Import' })
+      within(dialog).getByRole('button', { name: 'Import' }),
     );
 
     expect(whiteboardManager.getActiveWhiteboardInstance()?.export()).toEqual(
-      data
+      data,
     );
 
     await waitFor(() => {
@@ -187,7 +187,7 @@ describe('<BoardBar/>', () => {
     await userEvent.upload(
       filePickerInput,
       new File([JSON.stringify(data)], 'my-file.txt', { type: '' }),
-      { applyAccept: false }
+      { applyAccept: false },
     );
 
     const dialog = await screen.findByRole('dialog', {
@@ -197,7 +197,7 @@ describe('<BoardBar/>', () => {
     });
 
     await userEvent.click(
-      within(dialog).getByRole('button', { name: 'Cancel' })
+      within(dialog).getByRole('button', { name: 'Cancel' }),
     );
 
     await waitFor(() => {
@@ -231,7 +231,7 @@ describe('<BoardBar/>', () => {
       within(settingsMenu).getByRole('checkbox', {
         name: 'Grid',
         checked: false,
-      })
+      }),
     ).toBeInTheDocument();
   });
 
