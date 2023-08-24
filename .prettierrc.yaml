@@ -1,3 +1,5 @@
 # Use single quotes instead of double quotes.
 # (this will not affect JSX)
 singleQuote: true
+
+plugins: ['prettier-plugin-organize-imports']
