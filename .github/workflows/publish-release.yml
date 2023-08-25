@@ -14,6 +14,7 @@ jobs:
     timeout-minutes: 15
     permissions:
       contents: read
+      contents: write
       packages: write
       id-token: write
     env:
@@ -83,3 +84,20 @@ jobs:
         env:
           DIGEST: ${{ steps.build_and_push.outputs.digest }}
         run: cosign sign --yes "${DOCKER_IMAGE}@${DIGEST}"
+        
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+
+      - name: custom packaging
+        run: |
+          VERSION=${{github.ref_name}}
+          rm -rf .cr-release-packages
+          mkdir -p .cr-release-packages
+          helm package charts/matrix-neoboard-widget --app-version=${VERSION:1} --version=${VERSION:1} --destination=.cr-release-packages
+
+      - name: Run chart-releaser
+        uses: askcloudarchitech/chart-releaser-action@skip-packaging-option
+        with:
+          skip_packaging: true       
+        env:
+          CR_TOKEN: "${{ secrets.TOKEN }}"
