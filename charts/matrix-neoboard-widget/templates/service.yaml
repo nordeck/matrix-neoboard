@@ -1,15 +1,42 @@
-apiVersion: v1
-kind: Service
+{{/*
+SPDX-FileCopyrightText: Nordeck IT + Consulting GmbH"
+SPDX-License-Identifier: Apache-2.0
+*/}}
+{{- if .Values.service.enabled }}
+---
+apiVersion: "v1"
+kind: "Service"
 metadata:
-  name: {{ include "app.fullname" . }}
+  name: "{{ include "common.names.fullname" . }}"
+  namespace: {{ include "common.names.namespace" . | quote }}
   labels:
-{{ include "app.labels" . | indent 4 }}
+    {{- include "common.labels.standard" . | nindent 4 }}
+    {{- if .Values.commonLabels }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- if or .Values.service.annotations .Values.commonAnnotations }}
+  annotations:
+    {{- if .Values.service.annotations }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.service.annotations "context" $ ) | nindent 4 }}
+    {{- end }}
+    {{- if .Values.commonAnnotations }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- end }}
 spec:
-  type: {{ .Values.service.type }}
+  type: "{{ .Values.service.type }}"
   ports:
-    - port: {{ .Values.service.port }}
-      targetPort: http
-      protocol: TCP
-      name: http
+    {{- range $key, $value := .Values.service.ports }}
+    - name: "{{ $key }}"
+      port: {{ $value.port }}
+      targetPort: {{ $value.port }}
+      protocol: "{{ $value.protocol | default "TCP" }}"
+      {{- if and $value.nodePort (not (eq $.Values.service.type "ClusterIP")) }}
+      nodePort: {{ $value.nodePort }}
+      {{- end }}
+    {{- end }}
   selector:
-    {{- include "app.selectorLabels" . | nindent 4 }}
+    {{- include "common.labels.matchLabels" . | nindent 4 }}
+...
+{{- end }}
+

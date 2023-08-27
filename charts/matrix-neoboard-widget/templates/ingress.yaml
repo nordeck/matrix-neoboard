@@ -1,44 +1,37 @@
+{{/*
+SPDX-FileCopyrightText: 2023 Nordeck IT & Consulting GmbH"
+SPDX-License-Identifier: Apache-2.0
+*/}}
 {{- if .Values.ingress.enabled -}}
-{{- $fullName := include "app.fullname" . -}}
-{{- $svcPort := .Values.service.port -}}
-{{- if and .Values.ingress.className (not (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion)) }}
-  {{- if not (hasKey .Values.ingress.annotations "kubernetes.io/ingress.class") }}
-  {{- $_ := set .Values.ingress.annotations "kubernetes.io/ingress.class" .Values.ingress.className}}
-  {{- end }}
-{{- end }}
-{{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion -}}
-apiVersion: networking.k8s.io/v1
-{{- else if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
-apiVersion: networking.k8s.io/v1beta1
-{{- else -}}
-apiVersion: extensions/v1beta1
-{{- end }}
-kind: Ingress
+---
+apiVersion: "{{ include "common.capabilities.ingress.apiVersion" . }}"
+kind: "Ingress"
 metadata:
-  name: "{{ $fullName }}"
+  name: "{{ include "common.names.fullname" . }}"
   labels:
-    {{- include "app.labels" . | nindent 4 }}
+    {{- include "common.labels.standard" . | nindent 4 }}
   {{- with .Values.ingress.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  {{- if and .Values.ingress.className (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion) }}
-  ingressClassName: {{ .Values.ingress.className }}
+  {{- if .Values.ingress.ingressClassName }}
+  ingressClassName: {{ .Values.ingress.ingressClassName }}
   {{- end }}
-  rules:
-    - host: "{{- $fullName -}}.{{- .Values.settings.hostname -}}"
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: {{ $fullName }}
-                port:
-                  number: {{ $svcPort }}
+  {{- if .Values.ingress.tls.enabled }}
   tls:
     - hosts:
-      - "{{- $fullName -}}.{{- .Values.settings.hostname -}}"
-      secretName: "{{- $fullName -}}.{{- .Release.Namespace -}}-tls"
+        - {{ coalesce .Values.ingress.host (printf "%s.%s" .Values.global.hosts.neoboard .Values.global.domain) | quote }}
+      secretName: "{{ .Values.ingress.tls.secretName | default (printf "%s-tls" (include "common.labels.standard" . )) }}"
+  {{- end }}
+  rules:
+    - host: {{ coalesce .Values.ingress.host (printf "%s.%s" .Values.global.hosts.neoboard .Values.global.domain) | quote }}
+      http:
+        paths:
+          - path: {{ .Values.ingress.path }}
+            {{- if eq "true" (include "common.ingress.supportsPathType" .) }}
+            pathType: {{ .Values.ingress.pathType }}
+            {{- end }}
+            backend: {{- include "common.ingress.backend" (dict "serviceName" (include "common.names.fullname" $) "servicePort" 8080 "context" $) | nindent 14 }}
+...
 {{- end }}
