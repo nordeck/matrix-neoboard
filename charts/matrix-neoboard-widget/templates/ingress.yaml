@@ -22,7 +22,7 @@ spec:
   tls:
     - hosts:
         - {{ coalesce .Values.ingress.host (printf "%s.%s" .Values.global.hosts.neoboard .Values.global.domain) | quote }}
-      secretName: "{{ .Values.ingress.tls.secretName | default (printf "%s-tls" (include "common.labels.standard" . )) }}"
+      secretName: "{{ .Values.ingress.tls.secretName | default (printf "%s-tls" (include "common.names.fullname" . )) }}"
   {{- end }}
   rules:
     - host: {{ coalesce .Values.ingress.host (printf "%s.%s" .Values.global.hosts.neoboard .Values.global.domain) | quote }}
