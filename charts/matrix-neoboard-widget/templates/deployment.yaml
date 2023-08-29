@@ -69,7 +69,7 @@ spec:
           securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 12 }}
           {{- end }}
           image: "{{ coalesce .Values.image.registry .Values.global.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          imagePullPolicy: {{ .Values.image.imagePullPolicy }}
           ports:
             - name: http
               containerPort: 8080
@@ -85,8 +85,8 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           env:
-            {{- if .Values.env }}
-              {{- toYaml .Values.env | nindent 12 }}
+            {{- if .Values.settings.matrixNeoboardWidget.env }}
+              {{- toYaml .Values.settings.matrixNeoboardWidget.env | nindent 12 }}
             {{- end }}
           envFrom:
           - configMapRef:
