@@ -97,6 +97,7 @@ jobs:
 
       - name: Run chart-releaser
         uses: askcloudarchitech/chart-releaser-action@skip-packaging-option
+        if: askcloudarchitech/chart-releaser-action@a3454e46a6f5ac4811069a381e646961dda2e1bf # @v1.40
         with:
           skip_packaging: true       
         env:
