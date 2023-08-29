@@ -109,6 +109,8 @@ dist
 /node_modules
 /.pnp
 .pnp.js
+charts/matrix-neobard/widget/Chart.lock
+charts/matrix-neoboard-widget/charts
 
 # testing
 /coverage
