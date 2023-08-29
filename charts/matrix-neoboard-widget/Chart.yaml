@@ -11,7 +11,7 @@ dependencies:
     repository: "https://charts.bitnami.com/bitnami"
 description: "A whiteboard widget for the Element messenger"
 home: "https://github.com/nordeck/matrix-neoboard"
-name: "neoboard"
+name: "matrix-neoboard-widget"
 type: "application"
 version: "0.2.0"
 ...
