@@ -16,4 +16,4 @@ metadata:
   annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
   {{- end }}
 data:
-  REACT_APP_HOME_SERVER_URL: "https://synapse.{{- .Values.global.domain -}}"
+  REACT_APP_HOME_SERVER_URL: "https://{{- .Values.global.synapseSubDomain -}}.{{- .Values.global.domain -}}"

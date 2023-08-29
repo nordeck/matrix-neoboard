@@ -6,9 +6,11 @@ global:
   # -- Container registry address.
   registry: "ghcr.io"
   domain: "example.io"
+  # Subdomain of your synapse 
+  synapseSubDomain: "synapse"
   hosts:
-    # -- Subdomain for element, results in "https://{{ element }}.{{ domain }}".
-    neoboard: "neoboard"
+    # -- Subdomain for matrix-neoboard-widget, results in "https://{{ matrix-neoboard-widget }}.{{ domain }}".
+    matrixNeoboardWidget: "matrix-neoboard-widget"
 
     
   # -- Credentials to fetch images from private registry
@@ -77,12 +79,6 @@ containerSecurityContext:
   readOnlyRootFilesystem: true
 
 # -- Array with extra environment variables to add to containers.
-#
-# extraEnvVars:
-#   - name: FOO
-#     value: "bar"
-#
-extraEnvVars: []
 
 # -- Optionally specify extra list of additional volumes
 extraVolumes: []
@@ -173,7 +169,7 @@ persistence:
   dataSource: {}
 
   # -- Enable data persistence (true) or use temporary storage (false).
-  enabled: true
+  enabled: false
 
   # -- Use an already existing claim.
   existingClaim: ""
@@ -253,14 +249,14 @@ replicaCount: 1
 resources:
   limits:
     # -- The max amount of CPUs to consume.
-    cpu: 4
+    cpu: 100m
     # -- The max amount of RAM to consume.
-    memory: "4Gi"
+    memory: "200Mi"
   requests:
     # -- The amount of CPUs which has to be available on the scheduled node.
     cpu: "10m"
     # -- The amount of RAM which has to be available on the scheduled node.
-    memory: "2Gi"
+    memory: "128Mi"
 
 # Define and create Kubernetes Service.
 #
@@ -316,7 +312,7 @@ serviceAccount:
 # neoboard-widget configuration.
 settings:
   # Settings for matrix-neoboard-widget.
-  matrix-neoboard-widget:
+  matrixNeoboardWidget:
     # -- Enable Prelude output.
     # -- Additional custom configuration:
     env: []

@@ -21,11 +21,11 @@ spec:
   {{- if .Values.ingress.tls.enabled }}
   tls:
     - hosts:
-        - {{ coalesce .Values.ingress.host (printf "%s.%s" .Values.global.hosts.neoboard .Values.global.domain) | quote }}
+        - {{ coalesce .Values.ingress.host (printf "%s.%s" .Values.global.hosts.matrixNeoboardWidget .Values.global.domain) | quote }}
       secretName: "{{ .Values.ingress.tls.secretName | default (printf "%s-tls" (include "common.names.fullname" . )) }}"
   {{- end }}
   rules:
-    - host: {{ coalesce .Values.ingress.host (printf "%s.%s" .Values.global.hosts.neoboard .Values.global.domain) | quote }}
+    - host: {{ coalesce .Values.ingress.host (printf "%s.%s" .Values.global.hosts.matrixNeoboardWidget .Values.global.domain) | quote }}
       http:
         paths:
           - path: {{ .Values.ingress.path }}
