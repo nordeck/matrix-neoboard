@@ -109,7 +109,7 @@ dist
 /node_modules
 /.pnp
 .pnp.js
-charts/matrix-neobard/widget/Chart.lock
+charts/matrix-neoboard-widget/Chart.lock
 charts/matrix-neoboard-widget/charts
 
 # testing
@@ -142,3 +142,4 @@ task-definition.json
 
 # Dotenv
 .env.local
+
