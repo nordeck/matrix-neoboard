@@ -1,0 +1,332 @@
+# SPDX-FileCopyrightText: 2023 Bundesministerium des Innern und für Heimat, PG ZenDiS "Projektgruppe für Aufbau ZenDiS"
+# SPDX-License-Identifier: Apache-2.0
+---
+# The global properties are used to configure multiple charts at once.
+global:
+  # -- Container registry address.
+  registry: "ghcr.io"
+  domain: "neoboard.local"
+  # -- Credentials to fetch images from private registry
+  # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+  #
+  # imagePullSecrets:
+  #   - "docker-registry"
+  #
+  imagePullSecrets: []
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+# -- Affinity for pod assignment
+# Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+# Note: podAffinityPreset, podAntiAffinityPreset, and  nodeAffinityPreset will be ignored when it's set
+affinity: {}
+
+# -- Additional custom annotations to add to all deployed objects.
+commonAnnotations: {}
+
+# -- Additional custom labels to add to all deployed objects.
+commonLabels: {}
+
+# Security Context.
+# Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+containerSecurityContext:
+  # -- Enable container privileged escalation.
+  allowPrivilegeEscalation: false
+
+  # -- Enable security context.
+  enabled: true
+
+  # -- Mounts the container's root filesystem as read-only.
+  readOnlyRootFilesystem: true
+
+# -- Array with extra environment variables to add to containers.
+#
+# extraEnvVars:
+#   - name: FOO
+#     value: "bar"
+#
+extraEnvVars: []
+
+# -- Optionally specify extra list of additional volumes
+extraVolumes: []
+
+# -- Optionally specify extra list of additional volumeMounts.
+extraVolumeMounts: []
+
+# -- Provide a name to substitute for the full names of resources.
+fullnameOverride: ""
+
+# Container image section.
+image:
+  # Image for ClamAV container.
+    # -- Container registry address. This setting has higher precedence than global.registry.
+    registry: ""
+
+    # -- Container repository string.
+    repository: "nordeck/matrix-neoboard-widget"
+
+    # -- Define an ImagePullPolicy.
+    #
+    # Ref.: https://kubernetes.io/docs/concepts/containers/images/#image-pull-policy
+    #
+    # "IfNotPresent" => The image is pulled only if it is not already present locally.
+    # "Always" => Every time the kubelet launches a container, the kubelet queries the container image registry to
+    #             resolve the name to an image digest. If the kubelet has a container image with that exact digest cached
+    #             locally, the kubelet uses its cached image; otherwise, the kubelet pulls the image with the resolved
+    #             digest, and uses that image to launch the container.
+    # "Never" => The kubelet does not try fetching the image. If the image is somehow already present locally, the
+    #            kubelet attempts to start the container; otherwise, startup fails
+    #
+    imagePullPolicy: "IfNotPresent"
+
+    # -- Define image tag.
+    tag: "0.2.0"
+
+# -- Credentials to fetch images from private registry
+# Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+#
+# imagePullSecrets:
+#   - "docker-registry"
+#
+imagePullSecrets: []
+
+# -- Lifecycle to automate configuration before or after startup
+lifecycleHooks: {}
+
+# -- String to partially override release name.
+nameOverride: ""
+
+# -- Node labels for pod assignment
+# Ref: https://kubernetes.io/docs/user-guide/node-selection/
+nodeSelector: {}
+
+#  Configure extra options for containers probes.
+livenessProbe:
+  # -- Enables kubernetes LivenessProbe.
+  enabled: false
+  # -- Number of failed executions until container is terminated.
+  failureThreshold: 10
+  # -- Delay after container start until LivenessProbe is executed.
+  initialDelaySeconds: 15
+  # -- Time between probe executions.
+  periodSeconds: 20
+  # -- Number of successful executions after failed ones until container is marked healthy.
+  successThreshold: 1
+  # -- Timeout for command return.
+  timeoutSeconds: 5
+
+# Database persistence settings.
+persistence:
+  # -- The volume access modes, some of "ReadWriteOnce", "ReadOnlyMany", "ReadWriteMany", "ReadWriteOncePod".
+  #
+  # "ReadWriteOnce" => The volume can be mounted as read-write by a single node. ReadWriteOnce access mode still can
+  #                    allow multiple pods to access the volume when the pods are running on the same node.
+  # "ReadOnlyMany" => The volume can be mounted as read-only by many nodes.
+  # "ReadWriteMany" => The volume can be mounted as read-write by many nodes.
+  # "ReadWriteOncePod" => The volume can be mounted as read-write by a single Pod. Use ReadWriteOncePod access mode if
+  #                       you want to ensure that only one pod across whole cluster can read that PVC or write to it.
+  #
+  accessModes:
+    - "ReadWriteOnce"
+
+  # -- Annotations for the PVC.
+  annotations: {}
+
+  # -- Custom PVC data source.
+  dataSource: {}
+
+  # -- Enable data persistence (true) or use temporary storage (false).
+  enabled: true
+
+  # -- Use an already existing claim.
+  existingClaim: ""
+
+  # -- Labels for the PVC.
+  labels: {}
+
+  # -- The volume size with unit.
+  size: "1Gi"
+
+  # -- The (storage) class of PV.
+  storageClass: ""
+
+  # -- Selector to match an existing Persistent Volume (this value is evaluated as a template)
+  #
+  # selector:
+  #   matchLabels:
+  #     app: my-app
+  #
+  selector: {}
+
+  # Temporary directory.
+  temporaryDirectory:
+    # -- Size limit of emptyDir volume.
+    size: "1Gi"
+
+# -- Pod Annotations.
+# Ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+podAnnotations: {}
+
+# -- Pod Labels.
+# Ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+podLabels: {}
+
+# Pod Security Context.
+# Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+podSecurityContext:
+  #capabilities:
+  #  drop:
+  #  - ALL
+  #readOnlyRootFilesystem: true
+  #runAsNonRoot: true
+  # -- Enable security context.
+  #enabled: false
+
+  # -- Process user id
+  runAsUser: 100
+
+  # -- Process group id
+  runAsGroup: 100
+
+  # -- If specified, all processes of the container are also part of the supplementary group
+  fsGroup: 100
+
+#  Configure extra options for containers probes.
+readinessProbe:
+  # -- Enables kubernetes ReadinessProbe.
+  enabled: false
+  # -- Delay after container start until ReadinessProbe is executed.
+  initialDelaySeconds: 15
+  # -- Number of failed executions until container is terminated.
+  failureThreshold: 10
+  # -- Time between probe executions.
+  periodSeconds: 20
+  # -- Number of successful executions after failed ones until container is marked healthy.
+  successThreshold: 1
+  # -- Timeout for command return.
+  timeoutSeconds: 5
+
+# -- Set the amount of replicas of deployment.
+replicaCount: 1
+
+# Configure resource requests and limits.
+#
+# http://kubernetes.io/docs/user-guide/compute-resources/
+#
+resources:
+  limits:
+    # -- The max amount of CPUs to consume.
+    cpu: 4
+    # -- The max amount of RAM to consume.
+    memory: "4Gi"
+  requests:
+    # -- The amount of CPUs which has to be available on the scheduled node.
+    cpu: "10m"
+    # -- The amount of RAM which has to be available on the scheduled node.
+    memory: "2Gi"
+
+# Define and create Kubernetes Service.
+#
+# Ref.: https://kubernetes.io/docs/concepts/services-networking/service
+service:
+  # -- Additional custom annotations
+  annotations: {}
+
+  # -- Enable kubernetes service creation.
+  enabled: true
+
+  # "ClusterIP" => Exposes the Service on a cluster-internal IP. Choosing this value makes the Service only reachable
+  #                from within the cluster. This is the default that is used if you don't explicitly specify a type for
+  #                a Service.
+  # "NodePort" => Exposes the Service on each Node's IP at a static port (the NodePort). To make the node port
+  #               available, Kubernetes sets up a cluster IP address, the same as if you had requested a Service of
+  #               type: ClusterIP.
+  # "LoadBalancer" => Exposes the Service externally using a cloud provider's load balancer.
+  #
+  # Ref.: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
+
+  # -- Choose the kind of Service, one of "ClusterIP", "NodePort" or "LoadBalancer".
+  type: "ClusterIP"
+
+  # Define the ports of Service.
+  # You can set the port value to an arbitrary value, it will map the container port by name.
+  #
+  ports:
+    matrix-neoboard-widget:
+      # -- Accessible port for ClamAV clamd.
+      port: 8080
+      # -- Internal port for ClamAV clamd.
+      containerPort: 8080
+      # -- Milter service protocol.
+      protocol: "TCP"
+
+# Service account to use.
+# Ref.: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
+serviceAccount:
+  # -- Additional custom annotations for the ServiceAccount.
+  annotations: {}
+
+  # -- Allows auto mount of ServiceAccountToken on the serviceAccount created. Can be set to false if pods using this
+  # serviceAccount do not need to use K8s API.
+  automountServiceAccountToken: false
+
+  # -- Enable creation of ServiceAccount for pod.
+  create: false
+
+  # -- Additional custom labels for the ServiceAccount.
+  labels: {}
+
+# ClamAV configuration.
+settings:
+  # Settings for matrix-neoboard-widget.
+  matrix-neoboard-widget:
+    # -- Enable Prelude output.
+    # -- Additional custom configuration:
+    env: []
+
+# -- In seconds, time the given to the pod needs to terminate gracefully.
+# Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod/#termination-of-pods
+terminationGracePeriodSeconds: ""
+
+# -- Tolerations for pod assignment
+# Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+tolerations: []
+
+# -- Topology spread constraints rely on node labels to identify the topology domain(s) that each Node is in
+# Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/
+#
+# topologySpreadConstraints:
+#   - maxSkew: 1
+#     topologyKey: failure-domain.beta.kubernetes.io/zone
+#     whenUnsatisfiable: DoNotSchedule
+topologySpreadConstraints: []
+
+# Set up update strategy.
+#
+# Ref: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy
+#
+# Example:
+# updateStrategy:
+#  type: RollingUpdate
+#  rollingUpdate:
+#    maxSurge: 25%
+#    maxUnavailable: 25%
+updateStrategy:
+  # -- Set to Recreate if you use persistent volume that cannot be mounted by more than one pods to make sure the pods
+  # is destroyed first.
+  type: "RollingUpdate"
+...
+
