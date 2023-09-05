@@ -77,6 +77,7 @@ containerSecurityContext:
 
   # -- Mounts the container's root filesystem as read-only.
   readOnlyRootFilesystem: true
+  runAsNonRoot: true
 
 # -- Array with extra environment variables to add to containers.
 
