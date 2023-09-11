@@ -6,7 +6,7 @@
   "version": "0.4.0",
   "private": true,
   "dependencies": {
-    "@fontsource/noto-emoji": "^5.0.7",
+    "@fontsource/noto-emoji": "^5.0.11",
     "@matrix-widget-toolkit/api": "^3.2.1",
     "@matrix-widget-toolkit/mui": "^1.1.5",
     "@matrix-widget-toolkit/react": "^1.0.5",
