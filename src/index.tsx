@@ -20,6 +20,7 @@ import log from 'loglevel';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { AppContainer } from './AppContainer';
+import './emoji.css';
 import './i18n';
 import './logger';
 import { createWhiteboardManager } from './state';
