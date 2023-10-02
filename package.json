@@ -14,7 +14,7 @@
     "@mui/icons-material": "^5.14.7",
     "@mui/lab": "^5.0.0-alpha.142",
     "@mui/material": "^5.14.7",
-    "@mui/utils": "^5.13.1",
+    "@mui/utils": "^5.14.11",
     "@reduxjs/toolkit": "^1.9.5",
     "emoji-regex": "^10.2.1",
     "i18next": "^23.4.6",
