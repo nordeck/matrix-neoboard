@@ -58,7 +58,7 @@
     "@types/node": "^16.18.44",
     "@types/pdfmake": "^0.2.2",
     "@types/react": "^17.0.39",
-    "@types/react-beautiful-dnd": "^13.1.4",
+    "@types/react-beautiful-dnd": "^13.1.5",
     "@types/react-dom": "^17.0.0",
     "@types/react-i18next": "^8.1.0",
     "@types/react-redux": "^7.1.25",
