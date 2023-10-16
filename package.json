@@ -34,7 +34,7 @@
     "react-draggable": "^4.4.6",
     "react-dropzone": "^14.2.3",
     "react-hotkeys-hook": "^4.4.1",
-    "react-i18next": "^13.2.2",
+    "react-i18next": "^13.3.0",
     "react-joyride": "^2.5.5",
     "react-redux": "^7.2.9",
     "react-transition-group": "^4.4.5",
