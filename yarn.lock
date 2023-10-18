@@ -1987,12 +1987,12 @@
     globby "^11.0.0"
     read-yaml-file "^1.1.0"
 
-"@matrix-widget-toolkit/api@^3.2.0", "@matrix-widget-toolkit/api@^3.2.1":
-  version "3.2.1"
-  resolved "https://registry.yarnpkg.com/@matrix-widget-toolkit/api/-/api-3.2.1.tgz#f32d0a618243bf52fa8dfd11cbe330fb8ef7fd49"
-  integrity sha512-oSeccnRHjXCw7i8PGtPcq4ufZySjvUmgR98tq8fIecKEiIrmlQru81975XrnjyE5u99d55FMoV4oTaVIJaXPdw==
+"@matrix-widget-toolkit/api@^3.2.0", "@matrix-widget-toolkit/api@^3.2.1", "@matrix-widget-toolkit/api@^3.2.2":
+  version "3.2.2"
+  resolved "https://registry.yarnpkg.com/@matrix-widget-toolkit/api/-/api-3.2.2.tgz#e77f9eccab4e1092d054285d79926eea97416045"
+  integrity sha512-O2ZG6LSAV8zErrdxLTUOsW+XouC7bgjEpk0Ij/fFObopxF3lI5rV5cFgo+7p8bcPcI6dLP6NSOr7rz08mfQu6A==
   dependencies:
-    matrix-widget-api "^1.3.1"
+    matrix-widget-api "^1.6.0"
     qs "^6.11.2"
     rxjs "^7.8.1"
 
@@ -2030,14 +2030,14 @@
     react-error-boundary "^3.1.4"
     react-use "^17.4.0"
 
-"@matrix-widget-toolkit/testing@^2.3.1":
-  version "2.3.1"
-  resolved "https://registry.yarnpkg.com/@matrix-widget-toolkit/testing/-/testing-2.3.1.tgz#378c61a05c4f8dbf1acdd79f2e89021286d96b8d"
-  integrity sha512-yUiYUD+ipZYL9mjCFCW0AukDqMj9bf+c0XFGY17/ugceSCDs0G+4sm+ph7pudXO26Rz0IZCdgiGvsLoafrGI6w==
+"@matrix-widget-toolkit/testing@^2.3.2":
+  version "2.3.2"
+  resolved "https://registry.yarnpkg.com/@matrix-widget-toolkit/testing/-/testing-2.3.2.tgz#f8658db473c1fe08d8f5d5da151038ad0fff6ea2"
+  integrity sha512-4Tie1Bp+CVuaqinRp40odNIitmD2IFj4rQuew/955J5dWVUsKkVGxAHa2ZsMciqGWg++N2Otao2veya30qnasw==
   dependencies:
-    "@matrix-widget-toolkit/api" "^3.2.1"
+    "@matrix-widget-toolkit/api" "^3.2.2"
     lodash "^4.17.21"
-    matrix-widget-api "^1.3.1"
+    matrix-widget-api "^1.6.0"
     rxjs "^7.8.1"
 
 "@mui/base@5.0.0-beta.13", "@mui/base@^5.0.0-beta.13":
