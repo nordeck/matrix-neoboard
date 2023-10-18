@@ -11,7 +11,7 @@
     "@matrix-widget-toolkit/mui": "^1.1.5",
     "@matrix-widget-toolkit/react": "^1.0.5",
     "@mui/base": "^5.0.0-beta.13",
-    "@mui/icons-material": "^5.14.7",
+    "@mui/icons-material": "^5.14.14",
     "@mui/lab": "^5.0.0-alpha.142",
     "@mui/material": "^5.14.7",
     "@mui/utils": "^5.14.13",
