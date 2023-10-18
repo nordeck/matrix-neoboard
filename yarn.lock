@@ -1987,12 +1987,12 @@
     globby "^11.0.0"
     read-yaml-file "^1.1.0"
 
-"@matrix-widget-toolkit/api@^3.2.0", "@matrix-widget-toolkit/api@^3.2.1":
-  version "3.2.1"
-  resolved "https://registry.yarnpkg.com/@matrix-widget-toolkit/api/-/api-3.2.1.tgz#f32d0a618243bf52fa8dfd11cbe330fb8ef7fd49"
-  integrity sha512-oSeccnRHjXCw7i8PGtPcq4ufZySjvUmgR98tq8fIecKEiIrmlQru81975XrnjyE5u99d55FMoV4oTaVIJaXPdw==
+"@matrix-widget-toolkit/api@^3.2.1", "@matrix-widget-toolkit/api@^3.2.2":
+  version "3.2.2"
+  resolved "https://registry.yarnpkg.com/@matrix-widget-toolkit/api/-/api-3.2.2.tgz#e77f9eccab4e1092d054285d79926eea97416045"
+  integrity sha512-O2ZG6LSAV8zErrdxLTUOsW+XouC7bgjEpk0Ij/fFObopxF3lI5rV5cFgo+7p8bcPcI6dLP6NSOr7rz08mfQu6A==
   dependencies:
-    matrix-widget-api "^1.3.1"
+    matrix-widget-api "^1.6.0"
     qs "^6.11.2"
     rxjs "^7.8.1"
 
@@ -2019,13 +2019,13 @@
     react-i18next "^13.1.2"
     react-use "^17.4.0"
 
-"@matrix-widget-toolkit/react@^1.0.5":
-  version "1.0.5"
-  resolved "https://registry.yarnpkg.com/@matrix-widget-toolkit/react/-/react-1.0.5.tgz#65c0af604649d98d57fcb887da46085aa3c19d10"
-  integrity sha512-K6gcF3gKkrUt/LHwhSqqyICS9PyjDPaGlfenFzq7WG5rNJHKT8cWgxSWsZQ3M5PTLFkOdgRxAKieG9sfQm6i9A==
+"@matrix-widget-toolkit/react@^1.0.5", "@matrix-widget-toolkit/react@^1.0.6":
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/@matrix-widget-toolkit/react/-/react-1.0.6.tgz#1cc3f18b17dc0ee8ade81e341e1849e74a37d8a1"
+  integrity sha512-bIwZYtnBRi7NdZf1xM4kthH3jaAd+zxWx43bQxqNpjShKg8KYyNWmW29dMQ/55Dyd6G1XheWctt+H9B+z8VJ7g==
   dependencies:
-    "@matrix-widget-toolkit/api" "^3.2.0"
-    matrix-widget-api "^1.3.1"
+    "@matrix-widget-toolkit/api" "^3.2.2"
+    matrix-widget-api "^1.6.0"
     react "^17.0.2"
     react-error-boundary "^3.1.4"
     react-use "^17.4.0"
@@ -2060,12 +2060,12 @@
   resolved "https://registry.yarnpkg.com/@mui/core-downloads-tracker/-/core-downloads-tracker-5.14.7.tgz#95bed2487bf59632125a13b8eb8f4c21e460afec"
   integrity sha512-sCWTUNElBPgB30iLvWe3PU7SIlTKZNf6/E/sko85iHVeHCM6WPkDw+y89CrZYjhFNmPqt2fIQM/pZu+rP2lFLA==
 
-"@mui/icons-material@^5.14.3", "@mui/icons-material@^5.14.7":
-  version "5.14.7"
-  resolved "https://registry.yarnpkg.com/@mui/icons-material/-/icons-material-5.14.7.tgz#d7f6bd188fe38adf35c89d9343b8a529c2306383"
-  integrity sha512-mWp4DwMa8c1Gx9yOEtPgxM4b+e6hAbtZyzfSubdBwrnEE6G5D2rbAJ5MB+If6kfI48JaYaJ5j8+zAdmZLuZc0A==
+"@mui/icons-material@^5.14.14", "@mui/icons-material@^5.14.3":
+  version "5.14.14"
+  resolved "https://registry.yarnpkg.com/@mui/icons-material/-/icons-material-5.14.14.tgz#02d33f51f0b9de238d5c47b0a31ff330144393c4"
+  integrity sha512-vwuaMsKvI7AWTeYqR8wYbpXijuU8PzMAJWRAq2DDIuOZPxjKyHlr8WQ25+azZYkIXtJ7AqnVb1ZmHdEyB4/kug==
   dependencies:
-    "@babel/runtime" "^7.22.10"
+    "@babel/runtime" "^7.23.1"
 
 "@mui/lab@^5.0.0-alpha.142":
   version "5.0.0-alpha.142"
@@ -2699,10 +2699,12 @@
   resolved "https://registry.npmjs.org/@types/minimist/-/minimist-1.2.1.tgz"
   integrity sha512-fZQQafSREFyuZcdWFAExYjBiCL7AUCdgsk80iO0q4yihYYdcIiH28CcuPTGFgLOCC8RlW49GSQxdHwZP+I7CNg==
 
-"@types/node@*", "@types/node@^16.18.44":
-  version "16.18.44"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-16.18.44.tgz#3c3ea2a832014b869f0f370630d98bb026171e76"
-  integrity sha512-PZXtT+wqSMHnLPVExTh+tMt1VK+GvjRLsGZMbcQ4Mb/cG63xJig/TUmgrDa9aborl2i22UnpIzHYNu7s97NbBQ==
+"@types/node@*", "@types/node@^20.8.6":
+  version "20.8.7"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-20.8.7.tgz#ad23827850843de973096edfc5abc9e922492a25"
+  integrity sha512-21TKHHh3eUHIi2MloeptJWALuCu5H7HQTdTrWIFReA8ad+aggoX+lRes3ex7/FtpC+sVUpFMQ+QTfYr74mruiQ==
+  dependencies:
+    undici-types "~5.25.1"
 
 "@types/node@^12.7.1":
   version "12.20.52"
@@ -11916,6 +11918,11 @@ underscore.string@~3.3.4:
   dependencies:
     sprintf-js "^1.0.3"
     util-deprecate "^1.0.2"
+
+undici-types@~5.25.1:
+  version "5.25.3"
+  resolved "https://registry.yarnpkg.com/undici-types/-/undici-types-5.25.3.tgz#e044115914c85f0bcbb229f346ab739f064998c3"
+  integrity sha512-Ga1jfYwRn7+cP9v8auvEXN1rX3sWqlayd4HP7OKk4mZWylEmu3KzXDUGrQUN6Ol7qo1gPvB2e5gX6udnyEPgdA==
 
 unicode-canonical-property-names-ecmascript@^2.0.0:
   version "2.0.0"
