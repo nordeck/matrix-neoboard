@@ -55,7 +55,7 @@
     "@types/jest": "^27.5.2",
     "@types/jest-axe": "^3.5.5",
     "@types/lodash": "^4.14.197",
-    "@types/node": "^16.18.44",
+    "@types/node": "^20.8.6",
     "@types/pdfmake": "^0.2.2",
     "@types/react": "^17.0.39",
     "@types/react-beautiful-dnd": "^13.1.5",
@@ -84,7 +84,7 @@
     "yarn-deduplicate": "^6.0.2"
   },
   "engines": {
-    "node": ">=16.0.0",
+    "node": ">=20.0.0",
     "yarn": ">=1.22.1 <2.0.0"
   },
   "scripts": {
