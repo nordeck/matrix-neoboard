@@ -1,5 +1,11 @@
 # @nordeck/matrix-neoboard-widget
 
+## 1.0.0
+
+### Major Changes
+
+- 0115b33: First stable release
+
 ## 0.4.0
 
 ### Minor Changes
