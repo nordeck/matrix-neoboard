@@ -68,7 +68,7 @@
     "cross-env": "^7.0.3",
     "depcheck": "^1.4.7",
     "dotenv-cli": "^7.3.0",
-    "eslint": "^8.52.0",
+    "eslint": "^8.53.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-config-react-app": "^7.0.1",
     "eslint-plugin-notice": "^0.9.10",
