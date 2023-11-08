@@ -23,6 +23,7 @@ import {
   WhiteboardTestingContextProvider,
   mockWhiteboardManager,
 } from '../../lib/testUtils/documentTestUtils';
+import { mockPowerLevelsEvent } from '../../lib/testUtils/matrixTestUtils';
 import { WhiteboardDocumentExport, WhiteboardManager } from '../../state';
 import { LayoutStateProvider } from '../Layout/useLayoutState';
 import { BoardBar } from './BoardBar';
@@ -116,9 +117,6 @@ describe('<BoardBar/>', () => {
     });
 
     expect(
-      within(settingsMenu).getByRole('menuitem', { name: 'Import…' }),
-    ).toBeInTheDocument();
-    expect(
       within(settingsMenu).getByRole('menuitem', { name: 'Export…' }),
     ).toBeInTheDocument();
     expect(
@@ -133,6 +131,39 @@ describe('<BoardBar/>', () => {
     await userEvent.keyboard('[Escape]');
 
     expect(settingsMenu).not.toBeInTheDocument();
+  });
+
+  it('should open the settings menu and show import button for user with the right  power level', async () => {
+    widgetApi.mockSendStateEvent(
+      mockPowerLevelsEvent({
+        content: {
+          events: {},
+          users: {
+            '@user-id': 100,
+          },
+          events_default: 100,
+          state_default: 100,
+          users_default: 0,
+        },
+      }),
+    );
+    render(<BoardBar />, { wrapper: Wrapper });
+
+    const toolbar = screen.getByRole('toolbar', { name: 'Board' });
+
+    const menuSettingsMenu = within(toolbar).getByRole('button', {
+      name: 'Settings',
+    });
+
+    await userEvent.click(menuSettingsMenu);
+
+    const settingsMenu = screen.getByRole('menu', {
+      name: 'Settings',
+    });
+
+    expect(
+      within(settingsMenu).getByRole('menuitem', { name: 'Import…' }),
+    ).toBeInTheDocument();
   });
 
   it('should import a whiteboard', async () => {

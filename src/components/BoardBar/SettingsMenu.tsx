@@ -23,6 +23,7 @@ import { MouseEvent, useCallback, useState } from 'react';
 import { FileRejection, useDropzone } from 'react-dropzone';
 import { useTranslation } from 'react-i18next';
 import { isValidWhiteboardExportDocument } from '../../state';
+import { usePowerLevels } from '../../store/api/usePowerLevels';
 import { useLayoutState } from '../Layout';
 import { MenuItemSwitch } from '../common/MenuItemSwitch';
 import { ToolbarSubMenu } from '../common/Toolbar';
@@ -50,6 +51,7 @@ export function SettingsMenu() {
   const [openImportDialog, setOpenImportDialog] = useState(false);
   const [importedWhiteboard, setImportedWhiteboard] =
     useState<ImportedWhiteboard>();
+  const { canImportWhiteboard } = usePowerLevels();
 
   const handleClick = useCallback((event: MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -177,7 +179,6 @@ export function SettingsMenu() {
       </ToolbarSubMenu>
 
       {filePickerInput}
-
       <ImportWhiteboardDialog
         open={openImportDialog}
         importedWhiteboard={importedWhiteboard}
@@ -210,12 +211,16 @@ export function SettingsMenu() {
         }}
         id={menuId}
       >
-        <MenuItem {...getRootProps({ onClick: handleClose, role: 'menuitem' })}>
-          <ListItemIcon>
-            <FileImportOutlineIcon sx={{ color: 'text.primary' }} />
-          </ListItemIcon>
-          <ListItemText>{t('boardBar.menu.import', 'Import…')}</ListItemText>
-        </MenuItem>
+        {canImportWhiteboard && (
+          <MenuItem
+            {...getRootProps({ onClick: handleClose, role: 'menuitem' })}
+          >
+            <ListItemIcon>
+              <FileImportOutlineIcon sx={{ color: 'text.primary' }} />
+            </ListItemIcon>
+            <ListItemText>{t('boardBar.menu.import', 'Import…')}</ListItemText>
+          </MenuItem>
+        )}
         <MenuItem onClick={handleExportClick}>
           <ListItemIcon>
             <FileExportOutlineIcon sx={{ color: 'text.primary' }} />
