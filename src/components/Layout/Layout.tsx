@@ -126,12 +126,8 @@ function ContentArea() {
         justifyContent="end"
         top={(theme) => theme.spacing(1)}
       >
-        {!isViewingPresentation && (
-          <>
-            <BoardBar />
-            <CollaborationBar />
-          </>
-        )}
+        {!isViewingPresentation && <BoardBar />}
+        <CollaborationBar />
         <PresentBar />
       </ToolbarContainer>
 

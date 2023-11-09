@@ -15,22 +15,35 @@
  */
 
 import { useTranslation } from 'react-i18next';
+import { usePresentationMode } from '../../state';
 import { Toolbar } from '../common/Toolbar';
 import { Collaborators } from './Collaborators';
 import { ShowCollaboratorsCursorsToggle } from './ShowCollaboratorsCursorsToggle';
 
 export function CollaborationBar() {
   const { t } = useTranslation();
+  const { state } = usePresentationMode();
+  const isPresenting = state.type === 'presenting';
+  const isViewingPresentation = state.type === 'presentation';
+  const isViewingPresentationInEditMode =
+    (isPresenting || isViewingPresentation) && state.isEditMode;
   const toolbarTitle = t('collaborationBar.title', 'Collaboration');
+  const showToolbar =
+    !isViewingPresentation ||
+    (isViewingPresentation && isViewingPresentationInEditMode);
 
   return (
-    <Toolbar
-      aria-label={toolbarTitle}
-      sx={{ pointerEvents: 'initial' }}
-      data-guided-tour-target="collaborationbar"
-    >
-      <ShowCollaboratorsCursorsToggle />
-      <Collaborators />
-    </Toolbar>
+    <>
+      {showToolbar && (
+        <Toolbar
+          aria-label={toolbarTitle}
+          sx={{ pointerEvents: 'initial' }}
+          data-guided-tour-target="collaborationbar"
+        >
+          <ShowCollaboratorsCursorsToggle />
+          {!isViewingPresentation && <Collaborators />}
+        </Toolbar>
+      )}
+    </>
   );
 }
