@@ -28,13 +28,14 @@ export function CollaborationBar() {
   const isViewingPresentationInEditMode =
     (isPresenting || isViewingPresentation) && state.isEditMode;
   const toolbarTitle = t('collaborationBar.title', 'Collaboration');
-  const showToolbar =
+  const showCollaborationBarViewer =
     !isViewingPresentation ||
     (isViewingPresentation && isViewingPresentationInEditMode);
+  const hideCollaborationBarPresenter = isPresenting && !state.isEditMode;
 
   return (
     <>
-      {showToolbar && (
+      {showCollaborationBarViewer && !hideCollaborationBarPresenter && (
         <Toolbar
           aria-label={toolbarTitle}
           sx={{ pointerEvents: 'initial' }}
