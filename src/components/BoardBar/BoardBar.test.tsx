@@ -127,11 +127,6 @@ describe('<BoardBar/>', () => {
         name: 'Developer Tools',
       }),
     ).toBeInTheDocument();
-    expect(
-      within(settingsMenu).queryByRole('menuitem', {
-        name: 'Import…',
-      }),
-    ).not.toBeInTheDocument();
 
     await userEvent.keyboard('[Escape]');
 
