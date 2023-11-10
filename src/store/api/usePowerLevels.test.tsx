@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Nordeck IT + Consulting GmbH
+ * Copyright 2023 Nordeck IT + Consulting GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ describe('usePowerLevels', () => {
     });
   });
 
-  it('should return true if user do not have he power level to import new whiteboard as admin', async () => {
+  it('should return true if user is an admin', async () => {
     widgetApi.mockSendStateEvent(
       mockPowerLevelsEvent({
         content: {
@@ -85,7 +85,7 @@ describe('usePowerLevels', () => {
     });
   });
 
-  it('should return true if user do not have he power level to import new whiteboard as moderator', async () => {
+  it('should return true if user is a moderator', async () => {
     widgetApi.mockSendStateEvent(
       mockPowerLevelsEvent({
         content: {
@@ -111,7 +111,7 @@ describe('usePowerLevels', () => {
     });
   });
 
-  it('should return false if user do not have he power level to import new whiteboard', async () => {
+  it('should return false if user is not admin or moderator', async () => {
     widgetApi.mockSendStateEvent(
       mockPowerLevelsEvent({
         content: {
