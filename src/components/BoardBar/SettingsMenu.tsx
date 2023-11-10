@@ -179,6 +179,7 @@ export function SettingsMenu() {
       </ToolbarSubMenu>
 
       {filePickerInput}
+
       <ImportWhiteboardDialog
         open={openImportDialog}
         importedWhiteboard={importedWhiteboard}

@@ -127,13 +127,18 @@ describe('<BoardBar/>', () => {
         name: 'Developer Tools',
       }),
     ).toBeInTheDocument();
+    expect(
+      within(settingsMenu).queryByRole('menuitem', {
+        name: 'Import…',
+      }),
+    ).not.toBeInTheDocument();
 
     await userEvent.keyboard('[Escape]');
 
     expect(settingsMenu).not.toBeInTheDocument();
   });
 
-  it('should open the settings menu and show import button for user with the right  power level', async () => {
+  it('should open the settings menu and show import button for user with the right power level and not show if no power level', async () => {
     widgetApi.mockSendStateEvent(
       mockPowerLevelsEvent({
         content: {
@@ -164,6 +169,32 @@ describe('<BoardBar/>', () => {
     expect(
       within(settingsMenu).getByRole('menuitem', { name: 'Import…' }),
     ).toBeInTheDocument();
+
+    await userEvent.keyboard('[Escape]');
+
+    widgetApi.mockSendStateEvent(
+      mockPowerLevelsEvent({
+        content: {
+          events: {},
+          users: {
+            '@user-id': 25,
+          },
+          events_default: 100,
+          state_default: 100,
+          users_default: 0,
+        },
+      }),
+    );
+
+    await userEvent.click(menuSettingsMenu);
+
+    const settingsMenuNew = screen.getByRole('menu', {
+      name: 'Settings',
+    });
+
+    expect(
+      within(settingsMenuNew).queryByRole('menuitem', { name: 'Import…' }),
+    ).not.toBeInTheDocument();
   });
 
   it('should import a whiteboard', async () => {
