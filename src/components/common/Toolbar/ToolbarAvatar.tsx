@@ -53,6 +53,7 @@ export function ToolbarAvatar({ member, title, children }: ToolbarAvatarProps) {
         background: theme.palette.background.default,
         borderRadius: '50%',
         paddingY: '2px',
+        minHeight: '34px',
 
         '&:hover': {
           background: theme.palette.background.default,

@@ -110,14 +110,11 @@ export const WhiteboardHostConnected = () => {
   const { loading } = useIsWhiteboardLoading();
   const isLocked = useSlideIsLocked();
   const elementIds = useSlideElementIds();
-  const { state } = usePresentationMode();
-  const isPresenting = state.type === 'presenting';
-  const isViewingPresentation = state.type === 'presentation';
+  const { state: presentationState } = usePresentationMode();
+  const isPresenting = presentationState.type === 'presenting';
+  const isViewingPresentation = presentationState.type === 'presentation';
   const isViewingPresentationInEditMode =
-    (isPresenting || isViewingPresentation) && state.isEditMode;
-  const showCollaboratorsCursorsInPresentation =
-    !isViewingPresentation ||
-    (isViewingPresentation && isViewingPresentationInEditMode);
+    isViewingPresentation && presentationState.isEditMode;
 
   if (loading) {
     return <SlideSkeleton />;
@@ -129,7 +126,7 @@ export const WhiteboardHostConnected = () => {
       readOnly={
         isLocked || (isViewingPresentation && !isViewingPresentationInEditMode)
       }
-      hideCursors={!showCollaboratorsCursorsInPresentation}
+      hideCursors={!presentationState.isEditMode}
       hideDotGrid={isPresenting || isViewingPresentation}
       withOutline={isPresenting}
     />

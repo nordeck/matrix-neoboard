@@ -105,7 +105,7 @@ describe('<CollaborationBar>', () => {
     ).toBeInTheDocument();
   });
 
-  it('should show cursors in presentation mode if edit slide active', async () => {
+  it('should show cursors in presentation mode if edit mode is enabled', async () => {
     setPresentationMode(true, true);
 
     render(<CollaborationBar />, { wrapper: Wrapper });
@@ -125,7 +125,7 @@ describe('<CollaborationBar>', () => {
     ).toBeInTheDocument();
   });
 
-  it('should hide cursors in presentation mode if edit slide not active', async () => {
+  it('should hide cursors in presentation mode if edit mode is not enabled', async () => {
     render(<CollaborationBar />, { wrapper: Wrapper });
 
     const toggleCollaboratorsCursors = screen.getByRole('checkbox', {

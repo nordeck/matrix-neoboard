@@ -23,28 +23,26 @@ import { ShowCollaboratorsCursorsToggle } from './ShowCollaboratorsCursorsToggle
 export function CollaborationBar() {
   const { t } = useTranslation();
   const { state } = usePresentationMode();
+  const isCollaboratorsCursorsActive =
+    state.type === 'idle' || state.isEditMode;
   const isPresenting = state.type === 'presenting';
   const isViewingPresentation = state.type === 'presentation';
-  const isViewingPresentationInEditMode =
-    (isPresenting || isViewingPresentation) && state.isEditMode;
+  const isCollaborationBarActive =
+    state.type === 'idle' ||
+    isPresenting ||
+    (isViewingPresentation && state.isEditMode);
   const toolbarTitle = t('collaborationBar.title', 'Collaboration');
-  const showCollaborationBarViewer =
-    !isViewingPresentation ||
-    (isViewingPresentation && isViewingPresentationInEditMode);
-  const hideCollaborationBarPresenter = isPresenting && !state.isEditMode;
 
   return (
-    <>
-      {showCollaborationBarViewer && !hideCollaborationBarPresenter && (
-        <Toolbar
-          aria-label={toolbarTitle}
-          sx={{ pointerEvents: 'initial' }}
-          data-guided-tour-target="collaborationbar"
-        >
-          <ShowCollaboratorsCursorsToggle />
-          {!isViewingPresentation && <Collaborators />}
-        </Toolbar>
-      )}
-    </>
+    isCollaborationBarActive && (
+      <Toolbar
+        aria-label={toolbarTitle}
+        sx={{ pointerEvents: 'initial' }}
+        data-guided-tour-target="collaborationbar"
+      >
+        {isCollaboratorsCursorsActive && <ShowCollaboratorsCursorsToggle />}
+        {!isViewingPresentation && <Collaborators />}
+      </Toolbar>
+    )
   );
 }
