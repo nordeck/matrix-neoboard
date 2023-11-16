@@ -34,10 +34,10 @@ type ConvertToJson<O> = {
   [K in keyof O]: O[K] extends YMap<SharedMap<infer U>>
     ? Record<string, ConvertToJson<U>>
     : O[K] extends YMap<infer U>
-    ? Record<string, ConvertToJson<U>>
-    : O[K] extends YArray<infer T>
-    ? Array<ConvertToJson<T>>
-    : O[K] extends YText
-    ? string
-    : O[K];
+      ? Record<string, ConvertToJson<U>>
+      : O[K] extends YArray<infer T>
+        ? Array<ConvertToJson<T>>
+        : O[K] extends YText
+          ? string
+          : O[K];
 };
