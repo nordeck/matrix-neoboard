@@ -22,15 +22,15 @@ import { ShowCollaboratorsCursorsToggle } from './ShowCollaboratorsCursorsToggle
 
 export function CollaborationBar() {
   const { t } = useTranslation();
-  const { state } = usePresentationMode();
+  const { presentationState } = usePresentationMode();
   const isCollaboratorsCursorsActive =
-    state.type === 'idle' || state.isEditMode;
-  const isPresenting = state.type === 'presenting';
-  const isViewingPresentation = state.type === 'presentation';
+    presentationState.type === 'idle' || presentationState.isEditMode;
+  const isPresenting = presentationState.type === 'presenting';
+  const isViewingPresentation = presentationState.type === 'presentation';
   const isCollaborationBarActive =
-    state.type === 'idle' ||
+    presentationState.type === 'idle' ||
     isPresenting ||
-    (isViewingPresentation && state.isEditMode);
+    (isViewingPresentation && presentationState.isEditMode);
   const toolbarTitle = t('collaborationBar.title', 'Collaboration');
 
   return (
