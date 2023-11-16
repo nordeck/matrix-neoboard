@@ -22,7 +22,7 @@ import { ShowCollaboratorsCursorsToggle } from './ShowCollaboratorsCursorsToggle
 
 export function CollaborationBar() {
   const { t } = useTranslation();
-  const { presentationState } = usePresentationMode();
+  const { state: presentationState } = usePresentationMode();
   const isCollaboratorsCursorsActive =
     presentationState.type === 'idle' || presentationState.isEditMode;
   const isPresenting = presentationState.type === 'presenting';
