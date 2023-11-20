@@ -112,11 +112,15 @@ function AnimatedSidebar({
 }
 
 function ContentArea() {
-  const { state } = usePresentationMode();
-  const isViewingPresentation = state.type === 'presentation';
+  const { state: presentationState } = usePresentationMode();
+  const isViewingPresentation = presentationState.type === 'presentation';
   const isViewingPresentationInEditMode =
-    isViewingPresentation && state.isEditMode;
-
+    isViewingPresentation && presentationState.isEditMode;
+  const isPresenting = presentationState.type === 'presenting';
+  const isCollaborationBarActive =
+    presentationState.type === 'idle' ||
+    isPresenting ||
+    (isViewingPresentation && presentationState.isEditMode);
   return (
     <>
       <Shortcuts />
@@ -127,7 +131,7 @@ function ContentArea() {
         top={(theme) => theme.spacing(1)}
       >
         {!isViewingPresentation && <BoardBar />}
-        <CollaborationBar />
+        {isCollaborationBarActive && <CollaborationBar />}
         <PresentBar />
       </ToolbarContainer>
 

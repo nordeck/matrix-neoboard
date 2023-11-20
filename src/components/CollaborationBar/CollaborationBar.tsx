@@ -25,24 +25,17 @@ export function CollaborationBar() {
   const { state: presentationState } = usePresentationMode();
   const isCollaboratorsCursorsActive =
     presentationState.type === 'idle' || presentationState.isEditMode;
-  const isPresenting = presentationState.type === 'presenting';
   const isViewingPresentation = presentationState.type === 'presentation';
-  const isCollaborationBarActive =
-    presentationState.type === 'idle' ||
-    isPresenting ||
-    (isViewingPresentation && presentationState.isEditMode);
   const toolbarTitle = t('collaborationBar.title', 'Collaboration');
 
   return (
-    isCollaborationBarActive && (
-      <Toolbar
-        aria-label={toolbarTitle}
-        sx={{ pointerEvents: 'initial' }}
-        data-guided-tour-target="collaborationbar"
-      >
-        {isCollaboratorsCursorsActive && <ShowCollaboratorsCursorsToggle />}
-        {!isViewingPresentation && <Collaborators />}
-      </Toolbar>
-    )
+    <Toolbar
+      aria-label={toolbarTitle}
+      sx={{ pointerEvents: 'initial' }}
+      data-guided-tour-target="collaborationbar"
+    >
+      {isCollaboratorsCursorsActive && <ShowCollaboratorsCursorsToggle />}
+      {!isViewingPresentation && <Collaborators />}
+    </Toolbar>
   );
 }
