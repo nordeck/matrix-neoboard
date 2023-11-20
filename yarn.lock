@@ -1667,14 +1667,14 @@
     brfs "^2.0.2"
     unicode-trie "^2.0.0"
 
-"@foliojs-fork/pdfkit@^0.13.0":
-  version "0.13.0"
-  resolved "https://registry.yarnpkg.com/@foliojs-fork/pdfkit/-/pdfkit-0.13.0.tgz#54f5368d8cf74d8edc81a175ccda1fd9655f2db9"
-  integrity sha512-YXeG1fml9k97YNC9K8e292Pj2JzGt9uOIiBFuQFxHsdQ45BlxW+JU3RQK6JAvXU7kjhjP8rCcYvpk36JLD33sQ==
+"@foliojs-fork/pdfkit@^0.14.0":
+  version "0.14.0"
+  resolved "https://registry.yarnpkg.com/@foliojs-fork/pdfkit/-/pdfkit-0.14.0.tgz#ed1868050edd2904284655f8dcddd56b49576c98"
+  integrity sha512-nMOiQAv6id89MT3tVTCgc7HxD5ZMANwio2o5yvs5sexQkC0KI3BLaLakpsrHmFfeGFAhqPmZATZGbJGXTUebpg==
   dependencies:
     "@foliojs-fork/fontkit" "^1.9.1"
     "@foliojs-fork/linebreak" "^1.1.1"
-    crypto-js "^4.0.0"
+    crypto-js "^4.2.0"
     png-js "^1.0.0"
 
 "@foliojs-fork/restructure@^2.0.2":
@@ -2730,10 +2730,10 @@
   dependencies:
     "@types/node" "*"
 
-"@types/pdfmake@^0.2.7":
-  version "0.2.7"
-  resolved "https://registry.yarnpkg.com/@types/pdfmake/-/pdfmake-0.2.7.tgz#c918c4f7abb975f359ed845a2b97f63f351c190e"
-  integrity sha512-2efccds+XUh5I3ZuXC14gmg9zinOoxJaqMv7VRrimIRfD8MvH0qPlcysi9Wdjs+/iXIA0tK/xTZ9mgkVh+hPlA==
+"@types/pdfmake@^0.2.8":
+  version "0.2.8"
+  resolved "https://registry.yarnpkg.com/@types/pdfmake/-/pdfmake-0.2.8.tgz#715769cb276d967136fe69093f6ed96d87c6f697"
+  integrity sha512-9HavCBXKri7lhfwnM4qK012ru2qGYXvV1BVgYuNwa+vX6KFfI2Pfd0YoJ2l8m2UhE2yd8d1KuIBku6+9igDr+Q==
   dependencies:
     "@types/node" "*"
     "@types/pdfkit" "*"
@@ -4524,7 +4524,7 @@ cross-spawn@^7.0.1, cross-spawn@^7.0.2, cross-spawn@^7.0.3:
     shebang-command "^2.0.0"
     which "^2.0.1"
 
-crypto-js@^4.0.0:
+crypto-js@^4.2.0:
   version "4.2.0"
   resolved "https://registry.yarnpkg.com/crypto-js/-/crypto-js-4.2.0.tgz#4d931639ecdfd12ff80e8186dba6af2c2e856631"
   integrity sha512-KALDyEYgpY+Rlob/iriUtjV6d5Eq+Y191A5g4UqLAi8CyGP9N1+FdVbkc1SxKc2r4YAYqG8JzO2KGL+AizD70Q==
@@ -9065,13 +9065,13 @@ path-type@^4.0.0:
   resolved "https://registry.yarnpkg.com/path-type/-/path-type-4.0.0.tgz#84ed01c0a7ba380afe09d90a8c180dcd9d03043b"
   integrity sha512-gDKb8aZMDeD/tZWs9P6+q0J9Mwkdl6xMV8TjnGP3qJVJ06bdMgkbBlLU8IdfOsIsFz2BW1rNVT3XuNEl8zPAvw==
 
-pdfmake@^0.2.7:
-  version "0.2.7"
-  resolved "https://registry.yarnpkg.com/pdfmake/-/pdfmake-0.2.7.tgz#a7a46532ffde032674929988393c20b075cf65e3"
-  integrity sha512-ClLpgx30H5G3EDvRW1MrA1Xih6YxEaSgIVFrOyBMgAAt62V+hxsyWAi6JNP7u1Fc5JKYAbpb4RRVw8Rhvmz5cQ==
+pdfmake@^0.2.8:
+  version "0.2.8"
+  resolved "https://registry.yarnpkg.com/pdfmake/-/pdfmake-0.2.8.tgz#42263262e464d5d52e748317478dae9926387a61"
+  integrity sha512-lI+amfIaUL8CrPhndxFdhIgMj9JB49Sj4DARltKC1gLm/5NsPohZqfB+D+II8HymtPB6eugUFD5oBxmzO57qHA==
   dependencies:
     "@foliojs-fork/linebreak" "^1.1.1"
-    "@foliojs-fork/pdfkit" "^0.13.0"
+    "@foliojs-fork/pdfkit" "^0.14.0"
     iconv-lite "^0.6.3"
     xmldoc "^1.1.2"
 
