@@ -1,5 +1,11 @@
 # @nordeck/matrix-neoboard-widget
 
+## 1.1.0
+
+### Minor Changes
+
+- 57b6c77: Only admin and moderator can import a new whiteboard
+
 ## 1.0.0
 
 ### Major Changes
