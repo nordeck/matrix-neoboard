@@ -2,4 +2,4 @@
 '@nordeck/matrix-neoboard-widget': minor
 ---
 
-Show the collaborators cursor in presentation mode if edit slide active
+Allows collaborators cursors to be shown in presentation mode if slide editing is enabled
