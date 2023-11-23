@@ -1,4 +1,4 @@
-# Export Data Format
+# Export / Import Data Format
 
 This document describes the data format of the files that can be exported from and imported into the whiteboard.
 The format is JSON-based and contains all slides and elements that are originally stored in the [CRDT Document Model][crdt-documents].
@@ -17,6 +17,8 @@ It is a JSON file with the following format:
 | `version`           | `string`       | The file version (`net.nordeck.whiteboard@v1`).                                                                               |
 | `whiteboard`        | `object`       | The whiteboard that is stored in this file.                                                                                   |
 | `whiteboard.slides` | `Array<Slide>` | A list of slides in the display order as given by the `slideIds` field in the [`Whiteboard`](./crdt-documents.md#whiteboard). |
+
+Once exported, it can be imported into the same whiteboard at a later point in time or to a new instance of the whiteboard in another matrix room.
 
 ### Example
 
