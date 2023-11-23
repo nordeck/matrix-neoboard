@@ -128,15 +128,31 @@ describe('<CollaborationBar>', () => {
   it('should hide cursors in presentation mode if edit mode is not enabled', async () => {
     render(<CollaborationBar />, { wrapper: Wrapper });
 
-    const toggleCollaboratorsCursors = screen.getByRole('checkbox', {
+    const ShowCollaboratorsCursors = screen.getByRole('checkbox', {
       name: "Show collaborators' cursors",
       checked: false,
     });
 
-    expect(toggleCollaboratorsCursors).toBeInTheDocument();
+    setPresentationMode(true, false);
+
+    expect(ShowCollaboratorsCursors).not.toBeInTheDocument();
+
+    setPresentationMode(true, true);
+
+    await userEvent.click(
+      screen.getByRole('checkbox', {
+        name: "Show collaborators' cursors",
+        checked: false,
+      }),
+    );
+
+    const hideCollaboratorsCursors = screen.getByRole('checkbox', {
+      name: "Hide collaborators' cursors",
+      checked: true,
+    });
 
     setPresentationMode(true, false);
 
-    expect(toggleCollaboratorsCursors).not.toBeInTheDocument();
+    expect(hideCollaboratorsCursors).not.toBeInTheDocument();
   });
 });

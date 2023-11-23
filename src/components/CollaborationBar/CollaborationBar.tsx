@@ -23,7 +23,7 @@ import { ShowCollaboratorsCursorsToggle } from './ShowCollaboratorsCursorsToggle
 export function CollaborationBar() {
   const { t } = useTranslation();
   const { state: presentationState } = usePresentationMode();
-  const isCollaboratorsCursorsActive =
+  const isEditEnabled =
     presentationState.type === 'idle' || presentationState.isEditMode;
   const isViewingPresentation = presentationState.type === 'presentation';
   const toolbarTitle = t('collaborationBar.title', 'Collaboration');
@@ -34,7 +34,7 @@ export function CollaborationBar() {
       sx={{ pointerEvents: 'initial' }}
       data-guided-tour-target="collaborationbar"
     >
-      {isCollaboratorsCursorsActive && <ShowCollaboratorsCursorsToggle />}
+      {isEditEnabled && <ShowCollaboratorsCursorsToggle />}
       {!isViewingPresentation && <Collaborators />}
     </Toolbar>
   );

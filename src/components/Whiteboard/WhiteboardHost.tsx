@@ -114,7 +114,7 @@ export const WhiteboardHostConnected = () => {
   const isPresenting = presentationState.type === 'presenting';
   const isViewingPresentation = presentationState.type === 'presentation';
 
-  const isEditModeEnabled =
+  const isEditEnabled =
     presentationState.type === 'idle' || presentationState.isEditMode;
 
   if (loading) {
@@ -124,8 +124,8 @@ export const WhiteboardHostConnected = () => {
   return (
     <WhiteboardHost
       elementIds={elementIds}
-      readOnly={isLocked || (isViewingPresentation && !isEditModeEnabled)}
-      hideCursors={!isEditModeEnabled}
+      readOnly={isLocked || (isViewingPresentation && !isEditEnabled)}
+      hideCursors={!isEditEnabled}
       hideDotGrid={isPresenting || isViewingPresentation}
       withOutline={isPresenting}
     />

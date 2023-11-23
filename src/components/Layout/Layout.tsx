@@ -116,11 +116,8 @@ function ContentArea() {
   const isViewingPresentation = presentationState.type === 'presentation';
   const isViewingPresentationInEditMode =
     isViewingPresentation && presentationState.isEditMode;
-  const isPresenting = presentationState.type === 'presenting';
-  const isCollaborationBarActive =
-    presentationState.type === 'idle' ||
-    isPresenting ||
-    (isViewingPresentation && presentationState.isEditMode);
+  const isEditEnabled =
+    presentationState.type === 'idle' || presentationState.isEditMode;
   return (
     <>
       <Shortcuts />
@@ -131,7 +128,7 @@ function ContentArea() {
         top={(theme) => theme.spacing(1)}
       >
         {!isViewingPresentation && <BoardBar />}
-        {isCollaborationBarActive && <CollaborationBar />}
+        {(isEditEnabled || !isViewingPresentation) && <CollaborationBar />}
         <PresentBar />
       </ToolbarContainer>
 
