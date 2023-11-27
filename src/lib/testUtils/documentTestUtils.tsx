@@ -59,7 +59,7 @@ export function mockWhiteboardManager(
   whiteboardManager: jest.Mocked<WhiteboardManager>;
   communicationChannel: jest.Mocked<CommunicationChannel>;
   messageSubject: Subject<Message>;
-  setPresentationMode: (enable: boolean) => void;
+  setPresentationMode: (enable: boolean, enableEdit?: boolean) => void;
 } {
   const document = createWhiteboardDocument();
 
@@ -142,13 +142,18 @@ export function mockWhiteboardManager(
     whiteboardManager,
     communicationChannel,
     messageSubject,
-    setPresentationMode: (enable) => {
+    setPresentationMode: (enable, enableEdit) => {
       messageSubject.next({
         senderUserId: '@user-alice',
         senderSessionId: 'other',
         type: 'net.nordeck.whiteboard.present_slide',
         content: {
-          view: enable ? { isEditMode: false, slideId: 'slide-0' } : undefined,
+          view: enable
+            ? {
+                isEditMode: enableEdit ? enableEdit : false,
+                slideId: 'slide-0',
+              }
+            : undefined,
         },
       });
     },

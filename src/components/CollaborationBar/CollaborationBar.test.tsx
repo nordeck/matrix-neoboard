@@ -37,9 +37,10 @@ beforeEach(() => (widgetApi = mockWidgetApi()));
 describe('<CollaborationBar>', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
   let whiteboardManager: jest.Mocked<WhiteboardManager>;
+  let setPresentationMode: (enable: boolean, enableEdit: boolean) => void;
 
   beforeEach(() => {
-    ({ whiteboardManager } = mockWhiteboardManager());
+    ({ whiteboardManager, setPresentationMode } = mockWhiteboardManager());
 
     Wrapper = ({ children }) => (
       <WhiteboardHotkeysProvider>
@@ -102,5 +103,35 @@ describe('<CollaborationBar>', () => {
         checked: true,
       }),
     ).toBeInTheDocument();
+  });
+
+  it('should show cursors in presentation mode if edit mode is enabled', async () => {
+    setPresentationMode(true, true);
+
+    render(<CollaborationBar />, { wrapper: Wrapper });
+
+    await userEvent.click(
+      screen.getByRole('checkbox', {
+        name: "Show collaborators' cursors",
+        checked: false,
+      }),
+    );
+
+    expect(
+      screen.getByRole('checkbox', {
+        name: "Hide collaborators' cursors",
+        checked: true,
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it('should hide cursors in presentation mode if edit mode is not enabled', async () => {
+    setPresentationMode(true, false);
+
+    render(<CollaborationBar />, { wrapper: Wrapper });
+
+    expect(
+      screen.queryByRole('checkbox', { name: /cursors$/ }),
+    ).not.toBeInTheDocument();
   });
 });

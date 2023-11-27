@@ -15,12 +15,17 @@
  */
 
 import { useTranslation } from 'react-i18next';
+import { usePresentationMode } from '../../state';
 import { Toolbar } from '../common/Toolbar';
 import { Collaborators } from './Collaborators';
 import { ShowCollaboratorsCursorsToggle } from './ShowCollaboratorsCursorsToggle';
 
 export function CollaborationBar() {
   const { t } = useTranslation();
+  const { state: presentationState } = usePresentationMode();
+  const isEditEnabled =
+    presentationState.type === 'idle' || presentationState.isEditMode;
+  const isViewingPresentation = presentationState.type === 'presentation';
   const toolbarTitle = t('collaborationBar.title', 'Collaboration');
 
   return (
@@ -29,8 +34,8 @@ export function CollaborationBar() {
       sx={{ pointerEvents: 'initial' }}
       data-guided-tour-target="collaborationbar"
     >
-      <ShowCollaboratorsCursorsToggle />
-      <Collaborators />
+      {isEditEnabled && <ShowCollaboratorsCursorsToggle />}
+      {!isViewingPresentation && <Collaborators />}
     </Toolbar>
   );
 }

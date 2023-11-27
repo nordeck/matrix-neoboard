@@ -112,10 +112,12 @@ function AnimatedSidebar({
 }
 
 function ContentArea() {
-  const { state } = usePresentationMode();
-  const isViewingPresentation = state.type === 'presentation';
+  const { state: presentationState } = usePresentationMode();
+  const isViewingPresentation = presentationState.type === 'presentation';
   const isViewingPresentationInEditMode =
-    isViewingPresentation && state.isEditMode;
+    isViewingPresentation && presentationState.isEditMode;
+  const isEditEnabled =
+    presentationState.type === 'idle' || presentationState.isEditMode;
 
   return (
     <>
@@ -126,12 +128,8 @@ function ContentArea() {
         justifyContent="end"
         top={(theme) => theme.spacing(1)}
       >
-        {!isViewingPresentation && (
-          <>
-            <BoardBar />
-            <CollaborationBar />
-          </>
-        )}
+        {!isViewingPresentation && <BoardBar />}
+        {(isEditEnabled || !isViewingPresentation) && <CollaborationBar />}
         <PresentBar />
       </ToolbarContainer>
 

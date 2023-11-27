@@ -113,8 +113,8 @@ export const WhiteboardHostConnected = () => {
   const { state: presentationState } = usePresentationMode();
   const isPresenting = presentationState.type === 'presenting';
   const isViewingPresentation = presentationState.type === 'presentation';
-  const isViewingPresentationInEditMode =
-    isViewingPresentation && presentationState.isEditMode;
+  const isEditEnabled =
+    presentationState.type === 'idle' || presentationState.isEditMode;
 
   if (loading) {
     return <SlideSkeleton />;
@@ -123,10 +123,8 @@ export const WhiteboardHostConnected = () => {
   return (
     <WhiteboardHost
       elementIds={elementIds}
-      readOnly={
-        isLocked || (isViewingPresentation && !isViewingPresentationInEditMode)
-      }
-      hideCursors={isViewingPresentation}
+      readOnly={isLocked || (isViewingPresentation && !isEditEnabled)}
+      hideCursors={!isEditEnabled}
       hideDotGrid={isPresenting || isViewingPresentation}
       withOutline={isPresenting}
     />
