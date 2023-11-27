@@ -113,7 +113,6 @@ export const WhiteboardHostConnected = () => {
   const { state: presentationState } = usePresentationMode();
   const isPresenting = presentationState.type === 'presenting';
   const isViewingPresentation = presentationState.type === 'presentation';
-
   const isEditEnabled =
     presentationState.type === 'idle' || presentationState.isEditMode;
 
