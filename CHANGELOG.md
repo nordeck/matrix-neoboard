@@ -1,5 +1,11 @@
 # @nordeck/matrix-neoboard-widget
 
+## 1.2.0
+
+### Minor Changes
+
+- 8d3c643: Allows collaborators cursors to be shown in presentation mode if slide editing is enabled
+
 ## 1.1.0
 
 ### Minor Changes
