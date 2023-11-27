@@ -118,6 +118,7 @@ function ContentArea() {
     isViewingPresentation && presentationState.isEditMode;
   const isEditEnabled =
     presentationState.type === 'idle' || presentationState.isEditMode;
+
   return (
     <>
       <Shortcuts />
