@@ -166,8 +166,6 @@
   "presentBar": {
     "disableEditing": "Disable editing",
     "enableEditing": "Enable editing",
-    "isPresenting": "is presenting",
-    "isPresentingUser": "{{displayName}} is presenting",
     "startPresentation": "Start presentation",
     "stopPresentation": "Stop presentation",
     "title": "Present"
@@ -202,6 +200,8 @@
   "toolbar": {
     "toolbarAvatar": {
       "label_you": "{{displayName}} (You)",
+      "labelPresenter": "{{displayName}} is presenting",
+      "labelPresenting_you": "{{displayName}} (You) are presenting",
       "more": "+{{furtherCount}}"
     }
   },

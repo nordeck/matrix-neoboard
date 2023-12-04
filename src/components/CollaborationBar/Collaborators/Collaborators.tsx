@@ -28,6 +28,7 @@ import { useTranslation } from 'react-i18next';
 import {
   ActiveWhiteboardMember,
   useActiveWhiteboardMembers,
+  usePresentationMode,
 } from '../../../state';
 import { useUserDetails } from '../../../store';
 import { CollaboratorAvatar } from '../../common/CollaboratorAvatar';
@@ -36,21 +37,37 @@ import {
   ToolbarAvatarGroup,
   ToolbarAvatarMoreButton,
 } from '../../common/Toolbar';
+import { ToolbarAvatarPresenter } from '../../common/Toolbar/ToolbarAvatarPresenter';
 import { ellipsis } from '../../common/ellipsis';
 import { orderMembersByState } from './orderMembersByState';
 
 export function Collaborators() {
   const { t } = useTranslation();
+  const { state } = usePresentationMode();
   const ownUserId = useWidgetApi().widgetParameters.userId;
+  const isViewingPresentation = state.type === 'presenting' || 'presentation';
+  const presentingUser =
+    state.type === 'presentation'
+      ? state.presenterUserId
+      : state.type === 'presenting'
+        ? ownUserId
+        : undefined;
 
   if (!ownUserId) {
     throw new Error('Unknown user id');
   }
 
   const activeMembers = useActiveWhiteboardMembers();
-  const orderedMembers = orderMembersByState(activeMembers, ownUserId);
+  const orderedMembers = isViewingPresentation
+    ? orderMembersByState(activeMembers, ownUserId).filter(
+        (item) => item.userId !== presentingUser,
+      )
+    : orderMembersByState(activeMembers, ownUserId);
+
   const maxAvatars = 5;
-  const furtherMembers = orderedMembers.slice(maxAvatars);
+  const furtherMembers = orderMembersByState(activeMembers, ownUserId).slice(
+    maxAvatars,
+  );
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -91,6 +108,9 @@ export function Collaborators() {
           />
         }
       >
+        {presentingUser && (
+          <ToolbarAvatarPresenter member={{ userId: presentingUser }} />
+        )}
         {orderedMembers.map((m) => (
           <ToolbarAvatar key={m.userId} member={m} />
         ))}

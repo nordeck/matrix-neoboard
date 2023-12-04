@@ -42,6 +42,10 @@ export function ToolbarAvatarMoreButton({
 }: ToolbarAvatarMoreButtonProps) {
   const { t } = useTranslation();
 
+  if (!count) {
+    return <></>;
+  }
+
   return (
     <StyledToolbarSubMenu {...props}>
       <Box

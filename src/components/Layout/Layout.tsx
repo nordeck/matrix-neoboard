@@ -116,8 +116,6 @@ function ContentArea() {
   const isViewingPresentation = presentationState.type === 'presentation';
   const isViewingPresentationInEditMode =
     isViewingPresentation && presentationState.isEditMode;
-  const isEditEnabled =
-    presentationState.type === 'idle' || presentationState.isEditMode;
 
   return (
     <>
@@ -129,8 +127,8 @@ function ContentArea() {
         top={(theme) => theme.spacing(1)}
       >
         {!isViewingPresentation && <BoardBar />}
-        {(isEditEnabled || !isViewingPresentation) && <CollaborationBar />}
-        <PresentBar />
+        <CollaborationBar />
+        {!isViewingPresentation && <PresentBar />}
       </ToolbarContainer>
 
       <WhiteboardHost />

@@ -39,9 +39,10 @@ describe('<Collaborators>', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
   let whiteboardManager: jest.Mocked<WhiteboardManager>;
   let statistics: WhiteboardStatistics;
+  let setPresentationMode: (enable: boolean) => void;
 
   beforeEach(() => {
-    ({ whiteboardManager } = mockWhiteboardManager());
+    ({ whiteboardManager, setPresentationMode } = mockWhiteboardManager());
 
     widgetApi.mockSendStateEvent(mockRoomMember({ state_key: '@user-id' }));
     widgetApi.mockSendStateEvent(
@@ -146,6 +147,20 @@ describe('<Collaborators>', () => {
       'src',
       expect.stringMatching(/\/_matrix\/media\/r0\/thumbnail\/alice/i),
     );
+  });
+
+  it('should always display the presenter in presentation mode', async () => {
+    setPresentationMode(true);
+
+    render(<Collaborators />, { wrapper: Wrapper });
+
+    const group = screen.getByRole('group', { name: 'Collaborators' });
+
+    expect(
+      await within(group).findByRole('button', {
+        name: '@user-alice is presenting',
+      }),
+    ).toBeInTheDocument();
   });
 
   it('should have no accessibility violations', async () => {

@@ -166,8 +166,6 @@
   "presentBar": {
     "disableEditing": "Bearbeitung sperren",
     "enableEditing": "Bearbeitung freigeben",
-    "isPresenting": "präsentiert",
-    "isPresentingUser": "{{displayName}} präsentiert",
     "startPresentation": "Präsentation starten",
     "stopPresentation": "Präsentation beenden",
     "title": "Präsentieren"
@@ -202,6 +200,8 @@
   "toolbar": {
     "toolbarAvatar": {
       "label_you": "{{displayName}} (Du)",
+      "labelPresenter": "{{displayName}} präsentiert",
+      "labelPresenting_you": "{{displayName}} (Du) präsentiert",
       "more": "+{{furtherCount}}"
     }
   },

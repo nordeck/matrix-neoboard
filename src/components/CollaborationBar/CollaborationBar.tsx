@@ -25,7 +25,6 @@ export function CollaborationBar() {
   const { state: presentationState } = usePresentationMode();
   const isEditEnabled =
     presentationState.type === 'idle' || presentationState.isEditMode;
-  const isViewingPresentation = presentationState.type === 'presentation';
   const toolbarTitle = t('collaborationBar.title', 'Collaboration');
 
   return (
@@ -35,7 +34,7 @@ export function CollaborationBar() {
       data-guided-tour-target="collaborationbar"
     >
       {isEditEnabled && <ShowCollaboratorsCursorsToggle />}
-      {!isViewingPresentation && <Collaborators />}
+      <Collaborators />
     </Toolbar>
   );
 }
