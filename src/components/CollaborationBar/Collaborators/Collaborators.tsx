@@ -37,7 +37,6 @@ import {
   ToolbarAvatarGroup,
   ToolbarAvatarMoreButton,
 } from '../../common/Toolbar';
-import { ToolbarAvatarPresenter } from '../../common/Toolbar/ToolbarAvatarPresenter';
 import { ellipsis } from '../../common/ellipsis';
 import { orderMembersByState } from './orderMembersByState';
 
@@ -104,13 +103,18 @@ export function Collaborators() {
           />
         }
       >
-        {orderedMembers.map((m, index) =>
-          index === 0 && presenterUserId !== undefined ? (
-            <ToolbarAvatarPresenter key={m.userId} member={m} />
-          ) : (
-            <ToolbarAvatar key={m.userId} member={m} />
-          ),
-        )}
+        {orderedMembers.map((m, index) => (
+          <ToolbarAvatar
+            key={m.userId}
+            member={m}
+            presenter={index === 0 && presenterUserId !== undefined}
+            sx={
+              index === 1 && presenterUserId !== undefined
+                ? { marginLeft: 2 }
+                : undefined
+            }
+          />
+        ))}
       </ToolbarAvatarGroup>
 
       <Menu

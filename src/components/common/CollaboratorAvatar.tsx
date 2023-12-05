@@ -24,12 +24,15 @@ export type CollaboratorAvatarProps = {
   displayName?: string;
   /** The url of the avatar. */
   avatarUrl?: string;
+  /** The presenter flag. */
+  presenter?: boolean;
 };
 
 export function CollaboratorAvatar({
   userId,
   displayName,
   avatarUrl,
+  presenter,
 }: CollaboratorAvatarProps) {
   return (
     <ElementAvatar
@@ -37,9 +40,9 @@ export function CollaboratorAvatar({
       displayName={displayName}
       avatarUrl={avatarUrl}
       sx={(theme) => ({
-        // We are using a box shadow instead of an outline as it doesn't work
-        // together with borderRadius in Safari
-        boxShadow: `0 0 0 2px ${getUserColor(userId)}`,
+        outline: `${getUserColor(userId)} ${
+          presenter ? 'dashed' : 'solid'
+        } 2px`,
         border: `2px solid ${theme.palette.background.default}`,
       })}
     />
