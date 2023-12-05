@@ -157,7 +157,7 @@ describe('<Collaborators>', () => {
     const group = screen.getByRole('group', { name: 'Collaborators' });
 
     expect(
-      await within(group).findByRole('button', {
+      within(group).getByRole('button', {
         name: '@user-alice is presenting',
       }),
     ).toBeInTheDocument();

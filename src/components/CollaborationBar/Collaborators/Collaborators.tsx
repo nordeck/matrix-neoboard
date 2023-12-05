@@ -45,8 +45,7 @@ export function Collaborators() {
   const { t } = useTranslation();
   const { state } = usePresentationMode();
   const ownUserId = useWidgetApi().widgetParameters.userId;
-  const isViewingPresentation = state.type === 'presenting' || 'presentation';
-  const presentingUser =
+  const presenterUserId =
     state.type === 'presentation'
       ? state.presenterUserId
       : state.type === 'presenting'
@@ -58,16 +57,13 @@ export function Collaborators() {
   }
 
   const activeMembers = useActiveWhiteboardMembers();
-  const orderedMembers = isViewingPresentation
-    ? orderMembersByState(activeMembers, ownUserId).filter(
-        (item) => item.userId !== presentingUser,
-      )
-    : orderMembersByState(activeMembers, ownUserId);
-
-  const maxAvatars = 5;
-  const furtherMembers = orderMembersByState(activeMembers, ownUserId).slice(
-    maxAvatars,
+  const orderedMembers = orderMembersByState(
+    activeMembers,
+    ownUserId,
+    presenterUserId,
   );
+  const maxAvatars = 5;
+  const furtherMembers = orderedMembers.slice(maxAvatars);
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -108,12 +104,13 @@ export function Collaborators() {
           />
         }
       >
-        {presentingUser && (
-          <ToolbarAvatarPresenter member={{ userId: presentingUser }} />
+        {orderedMembers.map((m, index) =>
+          index === 0 && presenterUserId !== undefined ? (
+            <ToolbarAvatarPresenter key={m.userId} member={m} />
+          ) : (
+            <ToolbarAvatar key={m.userId} member={m} />
+          ),
         )}
-        {orderedMembers.map((m) => (
-          <ToolbarAvatar key={m.userId} member={m} />
-        ))}
       </ToolbarAvatarGroup>
 
       <Menu

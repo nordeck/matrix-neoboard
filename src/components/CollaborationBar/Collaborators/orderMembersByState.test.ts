@@ -17,7 +17,7 @@
 import { orderMembersByState } from './orderMembersByState';
 
 describe('orderMembersByState', () => {
-  it('should order own user first, followed by connected and recently active users', () => {
+  it('should order own user first, followed by connected users', () => {
     expect(
       orderMembersByState(
         [
@@ -41,6 +41,51 @@ describe('orderMembersByState', () => {
   it('should always include the own user if list is empty', () => {
     expect(orderMembersByState([], '@user-id')).toEqual([
       { userId: '@user-id' },
+    ]);
+  });
+
+  it('should order presenter user first then own user, followed by connected users', () => {
+    expect(
+      orderMembersByState(
+        [
+          { userId: '@user-alice' },
+          { userId: '@user-bob' },
+          { userId: '@user-charlie' },
+          { userId: '@user-dave' },
+          { userId: '@user-id' },
+        ],
+        '@user-id',
+        '@user-paul',
+      ),
+    ).toEqual([
+      { userId: '@user-paul' },
+      { userId: '@user-id' },
+      { userId: '@user-alice' },
+      { userId: '@user-bob' },
+      { userId: '@user-charlie' },
+      { userId: '@user-dave' },
+    ]);
+  });
+
+  it('should order own user when he is presenter, followed by connected users', () => {
+    expect(
+      orderMembersByState(
+        [
+          { userId: '@user-alice' },
+          { userId: '@user-bob' },
+          { userId: '@user-charlie' },
+          { userId: '@user-dave' },
+          { userId: '@user-id' },
+        ],
+        '@user-id',
+        '@user-id',
+      ),
+    ).toEqual([
+      { userId: '@user-id' },
+      { userId: '@user-alice' },
+      { userId: '@user-bob' },
+      { userId: '@user-charlie' },
+      { userId: '@user-dave' },
     ]);
   });
 });
