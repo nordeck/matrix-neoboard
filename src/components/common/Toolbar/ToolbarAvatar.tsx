@@ -46,34 +46,32 @@ export function ToolbarAvatar({
   const { getUserAvatarUrl, getUserDisplayName } = useUserDetails();
   const displayName = getUserDisplayName(member.userId);
   const avatarUrl = getUserAvatarUrl(member.userId);
+  const isOwnUser = member.userId === ownUserId;
 
-  let label: string;
-  if (presenter) {
-    label =
-      member.userId === ownUserId
-        ? t(
-            'toolbar.toolbarAvatar.labelPresenting',
-            '{{displayName}} (You) are presenting',
-            {
-              displayName,
-              context: 'you',
-            },
-          )
-        : t(
-            'toolbar.toolbarAvatar.labelPresenter',
-            '{{displayName}} is presenting',
-            {
-              displayName,
-            },
-          );
-  } else {
-    label =
-      member.userId === ownUserId
-        ? t('toolbar.toolbarAvatar.label', '{{displayName}} (You)', {
-            displayName,
-            context: 'you',
-          })
-        : displayName;
+  let label = displayName;
+
+  if (presenter && isOwnUser) {
+    label = t(
+      'toolbar.toolbarAvatar.labelPresenting',
+      '{{displayName}} (You) are presenting',
+      {
+        displayName,
+        context: 'you',
+      },
+    );
+  } else if (presenter) {
+    label = t(
+      'toolbar.toolbarAvatar.labelPresenter',
+      '{{displayName}} is presenting',
+      {
+        displayName,
+      },
+    );
+  } else if (isOwnUser) {
+    label = t('toolbar.toolbarAvatar.label', '{{displayName}} (You)', {
+      displayName,
+      context: 'you',
+    });
   }
 
   return (
