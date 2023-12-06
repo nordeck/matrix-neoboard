@@ -1,5 +1,11 @@
 # @nordeck/matrix-neoboard-widget
 
+## 1.3.0
+
+### Minor Changes
+
+- 7eddb61: Show collaborators avatars in presentation mode
+
 ## 1.2.0
 
 ### Minor Changes
