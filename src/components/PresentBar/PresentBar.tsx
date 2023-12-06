@@ -18,22 +18,14 @@ import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import PresentToAllIcon from '@mui/icons-material/PresentToAll';
-import { Box } from '@mui/material';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  PresentationState,
   useActiveSlide,
   useActiveWhiteboardInstance,
   usePresentationMode,
 } from '../../state';
-import { useUserDetails } from '../../store';
-import {
-  Toolbar,
-  ToolbarAvatar,
-  ToolbarButton,
-  ToolbarToggle,
-} from '../common/Toolbar';
+import { Toolbar, ToolbarButton, ToolbarToggle } from '../common/Toolbar';
 
 export function PresentBar() {
   const { t } = useTranslation();
@@ -121,36 +113,6 @@ export function PresentBar() {
           />
         </>
       )}
-
-      {state.type === 'presentation' && <PresenterAvatar state={state} />}
     </Toolbar>
-  );
-}
-
-function PresenterAvatar({
-  state,
-}: {
-  state: Extract<PresentationState, { type: 'presentation' }>;
-}) {
-  const { t } = useTranslation();
-
-  const { getUserDisplayName } = useUserDetails();
-  const displayName = getUserDisplayName(state.presenterUserId);
-
-  const presenterTitle = t(
-    'presentBar.isPresentingUser',
-    '{{displayName}} is presenting',
-    { displayName },
-  );
-
-  return (
-    <ToolbarAvatar
-      title={presenterTitle}
-      member={{ userId: state.presenterUserId }}
-    >
-      <Box component="span" ml={1} fontSize="medium">
-        {t('presentBar.isPresenting', 'is presenting')}
-      </Box>
-    </ToolbarAvatar>
   );
 }

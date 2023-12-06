@@ -15,6 +15,7 @@
  */
 
 import { useWidgetApi } from '@matrix-widget-toolkit/react';
+import { SxProps, Theme } from '@mui/material';
 import { t } from 'i18next';
 import { PropsWithChildren } from 'react';
 import { ActiveWhiteboardMember } from '../../../state/useActiveWhiteboardMembers';
@@ -25,9 +26,17 @@ import { ToolbarButton } from './ToolbarButton';
 export type ToolbarAvatarProps = PropsWithChildren<{
   member: ActiveWhiteboardMember;
   title?: string;
+  presenter?: boolean;
+  sx?: SxProps<Theme>;
 }>;
 
-export function ToolbarAvatar({ member, title, children }: ToolbarAvatarProps) {
+export function ToolbarAvatar({
+  member,
+  title,
+  presenter,
+  sx,
+  children,
+}: ToolbarAvatarProps) {
   const ownUserId = useWidgetApi().widgetParameters.userId;
 
   if (!ownUserId) {
@@ -37,33 +46,55 @@ export function ToolbarAvatar({ member, title, children }: ToolbarAvatarProps) {
   const { getUserAvatarUrl, getUserDisplayName } = useUserDetails();
   const displayName = getUserDisplayName(member.userId);
   const avatarUrl = getUserAvatarUrl(member.userId);
+  const isOwnUser = member.userId === ownUserId;
 
-  const label =
-    member.userId === ownUserId
-      ? t('toolbar.toolbarAvatar.label', '{{displayName}} (You)', {
-          displayName,
-          context: 'you',
-        })
-      : displayName;
+  let label = displayName;
+
+  if (presenter && isOwnUser) {
+    label = t(
+      'toolbar.toolbarAvatar.labelPresenting',
+      '{{displayName}} (You) are presenting',
+      {
+        displayName,
+        context: 'you',
+      },
+    );
+  } else if (presenter) {
+    label = t(
+      'toolbar.toolbarAvatar.labelPresenter',
+      '{{displayName}} is presenting',
+      {
+        displayName,
+      },
+    );
+  } else if (isOwnUser) {
+    label = t('toolbar.toolbarAvatar.label', '{{displayName}} (You)', {
+      displayName,
+      context: 'you',
+    });
+  }
 
   return (
     <ToolbarButton
       aria-label={title ?? label}
-      sx={(theme) => ({
-        background: theme.palette.background.default,
-        borderRadius: '50%',
-        paddingY: '2px',
-        minHeight: '34px',
-
-        '&:hover': {
+      sx={[
+        ...(Array.isArray(sx) ? sx : [sx]),
+        (theme) => ({
           background: theme.palette.background.default,
-        },
-      })}
+          borderRadius: '50%',
+          paddingY: '6px',
+
+          '&:hover': {
+            background: theme.palette.background.default,
+          },
+        }),
+      ]}
     >
       <CollaboratorAvatar
         userId={member.userId}
         displayName={displayName}
         avatarUrl={avatarUrl}
+        presenter={presenter}
       />
       {children}
     </ToolbarButton>

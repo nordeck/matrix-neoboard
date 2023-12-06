@@ -28,6 +28,7 @@ import { useTranslation } from 'react-i18next';
 import {
   ActiveWhiteboardMember,
   useActiveWhiteboardMembers,
+  usePresentationMode,
 } from '../../../state';
 import { useUserDetails } from '../../../store';
 import { CollaboratorAvatar } from '../../common/CollaboratorAvatar';
@@ -41,14 +42,25 @@ import { orderMembersByState } from './orderMembersByState';
 
 export function Collaborators() {
   const { t } = useTranslation();
+  const { state } = usePresentationMode();
   const ownUserId = useWidgetApi().widgetParameters.userId;
+  const presenterUserId =
+    state.type === 'presentation'
+      ? state.presenterUserId
+      : state.type === 'presenting'
+        ? ownUserId
+        : undefined;
 
   if (!ownUserId) {
     throw new Error('Unknown user id');
   }
 
   const activeMembers = useActiveWhiteboardMembers();
-  const orderedMembers = orderMembersByState(activeMembers, ownUserId);
+  const orderedMembers = orderMembersByState(
+    activeMembers,
+    ownUserId,
+    presenterUserId,
+  );
   const maxAvatars = 5;
   const furtherMembers = orderedMembers.slice(maxAvatars);
 
@@ -91,8 +103,17 @@ export function Collaborators() {
           />
         }
       >
-        {orderedMembers.map((m) => (
-          <ToolbarAvatar key={m.userId} member={m} />
+        {orderedMembers.map((m, index) => (
+          <ToolbarAvatar
+            key={m.userId}
+            member={m}
+            presenter={index === 0 && presenterUserId !== undefined}
+            sx={
+              index === 1 && presenterUserId !== undefined
+                ? { marginLeft: 2 }
+                : undefined
+            }
+          />
         ))}
       </ToolbarAvatarGroup>
 

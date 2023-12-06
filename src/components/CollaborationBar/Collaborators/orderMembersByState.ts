@@ -19,9 +19,17 @@ import { ActiveWhiteboardMember } from '../../../state';
 export function orderMembersByState(
   activeMembers: ActiveWhiteboardMember[],
   ownUserId: string,
+  presenterUserId?: string,
 ): ActiveWhiteboardMember[] {
   const ownUser = { userId: ownUserId };
-  const connectedUsers = activeMembers.filter((u) => u.userId !== ownUserId);
 
-  return [ownUser, ...connectedUsers];
+  const firstUsers =
+    presenterUserId === undefined || presenterUserId === ownUserId
+      ? [ownUser]
+      : [{ userId: presenterUserId }, ownUser];
+  const connectedUsers = activeMembers.filter(
+    (u) => u.userId !== ownUserId && u.userId !== presenterUserId,
+  );
+
+  return [...firstUsers, ...connectedUsers];
 }

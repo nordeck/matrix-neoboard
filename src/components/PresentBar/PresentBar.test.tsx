@@ -91,10 +91,6 @@ describe('<PresentBar/>', () => {
 
     const { container } = render(<PresentBar />, { wrapper: Wrapper });
 
-    expect(
-      await screen.findByRole('button', { name: 'Alice is presenting' }),
-    ).toBeInTheDocument();
-
     expect(await axe(container)).toHaveNoViolations();
   });
 
@@ -149,20 +145,6 @@ describe('<PresentBar/>', () => {
       within(toolbar).getByRole('checkbox', {
         name: 'Start presentation',
         checked: false,
-      }),
-    ).toBeInTheDocument();
-  });
-
-  it('should show the active presenter', async () => {
-    setPresentationMode(true);
-
-    render(<PresentBar />, { wrapper: Wrapper });
-
-    const toolbar = screen.getByRole('toolbar', { name: 'Present' });
-
-    expect(
-      await within(toolbar).findByRole('button', {
-        name: 'Alice is presenting',
       }),
     ).toBeInTheDocument();
   });
