@@ -115,7 +115,7 @@ describe('<PresentBar/>', () => {
 
     expect(
       within(toolbar).getByRole('checkbox', {
-        name: 'Stop presentation',
+        name: 'End presentation',
         checked: true,
       }),
     ).toBeInTheDocument();
@@ -143,7 +143,7 @@ describe('<PresentBar/>', () => {
 
     await userEvent.click(
       within(toolbar).getByRole('checkbox', {
-        name: 'Stop presentation',
+        name: 'End presentation',
         checked: true,
       }),
     );

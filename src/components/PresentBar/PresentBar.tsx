@@ -59,7 +59,7 @@ export function PresentBar() {
   const presentBarTitle = t('presentBar.title', 'Present');
   const buttonTitle =
     state.type === 'presenting'
-      ? t('presentBar.stopPresentation', 'Stop presentation')
+      ? t('presentBar.endPresentation', 'End presentation')
       : t('presentBar.startPresentation', 'Start presentation');
 
   const presentToolsBarNextSlide = t('presentToolsBar.nextSlide', 'Next slide');
