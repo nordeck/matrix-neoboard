@@ -82,7 +82,7 @@ export function ToolbarAvatar({
         (theme) => ({
           background: theme.palette.background.default,
           borderRadius: '50%',
-          paddingY: '6px',
+          paddingY: '5px',
 
           '&:hover': {
             background: theme.palette.background.default,
