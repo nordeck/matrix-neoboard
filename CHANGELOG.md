@@ -1,5 +1,11 @@
 # @nordeck/matrix-neoboard-widget
 
+## 1.4.0
+
+### Minor Changes
+
+- adc86b3: Allow admin and moderator to end a presentation mode
+
 ## 1.3.0
 
 ### Minor Changes
