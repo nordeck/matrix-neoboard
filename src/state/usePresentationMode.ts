@@ -47,7 +47,10 @@ export function usePresentationMode(): UsePresentationMode {
       togglePresentation: () => {
         if (presentationState.type === 'idle') {
           activeWhiteboardInstance.getPresentationManager().startPresentation();
-        } else if (presentationState.type === 'presenting') {
+        } else if (
+          presentationState.type === 'presenting' ||
+          presentationState.type === 'presentation'
+        ) {
           activeWhiteboardInstance.getPresentationManager().stopPresentation();
         }
       },

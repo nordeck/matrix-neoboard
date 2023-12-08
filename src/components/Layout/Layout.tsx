@@ -23,6 +23,7 @@ import {
   useIsWhiteboardLoading,
   usePresentationMode,
 } from '../../state';
+import { usePowerLevels } from '../../store/api/usePowerLevels';
 import { BoardBar } from '../BoardBar';
 import { CollaborationBar } from '../CollaborationBar';
 import { DeveloperTools } from '../DeveloperTools/DeveloperTools';
@@ -116,6 +117,7 @@ function ContentArea() {
   const isViewingPresentation = presentationState.type === 'presentation';
   const isViewingPresentationInEditMode =
     isViewingPresentation && presentationState.isEditMode;
+  const { canStopPresentation } = usePowerLevels();
 
   return (
     <>
@@ -128,7 +130,7 @@ function ContentArea() {
       >
         {!isViewingPresentation && <BoardBar />}
         <CollaborationBar />
-        {!isViewingPresentation && <PresentBar />}
+        {(!isViewingPresentation || canStopPresentation) && <PresentBar />}
       </ToolbarContainer>
 
       <WhiteboardHost />

@@ -16,6 +16,7 @@
 
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import CancelPresentationIcon from '@mui/icons-material/CancelPresentation';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import PresentToAllIcon from '@mui/icons-material/PresentToAll';
 import { useCallback } from 'react';
@@ -25,6 +26,7 @@ import {
   useActiveWhiteboardInstance,
   usePresentationMode,
 } from '../../state';
+import { usePowerLevels } from '../../store/api/usePowerLevels';
 import { Toolbar, ToolbarButton, ToolbarToggle } from '../common/Toolbar';
 
 export function PresentBar() {
@@ -33,6 +35,7 @@ export function PresentBar() {
   const { activeSlideId, isFirstSlideActive, isLastSlideActive } =
     useActiveSlide();
   const { state, toggleEditMode, togglePresentation } = usePresentationMode();
+  const { canStopPresentation } = usePowerLevels();
 
   const handleToNextSlideClick = useCallback(() => {
     if (activeSlideId) {
@@ -69,12 +72,26 @@ export function PresentBar() {
     ? t('presentBar.disableEditing', 'Disable editing')
     : t('presentBar.enableEditing', 'Enable editing');
 
+  const endPresentationTitle = t(
+    'presentBar.endPresentation',
+    'End presentation',
+  );
+
   return (
     <Toolbar
       aria-label={presentBarTitle}
       sx={{ pointerEvents: 'initial' }}
       orientation="vertical"
     >
+      {state.type === 'presentation' && canStopPresentation && (
+        <ToolbarButton
+          aria-label={endPresentationTitle}
+          onClick={togglePresentation}
+          placement="bottom"
+        >
+          <CancelPresentationIcon color="error" />
+        </ToolbarButton>
+      )}
       {state.type !== 'presentation' && (
         <ToolbarToggle
           inputProps={{ 'aria-label': buttonTitle }}

@@ -20,6 +20,7 @@ import { useGetPowerLevelsQuery } from './powerLevelsApi';
 
 export type PowerLevels = {
   canImportWhiteboard: boolean | undefined;
+  canStopPresentation: boolean | undefined;
 };
 
 export function usePowerLevels({
@@ -30,16 +31,20 @@ export function usePowerLevels({
   userId ??= widgetApi.widgetParameters.userId;
 
   let canImportWhiteboard: boolean | undefined = undefined;
+  let canStopPresentation: boolean | undefined = undefined;
 
   if (!isLoading && powerLevels) {
     const userPowerLevel =
       getUserPowerLevel(userId, powerLevels.event?.content) ?? 0;
-    canImportWhiteboard = userPowerLevel >= 50;
-    //TODO implement the other right and rolls cases
+    const canModerate = userPowerLevel >= 50;
+
+    canImportWhiteboard = canModerate;
+    canStopPresentation = canModerate;
   }
 
   return {
     canImportWhiteboard,
+    canStopPresentation,
   };
 }
 

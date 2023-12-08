@@ -166,6 +166,7 @@
   "presentBar": {
     "disableEditing": "Bearbeitung sperren",
     "enableEditing": "Bearbeitung freigeben",
+    "endPresentation": "Ende der Präsentation",
     "startPresentation": "Präsentation starten",
     "stopPresentation": "Präsentation beenden",
     "title": "Präsentieren"

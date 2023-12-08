@@ -56,7 +56,7 @@ describe('usePowerLevels', () => {
     });
   });
 
-  it('should return true if user is an admin', async () => {
+  it('should have power if user is an admin', async () => {
     widgetApi.mockSendStateEvent(
       mockPowerLevelsEvent({
         content: {
@@ -81,11 +81,12 @@ describe('usePowerLevels', () => {
     await waitFor(() => {
       expect(result.current).toEqual({
         canImportWhiteboard: true,
+        canStopPresentation: true,
       });
     });
   });
 
-  it('should return true if user is a moderator', async () => {
+  it('should have power if user is a moderator', async () => {
     widgetApi.mockSendStateEvent(
       mockPowerLevelsEvent({
         content: {
@@ -107,11 +108,12 @@ describe('usePowerLevels', () => {
     await waitFor(() => {
       expect(result.current).toEqual({
         canImportWhiteboard: true,
+        canStopPresentation: true,
       });
     });
   });
 
-  it('should return false if user is not admin or moderator', async () => {
+  it('should have no power if user is not admin or moderator', async () => {
     widgetApi.mockSendStateEvent(
       mockPowerLevelsEvent({
         content: {
@@ -133,6 +135,7 @@ describe('usePowerLevels', () => {
     await waitFor(() => {
       expect(result.current).toEqual({
         canImportWhiteboard: false,
+        canStopPresentation: false,
       });
     });
   });
