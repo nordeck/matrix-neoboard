@@ -62,7 +62,7 @@
     "@types/react-dom": "^17.0.0",
     "@types/react-i18next": "^8.1.0",
     "@types/react-redux": "^7.1.25",
-    "@types/react-transition-group": "^4.4.9",
+    "@types/react-transition-group": "^4.4.10",
     "@types/tinycolor2": "^1.4.6",
     "babel-plugin-transform-import-meta": "^2.2.1",
     "cross-env": "^7.0.3",
@@ -77,10 +77,10 @@
     "i18next-parser": "^8.9.0",
     "jest-axe": "^8.0.0",
     "lint-staged": "^15.2.0",
-    "prettier": "^3.1.0",
+    "prettier": "^3.1.1",
     "prettier-plugin-organize-imports": "^3.2.4",
     "react-scripts": "5.0.1",
-    "typescript": "^5.3.2",
+    "typescript": "^5.3.3",
     "yarn-deduplicate": "^6.0.2"
   },
   "engines": {
