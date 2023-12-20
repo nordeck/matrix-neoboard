@@ -72,7 +72,7 @@ describe('<ExportWhiteboardDialog/>', () => {
     });
 
     expect(
-      within(dialog).getByRole('button', { name: 'File format' }),
+      within(dialog).getByRole('combobox', { name: 'File format' }),
     ).toHaveTextContent('PDF-File (.pdf)');
 
     expect(
@@ -148,7 +148,7 @@ describe('<ExportWhiteboardDialog/>', () => {
     const dialog = screen.getByRole('dialog');
 
     await userEvent.click(
-      within(dialog).getByRole('button', { name: 'File format' }),
+      within(dialog).getByRole('combobox', { name: 'File format' }),
     );
     await userEvent.click(
       screen.getByRole('option', { name: 'NeoBoard-File (.nwb)' }),
