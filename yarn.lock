@@ -4295,7 +4295,7 @@ combined-stream@^1.0.8:
   dependencies:
     delayed-stream "~1.0.0"
 
-commander@11.1.0:
+commander@11.1.0, commander@~11.1.0:
   version "11.1.0"
   resolved "https://registry.yarnpkg.com/commander/-/commander-11.1.0.tgz#62fdce76006a68e5c1ab3314dc92e800eb83d906"
   integrity sha512-yPVavfyCcRhmorC7rWlkHn15b4wDVgVmBA7kV4QVBsF7kv/9TKJAbAXVTxvTnwP8HHKjRCJDClKbciiYS7p0DQ==
@@ -4319,11 +4319,6 @@ commander@^8.3.0:
   version "8.3.0"
   resolved "https://registry.yarnpkg.com/commander/-/commander-8.3.0.tgz#4837ea1b2da67b9c616a67afbb0fafee567bca66"
   integrity sha512-OkTL9umf+He2DZkUq8f8J9of7yL6RJKI24dVITBmNfZBmri9zYZQrKkuXiKhyfPSu8tUhnVBB1iKXevvnlR4Ww==
-
-commander@~11.0.0:
-  version "11.0.0"
-  resolved "https://registry.yarnpkg.com/commander/-/commander-11.0.0.tgz#43e19c25dbedc8256203538e8d7e9346877a6f67"
-  integrity sha512-9HMlXtt/BNoYr8ooyjjNRdIilOTkVJXB+GhxMTtOKwk0R4j4lS4NpjuqmRxroBfnfTSHQIHQB7wryHhXarNjmQ==
 
 common-path-prefix@^3.0.0:
   version "3.0.0"
@@ -6853,15 +6848,15 @@ i18next-http-backend@^2.4.2:
   dependencies:
     cross-fetch "4.0.0"
 
-i18next-parser@^8.9.0:
-  version "8.9.0"
-  resolved "https://registry.yarnpkg.com/i18next-parser/-/i18next-parser-8.9.0.tgz#aab1f9afd174a6da74d4f3d96a66518e922fc4f5"
-  integrity sha512-8B+XTeBscPeswJbpBlGYxzUNXybDRltwTupJD+lLTGzBwfSfviAsSl2MEFpHc/fVlwjjd4Muw19nMpK2O+CB8A==
+i18next-parser@^8.11.0:
+  version "8.11.0"
+  resolved "https://registry.yarnpkg.com/i18next-parser/-/i18next-parser-8.11.0.tgz#ede62c4305112e7a91c0d9fcbc45c1c839df3936"
+  integrity sha512-ZQhGEHIu1yHM8IUBOjW9PIyQB/A9LuNccI3jxGcogwYuP3O3QJmTd5djtZpgE5vr2KHjcR7CdJjwj7xgg8NYcA==
   dependencies:
     broccoli-plugin "^4.0.7"
     cheerio "^1.0.0-rc.2"
     colors "1.4.0"
-    commander "~11.0.0"
+    commander "~11.1.0"
     eol "^0.9.1"
     esbuild "^0.19.0"
     fs-extra "^11.1.0"
