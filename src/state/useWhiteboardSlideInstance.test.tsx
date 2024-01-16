@@ -241,7 +241,7 @@ describe('useActiveElement', () => {
   });
 });
 
-describe.only('useActiveElements', () => {
+describe('useActiveElements', () => {
   beforeEach(() => {
     ({ whiteboardManager } = mockWhiteboardManager({
       slides: [
