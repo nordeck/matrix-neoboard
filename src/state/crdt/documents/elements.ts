@@ -16,7 +16,12 @@
 
 import Joi from 'joi';
 import loglevel from 'loglevel';
-import { Point, pointSchema } from './point';
+import {
+  BoundingRect,
+  calculateBoundingRectForPoints,
+  Point,
+  pointSchema,
+} from './point';
 
 export type ElementBase = {
   type: string;
@@ -88,4 +93,41 @@ export function isValidElement(element: unknown): element is Element {
   }
 
   return true;
+}
+
+export function calculateBoundingRectForElements(
+  elements: Element[],
+): BoundingRect {
+  const element = elements.length === 1 ? elements[0] : undefined;
+
+  const elementsBoundingRect =
+    elements.length > 1
+      ? calculateBoundingRectForPoints(
+          elements.flatMap((e) =>
+            e.type === 'path'
+              ? e.points.map((p) => ({
+                  x: e.position.x + p.x,
+                  y: e.position.y + p.y,
+                }))
+              : [
+                  { x: e.position.x, y: e.position.y },
+                  { x: e.position.x + e.width, y: e.position.y + e.height },
+                ],
+          ),
+        )
+      : undefined;
+
+  const x = element?.position.x ?? elementsBoundingRect?.offsetX ?? 0;
+  const y = element?.position.y ?? elementsBoundingRect?.offsetY ?? 0;
+
+  const height =
+    element?.type === 'path'
+      ? calculateBoundingRectForPoints(element.points).height
+      : element?.height ?? elementsBoundingRect?.height ?? 0;
+  const width =
+    element?.type === 'path'
+      ? calculateBoundingRectForPoints(element.points).width
+      : element?.width ?? elementsBoundingRect?.width ?? 0;
+
+  return { offsetX: x, offsetY: y, width, height };
 }

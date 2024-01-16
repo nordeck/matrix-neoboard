@@ -17,19 +17,17 @@
 import { Box } from '@mui/material';
 import { clamp } from 'lodash';
 import { PropsWithChildren } from 'react';
-import {
-  calculateBoundingRectForPoints,
-  useSlideIsLocked,
-} from '../../../../state';
-import { useElementOverride } from '../../../ElementOverridesProvider';
+import { useSlideIsLocked } from '../../../../state';
+import { calculateBoundingRectForElements } from '../../../../state/crdt/documents/elements';
+import { useElementOverrides } from '../../../ElementOverridesProvider';
 import { useMeasure, useSvgCanvasContext } from '../../SvgCanvas';
 
 export function ElementBarWrapper({
   children,
-  elementId,
-}: PropsWithChildren<{ elementId: string }>) {
+  elementIds,
+}: PropsWithChildren<{ elementIds: string[] }>) {
   const isLocked = useSlideIsLocked();
-  const element = useElementOverride(elementId);
+  const elements = Object.values(useElementOverrides(elementIds));
   const [sizeRef, { width: elementBarWidth, height: elementBarHeight }] =
     useMeasure<HTMLDivElement>();
   const {
@@ -37,21 +35,20 @@ export function ElementBarWrapper({
     width: canvasWidth,
     height: canvasHeight,
   } = useSvgCanvasContext();
-  const width =
-    element?.type === 'path'
-      ? calculateBoundingRectForPoints(element.points).width
-      : element?.width ?? 0;
-  const height =
-    element?.type === 'path'
-      ? calculateBoundingRectForPoints(element.points).height
-      : element?.height ?? 0;
+  const {
+    offsetX: x,
+    offsetY: y,
+    width,
+    height,
+  } = calculateBoundingRectForElements(elements);
+
   const offset = 10;
 
   function calculateTopPosition() {
-    if (!element) {
+    if (elements.length === 0) {
       return 0;
     }
-    const position = element.position.y * scale;
+    const position = y * scale;
     const positionAbove = position - elementBarHeight - offset;
     const positionBelow = position + height * scale + offset;
     const positionInElement = position + offset;
@@ -66,19 +63,18 @@ export function ElementBarWrapper({
   }
 
   function calculateLeftPosition() {
-    if (!element) {
+    if (elements.length === 0) {
       return 0;
     }
 
-    const position =
-      (element.position.x + width / 2) * scale - elementBarWidth / 2;
+    const position = (x + width / 2) * scale - elementBarWidth / 2;
 
     return clamp(position, 0, canvasWidth - elementBarWidth);
   }
 
   return (
     <>
-      {element && !isLocked && (
+      {elements.length !== 0 && !isLocked && (
         <Box
           ref={sizeRef}
           position="absolute"

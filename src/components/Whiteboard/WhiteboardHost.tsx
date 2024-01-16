@@ -16,7 +16,7 @@
 
 import { Box } from '@mui/material';
 import {
-  useActiveElement,
+  useActiveElements,
   useIsWhiteboardLoading,
   usePresentationMode,
   useSlideElementIds,
@@ -54,7 +54,7 @@ const WhiteboardHost = ({
 }) => {
   const slideInstance = useWhiteboardSlideInstance();
   const { isShowCollaboratorsCursors } = useLayoutState();
-  const { activeElementId } = useActiveElement();
+  const { activeElementIds } = useActiveElements();
 
   return (
     <Box
@@ -75,8 +75,8 @@ const WhiteboardHost = ({
         }}
         additionalChildren={
           !readOnly &&
-          activeElementId && (
-            <ElementBarWrapper elementId={activeElementId}>
+          activeElementIds.length > 0 && (
+            <ElementBarWrapper elementIds={activeElementIds}>
               <ElementBar />
             </ElementBarWrapper>
           )
@@ -93,10 +93,10 @@ const WhiteboardHost = ({
 
         {!readOnly && <DraftPicker />}
 
-        {!readOnly && activeElementId && (
+        {!readOnly && activeElementIds.length > 0 && (
           <>
-            <ElementBorder elementId={activeElementId} />
-            <ResizeElement elementId={activeElementId} />
+            <ElementBorder elementIds={activeElementIds} />
+            <ResizeElement elementId={activeElementIds[0]} />
           </>
         )}
 

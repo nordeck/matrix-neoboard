@@ -18,7 +18,7 @@ import React, { PropsWithChildren, useContext, useMemo } from 'react';
 import { EMPTY } from 'rxjs';
 import { useLatestValue } from '../lib';
 import { Element } from './crdt';
-import { WhiteboardSlideInstance } from './types';
+import { Elements, WhiteboardSlideInstance } from './types';
 import { useActiveWhiteboardInstance } from './useActiveWhiteboardInstance';
 
 const SlideContext = React.createContext<string | undefined>(undefined);
@@ -68,10 +68,32 @@ export function useElement(elementId: string | undefined): Element | undefined {
   );
 }
 
+export function useElements(elementIds: string[]): Elements {
+  const slideInstance = useWhiteboardSlideInstance();
+
+  const observable = useMemo(
+    () => slideInstance.observeElements(elementIds),
+    [elementIds, slideInstance],
+  );
+
+  return useLatestValue(
+    () => slideInstance.getElements(elementIds),
+    observable,
+  );
+}
+
 type ActiveElement = {
   activeElementId: string | undefined;
 };
 
+type ActiveElements = {
+  activeElementIds: string[];
+};
+
+/**
+ * Return the active element
+ * @deprecated to be replaced with useActiveElements
+ * */
 export function useActiveElement(): ActiveElement {
   const slideInstance = useWhiteboardSlideInstance();
 
@@ -86,6 +108,25 @@ export function useActiveElement(): ActiveElement {
   );
 
   return { activeElementId };
+}
+
+/**
+ * Return the active elements
+ * */
+export function useActiveElements(): ActiveElements {
+  const slideInstance = useWhiteboardSlideInstance();
+
+  const observable = useMemo(
+    () => slideInstance.observeActiveElementIds(),
+    [slideInstance],
+  );
+
+  const activeElementIds = useLatestValue(
+    () => slideInstance.getActiveElementIds(),
+    observable,
+  );
+
+  return { activeElementIds };
 }
 
 export function useSlideIsLocked(slideId?: string): boolean {

@@ -15,8 +15,9 @@
  */
 
 import { styled, useTheme } from '@mui/material';
-import { calculateBoundingRectForPoints } from '../../../../state';
-import { useElementOverride } from '../../../ElementOverridesProvider';
+import { first } from 'lodash';
+import { calculateBoundingRectForElements } from '../../../../state/crdt/documents/elements';
+import { useElementOverrides } from '../../../ElementOverridesProvider';
 import { useLayoutState } from '../../../Layout';
 import { useSvgCanvasContext } from '../../SvgCanvas';
 
@@ -55,26 +56,24 @@ function SelectionAnchor({
 }
 
 export type ElementBorderProps = {
-  elementId: string;
+  elementIds: string[];
   padding?: number;
 };
 
-export function ElementBorder({ elementId, padding = 1 }: ElementBorderProps) {
+export function ElementBorder({ elementIds, padding = 1 }: ElementBorderProps) {
   const theme = useTheme();
   const { activeTool } = useLayoutState();
   const isInSelectionMode = activeTool === 'select';
   const { scale } = useSvgCanvasContext();
-  const element = useElementOverride(elementId);
-  const x = element?.position.x ?? 0;
-  const y = element?.position.y ?? 0;
-  const height =
-    element?.type === 'path'
-      ? calculateBoundingRectForPoints(element.points).height
-      : element?.height ?? 0;
-  const width =
-    element?.type === 'path'
-      ? calculateBoundingRectForPoints(element.points).width
-      : element?.width ?? 0;
+
+  const elements = Object.values(useElementOverrides(elementIds));
+  const {
+    offsetX: x,
+    offsetY: y,
+    width,
+    height,
+  } = calculateBoundingRectForElements(elements);
+
   const scaledPadding = padding / scale;
   const selectionBorderWidth = 2 / scale;
   const selectionX = x - (selectionBorderWidth / 2 + scaledPadding);
@@ -82,7 +81,7 @@ export function ElementBorder({ elementId, padding = 1 }: ElementBorderProps) {
   const selectionWidth = width + 2 * (selectionBorderWidth / 2 + scaledPadding);
   const selectionHeight =
     height + 2 * (selectionBorderWidth / 2 + scaledPadding);
-  const resizable = element?.type === 'shape';
+  const resizable = first(elements)?.type === 'shape'; //TODO: implement resize for multiple selected elements
 
   return (
     <>

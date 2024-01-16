@@ -141,8 +141,12 @@ export type WhiteboardSlideInstance = {
   moveElementToTop(elementId: string): void;
   /** Returns the element or undefined if it not exists. */
   getElement(elementId: string): Element | undefined;
+  /** Returns elements by ids. */
+  getElements(elementIds: string[]): Elements;
   /** Observe the changes of an element. Emits undefined if the element is removed. */
   observeElement(elementId: string): Observable<Element | undefined>;
+  /** Observe the changes of elements.*/
+  observeElements(elementIds: string[]): Observable<Elements>;
   /** Returns the list of all element ids in the correct order from back to front. */
   getElementIds(): string[];
   /** Observe the element ids to react to changes */
@@ -156,13 +160,31 @@ export type WhiteboardSlideInstance = {
   /** Observe the locked state of the slide */
   observeIsLocked(): Observable<boolean>;
 
-  /** Return the active element */
+  /**
+   * Return the active element
+   * @deprecated to be replaced with getActiveElementIds
+   * */
   getActiveElementId(): string | undefined;
-  /** Observe the active element */
+  /** Return the active elements */
+  getActiveElementIds(): string[];
+  /**
+   * Observe the active element. First element is returned if multiple are active.
+   * @deprecated to be replaced with observeActiveElementIds
+   */
   observeActiveElementId(): Observable<string | undefined>;
+  /** Observe the active elements */
+  observeActiveElementIds(): Observable<string[]>;
   /** Select the active element */
   setActiveElementId(elementId: string | undefined): void;
+  /** Select the active elements */
+  setActiveElementIds(elementIds: string[] | undefined): void;
+  /** Adds the element to active */
+  addActiveElementId(elementId: string): void;
+  /** Unselects the element if active */
+  unselectActiveElementId(elementId: string): void;
 };
+
+export type Elements = Record<string, Element>;
 
 /**
  * A document that is stored in a persistent storage and is kept up-to-date via
@@ -199,7 +221,7 @@ export type PresentationManager = {
 /** The data that is stored in the UndoManager */
 export type WhiteboardUndoManagerContext = {
   currentSlideId: string;
-  currentElementId?: string;
+  currentElementIds?: string[];
 };
 
 /** Validate if the value that was stored in the context is valid */
@@ -211,9 +233,10 @@ export function isWhiteboardUndoManagerContext(
     typeof context === 'object' &&
     'currentSlideId' in context &&
     typeof context.currentSlideId === 'string' &&
-    (!('currentElementId' in context) ||
-      context.currentElementId === undefined ||
-      typeof context.currentElementId === 'string')
+    (!('currentElementIds' in context) ||
+      context.currentElementIds === undefined ||
+      (Array.isArray(context.currentElementIds) &&
+        context.currentElementIds.every((v) => typeof v === 'string')))
   ) {
     return true;
   }

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { MouseEvent, PropsWithChildren } from 'react';
 import { useWhiteboardSlideInstance } from '../../../../state';
 import { useLayoutState } from '../../../Layout';
@@ -25,6 +26,9 @@ export function SelectableElement({
   children,
   elementId,
 }: SelectableElementProps) {
+  const multiselect =
+    getEnvironment('REACT_APP_MULTISELECT', 'false') === 'true';
+
   const slideInstance = useWhiteboardSlideInstance();
   const { activeTool } = useLayoutState();
   const isInSelectionMode = activeTool === 'select';
@@ -32,7 +36,20 @@ export function SelectableElement({
   function handleMouseDown(event: MouseEvent) {
     if (isInSelectionMode) {
       event.stopPropagation();
-      slideInstance.setActiveElementId(elementId);
+
+      if (!multiselect) {
+        slideInstance.setActiveElementId(elementId);
+      } else {
+        if (!event.shiftKey) {
+          if (!slideInstance.getActiveElementIds().includes(elementId)) {
+            slideInstance.setActiveElementId(elementId);
+          }
+        } else if (slideInstance.getActiveElementIds().includes(elementId)) {
+          slideInstance.unselectActiveElementId(elementId);
+        } else {
+          slideInstance.addActiveElementId(elementId);
+        }
+      }
     }
   }
 
