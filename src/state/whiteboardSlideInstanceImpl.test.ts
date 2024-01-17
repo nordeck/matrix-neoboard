@@ -17,7 +17,10 @@
 import { waitFor } from '@testing-library/react';
 import { last } from 'lodash';
 import { firstValueFrom, skip, Subject, take, toArray } from 'rxjs';
-import { mockLineElement } from '../lib/testUtils/documentTestUtils';
+import {
+  mockEllipseElement,
+  mockLineElement,
+} from '../lib/testUtils/documentTestUtils';
 import {
   CommunicationChannel,
   CommunicationChannelStatistics,
@@ -432,6 +435,40 @@ describe('WhiteboardSlideInstanceImpl', () => {
     ]);
   });
 
+  it('should observe elements', async () => {
+    const slideInstance = new WhiteboardSlideInstanceImpl(
+      communicationChannel,
+      slide0,
+      document,
+      '@user-id',
+    );
+
+    const element = mockLineElement();
+    const element1 = mockEllipseElement();
+    const elementId0 = slideInstance.addElement(element);
+    const elementId1 = slideInstance.addElement(element1);
+
+    const elementUpdates = firstValueFrom(
+      slideInstance
+        .observeElements([elementId0, elementId1])
+        .pipe(take(3), toArray()),
+    );
+
+    slideInstance.updateElement(elementId0, {
+      strokeColor: '#000000',
+    });
+    slideInstance.removeElement(elementId0);
+
+    expect(await elementUpdates).toEqual([
+      { [elementId0]: element, [elementId1]: element1 },
+      {
+        [elementId0]: { ...element, strokeColor: '#000000' },
+        [elementId1]: element1,
+      },
+      { [elementId1]: element1 },
+    ]);
+  });
+
   it('should observe element ids', async () => {
     const slideInstance = new WhiteboardSlideInstanceImpl(
       communicationChannel,
@@ -671,7 +708,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
     );
 
     const observedActiveElement = firstValueFrom(
-      slideInstance.observeActiveElementId().pipe(take(2), toArray()),
+      slideInstance.observeActiveElementId().pipe(take(4), toArray()),
     );
 
     const element0 = slideInstance.addElement(mockLineElement());
@@ -679,7 +716,42 @@ describe('WhiteboardSlideInstanceImpl', () => {
     slideInstance.setActiveElementId(element0);
 
     expect(slideInstance.getActiveElementId()).toEqual(element0);
-    expect(await observedActiveElement).toEqual([undefined, element0]);
+    expect(await observedActiveElement).toEqual([
+      undefined,
+      element0,
+      undefined,
+      element0,
+    ]);
+  });
+
+  it('should select multiple elements', async () => {
+    const slideInstance = new WhiteboardSlideInstanceImpl(
+      communicationChannel,
+      slide0,
+      document,
+      '@user-id',
+    );
+
+    const element0 = slideInstance.addElement(mockLineElement());
+    const element1 = slideInstance.addElement(mockLineElement());
+    slideInstance.setActiveElementId('not-exists');
+
+    const observedActiveElements = firstValueFrom(
+      slideInstance.observeActiveElementIds().pipe(take(3), toArray()),
+    );
+
+    expect(slideInstance.getActiveElementIds()).toEqual([]);
+
+    slideInstance.addActiveElementId(element0);
+    slideInstance.addActiveElementId(element1);
+    slideInstance.addActiveElementId(element1);
+
+    expect(slideInstance.getActiveElementIds()).toEqual([element0, element1]);
+    expect(await observedActiveElements).toEqual([
+      [],
+      [element0],
+      [element0, element1],
+    ]);
   });
 
   it('should unset a selected element to a specific element', async () => {
@@ -730,6 +802,56 @@ describe('WhiteboardSlideInstanceImpl', () => {
 
     document.performChange(addElement);
     expect(slideInstance.getActiveElementId()).toEqual(element0);
+  });
+
+  it('should unselect specific elements when multiple elements are selected', async () => {
+    const slideInstance = new WhiteboardSlideInstanceImpl(
+      communicationChannel,
+      slide0,
+      document,
+      '@user-id',
+    );
+
+    const element0 = slideInstance.addElement(mockLineElement());
+    const element1 = slideInstance.addElement(mockLineElement());
+    slideInstance.setActiveElementId('not-exists');
+
+    const observedActiveElement = firstValueFrom(
+      slideInstance.observeActiveElementIds().pipe(take(5), toArray()),
+    );
+
+    slideInstance.addActiveElementId(element0);
+    slideInstance.addActiveElementId(element1);
+    slideInstance.unselectActiveElementId(element0);
+    slideInstance.unselectActiveElementId(element1);
+
+    expect(slideInstance.getActiveElementIds()).toEqual([]);
+    expect(await observedActiveElement).toEqual([
+      [],
+      [element0],
+      [element0, element1],
+      [element1],
+      [],
+    ]);
+  });
+
+  it('should check if specific element is active when multiple elements are selected', async () => {
+    const slideInstance = new WhiteboardSlideInstanceImpl(
+      communicationChannel,
+      slide0,
+      document,
+      '@user-id',
+    );
+
+    const element0 = slideInstance.addElement(mockLineElement());
+    const element1 = slideInstance.addElement(mockLineElement());
+    slideInstance.setActiveElementId(undefined);
+    slideInstance.addActiveElementId(element0);
+
+    expect(slideInstance.getActiveElementIds()).toEqual([element0]);
+
+    slideInstance.addActiveElementId(element1);
+    expect(slideInstance.getActiveElementIds()).toEqual([element0, element1]);
   });
 
   it('should deselect the active element when removed', async () => {

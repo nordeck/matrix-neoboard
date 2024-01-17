@@ -28,6 +28,7 @@ import { LayoutStateProvider } from '../Layout';
 import { SlidesProvider } from '../Layout/SlidesProvider';
 import { ElementOverridesProvider } from './ElementOverridesProvider';
 import { useElementOverride } from './useElementOverride';
+import { useElementOverrides } from './useElementOverrides';
 import { useSetElementOverride } from './useSetElementOverride';
 
 let widgetApi: MockedWidgetApi;
@@ -82,6 +83,25 @@ describe('useElementCoordsState', () => {
     });
   });
 
+  it('should return the original elements', () => {
+    const elementIds = ['element-1'];
+    const { result } = renderHook(() => useElementOverrides(elementIds), {
+      wrapper: Wrapper,
+    });
+
+    expect(result.current).toEqual({
+      'element-1': {
+        type: 'shape',
+        kind: 'ellipse',
+        fillColor: '#ffffff',
+        text: 'Hello World',
+        position: { x: 0, y: 1 },
+        height: 100,
+        width: 50,
+      },
+    });
+  });
+
   it('should replace the element position', () => {
     const { result } = renderHook(
       () => {
@@ -106,6 +126,36 @@ describe('useElementCoordsState', () => {
       position: { x: 50, y: 51 },
       height: 100,
       width: 50,
+    });
+  });
+
+  it('should replace the elements position', () => {
+    const elementIds = ['element-1'];
+    const { result } = renderHook(
+      () => {
+        const element = useElementOverrides(elementIds);
+        const setElementOverride = useSetElementOverride();
+        return { element, setElementOverride };
+      },
+      { wrapper: Wrapper },
+    );
+
+    act(() => {
+      result.current.setElementOverride('element-1', {
+        position: { x: 50, y: 51 },
+      });
+    });
+
+    expect(result.current.element).toEqual({
+      'element-1': {
+        type: 'shape',
+        kind: 'ellipse',
+        fillColor: '#ffffff',
+        text: 'Hello World',
+        position: { x: 50, y: 51 },
+        height: 100,
+        width: 50,
+      },
     });
   });
 

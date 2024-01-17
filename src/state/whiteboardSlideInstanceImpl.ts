@@ -14,31 +14,34 @@
  * limitations under the License.
  */
 
-import { isEqual } from 'lodash';
+import { first, isEqual } from 'lodash';
 import {
+  Observable,
+  Subject,
   combineLatest,
   concat,
   defer,
   distinctUntilChanged,
   filter,
   map,
-  Observable,
   of,
   scan,
-  Subject,
   takeUntil,
   throttleTime,
   timer,
 } from 'rxjs';
 import {
-  CommunicationChannel,
   CURSOR_UPDATE_MESSAGE,
+  CommunicationChannel,
   CursorUpdate,
   isValidCursorUpdateMessage,
 } from './communication';
 import {
   Document,
   Element,
+  Point,
+  UpdateElementPatch,
+  WhiteboardDocument,
   generateAddElement,
   generateLockSlide,
   generateMoveDown,
@@ -51,17 +54,18 @@ import {
   getElement,
   getNormalizedElementIds,
   getSlideLock,
-  Point,
-  UpdateElementPatch,
-  WhiteboardDocument,
 } from './crdt';
-import { WhiteboardSlideInstance, WhiteboardUndoManagerContext } from './types';
+import {
+  Elements,
+  WhiteboardSlideInstance,
+  WhiteboardUndoManagerContext,
+} from './types';
 
 export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
   private readonly destroySubject = new Subject<void>();
 
-  private readonly activeElementIdSubject = new Subject<string | undefined>();
-  private activeElementId: string | undefined = undefined;
+  private readonly activeElementIdsSubject = new Subject<string[]>();
+  private activeElementIds: string[] = [];
 
   private readonly dataObservable = concat(
     defer(() => of(this.document.getData())),
@@ -112,7 +116,7 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
     this.observeElementIds()
       .pipe(takeUntil(this.destroySubject))
       .subscribe(() => {
-        this.activeElementIdSubject.next(this.getActiveElementId());
+        this.activeElementIdsSubject.next(this.getActiveElementIds());
       });
 
     this.cursorPositionSubject
@@ -198,9 +202,36 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
     )?.toJSON();
   }
 
+  getElements(elementIds: string[]): Elements {
+    const elements: Elements = {};
+    for (const elementId of elementIds) {
+      const element = this.getElement(elementId);
+      if (element) {
+        elements[elementId] = element;
+      }
+    }
+    return elements;
+  }
+
   observeElement(elementId: string): Observable<Element | undefined> {
     return this.dataObservable.pipe(
       map((doc) => getElement(doc, this.slideId, elementId)?.toJSON()),
+      distinctUntilChanged(isEqual),
+    );
+  }
+
+  observeElements(elementIds: string[]): Observable<Elements> {
+    return this.dataObservable.pipe(
+      map((doc) => {
+        const elements: Elements = {};
+        for (const elementId of elementIds) {
+          const element = getElement(doc, this.slideId, elementId)?.toJSON();
+          if (element) {
+            elements[elementId] = element;
+          }
+        }
+        return elements;
+      }),
       distinctUntilChanged(isEqual),
     );
   }
@@ -222,26 +253,80 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
   }
 
   getActiveElementId(): string | undefined {
-    return this.activeElementId &&
-      this.getElementIds().includes(this.activeElementId)
-      ? this.activeElementId
+    const activeElementId = first(this.activeElementIds);
+    return activeElementId && this.getElementIds().includes(activeElementId)
+      ? activeElementId
       : undefined;
   }
 
+  getActiveElementIds(): string[] {
+    return this.activeElementIds.filter((activeElementId) =>
+      this.getElementIds().includes(activeElementId),
+    );
+  }
+
   observeActiveElementId(): Observable<string | undefined> {
+    return this.observeActiveElementIds().pipe(
+      map((elements) => first(elements)),
+    );
+  }
+
+  observeActiveElementIds(): Observable<string[]> {
     return concat(
-      defer(() => of(this.getActiveElementId())),
-      this.activeElementIdSubject,
-    ).pipe(distinctUntilChanged());
+      defer(() => of(this.getActiveElementIds())),
+      this.activeElementIdsSubject,
+    ).pipe(distinctUntilChanged(isEqual));
   }
 
   setActiveElementId(elementId: string | undefined): void {
-    this.activeElementId = elementId;
-    this.activeElementIdSubject.next(this.getActiveElementId());
+    this.activeElementIds = elementId ? [elementId] : [];
+    this.activeElementIdsSubject.next(this.getActiveElementIds());
 
+    this.updateDocumentUndoManagerCurrentElement(
+      elementId ? [elementId] : undefined,
+    );
+  }
+
+  setActiveElementIds(elementIds: string[] | undefined): void {
+    this.activeElementIds = elementIds ?? [];
+    this.activeElementIdsSubject.next(this.getActiveElementIds());
+
+    this.updateDocumentUndoManagerCurrentElement(elementIds);
+  }
+
+  addActiveElementId(elementId: string): void {
+    if (
+      this.getElementIds().includes(elementId) &&
+      !this.activeElementIds.includes(elementId)
+    ) {
+      this.activeElementIds = [
+        ...this.activeElementIds.filter((activeElementId) =>
+          this.getElementIds().includes(activeElementId),
+        ),
+        elementId,
+      ];
+      this.activeElementIdsSubject.next(this.activeElementIds);
+
+      this.updateDocumentUndoManagerCurrentElement(this.activeElementIds);
+    }
+  }
+
+  unselectActiveElementId(elementId: string): void {
+    const activeElementIds = this.activeElementIds.filter(
+      (activeElementId) => activeElementId !== elementId,
+    );
+    this.activeElementIds = activeElementIds;
+    this.activeElementIdsSubject.next(activeElementIds);
+
+    this.updateDocumentUndoManagerCurrentElement(this.activeElementIds);
+  }
+
+  private updateDocumentUndoManagerCurrentElement(
+    elementIds: string[] | undefined,
+  ): void {
     this.document.getUndoManager().setContext<WhiteboardUndoManagerContext>({
       currentSlideId: this.slideId,
-      currentElementId: this.activeElementId,
+      currentElementIds: elementIds,
     });
   }
 
@@ -258,7 +343,7 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
 
   destroy() {
     this.destroySubject.next();
-    this.activeElementIdSubject.complete();
+    this.activeElementIdsSubject.complete();
     this.cursorPositionSubject.complete();
   }
 

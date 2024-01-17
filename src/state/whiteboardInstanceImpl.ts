@@ -229,10 +229,10 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
 
         if (
           state.currentSlideId === this.activeSlideId &&
-          state.currentElementId
+          state.currentElementIds
         ) {
-          this.getSlide(state.currentSlideId).setActiveElementId(
-            state.currentElementId,
+          this.getSlide(state.currentSlideId).setActiveElementIds(
+            state.currentElementIds,
           );
         }
       });

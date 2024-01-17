@@ -29,7 +29,7 @@ describe('isWhiteboardUndoManagerContext', () => {
     expect(
       isWhiteboardUndoManagerContext({
         currentSlideId: 'slide-0',
-        currentElementId: undefined,
+        currentElementIds: undefined,
       }),
     ).toBe(true);
   });
@@ -38,7 +38,7 @@ describe('isWhiteboardUndoManagerContext', () => {
     expect(
       isWhiteboardUndoManagerContext({
         currentSlideId: 'slide-0',
-        currentElementId: 'element-0',
+        currentElementIds: ['element-0'],
       }),
     ).toBe(true);
   });
@@ -47,7 +47,7 @@ describe('isWhiteboardUndoManagerContext', () => {
     expect(
       isWhiteboardUndoManagerContext({
         currentSlideId: 'slide-0',
-        currentElementId: 'element-0',
+        currentElementIds: ['element-0'],
         additional: 'data',
       }),
     ).toBe(true);
@@ -57,12 +57,13 @@ describe('isWhiteboardUndoManagerContext', () => {
     { currentSlideId: undefined },
     { currentSlideId: null },
     { currentSlideId: 111 },
-    { currentElementId: null },
-    { currentElementId: 111 },
+    { currentElementIds: null },
+    { currentElementIds: 111 },
+    { currentElementIds: ['element-0', 111] },
   ])('should reject context with patch %j', (patch: Object) => {
     const data = {
       currentSlideId: 'slide-0',
-      currentElementId: 'element-0',
+      currentElementIds: ['element-0'],
       ...patch,
     };
 

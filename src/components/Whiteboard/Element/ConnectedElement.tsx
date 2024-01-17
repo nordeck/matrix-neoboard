@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { useActiveElement } from '../../../state';
+import { useActiveElements } from '../../../state';
 import { useElementOverride } from '../../ElementOverridesProvider';
 import EllipseDisplay from '../../elements/ellipse/Display';
 import LineDisplay from '../../elements/line/Display';
@@ -29,9 +29,12 @@ export const ConnectedElement = ({
   id: string;
   readOnly?: boolean;
 }) => {
-  const { activeElementId } = useActiveElement();
+  const { activeElementIds } = useActiveElements();
   const element = useElementOverride(id);
-  const isActive = !readOnly && id ? activeElementId === id : false;
+  const isActive =
+    !readOnly && id
+      ? activeElementIds.length === 1 && activeElementIds[0] === id
+      : false;
   const otherProps = {
     // TODO: Align names
     active: isActive,

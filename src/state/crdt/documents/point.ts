@@ -23,12 +23,14 @@ export const pointSchema = Joi.object<Point, true>({
   y: Joi.number().strict().required(),
 }).unknown();
 
-export function calculateBoundingRectForPoints(points: Point[]): {
+export type BoundingRect = {
   offsetX: number;
   offsetY: number;
   width: number;
   height: number;
-} {
+};
+
+export function calculateBoundingRectForPoints(points: Point[]): BoundingRect {
   let minX = +(points[0]?.x ?? 0);
   let minY = +(points[0]?.y ?? 0);
   let maxX = +(points[0]?.x ?? 0);

@@ -16,4 +16,5 @@
 
 export { ElementOverridesProvider } from './ElementOverridesProvider';
 export { useElementOverride } from './useElementOverride';
+export { useElementOverrides } from './useElementOverrides';
 export { useSetElementOverride } from './useSetElementOverride';

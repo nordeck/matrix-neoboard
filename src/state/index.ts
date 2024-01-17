@@ -44,7 +44,9 @@ export {
 export {
   SlideProvider,
   useActiveElement,
+  useActiveElements,
   useElement,
+  useElements,
   useSlideElementIds,
   useSlideIsLocked,
   useWhiteboardSlideInstance,

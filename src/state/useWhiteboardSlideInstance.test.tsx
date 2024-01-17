@@ -26,7 +26,9 @@ import { WhiteboardManagerProvider } from './useWhiteboardManager';
 import {
   SlideProvider,
   useActiveElement,
+  useActiveElements,
   useElement,
+  useElements,
   useSlideElementIds,
   useSlideIsLocked,
   useWhiteboardSlideInstance,
@@ -113,13 +115,22 @@ describe('useSlideElementIds', () => {
   });
 });
 
-describe('useElement', () => {
+describe('useElement(s)', () => {
   it('should return undefined if element does not exist', () => {
     const { result } = renderHook(() => useElement('element-1'), {
       wrapper: Wrapper,
     });
 
     expect(result.current).toBeUndefined();
+  });
+
+  it('should return undefined if elements does not exist', () => {
+    const elementIds = ['element-1', 'element-2'];
+    const { result } = renderHook(() => useElements(elementIds), {
+      wrapper: Wrapper,
+    });
+
+    expect(result.current).toEqual({});
   });
 
   it('should handle undefined element id', () => {
@@ -140,6 +151,20 @@ describe('useElement', () => {
     });
 
     expect(result.current).toEqual(mockEllipseElement());
+    expect(getElement).toBeCalledWith('element-0');
+  });
+
+  it('should return the elements', () => {
+    const whiteboardSlideInstance =
+      activeWhiteboardInstance.getSlide('slide-0');
+    const getElement = jest.spyOn(whiteboardSlideInstance, 'getElement');
+
+    const elementIds = ['element-0'];
+    const { result } = renderHook(() => useElements(elementIds), {
+      wrapper: Wrapper,
+    });
+
+    expect(result.current).toEqual({ 'element-0': mockEllipseElement() });
     expect(getElement).toBeCalledWith('element-0');
   });
 
@@ -213,6 +238,66 @@ describe('useActiveElement', () => {
     });
 
     expect(result.current).toEqual({ activeElementId: 'element-1' });
+  });
+});
+
+describe('useActiveElements', () => {
+  beforeEach(() => {
+    ({ whiteboardManager } = mockWhiteboardManager({
+      slides: [
+        [
+          'slide-0',
+          [
+            ['element-0', mockLineElement()],
+            ['element-1', mockLineElement()],
+            ['element-2', mockLineElement()],
+          ],
+        ],
+        ['slide-1', [['element-3', mockLineElement()]]],
+        ['slide-3', [['element-4', mockLineElement()]]],
+      ],
+    }));
+    activeWhiteboardInstance = whiteboardManager.getActiveWhiteboardInstance()!;
+  });
+
+  it('should return no elements selected', () => {
+    const { result } = renderHook(() => useActiveElements(), {
+      wrapper: Wrapper,
+    });
+
+    expect(result.current).toEqual({ activeElementIds: [] });
+  });
+
+  it('should return selected elements', () => {
+    activeWhiteboardInstance
+      .getSlide('slide-0')
+      .setActiveElementIds(['element-0', 'element-1']);
+
+    const { result } = renderHook(() => useActiveElements(), {
+      wrapper: Wrapper,
+    });
+
+    expect(result.current).toEqual({
+      activeElementIds: ['element-0', 'element-1'],
+    });
+  });
+
+  it('should observe elements', () => {
+    const { result } = renderHook(() => useActiveElements(), {
+      wrapper: Wrapper,
+    });
+
+    expect(result.current).toEqual({ activeElementIds: [] });
+
+    act(() => {
+      activeWhiteboardInstance
+        .getSlide('slide-0')
+        .setActiveElementIds(['element-0', 'element-1']);
+    });
+
+    expect(result.current).toEqual({
+      activeElementIds: ['element-0', 'element-1'],
+    });
   });
 });
 

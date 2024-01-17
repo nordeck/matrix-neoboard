@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
-import { isValidElement } from './elements';
+import {
+  mockEllipseElement,
+  mockLineElement,
+} from '../../../lib/testUtils/documentTestUtils';
+import { calculateBoundingRectForElements, isValidElement } from './elements';
 
 describe('isValidElement', () => {
   it.each(['line', 'polyline'])('should accept %j path event', (kind) => {
@@ -145,5 +149,55 @@ describe('isValidElement', () => {
     };
 
     expect(isValidElement(data)).toBe(false);
+  });
+});
+
+describe('calculateBoundingRectForElements', () => {
+  it('should calculate the bounding rect for an array of elements with single shape element', () => {
+    const elements = [mockEllipseElement()];
+    expect(calculateBoundingRectForElements(elements)).toEqual({
+      offsetX: 0,
+      offsetY: 1,
+      width: 50,
+      height: 100,
+    });
+  });
+
+  it('should calculate the bounding rect for an array of elements with single path element', () => {
+    const elements = [mockLineElement()];
+    expect(calculateBoundingRectForElements(elements)).toEqual({
+      offsetX: 0,
+      offsetY: 1,
+      width: 2,
+      height: 2,
+    });
+  });
+
+  it('should calculate the bounding rect for an array of elements', () => {
+    const elements = [
+      mockEllipseElement({ width: 2, height: 5 }),
+      mockLineElement({
+        position: { x: 10, y: 0 },
+        points: [
+          { x: 0, y: 0 },
+          { x: 2, y: 2 },
+        ],
+      }),
+    ];
+    expect(calculateBoundingRectForElements(elements)).toEqual({
+      offsetX: 0,
+      offsetY: 0,
+      width: 12,
+      height: 6,
+    });
+  });
+
+  it('should calculate the bounding rect for empty array', () => {
+    expect(calculateBoundingRectForElements([])).toEqual({
+      offsetX: 0,
+      offsetY: 0,
+      width: 0,
+      height: 0,
+    });
   });
 });
