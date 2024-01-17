@@ -1,5 +1,11 @@
 # @nordeck/matrix-neoboard-widget
 
+## 1.5.0
+
+### Minor Changes
+
+- 3dbf21a: Select multiple elements
+
 ## 1.4.0
 
 ### Minor Changes
