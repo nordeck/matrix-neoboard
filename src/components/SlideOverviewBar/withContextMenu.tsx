@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import PeopleAltOutlinedIcon from '@mui/icons-material/PeopleAltOutlined';
@@ -58,6 +59,7 @@ export const withContextMenu = <P extends object>(
     const slideIds = useActiveWhiteboardInstanceSlideIds();
     const isLocked = useSlideIsLocked(slideId);
     const canDelete = slideIds.length > 1 && !isLocked;
+    const canDuplicate = !isLocked;
 
     const handleClose = useCallback(() => {
       setState(undefined);
@@ -89,6 +91,12 @@ export const withContextMenu = <P extends object>(
         whiteboardInstance.removeSlide(state.slideId);
       }
     }, [state, handleClose, whiteboardInstance]);
+
+    const handleDuplicateSlide = useCallback(() => {
+      const newSlideId = whiteboardInstance.duplicateSlide(slideId);
+      whiteboardInstance.setActiveSlideId(newSlideId);
+      handleClose();
+    }, [handleClose, slideId, whiteboardInstance]);
 
     const handleContextMenu = useCallback(
       (event: MouseEvent<HTMLButtonElement>) => {
@@ -147,6 +155,17 @@ export const withContextMenu = <P extends object>(
             onClick={handleLockClick}
             onChange={handleLockChange}
           />
+          <MenuItem disabled={!canDuplicate} onClick={handleDuplicateSlide}>
+            <ListItemIcon sx={{ color: 'text.primary' }}>
+              <ContentCopyIcon />
+            </ListItemIcon>
+            <ListItemText>
+              {t(
+                'slideOverviewBar.contextMenu.duplicateSlide',
+                'Duplicate slide',
+              )}
+            </ListItemText>
+          </MenuItem>
           <MenuItem divider onClick={handleClickBringEveryoneToSlide}>
             <ListItemIcon sx={{ color: 'text.primary' }}>
               <PeopleAltOutlinedIcon />

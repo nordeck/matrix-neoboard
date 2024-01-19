@@ -72,6 +72,7 @@ describe('presentationManager', () => {
     whiteboardInstance = {
       addSlide: jest.fn(),
       clearUndoManager: jest.fn(),
+      duplicateSlide: jest.fn(),
       export: jest.fn(),
       focusOn: jest.fn(),
       getActiveSlideId: jest
