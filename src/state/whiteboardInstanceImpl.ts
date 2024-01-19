@@ -49,6 +49,7 @@ import {
 import {
   createWhiteboardDocument,
   generateAddSlide,
+  generateDuplicateSlide,
   generateMoveSlide,
   generateRemoveSlide,
   getNormalizedSlideIds,
@@ -288,6 +289,13 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
     this.synchronizedDocument.getDocument().performChange(changeFn);
 
     return slideId;
+  }
+
+  duplicateSlide(slideId: string): string {
+    const [changeFn, newSlideId] = generateDuplicateSlide(slideId);
+    this.synchronizedDocument.getDocument().performChange(changeFn);
+
+    return newSlideId;
   }
 
   moveSlide(slideId: string, index: number) {

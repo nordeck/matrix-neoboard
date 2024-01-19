@@ -179,6 +179,7 @@
     "contextMenu": {
       "bringEveryoneToSlide": "Bring alle hierhin",
       "deleteSlide": "Löschen",
+      "duplicateSlide": "Folie duplizieren",
       "lockSlide": "Sperren",
       "title": "Folie {{index}}"
     },

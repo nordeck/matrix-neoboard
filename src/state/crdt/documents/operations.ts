@@ -74,6 +74,38 @@ export function generateAddSlide(): [ChangeFn<WhiteboardDocument>, string] {
   return [changeFn, slideId];
 }
 
+export function generateDuplicateSlide(
+  slideId: string,
+): [ChangeFn<WhiteboardDocument>, string] {
+  const [addSlide, newSlideId] = generateAddSlide();
+
+  const changeFn = (doc: SharedMap<WhiteboardDocument>) => {
+    const slide = getSlide(doc, slideId);
+
+    if (!slide) {
+      throw new Error(`Slide not found: ${slideId}`);
+    }
+
+    const currentIndex = doc.get('slideIds').toArray().indexOf(slideId);
+
+    addSlide(doc);
+
+    getNormalizedElementIds(doc, slideId)
+      .map((elementId) => getElement(doc, slideId, elementId)?.toJSON())
+      .forEach((element) => {
+        if (element) {
+          const [addElement] = generateAddElement(newSlideId, element);
+          addElement(doc);
+        }
+      });
+
+    const moveSlide = generateMoveSlide(newSlideId, currentIndex + 1);
+    moveSlide(doc);
+  };
+
+  return [changeFn, newSlideId];
+}
+
 /** Move a slide identified by its id to a different position */
 export function generateMoveSlide(
   slideId: string,

@@ -26,6 +26,7 @@ export type {
 export {
   generateAddElement,
   generateAddSlide,
+  generateDuplicateSlide,
   generateLockSlide,
   generateMoveDown,
   generateMoveElement,
