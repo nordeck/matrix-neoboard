@@ -365,6 +365,17 @@ export function generateRemoveElement(
   };
 }
 
+/** Apply all changes one by one. */
+export function generate(
+  changes: ChangeFn<WhiteboardDocument>[],
+): ChangeFn<WhiteboardDocument> {
+  return (doc) => {
+    for (const change of changes) {
+      change(doc);
+    }
+  };
+}
+
 /**
  * Removes all duplicating or leftover element ids that can happen due too
  * conflicts.

@@ -72,12 +72,7 @@ const RectangleDisplay = ({
       readOnly={readOnly}
       elementId={elementId}
     >
-      <MoveableElement
-        customHeight={shape.height}
-        customWidth={shape.width}
-        elementId={elementId}
-        {...shape}
-      >
+      <MoveableElement>
         <ElementContextMenu elementId={elementId}>
           {renderedChild}
         </ElementContextMenu>

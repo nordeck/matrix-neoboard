@@ -131,6 +131,16 @@ export type WhiteboardSlideInstance = {
    * @param patch - the properties to add/override in the element.
    */
   updateElement(elementId: string, patch: UpdateElementPatch): void;
+  /**
+   * Update properties of multiple elements.
+   * @param updates - the properties to add/override for each element.
+   */
+  updateElements(
+    updates: {
+      elementId: string;
+      patch: UpdateElementPatch;
+    }[],
+  ): void;
   /** Move the element to the bottom of the slide. */
   moveElementToBottom(elementId: string): void;
   /** Move the element one level down. */

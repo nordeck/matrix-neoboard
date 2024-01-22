@@ -31,10 +31,21 @@ export type ElementOverrideGetter = (
 export const ElementOverrideGetterContext =
   createContext<ElementOverrideGetter>(() => undefined);
 
-export type ElementOverrideSetter = (
-  elementId: string,
-  elementCoords: ElementOverride | undefined,
-) => void;
+export type ElementOverrideUpdate = {
+  elementId: string;
+  elementOverride: ElementOverride | undefined;
+};
+
+export function createResetElementOverrides(
+  elementIds: string[],
+): ElementOverrideUpdate[] {
+  return elementIds.map((elementId) => ({
+    elementId,
+    elementOverride: undefined,
+  }));
+}
+
+export type ElementOverrideSetter = (updates: ElementOverrideUpdate[]) => void;
 export const ElementOverrideSetterContext =
   createContext<ElementOverrideSetter>(() => {});
 
@@ -48,22 +59,21 @@ export function ElementOverridesProvider({ children }: PropsWithChildren<{}>) {
     [elementOverrides],
   );
 
-  const setElementOverride = useCallback(
-    (elementId: string, elementCoords: ElementOverride | undefined) => {
-      setElementOverrides((old) => {
-        const newState = { ...old };
+  const setElementOverride = useCallback((updates: ElementOverrideUpdate[]) => {
+    setElementOverrides((old) => {
+      const newState = { ...old };
 
-        if (elementCoords) {
-          newState[elementId] = elementCoords;
+      for (const { elementId, elementOverride } of updates) {
+        if (elementOverride) {
+          newState[elementId] = elementOverride;
         } else {
           delete newState[elementId];
         }
+      }
 
-        return newState;
-      });
-    },
-    [],
-  );
+      return newState;
+    });
+  }, []);
 
   return (
     <ElementOverrideSetterContext.Provider value={setElementOverride}>

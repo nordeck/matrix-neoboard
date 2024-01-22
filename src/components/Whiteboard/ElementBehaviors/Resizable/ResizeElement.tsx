@@ -107,7 +107,7 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
 
   useUnmount(() => {
     if (startDimensions) {
-      setElementOverride(elementId, undefined);
+      setElementOverride([{ elementId, elementOverride: undefined }]);
     }
   });
 
@@ -143,16 +143,21 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
     }
 
     setStartDimensions(undefined);
-    setElementOverride(elementId, undefined);
+    setElementOverride([{ elementId, elementOverride: undefined }]);
   }, [element, startDimensions, slideInstance, elementId, setElementOverride]);
 
   const handleDrag = useCallback(
     (dimensions: Dimensions) => {
-      setElementOverride(elementId, {
-        height: dimensions.height,
-        width: dimensions.width,
-        position: { x: dimensions.x, y: dimensions.y },
-      });
+      setElementOverride([
+        {
+          elementId,
+          elementOverride: {
+            height: dimensions.height,
+            width: dimensions.width,
+            position: { x: dimensions.x, y: dimensions.y },
+          },
+        },
+      ]);
     },
     [elementId, setElementOverride],
   );

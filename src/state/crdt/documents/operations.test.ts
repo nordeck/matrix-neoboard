@@ -17,6 +17,7 @@
 import { mockLineElement } from '../../../lib/testUtils/documentTestUtils';
 import { Document } from '../types';
 import {
+  generate,
   generateAddElement,
   generateAddSlide,
   generateLockSlide,
@@ -1239,5 +1240,26 @@ describe('generateRemoveElement', () => {
         element3,
       ]);
     });
+  });
+});
+
+describe('generate', () => {
+  it('should generate change to apply several changes', () => {
+    const document = createWhiteboardDocument();
+
+    const element = mockLineElement();
+    const [addElement, elementId] = generateAddElement(slide0, element);
+    const updateElement = generateUpdateElement(slide0, elementId, {
+      strokeColor: '#000000',
+    });
+
+    document.performChange(generate([addElement, updateElement]));
+
+    expect(getElement(document.getData(), slide0, elementId)?.toJSON()).toEqual(
+      {
+        ...element,
+        strokeColor: '#000000',
+      },
+    );
   });
 });

@@ -14,23 +14,16 @@
  * limitations under the License.
  */
 
-import {
-  calculateBoundingRectForPoints,
-  PathElement,
-  Point,
-} from '../../../state';
+import { PathElement, Point } from '../../../state';
 import { ElementRenderProperties } from '../../Whiteboard';
 
 type PolylineRenderProperties = {
   points: { start: Point; end: Point };
-  box: { width: number; height: number };
 };
 
 export function getRenderProperties(
   element: PathElement,
 ): ElementRenderProperties & PolylineRenderProperties {
-  const { width, height } = calculateBoundingRectForPoints(element.points);
-
   const start = element.points[0];
   const end = element.points[element.points.length - 1];
 
@@ -48,6 +41,5 @@ export function getRenderProperties(
         y: element.position.y + end.y,
       },
     },
-    box: { width, height },
   };
 }
