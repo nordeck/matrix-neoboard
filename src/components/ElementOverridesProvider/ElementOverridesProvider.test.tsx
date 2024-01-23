@@ -26,7 +26,10 @@ import {
 import { WhiteboardManager } from '../../state';
 import { LayoutStateProvider } from '../Layout';
 import { SlidesProvider } from '../Layout/SlidesProvider';
-import { ElementOverridesProvider } from './ElementOverridesProvider';
+import {
+  ElementOverridesProvider,
+  createResetElementOverrides,
+} from './ElementOverridesProvider';
 import { useElementOverride } from './useElementOverride';
 import { useElementOverrides } from './useElementOverrides';
 import { useSetElementOverride } from './useSetElementOverride';
@@ -37,7 +40,7 @@ afterEach(() => widgetApi.stop());
 
 beforeEach(() => (widgetApi = mockWidgetApi()));
 
-describe('useElementCoordsState', () => {
+describe('useElementOverride', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
   let whiteboardManager: jest.Mocked<WhiteboardManager>;
 
@@ -46,7 +49,16 @@ describe('useElementCoordsState', () => {
       slides: [
         [
           'slide-0',
-          [['element-1', mockEllipseElement({ text: 'Hello World' })]],
+          [
+            ['element-1', mockEllipseElement({ text: 'Element 1' })],
+            [
+              'element-2',
+              mockEllipseElement({
+                text: 'Element 2',
+                position: { x: 0, y: 201 },
+              }),
+            ],
+          ],
         ],
       ],
     }));
@@ -76,7 +88,7 @@ describe('useElementCoordsState', () => {
       type: 'shape',
       kind: 'ellipse',
       fillColor: '#ffffff',
-      text: 'Hello World',
+      text: 'Element 1',
       position: { x: 0, y: 1 },
       height: 100,
       width: 50,
@@ -94,7 +106,7 @@ describe('useElementCoordsState', () => {
         type: 'shape',
         kind: 'ellipse',
         fillColor: '#ffffff',
-        text: 'Hello World',
+        text: 'Element 1',
         position: { x: 0, y: 1 },
         height: 100,
         width: 50,
@@ -113,16 +125,21 @@ describe('useElementCoordsState', () => {
     );
 
     act(() => {
-      result.current.setElementOverride('element-1', {
-        position: { x: 50, y: 51 },
-      });
+      result.current.setElementOverride([
+        {
+          elementId: 'element-1',
+          elementOverride: {
+            position: { x: 50, y: 51 },
+          },
+        },
+      ]);
     });
 
     expect(result.current.element).toEqual({
       type: 'shape',
       kind: 'ellipse',
       fillColor: '#ffffff',
-      text: 'Hello World',
+      text: 'Element 1',
       position: { x: 50, y: 51 },
       height: 100,
       width: 50,
@@ -130,29 +147,49 @@ describe('useElementCoordsState', () => {
   });
 
   it('should replace the elements position', () => {
-    const elementIds = ['element-1'];
+    const elementIds = ['element-1', 'element-2'];
     const { result } = renderHook(
       () => {
-        const element = useElementOverrides(elementIds);
+        const elements = useElementOverrides(elementIds);
         const setElementOverride = useSetElementOverride();
-        return { element, setElementOverride };
+        return { elements, setElementOverride };
       },
       { wrapper: Wrapper },
     );
 
     act(() => {
-      result.current.setElementOverride('element-1', {
-        position: { x: 50, y: 51 },
-      });
+      result.current.setElementOverride([
+        {
+          elementId: 'element-1',
+          elementOverride: {
+            position: { x: 50, y: 51 },
+          },
+        },
+        {
+          elementId: 'element-2',
+          elementOverride: {
+            position: { x: 50, y: 251 },
+          },
+        },
+      ]);
     });
 
-    expect(result.current.element).toEqual({
+    expect(result.current.elements).toEqual({
       'element-1': {
         type: 'shape',
         kind: 'ellipse',
         fillColor: '#ffffff',
-        text: 'Hello World',
+        text: 'Element 1',
         position: { x: 50, y: 51 },
+        height: 100,
+        width: 50,
+      },
+      'element-2': {
+        type: 'shape',
+        kind: 'ellipse',
+        fillColor: '#ffffff',
+        text: 'Element 2',
+        position: { x: 50, y: 251 },
         height: 100,
         width: 50,
       },
@@ -170,17 +207,22 @@ describe('useElementCoordsState', () => {
     );
 
     act(() => {
-      result.current.setElementOverride('element-1', {
-        height: 125,
-        width: 75,
-      });
+      result.current.setElementOverride([
+        {
+          elementId: 'element-1',
+          elementOverride: {
+            height: 125,
+            width: 75,
+          },
+        },
+      ]);
     });
 
     expect(result.current.element).toEqual({
       type: 'shape',
       kind: 'ellipse',
       fillColor: '#ffffff',
-      text: 'Hello World',
+      text: 'Element 1',
       position: { x: 0, y: 1 },
       height: 125,
       width: 75,
@@ -198,31 +240,122 @@ describe('useElementCoordsState', () => {
     );
 
     act(() => {
-      result.current.setElementOverride('element-1', { height: 10 });
+      result.current.setElementOverride([
+        {
+          elementId: 'element-1',
+          elementOverride: { height: 10 },
+        },
+      ]);
     });
 
     expect(result.current.element).toEqual({
       type: 'shape',
       kind: 'ellipse',
       fillColor: '#ffffff',
-      text: 'Hello World',
+      text: 'Element 1',
       position: { x: 0, y: 1 },
       height: 10,
       width: 50,
     });
 
     act(() => {
-      result.current.setElementOverride('element-1', undefined);
+      result.current.setElementOverride([
+        {
+          elementId: 'element-1',
+          elementOverride: undefined,
+        },
+      ]);
     });
 
     expect(result.current.element).toEqual({
       type: 'shape',
       kind: 'ellipse',
       fillColor: '#ffffff',
-      text: 'Hello World',
+      text: 'Element 1',
       position: { x: 0, y: 1 },
       height: 100,
       width: 50,
     });
+  });
+
+  it('should clean the overrides', () => {
+    const { result } = renderHook(
+      () => {
+        const elements = useElementOverrides(['element-1', 'element-2']);
+        const setElementOverride = useSetElementOverride();
+        return { elements, setElementOverride };
+      },
+      { wrapper: Wrapper },
+    );
+
+    act(() => {
+      result.current.setElementOverride([
+        {
+          elementId: 'element-1',
+          elementOverride: { height: 10 },
+        },
+        {
+          elementId: 'element-2',
+          elementOverride: { width: 10 },
+        },
+      ]);
+    });
+
+    expect(result.current.elements).toEqual({
+      'element-1': {
+        type: 'shape',
+        kind: 'ellipse',
+        fillColor: '#ffffff',
+        text: 'Element 1',
+        position: { x: 0, y: 1 },
+        height: 10,
+        width: 50,
+      },
+      'element-2': {
+        type: 'shape',
+        kind: 'ellipse',
+        fillColor: '#ffffff',
+        text: 'Element 2',
+        position: { x: 0, y: 201 },
+        height: 100,
+        width: 10,
+      },
+    });
+
+    act(() => {
+      result.current.setElementOverride(
+        createResetElementOverrides(['element-1', 'element-2']),
+      );
+    });
+
+    expect(result.current.elements).toEqual({
+      'element-1': {
+        type: 'shape',
+        kind: 'ellipse',
+        fillColor: '#ffffff',
+        text: 'Element 1',
+        position: { x: 0, y: 1 },
+        height: 100,
+        width: 50,
+      },
+      'element-2': {
+        type: 'shape',
+        kind: 'ellipse',
+        fillColor: '#ffffff',
+        text: 'Element 2',
+        position: { x: 0, y: 201 },
+        height: 100,
+        width: 50,
+      },
+    });
+  });
+});
+
+describe('createResetElementOverrides', () => {
+  it('should create updates to reset overrides of elements', () => {
+    expect(createResetElementOverrides(['element-1', 'element-2'])).toEqual([
+      { elementId: 'element-1', elementOverride: undefined },
+      { elementId: 'element-2', elementOverride: undefined },
+    ]);
   });
 });

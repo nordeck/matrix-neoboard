@@ -36,7 +36,6 @@ const LineDisplay = ({
     strokeColor,
     strokeWidth,
     points: { start, end },
-    box,
   } = getRenderProperties(element);
 
   const renderedChild = (
@@ -63,12 +62,7 @@ const LineDisplay = ({
       readOnly={readOnly}
       elementId={elementId}
     >
-      <MoveableElement
-        customHeight={box.height}
-        customWidth={box.width}
-        elementId={elementId}
-        {...element}
-      >
+      <MoveableElement elementId={elementId}>
         <ElementContextMenu elementId={elementId}>
           {renderedChild}
         </ElementContextMenu>

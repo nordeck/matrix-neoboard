@@ -210,6 +210,48 @@ describe('WhiteboardSlideInstanceImpl', () => {
     });
   });
 
+  it('should update elements', () => {
+    const slideInstance = new WhiteboardSlideInstanceImpl(
+      communicationChannel,
+      slide0,
+      document,
+      '@user-id',
+    );
+
+    const element = mockLineElement();
+    const element1 = mockEllipseElement();
+    const elementId0 = slideInstance.addElement(element);
+    const elementId1 = slideInstance.addElement(element1);
+
+    expect(slideInstance.getElement(elementId0)).toEqual(element);
+    expect(slideInstance.getElement(elementId1)).toEqual(element1);
+
+    const updates = [
+      {
+        elementId: elementId0,
+        patch: {
+          strokeColor: '#000000',
+        },
+      },
+      {
+        elementId: elementId1,
+        patch: {
+          strokeColor: '#ff0000',
+        },
+      },
+    ];
+    slideInstance.updateElements(updates);
+
+    expect(slideInstance.getElement(elementId0)).toEqual({
+      ...element,
+      strokeColor: '#000000',
+    });
+    expect(slideInstance.getElement(elementId1)).toEqual({
+      ...element1,
+      strokeColor: '#ff0000',
+    });
+  });
+
   it('should throw when updating element on a locked slide', () => {
     const slideInstance = new WhiteboardSlideInstanceImpl(
       communicationChannel,

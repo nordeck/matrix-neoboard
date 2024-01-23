@@ -39,10 +39,6 @@ describe('getRenderProperties', () => {
         { x: 12, y: 18 },
         { x: 15, y: 25 },
       ],
-      box: {
-        height: 9,
-        width: 5,
-      },
     });
   });
 });

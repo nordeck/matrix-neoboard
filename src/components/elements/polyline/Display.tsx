@@ -32,8 +32,7 @@ const PolylineDisplay = ({
   elementId,
   ...element
 }: PolylineElementProps) => {
-  const { strokeColor, strokeWidth, points, box } =
-    getRenderProperties(element);
+  const { strokeColor, strokeWidth, points } = getRenderProperties(element);
 
   const renderedChild = (
     <g>
@@ -57,12 +56,7 @@ const PolylineDisplay = ({
       readOnly={readOnly}
       elementId={elementId}
     >
-      <MoveableElement
-        customHeight={box.height}
-        customWidth={box.width}
-        elementId={elementId}
-        {...element}
-      >
+      <MoveableElement elementId={elementId}>
         <ElementContextMenu elementId={elementId}>
           {renderedChild}
         </ElementContextMenu>
