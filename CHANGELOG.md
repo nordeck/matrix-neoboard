@@ -1,5 +1,11 @@
 # @nordeck/matrix-neoboard-widget
 
+## 1.6.1
+
+### Patch Changes
+
+- 5fd564c: Revert matrix-widget-toolkit group update to fix widget display issue.
+
 ## 1.6.0
 
 ### Minor Changes
