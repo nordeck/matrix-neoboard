@@ -62,7 +62,7 @@ const LineDisplay = ({
       readOnly={readOnly}
       elementId={elementId}
     >
-      <MoveableElement>
+      <MoveableElement elementId={elementId}>
         <ElementContextMenu elementId={elementId}>
           {renderedChild}
         </ElementContextMenu>

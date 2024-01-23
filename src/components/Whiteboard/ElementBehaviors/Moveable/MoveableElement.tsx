@@ -44,7 +44,11 @@ const DraggableGroup = styled('g')({
   cursor: 'move',
 });
 
-export function MoveableElement({ children }: PropsWithChildren<{}>) {
+export type MoveableElementProps = PropsWithChildren<{
+  elementId: string;
+}>;
+
+export function MoveableElement({ children, elementId }: MoveableElementProps) {
   const { activeElementIds } = useActiveElements();
   const elements = useElementOverrides(activeElementIds);
   const { isShowGrid } = useLayoutState();
@@ -59,7 +63,7 @@ export function MoveableElement({ children }: PropsWithChildren<{}>) {
   useUnmount(() => {
     if (isDragging.current) {
       removeUserSelectStyles();
-      setElementOverride(createResetElementOverrides(Object.keys(elements)));
+      setElementOverride(createResetElementOverrides([elementId]));
     }
   });
 
