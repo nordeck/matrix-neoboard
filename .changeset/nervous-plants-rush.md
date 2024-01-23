@@ -2,4 +2,4 @@
 '@nordeck/matrix-neoboard-widget': minor
 ---
 
-Move several elements.
+Move multiple elements.
