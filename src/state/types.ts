@@ -55,6 +55,12 @@ export type WhiteboardInstance = {
    * @returns the id of the created slide.
    */
   addSlide(): string;
+  /**
+   * Creates a copy of the selected slide directly after it.
+   * @throws if the slide does not exist
+   * @returns the ID of the created slide.
+   */
+  duplicateSlide(slideId: string): string;
   /** Move the slide to another positions. */
   moveSlide(slideId: string, index: number): void;
   /** Remove the slide. */
