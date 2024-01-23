@@ -1,5 +1,11 @@
 # @nordeck/matrix-neoboard-widget
 
+## 1.7.0
+
+### Minor Changes
+
+- 4e0d53c: Move multiple elements.
+
 ## 1.6.1
 
 ### Patch Changes
