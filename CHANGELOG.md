@@ -1,5 +1,11 @@
 # @nordeck/matrix-neoboard-widget
 
+## 1.6.0
+
+### Minor Changes
+
+- a5adc10: Add action to duplicate a slide.
+
 ## 1.5.0
 
 ### Minor Changes
