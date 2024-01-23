@@ -20,7 +20,7 @@
     "i18next": "^23.7.18",
     "i18next-chained-backend": "^4.6.2",
     "i18next-http-backend": "^2.4.2",
-    "joi": "^17.11.1",
+    "joi": "^17.12.0",
     "js-base64": "^3.7.6",
     "localforage": "^1.10.0",
     "lodash": "^4.17.21",
