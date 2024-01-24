@@ -25,6 +25,7 @@ export type {
 } from './elements';
 export {
   generateAddElement,
+  generateAddElements,
   generateAddSlide,
   generateDuplicateSlide,
   generateLockSlide,

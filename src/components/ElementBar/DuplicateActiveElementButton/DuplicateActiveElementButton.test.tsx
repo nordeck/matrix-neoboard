@@ -15,7 +15,9 @@
  */
 
 import { Element } from '../../../state';
-import { duplicate } from './DuplicateActiveElementButton';
+import { calculateBoundingRectForElements } from '../../../state/crdt/documents/elements';
+import { WhiteboardSlideInstanceImpl } from '../../../state/whiteboardSlideInstanceImpl';
+import { duplicate, sort } from './DuplicateActiveElementButton';
 
 describe('duplicate', () => {
   it('should duplicate a points element', async () => {
@@ -30,7 +32,9 @@ describe('duplicate', () => {
       strokeColor: '#ff0000',
     };
 
-    expect(duplicate(element, 40)).toEqual({
+    expect(
+      duplicate(element, 40, calculateBoundingRectForElements([element])),
+    ).toEqual({
       ...element,
       // 10 is x, 80 is the width and 40 is the grid cell size
       position: { x: 10 + 80 + 40, y: 20 },
@@ -48,7 +52,9 @@ describe('duplicate', () => {
       text: '',
     };
 
-    expect(duplicate(element, 40)).toEqual({
+    expect(
+      duplicate(element, 40, calculateBoundingRectForElements([element])),
+    ).toEqual({
       ...element,
       // 10 is x, 80 is the width and 40 is the grid cell size
       position: { x: 10 + 80 + 40, y: 20 },
@@ -67,7 +73,9 @@ describe('duplicate', () => {
       strokeColor: '#ff0000',
     };
 
-    expect(duplicate(element, 40)).toEqual({
+    expect(
+      duplicate(element, 40, calculateBoundingRectForElements([element])),
+    ).toEqual({
       ...element,
       // 80 is the width
       position: { x: 1920 - 80, y: 20 },
@@ -85,7 +93,9 @@ describe('duplicate', () => {
       text: '',
     };
 
-    expect(duplicate(element, 40)).toEqual({
+    expect(
+      duplicate(element, 40, calculateBoundingRectForElements([element])),
+    ).toEqual({
       ...element,
       // 80 is the width
       position: { x: 1920 - 80, y: 20 },
@@ -104,7 +114,9 @@ describe('duplicate', () => {
       strokeColor: '#ff0000',
     };
 
-    expect(duplicate(element, 40)).toEqual({
+    expect(
+      duplicate(element, 40, calculateBoundingRectForElements([element])),
+    ).toEqual({
       ...element,
       // 80 is the width
       position: { x: 1920 - 80, y: 20 },
@@ -122,10 +134,21 @@ describe('duplicate', () => {
       text: '',
     };
 
-    expect(duplicate(element, 40)).toEqual({
+    expect(
+      duplicate(element, 40, calculateBoundingRectForElements([element])),
+    ).toEqual({
       ...element,
       // 80 is the width
       position: { x: 1920 - 80, y: 20 },
     });
+  });
+});
+
+describe('sort', () => {
+  it('should sort the active element IDs by the order of the slide element IDs', () => {
+    const slideInstance = {
+      getElementIds: jest.fn().mockReturnValue(['a', 'b', 'c']),
+    } as unknown as WhiteboardSlideInstanceImpl;
+    expect(sort(slideInstance, ['c', 'a'])).toEqual(['a', 'c']);
   });
 });

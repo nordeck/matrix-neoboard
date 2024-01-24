@@ -239,7 +239,7 @@ export function getNormalizedElementIds(
 
 /**
  * Add a new element at the end of the list of elements and returns the new
- * element id.
+ * element ID.
  */
 export function generateAddElement(
   slideId: string,
@@ -263,6 +263,38 @@ export function generateAddElement(
   };
 
   return [changeFn, elementId];
+}
+
+/**
+ * Add new elements at the end of the list of elements and returns the new
+ * element IDs.
+ */
+export function generateAddElements(
+  slideId: string,
+  elements: Array<Element>,
+): [ChangeFn<WhiteboardDocument>, Array<string>] {
+  const elementIds = elements.map(() => nanoid());
+
+  const changeFn = (doc: SharedMap<WhiteboardDocument>) => {
+    const slide = getSlide(doc, slideId);
+
+    if (!slide) {
+      throw new Error(`Slide not found: ${slideId}`);
+    }
+
+    cleanupElementIds(slide);
+
+    elements.forEach((element, index) => {
+      const elementMap = new YMap(
+        Object.entries(element),
+      ) as SharedMap<Element>;
+
+      slide.get('elements').set(elementIds[index], elementMap);
+      slide.get('elementIds').push([elementIds[index]]);
+    });
+  };
+
+  return [changeFn, elementIds];
 }
 
 /** Move an element identified by its id to a different position */

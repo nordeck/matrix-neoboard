@@ -127,9 +127,15 @@ export type WhiteboardSlideInstance = {
   /**
    * Add a new element to the slide.
    * @param element - the specification of the element.
-   * @returns the id of the created element.
+   * @returns the ID of the created element.
    */
   addElement(element: Element): string;
+  /**
+   * Add new elements to the slide.
+   * @param elements - the specification of the elements.
+   * @returns the IDs of the created elements.
+   */
+  addElements(elements: Array<Element>): string[];
   /** Remove the element */
   removeElement(elementId: string): void;
   /**

@@ -107,6 +107,23 @@ describe('WhiteboardSlideInstanceImpl', () => {
     expect(slideInstance.getActiveElementId()).toEqual(element0);
   });
 
+  it('should add elements and select them as active elements', () => {
+    const slideInstance = new WhiteboardSlideInstanceImpl(
+      communicationChannel,
+      slide0,
+      document,
+      '@user-id',
+    );
+
+    const element0 = mockEllipseElement();
+    const element1 = mockLineElement();
+    const elementIds = slideInstance.addElements([element0, element1]);
+
+    expect(slideInstance.getElement(elementIds[0])).toEqual(element0);
+    expect(slideInstance.getElement(elementIds[1])).toEqual(element1);
+    expect(slideInstance.getActiveElementIds()).toEqual(elementIds);
+  });
+
   it('should throw when adding element to a locked slide', () => {
     const slideInstance = new WhiteboardSlideInstanceImpl(
       communicationChannel,
