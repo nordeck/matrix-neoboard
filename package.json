@@ -15,7 +15,7 @@
     "@mui/lab": "^5.0.0-alpha.160",
     "@mui/material": "^5.15.4",
     "@mui/utils": "^5.14.18",
-    "@reduxjs/toolkit": "^1.9.7",
+    "@reduxjs/toolkit": "^2.1.0",
     "emoji-regex": "^10.3.0",
     "i18next": "^23.7.16",
     "i18next-chained-backend": "^4.6.2",
