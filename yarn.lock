@@ -1988,10 +1988,10 @@
     globby "^11.0.0"
     read-yaml-file "^1.1.0"
 
-"@matrix-widget-toolkit/api@^3.2.1", "@matrix-widget-toolkit/api@^3.2.2":
-  version "3.2.2"
-  resolved "https://registry.yarnpkg.com/@matrix-widget-toolkit/api/-/api-3.2.2.tgz#e77f9eccab4e1092d054285d79926eea97416045"
-  integrity sha512-O2ZG6LSAV8zErrdxLTUOsW+XouC7bgjEpk0Ij/fFObopxF3lI5rV5cFgo+7p8bcPcI6dLP6NSOr7rz08mfQu6A==
+"@matrix-widget-toolkit/api@^3.2.1", "@matrix-widget-toolkit/api@^3.2.2", "@matrix-widget-toolkit/api@^3.3.0":
+  version "3.3.1"
+  resolved "https://registry.yarnpkg.com/@matrix-widget-toolkit/api/-/api-3.3.1.tgz#b10e3d4adaa9ef1b8fea8b4110d5148e68eab901"
+  integrity sha512-/oFrL6I9esYREHZT08aTotO5QShLGe3FxV3CbTJ3syYNHXMnz/7EFJoVYK9IWvIUam4lj0YY4P87plKPj9jYjg==
   dependencies:
     matrix-widget-api "^1.6.0"
     qs "^6.11.2"
@@ -2031,12 +2031,12 @@
     react-error-boundary "^3.1.4"
     react-use "^17.4.0"
 
-"@matrix-widget-toolkit/testing@^2.3.2":
-  version "2.3.2"
-  resolved "https://registry.yarnpkg.com/@matrix-widget-toolkit/testing/-/testing-2.3.2.tgz#f8658db473c1fe08d8f5d5da151038ad0fff6ea2"
-  integrity sha512-4Tie1Bp+CVuaqinRp40odNIitmD2IFj4rQuew/955J5dWVUsKkVGxAHa2ZsMciqGWg++N2Otao2veya30qnasw==
+"@matrix-widget-toolkit/testing@^2.4.0":
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/@matrix-widget-toolkit/testing/-/testing-2.4.0.tgz#69c013e950e2ecd71e941d95847bb31420090250"
+  integrity sha512-KoKwkkykhiyFeaCK4949eZRzOP+hjrIYvsDY8CpUvMrYML2wWQaaOvL/tn4rZ8OxZnVvXb6QIyIrxqSW75ayeA==
   dependencies:
-    "@matrix-widget-toolkit/api" "^3.2.2"
+    "@matrix-widget-toolkit/api" "^3.3.0"
     lodash "^4.17.21"
     matrix-widget-api "^1.6.0"
     rxjs "^7.8.1"
@@ -2401,10 +2401,10 @@
     lz-string "^1.5.0"
     pretty-format "^27.0.2"
 
-"@testing-library/jest-dom@^6.2.0":
-  version "6.2.0"
-  resolved "https://registry.yarnpkg.com/@testing-library/jest-dom/-/jest-dom-6.2.0.tgz#b572bd5cd6b29314487bac7ba393188e4987b4f7"
-  integrity sha512-+BVQlJ9cmEn5RDMUS8c2+TU6giLvzaHZ8sU/x0Jj7fk+6/46wPdwlgOPcpxS17CjcanBi/3VmGMqVr2rmbUmNw==
+"@testing-library/jest-dom@^6.3.0":
+  version "6.3.0"
+  resolved "https://registry.yarnpkg.com/@testing-library/jest-dom/-/jest-dom-6.3.0.tgz#e8d308e0c0e91d882340cbbfdea0e4daa7987d36"
+  integrity sha512-hJVIrkFizEQxoWsGBlycTcQhrpoCH4DhXfrnHFFXgkx3Xdm15zycsq5Ep+vpw4W8S0NJa8cxDHcuJib+1tEbhg==
   dependencies:
     "@adobe/css-tools" "^4.3.2"
     "@babel/runtime" "^7.9.2"
@@ -6822,10 +6822,10 @@ human-signals@^5.0.0:
   resolved "https://registry.yarnpkg.com/human-signals/-/human-signals-5.0.0.tgz#42665a284f9ae0dade3ba41ebc37eb4b852f3a28"
   integrity sha512-AXcZb6vzzrFAUE61HnN4mpLqd/cSIwNQjtNWR0euPm6y0iqx3G4gOXaIDdtdDwZmhwe82LA6+zinmW4UBWVePQ==
 
-husky@^8.0.3:
-  version "8.0.3"
-  resolved "https://registry.yarnpkg.com/husky/-/husky-8.0.3.tgz#4936d7212e46d1dea28fef29bb3a108872cd9184"
-  integrity sha512-+dQSyqPh4x1hlO1swXBiNb2HzTDN1I2IGLQx1GrBuiqFJfoMrnZWwVmatvSiO+Iz8fBUnf+lekwNo4c2LlXItg==
+husky@^9.0.7:
+  version "9.0.7"
+  resolved "https://registry.yarnpkg.com/husky/-/husky-9.0.7.tgz#047f24ec1b6c681206af714b4217c13ee97fff20"
+  integrity sha512-vWdusw+y12DUEeoZqW1kplOFqk3tedGV8qlga8/SF6a3lOiWLqGZZQvfWvY0fQYdfiRi/u1DFNpudTSV9l1aCg==
 
 hyphenate-style-name@^1.0.3:
   version "1.0.4"
@@ -9708,10 +9708,10 @@ prettier@^2.7.1:
   resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.8.8.tgz#e8c5d7e98a4305ffe3de2e1fc4aca1a71c28b1da"
   integrity sha512-tdN8qQGvNjw4CHbY+XXk0JgCXn9QiF21a55rBe5LJAU+kDyC4WQn4+awm2Xfk2lQMk5fKup9XgzTZtGkjBdP9Q==
 
-prettier@^3.2.2:
-  version "3.2.2"
-  resolved "https://registry.yarnpkg.com/prettier/-/prettier-3.2.2.tgz#96e580f7ca9c96090ad054616c0c4597e2844b65"
-  integrity sha512-HTByuKZzw7utPiDO523Tt2pLtEyK7OibUD9suEJQrPUCYQqrHr74GGX6VidMrovbf/I50mPqr8j/II6oBAuc5A==
+prettier@^3.2.4:
+  version "3.2.4"
+  resolved "https://registry.yarnpkg.com/prettier/-/prettier-3.2.4.tgz#4723cadeac2ce7c9227de758e5ff9b14e075f283"
+  integrity sha512-FWu1oLHKCrtpO1ypU6J0SbK2d9Ckwysq6bHj/uaCP26DxrPpppCLQRGVuqAxSTvhF00AcvDRyYrLNW7ocBhFFQ==
 
 pretty-bytes@^5.3.0, pretty-bytes@^5.4.1:
   version "5.6.0"
