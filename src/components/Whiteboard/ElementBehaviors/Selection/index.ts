@@ -16,6 +16,7 @@
 
 export { ElementBarWrapper } from './ElementBarWrapper';
 export { ElementBorder } from './ElementBorder';
+export { ElementOutline } from './ElementOutline';
 export { SelectableElement } from './SelectableElement';
 export { UnselectElementHandler } from './UnselectElementHandler';
 export type { WithSelectionProps } from './types';

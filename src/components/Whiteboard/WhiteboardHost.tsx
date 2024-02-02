@@ -31,6 +31,7 @@ import { ConnectedElement } from './Element';
 import {
   ElementBarWrapper,
   ElementBorder,
+  ElementOutline,
   ResizeElement,
   UnselectElementHandler,
 } from './ElementBehaviors';
@@ -96,6 +97,7 @@ const WhiteboardHost = ({
         {!readOnly && activeElementIds.length > 0 && (
           <>
             <ElementBorder elementIds={activeElementIds} />
+            <ElementOutline elementIds={activeElementIds} />
             <ResizeElement elementId={activeElementIds[0]} />
           </>
         )}
