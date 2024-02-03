@@ -84,6 +84,10 @@
   "elementBar": {
     "deleteElement": "Element löschen",
     "duplicateActiveElement": "Element duplizieren",
+    "textAlignment": "Text Ausrichtung",
+    "textAlignmentCenter": "Zentriert",
+    "textAlignmentLeft": "Links",
+    "textAlignmentRight": "Rechts",
     "title": "Element"
   },
   "elementContextMenu": {

@@ -26,6 +26,7 @@ import {
   useState,
 } from 'react';
 import { useFontsLoaded } from '../../../../lib';
+import { TextAlignment } from '../../../../state';
 import {
   HOTKEY_SCOPE_WHITEBOARD,
   usePauseHotkeysScope,
@@ -35,16 +36,17 @@ import { fitText } from './fitText';
 type EditableProps = {
   editMode: boolean;
   contentEditable: boolean;
+  textAlign: TextAlignment;
 };
 
 const Editable = styled('div', {
-  shouldForwardProp: (p) => p !== 'editMode',
-})<EditableProps>(({ editMode, contentEditable }) => ({
+  shouldForwardProp: (p) => p !== 'editMode' && p !== 'textAlign',
+})<EditableProps>(({ editMode, contentEditable, textAlign }) => ({
   lineHeight: 1.2,
   wordBreak: 'unset',
   wordWrap: 'unset',
   overflowWrap: 'unset',
-  textAlign: 'center',
+  textAlign,
   height: '100%',
   // Selection only works in edit mode
   userSelect: editMode ? 'initial' : 'none',
@@ -82,6 +84,7 @@ const setCaretToTheEnd = (element: HTMLDivElement) => {
 
 export type TextEditorProps = {
   content: string;
+  contentAlignment: TextAlignment;
   editable?: boolean;
   color: string;
   onChange: Dispatch<string>;
@@ -96,6 +99,7 @@ export type TextEditorProps = {
 
 export function TextEditor({
   content,
+  contentAlignment,
   editable = false,
   color,
   onChange,
@@ -206,6 +210,7 @@ export function TextEditor({
       style={{ color }}
       contentEditable={editable}
       editMode={isEditMode}
+      textAlign={contentAlignment}
       onBlur={onBlur}
       onClick={handleMouseEvents}
       onDoubleClick={handleDoubleClick}

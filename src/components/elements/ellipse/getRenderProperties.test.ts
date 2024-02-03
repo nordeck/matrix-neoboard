@@ -36,6 +36,7 @@ describe('getRenderProperties', () => {
         position: { x: expect.any(Number), y: expect.any(Number) },
         width: expect.any(Number),
         height: expect.any(Number),
+        alignment: 'center',
       },
     });
 
@@ -43,5 +44,30 @@ describe('getRenderProperties', () => {
     expect(view.text?.position.y).toBeCloseTo(22.3, 1);
     expect(view.text?.width).toBeCloseTo(70.7, 1);
     expect(view.text?.height).toBeCloseTo(35.35, 1);
+  });
+
+  it('should provide the properties for an ellipse element with custom text alignment', () => {
+    const view = getRenderProperties({
+      type: 'shape',
+      kind: 'ellipse',
+      position: { x: 10, y: 15 },
+      fillColor: '#00ffff',
+      width: 100,
+      height: 50,
+      text: 'My Text',
+      textAlignment: 'right',
+    });
+
+    expect(view).toEqual({
+      strokeColor: '#00ffff',
+      strokeWidth: 2,
+
+      text: {
+        position: { x: expect.any(Number), y: expect.any(Number) },
+        width: expect.any(Number),
+        height: expect.any(Number),
+        alignment: 'right',
+      },
+    });
   });
 });

@@ -59,7 +59,11 @@ describe('createWhiteboardPdfDefinition', () => {
             ],
             [
               'element-circle',
-              mockEllipseElement({ kind: 'circle', text: 'Circle ✅' }),
+              mockEllipseElement({
+                kind: 'circle',
+                text: 'Circle ✅',
+                textAlignment: 'right',
+              }),
             ],
             [
               'element-ellipse',

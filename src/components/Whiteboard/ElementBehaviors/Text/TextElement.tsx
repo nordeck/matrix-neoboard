@@ -18,7 +18,7 @@ import { styled } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
 import { useUnmount } from 'react-use';
 import tinycolor2 from 'tinycolor2';
-import { useWhiteboardSlideInstance } from '../../../../state';
+import { TextAlignment, useWhiteboardSlideInstance } from '../../../../state';
 import { TextEditor } from './TextEditor';
 
 function findForegroundColor(backgroundColor: string) {
@@ -44,6 +44,7 @@ const ForeignObjectNoInteraction = styled('foreignObject')({
 export type TextElementProps = {
   active?: boolean;
   text: string;
+  textAlignment: TextAlignment;
 
   x: number;
   y: number;
@@ -57,6 +58,7 @@ export type TextElementProps = {
 export const TextElement = ({
   active,
   text,
+  textAlignment,
   x,
   y,
   width,
@@ -93,6 +95,7 @@ export const TextElement = ({
       <TextEditor
         color={findForegroundColor(fillColor)}
         content={unsubmittedText}
+        contentAlignment={textAlignment}
         editModeOnMount={
           activeElement?.type === 'shape' &&
           activeElement?.kind === 'rectangle' &&
