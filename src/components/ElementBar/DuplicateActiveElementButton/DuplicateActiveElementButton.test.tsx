@@ -61,6 +61,53 @@ describe('duplicate', () => {
     });
   });
 
+  it('should duplicate multiple elements', () => {
+    const element0: Element = {
+      type: 'path',
+      kind: 'line',
+      position: { x: 10, y: 20 },
+      points: [
+        { x: 0, y: 0 },
+        { x: 80, y: 70 },
+      ],
+      strokeColor: '#ff0000',
+    };
+
+    const element1: Element = {
+      type: 'shape',
+      kind: 'rectangle',
+      position: { x: 10, y: 20 },
+      width: 80,
+      height: 70,
+      fillColor: '#000',
+      text: '',
+    };
+
+    expect(
+      duplicate(
+        element0,
+        40,
+        calculateBoundingRectForElements([element0, element1]),
+      ),
+    ).toEqual({
+      ...element0,
+      // 10 is x, 80 is the width and 40 is the grid cell size
+      position: { x: 10 + 80 + 40, y: 20 },
+    });
+
+    expect(
+      duplicate(
+        element1,
+        40,
+        calculateBoundingRectForElements([element0, element1]),
+      ),
+    ).toEqual({
+      ...element1,
+      // 10 is x, 80 is the width and 40 is the grid cell size
+      position: { x: 10 + 80 + 40, y: 20 },
+    });
+  });
+
   it('should stop at the right edge when duplicating points elements', async () => {
     const element: Element = {
       type: 'path',
@@ -102,6 +149,53 @@ describe('duplicate', () => {
     });
   });
 
+  it('should stop at the right edge when duplicating multiple elements', () => {
+    const element0: Element = {
+      type: 'path',
+      kind: 'line',
+      position: { x: 1920 - 120, y: 20 },
+      points: [
+        { x: 0, y: 0 },
+        { x: 80, y: 70 },
+      ],
+      strokeColor: '#ff0000',
+    };
+
+    const element1: Element = {
+      type: 'shape',
+      kind: 'rectangle',
+      position: { x: 1920 - 120, y: 20 },
+      width: 80,
+      height: 70,
+      fillColor: '#000',
+      text: '',
+    };
+
+    expect(
+      duplicate(
+        element0,
+        40,
+        calculateBoundingRectForElements([element0, element1]),
+      ),
+    ).toEqual({
+      ...element0,
+      // 80 is the width
+      position: { x: 1920 - 80, y: 20 },
+    });
+
+    expect(
+      duplicate(
+        element1,
+        40,
+        calculateBoundingRectForElements([element0, element1]),
+      ),
+    ).toEqual({
+      ...element1,
+      // 80 is the width
+      position: { x: 1920 - 80, y: 20 },
+    });
+  });
+
   it('should stay put if already at the right edge when duplicating a points element', async () => {
     const element: Element = {
       type: 'path',
@@ -138,6 +232,53 @@ describe('duplicate', () => {
       duplicate(element, 40, calculateBoundingRectForElements([element])),
     ).toEqual({
       ...element,
+      // 80 is the width
+      position: { x: 1920 - 80, y: 20 },
+    });
+  });
+
+  it('should stay put if already at the right edge when duplicating multiple elements', () => {
+    const element0: Element = {
+      type: 'path',
+      kind: 'line',
+      position: { x: 1920 - 80, y: 20 },
+      points: [
+        { x: 0, y: 0 },
+        { x: 80, y: 70 },
+      ],
+      strokeColor: '#ff0000',
+    };
+
+    const element1: Element = {
+      type: 'shape',
+      kind: 'rectangle',
+      position: { x: 1920 - 80, y: 20 },
+      width: 80,
+      height: 70,
+      fillColor: '#000',
+      text: '',
+    };
+
+    expect(
+      duplicate(
+        element0,
+        40,
+        calculateBoundingRectForElements([element0, element1]),
+      ),
+    ).toEqual({
+      ...element0,
+      // 80 is the width
+      position: { x: 1920 - 80, y: 20 },
+    });
+
+    expect(
+      duplicate(
+        element1,
+        40,
+        calculateBoundingRectForElements([element0, element1]),
+      ),
+    ).toEqual({
+      ...element1,
       // 80 is the width
       position: { x: 1920 - 80, y: 20 },
     });
