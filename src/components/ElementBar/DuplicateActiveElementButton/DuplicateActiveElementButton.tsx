@@ -17,7 +17,11 @@
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Element, useWhiteboardSlideInstance } from '../../../state';
+import {
+  Element,
+  useActiveElements,
+  useWhiteboardSlideInstance,
+} from '../../../state';
 import { calculateBoundingRectForElements } from '../../../state/crdt/documents/elements';
 import { BoundingRect } from '../../../state/crdt/documents/point';
 import { gridCellSize, whiteboardWidth } from '../../Whiteboard';
@@ -58,9 +62,11 @@ export function duplicate(
 export function DuplicateActiveElementButton() {
   const { t } = useTranslation();
   const slideInstance = useWhiteboardSlideInstance();
+  const { activeElementIds } = useActiveElements();
 
   const handleDuplicate = useCallback(() => {
-    const sortedActiveElementIds = slideInstance.getSortedActiveElementIds();
+    const sortedActiveElementIds =
+      slideInstance.sortElementIds(activeElementIds);
     const elements = Object.values(
       slideInstance.getElements(sortedActiveElementIds),
     );
@@ -70,7 +76,7 @@ export function DuplicateActiveElementButton() {
     );
 
     slideInstance.addElements(duplicatedElements);
-  }, [slideInstance]);
+  }, [activeElementIds, slideInstance]);
 
   const duplicateActiveElementLabel = t(
     'elementBar.duplicateActiveElement',

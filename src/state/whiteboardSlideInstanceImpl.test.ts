@@ -813,26 +813,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
     ]);
   });
 
-  it('should return sorted active element IDs based on the order of element IDs in the slide', () => {
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id',
-    );
-
-    const element = mockLineElement();
-    const element0 = slideInstance.addElement(element);
-    const element1 = slideInstance.addElement(element);
-
-    slideInstance.setActiveElementIds([element1, element0]);
-
-    expect(slideInstance.getSortedActiveElementIds()).toEqual([
-      element0,
-      element1,
-    ]);
-  });
-
   it('should unset a selected element to a specific element', async () => {
     const slideInstance = new WhiteboardSlideInstanceImpl(
       communicationChannel,
@@ -912,6 +892,23 @@ describe('WhiteboardSlideInstanceImpl', () => {
       [element1],
       [],
     ]);
+  });
+
+  it('should sort given element IDs based on the order of element IDs in the slide ignoring unknown ones', () => {
+    const slideInstance = new WhiteboardSlideInstanceImpl(
+      communicationChannel,
+      slide0,
+      document,
+      '@user-id',
+    );
+
+    const element = mockLineElement();
+    const element0 = slideInstance.addElement(element);
+    const element1 = slideInstance.addElement(element);
+
+    expect(
+      slideInstance.sortElementIds([element1, element0, 'not-exists']),
+    ).toEqual([element0, element1]);
   });
 
   it('should check if specific element is active when multiple elements are selected', async () => {

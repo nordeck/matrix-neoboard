@@ -190,10 +190,6 @@ export type WhiteboardSlideInstance = {
   /** Return the active elements */
   getActiveElementIds(): string[];
   /**
-   * Return sorted active element IDs based on the order of element IDs in the slide.
-   */
-  getSortedActiveElementIds(): string[];
-  /**
    * Observe the active element. First element is returned if multiple are active.
    * @deprecated to be replaced with observeActiveElementIds
    */
@@ -208,6 +204,10 @@ export type WhiteboardSlideInstance = {
   addActiveElementId(elementId: string): void;
   /** Unselects the element if active */
   unselectActiveElementId(elementId: string): void;
+  /**
+   * Sort given element IDs based on the order of element IDs in the slide ignoring unknown ones.
+   */
+  sortElementIds(elementIds: string[]): string[];
 };
 
 export type Elements = Record<string, Element>;

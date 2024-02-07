@@ -297,14 +297,6 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
     );
   }
 
-  getSortedActiveElementIds(): string[] {
-    const elementIds = this.getElementIds();
-
-    return this.activeElementIds.sort(
-      (a, b) => elementIds.indexOf(a) - elementIds.indexOf(b),
-    );
-  }
-
   observeActiveElementId(): Observable<string | undefined> {
     return this.observeActiveElementIds().pipe(
       map((elements) => first(elements)),
@@ -359,6 +351,14 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
     this.activeElementIdsSubject.next(activeElementIds);
 
     this.updateDocumentUndoManagerCurrentElement(this.activeElementIds);
+  }
+
+  sortElementIds(elementIds: string[]): string[] {
+    const ids = this.getElementIds();
+
+    return elementIds
+      .filter((elementId) => ids.includes(elementId))
+      .sort((a, b) => ids.indexOf(a) - ids.indexOf(b));
   }
 
   private updateDocumentUndoManagerCurrentElement(
