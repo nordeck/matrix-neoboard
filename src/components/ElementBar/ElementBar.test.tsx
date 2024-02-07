@@ -71,6 +71,12 @@ describe('<ElementBar/>', () => {
     ).toBeInTheDocument();
 
     expect(
+      within(toolbar).getByRole('radiogroup', {
+        name: 'Text Alignment',
+      }),
+    ).toBeInTheDocument();
+
+    expect(
       within(toolbar).getByRole('button', {
         name: 'Duplicate the active element',
       }),

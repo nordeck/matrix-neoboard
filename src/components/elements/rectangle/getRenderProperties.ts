@@ -36,6 +36,7 @@ export function getRenderProperties(
       },
       width: width - padding * 2,
       height: height - padding * 2,
+      alignment: shape.textAlignment ?? 'center',
     },
   };
 }

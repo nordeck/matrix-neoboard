@@ -121,15 +121,16 @@ An Element that has a shape attached, that has a text and a fill color.
 
 #### Fields
 
-| Field       | Type                                                 | Description                                                 |
-| ----------- | ---------------------------------------------------- | ----------------------------------------------------------- |
-| `type`      | `'shape'`                                            | Identifies the element as a shape.                          |
-| `kind`      | `'rectangle' \| 'circle' \| 'ellipse' \| 'triangle'` | The kind of shape, defining its look.                       |
-| `position`  | `Point`                                              | The position of the shape on the whiteboard canvas.         |
-| `width`     | `number`                                             | Scaling of the shape on the x-axis.                         |
-| `height`    | `number`                                             | Scaling of the shape on the y-axis.                         |
-| `fillColor` | `string`                                             | The fill color of the shape as [CSS color value][csscolor]. |
-| `text`      | `YText` / `string`                                   | Text that is displayed in the shape.                        |
+| Field           | Type                                                 | Description                                                 |
+| --------------- | ---------------------------------------------------- | ----------------------------------------------------------- |
+| `type`          | `'shape'`                                            | Identifies the element as a shape.                          |
+| `kind`          | `'rectangle' \| 'circle' \| 'ellipse' \| 'triangle'` | The kind of shape, defining its look.                       |
+| `position`      | `Point`                                              | The position of the shape on the whiteboard canvas.         |
+| `width`         | `number`                                             | Scaling of the shape on the x-axis.                         |
+| `height`        | `number`                                             | Scaling of the shape on the y-axis.                         |
+| `fillColor`     | `string`                                             | The fill color of the shape as [CSS color value][csscolor]. |
+| `text`          | `YText` / `string`                                   | Text that is displayed in the shape.                        |
+| `textAlignment` | `'left' \| 'center' \| 'right'`                      | The alignment of the text in the shape.                     |
 
 #### Example
 

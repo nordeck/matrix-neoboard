@@ -71,6 +71,7 @@ describe('isValidElement', () => {
       height: 100,
       fillColor: 'red',
       text: 'some text',
+      textAlignment: 'center',
       additional: 'data',
     };
 
@@ -136,6 +137,9 @@ describe('isValidElement', () => {
     { text: undefined },
     { text: null },
     { text: 111 },
+    { textAlignment: null },
+    { textAlignment: 111 },
+    { textAlignment: 'other' },
   ])('should reject shape event with patch %j', (patch: Object) => {
     const data = {
       type: 'shape',

@@ -19,6 +19,7 @@ import { Toolbar } from '../common/Toolbar';
 import { ColorPicker } from './ColorPickerButton';
 import { DeleteActiveElementButton } from './DeleteActiveElementButton/DeleteActiveElementButton';
 import { DuplicateActiveElementButton } from './DuplicateActiveElementButton';
+import { TextAlignmentButtons } from './TextAlignmentButtons';
 
 export function ElementBar() {
   const { t } = useTranslation();
@@ -27,6 +28,7 @@ export function ElementBar() {
   return (
     <Toolbar aria-label={toolbarTitle}>
       <ColorPicker />
+      <TextAlignmentButtons />
       <DuplicateActiveElementButton />
       <DeleteActiveElementButton />
     </Toolbar>

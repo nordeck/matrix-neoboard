@@ -36,6 +36,7 @@ const elementBaseSchema = Joi.object<ElementBase, true>({
   .required();
 
 export type ShapeKind = 'rectangle' | 'circle' | 'ellipse' | 'triangle';
+export type TextAlignment = 'left' | 'center' | 'right';
 
 export type ShapeElement = ElementBase & {
   type: 'shape';
@@ -44,6 +45,7 @@ export type ShapeElement = ElementBase & {
   height: number;
   fillColor: string;
   text: string;
+  textAlignment?: TextAlignment;
 };
 
 const shapeElementSchema = elementBaseSchema
@@ -56,6 +58,7 @@ const shapeElementSchema = elementBaseSchema
     height: Joi.number().strict().required(),
     fillColor: Joi.string().required(),
     text: Joi.string().min(0).required(),
+    textAlignment: Joi.string().valid('left', 'center', 'right'),
   })
   .required();
 

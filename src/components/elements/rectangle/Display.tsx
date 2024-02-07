@@ -51,6 +51,7 @@ const RectangleDisplay = ({
         <TextElement
           active={active}
           text={shape.text}
+          textAlignment={text.alignment}
           elementId={elementId}
           x={text.position.x}
           y={text.position.y}
