@@ -78,7 +78,7 @@ describe('<ImportWhiteboardDialog/>', () => {
     const dialog = screen.getByRole('dialog', {
       name: 'Import content',
       description:
-        "Selected file: “file.nwb”. Click to select a different file. Caution Your contents will be replaced. This operation can't be reverted.",
+        'Selected file: “file.nwb”. Click to select a different file. Caution Your contents will be replaced. This operation is reversible by using “undo”.',
     });
 
     expect(
