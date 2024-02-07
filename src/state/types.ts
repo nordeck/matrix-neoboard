@@ -190,6 +190,10 @@ export type WhiteboardSlideInstance = {
   /** Return the active elements */
   getActiveElementIds(): string[];
   /**
+   * Return sorted active element IDs based on the order of element IDs in the slide.
+   */
+  getSortedActiveElementIds(): string[];
+  /**
    * Observe the active element. First element is returned if multiple are active.
    * @deprecated to be replaced with observeActiveElementIds
    */

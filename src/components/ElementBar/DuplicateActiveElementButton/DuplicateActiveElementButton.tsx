@@ -17,16 +17,11 @@
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  Element,
-  useActiveElements,
-  useWhiteboardSlideInstance,
-  WhiteboardSlideInstance,
-} from '../../../state';
+import { Element, useWhiteboardSlideInstance } from '../../../state';
 import { calculateBoundingRectForElements } from '../../../state/crdt/documents/elements';
 import { BoundingRect } from '../../../state/crdt/documents/point';
-import { ToolbarButton } from '../../common/Toolbar';
 import { gridCellSize, whiteboardWidth } from '../../Whiteboard';
+import { ToolbarButton } from '../../common/Toolbar';
 
 export function duplicate(
   element: Element,
@@ -60,24 +55,12 @@ export function duplicate(
   };
 }
 
-export function sort(
-  slideInstance: WhiteboardSlideInstance,
-  activeElementIds: string[],
-): string[] {
-  const elementIds = slideInstance.getElementIds();
-
-  return activeElementIds.sort(
-    (a, b) => elementIds.indexOf(a) - elementIds.indexOf(b),
-  );
-}
-
 export function DuplicateActiveElementButton() {
   const { t } = useTranslation();
   const slideInstance = useWhiteboardSlideInstance();
-  const { activeElementIds } = useActiveElements();
 
   const handleDuplicate = useCallback(() => {
-    const sortedActiveElementIds = sort(slideInstance, activeElementIds);
+    const sortedActiveElementIds = slideInstance.getSortedActiveElementIds();
     const elements = Object.values(
       slideInstance.getElements(sortedActiveElementIds),
     );
@@ -87,7 +70,7 @@ export function DuplicateActiveElementButton() {
     );
 
     slideInstance.addElements(duplicatedElements);
-  }, [activeElementIds, slideInstance]);
+  }, [slideInstance]);
 
   const duplicateActiveElementLabel = t(
     'elementBar.duplicateActiveElement',

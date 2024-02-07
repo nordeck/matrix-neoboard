@@ -297,6 +297,14 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
     );
   }
 
+  getSortedActiveElementIds(): string[] {
+    const elementIds = this.getElementIds();
+
+    return this.activeElementIds.sort(
+      (a, b) => elementIds.indexOf(a) - elementIds.indexOf(b),
+    );
+  }
+
   observeActiveElementId(): Observable<string | undefined> {
     return this.observeActiveElementIds().pipe(
       map((elements) => first(elements)),

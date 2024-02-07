@@ -16,8 +16,7 @@
 
 import { Element } from '../../../state';
 import { calculateBoundingRectForElements } from '../../../state/crdt/documents/elements';
-import { WhiteboardSlideInstanceImpl } from '../../../state/whiteboardSlideInstanceImpl';
-import { duplicate, sort } from './DuplicateActiveElementButton';
+import { duplicate } from './DuplicateActiveElementButton';
 
 describe('duplicate', () => {
   it('should duplicate a points element', async () => {
@@ -282,14 +281,5 @@ describe('duplicate', () => {
       // 80 is the width
       position: { x: 1920 - 80, y: 20 },
     });
-  });
-});
-
-describe('sort', () => {
-  it('should sort the active element IDs by the order of the slide element IDs', () => {
-    const slideInstance = {
-      getElementIds: jest.fn().mockReturnValue(['a', 'b', 'c']),
-    } as unknown as WhiteboardSlideInstanceImpl;
-    expect(sort(slideInstance, ['c', 'a'])).toEqual(['a', 'c']);
   });
 });
