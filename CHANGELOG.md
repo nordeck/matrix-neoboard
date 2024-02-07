@@ -1,5 +1,11 @@
 # @nordeck/matrix-neoboard-widget
 
+## 1.10.0
+
+### Minor Changes
+
+- 4cd20a3: Support text alignment in shapes
+
 ## 1.9.0
 
 ### Minor Changes
