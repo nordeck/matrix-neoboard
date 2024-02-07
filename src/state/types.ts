@@ -127,9 +127,15 @@ export type WhiteboardSlideInstance = {
   /**
    * Add a new element to the slide.
    * @param element - the specification of the element.
-   * @returns the id of the created element.
+   * @returns the ID of the created element.
    */
   addElement(element: Element): string;
+  /**
+   * Add new elements to the slide.
+   * @param elements - the specification of the elements.
+   * @returns the IDs of the created elements.
+   */
+  addElements(elements: Array<Element>): string[];
   /** Remove the element */
   removeElement(elementId: string): void;
   /**
@@ -198,6 +204,10 @@ export type WhiteboardSlideInstance = {
   addActiveElementId(elementId: string): void;
   /** Unselects the element if active */
   unselectActiveElementId(elementId: string): void;
+  /**
+   * Sort given element IDs based on the order of element IDs in the slide ignoring unknown ones.
+   */
+  sortElementIds(elementIds: string[]): string[];
 };
 
 export type Elements = Record<string, Element>;

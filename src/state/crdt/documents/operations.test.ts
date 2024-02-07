@@ -22,6 +22,7 @@ import { Document } from '../types';
 import {
   generate,
   generateAddElement,
+  generateAddElements,
   generateAddSlide,
   generateDuplicateSlide,
   generateLockSlide,
@@ -676,6 +677,39 @@ describe('generateAddElement', () => {
 
     const element = mockLineElement();
     const [changeFn] = generateAddElement('not-exists', element);
+
+    expect(() => doc.performChange(changeFn)).toThrow(
+      'Slide not found: not-exists',
+    );
+  });
+});
+
+describe('generateAddElements', () => {
+  it('should add elements', () => {
+    const doc = createWhiteboardDocument();
+
+    const element0 = mockEllipseElement();
+    const element1 = mockLineElement();
+    const [changeFn, elementIds] = generateAddElements(slide0, [
+      element0,
+      element1,
+    ]);
+
+    doc.performChange(changeFn);
+
+    expect(elementIds).toEqual([expect.any(String), expect.any(String)]);
+    expect(getElement(doc.getData(), slide0, elementIds[0])?.toJSON()).toEqual(
+      element0,
+    );
+    expect(getElement(doc.getData(), slide0, elementIds[1])?.toJSON()).toEqual(
+      element1,
+    );
+    expect(getNormalizedElementIds(doc.getData(), slide0)).toEqual(elementIds);
+  });
+
+  it('should throw if the slide does not exist', () => {
+    const doc = createWhiteboardDocument();
+    const [changeFn] = generateAddElements('not-exists', []);
 
     expect(() => doc.performChange(changeFn)).toThrow(
       'Slide not found: not-exists',
