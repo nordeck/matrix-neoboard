@@ -43,6 +43,7 @@ import {
   UpdateElementPatch,
   WhiteboardDocument,
   generateAddElement,
+  generateAddElements,
   generateLockSlide,
   generateMoveDown,
   generateMoveToBottom,
@@ -149,12 +150,25 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
 
     const [changeFn, elementId] = generateAddElement(this.slideId, element);
 
-    // set the active element id first so it is captured in the undomanager
+    // set the active element ID first, so it is captured in the undomanager
     this.setActiveElementId(elementId);
 
     this.document.performChange(changeFn);
 
     return elementId;
+  }
+
+  addElements(elements: Array<Element>): string[] {
+    this.assertLocked();
+
+    const [changeFn, elementIds] = generateAddElements(this.slideId, elements);
+
+    // set the active element IDs first, so it is captured in the undomanager
+    this.setActiveElementIds(elementIds);
+
+    this.document.performChange(changeFn);
+
+    return elementIds;
   }
 
   removeElement(elementId: string): void {
@@ -337,6 +351,14 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
     this.activeElementIdsSubject.next(activeElementIds);
 
     this.updateDocumentUndoManagerCurrentElement(this.activeElementIds);
+  }
+
+  sortElementIds(elementIds: string[]): string[] {
+    const ids = this.getElementIds();
+
+    return elementIds
+      .filter((elementId) => ids.includes(elementId))
+      .sort((a, b) => ids.indexOf(a) - ids.indexOf(b));
   }
 
   private updateDocumentUndoManagerCurrentElement(

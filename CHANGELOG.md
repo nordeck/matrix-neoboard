@@ -1,5 +1,17 @@
 # @nordeck/matrix-neoboard-widget
 
+## 1.9.0
+
+### Minor Changes
+
+- 323e80d: Add action to duplicate multiple elements.
+
+## 1.8.0
+
+### Minor Changes
+
+- bd3067b: Outline active elements
+
 ## 1.7.0
 
 ### Minor Changes

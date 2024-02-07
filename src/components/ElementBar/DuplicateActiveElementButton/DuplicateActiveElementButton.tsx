@@ -15,70 +15,68 @@
  */
 
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import log from 'loglevel';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  calculateBoundingRectForPoints,
   Element,
-  useActiveElement,
+  useActiveElements,
   useWhiteboardSlideInstance,
 } from '../../../state';
-import { ToolbarButton } from '../../common/Toolbar';
+import { calculateBoundingRectForElements } from '../../../state/crdt/documents/elements';
+import { BoundingRect } from '../../../state/crdt/documents/point';
 import { gridCellSize, whiteboardWidth } from '../../Whiteboard';
+import { ToolbarButton } from '../../common/Toolbar';
 
 export function duplicate(
   element: Element,
   gridCellSize: number,
-): Element | undefined {
-  const activeElementX = element.position.x;
+  boundingRect: BoundingRect,
+): Element {
+  const elementPositionX = element.position.x;
+  const isDuplicationExceedingWhiteboard =
+    boundingRect.offsetX +
+      boundingRect.width +
+      gridCellSize +
+      boundingRect.width >
+    whiteboardWidth;
 
-  const calcX = (width: number) => {
-    const newX = activeElementX + width + gridCellSize;
-    return Math.min(newX, whiteboardWidth - width);
+  let x = 0;
+
+  if (isDuplicationExceedingWhiteboard) {
+    const boundingRectOffsetX = whiteboardWidth - boundingRect.width;
+    const offsetX = boundingRectOffsetX - boundingRect.offsetX;
+
+    x = elementPositionX + offsetX;
+  } else {
+    const offsetX = elementPositionX - boundingRect.offsetX;
+
+    x = boundingRect.offsetX + boundingRect.width + gridCellSize + offsetX;
+  }
+
+  return {
+    ...element,
+    position: { x, y: element.position.y },
   };
-
-  if (element.type === 'shape') {
-    const width = element.width;
-
-    return {
-      ...element,
-      position: { x: calcX(width), y: element.position.y },
-    };
-  }
-  if (element.type === 'path') {
-    const { width } = calculateBoundingRectForPoints(element.points);
-
-    return {
-      ...element,
-      position: { x: calcX(width), y: element.position.y },
-    };
-  }
-  return undefined;
 }
 
 export function DuplicateActiveElementButton() {
   const { t } = useTranslation();
   const slideInstance = useWhiteboardSlideInstance();
-  const { activeElementId } = useActiveElement();
+  const { activeElementIds } = useActiveElements();
 
   const handleDuplicate = useCallback(() => {
-    if (activeElementId) {
-      const activeElement = slideInstance.getElement(activeElementId);
+    const sortedActiveElementIds =
+      slideInstance.sortElementIds(activeElementIds);
+    const elements = Object.values(
+      slideInstance.getElements(sortedActiveElementIds),
+    );
+    const boundingRect = calculateBoundingRectForElements(elements);
+    const duplicatedElements = elements.map((element) =>
+      duplicate(element, gridCellSize, boundingRect),
+    );
 
-      if (activeElement) {
-        const element = duplicate(activeElement, gridCellSize);
-
-        if (element) {
-          slideInstance.addElement(element);
-        } else {
-          log.warn(
-            'Duplication failed. The element is neither a shape element nor a points element.',
-          );
-        }
-      }
-    }
-  }, [activeElementId, slideInstance]);
+    slideInstance.addElements(duplicatedElements);
+  }, [activeElementIds, slideInstance]);
 
   const duplicateActiveElementLabel = t(
     'elementBar.duplicateActiveElement',
