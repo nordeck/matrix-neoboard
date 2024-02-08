@@ -138,6 +138,8 @@ export type WhiteboardSlideInstance = {
   addElements(elements: Array<Element>): string[];
   /** Remove the element */
   removeElement(elementId: string): void;
+  /** Remove the elements by their IDs */
+  removeElements(elementIds: string[]): void;
   /**
    * Update the element properties.
    * @param patch - the properties to add/override in the element.

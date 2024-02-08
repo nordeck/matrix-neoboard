@@ -55,7 +55,7 @@ import {
   getNormalizedElementIds,
   getSlideLock,
 } from './crdt';
-import { generate } from './crdt/documents/operations';
+import { generate, generateRemoveElements } from './crdt/documents/operations';
 import {
   Elements,
   WhiteboardSlideInstance,
@@ -174,6 +174,13 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
     this.assertLocked();
 
     this.document.performChange(generateRemoveElement(this.slideId, elementId));
+  }
+
+  removeElements(elementIds: string[]): void {
+    this.assertLocked();
+    this.document.performChange(
+      generateRemoveElements(this.slideId, elementIds),
+    );
   }
 
   updateElement(elementId: string, patch: UpdateElementPatch): void {

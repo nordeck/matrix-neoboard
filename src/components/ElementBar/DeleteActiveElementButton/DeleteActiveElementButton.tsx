@@ -17,23 +17,24 @@
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useActiveElement, useWhiteboardSlideInstance } from '../../../state';
+import { useActiveElements, useWhiteboardSlideInstance } from '../../../state';
 import { ToolbarButton } from '../../common/Toolbar';
 
 export function DeleteActiveElementButton() {
   const { t } = useTranslation();
-  const { activeElementId } = useActiveElement();
+  const { activeElementIds } = useActiveElements();
   const slideInstance = useWhiteboardSlideInstance();
 
   const handleDelete = useCallback(() => {
-    if (activeElementId) {
-      slideInstance.removeElement(activeElementId);
+    if (activeElementIds.length) {
+      slideInstance.removeElements(activeElementIds);
     }
-  }, [activeElementId, slideInstance]);
+  }, [activeElementIds, slideInstance]);
 
   const deleteActiveElementLabel = t(
     'elementBar.deleteElement',
     'Delete element',
+    { count: activeElementIds.length },
   );
 
   return (

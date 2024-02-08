@@ -32,6 +32,7 @@ import {
   generateMoveSlide,
   generateMoveUp,
   generateRemoveElement,
+  generateRemoveElements,
   generateRemoveSlide,
   generateUnlockSlide,
   generateUpdateElement,
@@ -1382,6 +1383,25 @@ describe('generateRemoveElement', () => {
         element3,
       ]);
     });
+  });
+});
+
+describe('generateRemoveElements', () => {
+  it('should remove the elements', () => {
+    const doc = createWhiteboardDocument();
+    const element = mockLineElement();
+    const [changeFn0, element0] = generateAddElement(slide0, element);
+    doc.performChange(changeFn0);
+    const [changeFn1, element1] = generateAddElement(slide0, element);
+    doc.performChange(changeFn1);
+    const [changeFn2, element2] = generateAddElement(slide0, element);
+    doc.performChange(changeFn2);
+
+    doc.performChange(generateRemoveElements(slide0, [element0, element1]));
+
+    expect(getNormalizedElementIds(doc.getData(), slide0)).toEqual([element2]);
+    expect(getElement(doc.getData(), slide0, element0)).toBeUndefined();
+    expect(getElement(doc.getData(), slide0, element1)).toBeUndefined();
   });
 });
 

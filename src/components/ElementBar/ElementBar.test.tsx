@@ -22,6 +22,7 @@ import { ComponentType, PropsWithChildren } from 'react';
 import userEvent from '@testing-library/user-event';
 import {
   mockEllipseElement,
+  mockLineElement,
   mockWhiteboardManager,
   WhiteboardTestingContextProvider,
 } from '../../lib/testUtils/documentTestUtils';
@@ -42,7 +43,16 @@ describe('<ElementBar/>', () => {
 
   beforeEach(() => {
     ({ whiteboardManager } = mockWhiteboardManager({
-      slides: [['slide-0', [['element-1', mockEllipseElement()]]]],
+      slides: [
+        [
+          'slide-0',
+          [
+            ['element-1', mockEllipseElement()],
+            ['element-2', mockLineElement()],
+            ['element-3', mockEllipseElement()],
+          ],
+        ],
+      ],
     }));
 
     activeWhiteboardInstance = whiteboardManager.getActiveWhiteboardInstance()!;
@@ -87,8 +97,12 @@ describe('<ElementBar/>', () => {
     ).toBeInTheDocument();
   });
 
-  it('should delete an element', async () => {
+  it.each([
+    ['should delete a single element', ['element-1']],
+    ['should delete multiple elements', ['element-1', 'element-2']],
+  ])('%s', async (_testname, elementIds) => {
     const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
+    activeSlide.setActiveElementIds(elementIds);
     render(<ElementBar />, { wrapper: Wrapper });
 
     const toolbar = screen.getByRole('toolbar', { name: 'Element' });
@@ -96,7 +110,12 @@ describe('<ElementBar/>', () => {
       within(toolbar).getByRole('button', { name: /Delete element/ }),
     );
 
-    expect(activeSlide.getElementIds()).toEqual([]);
+    // check that none of the elements to be deleted remain on the slide
+    expect(
+      activeSlide
+        .getElementIds()
+        .some((elementId) => elementIds.includes(elementId)),
+    ).toBeFalsy();
   });
 
   it('should have no accessibility violations', async () => {

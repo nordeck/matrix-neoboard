@@ -75,8 +75,8 @@ export function ElementContextMenu({
   }, [activeElementIds, handleClose, slideInstance]);
 
   const handleDelete = useCallback(() => {
-    if (activeElementIds.length === 1) {
-      slideInstance.removeElement(activeElementIds[0]);
+    if (activeElementIds.length) {
+      slideInstance.removeElements(activeElementIds);
       handleClose();
     }
   }, [activeElementIds, handleClose, slideInstance]);

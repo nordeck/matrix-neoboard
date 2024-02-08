@@ -82,7 +82,8 @@
     "copy-to-clipboard": "Copy to clipboard"
   },
   "elementBar": {
-    "deleteElement": "Delete element",
+    "deleteElement_one": "Delete element",
+    "deleteElement_other": "Delete elements",
     "duplicateActiveElement": "Duplicate the active element",
     "textAlignment": "Text Alignment",
     "textAlignmentCenter": "Center",

@@ -439,6 +439,18 @@ export function generateRemoveElement(
   slideId: string,
   elementId: string,
 ): ChangeFn<WhiteboardDocument> {
+  return generateRemoveElements(slideId, [elementId]);
+}
+
+/**
+ * Delete elements by their IDs.
+ *
+ * @param elementIds - list of IDs of elements to be removed
+ */
+export function generateRemoveElements(
+  slideId: string,
+  elementIds: string[],
+): ChangeFn<WhiteboardDocument> {
   return (doc) => {
     const slide = getSlide(doc, slideId);
 
@@ -446,7 +458,7 @@ export function generateRemoveElement(
       return;
     }
 
-    slide.get('elements').delete(elementId);
+    elementIds.forEach((elementId) => slide.get('elements').delete(elementId));
     cleanupElementIds(slide);
   };
 }
