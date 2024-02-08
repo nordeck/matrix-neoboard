@@ -25,7 +25,7 @@
         "cancel": "Abbrechen",
         "import": "Importieren"
       },
-      "successDescription": "Deine Inhalte werden überschrieben. Diese Aktion kann nicht rückgängig gemacht werden.",
+      "successDescription": "Deine Inhalte werden überschrieben. Diese Aktion ist durch die Nutzung von „Rückgängig“ umkehrbar.",
       "successTitle": "Achtung",
       "title": "Inhalt importieren"
     },

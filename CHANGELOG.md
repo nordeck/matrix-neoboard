@@ -1,5 +1,11 @@
 # @nordeck/matrix-neoboard-widget
 
+## 1.11.0
+
+### Minor Changes
+
+- 6f381e7: The import dialog now mentions that an import can be undone
+
 ## 1.10.0
 
 ### Minor Changes
