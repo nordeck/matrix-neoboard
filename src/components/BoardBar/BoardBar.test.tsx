@@ -214,7 +214,7 @@ describe('<BoardBar/>', () => {
     const dialog = await screen.findByRole('dialog', {
       name: 'Import content',
       description:
-        "Selected file: “my-file.nwb”. Click to select a different file. Caution Your contents will be replaced. This operation can't be reverted.",
+        'Selected file: “my-file.nwb”. Click to select a different file. Caution Your contents will be replaced. This operation is reversible by using “undo”.',
     });
 
     await userEvent.click(

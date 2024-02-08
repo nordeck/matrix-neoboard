@@ -131,7 +131,7 @@ export function ImportWhiteboardDialog({
             </AlertTitle>
             {t(
               'boardBar.importWhiteboardDialog.successDescription',
-              "Your contents will be replaced. This operation can't be reverted.",
+              'Your contents will be replaced. This operation is reversible by using “undo”.',
             )}
           </Alert>
         ) : (
