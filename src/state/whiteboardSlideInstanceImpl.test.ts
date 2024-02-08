@@ -306,12 +306,68 @@ describe('WhiteboardSlideInstanceImpl', () => {
       element2,
     ]);
 
-    slideInstance.moveElementToBottom(element2);
+    slideInstance.moveElementsToBottom([element2]);
 
     expect(slideInstance.getElementIds()).toEqual([
       element2,
       element0,
       element1,
+    ]);
+  });
+
+  it('should move elements to bottom', () => {
+    const slideInstance = new WhiteboardSlideInstanceImpl(
+      communicationChannel,
+      slide0,
+      document,
+      '@user-id',
+    );
+
+    const element = mockLineElement();
+    const element0 = slideInstance.addElement(element);
+    const element1 = slideInstance.addElement(element);
+    const element2 = slideInstance.addElement(element);
+
+    expect(slideInstance.getElementIds()).toEqual([
+      element0,
+      element1,
+      element2,
+    ]);
+
+    slideInstance.moveElementsToBottom([element1, element2]);
+
+    expect(slideInstance.getElementIds()).toEqual([
+      element1,
+      element2,
+      element0,
+    ]);
+  });
+
+  it('should move elements to bottom when order is different to elements in the slide', () => {
+    const slideInstance = new WhiteboardSlideInstanceImpl(
+      communicationChannel,
+      slide0,
+      document,
+      '@user-id',
+    );
+
+    const element = mockLineElement();
+    const element0 = slideInstance.addElement(element);
+    const element1 = slideInstance.addElement(element);
+    const element2 = slideInstance.addElement(element);
+
+    expect(slideInstance.getElementIds()).toEqual([
+      element0,
+      element1,
+      element2,
+    ]);
+
+    slideInstance.moveElementsToBottom([element2, element1]);
+
+    expect(slideInstance.getElementIds()).toEqual([
+      element1,
+      element2,
+      element0,
     ]);
   });
 
@@ -327,7 +383,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
     const element0 = slideInstance.addElement(element);
     slideInstance.lockSlide();
 
-    expect(() => slideInstance.moveElementToBottom(element0)).toThrowError(
+    expect(() => slideInstance.moveElementsToBottom([element0])).toThrowError(
       'Can not modify slide, slide is locked',
     );
   });
@@ -441,12 +497,68 @@ describe('WhiteboardSlideInstanceImpl', () => {
       element2,
     ]);
 
-    slideInstance.moveElementToTop(element0);
+    slideInstance.moveElementsToTop([element0]);
 
     expect(slideInstance.getElementIds()).toEqual([
       element1,
       element2,
       element0,
+    ]);
+  });
+
+  it('should move elements to top', () => {
+    const slideInstance = new WhiteboardSlideInstanceImpl(
+      communicationChannel,
+      slide0,
+      document,
+      '@user-id',
+    );
+
+    const element = mockLineElement();
+    const element0 = slideInstance.addElement(element);
+    const element1 = slideInstance.addElement(element);
+    const element2 = slideInstance.addElement(element);
+
+    expect(slideInstance.getElementIds()).toEqual([
+      element0,
+      element1,
+      element2,
+    ]);
+
+    slideInstance.moveElementsToTop([element0, element1]);
+
+    expect(slideInstance.getElementIds()).toEqual([
+      element2,
+      element0,
+      element1,
+    ]);
+  });
+
+  it('should move elements to top when order is different to elements in the slide', () => {
+    const slideInstance = new WhiteboardSlideInstanceImpl(
+      communicationChannel,
+      slide0,
+      document,
+      '@user-id',
+    );
+
+    const element = mockLineElement();
+    const element0 = slideInstance.addElement(element);
+    const element1 = slideInstance.addElement(element);
+    const element2 = slideInstance.addElement(element);
+
+    expect(slideInstance.getElementIds()).toEqual([
+      element0,
+      element1,
+      element2,
+    ]);
+
+    slideInstance.moveElementsToTop([element1, element0]);
+
+    expect(slideInstance.getElementIds()).toEqual([
+      element2,
+      element0,
+      element1,
     ]);
   });
 
@@ -462,7 +574,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
     const element0 = slideInstance.addElement(element);
     slideInstance.lockSlide();
 
-    expect(() => slideInstance.moveElementToTop(element0)).toThrowError(
+    expect(() => slideInstance.moveElementsToTop([element0])).toThrowError(
       'Can not modify slide, slide is locked',
     );
   });

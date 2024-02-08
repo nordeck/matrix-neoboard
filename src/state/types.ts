@@ -153,14 +153,14 @@ export type WhiteboardSlideInstance = {
       patch: UpdateElementPatch;
     }[],
   ): void;
-  /** Move the element to the bottom of the slide. */
-  moveElementToBottom(elementId: string): void;
   /** Move the element one level down. */
   moveElementDown(elementId: string): void;
+  /** Move the elements to the bottom of the slide. Moved elements retain their order on the slide.*/
+  moveElementsToBottom(elementIds: string[]): void;
   /** Move the element one level up. */
   moveElementUp(elementId: string): void;
-  /** Move the element to the top of the slide. */
-  moveElementToTop(elementId: string): void;
+  /** Move the elements to the top of the slide. Moved elements retain their order on the slide.*/
+  moveElementsToTop(elementIds: string[]): void;
   /** Returns the element or undefined if it not exists. */
   getElement(elementId: string): Element | undefined;
   /** Returns elements by ids. */

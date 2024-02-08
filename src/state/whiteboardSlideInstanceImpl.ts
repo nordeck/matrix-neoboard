@@ -46,8 +46,7 @@ import {
   generateAddElements,
   generateLockSlide,
   generateMoveDown,
-  generateMoveToBottom,
-  generateMoveToTop,
+  generateMoveElements,
   generateMoveUp,
   generateRemoveElement,
   generateUnlockSlide,
@@ -202,16 +201,19 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
     );
   }
 
-  moveElementToBottom(elementId: string): void {
-    this.assertLocked();
-
-    this.document.performChange(generateMoveToBottom(this.slideId, elementId));
-  }
-
   moveElementDown(elementId: string): void {
     this.assertLocked();
 
     this.document.performChange(generateMoveDown(this.slideId, elementId));
+  }
+
+  moveElementsToBottom(elementIds: string[]): void {
+    this.assertLocked();
+
+    const elementIdsSorted = this.sortElementIds(elementIds).reverse();
+    this.document.performChange(
+      generateMoveElements(this.slideId, elementIdsSorted, 'bottom'),
+    );
   }
 
   moveElementUp(elementId: string): void {
@@ -220,10 +222,13 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
     this.document.performChange(generateMoveUp(this.slideId, elementId));
   }
 
-  moveElementToTop(elementId: string): void {
+  moveElementsToTop(elementIds: string[]): void {
     this.assertLocked();
 
-    this.document.performChange(generateMoveToTop(this.slideId, elementId));
+    const elementIdsSorted = this.sortElementIds(elementIds);
+    this.document.performChange(
+      generateMoveElements(this.slideId, elementIdsSorted, 'top'),
+    );
   }
 
   getElement(elementId: string): Element | undefined {
