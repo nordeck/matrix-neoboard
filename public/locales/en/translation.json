@@ -25,7 +25,7 @@
         "cancel": "Cancel",
         "import": "Import"
       },
-      "successDescription": "Your contents will be replaced. This operation can't be reverted.",
+      "successDescription": "Your contents will be replaced. This operation is reversible by using “undo”.",
       "successTitle": "Caution",
       "title": "Import content"
     },
