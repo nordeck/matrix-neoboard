@@ -118,6 +118,13 @@ export type WhiteboardInstance = {
   clearUndoManager(): void;
 };
 
+export type ElementUpdate = {
+  /** ID of the element to be updated */
+  elementId: string;
+  /** the properties to add/override in the element */
+  patch: UpdateElementPatch;
+};
+
 /** An instance of a whiteboard slide that can be used to read and manipulate it. */
 export type WhiteboardSlideInstance = {
   /** Lock the slide to disable all edit operations in the UI. */
@@ -149,12 +156,7 @@ export type WhiteboardSlideInstance = {
    * Update properties of multiple elements.
    * @param updates - the properties to add/override for each element.
    */
-  updateElements(
-    updates: {
-      elementId: string;
-      patch: UpdateElementPatch;
-    }[],
-  ): void;
+  updateElements(updates: ElementUpdate[]): void;
   /** Move the element one level down. */
   moveElementDown(elementId: string): void;
   /** Move the elements to the bottom of the slide. Moved elements retain their order on the slide.*/

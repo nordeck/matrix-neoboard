@@ -32,9 +32,12 @@ import { axe } from 'jest-axe';
 import { ComponentType, PropsWithChildren } from 'react';
 import {
   WhiteboardTestingContextProvider,
+  mockEllipseElement,
+  mockLineElement,
+  mockTextElement,
   mockWhiteboardManager,
 } from '../../../lib/testUtils/documentTestUtils';
-import { WhiteboardManager } from '../../../state';
+import { WhiteboardManager, WhiteboardSlideInstance } from '../../../state';
 import { LayoutStateProvider, useLayoutState } from '../../Layout';
 import { Toolbar } from '../../common/Toolbar';
 import { ColorPicker } from './ColorPicker';
@@ -50,9 +53,26 @@ describe('<ColorPicker/>', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
   let activeColor: string;
   let setActiveColor: (color: string) => void;
+  let activeSlide: WhiteboardSlideInstance;
 
   beforeEach(() => {
-    ({ whiteboardManager } = mockWhiteboardManager());
+    ({ whiteboardManager } = mockWhiteboardManager({
+      slides: [
+        [
+          'slide-0',
+          [
+            ['element-0', mockEllipseElement({ fillColor: green[500] })],
+            ['element-1', mockEllipseElement()],
+            ['element-2', mockLineElement({ strokeColor: grey[500] })],
+            ['element-3', mockLineElement()],
+            ['element-4', mockTextElement()],
+            ['element-5', mockTextElement()],
+          ],
+        ],
+      ],
+    }));
+    const activeWhiteboard = whiteboardManager.getActiveWhiteboardInstance()!;
+    activeSlide = activeWhiteboard.getSlide('slide-0');
 
     function LayoutStateExtractor() {
       ({ setActiveColor, activeColor } = useLayoutState());
@@ -171,6 +191,71 @@ describe('<ColorPicker/>', () => {
     });
   });
 
+  /**
+   * Renders the colour picker, selects some elements and sets their colours.
+   *
+   * @param elementIds - ID of the elements to set the colour for
+   * @param color - HEX code of the colour to set
+   */
+  const renderColorPickerAndSetElementColors = async (
+    elementIds: string[],
+    color: string,
+  ) => {
+    activeSlide.setActiveElementIds(elementIds);
+    render(<ColorPicker />, { wrapper: Wrapper });
+    await userEvent.click(screen.getByRole('button', { name: 'Pick a color' }));
+    const grid = await screen.findByRole('grid', { name: 'Colors' });
+    await userEvent.click(within(grid).getByRole('button', { name: color }));
+  };
+
+  it('should set the colour for a single selected shape element', async () => {
+    await renderColorPickerAndSetElementColors(['element-1'], 'Red');
+
+    expect(activeSlide.getElements(activeSlide.getElementIds())).toEqual(
+      expect.objectContaining({
+        'element-0': expect.objectContaining({ fillColor: green[500] }),
+        'element-1': expect.objectContaining({ fillColor: red[500] }),
+        'element-2': expect.objectContaining({ strokeColor: grey[500] }),
+        'element-3': expect.objectContaining({ strokeColor: '#ffffff' }),
+        'element-4': expect.objectContaining({ fillColor: 'transparent' }),
+        'element-5': expect.objectContaining({ fillColor: 'transparent' }),
+      }),
+    );
+  });
+
+  it('should set the colour for a single selected path element', async () => {
+    await renderColorPickerAndSetElementColors(['element-2'], 'Red');
+
+    expect(activeSlide.getElements(activeSlide.getElementIds())).toEqual(
+      expect.objectContaining({
+        'element-0': expect.objectContaining({ fillColor: green[500] }),
+        'element-1': expect.objectContaining({ fillColor: '#ffffff' }),
+        'element-2': expect.objectContaining({ strokeColor: red[500] }),
+        'element-3': expect.objectContaining({ strokeColor: '#ffffff' }),
+        'element-4': expect.objectContaining({ fillColor: 'transparent' }),
+        'element-5': expect.objectContaining({ fillColor: 'transparent' }),
+      }),
+    );
+  });
+
+  it('should set the colour for multiple selected elements but not for text elements', async () => {
+    await renderColorPickerAndSetElementColors(
+      ['element-1', 'element-2', 'element-4'],
+      'Red',
+    );
+
+    expect(activeSlide.getElements(activeSlide.getElementIds())).toEqual(
+      expect.objectContaining({
+        'element-0': expect.objectContaining({ fillColor: green[500] }),
+        'element-1': expect.objectContaining({ fillColor: red[500] }),
+        'element-2': expect.objectContaining({ strokeColor: red[500] }),
+        'element-3': expect.objectContaining({ strokeColor: '#ffffff' }),
+        'element-4': expect.objectContaining({ fillColor: 'transparent' }),
+        'element-5': expect.objectContaining({ fillColor: 'transparent' }),
+      }),
+    );
+  });
+
   it('should select another color by keyboard', async () => {
     render(<ColorPicker />, { wrapper: Wrapper });
 
@@ -267,12 +352,10 @@ describe('<ColorPicker/>', () => {
     expect(screen.getByRole('button', { name: 'Black' })).toHaveFocus();
   });
 
-  it('should be hidden when selected color is transparent', async () => {
+  it('should be hidden when only text elements are selected', async () => {
+    activeSlide.setActiveElementIds(['element-4', 'element-5']);
     render(<ColorPicker />, { wrapper: Wrapper });
-
     const colorButton = screen.queryByRole('button', { name: 'Pick a color' });
-
-    act(() => setActiveColor('transparent'));
 
     expect(colorButton).not.toBeInTheDocument();
   });
