@@ -82,7 +82,8 @@
     "copy-to-clipboard": "In die Zwischenablage kopieren"
   },
   "elementBar": {
-    "deleteElement": "Element löschen",
+    "deleteElement_one": "Element löschen",
+    "deleteElement_other": "Elemente löschen",
     "duplicateActiveElement": "Element duplizieren",
     "textAlignment": "Textausrichtung",
     "textAlignmentCenter": "Zentriert",

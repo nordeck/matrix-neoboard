@@ -20,6 +20,7 @@ import userEvent from '@testing-library/user-event';
 import { ComponentType, PropsWithChildren } from 'react';
 import {
   WhiteboardTestingContextProvider,
+  mockEllipseElement,
   mockLineElement,
   mockWhiteboardManager,
 } from '../../../lib/testUtils/documentTestUtils';
@@ -46,6 +47,7 @@ describe('<DeleteShortcut>', () => {
           [
             ['element-0', mockLineElement()],
             ['element-1', mockLineElement()],
+            ['element-2', mockEllipseElement()],
           ],
         ],
       ],
@@ -64,20 +66,30 @@ describe('<DeleteShortcut>', () => {
     );
   });
 
-  it.each(['{delete}', '{backspace}'])(
-    'should delete an element with %s key',
-    async (key) => {
-      const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
-      activeSlide.setActiveElementId('element-1');
+  it.each([
+    ['a single element', '{delete}', ['element-1']],
+    ['multiple elements', '{delete}', ['element-1', 'element-2']],
+    ['a single element', '{backspace}', ['element-1']],
+    ['multiple elements', '{backspace}', ['element-1', 'element-2']],
+  ])('should delete %s with the %s key', async (_testname, key, elementIds) => {
+    const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
+    activeSlide.setActiveElementIds(elementIds);
 
-      render(<DeleteShortcut />, { wrapper: Wrapper });
+    render(<DeleteShortcut />, { wrapper: Wrapper });
 
-      expect(activeSlide.getElement('element-1')).toBeDefined();
+    // check that all elements are on the board before the delete action
+    elementIds.forEach((elementId) => {
+      expect(activeSlide.getElement(elementId)).toBeDefined();
+    });
 
-      await userEvent.keyboard(key);
+    await userEvent.keyboard(key);
 
-      expect(activeSlide.getElement('element-1')).toBeUndefined();
-      expect(activeSlide.getActiveElementId()).toBeUndefined();
-    },
-  );
+    // check that none of the elements to be deleted remain on the slide
+    expect(
+      activeSlide
+        .getElementIds()
+        .some((elementId) => elementIds.includes(elementId)),
+    ).toBeFalsy();
+    expect(activeSlide.getActiveElementIds()).toHaveLength(0);
+  });
 });

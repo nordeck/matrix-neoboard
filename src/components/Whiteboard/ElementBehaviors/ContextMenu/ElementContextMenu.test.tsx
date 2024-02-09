@@ -391,9 +391,12 @@ describe('<ElementContextMenu/>', () => {
     ]);
   });
 
-  it('should delete element', async () => {
+  it.each([
+    ['should delete a single element', ['element-1']],
+    ['should delete multiple elements', ['element-1', 'element-2']],
+  ])('%s', async (_testname, elementIdsToBeDeleted) => {
     const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
-    activeSlide.setActiveElementId('element-1');
+    activeSlide.setActiveElementIds(elementIdsToBeDeleted);
     render(<ElementContextMenu elementId="element-1" />, {
       wrapper: Wrapper,
     });
@@ -407,17 +410,17 @@ describe('<ElementContextMenu/>', () => {
     });
 
     const menu = screen.getByRole('menu', { name: 'Element' });
+    const allElementIds = ['element-0', 'element-1', 'element-2'];
 
-    expect(activeSlide.getElementIds()).toEqual([
-      'element-0',
-      'element-1',
-      'element-2',
-    ]);
+    expect(activeSlide.getElementIds()).toEqual(allElementIds);
 
     await userEvent.click(
       within(menu).getByRole('menuitem', { name: /Delete/ }),
     );
 
-    expect(activeSlide.getElementIds()).toEqual(['element-0', 'element-2']);
+    const remainingElementIds = allElementIds.filter(
+      (e) => !elementIdsToBeDeleted.includes(e),
+    );
+    expect(activeSlide.getElementIds()).toEqual(remainingElementIds);
   });
 });

@@ -170,7 +170,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
     expect(slideInstance.getActiveElementId()).toEqual(element0);
   });
 
-  it('should remove element', () => {
+  it('should remove a single element', () => {
     const slideInstance = new WhiteboardSlideInstanceImpl(
       communicationChannel,
       slide0,
@@ -186,6 +186,33 @@ describe('WhiteboardSlideInstanceImpl', () => {
     slideInstance.removeElement(element0);
 
     expect(slideInstance.getElement(element0)).toBeUndefined();
+  });
+
+  describe('removeElements', () => {
+    it('should remove multiple elements', () => {
+      const slideInstance = new WhiteboardSlideInstanceImpl(
+        communicationChannel,
+        slide0,
+        document,
+        '@user-id',
+      );
+
+      const element1 = mockLineElement();
+      const element1Id = slideInstance.addElement(element1);
+      const element2 = mockLineElement();
+      const element2Id = slideInstance.addElement(element2);
+      const element3 = mockLineElement();
+      const element3Id = slideInstance.addElement(element3);
+
+      slideInstance.removeElements([element1Id, element2Id]);
+
+      // check whether the elements to be removed are actually removed
+      expect(slideInstance.getElement(element1Id)).toBeUndefined();
+      expect(slideInstance.getElement(element2Id)).toBeUndefined();
+
+      // chat that the elements not to be removed are still there
+      expect(slideInstance.getElement(element3Id)).toEqual(element3);
+    });
   });
 
   it('should throw when removing element from a locked slide', () => {
