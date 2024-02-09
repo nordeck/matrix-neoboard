@@ -26,7 +26,7 @@ import { first, last } from 'lodash';
 import { MouseEvent, PropsWithChildren, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  useActiveElement,
+  useActiveElements,
   useSlideElementIds,
   useSlideIsLocked,
   useWhiteboardSlideInstance,
@@ -45,37 +45,41 @@ export function ElementContextMenu({
   const { t } = useTranslation();
   const isLocked = useSlideIsLocked();
   const [state, setState] = useState<ContextMenuState>();
-  const { activeElementId } = useActiveElement();
+  const { activeElementIds } = useActiveElements();
   const slideInstance = useWhiteboardSlideInstance();
   const elementIds = useSlideElementIds();
 
-  const canMoveUp = activeElementId && last(elementIds) !== activeElementId;
-  const canMoveDown = activeElementId && first(elementIds) !== activeElementId;
+  const canMoveUp =
+    activeElementIds.length === 1 && last(elementIds) !== activeElementIds[0];
+  const canMoveTop = canMoveUp || activeElementIds.length > 1;
+  const canMoveDown =
+    activeElementIds.length === 1 && first(elementIds) !== activeElementIds[0];
+  const canMoveBottom = canMoveDown || activeElementIds.length > 1;
 
   const handleClose = useCallback(() => {
     setState(undefined);
   }, []);
 
   const handleClickBringToFront = useCallback(() => {
-    if (activeElementId) {
-      slideInstance.moveElementToTop(activeElementId);
+    if (activeElementIds.length > 0) {
+      slideInstance.moveElementsToTop(activeElementIds);
       handleClose();
     }
-  }, [activeElementId, handleClose, slideInstance]);
+  }, [activeElementIds, handleClose, slideInstance]);
 
   const handleClickBringToBack = useCallback(() => {
-    if (activeElementId) {
-      slideInstance.moveElementToBottom(activeElementId);
+    if (activeElementIds.length > 0) {
+      slideInstance.moveElementsToBottom(activeElementIds);
       handleClose();
     }
-  }, [activeElementId, handleClose, slideInstance]);
+  }, [activeElementIds, handleClose, slideInstance]);
 
   const handleDelete = useCallback(() => {
-    if (activeElementId) {
-      slideInstance.removeElement(activeElementId);
+    if (activeElementIds.length === 1) {
+      slideInstance.removeElement(activeElementIds[0]);
       handleClose();
     }
-  }, [activeElementId, handleClose, slideInstance]);
+  }, [activeElementIds, handleClose, slideInstance]);
 
   const handleContextMenu = useCallback(
     (event: MouseEvent<SVGElement>) => {
@@ -93,18 +97,18 @@ export function ElementContextMenu({
   );
 
   const handleClickBringForward = useCallback(() => {
-    if (activeElementId) {
-      slideInstance.moveElementUp(activeElementId);
+    if (activeElementIds.length === 1) {
+      slideInstance.moveElementUp(activeElementIds[0]);
       handleClose();
     }
-  }, [activeElementId, handleClose, slideInstance]);
+  }, [activeElementIds, handleClose, slideInstance]);
 
   const handleClickBringBackward = useCallback(() => {
-    if (activeElementId) {
-      slideInstance.moveElementDown(activeElementId);
+    if (activeElementIds.length === 1) {
+      slideInstance.moveElementDown(activeElementIds[0]);
       handleClose();
     }
-  }, [activeElementId, handleClose, slideInstance]);
+  }, [activeElementIds, handleClose, slideInstance]);
 
   const menuTitle = t('elementContextMenu.title', 'Element');
   const open = Boolean(state);
@@ -139,29 +143,33 @@ export function ElementContextMenu({
         anchorReference="anchorPosition"
         anchorPosition={state?.position}
       >
-        <MenuItem onClick={handleClickBringForward} disabled={!canMoveUp}>
-          <ListItemText>
-            {t('elementContextMenu.bringForward', 'Bring forward')}
-          </ListItemText>
-          <Typography variant="body2" color="text.secondary">
-            <HotkeysHelp keys={isMacOS() ? 'meta+arrowup' : 'ctrl+arrowup'} />
-          </Typography>
-        </MenuItem>
-        <MenuItem
-          divider
-          onClick={handleClickBringBackward}
-          disabled={!canMoveDown}
-        >
-          <ListItemText>
-            {t('elementContextMenu.bringBackward', 'Bring backward')}
-          </ListItemText>
-          <Typography variant="body2" color="text.secondary">
-            <HotkeysHelp
-              keys={isMacOS() ? 'meta+arrowdown' : 'ctrl+arrowdown'}
-            />
-          </Typography>
-        </MenuItem>
-        <MenuItem onClick={handleClickBringToFront} disabled={!canMoveUp}>
+        {activeElementIds.length < 2 && (
+          <MenuItem onClick={handleClickBringForward} disabled={!canMoveUp}>
+            <ListItemText>
+              {t('elementContextMenu.bringForward', 'Bring forward')}
+            </ListItemText>
+            <Typography variant="body2" color="text.secondary">
+              <HotkeysHelp keys={isMacOS() ? 'meta+arrowup' : 'ctrl+arrowup'} />
+            </Typography>
+          </MenuItem>
+        )}
+        {activeElementIds.length < 2 && (
+          <MenuItem
+            divider
+            onClick={handleClickBringBackward}
+            disabled={!canMoveDown}
+          >
+            <ListItemText>
+              {t('elementContextMenu.bringBackward', 'Bring backward')}
+            </ListItemText>
+            <Typography variant="body2" color="text.secondary">
+              <HotkeysHelp
+                keys={isMacOS() ? 'meta+arrowdown' : 'ctrl+arrowdown'}
+              />
+            </Typography>
+          </MenuItem>
+        )}
+        <MenuItem onClick={handleClickBringToFront} disabled={!canMoveTop}>
           <ListItemText>
             {t('elementContextMenu.bringToFront', 'Bring to front')}
           </ListItemText>
@@ -169,7 +177,7 @@ export function ElementContextMenu({
         <MenuItem
           divider
           onClick={handleClickBringToBack}
-          disabled={!canMoveDown}
+          disabled={!canMoveBottom}
         >
           <ListItemText>
             {t('elementContextMenu.bringToBack', 'Bring to back')}

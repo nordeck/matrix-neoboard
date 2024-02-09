@@ -28,9 +28,8 @@ import {
   generateLockSlide,
   generateMoveDown,
   generateMoveElement,
+  generateMoveElements,
   generateMoveSlide,
-  generateMoveToBottom,
-  generateMoveToTop,
   generateMoveUp,
   generateRemoveElement,
   generateRemoveSlide,
@@ -1017,7 +1016,7 @@ describe('generateMoveElement', () => {
   });
 });
 
-describe('generateMoveToBottom', () => {
+describe('generateMoveElements', () => {
   it('should move element to the beginning of the list', () => {
     const doc = createWhiteboardDocument();
 
@@ -1031,7 +1030,7 @@ describe('generateMoveToBottom', () => {
     const [changeFn3, element3] = generateAddElement(slide0, element);
     doc.performChange(changeFn3);
 
-    doc.performChange(generateMoveToBottom(slide0, element1));
+    doc.performChange(generateMoveElements(slide0, [element1], 'bottom'));
 
     expect(getNormalizedElementIds(doc.getData(), slide0)).toEqual([
       element1,
@@ -1040,9 +1039,32 @@ describe('generateMoveToBottom', () => {
       element3,
     ]);
   });
-});
 
-describe('generateMoveToTop', () => {
+  it('should move elements to the beginning of the list', () => {
+    const doc = createWhiteboardDocument();
+
+    const element = mockLineElement();
+    const [changeFn0, element0] = generateAddElement(slide0, element);
+    doc.performChange(changeFn0);
+    const [changeFn1, element1] = generateAddElement(slide0, element);
+    doc.performChange(changeFn1);
+    const [changeFn2, element2] = generateAddElement(slide0, element);
+    doc.performChange(changeFn2);
+    const [changeFn3, element3] = generateAddElement(slide0, element);
+    doc.performChange(changeFn3);
+
+    doc.performChange(
+      generateMoveElements(slide0, [element1, element2], 'bottom'),
+    );
+
+    expect(getNormalizedElementIds(doc.getData(), slide0)).toEqual([
+      element2,
+      element1,
+      element0,
+      element3,
+    ]);
+  });
+
   it('should move element to the end of the list', () => {
     const doc = createWhiteboardDocument();
 
@@ -1056,13 +1078,38 @@ describe('generateMoveToTop', () => {
     const [changeFn3, element3] = generateAddElement(slide0, element);
     doc.performChange(changeFn3);
 
-    doc.performChange(generateMoveToTop(slide0, element1));
+    doc.performChange(generateMoveElements(slide0, [element1], 'top'));
 
     expect(getNormalizedElementIds(doc.getData(), slide0)).toEqual([
       element0,
       element2,
       element3,
       element1,
+    ]);
+  });
+
+  it('should move elements to the end of the list', () => {
+    const doc = createWhiteboardDocument();
+
+    const element = mockLineElement();
+    const [changeFn0, element0] = generateAddElement(slide0, element);
+    doc.performChange(changeFn0);
+    const [changeFn1, element1] = generateAddElement(slide0, element);
+    doc.performChange(changeFn1);
+    const [changeFn2, element2] = generateAddElement(slide0, element);
+    doc.performChange(changeFn2);
+    const [changeFn3, element3] = generateAddElement(slide0, element);
+    doc.performChange(changeFn3);
+
+    doc.performChange(
+      generateMoveElements(slide0, [element1, element2], 'top'),
+    );
+
+    expect(getNormalizedElementIds(doc.getData(), slide0)).toEqual([
+      element0,
+      element3,
+      element1,
+      element2,
     ]);
   });
 });

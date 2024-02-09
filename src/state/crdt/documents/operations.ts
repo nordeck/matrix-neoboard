@@ -312,7 +312,7 @@ export function generateMoveElement(
 
     cleanupElementIds(slide);
 
-    const elementIds = slide.get('elementIds');
+    const slideElementIds = slide.get('elementIds');
 
     // This is not optimal. We don't have a true move operation available,
     // instead we removing an entry and adding it again. One thing is good:
@@ -324,40 +324,62 @@ export function generateMoveElement(
     // that later.
     // Best would be support for a move operation in Yjs directly.
     // See https://github.com/yjs/yjs/pull/357
-    const currentIndex = elementIds.toArray().indexOf(elementId);
+    const currentIndex = slideElementIds.toArray().indexOf(elementId);
 
     if (currentIndex >= 0) {
       const nextIndex =
         typeof index === 'number'
           ? index
-          : index(elementIds.toArray(), currentIndex);
+          : index(slideElementIds.toArray(), currentIndex);
 
       if (nextIndex >= 0) {
-        elementIds.delete(currentIndex);
-        elementIds.insert(nextIndex, [elementId]);
+        slideElementIds.delete(currentIndex);
+        slideElementIds.insert(nextIndex, [elementId]);
       }
     }
   };
 }
 
-/** Move the element to the bottom. */
-export function generateMoveToBottom(
+export function generateMoveElements(
   slideId: string,
-  elementId: string,
+  elementIds: string[],
+  position: 'top' | 'bottom',
 ): ChangeFn<WhiteboardDocument> {
-  return generateMoveElement(slideId, elementId, 0);
-}
+  return (doc) => {
+    const slide = getSlide(doc, slideId);
 
-/** Move the element to the top. */
-export function generateMoveToTop(
-  slideId: string,
-  elementId: string,
-): ChangeFn<WhiteboardDocument> {
-  return generateMoveElement(
-    slideId,
-    elementId,
-    (elementIds) => elementIds.length - 1,
-  );
+    if (!slide) {
+      return;
+    }
+
+    cleanupElementIds(slide);
+
+    const slideElementIds = slide.get('elementIds');
+
+    // This is not optimal. We don't have a true move operation available,
+    // instead we removing an entry and adding it again. One thing is good:
+    // non of the operations ever get lost. The delete operation is executed,
+    // and even if executed twice, only the one element is deleted. Adding is
+    // also always done, however, this operation can not be deduplicated and
+    // can happen multiple times if conflicting. Therefore we might end up
+    // with a duplicate entry on conflicts. We have to make sure to handle
+    // that later.
+    // Best would be support for a move operation in Yjs directly.
+    // See https://github.com/yjs/yjs/pull/357
+
+    for (const elementId of elementIds) {
+      const currentIndex = slideElementIds.toArray().indexOf(elementId);
+
+      if (currentIndex >= 0) {
+        const nextIndex = position === 'top' ? slideElementIds.length - 1 : 0;
+
+        if (nextIndex >= 0) {
+          slideElementIds.delete(currentIndex);
+          slideElementIds.insert(nextIndex, [elementId]);
+        }
+      }
+    }
+  };
 }
 
 /** Move the element one step upwards to the top. */

@@ -255,6 +255,40 @@ describe('<ElementContextMenu/>', () => {
     ]);
   });
 
+  it('should move elements to top', async () => {
+    const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
+    activeSlide.setActiveElementIds(['element-0', 'element-1']);
+    render(<ElementContextMenu elementId="element-0" />, {
+      wrapper: Wrapper,
+    });
+
+    const contextMenuTarget = screen.getByTestId(
+      'element-context-menu-container',
+    );
+    await userEvent.pointer({
+      keys: '[MouseRight]',
+      target: contextMenuTarget,
+    });
+
+    const menu = screen.getByRole('menu', { name: 'Element' });
+
+    expect(activeSlide.getElementIds()).toEqual([
+      'element-0',
+      'element-1',
+      'element-2',
+    ]);
+
+    await userEvent.click(
+      within(menu).getByRole('menuitem', { name: /Bring to front/ }),
+    );
+
+    expect(activeSlide.getElementIds()).toEqual([
+      'element-2',
+      'element-0',
+      'element-1',
+    ]);
+  });
+
   it('should move element backward', async () => {
     const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
     activeSlide.setActiveElementId('element-1');
@@ -320,6 +354,40 @@ describe('<ElementContextMenu/>', () => {
       'element-2',
       'element-0',
       'element-1',
+    ]);
+  });
+
+  it('should move elements to bottom', async () => {
+    const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
+    activeSlide.setActiveElementIds(['element-1', 'element-2']);
+    render(<ElementContextMenu elementId="element-2" />, {
+      wrapper: Wrapper,
+    });
+
+    const contextMenuTarget = screen.getByTestId(
+      'element-context-menu-container',
+    );
+    await userEvent.pointer({
+      keys: '[MouseRight]',
+      target: contextMenuTarget,
+    });
+
+    const menu = screen.getByRole('menu', { name: 'Element' });
+
+    expect(activeSlide.getElementIds()).toEqual([
+      'element-0',
+      'element-1',
+      'element-2',
+    ]);
+
+    await userEvent.click(
+      within(menu).getByRole('menuitem', { name: /Bring to back/ }),
+    );
+
+    expect(activeSlide.getElementIds()).toEqual([
+      'element-1',
+      'element-2',
+      'element-0',
     ]);
   });
 
