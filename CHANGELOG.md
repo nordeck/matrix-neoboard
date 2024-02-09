@@ -1,5 +1,12 @@
 # @nordeck/matrix-neoboard-widget
 
+## 1.12.0
+
+### Minor Changes
+
+- b77aa50: Bring multiple elements to front/back.
+- 9047615: It is now possible to delete multiple selected elements at once
+
 ## 1.11.0
 
 ### Minor Changes
