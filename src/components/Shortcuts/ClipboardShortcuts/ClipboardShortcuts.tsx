@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { isEmpty } from 'lodash';
 import { useEffect } from 'react';
 import { useHotkeysContext } from 'react-hotkeys-hook';
 import {
@@ -61,19 +62,23 @@ export function ClipboardShortcuts() {
         return;
       }
 
-      const activeElementId = slideInstance.getActiveElementId();
+      const activeElementIds = slideInstance.getActiveElementIds();
 
-      if (!activeElementId) {
+      if (!activeElementIds.length) {
         return;
       }
 
-      const activeElement = slideInstance.getElement(activeElementId);
+      const orderedActiveElementIds =
+        slideInstance.sortElementIds(activeElementIds);
+      const activeElements = slideInstance.getElements(orderedActiveElementIds);
 
-      if (!activeElement) {
+      if (isEmpty(activeElements)) {
         return;
       }
 
-      const content = serializeToClipboard({ elements: [activeElement] });
+      const content = serializeToClipboard({
+        elements: Object.values(activeElements),
+      });
       writeIntoClipboardData(event.clipboardData, content);
       event.preventDefault();
     };
@@ -98,21 +103,25 @@ export function ClipboardShortcuts() {
         return;
       }
 
-      const activeElementId = slideInstance.getActiveElementId();
+      const activeElementIds = slideInstance.getActiveElementIds();
 
-      if (!activeElementId) {
+      if (!activeElementIds.length) {
         return;
       }
 
-      const activeElement = slideInstance.getElement(activeElementId);
+      const orderedActiveElementIds =
+        slideInstance.sortElementIds(activeElementIds);
+      const activeElements = slideInstance.getElements(orderedActiveElementIds);
 
-      if (!activeElement) {
+      if (isEmpty(activeElements)) {
         return;
       }
 
-      const content = serializeToClipboard({ elements: [activeElement] });
+      const content = serializeToClipboard({
+        elements: Object.values(activeElements),
+      });
       writeIntoClipboardData(event.clipboardData, content);
-      slideInstance.removeElement(activeElementId);
+      slideInstance.removeElements(activeElementIds);
       event.preventDefault();
     };
 
@@ -135,12 +144,9 @@ export function ClipboardShortcuts() {
       const content = readFromClipboardData(event.clipboardData);
       const { elements } = deserializeFromClipboard(content);
 
-      if (elements && elements.length > 0) {
-        for (const element of elements) {
-          slideInstance.addElement(element);
-
-          // TODO: When we support multiselect, we should select all added elements
-        }
+      if (elements?.length) {
+        const pastedElementIds = slideInstance.addElements(elements);
+        slideInstance.setActiveElementIds(pastedElementIds);
       }
     };
 

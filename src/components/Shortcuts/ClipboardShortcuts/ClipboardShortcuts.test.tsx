@@ -50,7 +50,8 @@ describe('<CopyAndPasteShortcuts>', () => {
           'slide-0',
           [
             ['element-0', mockLineElement()],
-            ['element-1', mockEllipseElement({ text: 'Hello World' })],
+            ['element-1', mockEllipseElement({ text: 'Hello World 1' })],
+            ['element-2', mockEllipseElement({ text: 'Hello World 2' })],
           ],
         ],
       ],
@@ -58,7 +59,9 @@ describe('<CopyAndPasteShortcuts>', () => {
     activeWhiteboardInstance = whiteboardManager.getActiveWhiteboardInstance()!;
 
     const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
-    activeSlide.setActiveElementId('element-1');
+    // The reverse selection order of the element is by purpose.
+    // Copy/cut should copy in the order of the elements on the board instead.
+    activeSlide.setActiveElementIds(['element-2', 'element-1']);
 
     Wrapper = ({ children }) => (
       <WhiteboardHotkeysProvider>
@@ -77,7 +80,10 @@ describe('<CopyAndPasteShortcuts>', () => {
 
     const clipboardData = fireClipboardEvent('copy');
 
-    expect(clipboardData.setData).toBeCalledWith('text/plain', 'Hello World');
+    expect(clipboardData.setData).toBeCalledWith(
+      'text/plain',
+      'Hello World 1 Hello World 2',
+    );
     expect(clipboardData.setData).toBeCalledWith(
       'text/html',
       expect.stringContaining('<span data-meta='),
@@ -118,21 +124,24 @@ describe('<CopyAndPasteShortcuts>', () => {
     expect(clipboardData.setData).not.toBeCalled();
   });
 
-  it('should cut content', () => {
+  it('should cut contents', () => {
     const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
 
     render(<ClipboardShortcuts />, { wrapper: Wrapper });
 
     const clipboardData = fireClipboardEvent('cut');
 
-    expect(clipboardData.setData).toBeCalledWith('text/plain', 'Hello World');
+    expect(clipboardData.setData).toBeCalledWith(
+      'text/plain',
+      'Hello World 1 Hello World 2',
+    );
     expect(clipboardData.setData).toBeCalledWith(
       'text/html',
       expect.stringContaining('<span data-meta='),
     );
 
-    expect(activeSlide.getActiveElementId()).toBe(undefined);
-    expect(activeSlide.getElement('element-1')).toBeUndefined();
+    expect(activeSlide.getActiveElementIds()).toHaveLength(0);
+    expect(activeSlide.getElements(['element-1', 'element-2'])).toEqual({});
   });
 
   it('should ignore cut if slide is locked', () => {
