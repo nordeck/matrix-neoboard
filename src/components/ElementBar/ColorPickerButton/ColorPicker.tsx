@@ -16,7 +16,7 @@
 
 import { Popover } from '@mui/material';
 import { unstable_useId as useId } from '@mui/utils';
-import { MouseEvent, useCallback, useMemo, useState } from 'react';
+import { MouseEvent, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   useActiveElements,
@@ -38,11 +38,8 @@ export function ColorPicker() {
 
   const { activeElementIds } = useActiveElements();
   const activeElements = useElements(activeElementIds);
-  const color = useMemo(() => {
-    return (
-      extractFirstNonTransparentOrFirstColor(activeElements) ?? activeColor
-    );
-  }, [activeElements, activeColor]);
+  const color =
+    extractFirstNonTransparentOrFirstColor(activeElements) ?? activeColor;
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
