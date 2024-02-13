@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
-import { Elements } from '../../../state/types';
+import { ElementUpdate, Elements } from '../../../state/types';
 
 /**
  * Calculates the updates to update element colours.
  *
  * @param elements - Elements to update the colours of
+ * @param color - Colour to apply
  * @returns List of updates to apply the colour
  */
 export const calculateColorChangeUpdates = (
   elements: Elements,
   color: string,
-) => {
+): ElementUpdate[] => {
   const updates = [];
 
   for (const [elementId, element] of Object.entries(elements)) {
