@@ -17,28 +17,29 @@
 import { Elements } from '../../../state/types';
 
 /**
- * @return Looks for the first element in the list without a transparent colour. If found it returns this color.
- *         Otherwise it falls back to the colour of the first element, that may also be "transparent".
- *         Returns undefined if the colour cannot be determined.
+ * @param elements - Elements to search for a colour
+ * @returns If there are no elements it returns undefined.
+ *          Else the first non-transparent colour of the elements.
+ *          Finally 'transparent' if there is no non-transparent colour.
  */
 export const extractFirstNonTransparentOrFirstColor = (
   elements: Elements,
 ): string | undefined => {
   const values = Object.values(elements);
-  const colorElement =
-    values.find((element) => {
-      if (element.type === 'shape' && element.fillColor !== 'transparent') {
-        return true;
-      }
 
-      if (element.type === 'path' && element.strokeColor !== 'transparent') {
-        return true;
-      }
+  if (values.length === 0) {
+    return undefined;
+  }
 
-      return false;
-    }) ?? values[0];
+  for (const element of values) {
+    if (element.type === 'shape' && element.fillColor !== 'transparent') {
+      return element.fillColor;
+    }
 
-  return colorElement?.type === 'path'
-    ? colorElement?.strokeColor
-    : colorElement?.fillColor;
+    if (element.type === 'path' && element.strokeColor !== 'transparent') {
+      return element.strokeColor;
+    }
+  }
+
+  return 'transparent';
 };
