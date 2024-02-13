@@ -352,6 +352,16 @@ describe('<ColorPicker/>', () => {
     expect(screen.getByRole('button', { name: 'Black' })).toHaveFocus();
   });
 
+  it('should be hidden when selected color is transparent', async () => {
+    render(<ColorPicker />, { wrapper: Wrapper });
+
+    const colorButton = screen.queryByRole('button', { name: 'Pick a color' });
+
+    act(() => setActiveColor('transparent'));
+
+    expect(colorButton).not.toBeInTheDocument();
+  });
+
   it('should be hidden when only text elements are selected', async () => {
     activeSlide.setActiveElementIds(['element-4', 'element-5']);
     render(<ColorPicker />, { wrapper: Wrapper });
