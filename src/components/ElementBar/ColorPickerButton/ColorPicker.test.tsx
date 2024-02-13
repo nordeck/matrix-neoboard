@@ -208,34 +208,50 @@ describe('<ColorPicker/>', () => {
     await userEvent.click(within(grid).getByRole('button', { name: color }));
   };
 
+  /**
+   * Extracts a map from element ID to the element colour.
+   *
+   * @param activeSlide - The slide to get the element, color map of
+   * @returns Record that maps element ID to the element colour
+   */
+  const selectElementColors = (
+    activeSlide: WhiteboardSlideInstance,
+  ): Record<string, string> => {
+    const elementColors: Record<string, string> = {};
+    for (const elementId of activeSlide.getElementIds()) {
+      const element = activeSlide.getElement(elementId);
+      if (element) {
+        elementColors[elementId] =
+          element.type === 'shape' ? element.fillColor : element.strokeColor;
+      }
+    }
+    return elementColors;
+  };
+
   it('should set the colour for a single selected shape element', async () => {
     await renderColorPickerAndSetElementColors(['element-1'], 'Red');
 
-    expect(activeSlide.getElements(activeSlide.getElementIds())).toEqual(
-      expect.objectContaining({
-        'element-0': expect.objectContaining({ fillColor: green[500] }),
-        'element-1': expect.objectContaining({ fillColor: red[500] }),
-        'element-2': expect.objectContaining({ strokeColor: grey[500] }),
-        'element-3': expect.objectContaining({ strokeColor: '#ffffff' }),
-        'element-4': expect.objectContaining({ fillColor: 'transparent' }),
-        'element-5': expect.objectContaining({ fillColor: 'transparent' }),
-      }),
-    );
+    expect(selectElementColors(activeSlide)).toEqual({
+      'element-0': green[500],
+      'element-1': red[500],
+      'element-2': grey[500],
+      'element-3': '#ffffff',
+      'element-4': 'transparent',
+      'element-5': 'transparent',
+    });
   });
 
   it('should set the colour for a single selected path element', async () => {
     await renderColorPickerAndSetElementColors(['element-2'], 'Red');
 
-    expect(activeSlide.getElements(activeSlide.getElementIds())).toEqual(
-      expect.objectContaining({
-        'element-0': expect.objectContaining({ fillColor: green[500] }),
-        'element-1': expect.objectContaining({ fillColor: '#ffffff' }),
-        'element-2': expect.objectContaining({ strokeColor: red[500] }),
-        'element-3': expect.objectContaining({ strokeColor: '#ffffff' }),
-        'element-4': expect.objectContaining({ fillColor: 'transparent' }),
-        'element-5': expect.objectContaining({ fillColor: 'transparent' }),
-      }),
-    );
+    expect(selectElementColors(activeSlide)).toEqual({
+      'element-0': green[500],
+      'element-1': '#ffffff',
+      'element-2': red[500],
+      'element-3': '#ffffff',
+      'element-4': 'transparent',
+      'element-5': 'transparent',
+    });
   });
 
   it('should set the colour for multiple selected elements but not for text elements', async () => {
@@ -244,16 +260,14 @@ describe('<ColorPicker/>', () => {
       'Red',
     );
 
-    expect(activeSlide.getElements(activeSlide.getElementIds())).toEqual(
-      expect.objectContaining({
-        'element-0': expect.objectContaining({ fillColor: green[500] }),
-        'element-1': expect.objectContaining({ fillColor: red[500] }),
-        'element-2': expect.objectContaining({ strokeColor: red[500] }),
-        'element-3': expect.objectContaining({ strokeColor: '#ffffff' }),
-        'element-4': expect.objectContaining({ fillColor: 'transparent' }),
-        'element-5': expect.objectContaining({ fillColor: 'transparent' }),
-      }),
-    );
+    expect(selectElementColors(activeSlide)).toEqual({
+      'element-0': green[500],
+      'element-1': red[500],
+      'element-2': red[500],
+      'element-3': '#ffffff',
+      'element-4': 'transparent',
+      'element-5': 'transparent',
+    });
   });
 
   it('should select another color by keyboard', async () => {
