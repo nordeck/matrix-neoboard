@@ -189,9 +189,7 @@ export type WhiteboardSlideInstance = {
    * @deprecated to be replaced with getActiveElementIds
    * */
   getActiveElementId(): string | undefined;
-  /**
-   * @returns IDs of the currently selected elements in the order of their selection.
-   */
+  /** Return ids of the currently active elements in the order of their selection. */
   getActiveElementIds(): string[];
   /**
    * Observe the active element. First element is returned if multiple are active.
