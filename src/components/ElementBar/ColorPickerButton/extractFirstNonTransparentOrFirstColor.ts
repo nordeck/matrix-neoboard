@@ -17,10 +17,13 @@
 import { Elements } from '../../../state/types';
 
 /**
+ * Extracts the first non-transparent colour of some elements, if available.
+ * Returns "undefined" if there are no elements.
+ * Otherwise returns the first non-transparent colour.
+ * If there is no non-transparent colour it defaults to "transparent".
+ *
  * @param elements - Elements to search for a colour
- * @returns If there are no elements it returns undefined.
- *          Else the first non-transparent colour of the elements.
- *          Finally 'transparent' if there is no non-transparent colour.
+ * @returns undefined or first non-transparent colour or "transparent"
  */
 export function extractFirstNonTransparentOrFirstColor(
   elements: Elements,
