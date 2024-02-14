@@ -22,9 +22,9 @@ import { Elements } from '../../../state/types';
  *          Else the first non-transparent colour of the elements.
  *          Finally 'transparent' if there is no non-transparent colour.
  */
-export const extractFirstNonTransparentOrFirstColor = (
+export function extractFirstNonTransparentOrFirstColor(
   elements: Elements,
-): string | undefined => {
+): string | undefined {
   const values = Object.values(elements);
 
   if (values.length === 0) {
@@ -42,4 +42,4 @@ export const extractFirstNonTransparentOrFirstColor = (
   }
 
   return 'transparent';
-};
+}

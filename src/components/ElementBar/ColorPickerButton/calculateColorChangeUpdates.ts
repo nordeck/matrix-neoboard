@@ -23,10 +23,10 @@ import { ElementUpdate, Elements } from '../../../state/types';
  * @param color - Colour to apply
  * @returns List of updates to apply the colour
  */
-export const calculateColorChangeUpdates = (
+export function calculateColorChangeUpdates(
   elements: Elements,
   color: string,
-): ElementUpdate[] => {
+): ElementUpdate[] {
   const updates = [];
 
   for (const [elementId, element] of Object.entries(elements)) {
@@ -52,4 +52,4 @@ export const calculateColorChangeUpdates = (
   }
 
   return updates;
-};
+}
