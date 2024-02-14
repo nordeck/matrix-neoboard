@@ -183,7 +183,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
 
     expect(slideInstance.getElement(element0)).toEqual(element);
 
-    slideInstance.removeElement(element0);
+    slideInstance.removeElements([element0]);
 
     expect(slideInstance.getElement(element0)).toBeUndefined();
   });
@@ -226,7 +226,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
     const element0 = slideInstance.addElement(element);
     slideInstance.lockSlide();
 
-    expect(() => slideInstance.removeElement(element0)).toThrowError(
+    expect(() => slideInstance.removeElements([element0])).toThrowError(
       'Can not modify slide, slide is locked',
     );
   });
@@ -624,7 +624,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
     slideInstance.updateElement(element0, {
       strokeColor: '#000000',
     });
-    slideInstance.removeElement(element0);
+    slideInstance.removeElements([element0]);
 
     expect(await elementUpdates).toEqual([
       element,
@@ -655,7 +655,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
     slideInstance.updateElement(elementId0, {
       strokeColor: '#000000',
     });
-    slideInstance.removeElement(elementId0);
+    slideInstance.removeElements([elementId0]);
 
     expect(await elementUpdates).toEqual([
       { [elementId0]: element, [elementId1]: element1 },
@@ -682,7 +682,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
     const element = mockLineElement();
     const element0 = slideInstance.addElement(element);
     const element1 = slideInstance.addElement(element);
-    slideInstance.removeElement(element0);
+    slideInstance.removeElements([element0]);
 
     expect(await elementIds).toEqual([
       [],
@@ -1084,7 +1084,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
     const element0 = slideInstance.addElement(mockLineElement());
 
     slideInstance.setActiveElementId(element0);
-    slideInstance.removeElement(element0);
+    slideInstance.removeElements([element0]);
 
     expect(slideInstance.getActiveElementId()).toEqual(undefined);
     expect(await observedActiveElement).toEqual([

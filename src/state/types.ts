@@ -136,8 +136,6 @@ export type WhiteboardSlideInstance = {
    * @returns the IDs of the created elements.
    */
   addElements(elements: Array<Element>): string[];
-  /** Remove the element */
-  removeElement(elementId: string): void;
   /** Remove the elements by their IDs */
   removeElements(elementIds: string[]): void;
   /**
