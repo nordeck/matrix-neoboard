@@ -242,3 +242,19 @@ export function mockLineElement(path: Partial<PathElement> = {}): Element {
     ...path,
   };
 }
+
+/**
+ * Text elements are rectangles with a transparent background.
+ */
+export function mockTextElement(shape: Partial<ShapeElement> = {}): Element {
+  return {
+    type: 'shape',
+    kind: 'rectangle',
+    position: { x: 0, y: 1 },
+    fillColor: 'transparent',
+    height: 100,
+    width: 50,
+    text: 'text',
+    ...shape,
+  };
+}
