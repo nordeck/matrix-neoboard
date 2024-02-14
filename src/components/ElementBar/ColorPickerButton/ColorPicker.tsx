@@ -19,14 +19,16 @@ import { unstable_useId as useId } from '@mui/utils';
 import { MouseEvent, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  useActiveElement,
-  useElement,
+  useActiveElements,
+  useElements,
   useWhiteboardSlideInstance,
 } from '../../../state';
 import { useLayoutState } from '../../Layout';
 import { ToolbarSubMenu } from '../../common/Toolbar';
 import { ColorPickerIcon } from './ColorPickerIcon';
 import { ColorsGrid } from './ColorsGrid';
+import { calculateColorChangeUpdates } from './calculateColorChangeUpdates';
+import { extractFirstNonTransparentOrFirstColor } from './extractFirstNonTransparentOrFirstColor';
 
 export function ColorPicker() {
   const { t } = useTranslation();
@@ -34,13 +36,11 @@ export function ColorPicker() {
   const { activeColor, setActiveColor } = useLayoutState();
   const slideInstance = useWhiteboardSlideInstance();
 
-  const { activeElementId } = useActiveElement();
-  const activeElement = useElement(activeElementId);
-  const color = activeElement
-    ? activeElement.type === 'path'
-      ? activeElement.strokeColor
-      : activeElement.fillColor
-    : activeColor;
+  const { activeElementIds } = useActiveElements();
+  const activeElements = useElements(activeElementIds);
+  const color =
+    extractFirstNonTransparentOrFirstColor(Object.values(activeElements)) ??
+    activeColor;
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
@@ -57,24 +57,13 @@ export function ColorPicker() {
   const handleOnChange = useCallback(
     (color: string) => {
       setActiveColor(color);
+      const updates = calculateColorChangeUpdates(activeElements, color);
 
-      const activeElementId = slideInstance.getActiveElementId();
-
-      if (activeElementId) {
-        const activeElement = slideInstance.getElement(activeElementId);
-
-        if (activeElement?.type === 'path') {
-          slideInstance.updateElement(activeElementId, {
-            strokeColor: color,
-          });
-        } else if (activeElement?.type === 'shape') {
-          slideInstance.updateElement(activeElementId, {
-            fillColor: color,
-          });
-        }
+      if (updates.length) {
+        slideInstance.updateElements(updates);
       }
     },
-    [setActiveColor, slideInstance],
+    [activeElements, setActiveColor, slideInstance],
   );
 
   const colorPickerTitle = t('colorPicker.title', 'Pick a color');

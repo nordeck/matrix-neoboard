@@ -32,9 +32,12 @@ import { axe } from 'jest-axe';
 import { ComponentType, PropsWithChildren } from 'react';
 import {
   WhiteboardTestingContextProvider,
+  mockEllipseElement,
+  mockLineElement,
+  mockTextElement,
   mockWhiteboardManager,
 } from '../../../lib/testUtils/documentTestUtils';
-import { WhiteboardManager } from '../../../state';
+import { WhiteboardManager, WhiteboardSlideInstance } from '../../../state';
 import { LayoutStateProvider, useLayoutState } from '../../Layout';
 import { Toolbar } from '../../common/Toolbar';
 import { ColorPicker } from './ColorPicker';
@@ -50,9 +53,26 @@ describe('<ColorPicker/>', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
   let activeColor: string;
   let setActiveColor: (color: string) => void;
+  let activeSlide: WhiteboardSlideInstance;
 
   beforeEach(() => {
-    ({ whiteboardManager } = mockWhiteboardManager());
+    ({ whiteboardManager } = mockWhiteboardManager({
+      slides: [
+        [
+          'slide-0',
+          [
+            ['element-0', mockEllipseElement({ fillColor: green[500] })],
+            ['element-1', mockEllipseElement()],
+            ['element-2', mockLineElement({ strokeColor: grey[500] })],
+            ['element-3', mockLineElement()],
+            ['element-4', mockTextElement()],
+            ['element-5', mockTextElement()],
+          ],
+        ],
+      ],
+    }));
+    const activeWhiteboard = whiteboardManager.getActiveWhiteboardInstance()!;
+    activeSlide = activeWhiteboard.getSlide('slide-0');
 
     function LayoutStateExtractor() {
       ({ setActiveColor, activeColor } = useLayoutState());
@@ -171,6 +191,65 @@ describe('<ColorPicker/>', () => {
     });
   });
 
+  /**
+   * Renders the colour picker, selects some elements and sets their colours.
+   *
+   * @param elementIds - ID of the elements to set the colour for
+   * @param color - HEX code of the colour to set
+   */
+  async function renderColorPickerAndSetElementColors(
+    elementIds: string[],
+    color: string,
+  ) {
+    activeSlide.setActiveElementIds(elementIds);
+    render(<ColorPicker />, { wrapper: Wrapper });
+    await userEvent.click(screen.getByRole('button', { name: 'Pick a color' }));
+    const grid = await screen.findByRole('grid', { name: 'Colors' });
+    await userEvent.click(within(grid).getByRole('button', { name: color }));
+  }
+
+  it('should set the colour for a single selected shape element', async () => {
+    await renderColorPickerAndSetElementColors(['element-1'], 'Red');
+
+    expect(selectElementColors(activeSlide)).toEqual({
+      'element-0': green[500],
+      'element-1': red[500],
+      'element-2': grey[500],
+      'element-3': '#ffffff',
+      'element-4': 'transparent',
+      'element-5': 'transparent',
+    });
+  });
+
+  it('should set the colour for a single selected path element', async () => {
+    await renderColorPickerAndSetElementColors(['element-2'], 'Red');
+
+    expect(selectElementColors(activeSlide)).toEqual({
+      'element-0': green[500],
+      'element-1': '#ffffff',
+      'element-2': red[500],
+      'element-3': '#ffffff',
+      'element-4': 'transparent',
+      'element-5': 'transparent',
+    });
+  });
+
+  it('should set the colour for multiple selected elements but not for text elements', async () => {
+    await renderColorPickerAndSetElementColors(
+      ['element-1', 'element-2', 'element-4'],
+      'Red',
+    );
+
+    expect(selectElementColors(activeSlide)).toEqual({
+      'element-0': green[500],
+      'element-1': red[500],
+      'element-2': red[500],
+      'element-3': '#ffffff',
+      'element-4': 'transparent',
+      'element-5': 'transparent',
+    });
+  });
+
   it('should select another color by keyboard', async () => {
     render(<ColorPicker />, { wrapper: Wrapper });
 
@@ -276,4 +355,32 @@ describe('<ColorPicker/>', () => {
 
     expect(colorButton).not.toBeInTheDocument();
   });
+
+  it('should be hidden when only text elements are selected', async () => {
+    activeSlide.setActiveElementIds(['element-4', 'element-5']);
+    render(<ColorPicker />, { wrapper: Wrapper });
+    const colorButton = screen.queryByRole('button', { name: 'Pick a color' });
+
+    expect(colorButton).not.toBeInTheDocument();
+  });
 });
+
+/**
+ * Extracts a map from element ID to the element colour.
+ *
+ * @param activeSlide - The slide to get the element, color map of
+ * @returns Record that maps element ID to the element colour
+ */
+function selectElementColors(
+  activeSlide: WhiteboardSlideInstance,
+): Record<string, string> {
+  const elementColors: Record<string, string> = {};
+  for (const elementId of activeSlide.getElementIds()) {
+    const element = activeSlide.getElement(elementId);
+    if (element) {
+      elementColors[elementId] =
+        element.type === 'shape' ? element.fillColor : element.strokeColor;
+    }
+  }
+  return elementColors;
+}
