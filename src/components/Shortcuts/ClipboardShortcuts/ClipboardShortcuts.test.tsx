@@ -75,7 +75,7 @@ describe('<CopyAndPasteShortcuts>', () => {
     );
   });
 
-  it('should copy content', () => {
+  it('should copy contents', () => {
     render(<ClipboardShortcuts />, { wrapper: Wrapper });
 
     const clipboardData = fireClipboardEvent('copy');
