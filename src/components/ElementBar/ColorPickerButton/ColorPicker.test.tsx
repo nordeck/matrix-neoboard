@@ -191,6 +191,23 @@ describe('<ColorPicker/>', () => {
     });
   });
 
+  /**
+   * Renders the colour picker, selects some elements and sets their colours.
+   *
+   * @param elementIds - ID of the elements to set the colour for
+   * @param color - HEX code of the colour to set
+   */
+  async function renderColorPickerAndSetElementColors(
+    elementIds: string[],
+    color: string,
+  ) {
+    activeSlide.setActiveElementIds(elementIds);
+    render(<ColorPicker />, { wrapper: Wrapper });
+    await userEvent.click(screen.getByRole('button', { name: 'Pick a color' }));
+    const grid = await screen.findByRole('grid', { name: 'Colors' });
+    await userEvent.click(within(grid).getByRole('button', { name: color }));
+  }
+
   it('should set the colour for a single selected shape element', async () => {
     await renderColorPickerAndSetElementColors(['element-1'], 'Red');
 
@@ -346,23 +363,6 @@ describe('<ColorPicker/>', () => {
 
     expect(colorButton).not.toBeInTheDocument();
   });
-
-  /**
-   * Renders the colour picker, selects some elements and sets their colours.
-   *
-   * @param elementIds - ID of the elements to set the colour for
-   * @param color - HEX code of the colour to set
-   */
-  async function renderColorPickerAndSetElementColors(
-    elementIds: string[],
-    color: string,
-  ) {
-    activeSlide.setActiveElementIds(elementIds);
-    render(<ColorPicker />, { wrapper: Wrapper });
-    await userEvent.click(screen.getByRole('button', { name: 'Pick a color' }));
-    const grid = await screen.findByRole('grid', { name: 'Colors' });
-    await userEvent.click(within(grid).getByRole('button', { name: color }));
-  }
 });
 
 /**
