@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import { isEmpty } from 'lodash';
 import { useEffect } from 'react';
 import { useHotkeysContext } from 'react-hotkeys-hook';
 import {
@@ -64,7 +63,7 @@ export function ClipboardShortcuts() {
 
       const activeElementIds = slideInstance.getActiveElementIds();
 
-      if (!activeElementIds.length) {
+      if (activeElementIds.length === 0) {
         return;
       }
 
@@ -72,7 +71,7 @@ export function ClipboardShortcuts() {
         slideInstance.sortElementIds(activeElementIds);
       const activeElements = slideInstance.getElements(orderedActiveElementIds);
 
-      if (isEmpty(activeElements)) {
+      if (Object.keys(activeElements).length === 0) {
         return;
       }
 
@@ -105,7 +104,7 @@ export function ClipboardShortcuts() {
 
       const activeElementIds = slideInstance.getActiveElementIds();
 
-      if (!activeElementIds.length) {
+      if (activeElementIds.length === 0) {
         return;
       }
 
@@ -113,7 +112,7 @@ export function ClipboardShortcuts() {
         slideInstance.sortElementIds(activeElementIds);
       const activeElements = slideInstance.getElements(orderedActiveElementIds);
 
-      if (isEmpty(activeElements)) {
+      if (Object.keys(activeElements).length === 0) {
         return;
       }
 
@@ -144,7 +143,7 @@ export function ClipboardShortcuts() {
       const content = readFromClipboardData(event.clipboardData);
       const { elements } = deserializeFromClipboard(content);
 
-      if (elements?.length) {
+      if (elements && elements.length > 0) {
         const pastedElementIds = slideInstance.addElements(elements);
         slideInstance.setActiveElementIds(pastedElementIds);
       }

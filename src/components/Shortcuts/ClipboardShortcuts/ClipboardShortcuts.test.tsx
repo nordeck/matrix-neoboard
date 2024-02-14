@@ -140,7 +140,7 @@ describe('<CopyAndPasteShortcuts>', () => {
       expect.stringContaining('<span data-meta='),
     );
 
-    expect(activeSlide.getActiveElementIds()).toHaveLength(0);
+    expect(activeSlide.getActiveElementIds()).toEqual([]);
     expect(activeSlide.getElements(['element-1', 'element-2'])).toEqual({});
   });
 
