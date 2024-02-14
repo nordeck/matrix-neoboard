@@ -258,3 +258,36 @@ export function mockTextElement(shape: Partial<ShapeElement> = {}): Element {
     ...shape,
   };
 }
+
+/**
+ * Mock the fullscreen API {@link https://developer.mozilla.org/en-US/docs/Web/API/Fullscreen_API}
+ *
+ * Set document.fullscreenElement to null.
+ * Mock document.exitFullscreen() to reset document.fullscreenElement to null.
+ * Also mock document.documentElement.requestFullscreen() to set document.fullscreenElement to an empty object.
+ * Both mocked functions dispatch a "fullscreenchange" event on document and return a resolved Promise.
+ */
+export function mockFullscreenApi(): void {
+  // Ignore TS and linter here for setting a mocked API
+  // @ts-ignore
+  // eslint-disable-next-line
+  document.fullscreenElement = null;
+
+  document.exitFullscreen = jest.fn(function () {
+    // Ignore TS and linter here for setting a mocked API
+    // @ts-ignore
+    // eslint-disable-next-line
+    document.fullscreenElement = null;
+    document.dispatchEvent(new Event('fullscreenchange'));
+    return Promise.resolve();
+  });
+
+  document.documentElement.requestFullscreen = jest.fn(function () {
+    // Ignore TS and linter here for setting a mocked API
+    // @ts-ignore
+    // eslint-disable-next-line
+    document.fullscreenElement = {};
+    document.dispatchEvent(new Event('fullscreenchange'));
+    return Promise.resolve();
+  });
+}

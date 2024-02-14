@@ -99,6 +99,11 @@
     "deleteElement": "Delete",
     "title": "Element"
   },
+  "fullscreenModeBar": {
+    "disableFullscreenMode": "Disable fullscreen mode",
+    "enableFullscreenMode": "Enable fullscreen mode",
+    "title": "Fullscreen mode"
+  },
   "guidedTour": {
     "back": "Back",
     "collaborationBar": {

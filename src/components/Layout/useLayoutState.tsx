@@ -22,6 +22,7 @@ import {
   useMemo,
   useState,
 } from 'react';
+import { useFullscreenMode } from './useFullscreenMode';
 
 export type ActiveTool =
   | 'select'
@@ -45,6 +46,16 @@ type LayoutState = {
   setShowGrid: (value: boolean) => void;
   setActiveTool: (tool: ActiveTool) => void;
   setActiveColor: (color: string) => void;
+  /**
+   * Whether the layout is displayed in fullscreen mode.
+   */
+  isFullscreenMode: boolean;
+  /**
+   * Set fullscreen mode.
+   *
+   * @param fullscreen - true to go fullscreen mode; false to go to non-fullscreen mode
+   */
+  setFullscreenMode: (fullscreen: boolean) => void;
 };
 
 const LayoutStateContext = createContext<LayoutState | undefined>(undefined);
@@ -59,6 +70,7 @@ export function LayoutStateProvider({ children }: PropsWithChildren<{}>) {
   const [isShowGrid, setShowGrid] = useState<boolean>(true);
   const [activeTool, setActiveTool] = useState<ActiveTool>('select');
   const [activeColor, setActiveColor] = useState<string>(grey[500]);
+  const { isFullscreenMode, setFullscreenMode } = useFullscreenMode();
 
   const value = useMemo(
     () => ({
@@ -74,6 +86,8 @@ export function LayoutStateProvider({ children }: PropsWithChildren<{}>) {
       setShowGrid,
       setActiveTool,
       setActiveColor,
+      isFullscreenMode,
+      setFullscreenMode,
     }),
     [
       activeColor,
@@ -82,6 +96,8 @@ export function LayoutStateProvider({ children }: PropsWithChildren<{}>) {
       isShowCollaboratorsCursors,
       isShowGrid,
       isSlideOverviewVisible,
+      isFullscreenMode,
+      setFullscreenMode,
     ],
   );
 

@@ -28,6 +28,7 @@ import { BoardBar } from '../BoardBar';
 import { CollaborationBar } from '../CollaborationBar';
 import { DeveloperTools } from '../DeveloperTools/DeveloperTools';
 import { ElementOverridesProvider } from '../ElementOverridesProvider';
+import { FullscreenModeBar } from '../FullscreenModeBar/FullscreenModeBar';
 import { GuidedTour } from '../GuidedTour';
 import { HelpCenterBar } from '../HelpCenterBar';
 import { PresentBar } from '../PresentBar';
@@ -130,7 +131,16 @@ function ContentArea() {
       >
         {!isViewingPresentation && <BoardBar />}
         <CollaborationBar />
-        {(!isViewingPresentation || canStopPresentation) && <PresentBar />}
+        <ToolbarContainer
+          direction="column"
+          gap={(theme) => theme.spacing(1)}
+          position="relative"
+          left={0}
+          right={0}
+        >
+          <FullscreenModeBar />
+          {(!isViewingPresentation || canStopPresentation) && <PresentBar />}
+        </ToolbarContainer>
       </ToolbarContainer>
 
       <WhiteboardHost />
