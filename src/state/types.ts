@@ -143,8 +143,6 @@ export type WhiteboardSlideInstance = {
    * @returns the IDs of the created elements.
    */
   addElements(elements: Array<Element>): string[];
-  /** Remove the element */
-  removeElement(elementId: string): void;
   /** Remove the elements by their IDs */
   removeElements(elementIds: string[]): void;
   /**
@@ -191,7 +189,7 @@ export type WhiteboardSlideInstance = {
    * @deprecated to be replaced with getActiveElementIds
    * */
   getActiveElementId(): string | undefined;
-  /** Return the active elements */
+  /** Return ids of the currently active elements in the order of their selection. */
   getActiveElementIds(): string[];
   /**
    * Observe the active element. First element is returned if multiple are active.

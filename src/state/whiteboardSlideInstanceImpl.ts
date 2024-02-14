@@ -48,7 +48,6 @@ import {
   generateMoveDown,
   generateMoveElements,
   generateMoveUp,
-  generateRemoveElement,
   generateUnlockSlide,
   generateUpdateElement,
   getElement,
@@ -168,12 +167,6 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
     this.document.performChange(changeFn);
 
     return elementIds;
-  }
-
-  removeElement(elementId: string): void {
-    this.assertLocked();
-
-    this.document.performChange(generateRemoveElement(this.slideId, elementId));
   }
 
   removeElements(elementIds: string[]): void {
