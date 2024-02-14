@@ -14,26 +14,24 @@
  * limitations under the License.
  */
 
-import { Elements } from '../../../state/types';
+import { Element } from '../../../state';
 
 /**
  * Extracts the first non-transparent colour of the elements, if available.
  * Otherwise returns "transparent" if elements are not empty.
  * Otherwise returns "undefined".
  *
- * @param elements - Elements to search for a colour
+ * @param elements - elements to search for a colour
  * @returns first non-transparent colour or "transparent" or "undefined"
  */
 export function extractFirstNonTransparentOrFirstColor(
-  elements: Elements,
+  elements: Element[],
 ): string | undefined {
-  const values = Object.values(elements);
-
-  if (values.length === 0) {
+  if (elements.length === 0) {
     return undefined;
   }
 
-  for (const element of values) {
+  for (const element of elements) {
     if (element.type === 'shape' && element.fillColor !== 'transparent') {
       return element.fillColor;
     }

@@ -39,7 +39,8 @@ export function ColorPicker() {
   const { activeElementIds } = useActiveElements();
   const activeElements = useElements(activeElementIds);
   const color =
-    extractFirstNonTransparentOrFirstColor(activeElements) ?? activeColor;
+    extractFirstNonTransparentOrFirstColor(Object.values(activeElements)) ??
+    activeColor;
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 

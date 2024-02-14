@@ -33,35 +33,32 @@ describe('extractFirstNonTransparentColorOrFirst', () => {
   });
 
   it('should return undefined if there are no elements', () => {
-    expect(extractFirstNonTransparentOrFirstColor({})).toBeUndefined();
+    expect(extractFirstNonTransparentOrFirstColor([])).toBeUndefined();
   });
 
   it('should return "transparent" if there are only text elements', () => {
     expect(
-      extractFirstNonTransparentOrFirstColor({
-        'text-1': textElement1,
-        'text-2': textElement2,
-      }),
+      extractFirstNonTransparentOrFirstColor([textElement1, textElement2]),
     ).toBe('transparent');
   });
 
   it('should return the color of the first non-transparent element (shape element)', () => {
     expect(
-      extractFirstNonTransparentOrFirstColor({
-        'text-1': textElement1,
-        shape: shapeElement,
-        path: pathElement,
-      }),
+      extractFirstNonTransparentOrFirstColor([
+        textElement1,
+        shapeElement,
+        pathElement,
+      ]),
     ).toBe(red[500]);
   });
 
   it('should return the color of the first non-transparent element (path element)', () => {
     expect(
-      extractFirstNonTransparentOrFirstColor({
-        'text-1': textElement1,
-        path: pathElement,
-        shape: shapeElement,
-      }),
+      extractFirstNonTransparentOrFirstColor([
+        textElement1,
+        pathElement,
+        shapeElement,
+      ]),
     ).toBe(green[500]);
   });
 });
