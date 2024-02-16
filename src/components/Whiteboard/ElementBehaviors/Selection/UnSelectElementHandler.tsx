@@ -14,23 +14,54 @@
  * limitations under the License.
  */
 
-import { useCallback } from 'react';
+import { getEnvironment } from '@matrix-widget-toolkit/mui';
+import { MouseEvent, useCallback } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import {
   useActiveElement,
   useWhiteboardSlideInstance,
 } from '../../../../state';
+import { useLayoutState } from '../../../Layout';
 import { HOTKEY_SCOPE_WHITEBOARD } from '../../../WhiteboardHotkeysProvider';
+import { useSvgCanvasContext } from '../../SvgCanvas';
 
-export function UnselectElementHandler() {
+export function UnSelectElementHandler() {
+  const multiselect =
+    getEnvironment('REACT_APP_MULTISELECT', 'false') === 'true';
+
   const { activeElementId } = useActiveElement();
   const slideInstance = useWhiteboardSlideInstance();
+  const { setDragSelectStartCoords } = useLayoutState();
+  const { calculateSvgCoords } = useSvgCanvasContext();
 
   const unselectElement = useCallback(() => {
     if (activeElementId) {
       slideInstance.setActiveElementId(undefined);
     }
   }, [activeElementId, slideInstance]);
+
+  const handleMouseDown = useCallback(
+    (event: MouseEvent<SVGRectElement>) => {
+      if (multiselect) {
+        const point = calculateSvgCoords({
+          x: event.clientX,
+          y: event.clientY,
+        });
+        setDragSelectStartCoords(point);
+      }
+
+      if (activeElementId) {
+        slideInstance.setActiveElementId(undefined);
+      }
+    },
+    [
+      activeElementId,
+      slideInstance,
+      calculateSvgCoords,
+      setDragSelectStartCoords,
+      multiselect,
+    ],
+  );
 
   useHotkeys(
     'Escape',
@@ -47,8 +78,9 @@ export function UnselectElementHandler() {
     <rect
       fill="transparent"
       height="100%"
-      onMouseDown={unselectElement}
+      onMouseDown={handleMouseDown}
       width="100%"
+      data-testid="unselect-element-layer"
     />
   );
 }

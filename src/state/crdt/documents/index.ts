@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-export { isValidElement } from './elements';
+export { calculateBoundingRectForElements, isValidElement } from './elements';
 export type {
   Element,
   ElementBase,

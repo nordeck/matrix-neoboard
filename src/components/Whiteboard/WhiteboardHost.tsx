@@ -33,8 +33,9 @@ import {
   ElementBorder,
   ElementOutline,
   ResizeElement,
-  UnselectElementHandler,
+  UnSelectElementHandler,
 } from './ElementBehaviors';
+import { DragSelect } from './ElementBehaviors/Selection/DragSelect';
 import { DotGrid } from './Grid';
 import { SlideSkeleton } from './SlideSkeleton';
 import { SvgCanvas } from './SvgCanvas';
@@ -54,7 +55,8 @@ const WhiteboardHost = ({
   withOutline?: boolean;
 }) => {
   const slideInstance = useWhiteboardSlideInstance();
-  const { isShowCollaboratorsCursors } = useLayoutState();
+  const { isShowCollaboratorsCursors, dragSelectStartCoords } =
+    useLayoutState();
   const { activeElementIds } = useActiveElements();
 
   return (
@@ -75,6 +77,7 @@ const WhiteboardHost = ({
           slideInstance.publishCursorPosition(position);
         }}
         additionalChildren={
+          dragSelectStartCoords === undefined &&
           !readOnly &&
           activeElementIds.length > 0 && (
             <ElementBarWrapper elementIds={activeElementIds}>
@@ -86,7 +89,7 @@ const WhiteboardHost = ({
         withOutline={withOutline}
       >
         {!hideDotGrid && <DotGrid />}
-        {!readOnly && <UnselectElementHandler />}
+        {!readOnly && <UnSelectElementHandler />}
 
         {elementIds.map((e) => (
           <ConnectedElement id={e} key={e} readOnly={readOnly} />
@@ -94,11 +97,15 @@ const WhiteboardHost = ({
 
         {!readOnly && <DraftPicker />}
 
+        {dragSelectStartCoords && <DragSelect />}
+
         {!readOnly && activeElementIds.length > 0 && (
           <>
             <ElementBorder elementIds={activeElementIds} />
             <ElementOutline elementIds={activeElementIds} />
-            <ResizeElement elementId={activeElementIds[0]} />
+            {dragSelectStartCoords === undefined && (
+              <ResizeElement elementId={activeElementIds[0]} />
+            )}
           </>
         )}
 
