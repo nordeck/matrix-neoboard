@@ -45,10 +45,18 @@ describe('<ToggleFullscreenButton/>', () => {
   it('should toggle from non-fullscreen to fullscreen mode', async () => {
     render(<ToggleFullscreenModeButton />, { wrapper: Wrapper });
 
-    await userEvent.click(getEnableFullscreenModeButton());
+    await userEvent.click(
+      screen.getByRole('button', {
+        name: 'Fullscreen on',
+      }),
+    );
 
     await waitFor(function () {
-      expect(getDisableFullscreenModeButton()).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', {
+          name: 'Fullscreen off',
+        }),
+      ).toBeInTheDocument();
     });
   });
 
@@ -59,22 +67,18 @@ describe('<ToggleFullscreenButton/>', () => {
       setFullscreen(true);
     });
 
-    await userEvent.click(getDisableFullscreenModeButton());
+    await userEvent.click(
+      screen.getByRole('button', {
+        name: 'Fullscreen off',
+      }),
+    );
 
     await waitFor(function () {
-      expect(getEnableFullscreenModeButton()).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', {
+          name: 'Fullscreen on',
+        }),
+      ).toBeInTheDocument();
     });
   });
 });
-
-function getEnableFullscreenModeButton() {
-  return screen.getByRole('button', {
-    name: 'Fullscreen on',
-  });
-}
-
-function getDisableFullscreenModeButton() {
-  return screen.getByRole('button', {
-    name: 'Fullscreen off',
-  });
-}
