@@ -37,7 +37,7 @@ describe('<FullscreenModeBar/>', () => {
     const toolbar = screen.getByRole('toolbar', { name: 'Fullscreen mode' });
 
     expect(
-      within(toolbar).getByRole('checkbox', {
+      within(toolbar).getByRole('button', {
         name: 'Enable fullscreen mode',
       }),
     ).toBeInTheDocument();

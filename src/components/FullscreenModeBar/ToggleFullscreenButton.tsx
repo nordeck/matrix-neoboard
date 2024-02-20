@@ -19,7 +19,7 @@ import FullscreenExitIcon from '@mui/icons-material/FullscreenExit';
 import { t } from 'i18next';
 import { useCallback } from 'react';
 import { useLayoutState } from '../Layout';
-import { ToolbarToggle } from '../common/Toolbar';
+import { ToolbarButton } from '../common/Toolbar';
 
 export function ToggleFullscreenModeButton() {
   const { isFullscreenMode: isFullscreen, setFullscreenMode: setFullscreen } =
@@ -34,13 +34,12 @@ export function ToggleFullscreenModeButton() {
     : t('fullscreenModeBar.enableFullscreenMode', 'Enable fullscreen mode');
 
   return (
-    <ToolbarToggle
-      inputProps={{ 'aria-label': fullscreenModeButtonTitle }}
-      checked={isFullscreen}
+    <ToolbarButton
+      aria-label={fullscreenModeButtonTitle}
       onClick={toggleFullscreenMode}
-      icon={<FullscreenIcon />}
       placement="bottom"
-      checkedIcon={<FullscreenExitIcon />}
-    />
+    >
+      {isFullscreen ? <FullscreenExitIcon /> : <FullscreenIcon />}
+    </ToolbarButton>
   );
 }
