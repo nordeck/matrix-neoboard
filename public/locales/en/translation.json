@@ -100,8 +100,8 @@
     "title": "Element"
   },
   "fullscreenModeBar": {
-    "disableFullscreenMode": "Disable fullscreen mode",
-    "enableFullscreenMode": "Enable fullscreen mode",
+    "fullscreenOff": "Fullscreen off",
+    "fullscreenOn": "Fullscreen on",
     "title": "Fullscreen mode"
   },
   "guidedTour": {

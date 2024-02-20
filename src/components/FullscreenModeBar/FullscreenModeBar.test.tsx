@@ -38,7 +38,7 @@ describe('<FullscreenModeBar/>', () => {
 
     expect(
       within(toolbar).getByRole('button', {
-        name: 'Enable fullscreen mode',
+        name: 'Fullscreen on',
       }),
     ).toBeInTheDocument();
   });

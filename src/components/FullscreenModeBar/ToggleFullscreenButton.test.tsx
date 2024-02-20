@@ -69,12 +69,12 @@ describe('<ToggleFullscreenButton/>', () => {
 
 function getEnableFullscreenModeButton() {
   return screen.getByRole('button', {
-    name: 'Enable fullscreen mode',
+    name: 'Fullscreen on',
   });
 }
 
 function getDisableFullscreenModeButton() {
   return screen.getByRole('button', {
-    name: 'Disable fullscreen mode',
+    name: 'Fullscreen off',
   });
 }

@@ -30,8 +30,8 @@ export function ToggleFullscreenModeButton() {
   }, [isFullscreen, setFullscreen]);
 
   const fullscreenModeButtonTitle = isFullscreen
-    ? t('fullscreenModeBar.disableFullscreenMode', 'Disable fullscreen mode')
-    : t('fullscreenModeBar.enableFullscreenMode', 'Enable fullscreen mode');
+    ? t('fullscreenModeBar.fullscreenOff', 'Fullscreen off')
+    : t('fullscreenModeBar.fullscreenOn', 'Fullscreen on');
 
   return (
     <ToolbarButton
