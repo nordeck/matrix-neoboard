@@ -28,7 +28,7 @@ import { BoardBar } from '../BoardBar';
 import { CollaborationBar } from '../CollaborationBar';
 import { DeveloperTools } from '../DeveloperTools/DeveloperTools';
 import { ElementOverridesProvider } from '../ElementOverridesProvider';
-import { FullscreenModeBar } from '../FullscreenModeBar/FullscreenModeBar';
+import { FullscreenModeBar } from '../FullscreenModeBar';
 import { GuidedTour } from '../GuidedTour';
 import { HelpCenterBar } from '../HelpCenterBar';
 import { PresentBar } from '../PresentBar';
