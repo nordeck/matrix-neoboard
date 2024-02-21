@@ -18,6 +18,7 @@ import { red } from '@mui/material/colors';
 import { renderHook } from '@testing-library/react-hooks';
 import { ComponentType, PropsWithChildren } from 'react';
 import { act } from 'react-dom/test-utils';
+import { mockFullscreenApi } from '../../lib/testUtils/documentTestUtils';
 import { LayoutStateProvider, useLayoutState } from './useLayoutState';
 
 describe('useLayoutState', () => {
@@ -123,5 +124,37 @@ describe('useLayoutState', () => {
     });
 
     expect(result.current.activeColor).toBe('#f44336');
+  });
+
+  describe('fullscreen', () => {
+    beforeEach(() => {
+      mockFullscreenApi();
+    });
+
+    it('should start with fullscreen mode being disabled', () => {
+      const { result } = renderHook(() => useLayoutState(), {
+        wrapper: Wrapper,
+      });
+
+      expect(result.current.isFullscreenMode).toBe(false);
+    });
+
+    it('should toggle fullscreen mode', () => {
+      const { result } = renderHook(() => useLayoutState(), {
+        wrapper: Wrapper,
+      });
+
+      act(() => {
+        result.current.setFullscreenMode(true);
+      });
+
+      expect(result.current.isFullscreenMode).toBe(true);
+
+      act(() => {
+        result.current.setFullscreenMode(false);
+      });
+
+      expect(result.current.isFullscreenMode).toBe(false);
+    });
   });
 });

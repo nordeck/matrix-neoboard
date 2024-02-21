@@ -99,6 +99,11 @@
     "deleteElement": "Löschen",
     "title": "Element"
   },
+  "fullscreenModeBar": {
+    "fullscreenOff": "Vollbild aus",
+    "fullscreenOn": "Vollbild an",
+    "title": "Vollbildmodus"
+  },
   "guidedTour": {
     "back": "Zurück",
     "collaborationBar": {
