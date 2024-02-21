@@ -13,6 +13,10 @@
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
     <title>NeoBoard</title>
 
+    <% if (process.env.NODE_ENV==='development' &&
+    process.env.REACT_APP_DEVTOOLS==='true' ) { %>
+    <script src="http://localhost:8097"></script>
+    <% } %>
     <!--#echo var="__INJECT_SCRIPT_TAG__" encoding="none"-->
   </head>
 
