@@ -209,6 +209,7 @@ export function ResizeHandle({
       scale={scale}
     >
       <rect
+        data-testid={`resize-handle-${cursor}`}
         cursor={cursor}
         fill="transparent"
         height={height}

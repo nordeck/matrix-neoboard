@@ -45,6 +45,7 @@ export function useElementOverrides(elementIds: string[]): Elements {
               ? {
                   ...element,
                   position: override?.position ?? element.position,
+                  points: override?.points ?? element.points,
                 }
               : {
                   ...element,
