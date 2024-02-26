@@ -116,6 +116,16 @@ describe('useLayoutState', () => {
     expect(result.current.activeTool).toBe('text');
   });
 
+  it('should change the active tool from select to arrow', () => {
+    const { result } = renderHook(() => useLayoutState(), { wrapper: Wrapper });
+
+    act(() => {
+      result.current.setActiveTool('arrow');
+    });
+
+    expect(result.current.activeTool).toBe('arrow');
+  });
+
   it('should change the active color to red', () => {
     const { result } = renderHook(() => useLayoutState(), { wrapper: Wrapper });
 

@@ -40,6 +40,7 @@ describe('isValidElement', () => {
       kind: 'line',
       points: [{ x: 1, y: 2, additional: 'data' }],
       strokeColor: 'red',
+      endMarker: 'arrow-head-line',
     };
 
     expect(isValidElement(data)).toBe(true);
@@ -99,6 +100,10 @@ describe('isValidElement', () => {
     { strokeColor: null },
     { strokeColor: 111 },
     { strokeColor: '' },
+    { endMarker: null },
+    { endMarker: 111 },
+    { endMarker: '' },
+    { endMarker: 'triangle' },
   ])('should reject path event with patch %j', (patch: Object) => {
     const data = {
       type: 'path',

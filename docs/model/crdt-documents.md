@@ -148,17 +148,18 @@ An Element that has a shape attached, that has a text and a fill color.
 
 ### `PathElement`
 
-An Element that has a path with a stroke color.
+An element that consists of points.
 
 #### Fields
 
-| Field         | Type                   | Description                                                                                     |
-| ------------- | ---------------------- | ----------------------------------------------------------------------------------------------- |
-| `type`        | `'path'`               | Identifies the element as a path.                                                               |
-| `kind`        | `'line' \| 'polyline'` | The kind of path, either a straight `line` between two points or a `polyline` with many points. |
-| `position`    | `Point`                | The position of the path on the whiteboard canvas.                                              |
-| `points`      | `Point[]`              | The points of the path in relative coordinates to its position.                                 |
-| `strokeColor` | `string`               | The stroke color of the path as [CSS color value][csscolor].                                    |
+| Field         | Type                             | Description                                                                                     |
+| ------------- | -------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `type`        | `'path'`                         | Identifies the element as a path.                                                               |
+| `kind`        | `'line' \| 'polyline'`           | The kind of path, either a straight `line` between two points or a `polyline` with many points. |
+| `position`    | `Point`                          | The position of the path on the whiteboard canvas.                                              |
+| `points`      | `Point[]`                        | The points of the path in relative coordinates to its position.                                 |
+| `strokeColor` | `string`                         | The stroke color of the path as [CSS color value][csscolor].                                    |
+| `endMarker`   | `'arrow-head-line' \| undefined` | An optional marker for the end of a path.                                                       |
 
 #### Example
 
@@ -171,7 +172,8 @@ An Element that has a path with a stroke color.
     { "x": 0, "y": 0 },
     { "x": 25, "y": 25 }
   ],
-  "strokeColor": "#ff0000"
+  "strokeColor": "#ff0000",
+  "endMarker": "arrow-head-line"
 }
 ```
 

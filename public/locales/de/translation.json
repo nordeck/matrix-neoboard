@@ -217,6 +217,7 @@
     }
   },
   "toolsBar": {
+    "arrowTool": "Pfeil",
     "ellipseTool": "Ellipse",
     "lineTool": "Linie",
     "penTool": "Stift",

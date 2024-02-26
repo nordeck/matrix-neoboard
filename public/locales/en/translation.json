@@ -217,6 +217,7 @@
     }
   },
   "toolsBar": {
+    "arrowTool": "Arrow",
     "ellipseTool": "Ellipse",
     "lineTool": "Line",
     "penTool": "Pen",

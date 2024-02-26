@@ -21,6 +21,7 @@ import {
   Point,
   useWhiteboardSlideInstance,
 } from '../../../state';
+import { EndMarker } from '../../../state/crdt/documents/elements';
 import { useLayoutState } from '../../Layout';
 import { WithSelectionProps } from '../ElementBehaviors';
 import { gridCellSize } from '../constants';
@@ -31,12 +32,14 @@ export type DraftLineChildProps = {
   kind: PathKind;
   display: ComponentType<PathElement & WithSelectionProps>;
   onlyStartAndEndPoints?: boolean;
+  endMarker?: EndMarker;
 };
 
 export const DraftLineChild = ({
   kind,
   onlyStartAndEndPoints = false,
   display: Display,
+  endMarker,
 }: DraftLineChildProps) => {
   const { isShowGrid } = useLayoutState();
   const [cursorPoints, setCursorPoints] = useState<Point[]>();
@@ -54,6 +57,7 @@ export const DraftLineChild = ({
             strokeColor,
             gridCellSize: isShowGrid ? gridCellSize : undefined,
             onlyStartAndEndPoints,
+            endMarker,
           }),
         );
         if (kind !== 'polyline') {
@@ -70,6 +74,7 @@ export const DraftLineChild = ({
     strokeColor,
     isShowGrid,
     onlyStartAndEndPoints,
+    endMarker,
   ]);
 
   const handleMouseMove = useCallback(
@@ -94,9 +99,17 @@ export const DraftLineChild = ({
             strokeColor,
             gridCellSize: isShowGrid ? gridCellSize : undefined,
             onlyStartAndEndPoints,
+            endMarker,
           })
         : undefined,
-    [cursorPoints, kind, strokeColor, isShowGrid, onlyStartAndEndPoints],
+    [
+      cursorPoints,
+      kind,
+      strokeColor,
+      isShowGrid,
+      onlyStartAndEndPoints,
+      endMarker,
+    ],
   );
 
   return (

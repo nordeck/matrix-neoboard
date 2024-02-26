@@ -229,7 +229,7 @@ export function mockEllipseElement(shape: Partial<ShapeElement> = {}): Element {
   };
 }
 
-export function mockLineElement(path: Partial<PathElement> = {}): Element {
+export function mockLineElement(path: Partial<PathElement> = {}): PathElement {
   return {
     type: 'path',
     kind: 'line',

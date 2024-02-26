@@ -22,6 +22,7 @@ import {
   ShapeElement,
   ShapeKind,
 } from '../../../state';
+import { EndMarker } from '../../../state/crdt/documents/elements';
 import { whiteboardHeight, whiteboardWidth } from '../constants';
 import { snapToGrid } from '../Grid';
 
@@ -107,12 +108,14 @@ export function createShapeFromPoints({
   strokeColor,
   gridCellSize,
   onlyStartAndEndPoints = false,
+  endMarker,
 }: {
   kind: PathKind;
   cursorPoints: Point[];
   strokeColor: string;
   gridCellSize?: number;
   onlyStartAndEndPoints?: boolean;
+  endMarker?: EndMarker;
 }): PathElement {
   const points = onlyStartAndEndPoints
     ? [cursorPoints[0], cursorPoints[cursorPoints.length - 1]].map((e) =>
@@ -130,10 +133,11 @@ export function createShapeFromPoints({
     position: { x: offsetX, y: offsetY },
     type: 'path',
     kind,
-    strokeColor,
+    endMarker,
     points: points.map((e) => ({
       x: e.x - offsetX,
       y: e.y - offsetY,
     })),
+    strokeColor,
   };
 }
