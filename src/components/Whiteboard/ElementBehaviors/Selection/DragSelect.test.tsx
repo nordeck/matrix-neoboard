@@ -40,7 +40,30 @@ describe('<DragSelect/>', () => {
     widgetApi = mockWidgetApi();
 
     const { whiteboardManager } = mockWhiteboardManager({
-      slides: [['slide-0', [['element-0', mockEllipseElement()]]]],
+      slides: [
+        [
+          'slide-0',
+          [
+            ['element-0', mockEllipseElement()],
+            [
+              'element-1',
+              mockEllipseElement({
+                position: { x: 20, y: 20 },
+                width: 50,
+                height: 50,
+              }),
+            ],
+            [
+              'element-2',
+              mockEllipseElement({
+                position: { x: 51, y: 51 },
+                width: 50,
+                height: 50,
+              }),
+            ],
+          ],
+        ],
+      ],
     });
     const activeWhiteboard = whiteboardManager.getActiveWhiteboardInstance()!;
     activeSlide = activeWhiteboard.getSlide('slide-0');
@@ -95,10 +118,11 @@ describe('<DragSelect/>', () => {
 
   it('should render a selection if there is a mouse move and start coordinates', () => {
     render(<DragSelect />, { wrapper: Wrapper });
+
+    // draw a selection from top left to 50,50
     act(() => {
       setDragSelectStartCoords({ x: 0, y: 0 });
     });
-
     fireEvent.mouseMove(screen.getByTestId('drag-select-layer'), {
       clientX: 50,
       clientY: 50,
@@ -107,17 +131,21 @@ describe('<DragSelect/>', () => {
     expect(screen.getByTestId('drag-selection')).toBeInTheDocument();
   });
 
-  it('should select elements if there is a mouse move', () => {
+  it('should select elements intersecting the selection', () => {
     render(<DragSelect />, { wrapper: Wrapper });
+
+    // draw a selection from top left to 50,50
     act(() => {
       setDragSelectStartCoords({ x: 0, y: 0 });
     });
-
     fireEvent.mouseMove(screen.getByTestId('drag-select-layer'), {
       clientX: 50,
       clientY: 50,
     });
 
-    expect(activeSlide.getActiveElementIds()).toEqual(['element-0']);
+    expect(activeSlide.getActiveElementIds()).toEqual([
+      'element-0',
+      'element-1',
+    ]);
   });
 });
