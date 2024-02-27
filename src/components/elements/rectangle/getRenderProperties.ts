@@ -26,8 +26,8 @@ export function getRenderProperties(
   const height = shape.height;
 
   return {
-    strokeColor: shape.fillColor,
-    strokeWidth: 2,
+    strokeColor: shape.strokeColor ?? shape.fillColor,
+    strokeWidth: shape.strokeWidth ?? 2,
 
     text: {
       position: {
