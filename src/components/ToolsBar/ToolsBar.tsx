@@ -66,14 +66,14 @@ export function ToolsBar() {
         value: 'triangle',
       },
       {
-        label: t('toolsBar.lineTool', 'Line'),
-        icon: <LineIcon />,
-        value: 'line',
-      },
-      {
         label: t('toolsBar.arrowTool', 'Arrow'),
         icon: <NorthEastIcon />,
         value: 'arrow',
+      },
+      {
+        label: t('toolsBar.lineTool', 'Line'),
+        icon: <LineIcon />,
+        value: 'line',
       },
       {
         label: t('toolsBar.penTool', 'Pen'),
