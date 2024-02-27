@@ -28,7 +28,7 @@ export function calculateIntersect(
   selection: Element,
   elements: Elements,
 ): string[] {
-  const selectedElementIds = [];
+  const selectedElementIds: string[] = [];
   const selectionBoundingRect = calculateBoundingRectForElements([selection]);
   const selectionBottomRight = {
     x: selectionBoundingRect.offsetX + selectionBoundingRect.width,
