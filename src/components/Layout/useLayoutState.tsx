@@ -62,6 +62,11 @@ type LayoutState = {
    * undefined if there is no drag-select action.
    */
   dragSelectStartCoords?: Point;
+  /**
+   * Set or clear the drag select start coordinates.
+   *
+   * @param point - Point to start a drag select action from or undefined to clear the drag selection
+   */
   setDragSelectStartCoords: (point?: Point) => void;
 };
 
