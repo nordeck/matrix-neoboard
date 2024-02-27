@@ -82,3 +82,29 @@ Object.defineProperty(global.globalThis, 'crypto', { value: webcrypto });
 Object.defineProperty(navigator, 'clipboard', {
   value: { writeText: jest.fn() },
 });
+
+// Set up SVG mocks
+class MockDOMPoint implements DOMPoint {
+  public x = 23;
+  public y = 42;
+  public w = 0;
+  public z = 0;
+
+  public matrixTransform(): DOMPoint {
+    return new MockDOMPoint();
+  }
+
+  toJSON() {
+    return {};
+  }
+}
+
+SVGSVGElement.prototype.createSVGPoint = function () {
+  return new MockDOMPoint();
+};
+
+// only mocking necessary props here
+// @ts-ignore
+SVGSVGElement.prototype.getScreenCTM = function () {
+  return { inverse: jest.fn() };
+};

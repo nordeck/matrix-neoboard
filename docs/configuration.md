@@ -16,4 +16,8 @@ REACT_APP_HELP_CENTER_URL="https://github.com/nordeck/matrix-neoboard"
 
 # optional - enables multiselect
 REACT_APP_MULTISELECT=false
+
+# optional - enable connection to React standalone devtools
+# Does only work in development mode.
+REACT_APP_DEVTOOLS=true
 ```

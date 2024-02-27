@@ -21,6 +21,7 @@ export type ElementOverride = {
   height?: number;
   width?: number;
   position?: Point;
+  points?: Point[];
 };
 
 export type ElementOverrides = Record<string, ElementOverride>;

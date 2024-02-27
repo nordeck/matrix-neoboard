@@ -16,7 +16,8 @@
 
 import { Dispatch, useCallback, useState } from 'react';
 import { useUnmount } from 'react-use';
-import { useWhiteboardSlideInstance } from '../../../../state';
+import { Point, useWhiteboardSlideInstance } from '../../../../state';
+import { calculateBoundingRectForElements } from '../../../../state/crdt/documents/elements';
 import {
   useElementOverride,
   useSetElementOverride,
@@ -104,6 +105,7 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
   const [startDimensions, setStartDimensions] = useState<
     Dimensions | undefined
   >();
+  const [startingPoints, setStartingPoints] = useState<Point[] | undefined>();
 
   useUnmount(() => {
     if (startDimensions) {
@@ -121,58 +123,115 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
         height: element.height,
         width: element.width,
       });
+    } else if (element?.kind === 'polyline') {
+      const boundingRect = calculateBoundingRectForElements([element]);
+      setStartingPoints(element.points);
+      setStartDimensions({
+        x: boundingRect.offsetX,
+        y: boundingRect.offsetY,
+        height: boundingRect.height,
+        width: boundingRect.width,
+      });
     }
   }, [slideInstance, elementId]);
 
   const handleDragStop = useCallback(() => {
-    if (element?.type !== 'shape' || !startDimensions) {
+    if (
+      (element?.type !== 'shape' && element?.kind !== 'polyline') ||
+      !startDimensions
+    ) {
       return;
     }
 
     if (
-      startDimensions.x !== element.position.x ||
-      startDimensions.y !== element.position.y ||
-      startDimensions.width !== element.width ||
-      startDimensions.height !== element.height
+      element.type === 'shape' &&
+      (startDimensions.x !== element.position.x ||
+        startDimensions.y !== element.position.y ||
+        startDimensions.width !== element.width ||
+        startDimensions.height !== element.height)
     ) {
       slideInstance.updateElement(elementId, {
         position: { x: element.position.x, y: element.position.y },
         width: element.width,
         height: element.height,
       });
+    } else if (element.kind === 'polyline') {
+      slideInstance.updateElement(elementId, {
+        position: { x: element.position.x, y: element.position.y },
+        points: element.points,
+      });
     }
 
     setStartDimensions(undefined);
+    setStartingPoints(undefined);
     setElementOverride([{ elementId, elementOverride: undefined }]);
-  }, [element, startDimensions, slideInstance, elementId, setElementOverride]);
+  }, [
+    element,
+    startDimensions,
+    setStartingPoints,
+    slideInstance,
+    elementId,
+    setElementOverride,
+  ]);
 
   const handleDrag = useCallback(
     (dimensions: Dimensions) => {
-      setElementOverride([
-        {
-          elementId,
-          elementOverride: {
-            height: dimensions.height,
-            width: dimensions.width,
-            position: { x: dimensions.x, y: dimensions.y },
+      if (!startDimensions) {
+        return;
+      }
+
+      if (element?.type === 'shape') {
+        setElementOverride([
+          {
+            elementId,
+            elementOverride: {
+              height: dimensions.height,
+              width: dimensions.width,
+              position: { x: dimensions.x, y: dimensions.y },
+            },
           },
-        },
-      ]);
+        ]);
+      } else if (element?.kind === 'polyline' && startingPoints) {
+        const newPoints = startingPoints.map((point) => {
+          return {
+            x: (point.x / startDimensions.width) * dimensions.width,
+            y: (point.y / startDimensions.height) * dimensions.height,
+          };
+        });
+
+        setElementOverride([
+          {
+            elementId,
+            elementOverride: {
+              position: {
+                x: dimensions.x,
+                y: dimensions.y,
+              },
+              points: newPoints,
+            },
+          },
+        ]);
+      }
     },
-    [elementId, setElementOverride],
+    [element, elementId, setElementOverride, startDimensions, startingPoints],
   );
 
-  if (element?.type !== 'shape') {
+  if (element?.type !== 'shape' && element?.kind !== 'polyline') {
     return null;
   }
 
-  const offsetX = element.position.x;
-  const offsetY = element.position.y;
-  const height = element.height;
-  const width = element.width;
+  const boundingRect = calculateBoundingRectForElements([element]);
+
+  const offsetX = boundingRect.offsetX;
+  const offsetY = boundingRect.offsetY;
+  const height = boundingRect.height;
+  const width = boundingRect.width;
 
   return (
-    <g transform={`translate(${offsetX} ${offsetY})`}>
+    <g
+      data-testid="resize-element"
+      transform={`translate(${offsetX} ${offsetY})`}
+    >
       <ResizeHandleWrapper
         containerHeight={height}
         containerWidth={width}

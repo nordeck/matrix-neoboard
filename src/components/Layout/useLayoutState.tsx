@@ -22,6 +22,7 @@ import {
   useMemo,
   useState,
 } from 'react';
+import { Point } from '../../state';
 import { useFullscreenMode } from './useFullscreenMode';
 
 export type ActiveTool =
@@ -57,6 +58,17 @@ type LayoutState = {
    * @param fullscreen - true to go fullscreen mode; false to go to non-fullscreen mode
    */
   setFullscreenMode: (fullscreen: boolean) => void;
+  /**
+   * Holds the Point where a drag-select action has been started.
+   * undefined if there is no drag-select action.
+   */
+  dragSelectStartCoords?: Point;
+  /**
+   * Set or clear the drag select start coordinates.
+   *
+   * @param point - Point to start a drag select action from or undefined to clear the drag selection
+   */
+  setDragSelectStartCoords: (point?: Point) => void;
 };
 
 const LayoutStateContext = createContext<LayoutState | undefined>(undefined);
@@ -72,6 +84,7 @@ export function LayoutStateProvider({ children }: PropsWithChildren<{}>) {
   const [activeTool, setActiveTool] = useState<ActiveTool>('select');
   const [activeColor, setActiveColor] = useState<string>(grey[500]);
   const { isFullscreenMode, setFullscreenMode } = useFullscreenMode();
+  const [dragSelectStartCoords, setDragSelectStartCoords] = useState<Point>();
 
   const value = useMemo(
     () => ({
@@ -89,6 +102,8 @@ export function LayoutStateProvider({ children }: PropsWithChildren<{}>) {
       setActiveColor,
       isFullscreenMode,
       setFullscreenMode,
+      dragSelectStartCoords,
+      setDragSelectStartCoords,
     }),
     [
       activeColor,
@@ -99,6 +114,8 @@ export function LayoutStateProvider({ children }: PropsWithChildren<{}>) {
       isSlideOverviewVisible,
       isFullscreenMode,
       setFullscreenMode,
+      dragSelectStartCoords,
+      setDragSelectStartCoords,
     ],
   );
 

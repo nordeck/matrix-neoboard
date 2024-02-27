@@ -39,6 +39,7 @@ export function useElementOverride(elementId: string): Element | undefined {
       ? {
           ...element,
           position: override?.position ?? element.position,
+          points: override?.points ?? element.points,
         }
       : {
           ...element,
@@ -46,5 +47,11 @@ export function useElementOverride(elementId: string): Element | undefined {
           width: override?.width ?? element.width,
           position: override?.position ?? element.position,
         };
-  }, [element, override?.height, override?.position, override?.width]);
+  }, [
+    element,
+    override?.height,
+    override?.points,
+    override?.position,
+    override?.width,
+  ]);
 }

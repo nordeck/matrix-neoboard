@@ -167,4 +167,21 @@ describe('useLayoutState', () => {
       expect(result.current.isFullscreenMode).toBe(false);
     });
   });
+
+  it('should start with empty drag select start coordinates', () => {
+    const { result } = renderHook(() => useLayoutState(), { wrapper: Wrapper });
+
+    expect(result.current.dragSelectStartCoords).toBeUndefined();
+  });
+
+  it('should set drag select start coordinates', () => {
+    const { result } = renderHook(() => useLayoutState(), { wrapper: Wrapper });
+
+    const point = { x: 23, y: 42 };
+    act(() => {
+      result.current.setDragSelectStartCoords(point);
+    });
+
+    expect(result.current.dragSelectStartCoords).toBe(point);
+  });
 });

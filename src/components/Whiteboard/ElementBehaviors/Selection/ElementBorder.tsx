@@ -81,13 +81,16 @@ export function ElementBorder({ elementIds, padding = 1 }: ElementBorderProps) {
   const selectionWidth = width + 2 * (selectionBorderWidth / 2 + scaledPadding);
   const selectionHeight =
     height + 2 * (selectionBorderWidth / 2 + scaledPadding);
-  const resizable = first(elements)?.type === 'shape'; //TODO: implement resize for multiple selected elements
+  const firstElement = first(elements);
+  const resizable =
+    firstElement?.type === 'shape' || firstElement?.kind === 'polyline'; //TODO: implement resize for multiple selected elements
 
   return (
     <>
       {isInSelectionMode && (
         <NoInteraction>
           <rect
+            data-testid={`${elementIds[0]}-border`}
             fill="transparent"
             height={selectionHeight}
             stroke={theme.palette.primary.main}
