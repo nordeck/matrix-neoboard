@@ -25,18 +25,22 @@ import {
 } from '../../Whiteboard';
 import { getRenderProperties } from './getRenderProperties';
 
-export type RectangleElementProps = ShapeElement & WithSelectionProps;
+export type RectangleElementProps = ShapeElement &
+  WithSelectionProps & {
+    'data-testid'?: string;
+  };
 
 const RectangleDisplay = ({
   readOnly,
   active,
   elementId,
+  'data-testid': dataTestid,
   ...shape
 }: RectangleElementProps) => {
   const { strokeColor, strokeWidth, text } = getRenderProperties(shape);
 
   const renderedChild = (
-    <g>
+    <g data-testid={dataTestid}>
       <rect
         x={shape.position.x}
         y={shape.position.y}

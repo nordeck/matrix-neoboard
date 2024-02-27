@@ -44,6 +44,8 @@ export type ShapeElement = ElementBase & {
   width: number;
   height: number;
   fillColor: string;
+  strokeColor?: string;
+  strokeWidth?: number;
   text: string;
   textAlignment?: TextAlignment;
 };
@@ -57,6 +59,8 @@ const shapeElementSchema = elementBaseSchema
     width: Joi.number().strict().required(),
     height: Joi.number().strict().required(),
     fillColor: Joi.string().required(),
+    strokeColor: Joi.string().strict(),
+    strokeWidth: Joi.number().strict(),
     text: Joi.string().min(0).required(),
     textAlignment: Joi.string().valid('left', 'center', 'right'),
   })

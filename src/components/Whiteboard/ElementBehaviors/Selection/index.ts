@@ -18,5 +18,6 @@ export { ElementBarWrapper } from './ElementBarWrapper';
 export { ElementBorder } from './ElementBorder';
 export { ElementOutline } from './ElementOutline';
 export { SelectableElement } from './SelectableElement';
-export { UnselectElementHandler } from './UnselectElementHandler';
+export { UnSelectElementHandler } from './UnSelectElementHandler';
+export { calculateIntersect } from './calculateIntersect';
 export type { WithSelectionProps } from './types';

@@ -65,4 +65,30 @@ describe('getRenderProperties', () => {
       },
     });
   });
+
+  it('should provide the properties for a rectangle with stroke values', () => {
+    const view = getRenderProperties({
+      type: 'shape',
+      kind: 'rectangle',
+      position: { x: 10, y: 15 },
+      fillColor: '#00ffff',
+      strokeColor: '#ff0000',
+      strokeWidth: 1,
+      width: 100,
+      height: 50,
+      text: '',
+    });
+
+    expect(view).toEqual({
+      strokeColor: '#ff0000',
+      strokeWidth: 1,
+
+      text: {
+        position: { x: 20, y: 25 },
+        width: 80,
+        height: 30,
+        alignment: 'center',
+      },
+    });
+  });
 });

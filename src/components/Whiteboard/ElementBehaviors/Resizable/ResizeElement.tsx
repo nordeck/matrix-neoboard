@@ -228,7 +228,10 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
   const width = boundingRect.width;
 
   return (
-    <g transform={`translate(${offsetX} ${offsetY})`}>
+    <g
+      data-testid="resize-element"
+      transform={`translate(${offsetX} ${offsetY})`}
+    >
       <ResizeHandleWrapper
         containerHeight={height}
         containerWidth={width}
