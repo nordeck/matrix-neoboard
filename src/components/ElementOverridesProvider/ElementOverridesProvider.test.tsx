@@ -21,6 +21,7 @@ import { ComponentType, PropsWithChildren } from 'react';
 import {
   WhiteboardTestingContextProvider,
   mockEllipseElement,
+  mockPolylineElement,
   mockWhiteboardManager,
 } from '../../lib/testUtils/documentTestUtils';
 import { WhiteboardManager } from '../../state';
@@ -58,6 +59,7 @@ describe('useElementOverride', () => {
                 position: { x: 0, y: 201 },
               }),
             ],
+            ['element-3', mockPolylineElement()],
           ],
         ],
       ],
@@ -147,7 +149,7 @@ describe('useElementOverride', () => {
   });
 
   it('should replace the elements position', () => {
-    const elementIds = ['element-1', 'element-2'];
+    const elementIds = ['element-1', 'element-2', 'element-3'];
     const { result } = renderHook(
       () => {
         const elements = useElementOverrides(elementIds);
@@ -171,6 +173,12 @@ describe('useElementOverride', () => {
             position: { x: 50, y: 251 },
           },
         },
+        {
+          elementId: 'element-3',
+          elementOverride: {
+            position: { x: 51, y: 52 },
+          },
+        },
       ]);
     });
 
@@ -192,6 +200,56 @@ describe('useElementOverride', () => {
         position: { x: 50, y: 251 },
         height: 100,
         width: 50,
+      },
+      'element-3': {
+        kind: 'polyline',
+        points: [
+          { x: 0, y: 1 },
+          { x: 2, y: 3 },
+          { x: 4, y: 5 },
+        ],
+        position: {
+          x: 51,
+          y: 52,
+        },
+        strokeColor: '#ffffff',
+        type: 'path',
+      },
+    });
+  });
+
+  it('should replace the element points', () => {
+    const elementIds = ['element-3'];
+    const { result } = renderHook(
+      () => {
+        const elements = useElementOverrides(elementIds);
+        const setElementOverride = useSetElementOverride();
+        return { elements, setElementOverride };
+      },
+      { wrapper: Wrapper },
+    );
+
+    act(() => {
+      result.current.setElementOverride([
+        {
+          elementId: 'element-3',
+          elementOverride: {
+            points: [{ x: 23, y: 42 }],
+          },
+        },
+      ]);
+    });
+
+    expect(result.current.elements).toEqual({
+      'element-3': {
+        kind: 'polyline',
+        points: [{ x: 23, y: 42 }],
+        position: {
+          x: 0,
+          y: 1,
+        },
+        strokeColor: '#ffffff',
+        type: 'path',
       },
     });
   });

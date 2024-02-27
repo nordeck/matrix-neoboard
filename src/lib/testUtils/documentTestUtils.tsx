@@ -243,6 +243,21 @@ export function mockLineElement(path: Partial<PathElement> = {}): Element {
   };
 }
 
+export function mockPolylineElement(path: Partial<PathElement> = {}): Element {
+  return {
+    type: 'path',
+    kind: 'polyline',
+    position: { x: 0, y: 1 },
+    strokeColor: '#ffffff',
+    points: [
+      { x: 0, y: 1 },
+      { x: 2, y: 3 },
+      { x: 4, y: 5 },
+    ],
+    ...path,
+  };
+}
+
 /**
  * Text elements are rectangles with a transparent background.
  */
