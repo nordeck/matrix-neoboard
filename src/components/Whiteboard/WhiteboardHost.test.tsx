@@ -97,13 +97,13 @@ describe('<WhiteboardHost/>', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('shout not show the drag select layer if the drag selection start coordinates are not set', () => {
+  it('should not show the drag select layer if the drag selection start coordinates are not set', () => {
     render(<WhiteboardHost />, { wrapper: Wrapper });
 
     expect(screen.queryByTestId('drag-select-layer')).not.toBeInTheDocument();
   });
 
-  it('shout show the drag select layer if the drag selection start coordinates are set', () => {
+  it('should show the drag select layer if the drag selection start coordinates are set', () => {
     render(<WhiteboardHost />, { wrapper: Wrapper });
     act(() => {
       setDragSelectStartCoords({ x: 0, y: 0 });
