@@ -1,5 +1,17 @@
 # @nordeck/matrix-neoboard-widget
 
+## 1.13.0
+
+### Minor Changes
+
+- 7cc4224: Connection to React devtools can now be enabled with the REACT_APP_DEVTOOLS environment variable
+- 883821a: Polylines can now be resized
+- def8374: Copy, cut and paste multiple selected elements.
+- b591353: Elements can now be selected by dragging the mouse
+- 55c3b1d: Change the colour of multiple selected elements.
+- a6d11fb: Add a full screen mode toggle button
+- 20e50fd: A new "arrow" tool is available
+
 ## 1.12.0
 
 ### Minor Changes
