@@ -81,6 +81,9 @@ describe('<ToolsBar/>', () => {
     expect(
       within(radiogroup).getByRole('radio', { name: 'Line' }),
     ).not.toBeChecked();
+    expect(
+      within(radiogroup).getByRole('radio', { name: 'Arrow' }),
+    ).not.toBeChecked();
   });
 
   it('should provide anchor for the guided tour', () => {
@@ -106,6 +109,7 @@ describe('<ToolsBar/>', () => {
     expect(screen.getByRole('radio', { name: 'Rectangle' })).toBeDisabled();
     expect(screen.getByRole('radio', { name: 'Triangle' })).toBeDisabled();
     expect(screen.getByRole('radio', { name: 'Line' })).toBeDisabled();
+    expect(screen.getByRole('radio', { name: 'Arrow' })).toBeDisabled();
 
     expect(screen.getByRole('radio', { name: 'Select' })).not.toBeChecked();
     expect(screen.getByRole('radio', { name: 'Text' })).not.toBeChecked();
@@ -114,6 +118,7 @@ describe('<ToolsBar/>', () => {
     expect(screen.getByRole('radio', { name: 'Rectangle' })).not.toBeChecked();
     expect(screen.getByRole('radio', { name: 'Triangle' })).not.toBeChecked();
     expect(screen.getByRole('radio', { name: 'Line' })).not.toBeChecked();
+    expect(screen.getByRole('radio', { name: 'Arrow' })).not.toBeChecked();
   });
 
   it('should have no accessibility violations', async () => {

@@ -68,11 +68,14 @@ const shapeElementSchema = elementBaseSchema
 
 export type PathKind = 'line' | 'polyline';
 
+export type EndMarker = 'arrow-head-line';
+
 export type PathElement = ElementBase & {
   type: 'path';
   kind: PathKind;
   points: Point[];
   strokeColor: string;
+  endMarker?: EndMarker;
 };
 
 const pathElementSchema = elementBaseSchema
@@ -81,6 +84,7 @@ const pathElementSchema = elementBaseSchema
     kind: Joi.string().valid('line', 'polyline').required(),
     points: Joi.array().items(pointSchema).required(),
     strokeColor: Joi.string().required(),
+    endMarker: Joi.string().valid('arrow-head-line'),
   })
   .required();
 

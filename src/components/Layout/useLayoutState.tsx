@@ -31,6 +31,7 @@ export type ActiveTool =
   | 'rectangle'
   | 'polyline'
   | 'line'
+  | 'arrow'
   | 'ellipse'
   | 'triangle';
 

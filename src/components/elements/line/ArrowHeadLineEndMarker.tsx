@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Nordeck IT + Consulting GmbH
+ * Copyright 2024 Nordeck IT + Consulting GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,28 @@
  * limitations under the License.
  */
 
-import { EndMarker } from '../../../state/crdt/documents/elements';
-import { DraftLineChild } from '../../Whiteboard';
-import LineDisplay from './Display';
-
-type LineDraftProps = {
-  endMarker?: EndMarker;
+type ArrowHeadLineEndMarkerProps = {
+  id: string;
+  strokeColor?: string;
 };
 
-const LineDraft = ({ endMarker }: LineDraftProps) => {
+export function ArrowHeadLineEndMarker({
+  id,
+  strokeColor,
+}: ArrowHeadLineEndMarkerProps) {
   return (
-    <DraftLineChild
-      display={LineDisplay}
-      onlyStartAndEndPoints
-      kind="line"
-      endMarker={endMarker}
-    />
+    <marker
+      id={id}
+      data-testid={id}
+      viewBox="0 0 3.5 7"
+      refX="3.5"
+      refY="3.5"
+      markerWidth="3.5"
+      markerHeight="7"
+      orient="auto"
+      fill="none"
+    >
+      <path d="M0 0 L3.5 3.5 M3.5 3.5 L0 7" stroke={strokeColor} />
+    </marker>
   );
-};
-
-export default LineDraft;
+}

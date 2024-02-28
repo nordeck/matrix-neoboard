@@ -23,6 +23,7 @@ import {
   WithSelectionProps,
 } from '../../Whiteboard';
 import { getRenderProperties } from './getRenderProperties';
+import { useEndMarker } from './useEndMarker';
 
 export type LineElementProps = PathElement & WithSelectionProps;
 
@@ -38,8 +39,11 @@ const LineDisplay = ({
     points: { start, end },
   } = getRenderProperties(element);
 
+  const { endMarkerId, endMarker } = useEndMarker(elementId, element);
+
   const renderedChild = (
     <g>
+      {endMarker}
       <line
         fill="none"
         stroke={strokeColor}
@@ -48,6 +52,7 @@ const LineDisplay = ({
         x2={end.x}
         y1={start.y}
         y2={end.y}
+        markerEnd={endMarkerId ? `url(#${endMarkerId})` : undefined}
       />
     </g>
   );

@@ -16,6 +16,7 @@
 
 import CircleIcon from '@mui/icons-material/Circle';
 import EditRoundedIcon from '@mui/icons-material/EditRounded';
+import NorthEastIcon from '@mui/icons-material/NorthEast';
 import SquareIcon from '@mui/icons-material/Square';
 import TitleRoundedIcon from '@mui/icons-material/TitleRounded';
 import { ChangeEvent, ReactElement, useCallback } from 'react';
@@ -63,6 +64,11 @@ export function ToolsBar() {
         label: t('toolsBar.triangleTool', 'Triangle'),
         icon: <TriangleIcon />,
         value: 'triangle',
+      },
+      {
+        label: t('toolsBar.arrowTool', 'Arrow'),
+        icon: <NorthEastIcon />,
+        value: 'arrow',
       },
       {
         label: t('toolsBar.lineTool', 'Line'),
