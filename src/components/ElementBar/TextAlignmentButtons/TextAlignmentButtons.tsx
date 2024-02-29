@@ -21,34 +21,56 @@ import { ChangeEvent, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   TextAlignment,
-  useActiveElement,
-  useElement,
+  useActiveElements,
+  useElements,
   useWhiteboardSlideInstance,
 } from '../../../state';
 import { ToolbarRadio, ToolbarRadioGroup } from '../../common/Toolbar';
+import { calculateTextAlignmentUpdates } from './calculateTextAlignmentUpdates';
 
 export function TextAlignmentButtons() {
   const { t } = useTranslation();
-  const { activeElementId } = useActiveElement();
-  const element = useElement(activeElementId);
+  const { activeElementIds } = useActiveElements();
+  const elements = useElements(activeElementIds);
   const slideInstance = useWhiteboardSlideInstance();
 
   const handleRadioClick = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
-      if (event.target.checked && activeElementId) {
-        slideInstance.updateElement(activeElementId, {
-          textAlignment: event.target.value as TextAlignment,
-        });
+      if (!event.target.checked) {
+        return;
+      }
+
+      const updates = calculateTextAlignmentUpdates(
+        elements,
+        event.target.value as TextAlignment,
+      );
+
+      if (updates.length > 0) {
+        slideInstance.updateElements(updates);
       }
     },
-    [activeElementId, slideInstance],
+    [elements, slideInstance],
   );
 
-  if (element?.type !== 'shape') {
+  const elementsArray = Object.values(elements);
+
+  const onlyNonShapes = elementsArray.every(function (element) {
+    return element.type !== 'shape';
+  });
+
+  if (onlyNonShapes) {
+    // There is no text alignment tool for only non-shapes
     return null;
   }
 
-  const textAlignment: TextAlignment = element.textAlignment ?? 'center';
+  let textAlignment: TextAlignment = 'center';
+
+  for (const element of elementsArray) {
+    if (element.type === 'shape' && element.textAlignment !== undefined) {
+      textAlignment = element.textAlignment;
+      break;
+    }
+  }
 
   return (
     <ToolbarRadioGroup
