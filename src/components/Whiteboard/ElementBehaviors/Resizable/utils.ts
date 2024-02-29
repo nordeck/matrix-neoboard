@@ -15,9 +15,10 @@
  */
 
 import { clamp } from 'lodash';
+import { calculateBoundingRectForPoints, Point } from '../../../../state';
 import { snapToGrid } from '../../Grid';
 import { DragEvent } from './ResizeHandle';
-import { Dimensions, ResizeHandlePosition } from './types';
+import { Dimensions, Points, ResizeHandlePosition } from './types';
 
 export function calculateDragOrigin(
   handlePosition: ResizeHandlePosition,
@@ -80,6 +81,89 @@ export function calculateDragDimension(
   };
 }
 
+export function calculateLineDragDimensions(
+  handlePosition: ResizeHandlePosition,
+  dimensions: Dimensions,
+  points: Point[],
+  dragX: number,
+  dragY: number,
+): Dimensions & Points {
+  if (
+    handlePosition === 'top' ||
+    handlePosition === 'right' ||
+    handlePosition === 'bottom' ||
+    handlePosition === 'left' ||
+    points.length !== 2
+  ) {
+    return { ...dimensions, points };
+  }
+
+  const start = points[0];
+  const end = points[points.length - 1];
+  const cursor = { x: dragX - dimensions.x, y: dragY - dimensions.y };
+
+  let newPoints;
+
+  switch (handlePosition) {
+    case 'topRight':
+      if (
+        (start.x <= end.x && start.y === end.y) ||
+        (start.x <= end.x && start.y >= end.y) ||
+        (start.x === end.x && start.y >= end.y)
+      ) {
+        newPoints = [start, cursor];
+      } else {
+        newPoints = [cursor, end];
+      }
+      break;
+    case 'bottomRight':
+      if (
+        (start.x <= end.x && start.y <= end.y) ||
+        (start.x <= end.x && start.y === end.y) ||
+        (start.x === end.x && start.y <= end.y)
+      ) {
+        newPoints = [start, cursor];
+      } else {
+        newPoints = [cursor, end];
+      }
+      break;
+    case 'bottomLeft':
+      if (
+        (start.x === end.x && start.y <= end.y) ||
+        (start.x >= end.x && start.y <= end.y) ||
+        (start.x >= end.x && start.y === end.y)
+      ) {
+        newPoints = [start, cursor];
+      } else {
+        newPoints = [cursor, end];
+      }
+      break;
+    case 'topLeft':
+      if (
+        (start.x === end.x && start.y >= end.y) ||
+        (start.x >= end.x && start.y === end.y) ||
+        (start.x >= end.x && start.y >= end.y)
+      ) {
+        newPoints = [start, cursor];
+      } else {
+        newPoints = [cursor, end];
+      }
+  }
+
+  const boundingRect = calculateBoundingRectForPoints(newPoints);
+
+  return {
+    x: dimensions.x + boundingRect.offsetX,
+    y: dimensions.y + boundingRect.offsetY,
+    width: boundingRect.width,
+    height: boundingRect.height,
+    points: newPoints.map((point) => ({
+      x: point.x - boundingRect.offsetX,
+      y: point.y - boundingRect.offsetY,
+    })),
+  };
+}
+
 export function calculateDimensions(
   handlePosition: ResizeHandlePosition,
   event: DragEvent,
@@ -88,7 +172,8 @@ export function calculateDimensions(
   viewportHeight: number,
   forceLockAspectRatio: boolean = false,
   gridCellSize?: number,
-): Dimensions {
+  startingPoints?: Point[],
+): Dimensions & Points {
   const rawDragX = clamp(event.x, 0, viewportWidth);
   const rawDragY = clamp(event.y, 0, viewportHeight);
 
@@ -96,6 +181,16 @@ export function calculateDimensions(
     gridCellSize === undefined ? rawDragX : snapToGrid(rawDragX, gridCellSize);
   const dragY =
     gridCellSize === undefined ? rawDragY : snapToGrid(rawDragY, gridCellSize);
+
+  if (startingPoints) {
+    return calculateLineDragDimensions(
+      handlePosition,
+      startDimensions,
+      startingPoints,
+      dragX,
+      dragY,
+    );
+  }
 
   const lockAspectRatio = forceLockAspectRatio || event.lockAspectRatio;
   const { dragOriginX, dragOriginY } = calculateDragOrigin(

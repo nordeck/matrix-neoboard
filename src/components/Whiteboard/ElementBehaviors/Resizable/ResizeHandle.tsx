@@ -130,6 +130,7 @@ export type ResizeHandleProps = {
   onDrag?: Dispatch<DragEvent>;
   onDragStart?: Dispatch<DragEvent>;
   onDragStop?: Dispatch<DragEvent>;
+  defaultCursor?: boolean;
 };
 
 export function ResizeHandle({
@@ -139,6 +140,7 @@ export function ResizeHandle({
   handlePosition,
   containerWidth,
   containerHeight,
+  defaultCursor,
 }: ResizeHandleProps) {
   const nodeRef = useRef<SVGRectElement>(null);
   const { scale, calculateSvgCoords } = useSvgCanvasContext();
@@ -210,7 +212,7 @@ export function ResizeHandle({
     >
       <rect
         data-testid={`resize-handle-${cursor}`}
-        cursor={cursor}
+        cursor={defaultCursor ? 'default' : cursor}
         fill="transparent"
         height={height}
         ref={nodeRef}

@@ -19,6 +19,7 @@ import { first } from 'lodash';
 import { calculateBoundingRectForElements } from '../../../../state/crdt/documents/elements';
 import { useElementOverrides } from '../../../ElementOverridesProvider';
 import { useLayoutState } from '../../../Layout';
+import { getRenderProperties } from '../../../elements/line/getRenderProperties';
 import { useSvgCanvasContext } from '../../SvgCanvas';
 
 const NoInteraction = styled('g')({
@@ -81,26 +82,39 @@ export function ElementBorder({ elementIds, padding = 1 }: ElementBorderProps) {
   const selectionWidth = width + 2 * (selectionBorderWidth / 2 + scaledPadding);
   const selectionHeight =
     height + 2 * (selectionBorderWidth / 2 + scaledPadding);
-  const firstElement = first(elements);
-  const resizable =
-    firstElement?.type === 'shape' || firstElement?.kind === 'polyline'; //TODO: implement resize for multiple selected elements
+  const firstElement = first(elements); //TODO: implement resize for multiple selected elements
+  const lineRenderProperties =
+    firstElement?.kind === 'line' && getRenderProperties(firstElement);
 
   return (
     <>
       {isInSelectionMode && (
         <NoInteraction>
-          <rect
-            data-testid={`${elementIds[0]}-border`}
-            fill="transparent"
-            height={selectionHeight}
-            stroke={theme.palette.primary.main}
-            strokeWidth={selectionBorderWidth}
-            width={selectionWidth}
-            x={selectionX}
-            y={selectionY}
-          />
-          {resizable && (
+          {lineRenderProperties ? (
             <>
+              <SelectionAnchor
+                x={lineRenderProperties.points.start.x}
+                y={lineRenderProperties.points.start.y}
+                borderWidth={selectionBorderWidth}
+              />
+              <SelectionAnchor
+                x={lineRenderProperties.points.end.x}
+                y={lineRenderProperties.points.end.y}
+                borderWidth={selectionBorderWidth}
+              />
+            </>
+          ) : (
+            <>
+              <rect
+                data-testid={`${elementIds[0]}-border`}
+                fill="transparent"
+                height={selectionHeight}
+                stroke={theme.palette.primary.main}
+                strokeWidth={selectionBorderWidth}
+                width={selectionWidth}
+                x={selectionX}
+                y={selectionY}
+              />
               <SelectionAnchor
                 x={selectionX}
                 y={selectionY}

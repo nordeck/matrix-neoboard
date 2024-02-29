@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import { Point } from '../../../../state';
+
 export type ResizeHandlePosition =
   | 'top'
   | 'topRight'
@@ -35,3 +37,7 @@ export type DimensionsHorizontal = {
 };
 
 export type Dimensions = DimensionsVertical & DimensionsHorizontal;
+
+export type Points = {
+  points?: Point[];
+};
