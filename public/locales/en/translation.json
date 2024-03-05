@@ -1,6 +1,6 @@
 {
   "app": {
-    "waitModeratorJoin": "Wait for the moderator to join"
+    "waitModeratorJoin": "Wait for the moderator to join."
   },
   "boardBar": {
     "exportWhiteboardDialog": {

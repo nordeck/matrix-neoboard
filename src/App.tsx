@@ -37,7 +37,7 @@ export const App = () => {
       <PageLoader
         text={
           value?.type === 'waiting'
-            ? t('app.waitModeratorJoin', 'Wait for the moderator to join')
+            ? t('app.waitModeratorJoin', 'Wait for the moderator to join.')
             : undefined
         }
       />
