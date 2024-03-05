@@ -22,6 +22,7 @@ import {
 import {
   EventDirection,
   MatrixCapabilities,
+  WidgetApiFromWidgetAction,
   WidgetEventCapability,
 } from 'matrix-widget-api';
 import {
@@ -111,4 +112,5 @@ export const widgetCapabilities = [
   ),
 
   MatrixCapabilities.MSC3846TurnServers,
+  WidgetApiFromWidgetAction.MSC4039UploadFileAction,
 ];

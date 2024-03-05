@@ -123,7 +123,7 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
         height: element.height,
         width: element.width,
       });
-    } else if (element?.kind === 'polyline') {
+    } else if (element?.type === 'path' && element?.kind === 'polyline') {
       const boundingRect = calculateBoundingRectForElements([element]);
       setStartingPoints(element.points);
       setStartDimensions({
@@ -137,6 +137,7 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
 
   const handleDragStop = useCallback(() => {
     if (
+      element?.type === 'image' ||
       (element?.type !== 'shape' && element?.kind !== 'polyline') ||
       !startDimensions
     ) {
@@ -155,7 +156,7 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
         width: element.width,
         height: element.height,
       });
-    } else if (element.kind === 'polyline') {
+    } else if (element.type === 'path' && element.kind === 'polyline') {
       slideInstance.updateElement(elementId, {
         position: { x: element.position.x, y: element.position.y },
         points: element.points,
@@ -191,7 +192,11 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
             },
           },
         ]);
-      } else if (element?.kind === 'polyline' && startingPoints) {
+      } else if (
+        element?.type === 'path' &&
+        element?.kind === 'polyline' &&
+        startingPoints
+      ) {
         const newPoints = startingPoints.map((point) => {
           return {
             x: (point.x / startDimensions.width) * dimensions.width,
@@ -216,7 +221,10 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
     [element, elementId, setElementOverride, startDimensions, startingPoints],
   );
 
-  if (element?.type !== 'shape' && element?.kind !== 'polyline') {
+  if (
+    element?.type === 'image' ||
+    (element?.type !== 'shape' && element?.kind !== 'polyline')
+  ) {
     return null;
   }
 

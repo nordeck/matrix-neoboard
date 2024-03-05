@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import CircleIcon from '@mui/icons-material/Circle';
 import EditRoundedIcon from '@mui/icons-material/EditRounded';
 import NorthEastIcon from '@mui/icons-material/NorthEast';
@@ -23,13 +24,17 @@ import { ChangeEvent, ReactElement, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSlideIsLocked } from '../../state';
 import { ActiveTool, useLayoutState } from '../Layout';
-import { Toolbar, ToolbarRadioGroup } from '../common/Toolbar';
+import { Toolbar, ToolbarButton, ToolbarRadioGroup } from '../common/Toolbar';
 import { ToolbarRadio } from '../common/Toolbar/ToolbarRadio';
 import { CursorDefaultIcon } from '../icons/CursorDefaultIcon';
 import { LineIcon } from '../icons/LineIcon';
 import { TriangleIcon } from '../icons/TriangleIcon';
+import { UploadIcon } from '../icons/UploadIcon';
+import { useSlideImageUpload } from './useSlideImageUpload';
 
 export function ToolsBar() {
+  const imageUploadEnabled =
+    getEnvironment('REACT_APP_IMAGES', 'false') === 'true';
   const { t } = useTranslation();
   const isLocked = useSlideIsLocked();
   const { activeTool, setActiveTool } = useLayoutState();
@@ -88,6 +93,7 @@ export function ToolsBar() {
     ];
 
   const toolsBarTitle = t('toolsBar.title', 'Tools');
+  const { getRootProps, getInputProps } = useSlideImageUpload();
 
   return (
     <Toolbar
@@ -108,6 +114,15 @@ export function ToolsBar() {
             onChange={handleRadioClick}
           />
         ))}
+        {imageUploadEnabled && (
+          <ToolbarButton
+            aria-label={t('toolsBar.uploadTool', 'Upload image')}
+            {...getRootProps()}
+          >
+            <input {...getInputProps()} onClick={undefined} />
+            <UploadIcon sx={{ height: 22 }} />
+          </ToolbarButton>
+        )}
       </ToolbarRadioGroup>
     </Toolbar>
   );

@@ -32,14 +32,14 @@ export function ElementOutline({ elementIds }: ElementOutlineProps) {
         <rect
           fill="transparent"
           height={
-            element.type === 'shape'
+            element.type === 'shape' || element.type === 'image'
               ? element.height
               : calculateBoundingRectForPoints(element.points).height
           }
           stroke={theme.palette.primary.main}
           strokeWidth={1}
           width={
-            element.type === 'shape'
+            element.type === 'shape' || element.type === 'image'
               ? element.width
               : calculateBoundingRectForPoints(element.points).width
           }

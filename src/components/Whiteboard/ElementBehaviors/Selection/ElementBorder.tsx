@@ -83,7 +83,8 @@ export function ElementBorder({ elementIds, padding = 1 }: ElementBorderProps) {
     height + 2 * (selectionBorderWidth / 2 + scaledPadding);
   const firstElement = first(elements);
   const resizable =
-    firstElement?.type === 'shape' || firstElement?.kind === 'polyline'; //TODO: implement resize for multiple selected elements
+    firstElement?.type === 'shape' ||
+    (firstElement?.type === 'path' && firstElement?.kind === 'polyline'); //TODO: implement resize for multiple selected elements
 
   return (
     <>
