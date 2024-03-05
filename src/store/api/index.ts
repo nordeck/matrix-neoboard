@@ -32,6 +32,7 @@ export { useUserDetails } from './useUserDetails';
 export {
   selectAllWhiteboards,
   selectWhiteboardById,
+  useGetWhiteboardsQuery,
   useUpdateWhiteboardMutation,
   whiteboardApi,
 } from './whiteboardApi';

@@ -14,9 +14,16 @@
  * limitations under the License.
  */
 
-import { Box, CircularProgress } from '@mui/material';
+import { Box, CircularProgress, Typography } from '@mui/material';
+import { unstable_useId as useId } from '@mui/utils';
 
-export function PageLoader() {
+type PageLoaderProps = {
+  text?: string;
+};
+
+export function PageLoader({ text }: PageLoaderProps) {
+  const messageTitleId = useId();
+
   return (
     <Box
       alignItems="center"
@@ -27,7 +34,12 @@ export function PageLoader() {
       p={2}
       width="100vw"
     >
-      <CircularProgress />
+      <CircularProgress aria-labelledby={text ? messageTitleId : undefined} />
+      {text && (
+        <Typography id={messageTitleId} variant="h3" mt={2}>
+          {text}
+        </Typography>
+      )}
     </Box>
   );
 }

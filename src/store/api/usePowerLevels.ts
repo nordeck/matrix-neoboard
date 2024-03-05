@@ -14,11 +14,17 @@
  * limitations under the License.
  */
 
-import { PowerLevelsStateEvent } from '@matrix-widget-toolkit/api';
+import {
+  hasStateEventPower,
+  PowerLevelsStateEvent,
+  STATE_EVENT_POWER_LEVELS,
+} from '@matrix-widget-toolkit/api';
 import { useWidgetApi } from '@matrix-widget-toolkit/react';
+import { STATE_EVENT_WHITEBOARD } from '../../model';
 import { useGetPowerLevelsQuery } from './powerLevelsApi';
 
 export type PowerLevels = {
+  canInitializeWhiteboard: boolean | undefined;
   canImportWhiteboard: boolean | undefined;
   canStopPresentation: boolean | undefined;
 };
@@ -30,19 +36,24 @@ export function usePowerLevels({
   const widgetApi = useWidgetApi();
   userId ??= widgetApi.widgetParameters.userId;
 
+  let canInitializeWhiteboard: boolean | undefined = undefined;
   let canImportWhiteboard: boolean | undefined = undefined;
   let canStopPresentation: boolean | undefined = undefined;
 
   if (!isLoading && powerLevels) {
-    const userPowerLevel =
-      getUserPowerLevel(userId, powerLevels.event?.content) ?? 0;
+    const powerContent = powerLevels.event?.content;
+    const userPowerLevel = getUserPowerLevel(userId, powerContent) ?? 0;
     const canModerate = userPowerLevel >= 50;
 
+    canInitializeWhiteboard =
+      hasStateEventPower(powerContent, userId, STATE_EVENT_POWER_LEVELS) &&
+      hasStateEventPower(powerContent, userId, STATE_EVENT_WHITEBOARD);
     canImportWhiteboard = canModerate;
     canStopPresentation = canModerate;
   }
 
   return {
+    canInitializeWhiteboard,
     canImportWhiteboard,
     canStopPresentation,
   };

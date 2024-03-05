@@ -21,3 +21,12 @@ REACT_APP_MULTISELECT=false
 # Does only work in development mode.
 REACT_APP_DEVTOOLS=true
 ```
+
+## Room power level
+
+User needs to have a permission to send these events to create a whiteboard:
+
+- `m.room.power_levels` is modified to allow to send `net.nordeck.whiteboard.sessions` by any user to enable collaboration on the board
+- `net.nordeck.whiteboard` state event to create a whiteboard
+
+User will need to wait for the moderator to join the whiteboard if he doesn't have these permissions.

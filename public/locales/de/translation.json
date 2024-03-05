@@ -1,4 +1,7 @@
 {
+  "app": {
+    "waitModeratorJoin": "Wait for the moderator to join"
+  },
   "boardBar": {
     "exportWhiteboardDialog": {
       "cancel": "Abbrechen",

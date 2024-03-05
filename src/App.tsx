@@ -14,20 +14,34 @@
  * limitations under the License.
  */
 
-import { PageLoader } from './components/common/PageLoader';
+import { useTranslation } from 'react-i18next';
 import { Layout } from './components/Layout';
+import { PageLoader } from './components/common/PageLoader';
 import { useOwnedWhiteboard, useWhiteboardManager } from './state';
 
 export const App = () => {
-  const { value: ownedWhiteboard, loading } = useOwnedWhiteboard();
+  const { t } = useTranslation();
+  const { value, loading } = useOwnedWhiteboard();
   const whiteboardManager = useWhiteboardManager();
 
-  if (ownedWhiteboard) {
-    whiteboardManager.selectActiveWhiteboardInstance(ownedWhiteboard);
+  if (!loading && value.type === 'whiteboard' && value.event) {
+    whiteboardManager.selectActiveWhiteboardInstance(value.event);
   }
 
-  if (loading || !ownedWhiteboard) {
-    return <PageLoader />;
+  if (
+    loading ||
+    (value.type === 'whiteboard' && !value.event) ||
+    value.type === 'waiting'
+  ) {
+    return (
+      <PageLoader
+        text={
+          value?.type === 'waiting'
+            ? t('app.waitModeratorJoin', 'Wait for the moderator to join')
+            : undefined
+        }
+      />
+    );
   }
 
   return <Layout />;
