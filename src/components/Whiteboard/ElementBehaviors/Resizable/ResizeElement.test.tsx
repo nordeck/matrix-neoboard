@@ -83,7 +83,7 @@ describe('<ResizeElement />', () => {
               mockLineElement({
                 points: [
                   { x: 0, y: 0 },
-                  { x: 1, y: 1 },
+                  { x: 0, y: 0 },
                 ],
                 position: { x: 0, y: 0 },
               }),
@@ -174,7 +174,7 @@ describe('<ResizeElement />', () => {
       wrapper: Wrapper,
     });
 
-    // drag a resize box from 0,0 to 50,50
+    // drag the end of a line from 0,0 to 50,50
     const resizeHandleBottomRight = screen.getByTestId(
       'resize-handle-se-resize',
     );
