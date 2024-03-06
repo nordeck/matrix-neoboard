@@ -21,3 +21,7 @@ REACT_APP_MULTISELECT=false
 # Does only work in development mode.
 REACT_APP_DEVTOOLS=true
 ```
+
+### Customization
+
+More environment variables for UI customization [@matrix-widget-toolkit/mui](https://www.npmjs.com/package/@matrix-widget-toolkit/mui#customization).
