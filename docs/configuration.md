@@ -24,9 +24,9 @@ REACT_APP_DEVTOOLS=true
 
 ## Room power level
 
-User needs to have a permission to send these events to create a whiteboard:
+User needs to have permissions to send these events to initialize a whiteboard:
 
-- `m.room.power_levels` is modified to allow to send `net.nordeck.whiteboard.sessions` by any user to enable collaboration on the board
-- `net.nordeck.whiteboard` state event to create a whiteboard
+- `net.nordeck.whiteboard` state event that creates a new board
+- `net.nordeck.whiteboard.sessions` state event that enables real-time collaboration with this user on the board
 
-User will need to wait for the moderator to join the whiteboard if he doesn't have these permissions.
+User will need to wait for the moderator to join and initialize the room and whiteboard if the user doesn't have these permissions.
