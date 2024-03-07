@@ -19,37 +19,59 @@ import { useWidgetApi } from '@matrix-widget-toolkit/react';
 import { first } from 'lodash';
 import loglevel from 'loglevel';
 import { useAsync } from 'react-use';
-import { AsyncState } from 'react-use/lib/useAsync';
 import { STATE_EVENT_WHITEBOARD_SESSIONS, Whiteboard } from '../model';
 import { useAppDispatch } from '../store';
 import {
   selectAllWhiteboards,
   selectWhiteboardById,
   useCreateDocumentMutation,
+  useGetWhiteboardsQuery,
   usePatchPowerLevelsMutation,
   useUpdateWhiteboardMutation,
-  whiteboardApi,
 } from '../store/api';
+import { usePowerLevels } from '../store/api/usePowerLevels';
 
-export function useOwnedWhiteboard(): AsyncState<StateEvent<Whiteboard>> {
+type UseOwnedWhiteboardResponse =
+  | { loading: true; value?: undefined }
+  | {
+      loading: false;
+      value:
+        | {
+            type: 'whiteboard';
+            event?: StateEvent<Whiteboard>; // undefined if board initialization is allowed but not happened yet
+          }
+        | {
+            type: 'waiting';
+          };
+    };
+
+export function useOwnedWhiteboard(): UseOwnedWhiteboardResponse {
   const widgetApi = useWidgetApi();
   const dispatch = useAppDispatch();
   const [createDocument] = useCreateDocumentMutation();
   const [updateWhiteboard] = useUpdateWhiteboardMutation();
   const [patchPowerLevels] = usePatchPowerLevelsMutation();
+  const { canInitializeWhiteboard } = usePowerLevels();
 
-  const whiteboardState = useAsync(async () => {
-    const whiteboardsState = await dispatch(
-      whiteboardApi.endpoints.getWhiteboards.initiate(),
-    ).unwrap();
+  const {
+    data: whiteboardsState,
+    isLoading,
+    isError,
+  } = useGetWhiteboardsQuery();
 
-    // TODO: Build UI to select the whiteboard to display it in the widget
-    // For now we select the own / first whiteboard we find.
-    let ownedWhiteboard =
-      selectWhiteboardById(whiteboardsState, widgetApi.widgetId) ??
-      first(selectAllWhiteboards(whiteboardsState));
+  // TODO: Build UI to select the whiteboard to display it in the widget
+  // For now we select the own / first whiteboard we find.
+  const whiteboard = whiteboardsState
+    ? selectWhiteboardById(whiteboardsState, widgetApi.widgetId) ??
+      first(selectAllWhiteboards(whiteboardsState))
+    : undefined;
 
-    if (!ownedWhiteboard) {
+  const {
+    value: updatedWhiteboard,
+    loading,
+    error,
+  } = useAsync(async () => {
+    if (canInitializeWhiteboard && !whiteboard) {
       try {
         // TODO: We only set the power level once, if it's later changed we can't
         // handle it. It would be better to show a UI to a moderator to repair
@@ -65,8 +87,6 @@ export function useOwnedWhiteboard(): AsyncState<StateEvent<Whiteboard>> {
         loglevel.error('could not configure power level', err);
       }
 
-      // TODO: We need to handle the case that only moderators in a room can
-      // create/delete whiteboard.
       const documentId = (await createDocument().unwrap()).event.event_id;
       const result = await updateWhiteboard({
         whiteboardId: widgetApi.widgetId,
@@ -75,17 +95,32 @@ export function useOwnedWhiteboard(): AsyncState<StateEvent<Whiteboard>> {
         },
       }).unwrap();
 
-      ownedWhiteboard = result.event;
+      return result.event;
     }
 
-    return ownedWhiteboard;
-  }, [dispatch, widgetApi.widgetId]);
+    return whiteboard;
+  }, [dispatch, widgetApi.widgetId, whiteboard, !!canInitializeWhiteboard]);
 
-  // TODO: We throw an error if the whiteboard selection/creation fails.
-  //       This should be handled with a UI later.
-  if (whiteboardState.error) {
-    throw new Error(whiteboardState.error.message);
+  if (isError) {
+    throw new Error('could not load whiteboards');
+  } else if (error) {
+    // TODO: We throw an error if the whiteboard selection/creation fails.
+    //       This should be handled with a UI later.
+    throw new Error(error.message);
+  } else if (canInitializeWhiteboard === undefined || isLoading || loading) {
+    return { loading: true };
   }
 
-  return whiteboardState;
+  return {
+    loading: false,
+    value:
+      !canInitializeWhiteboard && !updatedWhiteboard
+        ? {
+            type: 'waiting',
+          }
+        : {
+            type: 'whiteboard',
+            event: updatedWhiteboard,
+          },
+  };
 }

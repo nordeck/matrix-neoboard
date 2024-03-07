@@ -80,6 +80,7 @@ describe('usePowerLevels', () => {
 
     await waitFor(() => {
       expect(result.current).toEqual({
+        canInitializeWhiteboard: true,
         canImportWhiteboard: true,
         canStopPresentation: true,
       });
@@ -107,6 +108,7 @@ describe('usePowerLevels', () => {
 
     await waitFor(() => {
       expect(result.current).toEqual({
+        canInitializeWhiteboard: false,
         canImportWhiteboard: true,
         canStopPresentation: true,
       });
@@ -134,6 +136,7 @@ describe('usePowerLevels', () => {
 
     await waitFor(() => {
       expect(result.current).toEqual({
+        canInitializeWhiteboard: false,
         canImportWhiteboard: false,
         canStopPresentation: false,
       });

@@ -21,6 +21,7 @@ import { renderHook } from '@testing-library/react-hooks';
 import { ComponentType, PropsWithChildren, useState } from 'react';
 import { Provider } from 'react-redux';
 import {
+  mockDocumentCreate,
   mockPowerLevelsEvent,
   mockWhiteboard,
 } from '../lib/testUtils/matrixTestUtils';
@@ -37,8 +38,6 @@ describe('useOwnedWhiteboard', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
 
   beforeEach(() => {
-    widgetApi.mockSendStateEvent(mockPowerLevelsEvent());
-
     Wrapper = ({ children }) => {
       const [store] = useState(() => createStore({ widgetApi }));
       return (
@@ -50,6 +49,8 @@ describe('useOwnedWhiteboard', () => {
   });
 
   it('should return an existing whiteboard', async () => {
+    widgetApi.mockSendStateEvent(mockPowerLevelsEvent());
+
     const whiteboard = widgetApi.mockSendStateEvent(mockWhiteboard());
 
     const { result, waitForNextUpdate } = renderHook(
@@ -63,11 +64,16 @@ describe('useOwnedWhiteboard', () => {
 
     expect(result.current).toEqual({
       loading: false,
-      value: whiteboard,
+      value: {
+        type: 'whiteboard',
+        event: whiteboard,
+      },
     });
   });
 
   it('should create a new whiteboard', async () => {
+    widgetApi.mockSendStateEvent(mockPowerLevelsEvent());
+
     const { result, waitForNextUpdate } = renderHook(
       () => useOwnedWhiteboard(),
       { wrapper: Wrapper },
@@ -99,16 +105,78 @@ describe('useOwnedWhiteboard', () => {
 
     expect(result.current).toEqual({
       loading: false,
-      value: mockWhiteboard({
-        content: { documentId },
-        event_id: expect.any(String),
-        origin_server_ts: expect.any(Number),
-        state_key: 'widget-id',
+      value: {
+        type: 'whiteboard',
+        event: mockWhiteboard({
+          content: { documentId },
+          event_id: expect.any(String),
+          origin_server_ts: expect.any(Number),
+          state_key: 'widget-id',
+        }),
+      },
+    });
+  });
+
+  it('should wait for moderator to create a new whiteboard', async () => {
+    widgetApi.mockSendStateEvent(
+      mockPowerLevelsEvent({
+        content: {
+          users_default: 0,
+          users: {
+            '@moderator-user': 50,
+          },
+        },
       }),
+    );
+
+    const { result, waitForNextUpdate } = renderHook(
+      () => useOwnedWhiteboard(),
+      { wrapper: Wrapper },
+    );
+
+    expect(result.current).toEqual({ loading: true });
+
+    await waitForNextUpdate();
+
+    expect(result.current).toEqual({
+      loading: false,
+      value: { type: 'waiting' },
+    });
+
+    widgetApi.mockSendRoomEvent(
+      mockDocumentCreate({
+        sender: '@moderator-user',
+      }),
+    );
+
+    widgetApi.mockSendStateEvent(
+      mockWhiteboard({
+        sender: '@moderator-user',
+        content: {
+          documentId: '$document-0',
+        },
+      }),
+    );
+
+    await waitForNextUpdate();
+
+    expect(result.current).toEqual({
+      loading: false,
+      value: {
+        type: 'whiteboard',
+        event: mockWhiteboard({
+          sender: '@moderator-user',
+          content: { documentId: '$document-0' },
+          event_id: expect.any(String),
+          origin_server_ts: expect.any(Number),
+        }),
+      },
     });
   });
 
   it('should skip error when power level patching fails', async () => {
+    widgetApi.mockSendStateEvent(mockPowerLevelsEvent());
+
     widgetApi.sendStateEvent.mockImplementationOnce(() => {
       throw new Error('Error on patching power levels');
     });
@@ -129,16 +197,21 @@ describe('useOwnedWhiteboard', () => {
 
     expect(result.current).toEqual({
       loading: false,
-      value: mockWhiteboard({
-        content: { documentId: expect.any(String) },
-        event_id: expect.any(String),
-        origin_server_ts: expect.any(Number),
-        state_key: 'widget-id',
-      }),
+      value: {
+        type: 'whiteboard',
+        event: mockWhiteboard({
+          content: { documentId: expect.any(String) },
+          event_id: expect.any(String),
+          origin_server_ts: expect.any(Number),
+          state_key: 'widget-id',
+        }),
+      },
     });
   });
 
   it('should reject if whiteboard creation fails', async () => {
+    widgetApi.mockSendStateEvent(mockPowerLevelsEvent());
+
     widgetApi.sendStateEvent.mockImplementation(() => {
       throw new Error('Error on sending state events');
     });
