@@ -128,11 +128,13 @@ export function mockRoomName({
  * @remarks Only use for tests
  */
 export function mockWhiteboard({
+  sender = '@user-id',
   state_key = 'whiteboard-0',
   event_id = '$event-id-0',
   content = {},
   origin_server_ts = 0,
 }: {
+  sender?: string;
   state_key?: string;
   event_id?: string;
   content?: Partial<Whiteboard>;
@@ -140,7 +142,7 @@ export function mockWhiteboard({
 } = {}): StateEvent<Whiteboard> {
   return {
     type: 'net.nordeck.whiteboard',
-    sender: '@user-id',
+    sender,
     content: {
       documentId: '$document-event-id',
       ...content,
@@ -158,17 +160,19 @@ export function mockWhiteboard({
  * @remarks Only use for tests
  */
 export function mockDocumentCreate({
+  sender = '@user-id',
   event_id = '$document-0',
   content = {},
   origin_server_ts = 0,
 }: {
+  sender?: string;
   event_id?: string;
   content?: Partial<DocumentCreate>;
   origin_server_ts?: number;
 } = {}): RoomEvent<DocumentCreate> {
   return {
     type: 'net.nordeck.whiteboard.document.create',
-    sender: '@user-id',
+    sender,
     content: {
       ...content,
     },

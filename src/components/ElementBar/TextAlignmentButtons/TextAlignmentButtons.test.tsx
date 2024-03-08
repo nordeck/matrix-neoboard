@@ -25,7 +25,7 @@ import {
   mockLineElement,
   mockWhiteboardManager,
 } from '../../../lib/testUtils/documentTestUtils';
-import { WhiteboardManager } from '../../../state';
+import { WhiteboardSlideInstance } from '../../../state';
 import { Toolbar } from '../../common/Toolbar';
 import { TextAlignmentButtons } from './TextAlignmentButtons';
 
@@ -36,25 +36,26 @@ afterEach(() => widgetApi.stop());
 beforeEach(() => (widgetApi = mockWidgetApi()));
 
 describe('<TextAlignmentButtons/>', () => {
-  let whiteboardManager: jest.Mocked<WhiteboardManager>;
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
+  let slide: WhiteboardSlideInstance;
 
   beforeEach(() => {
-    ({ whiteboardManager } = mockWhiteboardManager({
+    const { whiteboardManager } = mockWhiteboardManager({
       slides: [
         [
           'slide-0',
           [
-            ['element-0', mockEllipseElement()],
+            ['element-0', mockEllipseElement({ textAlignment: 'left' })],
             ['element-1', mockLineElement()],
+            ['element-2', mockEllipseElement({ textAlignment: 'right' })],
           ],
         ],
       ],
-    }));
-    whiteboardManager
-      .getActiveWhiteboardInstance()
-      ?.getSlide('slide-0')
-      .setActiveElementId('element-0');
+    });
+    slide = whiteboardManager
+      .getActiveWhiteboardInstance()!
+      .getSlide('slide-0');
+    slide.setActiveElementIds(['element-0', 'element-1', 'element-2']);
 
     Wrapper = ({ children }) => (
       <WhiteboardTestingContextProvider
@@ -75,10 +76,10 @@ describe('<TextAlignmentButtons/>', () => {
 
     expect(
       within(radioGroup).getByRole('radio', { name: 'Left' }),
-    ).not.toBeChecked();
+    ).toBeChecked();
     expect(
       within(radioGroup).getByRole('radio', { name: 'Center' }),
-    ).toBeChecked();
+    ).not.toBeChecked();
     expect(
       within(radioGroup).getByRole('radio', { name: 'Right' }),
     ).not.toBeChecked();
@@ -96,12 +97,7 @@ describe('<TextAlignmentButtons/>', () => {
     expect(await axe(container)).toHaveNoViolations();
   });
 
-  it('should show selected alignment', async () => {
-    whiteboardManager
-      .getActiveWhiteboardInstance()
-      ?.getSlide('slide-0')
-      .updateElement('element-0', { textAlignment: 'left' });
-
+  it('should show selected alignment of the first element', async () => {
     render(<TextAlignmentButtons />, { wrapper: Wrapper });
 
     expect(screen.getByRole('radio', { name: 'Left' })).toBeChecked();
@@ -117,10 +113,7 @@ describe('<TextAlignmentButtons/>', () => {
     });
 
     act(() => {
-      whiteboardManager
-        .getActiveWhiteboardInstance()
-        ?.getSlide('slide-0')
-        .setActiveElementId('element-1');
+      slide.setActiveElementId('element-1');
     });
 
     await waitFor(() => {
@@ -128,16 +121,27 @@ describe('<TextAlignmentButtons/>', () => {
     });
   });
 
-  it('should switch the text alignment', async () => {
+  it('should switch the text alignment for one element', async () => {
+    slide.setActiveElementId('element-0');
     render(<TextAlignmentButtons />, { wrapper: Wrapper });
 
     await userEvent.click(screen.getByRole('radio', { name: 'Right' }));
 
-    expect(
-      whiteboardManager
-        .getActiveWhiteboardInstance()
-        ?.getSlide('slide-0')
-        .getElement('element-0'),
-    ).toEqual(expect.objectContaining({ textAlignment: 'right' }));
+    expect(slide.getElement('element-0')).toEqual(
+      expect.objectContaining({ textAlignment: 'right' }),
+    );
+  });
+
+  it('should switch the text alignment for several elements', async () => {
+    render(<TextAlignmentButtons />, { wrapper: Wrapper });
+
+    await userEvent.click(screen.getByRole('radio', { name: 'Right' }));
+
+    expect(slide.getElement('element-0')).toEqual(
+      expect.objectContaining({ textAlignment: 'right' }),
+    );
+    expect(slide.getElement('element-2')).toEqual(
+      expect.objectContaining({ textAlignment: 'right' }),
+    );
   });
 });
