@@ -15,8 +15,7 @@
  */
 
 import { styled, useTheme } from '@mui/material';
-import { first } from 'lodash';
-import { calculateBoundingRectForElements } from '../../../../state/crdt/documents/elements';
+import { calculateBoundingRectForElements } from '../../../../state';
 import { useElementOverrides } from '../../../ElementOverridesProvider';
 import { useLayoutState } from '../../../Layout';
 import { getRenderProperties } from '../../../elements/line/getRenderProperties';
@@ -82,14 +81,28 @@ export function ElementBorder({ elementIds, padding = 1 }: ElementBorderProps) {
   const selectionWidth = width + 2 * (selectionBorderWidth / 2 + scaledPadding);
   const selectionHeight =
     height + 2 * (selectionBorderWidth / 2 + scaledPadding);
-  const firstElement = first(elements); //TODO: implement resize for multiple selected elements
   const lineRenderProperties =
-    firstElement?.kind === 'line' && getRenderProperties(firstElement);
+    elements.length === 1 &&
+    elements[0] &&
+    elements[0].kind === 'line' &&
+    getRenderProperties(elements[0]);
 
   return (
     <>
       {isInSelectionMode && (
         <NoInteraction>
+          {!lineRenderProperties && (
+            <rect
+              data-testid={`${elementIds[0]}-border`}
+              fill="transparent"
+              height={selectionHeight}
+              stroke={theme.palette.primary.main}
+              strokeWidth={selectionBorderWidth}
+              width={selectionWidth}
+              x={selectionX}
+              y={selectionY}
+            />
+          )}
           {lineRenderProperties ? (
             <>
               <SelectionAnchor
@@ -105,16 +118,6 @@ export function ElementBorder({ elementIds, padding = 1 }: ElementBorderProps) {
             </>
           ) : (
             <>
-              <rect
-                data-testid={`${elementIds[0]}-border`}
-                fill="transparent"
-                height={selectionHeight}
-                stroke={theme.palette.primary.main}
-                strokeWidth={selectionBorderWidth}
-                width={selectionWidth}
-                x={selectionX}
-                y={selectionY}
-              />
               <SelectionAnchor
                 x={selectionX}
                 y={selectionY}

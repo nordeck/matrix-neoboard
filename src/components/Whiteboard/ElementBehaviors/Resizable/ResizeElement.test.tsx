@@ -125,17 +125,29 @@ describe('<ResizeElement />', () => {
       'resize-handle-se-resize',
     );
     mocked(calculateDimensions).mockReturnValue({
+      elementKind: 'polyline',
       x: 0,
       y: 0,
       width: 0,
       height: 0,
+      points: [
+        { x: 0, y: 0 },
+        { x: 0.5, y: 0.5 },
+        { x: 1, y: 1 },
+      ],
     });
     fireEvent.mouseDown(resizeHandleBottomRight);
     mocked(calculateDimensions).mockReturnValue({
+      elementKind: 'polyline',
       x: 0,
       y: 0,
       width: 50,
       height: 50,
+      points: [
+        { x: 0, y: 0 },
+        { x: 25, y: 25 },
+        { x: 50, y: 50 },
+      ],
     });
     fireEvent.mouseMove(resizeHandleBottomRight);
     fireEvent.mouseUp(resizeHandleBottomRight);
@@ -179,13 +191,19 @@ describe('<ResizeElement />', () => {
       'resize-handle-se-resize',
     );
     mocked(calculateDimensions).mockReturnValue({
+      elementKind: 'line',
       x: 0,
       y: 0,
       width: 0,
       height: 0,
+      points: [
+        { x: 0, y: 0 },
+        { x: 0, y: 0 },
+      ],
     });
     fireEvent.mouseDown(resizeHandleBottomRight);
     mocked(calculateDimensions).mockReturnValue({
+      elementKind: 'line',
       x: 0,
       y: 0,
       width: 50,

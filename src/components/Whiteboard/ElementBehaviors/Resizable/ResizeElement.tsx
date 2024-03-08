@@ -16,8 +16,10 @@
 
 import { Dispatch, useCallback, useState } from 'react';
 import { useUnmount } from 'react-use';
-import { Point, useWhiteboardSlideInstance } from '../../../../state';
-import { calculateBoundingRectForElements } from '../../../../state/crdt/documents/elements';
+import {
+  calculateBoundingRectForElements,
+  useWhiteboardSlideInstance,
+} from '../../../../state';
 import {
   useElementOverride,
   useSetElementOverride,
@@ -26,33 +28,29 @@ import { useLayoutState } from '../../../Layout';
 import { useSvgCanvasContext } from '../../SvgCanvas';
 import { gridCellSize } from '../../constants';
 import { DragEvent, ResizeHandle } from './ResizeHandle';
-import { Dimensions, Points, ResizeHandlePosition } from './types';
+import { Dimensions, ResizeHandlePosition } from './types';
 import { calculateDimensions } from './utils';
 
 export type ResizeHandleWrapperProps = {
   handlePosition: ResizeHandlePosition;
   startDimensions: Dimensions | undefined;
-  startingPoints?: Point[];
   containerWidth: number;
   containerHeight: number;
   forceLockAspectRatio?: boolean;
   onDrag: Dispatch<Dimensions>;
   onDragStart: Dispatch<DragEvent>;
   onDragStop: Dispatch<DragEvent>;
-  defaultCursor?: boolean;
 };
 
 export function ResizeHandleWrapper({
   handlePosition,
   startDimensions,
-  startingPoints,
   containerWidth,
   containerHeight,
   forceLockAspectRatio,
   onDrag,
   onDragStart,
   onDragStop,
-  defaultCursor,
 }: ResizeHandleWrapperProps) {
   const { isShowGrid } = useLayoutState();
   const { viewportWidth, viewportHeight } = useSvgCanvasContext();
@@ -69,7 +67,6 @@ export function ResizeHandleWrapper({
             viewportHeight,
             forceLockAspectRatio,
             isShowGrid ? gridCellSize : undefined,
-            startingPoints,
           ),
         );
       }
@@ -78,7 +75,6 @@ export function ResizeHandleWrapper({
       onDrag,
       handlePosition,
       startDimensions,
-      startingPoints,
       viewportWidth,
       viewportHeight,
       forceLockAspectRatio,
@@ -94,7 +90,7 @@ export function ResizeHandleWrapper({
       onDrag={handleDrag}
       onDragStart={onDragStart}
       onDragStop={onDragStop}
-      defaultCursor={defaultCursor}
+      defaultCursor={startDimensions?.elementKind === 'line'}
     />
   );
 }
@@ -112,7 +108,6 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
   const [startDimensions, setStartDimensions] = useState<
     Dimensions | undefined
   >();
-  const [startingPoints, setStartingPoints] = useState<Point[] | undefined>();
 
   useUnmount(() => {
     if (startDimensions) {
@@ -125,6 +120,7 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
 
     if (element?.type === 'shape') {
       setStartDimensions({
+        elementKind: element.kind,
         x: element.position.x,
         y: element.position.y,
         height: element.height,
@@ -132,12 +128,14 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
       });
     } else if (element?.type === 'path') {
       const boundingRect = calculateBoundingRectForElements([element]);
-      setStartingPoints(element.points);
+
       setStartDimensions({
+        elementKind: element.kind,
         x: boundingRect.offsetX,
         y: boundingRect.offsetY,
         height: boundingRect.height,
         width: boundingRect.width,
+        points: element.points,
       });
     }
   }, [slideInstance, elementId]);
@@ -167,19 +165,11 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
     }
 
     setStartDimensions(undefined);
-    setStartingPoints(undefined);
     setElementOverride([{ elementId, elementOverride: undefined }]);
-  }, [
-    element,
-    startDimensions,
-    setStartingPoints,
-    slideInstance,
-    elementId,
-    setElementOverride,
-  ]);
+  }, [element, startDimensions, slideInstance, elementId, setElementOverride]);
 
   const handleDrag = useCallback(
-    (dimensions: Dimensions & Points) => {
+    (dimensions: Dimensions) => {
       if (!startDimensions) {
         return;
       }
@@ -195,7 +185,10 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
             },
           },
         ]);
-      } else if (element?.kind === 'line' && startingPoints) {
+      } else if (
+        dimensions.elementKind === 'line' ||
+        dimensions.elementKind === 'polyline'
+      ) {
         setElementOverride([
           {
             elementId,
@@ -205,29 +198,9 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
             },
           },
         ]);
-      } else if (element?.kind === 'polyline' && startingPoints) {
-        const newPoints = startingPoints.map((point) => {
-          return {
-            x: (point.x / startDimensions.width) * dimensions.width,
-            y: (point.y / startDimensions.height) * dimensions.height,
-          };
-        });
-
-        setElementOverride([
-          {
-            elementId,
-            elementOverride: {
-              position: {
-                x: dimensions.x,
-                y: dimensions.y,
-              },
-              points: newPoints,
-            },
-          },
-        ]);
       }
     },
-    [element, elementId, setElementOverride, startDimensions, startingPoints],
+    [element, elementId, setElementOverride, startDimensions],
   );
 
   if (!element) {
@@ -246,139 +219,85 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
       data-testid="resize-element"
       transform={`translate(${offsetX} ${offsetY})`}
     >
-      {element.kind === 'line' ? (
-        <>
-          <ResizeHandleWrapper
-            containerHeight={height}
-            containerWidth={width}
-            handlePosition="topRight"
-            onDrag={handleDrag}
-            onDragStart={handleDragStart}
-            onDragStop={handleDragStop}
-            startDimensions={startDimensions}
-            startingPoints={startingPoints}
-            defaultCursor
-          />
+      <ResizeHandleWrapper
+        containerHeight={height}
+        containerWidth={width}
+        handlePosition="top"
+        onDrag={handleDrag}
+        onDragStart={handleDragStart}
+        onDragStop={handleDragStop}
+        startDimensions={startDimensions}
+      />
 
-          <ResizeHandleWrapper
-            containerHeight={height}
-            containerWidth={width}
-            handlePosition="bottomRight"
-            onDrag={handleDrag}
-            onDragStart={handleDragStart}
-            onDragStop={handleDragStop}
-            startDimensions={startDimensions}
-            startingPoints={startingPoints}
-            defaultCursor
-          />
+      <ResizeHandleWrapper
+        containerHeight={height}
+        containerWidth={width}
+        handlePosition="topRight"
+        onDrag={handleDrag}
+        onDragStart={handleDragStart}
+        onDragStop={handleDragStop}
+        startDimensions={startDimensions}
+      />
 
-          <ResizeHandleWrapper
-            containerHeight={height}
-            containerWidth={width}
-            handlePosition="bottomLeft"
-            onDrag={handleDrag}
-            onDragStart={handleDragStart}
-            onDragStop={handleDragStop}
-            startDimensions={startDimensions}
-            startingPoints={startingPoints}
-            defaultCursor
-          />
+      <ResizeHandleWrapper
+        containerHeight={height}
+        containerWidth={width}
+        handlePosition="right"
+        onDrag={handleDrag}
+        onDragStart={handleDragStart}
+        onDragStop={handleDragStop}
+        startDimensions={startDimensions}
+      />
 
-          <ResizeHandleWrapper
-            containerHeight={height}
-            containerWidth={width}
-            handlePosition="topLeft"
-            onDrag={handleDrag}
-            onDragStart={handleDragStart}
-            onDragStop={handleDragStop}
-            startDimensions={startDimensions}
-            startingPoints={startingPoints}
-            defaultCursor
-          />
-        </>
-      ) : (
-        <>
-          <ResizeHandleWrapper
-            containerHeight={height}
-            containerWidth={width}
-            handlePosition="top"
-            onDrag={handleDrag}
-            onDragStart={handleDragStart}
-            onDragStop={handleDragStop}
-            startDimensions={startDimensions}
-          />
+      <ResizeHandleWrapper
+        containerHeight={height}
+        containerWidth={width}
+        handlePosition="bottomRight"
+        onDrag={handleDrag}
+        onDragStart={handleDragStart}
+        onDragStop={handleDragStop}
+        startDimensions={startDimensions}
+      />
 
-          <ResizeHandleWrapper
-            containerHeight={height}
-            containerWidth={width}
-            handlePosition="topRight"
-            onDrag={handleDrag}
-            onDragStart={handleDragStart}
-            onDragStop={handleDragStop}
-            startDimensions={startDimensions}
-          />
+      <ResizeHandleWrapper
+        containerHeight={height}
+        containerWidth={width}
+        handlePosition="bottom"
+        onDrag={handleDrag}
+        onDragStart={handleDragStart}
+        onDragStop={handleDragStop}
+        startDimensions={startDimensions}
+      />
 
-          <ResizeHandleWrapper
-            containerHeight={height}
-            containerWidth={width}
-            handlePosition="right"
-            onDrag={handleDrag}
-            onDragStart={handleDragStart}
-            onDragStop={handleDragStop}
-            startDimensions={startDimensions}
-          />
+      <ResizeHandleWrapper
+        containerHeight={height}
+        containerWidth={width}
+        handlePosition="bottomLeft"
+        onDrag={handleDrag}
+        onDragStart={handleDragStart}
+        onDragStop={handleDragStop}
+        startDimensions={startDimensions}
+      />
 
-          <ResizeHandleWrapper
-            containerHeight={height}
-            containerWidth={width}
-            handlePosition="bottomRight"
-            onDrag={handleDrag}
-            onDragStart={handleDragStart}
-            onDragStop={handleDragStop}
-            startDimensions={startDimensions}
-          />
+      <ResizeHandleWrapper
+        containerHeight={height}
+        containerWidth={width}
+        handlePosition="left"
+        onDrag={handleDrag}
+        onDragStart={handleDragStart}
+        onDragStop={handleDragStop}
+        startDimensions={startDimensions}
+      />
 
-          <ResizeHandleWrapper
-            containerHeight={height}
-            containerWidth={width}
-            handlePosition="bottom"
-            onDrag={handleDrag}
-            onDragStart={handleDragStart}
-            onDragStop={handleDragStop}
-            startDimensions={startDimensions}
-          />
-
-          <ResizeHandleWrapper
-            containerHeight={height}
-            containerWidth={width}
-            handlePosition="bottomLeft"
-            onDrag={handleDrag}
-            onDragStart={handleDragStart}
-            onDragStop={handleDragStop}
-            startDimensions={startDimensions}
-          />
-
-          <ResizeHandleWrapper
-            containerHeight={height}
-            containerWidth={width}
-            handlePosition="left"
-            onDrag={handleDrag}
-            onDragStart={handleDragStart}
-            onDragStop={handleDragStop}
-            startDimensions={startDimensions}
-          />
-
-          <ResizeHandleWrapper
-            containerHeight={height}
-            containerWidth={width}
-            handlePosition="topLeft"
-            onDrag={handleDrag}
-            onDragStart={handleDragStart}
-            onDragStop={handleDragStop}
-            startDimensions={startDimensions}
-          />
-        </>
-      )}
+      <ResizeHandleWrapper
+        containerHeight={height}
+        containerWidth={width}
+        handlePosition="topLeft"
+        onDrag={handleDrag}
+        onDragStart={handleDragStart}
+        onDragStop={handleDragStop}
+        startDimensions={startDimensions}
+      />
     </g>
   );
 }

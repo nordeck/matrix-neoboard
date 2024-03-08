@@ -79,7 +79,8 @@ describe('calculateDragOrigin', () => {
   `(
     'should calculate drag origin for $handlePosition based on start dimensions',
     ({ handlePosition, expectedDragOriginX, expectedDragOriginY }) => {
-      const startDimension = {
+      const startDimension: Dimensions = {
+        elementKind: 'circle',
         x: 10,
         y: 15,
         width: 30,
@@ -95,31 +96,13 @@ describe('calculateDragOrigin', () => {
 
 describe('calculateLineDragDimensions', () => {
   const dimensions: Dimensions = {
+    elementKind: 'line',
     x: 1,
     y: 1,
     width: 1,
     height: 1,
+    points: [],
   };
-
-  it.each`
-    handlePosition
-    ${'top'}
-    ${'right'}
-    ${'bottom'}
-    ${'left'}
-  `(
-    'should return given dimensions and points when dragging handlePosition $handlePosition',
-    ({ handlePosition }) => {
-      const points: Point[] = [
-        { x: 0, y: 0 },
-        { x: 0, y: 0 },
-      ];
-
-      expect(
-        calculateLineDragDimensions(handlePosition, dimensions, points, 9, 9),
-      ).toEqual({ ...dimensions, points });
-    },
-  );
 
   it.each`
     handlePosition
@@ -132,11 +115,43 @@ describe('calculateLineDragDimensions', () => {
     ${'left'}
     ${'topLeft'}
   `(
-    'should return given dimensions and points when dragging handlePosition $handlePosition and there are not exactly two points',
+    'should return given dimensions when dragging handlePosition $handlePosition and elementKind is not line',
     ({ handlePosition }) => {
+      const elementKind = 'circle';
+
       expect(
-        calculateLineDragDimensions(handlePosition, dimensions, [], 9, 9),
-      ).toEqual({ ...dimensions, points: [] });
+        calculateLineDragDimensions(
+          handlePosition,
+          { ...dimensions, elementKind },
+          9,
+          9,
+        ),
+      ).toEqual({ ...dimensions, elementKind });
+    },
+  );
+
+  it.each`
+    handlePosition
+    ${'top'}
+    ${'right'}
+    ${'bottom'}
+    ${'left'}
+  `(
+    'should return given dimensions when dragging handlePosition $handlePosition',
+    ({ handlePosition }) => {
+      const points: Point[] = [
+        { x: 0, y: 0 },
+        { x: 0, y: 0 },
+      ];
+
+      expect(
+        calculateLineDragDimensions(
+          handlePosition,
+          { ...dimensions, points },
+          9,
+          9,
+        ),
+      ).toEqual({ ...dimensions, points });
     },
   );
 
@@ -159,7 +174,7 @@ describe('calculateLineDragDimensions', () => {
     ${'topLeft'}     | ${1} | ${1} | ${0} | ${0} | ${0}  | ${0}  | ${0}      | ${0}      | ${2}          | ${2}           | ${2}       | ${2}       | ${0}       | ${0}
     ${'topLeft'}     | ${0} | ${0} | ${0} | ${0} | ${0}  | ${0}  | ${0}      | ${0}      | ${1}          | ${1}           | ${1}       | ${1}       | ${0}       | ${0}
   `(
-    'should return new dimensions and points when dragging second point $x1,$y1 with handlePosition $handlePosition to $dragX,$dragY',
+    'should return new dimensions when dragging second point $x1,$y1 with handlePosition $handlePosition to $dragX,$dragY',
     ({
       handlePosition,
       x0,
@@ -180,15 +195,18 @@ describe('calculateLineDragDimensions', () => {
       expect(
         calculateLineDragDimensions(
           handlePosition,
-          dimensions,
-          [
-            { x: x0, y: y0 },
-            { x: x1, y: y1 },
-          ],
+          {
+            ...dimensions,
+            points: [
+              { x: x0, y: y0 },
+              { x: x1, y: y1 },
+            ],
+          },
           dragX,
           dragY,
         ),
       ).toEqual({
+        elementKind: dimensions.elementKind,
         x: expectedX,
         y: expectedY,
         width: expectedWidth,
@@ -216,7 +234,7 @@ describe('calculateLineDragDimensions', () => {
     ${'topLeft'}     | ${0} | ${0} | ${1} | ${0} | ${0}  | ${1}  | ${0}      | ${1}      | ${2}          | ${0}           | ${0}       | ${0}       | ${2}       | ${0}
     ${'topLeft'}     | ${0} | ${0} | ${1} | ${1} | ${0}  | ${0}  | ${0}      | ${0}      | ${2}          | ${2}           | ${0}       | ${0}       | ${2}       | ${2}
   `(
-    'should return new dimensions and points when dragging first point $x0,$y0 with handlePosition $handlePosition to $dragX,$dragY',
+    'should return new dimensions when dragging first point $x0,$y0 with handlePosition $handlePosition to $dragX,$dragY',
     ({
       handlePosition,
       x0,
@@ -237,15 +255,18 @@ describe('calculateLineDragDimensions', () => {
       expect(
         calculateLineDragDimensions(
           handlePosition,
-          dimensions,
-          [
-            { x: x0, y: y0 },
-            { x: x1, y: y1 },
-          ],
+          {
+            ...dimensions,
+            points: [
+              { x: x0, y: y0 },
+              { x: x1, y: y1 },
+            ],
+          },
           dragX,
           dragY,
         ),
       ).toEqual({
+        elementKind: dimensions.elementKind,
         x: expectedX,
         y: expectedY,
         width: expectedWidth,
@@ -266,6 +287,7 @@ describe('calculateDimensions', () => {
 
   beforeEach(() => {
     startDimension = {
+      elementKind: 'circle',
       x: 15,
       y: 30,
       width: 20,
@@ -318,6 +340,7 @@ describe('calculateDimensions', () => {
           viewportHeight,
         ),
       ).toEqual({
+        elementKind: startDimension.elementKind,
         x: expectedX,
         y: expectedY,
         width: expectedWidth,
@@ -359,6 +382,7 @@ describe('calculateDimensions', () => {
           viewportHeight,
         ),
       ).toEqual({
+        elementKind: startDimension.elementKind,
         x: expectedX,
         y: expectedY,
         width: expectedWidth,
@@ -384,6 +408,7 @@ describe('calculateDimensions', () => {
         viewportHeight,
       ),
     ).toEqual({
+      elementKind: startDimension.elementKind,
       x: 15,
       y: 30,
       width: 2,
@@ -436,6 +461,7 @@ describe('calculateDimensions', () => {
           viewportHeight,
         ),
       ).toEqual({
+        elementKind: startDimension.elementKind,
         x: expectedX,
         y: expectedY,
         width: expectedWidth,
@@ -485,6 +511,7 @@ describe('calculateDimensions', () => {
           viewportHeight,
         ),
       ).toEqual({
+        elementKind: startDimension.elementKind,
         x: expectedX,
         y: expectedY,
         width: expectedWidth,
@@ -528,6 +555,7 @@ describe('calculateDimensions', () => {
           40,
         ),
       ).toEqual({
+        elementKind: startDimension.elementKind,
         x: expectedX,
         y: expectedY,
         width: expectedWidth,

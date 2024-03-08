@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Point } from '../../../../state';
+import { PathKind, Point, ShapeKind } from '../../../../state';
 
 export type ResizeHandlePosition =
   | 'top'
@@ -36,8 +36,15 @@ export type DimensionsHorizontal = {
   width: number;
 };
 
-export type Dimensions = DimensionsVertical & DimensionsHorizontal;
+export type DimensionsBase = DimensionsVertical & DimensionsHorizontal;
 
-export type Points = {
-  points?: Point[];
+export type PathElementDimensions = DimensionsBase & {
+  elementKind: PathKind;
+  points: Point[];
 };
+
+export type ShapeElementDimensions = DimensionsBase & {
+  elementKind: ShapeKind;
+};
+
+export type Dimensions = PathElementDimensions | ShapeElementDimensions;

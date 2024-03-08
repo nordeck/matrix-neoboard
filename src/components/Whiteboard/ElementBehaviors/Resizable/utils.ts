@@ -15,10 +15,10 @@
  */
 
 import { clamp } from 'lodash';
-import { calculateBoundingRectForPoints, Point } from '../../../../state';
+import { calculateBoundingRectForPoints } from '../../../../state';
 import { snapToGrid } from '../../Grid';
 import { DragEvent } from './ResizeHandle';
-import { Dimensions, Points, ResizeHandlePosition } from './types';
+import { Dimensions, ResizeHandlePosition } from './types';
 
 export function calculateDragOrigin(
   handlePosition: ResizeHandlePosition,
@@ -84,22 +84,21 @@ export function calculateDragDimension(
 export function calculateLineDragDimensions(
   handlePosition: ResizeHandlePosition,
   dimensions: Dimensions,
-  points: Point[],
   dragX: number,
   dragY: number,
-): Dimensions & Points {
+): Dimensions {
   if (
+    dimensions.elementKind !== 'line' ||
     handlePosition === 'top' ||
     handlePosition === 'right' ||
     handlePosition === 'bottom' ||
-    handlePosition === 'left' ||
-    points.length !== 2
+    handlePosition === 'left'
   ) {
-    return { ...dimensions, points };
+    return dimensions;
   }
 
-  const start = points[0];
-  const end = points[points.length - 1];
+  const start = dimensions.points[0];
+  const end = dimensions.points[dimensions.points.length - 1];
   const cursor = { x: dragX - dimensions.x, y: dragY - dimensions.y };
 
   let newPoints;
@@ -153,6 +152,7 @@ export function calculateLineDragDimensions(
   const boundingRect = calculateBoundingRectForPoints(newPoints);
 
   return {
+    elementKind: 'line',
     x: dimensions.x + boundingRect.offsetX,
     y: dimensions.y + boundingRect.offsetY,
     width: boundingRect.width,
@@ -172,8 +172,7 @@ export function calculateDimensions(
   viewportHeight: number,
   forceLockAspectRatio: boolean = false,
   gridCellSize?: number,
-  startingPoints?: Point[],
-): Dimensions & Points {
+): Dimensions {
   const rawDragX = clamp(event.x, 0, viewportWidth);
   const rawDragY = clamp(event.y, 0, viewportHeight);
 
@@ -182,11 +181,10 @@ export function calculateDimensions(
   const dragY =
     gridCellSize === undefined ? rawDragY : snapToGrid(rawDragY, gridCellSize);
 
-  if (startingPoints) {
+  if (startDimensions.elementKind === 'line') {
     return calculateLineDragDimensions(
       handlePosition,
       startDimensions,
-      startingPoints,
       dragX,
       dragY,
     );
@@ -197,12 +195,24 @@ export function calculateDimensions(
     handlePosition,
     startDimensions,
   );
-  const dimensions = {
-    x: startDimensions.x,
-    y: startDimensions.y,
-    width: startDimensions.width,
-    height: startDimensions.height,
-  };
+
+  let dimensions: Dimensions;
+
+  if (startDimensions.elementKind === 'polyline') {
+    dimensions = {
+      ...startDimensions,
+      elementKind: 'polyline',
+      points: [],
+    };
+  } else {
+    dimensions = {
+      elementKind: startDimensions.elementKind,
+      x: startDimensions.x,
+      y: startDimensions.y,
+      width: startDimensions.width,
+      height: startDimensions.height,
+    };
+  }
 
   if (lockAspectRatio) {
     if (
@@ -302,6 +312,17 @@ export function calculateDimensions(
       dimensions.x = position;
       dimensions.width = size;
     }
+  }
+
+  if (startDimensions.elementKind === 'polyline') {
+    return {
+      ...dimensions,
+      elementKind: 'polyline',
+      points: startDimensions.points.map((point) => ({
+        x: (point.x / startDimensions.width) * dimensions.width,
+        y: (point.y / startDimensions.height) * dimensions.height,
+      })),
+    };
   }
 
   return dimensions;
