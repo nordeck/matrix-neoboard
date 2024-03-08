@@ -71,7 +71,7 @@ export function useOwnedWhiteboard(): UseOwnedWhiteboardResponse {
     loading,
     error,
   } = useAsync(async () => {
-    if (canInitializeWhiteboard && !whiteboard) {
+    if (canInitializeWhiteboard && !whiteboard && !isLoading && !isError) {
       try {
         // TODO: We only set the power level once, if it's later changed we can't
         // handle it. It would be better to show a UI to a moderator to repair
@@ -99,7 +99,14 @@ export function useOwnedWhiteboard(): UseOwnedWhiteboardResponse {
     }
 
     return whiteboard;
-  }, [dispatch, widgetApi.widgetId, whiteboard, !!canInitializeWhiteboard]);
+  }, [
+    dispatch,
+    widgetApi.widgetId,
+    whiteboard,
+    isLoading,
+    isError,
+    !!canInitializeWhiteboard,
+  ]);
 
   if (isError) {
     throw new Error('could not load whiteboards');
