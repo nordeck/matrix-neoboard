@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import { Point } from '../../../../state';
 import { Dimensions } from './types';
 import {
   calculateDimensions,
@@ -97,187 +96,56 @@ describe('calculateDragOrigin', () => {
 describe('calculateLineDragDimensions', () => {
   const dimensions: Dimensions = {
     elementKind: 'line',
-    x: 1,
-    y: 1,
-    width: 1,
-    height: 1,
-    points: [],
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0,
+    points: [
+      { x: 0, y: 0 },
+      { x: 0, y: 0 },
+    ],
   };
 
-  it.each`
-    handlePosition
-    ${'top'}
-    ${'topRight'}
-    ${'right'}
-    ${'bottomRight'}
-    ${'bottom'}
-    ${'bottomLeft'}
-    ${'left'}
-    ${'topLeft'}
-  `(
-    'should return given dimensions when dragging handlePosition $handlePosition and elementKind is not line',
-    ({ handlePosition }) => {
-      const elementKind = 'circle';
+  it('should return given dimensions when elementKind is not line', () => {
+    const elementKind = 'circle';
 
-      expect(
-        calculateLineDragDimensions(
-          handlePosition,
-          { ...dimensions, elementKind },
-          9,
-          9,
-        ),
-      ).toEqual({ ...dimensions, elementKind });
-    },
-  );
+    expect(
+      calculateLineDragDimensions(
+        'start',
+        { ...dimensions, elementKind },
+        9,
+        9,
+      ),
+    ).toEqual({ ...dimensions, elementKind });
+  });
 
-  it.each`
-    handlePosition
-    ${'top'}
-    ${'right'}
-    ${'bottom'}
-    ${'left'}
-  `(
-    'should return given dimensions when dragging handlePosition $handlePosition',
-    ({ handlePosition }) => {
-      const points: Point[] = [
+  it('should return new dimensions when dragging start point', () => {
+    expect(calculateLineDragDimensions('start', dimensions, 50, 50)).toEqual({
+      elementKind: dimensions.elementKind,
+      x: 0,
+      y: 0,
+      width: 50,
+      height: 50,
+      points: [
+        { x: 50, y: 50 },
         { x: 0, y: 0 },
+      ],
+    });
+  });
+
+  it('should return new dimensions when dragging end point', () => {
+    expect(calculateLineDragDimensions('end', dimensions, 50, 50)).toEqual({
+      elementKind: dimensions.elementKind,
+      x: 0,
+      y: 0,
+      width: 50,
+      height: 50,
+      points: [
         { x: 0, y: 0 },
-      ];
-
-      expect(
-        calculateLineDragDimensions(
-          handlePosition,
-          { ...dimensions, points },
-          9,
-          9,
-        ),
-      ).toEqual({ ...dimensions, points });
-    },
-  );
-
-  it.each`
-    handlePosition   | x0   | y0   | x1   | y1   | dragX | dragY | expectedX | expectedY | expectedWidth | expectedHeight | expectedX0 | expectedY0 | expectedX1 | expectedY1
-    ${'topRight'}    | ${0} | ${0} | ${1} | ${0} | ${3}  | ${1}  | ${1}      | ${1}      | ${2}          | ${0}           | ${0}       | ${0}       | ${2}       | ${0}
-    ${'topRight'}    | ${0} | ${1} | ${1} | ${0} | ${3}  | ${0}  | ${1}      | ${0}      | ${2}          | ${2}           | ${0}       | ${2}       | ${2}       | ${0}
-    ${'topRight'}    | ${0} | ${1} | ${0} | ${0} | ${1}  | ${0}  | ${1}      | ${0}      | ${0}          | ${2}           | ${0}       | ${2}       | ${0}       | ${0}
-    ${'topRight'}    | ${0} | ${0} | ${0} | ${0} | ${2}  | ${0}  | ${1}      | ${0}      | ${1}          | ${1}           | ${0}       | ${1}       | ${1}       | ${0}
-    ${'bottomRight'} | ${0} | ${0} | ${1} | ${1} | ${3}  | ${3}  | ${1}      | ${1}      | ${2}          | ${2}           | ${0}       | ${0}       | ${2}       | ${2}
-    ${'bottomRight'} | ${0} | ${0} | ${1} | ${0} | ${3}  | ${1}  | ${1}      | ${1}      | ${2}          | ${0}           | ${0}       | ${0}       | ${2}       | ${0}
-    ${'bottomRight'} | ${0} | ${0} | ${0} | ${1} | ${1}  | ${3}  | ${1}      | ${1}      | ${0}          | ${2}           | ${0}       | ${0}       | ${0}       | ${2}
-    ${'bottomRight'} | ${0} | ${0} | ${0} | ${0} | ${2}  | ${2}  | ${1}      | ${1}      | ${1}          | ${1}           | ${0}       | ${0}       | ${1}       | ${1}
-    ${'bottomLeft'}  | ${0} | ${0} | ${0} | ${1} | ${1}  | ${3}  | ${1}      | ${1}      | ${0}          | ${2}           | ${0}       | ${0}       | ${0}       | ${2}
-    ${'bottomLeft'}  | ${1} | ${0} | ${0} | ${1} | ${0}  | ${3}  | ${0}      | ${1}      | ${2}          | ${2}           | ${2}       | ${0}       | ${0}       | ${2}
-    ${'bottomLeft'}  | ${1} | ${0} | ${0} | ${0} | ${0}  | ${1}  | ${0}      | ${1}      | ${2}          | ${0}           | ${2}       | ${0}       | ${0}       | ${0}
-    ${'bottomLeft'}  | ${0} | ${0} | ${0} | ${0} | ${0}  | ${2}  | ${0}      | ${1}      | ${1}          | ${1}           | ${1}       | ${0}       | ${0}       | ${1}
-    ${'topLeft'}     | ${0} | ${1} | ${0} | ${0} | ${1}  | ${0}  | ${1}      | ${0}      | ${0}          | ${2}           | ${0}       | ${2}       | ${0}       | ${0}
-    ${'topLeft'}     | ${1} | ${0} | ${0} | ${0} | ${0}  | ${1}  | ${0}      | ${1}      | ${2}          | ${0}           | ${2}       | ${0}       | ${0}       | ${0}
-    ${'topLeft'}     | ${1} | ${1} | ${0} | ${0} | ${0}  | ${0}  | ${0}      | ${0}      | ${2}          | ${2}           | ${2}       | ${2}       | ${0}       | ${0}
-    ${'topLeft'}     | ${0} | ${0} | ${0} | ${0} | ${0}  | ${0}  | ${0}      | ${0}      | ${1}          | ${1}           | ${1}       | ${1}       | ${0}       | ${0}
-  `(
-    'should return new dimensions when dragging second point $x1,$y1 with handlePosition $handlePosition to $dragX,$dragY',
-    ({
-      handlePosition,
-      x0,
-      y0,
-      x1,
-      y1,
-      dragX,
-      dragY,
-      expectedX,
-      expectedY,
-      expectedWidth,
-      expectedHeight,
-      expectedX0,
-      expectedY0,
-      expectedX1,
-      expectedY1,
-    }) => {
-      expect(
-        calculateLineDragDimensions(
-          handlePosition,
-          {
-            ...dimensions,
-            points: [
-              { x: x0, y: y0 },
-              { x: x1, y: y1 },
-            ],
-          },
-          dragX,
-          dragY,
-        ),
-      ).toEqual({
-        elementKind: dimensions.elementKind,
-        x: expectedX,
-        y: expectedY,
-        width: expectedWidth,
-        height: expectedHeight,
-        points: [
-          { x: expectedX0, y: expectedY0 },
-          { x: expectedX1, y: expectedY1 },
-        ],
-      });
-    },
-  );
-
-  it.each`
-    handlePosition   | x0   | y0   | x1   | y1   | dragX | dragY | expectedX | expectedY | expectedWidth | expectedHeight | expectedX0 | expectedY0 | expectedX1 | expectedY1
-    ${'topRight'}    | ${1} | ${0} | ${0} | ${0} | ${3}  | ${1}  | ${1}      | ${1}      | ${2}          | ${0}           | ${2}       | ${0}       | ${0}       | ${0}
-    ${'topRight'}    | ${1} | ${0} | ${0} | ${1} | ${3}  | ${0}  | ${1}      | ${0}      | ${2}          | ${2}           | ${2}       | ${0}       | ${0}       | ${2}
-    ${'topRight'}    | ${0} | ${0} | ${0} | ${1} | ${1}  | ${0}  | ${1}      | ${0}      | ${0}          | ${2}           | ${0}       | ${0}       | ${0}       | ${2}
-    ${'bottomRight'} | ${1} | ${1} | ${0} | ${0} | ${3}  | ${3}  | ${1}      | ${1}      | ${2}          | ${2}           | ${2}       | ${2}       | ${0}       | ${0}
-    ${'bottomRight'} | ${1} | ${0} | ${0} | ${0} | ${3}  | ${1}  | ${1}      | ${1}      | ${2}          | ${0}           | ${2}       | ${0}       | ${0}       | ${0}
-    ${'bottomRight'} | ${0} | ${1} | ${0} | ${0} | ${1}  | ${3}  | ${1}      | ${1}      | ${0}          | ${2}           | ${0}       | ${2}       | ${0}       | ${0}
-    ${'bottomLeft'}  | ${0} | ${1} | ${0} | ${0} | ${1}  | ${3}  | ${1}      | ${1}      | ${0}          | ${2}           | ${0}       | ${2}       | ${0}       | ${0}
-    ${'bottomLeft'}  | ${0} | ${1} | ${1} | ${0} | ${0}  | ${3}  | ${0}      | ${1}      | ${2}          | ${2}           | ${0}       | ${2}       | ${2}       | ${0}
-    ${'bottomLeft'}  | ${0} | ${0} | ${1} | ${0} | ${0}  | ${1}  | ${0}      | ${1}      | ${2}          | ${0}           | ${0}       | ${0}       | ${2}       | ${0}
-    ${'topLeft'}     | ${0} | ${0} | ${0} | ${1} | ${1}  | ${0}  | ${1}      | ${0}      | ${0}          | ${2}           | ${0}       | ${0}       | ${0}       | ${2}
-    ${'topLeft'}     | ${0} | ${0} | ${1} | ${0} | ${0}  | ${1}  | ${0}      | ${1}      | ${2}          | ${0}           | ${0}       | ${0}       | ${2}       | ${0}
-    ${'topLeft'}     | ${0} | ${0} | ${1} | ${1} | ${0}  | ${0}  | ${0}      | ${0}      | ${2}          | ${2}           | ${0}       | ${0}       | ${2}       | ${2}
-  `(
-    'should return new dimensions when dragging first point $x0,$y0 with handlePosition $handlePosition to $dragX,$dragY',
-    ({
-      handlePosition,
-      x0,
-      y0,
-      x1,
-      y1,
-      dragX,
-      dragY,
-      expectedX,
-      expectedY,
-      expectedWidth,
-      expectedHeight,
-      expectedX0,
-      expectedY0,
-      expectedX1,
-      expectedY1,
-    }) => {
-      expect(
-        calculateLineDragDimensions(
-          handlePosition,
-          {
-            ...dimensions,
-            points: [
-              { x: x0, y: y0 },
-              { x: x1, y: y1 },
-            ],
-          },
-          dragX,
-          dragY,
-        ),
-      ).toEqual({
-        elementKind: dimensions.elementKind,
-        x: expectedX,
-        y: expectedY,
-        width: expectedWidth,
-        height: expectedHeight,
-        points: [
-          { x: expectedX0, y: expectedY0 },
-          { x: expectedX1, y: expectedY1 },
-        ],
-      });
-    },
-  );
+        { x: 50, y: 50 },
+      ],
+    });
+  });
 });
 
 describe('calculateDimensions', () => {

@@ -25,6 +25,7 @@ import {
   useSetElementOverride,
 } from '../../../ElementOverridesProvider';
 import { useLayoutState } from '../../../Layout';
+import { getRenderProperties } from '../../../elements/line/getRenderProperties';
 import { useSvgCanvasContext } from '../../SvgCanvas';
 import { gridCellSize } from '../../constants';
 import { DragEvent, ResizeHandle } from './ResizeHandle';
@@ -33,9 +34,11 @@ import { calculateDimensions } from './utils';
 
 export type ResizeHandleWrapperProps = {
   handlePosition: ResizeHandlePosition;
+  handlePositionX?: number;
+  handlePositionY?: number;
   startDimensions: Dimensions | undefined;
-  containerWidth: number;
-  containerHeight: number;
+  containerWidth?: number;
+  containerHeight?: number;
   forceLockAspectRatio?: boolean;
   onDrag: Dispatch<Dimensions>;
   onDragStart: Dispatch<DragEvent>;
@@ -44,6 +47,8 @@ export type ResizeHandleWrapperProps = {
 
 export function ResizeHandleWrapper({
   handlePosition,
+  handlePositionX,
+  handlePositionY,
   startDimensions,
   containerWidth,
   containerHeight,
@@ -87,10 +92,11 @@ export function ResizeHandleWrapper({
       containerHeight={containerHeight}
       containerWidth={containerWidth}
       handlePosition={handlePosition}
+      handlePositionX={handlePositionX}
+      handlePositionY={handlePositionY}
       onDrag={handleDrag}
       onDragStart={onDragStart}
       onDragStop={onDragStop}
-      defaultCursor={startDimensions?.elementKind === 'line'}
     />
   );
 }
@@ -205,6 +211,33 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
 
   if (!element) {
     return null;
+  }
+
+  if (element.kind === 'line') {
+    const renderProperties = getRenderProperties(element);
+
+    return (
+      <>
+        <ResizeHandleWrapper
+          handlePosition="start"
+          handlePositionX={renderProperties.points.start.x}
+          handlePositionY={renderProperties.points.start.y}
+          onDrag={handleDrag}
+          onDragStart={handleDragStart}
+          onDragStop={handleDragStop}
+          startDimensions={startDimensions}
+        />
+        <ResizeHandleWrapper
+          handlePosition="end"
+          handlePositionX={renderProperties.points.end.x}
+          handlePositionY={renderProperties.points.end.y}
+          onDrag={handleDrag}
+          onDragStart={handleDragStart}
+          onDragStop={handleDragStop}
+          startDimensions={startDimensions}
+        />
+      </>
+    );
   }
 
   const boundingRect = calculateBoundingRectForElements([element]);

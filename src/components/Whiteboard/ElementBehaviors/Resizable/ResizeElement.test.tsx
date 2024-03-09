@@ -122,7 +122,7 @@ describe('<ResizeElement />', () => {
 
     // drag a resize box from 0,0 to 50,50
     const resizeHandleBottomRight = screen.getByTestId(
-      'resize-handle-se-resize',
+      'resize-handle-bottomRight',
     );
     mocked(calculateDimensions).mockReturnValue({
       elementKind: 'polyline',
@@ -187,9 +187,7 @@ describe('<ResizeElement />', () => {
     });
 
     // drag the end of a line from 0,0 to 50,50
-    const resizeHandleBottomRight = screen.getByTestId(
-      'resize-handle-se-resize',
-    );
+    const resizeHandleBottomRight = screen.getByTestId('resize-handle-end');
     mocked(calculateDimensions).mockReturnValue({
       elementKind: 'line',
       x: 0,

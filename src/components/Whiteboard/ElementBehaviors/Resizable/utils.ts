@@ -18,10 +18,15 @@ import { clamp } from 'lodash';
 import { calculateBoundingRectForPoints } from '../../../../state';
 import { snapToGrid } from '../../Grid';
 import { DragEvent } from './ResizeHandle';
-import { Dimensions, ResizeHandlePosition } from './types';
+import {
+  Dimensions,
+  LineElementResizeHandlePosition,
+  PolylineAndShapeElementsResizeHandlePosition,
+  ResizeHandlePosition,
+} from './types';
 
 export function calculateDragOrigin(
-  handlePosition: ResizeHandlePosition,
+  handlePosition: PolylineAndShapeElementsResizeHandlePosition,
   startDimensions: Dimensions,
 ): { dragOriginX: number; dragOriginY: number } {
   switch (handlePosition) {
@@ -82,18 +87,12 @@ export function calculateDragDimension(
 }
 
 export function calculateLineDragDimensions(
-  handlePosition: ResizeHandlePosition,
+  handlePosition: LineElementResizeHandlePosition,
   dimensions: Dimensions,
   dragX: number,
   dragY: number,
 ): Dimensions {
-  if (
-    dimensions.elementKind !== 'line' ||
-    handlePosition === 'top' ||
-    handlePosition === 'right' ||
-    handlePosition === 'bottom' ||
-    handlePosition === 'left'
-  ) {
+  if (dimensions.elementKind !== 'line') {
     return dimensions;
   }
 
@@ -101,52 +100,12 @@ export function calculateLineDragDimensions(
   const end = dimensions.points[dimensions.points.length - 1];
   const cursor = { x: dragX - dimensions.x, y: dragY - dimensions.y };
 
-  let newPoints;
+  let newPoints = dimensions.points;
 
-  switch (handlePosition) {
-    case 'topRight':
-      if (
-        (start.x <= end.x && start.y === end.y) ||
-        (start.x <= end.x && start.y >= end.y) ||
-        (start.x === end.x && start.y >= end.y)
-      ) {
-        newPoints = [start, cursor];
-      } else {
-        newPoints = [cursor, end];
-      }
-      break;
-    case 'bottomRight':
-      if (
-        (start.x <= end.x && start.y <= end.y) ||
-        (start.x <= end.x && start.y === end.y) ||
-        (start.x === end.x && start.y <= end.y)
-      ) {
-        newPoints = [start, cursor];
-      } else {
-        newPoints = [cursor, end];
-      }
-      break;
-    case 'bottomLeft':
-      if (
-        (start.x === end.x && start.y <= end.y) ||
-        (start.x >= end.x && start.y <= end.y) ||
-        (start.x >= end.x && start.y === end.y)
-      ) {
-        newPoints = [start, cursor];
-      } else {
-        newPoints = [cursor, end];
-      }
-      break;
-    case 'topLeft':
-      if (
-        (start.x === end.x && start.y >= end.y) ||
-        (start.x >= end.x && start.y === end.y) ||
-        (start.x >= end.x && start.y >= end.y)
-      ) {
-        newPoints = [start, cursor];
-      } else {
-        newPoints = [cursor, end];
-      }
+  if (handlePosition === 'start') {
+    newPoints = [cursor, end];
+  } else if (handlePosition === 'end') {
+    newPoints = [start, cursor];
   }
 
   const boundingRect = calculateBoundingRectForPoints(newPoints);
@@ -181,28 +140,18 @@ export function calculateDimensions(
   const dragY =
     gridCellSize === undefined ? rawDragY : snapToGrid(rawDragY, gridCellSize);
 
-  if (startDimensions.elementKind === 'line') {
-    return calculateLineDragDimensions(
-      handlePosition,
-      startDimensions,
-      dragX,
-      dragY,
-    );
-  }
-
   const lockAspectRatio = forceLockAspectRatio || event.lockAspectRatio;
-  const { dragOriginX, dragOriginY } = calculateDragOrigin(
-    handlePosition,
-    startDimensions,
-  );
 
   let dimensions: Dimensions;
 
-  if (startDimensions.elementKind === 'polyline') {
+  if (
+    startDimensions.elementKind === 'line' ||
+    startDimensions.elementKind === 'polyline'
+  ) {
     dimensions = {
       ...startDimensions,
-      elementKind: 'polyline',
-      points: [],
+      elementKind: startDimensions.elementKind,
+      points: startDimensions.points,
     };
   } else {
     dimensions = {
@@ -213,6 +162,20 @@ export function calculateDimensions(
       height: startDimensions.height,
     };
   }
+
+  if (handlePosition === 'start' || handlePosition === 'end') {
+    return calculateLineDragDimensions(
+      handlePosition,
+      dimensions,
+      dragX,
+      dragY,
+    );
+  }
+
+  const { dragOriginX, dragOriginY } = calculateDragOrigin(
+    handlePosition,
+    startDimensions,
+  );
 
   if (lockAspectRatio) {
     if (
@@ -314,11 +277,10 @@ export function calculateDimensions(
     }
   }
 
-  if (startDimensions.elementKind === 'polyline') {
+  if (dimensions.elementKind === 'polyline') {
     return {
       ...dimensions,
-      elementKind: 'polyline',
-      points: startDimensions.points.map((point) => ({
+      points: dimensions.points.map((point) => ({
         x: (point.x / startDimensions.width) * dimensions.width,
         y: (point.y / startDimensions.height) * dimensions.height,
       })),

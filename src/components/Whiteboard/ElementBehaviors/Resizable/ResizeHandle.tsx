@@ -21,9 +21,11 @@ import { ResizeHandlePosition } from './types';
 
 export function calculateResizeHandlePosition(
   position: ResizeHandlePosition,
-  containerWidth: number,
-  containerHeight: number,
+  containerWidth: number = 0,
+  containerHeight: number = 0,
   scale: number,
+  positionX: number = 0,
+  positionY: number = 0,
 ): {
   x: number;
   y: number;
@@ -112,6 +114,22 @@ export function calculateResizeHandlePosition(
         height: handleWidth,
         cursor: 'nw-resize',
       };
+    case 'start':
+      return {
+        x: positionX + handleWidth / -2,
+        y: positionY + handleWidth / -2,
+        width: handleWidth,
+        height: handleWidth,
+        cursor: 'default',
+      };
+    case 'end':
+      return {
+        x: positionX + handleWidth / -2,
+        y: positionY + handleWidth / -2,
+        width: handleWidth,
+        height: handleWidth,
+        cursor: 'default',
+      };
   }
 }
 
@@ -125,12 +143,13 @@ export type DragEvent = {
 
 export type ResizeHandleProps = {
   handlePosition: ResizeHandlePosition;
-  containerWidth: number;
-  containerHeight: number;
+  handlePositionX?: number;
+  handlePositionY?: number;
+  containerWidth?: number;
+  containerHeight?: number;
   onDrag?: Dispatch<DragEvent>;
   onDragStart?: Dispatch<DragEvent>;
   onDragStop?: Dispatch<DragEvent>;
-  defaultCursor?: boolean;
 };
 
 export function ResizeHandle({
@@ -138,9 +157,10 @@ export function ResizeHandle({
   onDragStart,
   onDragStop,
   handlePosition,
+  handlePositionX,
+  handlePositionY,
   containerWidth,
   containerHeight,
-  defaultCursor,
 }: ResizeHandleProps) {
   const nodeRef = useRef<SVGRectElement>(null);
   const { scale, calculateSvgCoords } = useSvgCanvasContext();
@@ -149,6 +169,8 @@ export function ResizeHandle({
     containerWidth,
     containerHeight,
     scale,
+    handlePositionX,
+    handlePositionY,
   );
 
   const dispatchDragEvent = useCallback(
@@ -211,8 +233,8 @@ export function ResizeHandle({
       scale={scale}
     >
       <rect
-        data-testid={`resize-handle-${cursor}`}
-        cursor={defaultCursor ? 'default' : cursor}
+        data-testid={`resize-handle-${handlePosition}`}
+        cursor={cursor}
         fill="transparent"
         height={height}
         ref={nodeRef}

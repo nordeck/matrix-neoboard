@@ -16,7 +16,9 @@
 
 import { PathKind, Point, ShapeKind } from '../../../../state';
 
-export type ResizeHandlePosition =
+export type LineElementResizeHandlePosition = 'start' | 'end';
+
+export type PolylineAndShapeElementsResizeHandlePosition =
   | 'top'
   | 'topRight'
   | 'right'
@@ -25,6 +27,10 @@ export type ResizeHandlePosition =
   | 'bottomLeft'
   | 'left'
   | 'topLeft';
+
+export type ResizeHandlePosition =
+  | LineElementResizeHandlePosition
+  | PolylineAndShapeElementsResizeHandlePosition;
 
 export type DimensionsVertical = {
   y: number;
