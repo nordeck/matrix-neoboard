@@ -18,6 +18,7 @@ export { calculateBoundingRectForElements, isValidElement } from './elements';
 export type {
   Element,
   ElementBase,
+  ElementKind,
   PathElement,
   PathKind,
   ShapeElement,

@@ -17,6 +17,7 @@
 import { Dispatch, useCallback, useState } from 'react';
 import { useUnmount } from 'react-use';
 import {
+  ElementKind,
   calculateBoundingRectForElements,
   useWhiteboardSlideInstance,
 } from '../../../../state';
@@ -43,6 +44,7 @@ export type ResizeHandleWrapperProps = {
   onDrag: Dispatch<Dimensions>;
   onDragStart: Dispatch<DragEvent>;
   onDragStop: Dispatch<DragEvent>;
+  elementKind: ElementKind;
 };
 
 export function ResizeHandleWrapper({
@@ -56,6 +58,7 @@ export function ResizeHandleWrapper({
   onDrag,
   onDragStart,
   onDragStop,
+  elementKind,
 }: ResizeHandleWrapperProps) {
   const { isShowGrid } = useLayoutState();
   const { viewportWidth, viewportHeight } = useSvgCanvasContext();
@@ -97,6 +100,7 @@ export function ResizeHandleWrapper({
       onDrag={handleDrag}
       onDragStart={onDragStart}
       onDragStop={onDragStop}
+      elementKind={elementKind}
     />
   );
 }
@@ -226,6 +230,7 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
           onDragStart={handleDragStart}
           onDragStop={handleDragStop}
           startDimensions={startDimensions}
+          elementKind={element.kind}
         />
         <ResizeHandleWrapper
           handlePosition="end"
@@ -235,6 +240,7 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
           onDragStart={handleDragStart}
           onDragStop={handleDragStop}
           startDimensions={startDimensions}
+          elementKind={element.kind}
         />
       </>
     );
@@ -260,6 +266,7 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
         onDragStart={handleDragStart}
         onDragStop={handleDragStop}
         startDimensions={startDimensions}
+        elementKind={element.kind}
       />
 
       <ResizeHandleWrapper
@@ -270,6 +277,7 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
         onDragStart={handleDragStart}
         onDragStop={handleDragStop}
         startDimensions={startDimensions}
+        elementKind={element.kind}
       />
 
       <ResizeHandleWrapper
@@ -280,6 +288,7 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
         onDragStart={handleDragStart}
         onDragStop={handleDragStop}
         startDimensions={startDimensions}
+        elementKind={element.kind}
       />
 
       <ResizeHandleWrapper
@@ -290,6 +299,7 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
         onDragStart={handleDragStart}
         onDragStop={handleDragStop}
         startDimensions={startDimensions}
+        elementKind={element.kind}
       />
 
       <ResizeHandleWrapper
@@ -300,6 +310,7 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
         onDragStart={handleDragStart}
         onDragStop={handleDragStop}
         startDimensions={startDimensions}
+        elementKind={element.kind}
       />
 
       <ResizeHandleWrapper
@@ -310,6 +321,7 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
         onDragStart={handleDragStart}
         onDragStop={handleDragStop}
         startDimensions={startDimensions}
+        elementKind={element.kind}
       />
 
       <ResizeHandleWrapper
@@ -320,6 +332,7 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
         onDragStart={handleDragStart}
         onDragStop={handleDragStop}
         startDimensions={startDimensions}
+        elementKind={element.kind}
       />
 
       <ResizeHandleWrapper
@@ -330,6 +343,7 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
         onDragStart={handleDragStart}
         onDragStop={handleDragStop}
         startDimensions={startDimensions}
+        elementKind={element.kind}
       />
     </g>
   );
