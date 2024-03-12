@@ -130,6 +130,8 @@ export type ResizeHandleProps = {
   onDrag?: Dispatch<DragEvent>;
   onDragStart?: Dispatch<DragEvent>;
   onDragStop?: Dispatch<DragEvent>;
+  /** If true the behaviour of locking the aspect ratio is inverted. */
+  invertLockAspectRatio?: boolean;
 };
 
 export function ResizeHandle({
@@ -139,6 +141,7 @@ export function ResizeHandle({
   handlePosition,
   containerWidth,
   containerHeight,
+  invertLockAspectRatio,
 }: ResizeHandleProps) {
   const nodeRef = useRef<SVGRectElement>(null);
   const { scale, calculateSvgCoords } = useSvgCanvasContext();
@@ -163,11 +166,13 @@ export function ResizeHandle({
           }),
           deltaX: data.deltaX,
           deltaY: data.deltaY,
-          lockAspectRatio: event.shiftKey,
+          lockAspectRatio: invertLockAspectRatio
+            ? !event.shiftKey
+            : event.shiftKey,
         });
       }
     },
-    [calculateSvgCoords, scale],
+    [calculateSvgCoords, invertLockAspectRatio, scale],
   );
 
   const handleDrag = useCallback(

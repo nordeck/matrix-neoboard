@@ -20,6 +20,7 @@ import { calculateBoundingRectForElements } from '../../../../state/crdt/documen
 import { useElementOverrides } from '../../../ElementOverridesProvider';
 import { useLayoutState } from '../../../Layout';
 import { useSvgCanvasContext } from '../../SvgCanvas';
+import { canBeResized } from '../Resizable';
 
 const NoInteraction = styled('g')({
   pointerEvents: 'none',
@@ -82,9 +83,7 @@ export function ElementBorder({ elementIds, padding = 1 }: ElementBorderProps) {
   const selectionHeight =
     height + 2 * (selectionBorderWidth / 2 + scaledPadding);
   const firstElement = first(elements);
-  const resizable =
-    firstElement?.type === 'shape' ||
-    (firstElement?.type === 'path' && firstElement?.kind === 'polyline'); //TODO: implement resize for multiple selected elements
+  const resizable = canBeResized(firstElement);
 
   return (
     <>

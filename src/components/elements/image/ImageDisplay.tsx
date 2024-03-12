@@ -119,7 +119,6 @@ function ImageDisplay({
 
   return (
     <>
-      {renderedSkeleton}
       <SelectableElement
         active={active}
         readOnly={readOnly}
@@ -127,6 +126,7 @@ function ImageDisplay({
       >
         <MoveableElement elementId={elementId}>
           <ElementContextMenu elementId={elementId}>
+            {renderedSkeleton}
             {renderedChild}
           </ElementContextMenu>
         </MoveableElement>

@@ -14,11 +14,21 @@
  * limitations under the License.
  */
 
+import {
+  mockEllipseElement,
+  mockImageElement,
+  mockLineElement,
+  mockPolylineElement,
+  mockRectangleElement,
+  mockTextElement,
+  mockTriangleElement,
+} from '../../../../lib/testUtils/documentTestUtils';
 import { Dimensions } from './types';
 import {
   calculateDimensions,
   calculateDragDimension,
   calculateDragOrigin,
+  canBeResized,
 } from './utils';
 
 describe('calculateDragDimension', () => {
@@ -365,6 +375,48 @@ describe('calculateDimensions', () => {
         width: expectedWidth,
         height: expectedHeight,
       });
+    },
+  );
+});
+
+describe('canBeResized', () => {
+  it.each([
+    {
+      element: mockRectangleElement(),
+      expectedResizable: true,
+    },
+    {
+      element: mockEllipseElement(),
+      expectedResizable: true,
+    },
+    {
+      element: mockTriangleElement(),
+      expectedResizable: true,
+    },
+    {
+      element: mockPolylineElement(),
+      expectedResizable: true,
+    },
+    {
+      element: mockImageElement(),
+      expectedResizable: true,
+    },
+    {
+      element: mockTextElement(),
+      expectedResizable: true,
+    },
+    {
+      element: mockLineElement(),
+      expectedResizable: false,
+    },
+    {
+      element: mockLineElement({ endMarker: 'arrow-head-line' }),
+      expectedResizable: false,
+    },
+  ])(
+    'should return $expectedResizable for a $element',
+    ({ element, expectedResizable }) => {
+      expect(canBeResized(element)).toEqual(expectedResizable);
     },
   );
 });

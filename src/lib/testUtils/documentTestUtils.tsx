@@ -230,6 +230,36 @@ export function mockEllipseElement(shape: Partial<ShapeElement> = {}): Element {
   };
 }
 
+export function mockRectangleElement(
+  shape: Partial<ShapeElement> = {},
+): Element {
+  return {
+    type: 'shape',
+    kind: 'rectangle',
+    position: { x: 0, y: 1 },
+    fillColor: '#ffffff',
+    height: 100,
+    width: 50,
+    text: '',
+    ...shape,
+  };
+}
+
+export function mockTriangleElement(
+  shape: Partial<ShapeElement> = {},
+): Element {
+  return {
+    type: 'shape',
+    kind: 'triangle',
+    position: { x: 0, y: 1 },
+    fillColor: '#ffffff',
+    height: 100,
+    width: 50,
+    text: '',
+    ...shape,
+  };
+}
+
 export function mockLineElement(path: Partial<PathElement> = {}): PathElement {
   return {
     type: 'path',
