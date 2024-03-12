@@ -24,29 +24,27 @@ The central collaboration model is a whiteboard.
 │            │
 └─────┬──────┘
       │
-      │
       │ slides[]
-      │
       ▼
 ┌────────────┐
 │            │
-│ Slide      │
-│            │
-└─────┬──────┘
-      │
-      │                   ┌──────────────┐
-      │ elements[]        │              │
-      │             ┌─────┤ ShapeElement │
-      ▼             │     │              │
-┌────────────┐      │     └──────────────┘
-│            ├──────┘
-│ Element    │
-│            ├──────┐
-└────────────┘      │     ┌──────────────┐
-                    │     │              │
-                    └─────┤ PathElement  │
-                          │              │
-                          └──────────────┘
+│   Slide    │          ┌──────────────┐
+│            │          │              │
+└─────┬──────┘       ┌──┤ ShapeElement │
+      │              │  │              │
+      │ elements[]   │  └──────────────┘
+      ▼              │
+┌────────────┐       │  ┌──────────────┐
+│            │       │  │              │
+│  Element   ├───────┼──┤ ImageElement │
+│            │       │  │              │
+└────────────┘       │  └──────────────┘
+                     │
+                     │  ┌──────────────┐
+                     │  │              │
+                     └──┤ PathElement  │
+                        │              │
+                        └──────────────┘
 ```
 
 ### `Whiteboard`
@@ -174,6 +172,34 @@ An element that consists of points.
   ],
   "strokeColor": "#ff0000",
   "endMarker": "arrow-head-line"
+}
+```
+
+### `ImageElement`
+
+An image element
+
+#### Fields
+
+| Field      | Type       | Description                                                                                               |
+| ---------- | ---------- | --------------------------------------------------------------------------------------------------------- |
+| `type`     | `'image'`  | Identifies the element as an image.                                                                       |
+| `mxc`      | `'string'` | [MXC URI](https://spec.matrix.org/v1.9/client-server-api/#matrix-content-mxc-uris) pointing to the image. |
+| `fileName` | `string`   | Image file name.                                                                                          |
+| `position` | `Point`    | The position of the image on the whiteboard canvas.                                                       |
+| `width`    | `number`   | Scaling of the image on the x-axis.                                                                       |
+| `height`   | `number`   | Scaling of the image on the y-axis.                                                                       |
+
+#### Example
+
+```json
+{
+  "type": "image",
+  "mxc": "mxc://example.com/test1234",
+  "fileName": "example.jpg",
+  "position": { "x": 50, "y": 100 },
+  "width": 100,
+  "height": 200
 }
 ```
 

@@ -27,7 +27,7 @@ import { useSvgCanvasContext } from '../../SvgCanvas';
 import { gridCellSize } from '../../constants';
 import { DragEvent, ResizeHandle } from './ResizeHandle';
 import { Dimensions, ResizeHandlePosition } from './types';
-import { calculateDimensions } from './utils';
+import { calculateDimensions, canBeResized } from './utils';
 
 export type ResizeHandleWrapperProps = {
   handlePosition: ResizeHandlePosition;
@@ -35,6 +35,8 @@ export type ResizeHandleWrapperProps = {
   containerWidth: number;
   containerHeight: number;
   forceLockAspectRatio?: boolean;
+  /** If true the behaviour of locking the aspect ratio is inverted. */
+  invertLockAspectRatio?: boolean;
   onDrag: Dispatch<Dimensions>;
   onDragStart: Dispatch<DragEvent>;
   onDragStop: Dispatch<DragEvent>;
@@ -46,6 +48,7 @@ export function ResizeHandleWrapper({
   containerWidth,
   containerHeight,
   forceLockAspectRatio,
+  invertLockAspectRatio,
   onDrag,
   onDragStart,
   onDragStop,
@@ -88,6 +91,7 @@ export function ResizeHandleWrapper({
       onDrag={handleDrag}
       onDragStart={onDragStart}
       onDragStop={onDragStop}
+      invertLockAspectRatio={invertLockAspectRatio}
     />
   );
 }
@@ -101,6 +105,7 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
   const slideInstance = useWhiteboardSlideInstance();
 
   const element = useElementOverride(elementId);
+  const resizeable = canBeResized(element);
 
   const [startDimensions, setStartDimensions] = useState<
     Dimensions | undefined
@@ -116,14 +121,14 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
   const handleDragStart = useCallback(() => {
     const element = slideInstance.getElement(elementId);
 
-    if (element?.type === 'shape') {
+    if (element?.type === 'shape' || element?.type === 'image') {
       setStartDimensions({
         x: element.position.x,
         y: element.position.y,
         height: element.height,
         width: element.width,
       });
-    } else if (element?.kind === 'polyline') {
+    } else if (element?.type === 'path' && element?.kind === 'polyline') {
       const boundingRect = calculateBoundingRectForElements([element]);
       setStartingPoints(element.points);
       setStartDimensions({
@@ -136,15 +141,12 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
   }, [slideInstance, elementId]);
 
   const handleDragStop = useCallback(() => {
-    if (
-      (element?.type !== 'shape' && element?.kind !== 'polyline') ||
-      !startDimensions
-    ) {
+    if (!resizeable || !startDimensions) {
       return;
     }
 
     if (
-      element.type === 'shape' &&
+      (element.type === 'shape' || element.type === 'image') &&
       (startDimensions.x !== element.position.x ||
         startDimensions.y !== element.position.y ||
         startDimensions.width !== element.width ||
@@ -155,7 +157,7 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
         width: element.width,
         height: element.height,
       });
-    } else if (element.kind === 'polyline') {
+    } else if (element.type === 'path' && element.kind === 'polyline') {
       slideInstance.updateElement(elementId, {
         position: { x: element.position.x, y: element.position.y },
         points: element.points,
@@ -172,6 +174,7 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
     slideInstance,
     elementId,
     setElementOverride,
+    resizeable,
   ]);
 
   const handleDrag = useCallback(
@@ -180,7 +183,7 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
         return;
       }
 
-      if (element?.type === 'shape') {
+      if (element?.type === 'shape' || element?.type === 'image') {
         setElementOverride([
           {
             elementId,
@@ -191,7 +194,11 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
             },
           },
         ]);
-      } else if (element?.kind === 'polyline' && startingPoints) {
+      } else if (
+        element?.type === 'path' &&
+        element?.kind === 'polyline' &&
+        startingPoints
+      ) {
         const newPoints = startingPoints.map((point) => {
           return {
             x: (point.x / startDimensions.width) * dimensions.width,
@@ -216,7 +223,7 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
     [element, elementId, setElementOverride, startDimensions, startingPoints],
   );
 
-  if (element?.type !== 'shape' && element?.kind !== 'polyline') {
+  if (!resizeable) {
     return null;
   }
 
@@ -226,6 +233,7 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
   const offsetY = boundingRect.offsetY;
   const height = boundingRect.height;
   const width = boundingRect.width;
+  const invertLockAspectRatio = element.type === 'image';
 
   return (
     <g
@@ -240,6 +248,7 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
         onDragStart={handleDragStart}
         onDragStop={handleDragStop}
         startDimensions={startDimensions}
+        invertLockAspectRatio={invertLockAspectRatio}
       />
 
       <ResizeHandleWrapper
@@ -250,6 +259,7 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
         onDragStart={handleDragStart}
         onDragStop={handleDragStop}
         startDimensions={startDimensions}
+        invertLockAspectRatio={invertLockAspectRatio}
       />
 
       <ResizeHandleWrapper
@@ -260,6 +270,7 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
         onDragStart={handleDragStart}
         onDragStop={handleDragStop}
         startDimensions={startDimensions}
+        invertLockAspectRatio={invertLockAspectRatio}
       />
 
       <ResizeHandleWrapper
@@ -270,6 +281,7 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
         onDragStart={handleDragStart}
         onDragStop={handleDragStop}
         startDimensions={startDimensions}
+        invertLockAspectRatio={invertLockAspectRatio}
       />
 
       <ResizeHandleWrapper
@@ -280,6 +292,7 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
         onDragStart={handleDragStart}
         onDragStop={handleDragStop}
         startDimensions={startDimensions}
+        invertLockAspectRatio={invertLockAspectRatio}
       />
 
       <ResizeHandleWrapper
@@ -290,6 +303,7 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
         onDragStart={handleDragStart}
         onDragStop={handleDragStop}
         startDimensions={startDimensions}
+        invertLockAspectRatio={invertLockAspectRatio}
       />
 
       <ResizeHandleWrapper
@@ -300,6 +314,7 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
         onDragStart={handleDragStart}
         onDragStop={handleDragStop}
         startDimensions={startDimensions}
+        invertLockAspectRatio={invertLockAspectRatio}
       />
 
       <ResizeHandleWrapper
@@ -310,6 +325,7 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
         onDragStart={handleDragStart}
         onDragStop={handleDragStop}
         startDimensions={startDimensions}
+        invertLockAspectRatio={invertLockAspectRatio}
       />
     </g>
   );

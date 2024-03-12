@@ -20,6 +20,7 @@ import { ComponentType, PropsWithChildren } from 'react';
 import { App } from './App';
 import { GuidedTourProvider } from './components/GuidedTour';
 import { LayoutStateProvider } from './components/Layout';
+import { SnackbarProvider } from './components/Snackbar';
 import { WhiteboardHotkeysProvider } from './components/WhiteboardHotkeysProvider';
 import {
   WhiteboardTestingContextProvider,
@@ -48,7 +49,9 @@ describe('App', () => {
           widgetApi={widgetApi}
         >
           <LayoutStateProvider>
-            <GuidedTourProvider>{children}</GuidedTourProvider>
+            <GuidedTourProvider>
+              <SnackbarProvider>{children}</SnackbarProvider>
+            </GuidedTourProvider>
           </LayoutStateProvider>
         </WhiteboardTestingContextProvider>
       </WhiteboardHotkeysProvider>

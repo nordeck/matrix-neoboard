@@ -373,13 +373,17 @@ describe('<ColorPicker/>', () => {
  */
 function selectElementColors(
   activeSlide: WhiteboardSlideInstance,
-): Record<string, string> {
-  const elementColors: Record<string, string> = {};
+): Record<string, string | undefined> {
+  const elementColors: Record<string, string | undefined> = {};
   for (const elementId of activeSlide.getElementIds()) {
     const element = activeSlide.getElement(elementId);
     if (element) {
       elementColors[elementId] =
-        element.type === 'shape' ? element.fillColor : element.strokeColor;
+        element.type === 'shape'
+          ? element.fillColor
+          : element.type === 'path'
+            ? element.strokeColor
+            : undefined;
     }
   }
   return elementColors;

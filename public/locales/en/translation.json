@@ -176,6 +176,16 @@
     "space_default": "Space",
     "space_macos": "␣"
   },
+  "imageUpload": {
+    "fileIsUploaded_one": "The file is uploaded.",
+    "fileIsUploaded_other": "The files are uploaded.",
+    "otherError_one": "The file {{fileNames}} cannot be uploaded.",
+    "otherError_other": "The files {{fileNames}} could not be uploaded.",
+    "resolutionError_one": "The file {{fileNames}} cannot be uploaded due to its resolution. The upload is possible for a maximum of {{limit}} per file.",
+    "resolutionError_other": "The files {{fileNames}} cannot be uploaded due to their resolution. The upload is possible for a maximum of {{limit}} per file.",
+    "sizeError_one": "The file {{fileNames}} cannot be uploaded due to its size. The upload is possible for a maximum of {{limit}} per file.",
+    "sizeError_other": "The files {{fileNames}} cannot be uploaded due to their size. The upload is possible for a maximum of {{limit}} per file."
+  },
   "presentBar": {
     "disableEditing": "Disable editing",
     "enableEditing": "Enable editing",
@@ -211,6 +221,9 @@
     "slideTitleLocked": "(locked)",
     "title": "Slide Overview"
   },
+  "snackbar": {
+    "dismissAction": "Dismiss"
+  },
   "toolbar": {
     "toolbarAvatar": {
       "label_you": "{{displayName}} (You)",
@@ -228,7 +241,8 @@
     "selectTool": "Select",
     "textTool": "Text",
     "title": "Tools",
-    "triangleTool": "Triangle"
+    "triangleTool": "Triangle",
+    "uploadTool": "Upload image"
   },
   "undoRedoBar": {
     "redo": "Redo",

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Nordeck IT + Consulting GmbH
+ * Copyright 2024 Nordeck IT + Consulting GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,20 @@
  * limitations under the License.
  */
 
-export { defer } from './defer';
-export { determineImageSize } from './determineImageSize';
-export { isDefined } from './isDefined';
-export { FontsLoadedContextProvider, useFontsLoaded } from './useFontsLoaded';
-export { useLatestValue } from './useLatestValue';
-export { getUserColor } from './userColor';
+type IDeferred<R, E> = {
+  resolve: (value: R | Promise<R>) => void;
+  reject: (reason?: E) => void;
+  promise: Promise<R>;
+};
+
+export function defer<R = void, E = void>(): IDeferred<R, E> {
+  let resolve!: IDeferred<R, E>['resolve'];
+  let reject!: IDeferred<R, E>['reject'];
+
+  const promise = new Promise<R>((_resolve, _reject) => {
+    resolve = _resolve;
+    reject = _reject;
+  });
+
+  return { resolve, reject, promise };
+}

@@ -20,6 +20,7 @@ import { mocked } from 'jest-mock';
 import { ComponentType, PropsWithChildren } from 'react';
 import {
   WhiteboardTestingContextProvider,
+  mockImageElement,
   mockPolylineElement,
   mockWhiteboardManager,
 } from '../../../../lib/testUtils/documentTestUtils';
@@ -77,6 +78,7 @@ describe('<ResizeElement />', () => {
                 position: { x: 0, y: 0 },
               }),
             ],
+            ['element-1', mockImageElement()],
           ],
         ],
       ],
@@ -155,6 +157,51 @@ describe('<ResizeElement />', () => {
       },
       strokeColor: '#ffffff',
       type: 'path',
+    });
+  });
+
+  it('should resize image elements and maintain the aspect ratio', () => {
+    render(<ResizeElement elementId="element-1" />, {
+      wrapper: Wrapper,
+    });
+
+    // drag resize from 210,120 to 300,200
+    const resizeHandleBottomRight = screen.getByTestId(
+      'resize-handle-se-resize',
+    );
+    mocked(calculateDimensions).mockImplementation((_, event) => {
+      expect(event.lockAspectRatio).toBe(true);
+      return {
+        x: 10,
+        y: 20,
+        width: 200,
+        height: 100,
+      };
+    });
+    fireEvent.mouseDown(resizeHandleBottomRight);
+    mocked(calculateDimensions).mockImplementation((_, event) => {
+      expect(event.lockAspectRatio).toBe(true);
+      return {
+        x: 10,
+        y: 20,
+        width: 290,
+        height: 180,
+      };
+    });
+    fireEvent.mouseMove(resizeHandleBottomRight);
+    fireEvent.mouseUp(resizeHandleBottomRight);
+
+    const element = activeSlide.getElement('element-1');
+    expect(element).toEqual({
+      type: 'image',
+      fileName: 'test.jpg',
+      mxc: 'mxc://example.com/test1234',
+      position: {
+        x: 10,
+        y: 20,
+      },
+      width: 290,
+      height: 180,
     });
   });
 });

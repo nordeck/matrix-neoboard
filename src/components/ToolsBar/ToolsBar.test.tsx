@@ -14,18 +14,27 @@
  * limitations under the License.
  */
 
+import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { axe } from 'jest-axe';
+import { mocked } from 'jest-mock';
 import { ComponentType, PropsWithChildren } from 'react';
 import {
   WhiteboardTestingContextProvider,
   mockWhiteboardManager,
 } from '../../lib/testUtils/documentTestUtils';
 import { WhiteboardManager } from '../../state';
+import { ImageUploadProvider } from '../ImageUpload';
 import { LayoutStateProvider } from '../Layout';
+import { SnackbarProvider } from '../Snackbar';
 import { ToolsBar } from './ToolsBar';
+
+jest.mock('@matrix-widget-toolkit/mui', () => ({
+  ...jest.requireActual('@matrix-widget-toolkit/mui'),
+  getEnvironment: jest.fn(),
+}));
 
 let widgetApi: MockedWidgetApi;
 
@@ -42,12 +51,14 @@ describe('<ToolsBar/>', () => {
 
     Wrapper = ({ children }) => (
       <LayoutStateProvider>
-        <WhiteboardTestingContextProvider
-          whiteboardManager={whiteboardManager}
-          widgetApi={widgetApi}
-        >
-          {children}
-        </WhiteboardTestingContextProvider>
+        <SnackbarProvider>
+          <WhiteboardTestingContextProvider
+            whiteboardManager={whiteboardManager}
+            widgetApi={widgetApi}
+          >
+            <ImageUploadProvider>{children}</ImageUploadProvider>
+          </WhiteboardTestingContextProvider>
+        </SnackbarProvider>
       </LayoutStateProvider>
     );
   });
@@ -84,6 +95,22 @@ describe('<ToolsBar/>', () => {
     expect(
       within(radiogroup).getByRole('radio', { name: 'Arrow' }),
     ).not.toBeChecked();
+
+    expect(
+      screen.queryByRole('presentation', { name: 'Upload image' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('should render the upload image too if REACT_APP_IMAGES = true', () => {
+    mocked(getEnvironment).mockImplementation((name) => {
+      return name === 'REACT_APP_IMAGES' ? 'true' : 'false';
+    });
+
+    render(<ToolsBar />, { wrapper: Wrapper });
+
+    expect(
+      screen.getByRole('presentation', { name: 'Upload image' }),
+    ).toBeInTheDocument();
   });
 
   it('should provide anchor for the guided tour', () => {

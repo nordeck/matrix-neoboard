@@ -31,6 +31,7 @@ import { ElementOverridesProvider } from '../ElementOverridesProvider';
 import { FullscreenModeBar } from '../FullscreenModeBar';
 import { GuidedTour } from '../GuidedTour';
 import { HelpCenterBar } from '../HelpCenterBar';
+import { ImageUploadProvider } from '../ImageUpload';
 import { PresentBar } from '../PresentBar';
 import { Shortcuts } from '../Shortcuts';
 import { SlideOverviewBar } from '../SlideOverviewBar';
@@ -121,7 +122,7 @@ function ContentArea() {
   const { canStopPresentation } = usePowerLevels();
 
   return (
-    <>
+    <ImageUploadProvider>
       <Shortcuts />
 
       <ToolbarContainer
@@ -157,6 +158,6 @@ function ContentArea() {
           </Box>
         </ToolbarContainer>
       )}
-    </>
+    </ImageUploadProvider>
   );
 }

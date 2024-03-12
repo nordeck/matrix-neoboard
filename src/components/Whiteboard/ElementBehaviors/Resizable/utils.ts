@@ -15,6 +15,7 @@
  */
 
 import { clamp } from 'lodash';
+import { Element } from '../../../../state';
 import { snapToGrid } from '../../Grid';
 import { DragEvent } from './ResizeHandle';
 import { Dimensions, ResizeHandlePosition } from './types';
@@ -210,4 +211,16 @@ export function calculateDimensions(
   }
 
   return dimensions;
+}
+
+export function canBeResized(element?: Element): element is Element {
+  if (element === undefined) {
+    return false;
+  }
+
+  if (element.type === 'path' && element.kind === 'line') {
+    return false;
+  }
+
+  return true;
 }

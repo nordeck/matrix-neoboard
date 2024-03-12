@@ -22,6 +22,7 @@ import { Provider } from 'react-redux';
 import { NEVER, Subject, of } from 'rxjs';
 import {
   Element,
+  ImageElement,
   PathElement,
   ShapeElement,
   Slide,
@@ -229,6 +230,36 @@ export function mockEllipseElement(shape: Partial<ShapeElement> = {}): Element {
   };
 }
 
+export function mockRectangleElement(
+  shape: Partial<ShapeElement> = {},
+): Element {
+  return {
+    type: 'shape',
+    kind: 'rectangle',
+    position: { x: 0, y: 1 },
+    fillColor: '#ffffff',
+    height: 100,
+    width: 50,
+    text: '',
+    ...shape,
+  };
+}
+
+export function mockTriangleElement(
+  shape: Partial<ShapeElement> = {},
+): Element {
+  return {
+    type: 'shape',
+    kind: 'triangle',
+    position: { x: 0, y: 1 },
+    fillColor: '#ffffff',
+    height: 100,
+    width: 50,
+    text: '',
+    ...shape,
+  };
+}
+
 export function mockLineElement(path: Partial<PathElement> = {}): PathElement {
   return {
     type: 'path',
@@ -255,6 +286,20 @@ export function mockPolylineElement(path: Partial<PathElement> = {}): Element {
       { x: 4, y: 5 },
     ],
     ...path,
+  };
+}
+
+export function mockImageElement(
+  image: Partial<ImageElement> = {},
+): ImageElement {
+  return {
+    type: 'image',
+    mxc: 'mxc://example.com/test1234',
+    fileName: 'test.jpg',
+    position: { x: 10, y: 20 },
+    width: 200,
+    height: 100,
+    ...image,
   };
 }
 

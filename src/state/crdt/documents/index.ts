@@ -14,14 +14,21 @@
  * limitations under the License.
  */
 
-export { calculateBoundingRectForElements, isValidElement } from './elements';
+export {
+  calculateBoundingRectForElements,
+  calculateCentredPosition,
+  calculateFittedElementSize,
+  isValidElement,
+} from './elements';
 export type {
   Element,
   ElementBase,
+  ImageElement,
   PathElement,
   PathKind,
   ShapeElement,
   ShapeKind,
+  Size,
   TextAlignment,
 } from './elements';
 export {

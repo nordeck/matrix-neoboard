@@ -15,3 +15,4 @@
  */
 
 export { ResizeElement } from './ResizeElement';
+export { canBeResized } from './utils';
