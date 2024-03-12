@@ -60,7 +60,7 @@ export type DimensionsHorizontal = {
   width: number;
 };
 
-export type DimensionsBase = DimensionsVertical & DimensionsHorizontal;
+type DimensionsBase = DimensionsVertical & DimensionsHorizontal;
 
 export type PathElementDimensions = DimensionsBase & {
   elementKind: PathKind;

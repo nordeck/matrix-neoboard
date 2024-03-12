@@ -55,7 +55,7 @@ export function calculateResizeHandlePosition(
         };
     }
   } else {
-    const { handlePosition, containerWidth, containerHeight } = resizeParams;
+    const { containerWidth, containerHeight } = resizeParams;
 
     switch (handlePosition) {
       case 'top':
