@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { PathKind, Point, ShapeKind } from '../../../../state';
+import { ElementKind, PathKind, Point, ShapeKind } from '../../../../state';
 
 export type LineElementResizeHandlePosition = 'start' | 'end';
 
@@ -31,6 +31,20 @@ export type PolylineAndShapeElementsResizeHandlePosition =
 export type ResizeHandlePosition =
   | LineElementResizeHandlePosition
   | PolylineAndShapeElementsResizeHandlePosition;
+
+export type LineElementProps = {
+  elementKind: 'line';
+  handlePosition: LineElementResizeHandlePosition;
+  handlePositionX: number;
+  handlePositionY: number;
+};
+
+export type PolylineAndShapeElementsProps = {
+  elementKind: Exclude<ElementKind, 'line'>;
+  handlePosition: PolylineAndShapeElementsResizeHandlePosition;
+  containerWidth: number;
+  containerHeight: number;
+};
 
 export type DimensionsVertical = {
   y: number;

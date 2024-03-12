@@ -17,7 +17,6 @@
 import { Dispatch, useCallback, useState } from 'react';
 import { useUnmount } from 'react-use';
 import {
-  ElementKind,
   calculateBoundingRectForElements,
   useWhiteboardSlideInstance,
 } from '../../../../state';
@@ -30,35 +29,28 @@ import { getRenderProperties } from '../../../elements/line/getRenderProperties'
 import { useSvgCanvasContext } from '../../SvgCanvas';
 import { gridCellSize } from '../../constants';
 import { DragEvent, ResizeHandle } from './ResizeHandle';
-import { Dimensions, ResizeHandlePosition } from './types';
+import {
+  Dimensions,
+  LineElementProps,
+  PolylineAndShapeElementsProps,
+} from './types';
 import { calculateDimensions } from './utils';
 
 export type ResizeHandleWrapperProps = {
-  handlePosition: ResizeHandlePosition;
-  handlePositionX?: number;
-  handlePositionY?: number;
   startDimensions: Dimensions | undefined;
-  containerWidth?: number;
-  containerHeight?: number;
   forceLockAspectRatio?: boolean;
   onDrag: Dispatch<Dimensions>;
   onDragStart: Dispatch<DragEvent>;
   onDragStop: Dispatch<DragEvent>;
-  elementKind: ElementKind;
-};
+} & (LineElementProps | PolylineAndShapeElementsProps);
 
 export function ResizeHandleWrapper({
-  handlePosition,
-  handlePositionX,
-  handlePositionY,
   startDimensions,
-  containerWidth,
-  containerHeight,
   forceLockAspectRatio,
   onDrag,
   onDragStart,
   onDragStop,
-  elementKind,
+  ...rest
 }: ResizeHandleWrapperProps) {
   const { isShowGrid } = useLayoutState();
   const { viewportWidth, viewportHeight } = useSvgCanvasContext();
@@ -68,7 +60,7 @@ export function ResizeHandleWrapper({
       if (startDimensions) {
         onDrag(
           calculateDimensions(
-            handlePosition,
+            rest.handlePosition,
             event,
             startDimensions,
             viewportWidth,
@@ -80,9 +72,9 @@ export function ResizeHandleWrapper({
       }
     },
     [
-      onDrag,
-      handlePosition,
       startDimensions,
+      onDrag,
+      rest.handlePosition,
       viewportWidth,
       viewportHeight,
       forceLockAspectRatio,
@@ -90,17 +82,25 @@ export function ResizeHandleWrapper({
     ],
   );
 
-  return (
+  return rest.elementKind === 'line' ? (
     <ResizeHandle
-      containerHeight={containerHeight}
-      containerWidth={containerWidth}
-      handlePosition={handlePosition}
-      handlePositionX={handlePositionX}
-      handlePositionY={handlePositionY}
       onDrag={handleDrag}
       onDragStart={onDragStart}
       onDragStop={onDragStop}
-      elementKind={elementKind}
+      elementKind={rest.elementKind}
+      handlePosition={rest.handlePosition}
+      handlePositionX={rest.handlePositionX}
+      handlePositionY={rest.handlePositionY}
+    />
+  ) : (
+    <ResizeHandle
+      onDrag={handleDrag}
+      onDragStart={onDragStart}
+      onDragStop={onDragStop}
+      elementKind={rest.elementKind}
+      handlePosition={rest.handlePosition}
+      containerWidth={rest.containerWidth}
+      containerHeight={rest.containerHeight}
     />
   );
 }
