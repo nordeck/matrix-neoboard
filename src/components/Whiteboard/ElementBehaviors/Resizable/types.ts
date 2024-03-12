@@ -32,19 +32,23 @@ export type ResizeHandlePosition =
   | LineElementResizeHandlePosition
   | PolylineAndShapeElementsResizeHandlePosition;
 
-export type LineElementProps = {
+export type LineElementResizeParams = {
   elementKind: 'line';
   handlePosition: LineElementResizeHandlePosition;
   handlePositionX: number;
   handlePositionY: number;
 };
 
-export type PolylineAndShapeElementsProps = {
+export type PolylineAndShapeElementsResizeParams = {
   elementKind: Exclude<ElementKind, 'line'>;
   handlePosition: PolylineAndShapeElementsResizeHandlePosition;
   containerWidth: number;
   containerHeight: number;
 };
+
+export type ResizeParams =
+  | LineElementResizeParams
+  | PolylineAndShapeElementsResizeParams;
 
 export type DimensionsVertical = {
   y: number;

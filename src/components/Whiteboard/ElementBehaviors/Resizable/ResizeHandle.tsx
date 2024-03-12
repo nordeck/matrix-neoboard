@@ -17,13 +17,11 @@
 import { Dispatch, RefObject, useCallback, useRef } from 'react';
 import { DraggableCore, DraggableData, DraggableEvent } from 'react-draggable';
 import { useSvgCanvasContext } from '../../SvgCanvas';
-import { LineElementProps, PolylineAndShapeElementsProps } from './types';
+import { ResizeParams } from './types';
 
 export function calculateResizeHandlePosition(
-  params: { scale: number } & (
-    | LineElementProps
-    | PolylineAndShapeElementsProps
-  ),
+  scale: number,
+  resizeParams: ResizeParams,
 ): {
   x: number;
   y: number;
@@ -31,12 +29,12 @@ export function calculateResizeHandlePosition(
   height: number;
   cursor: string;
 } {
-  const { elementKind, handlePosition, scale } = params;
   const handleWidth = 10 / scale;
   const selectionBorderPadding = 2 / scale;
+  const { elementKind, handlePosition } = resizeParams;
 
   if (elementKind === 'line') {
-    const { handlePositionX = 0, handlePositionY = 0 } = params;
+    const { handlePositionX, handlePositionY } = resizeParams;
 
     switch (handlePosition) {
       case 'start':
@@ -57,7 +55,7 @@ export function calculateResizeHandlePosition(
         };
     }
   } else {
-    const { handlePosition, containerWidth = 0, containerHeight = 0 } = params;
+    const { handlePosition, containerWidth, containerHeight } = resizeParams;
 
     switch (handlePosition) {
       case 'top':
@@ -153,44 +151,23 @@ export type ResizeHandleProps = {
   onDrag?: Dispatch<DragEvent>;
   onDragStart?: Dispatch<DragEvent>;
   onDragStop?: Dispatch<DragEvent>;
-} & (LineElementProps | PolylineAndShapeElementsProps);
+  resizeParams: ResizeParams;
+};
 
 export function ResizeHandle({
   onDrag,
   onDragStart,
   onDragStop,
-  ...rest
+  resizeParams,
 }: ResizeHandleProps) {
   const nodeRef = useRef<SVGRectElement>(null);
   const { scale, calculateSvgCoords } = useSvgCanvasContext();
+  const { handlePosition } = resizeParams;
 
-  let rectAttributesValues;
-
-  if (rest.elementKind === 'line') {
-    const { elementKind, handlePosition, handlePositionX, handlePositionY } =
-      rest;
-
-    rectAttributesValues = calculateResizeHandlePosition({
-      scale,
-      elementKind,
-      handlePosition,
-      handlePositionX,
-      handlePositionY,
-    });
-  } else {
-    const { elementKind, handlePosition, containerWidth, containerHeight } =
-      rest;
-
-    rectAttributesValues = calculateResizeHandlePosition({
-      scale,
-      elementKind,
-      handlePosition,
-      containerWidth,
-      containerHeight,
-    });
-  }
-
-  const { x, y, width, height, cursor } = rectAttributesValues;
+  const { x, y, width, height, cursor } = calculateResizeHandlePosition(
+    scale,
+    resizeParams,
+  );
 
   const dispatchDragEvent = useCallback(
     (
@@ -252,7 +229,7 @@ export function ResizeHandle({
       scale={scale}
     >
       <rect
-        data-testid={`resize-handle-${rest.handlePosition}`}
+        data-testid={`resize-handle-${handlePosition}`}
         cursor={cursor}
         fill="transparent"
         height={height}

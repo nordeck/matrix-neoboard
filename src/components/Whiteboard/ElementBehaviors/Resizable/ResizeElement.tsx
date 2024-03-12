@@ -29,11 +29,7 @@ import { getRenderProperties } from '../../../elements/line/getRenderProperties'
 import { useSvgCanvasContext } from '../../SvgCanvas';
 import { gridCellSize } from '../../constants';
 import { DragEvent, ResizeHandle } from './ResizeHandle';
-import {
-  Dimensions,
-  LineElementProps,
-  PolylineAndShapeElementsProps,
-} from './types';
+import { Dimensions, ResizeParams } from './types';
 import { calculateDimensions } from './utils';
 
 export type ResizeHandleWrapperProps = {
@@ -42,7 +38,8 @@ export type ResizeHandleWrapperProps = {
   onDrag: Dispatch<Dimensions>;
   onDragStart: Dispatch<DragEvent>;
   onDragStop: Dispatch<DragEvent>;
-} & (LineElementProps | PolylineAndShapeElementsProps);
+  resizeParams: ResizeParams;
+};
 
 export function ResizeHandleWrapper({
   startDimensions,
@@ -50,17 +47,18 @@ export function ResizeHandleWrapper({
   onDrag,
   onDragStart,
   onDragStop,
-  ...rest
+  resizeParams,
 }: ResizeHandleWrapperProps) {
   const { isShowGrid } = useLayoutState();
   const { viewportWidth, viewportHeight } = useSvgCanvasContext();
+  const { handlePosition } = resizeParams;
 
   const handleDrag = useCallback(
     (event: DragEvent) => {
       if (startDimensions) {
         onDrag(
           calculateDimensions(
-            rest.handlePosition,
+            handlePosition,
             event,
             startDimensions,
             viewportWidth,
@@ -74,7 +72,7 @@ export function ResizeHandleWrapper({
     [
       startDimensions,
       onDrag,
-      rest.handlePosition,
+      handlePosition,
       viewportWidth,
       viewportHeight,
       forceLockAspectRatio,
@@ -82,25 +80,12 @@ export function ResizeHandleWrapper({
     ],
   );
 
-  return rest.elementKind === 'line' ? (
+  return (
     <ResizeHandle
       onDrag={handleDrag}
       onDragStart={onDragStart}
       onDragStop={onDragStop}
-      elementKind={rest.elementKind}
-      handlePosition={rest.handlePosition}
-      handlePositionX={rest.handlePositionX}
-      handlePositionY={rest.handlePositionY}
-    />
-  ) : (
-    <ResizeHandle
-      onDrag={handleDrag}
-      onDragStart={onDragStart}
-      onDragStop={onDragStop}
-      elementKind={rest.elementKind}
-      handlePosition={rest.handlePosition}
-      containerWidth={rest.containerWidth}
-      containerHeight={rest.containerHeight}
+      resizeParams={resizeParams}
     />
   );
 }
@@ -223,24 +208,28 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
     return (
       <>
         <ResizeHandleWrapper
-          handlePosition="start"
-          handlePositionX={renderProperties.points.start.x}
-          handlePositionY={renderProperties.points.start.y}
           onDrag={handleDrag}
           onDragStart={handleDragStart}
           onDragStop={handleDragStop}
           startDimensions={startDimensions}
-          elementKind={element.kind}
+          resizeParams={{
+            elementKind: element.kind,
+            handlePosition: 'start',
+            handlePositionX: renderProperties.points.start.x,
+            handlePositionY: renderProperties.points.start.y,
+          }}
         />
         <ResizeHandleWrapper
-          handlePosition="end"
-          handlePositionX={renderProperties.points.end.x}
-          handlePositionY={renderProperties.points.end.y}
           onDrag={handleDrag}
           onDragStart={handleDragStart}
           onDragStop={handleDragStop}
           startDimensions={startDimensions}
-          elementKind={element.kind}
+          resizeParams={{
+            elementKind: element.kind,
+            handlePosition: 'end',
+            handlePositionX: renderProperties.points.end.x,
+            handlePositionY: renderProperties.points.end.y,
+          }}
         />
       </>
     );
@@ -259,91 +248,107 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
       transform={`translate(${offsetX} ${offsetY})`}
     >
       <ResizeHandleWrapper
-        containerHeight={height}
-        containerWidth={width}
-        handlePosition="top"
         onDrag={handleDrag}
         onDragStart={handleDragStart}
         onDragStop={handleDragStop}
         startDimensions={startDimensions}
-        elementKind={element.kind}
+        resizeParams={{
+          elementKind: element.kind,
+          handlePosition: 'top',
+          containerHeight: height,
+          containerWidth: width,
+        }}
       />
 
       <ResizeHandleWrapper
-        containerHeight={height}
-        containerWidth={width}
-        handlePosition="topRight"
         onDrag={handleDrag}
         onDragStart={handleDragStart}
         onDragStop={handleDragStop}
         startDimensions={startDimensions}
-        elementKind={element.kind}
+        resizeParams={{
+          elementKind: element.kind,
+          handlePosition: 'topRight',
+          containerHeight: height,
+          containerWidth: width,
+        }}
       />
 
       <ResizeHandleWrapper
-        containerHeight={height}
-        containerWidth={width}
-        handlePosition="right"
         onDrag={handleDrag}
         onDragStart={handleDragStart}
         onDragStop={handleDragStop}
         startDimensions={startDimensions}
-        elementKind={element.kind}
+        resizeParams={{
+          elementKind: element.kind,
+          handlePosition: 'right',
+          containerHeight: height,
+          containerWidth: width,
+        }}
       />
 
       <ResizeHandleWrapper
-        containerHeight={height}
-        containerWidth={width}
-        handlePosition="bottomRight"
         onDrag={handleDrag}
         onDragStart={handleDragStart}
         onDragStop={handleDragStop}
         startDimensions={startDimensions}
-        elementKind={element.kind}
+        resizeParams={{
+          elementKind: element.kind,
+          handlePosition: 'bottomRight',
+          containerHeight: height,
+          containerWidth: width,
+        }}
       />
 
       <ResizeHandleWrapper
-        containerHeight={height}
-        containerWidth={width}
-        handlePosition="bottom"
         onDrag={handleDrag}
         onDragStart={handleDragStart}
         onDragStop={handleDragStop}
         startDimensions={startDimensions}
-        elementKind={element.kind}
+        resizeParams={{
+          elementKind: element.kind,
+          handlePosition: 'bottom',
+          containerHeight: height,
+          containerWidth: width,
+        }}
       />
 
       <ResizeHandleWrapper
-        containerHeight={height}
-        containerWidth={width}
-        handlePosition="bottomLeft"
         onDrag={handleDrag}
         onDragStart={handleDragStart}
         onDragStop={handleDragStop}
         startDimensions={startDimensions}
-        elementKind={element.kind}
+        resizeParams={{
+          elementKind: element.kind,
+          handlePosition: 'bottomLeft',
+          containerHeight: height,
+          containerWidth: width,
+        }}
       />
 
       <ResizeHandleWrapper
-        containerHeight={height}
-        containerWidth={width}
-        handlePosition="left"
         onDrag={handleDrag}
         onDragStart={handleDragStart}
         onDragStop={handleDragStop}
         startDimensions={startDimensions}
-        elementKind={element.kind}
+        resizeParams={{
+          elementKind: element.kind,
+          handlePosition: 'left',
+          containerHeight: height,
+          containerWidth: width,
+        }}
       />
 
       <ResizeHandleWrapper
-        containerHeight={height}
-        containerWidth={width}
-        handlePosition="topLeft"
         onDrag={handleDrag}
         onDragStart={handleDragStart}
         onDragStop={handleDragStop}
         startDimensions={startDimensions}
-        elementKind={element.kind}
+        resizeParams={{
+          elementKind: element.kind,
+          handlePosition: 'topLeft',
+          containerHeight: height,
+          containerWidth: width,
+        }}
       />
     </g>
   );
