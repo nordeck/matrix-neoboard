@@ -26,7 +26,8 @@ import { SnackbarDismissAction, SnackbarProps, useSnackbar } from '../Snackbar';
 import { useMaxUploadSize } from './useMaxUploadSize';
 
 /**
- * Maximum allowed resolution in pixels.
+ * Allow a maximum of 32 Megapixels image resolution.
+ * Higher values can lead to rendering performance issues.
  */
 const maxResolutionPixels = 32_000_000;
 
