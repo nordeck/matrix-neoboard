@@ -31,6 +31,12 @@ import { useMaxUploadSize } from './useMaxUploadSize';
  */
 const maxResolutionPixels = 32_000_000;
 
+/**
+ * Allow a maximum size of 24 MiB per image.
+ * Higher values can lead to rendering performance issues.
+ */
+const maxImageSize = 26_214_400;
+
 type UploadErrors = {
   /** Name of files that failed due to size restrictions */
   size: string[];
@@ -93,8 +99,7 @@ export function ImageUploadProvider({ children }: PropsWithChildren<{}>) {
     other: [],
   });
   const { maxUploadSizeBytes: serverMaxUploadSizeBytes } = useMaxUploadSize();
-  // limit image uploads to 25 MiB
-  const maxUploadSizeBytes = Math.min(serverMaxUploadSizeBytes, 26214400);
+  const maxUploadSizeBytes = Math.min(serverMaxUploadSizeBytes, maxImageSize);
 
   const handleRejectedFile = useCallback((rejectedFile: FileRejection) => {
     if (
