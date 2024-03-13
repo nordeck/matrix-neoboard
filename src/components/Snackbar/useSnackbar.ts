@@ -22,7 +22,7 @@ export function useSnackbar(): SnackbarContextValue {
 
   if (!value) {
     throw new Error(
-      'useImageUpload can only be used inside of <SnackbarProvider>',
+      'useSnackbar can only be used inside of <SnackbarProvider>',
     );
   }
 
