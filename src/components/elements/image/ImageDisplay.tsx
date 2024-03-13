@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Skeleton, styled } from '@mui/material';
+import { styled } from '@mui/material';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ImageElement } from '../../../state';
 import {
@@ -23,6 +23,7 @@ import {
   SelectableElement,
   WithSelectionProps,
 } from '../../Whiteboard';
+import { Skeleton } from './Skeleton';
 
 type ImageDisplayProps = ImageElement &
   WithSelectionProps & {
@@ -85,14 +86,13 @@ function ImageDisplay({
   }, [setLoading]);
 
   const renderedSkeleton = showSkeleton ? (
-    <foreignObject x={position.x} y={position.y} width={width} height={height}>
-      <Skeleton
-        data-testid={`element-${elementId}-skeleton`}
-        variant="rectangular"
-        width={width}
-        height={height}
-      />
-    </foreignObject>
+    <Skeleton
+      data-testid={`element-${elementId}-skeleton`}
+      x={position.x}
+      y={position.y}
+      width={width}
+      height={height}
+    />
   ) : null;
 
   const renderedChild = (
@@ -119,7 +119,6 @@ function ImageDisplay({
 
   return (
     <>
-      {renderedSkeleton}
       <SelectableElement
         active={active}
         readOnly={readOnly}
@@ -127,6 +126,7 @@ function ImageDisplay({
       >
         <MoveableElement elementId={elementId}>
           <ElementContextMenu elementId={elementId}>
+            {renderedSkeleton}
             {renderedChild}
           </ElementContextMenu>
         </MoveableElement>
