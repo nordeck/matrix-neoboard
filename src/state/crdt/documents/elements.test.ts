@@ -174,6 +174,7 @@ describe('isValidElement', () => {
   it('should accept a valid image element', () => {
     const data = {
       type: 'image',
+      kind: 'image',
       mxc: 'mxc://example.com/test1234',
       fileName: 'example.jpg',
       position: { x: 10, y: 20 },
@@ -189,6 +190,10 @@ describe('isValidElement', () => {
     { type: null },
     { type: 111 },
     { type: '' },
+    { kind: undefined },
+    { kind: null },
+    { kind: 111 },
+    { kind: '' },
     { mxc: undefined },
     { mxc: null },
     { mxc: '111' },

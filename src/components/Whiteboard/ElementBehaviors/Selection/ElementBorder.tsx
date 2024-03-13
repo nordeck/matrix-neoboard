@@ -15,10 +15,10 @@
  */
 
 import { styled, useTheme } from '@mui/material';
-import { first } from 'lodash';
-import { calculateBoundingRectForElements } from '../../../../state/crdt/documents/elements';
+import { calculateBoundingRectForElements } from '../../../../state';
 import { useElementOverrides } from '../../../ElementOverridesProvider';
 import { useLayoutState } from '../../../Layout';
+import { getRenderProperties } from '../../../elements/line/getRenderProperties';
 import { useSvgCanvasContext } from '../../SvgCanvas';
 
 const NoInteraction = styled('g')({
@@ -81,26 +81,42 @@ export function ElementBorder({ elementIds, padding = 1 }: ElementBorderProps) {
   const selectionWidth = width + 2 * (selectionBorderWidth / 2 + scaledPadding);
   const selectionHeight =
     height + 2 * (selectionBorderWidth / 2 + scaledPadding);
-  const firstElement = first(elements);
-  const resizable =
-    firstElement?.type === 'shape' ||
-    (firstElement?.type === 'path' && firstElement?.kind === 'polyline'); //TODO: implement resize for multiple selected elements
+  const lineRenderProperties =
+    elements.length === 1 &&
+    elements[0] &&
+    elements[0].kind === 'line' &&
+    getRenderProperties(elements[0]);
 
   return (
     <>
       {isInSelectionMode && (
         <NoInteraction>
-          <rect
-            data-testid={`${elementIds[0]}-border`}
-            fill="transparent"
-            height={selectionHeight}
-            stroke={theme.palette.primary.main}
-            strokeWidth={selectionBorderWidth}
-            width={selectionWidth}
-            x={selectionX}
-            y={selectionY}
-          />
-          {resizable && (
+          {!lineRenderProperties && (
+            <rect
+              data-testid={`${elementIds[0]}-border`}
+              fill="transparent"
+              height={selectionHeight}
+              stroke={theme.palette.primary.main}
+              strokeWidth={selectionBorderWidth}
+              width={selectionWidth}
+              x={selectionX}
+              y={selectionY}
+            />
+          )}
+          {lineRenderProperties ? (
+            <>
+              <SelectionAnchor
+                x={lineRenderProperties.points.start.x}
+                y={lineRenderProperties.points.start.y}
+                borderWidth={selectionBorderWidth}
+              />
+              <SelectionAnchor
+                x={lineRenderProperties.points.end.x}
+                y={lineRenderProperties.points.end.y}
+                borderWidth={selectionBorderWidth}
+              />
+            </>
+          ) : elements[0].type !== 'image' ? (
             <>
               <SelectionAnchor
                 x={selectionX}
@@ -123,7 +139,7 @@ export function ElementBorder({ elementIds, padding = 1 }: ElementBorderProps) {
                 borderWidth={selectionBorderWidth}
               />
             </>
-          )}
+          ) : null}
         </NoInteraction>
       )}
     </>

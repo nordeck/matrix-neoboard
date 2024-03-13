@@ -28,25 +28,32 @@ export function ElementOutline({ elementIds }: ElementOutlineProps) {
 
   return elements.length > 1 ? (
     <g pointerEvents="none">
-      {elements.map((element) => (
-        <rect
-          fill="transparent"
-          height={
-            element.type === 'shape' || element.type === 'image'
-              ? element.height
-              : calculateBoundingRectForPoints(element.points).height
-          }
-          stroke={theme.palette.primary.main}
-          strokeWidth={1}
-          width={
-            element.type === 'shape' || element.type === 'image'
-              ? element.width
-              : calculateBoundingRectForPoints(element.points).width
-          }
-          x={element.position.x}
-          y={element.position.y}
-        />
-      ))}
+      {elements.map((element) => {
+        let width;
+        let height;
+
+        if (element.type === 'path') {
+          const boundingRect = calculateBoundingRectForPoints(element.points);
+
+          width = boundingRect.width;
+          height = boundingRect.height;
+        } else {
+          width = element.width;
+          height = element.height;
+        }
+
+        return (
+          <rect
+            fill="transparent"
+            height={height}
+            stroke={theme.palette.primary.main}
+            strokeWidth={1}
+            width={width}
+            x={element.position.x}
+            y={element.position.y}
+          />
+        );
+      })}
     </g>
   ) : null;
 }

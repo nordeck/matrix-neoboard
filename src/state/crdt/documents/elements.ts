@@ -88,8 +88,11 @@ const pathElementSchema = elementBaseSchema
   })
   .required();
 
+export type ImageKind = 'image';
+
 export type ImageElement = ElementBase & {
   type: 'image';
+  kind: ImageKind;
   width: number;
   height: number;
   /**
@@ -103,6 +106,7 @@ export type ImageElement = ElementBase & {
 const imageElementSchema = elementBaseSchema
   .append<ImageElement>({
     type: Joi.string().valid('image').required(),
+    kind: Joi.string().valid('image').required(),
     mxc: Joi.string()
       .regex(/mxc:\/\/.*\/.*/)
       .required(),
@@ -113,6 +117,7 @@ const imageElementSchema = elementBaseSchema
   .required();
 
 export type Element = ShapeElement | PathElement | ImageElement;
+export type ElementKind = ShapeKind | PathKind | ImageKind;
 
 export const elementSchema = Joi.alternatives<Element>().conditional('.type', [
   { is: 'shape', then: shapeElementSchema },

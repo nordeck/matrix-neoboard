@@ -25,7 +25,7 @@ import {
 } from '../../Whiteboard';
 import { Skeleton } from './Skeleton';
 
-type ImageDisplayProps = ImageElement &
+type ImageDisplayProps = Omit<ImageElement, 'kind'> &
   WithSelectionProps & {
     /**
      * Matrix homeserver base URL

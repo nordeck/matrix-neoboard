@@ -23,6 +23,7 @@ export {
 export type {
   Element,
   ElementBase,
+  ElementKind,
   ImageElement,
   PathElement,
   PathKind,

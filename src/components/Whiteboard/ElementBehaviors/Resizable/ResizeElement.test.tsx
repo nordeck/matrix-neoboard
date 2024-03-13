@@ -21,6 +21,7 @@ import { ComponentType, PropsWithChildren } from 'react';
 import {
   WhiteboardTestingContextProvider,
   mockImageElement,
+  mockLineElement,
   mockPolylineElement,
   mockWhiteboardManager,
 } from '../../../../lib/testUtils/documentTestUtils';
@@ -78,7 +79,17 @@ describe('<ResizeElement />', () => {
                 position: { x: 0, y: 0 },
               }),
             ],
-            ['element-1', mockImageElement()],
+            [
+              'element-1',
+              mockLineElement({
+                points: [
+                  { x: 0, y: 0 },
+                  { x: 0, y: 0 },
+                ],
+                position: { x: 0, y: 0 },
+              }),
+            ],
+            ['element-2', mockImageElement()],
           ],
         ],
       ],
@@ -113,20 +124,32 @@ describe('<ResizeElement />', () => {
 
     // drag a resize box from 0,0 to 50,50
     const resizeHandleBottomRight = screen.getByTestId(
-      'resize-handle-se-resize',
+      'resize-handle-bottomRight',
     );
     mocked(calculateDimensions).mockReturnValue({
+      elementKind: 'polyline',
       x: 0,
       y: 0,
       width: 0,
       height: 0,
+      points: [
+        { x: 0, y: 0 },
+        { x: 0.5, y: 0.5 },
+        { x: 1, y: 1 },
+      ],
     });
     fireEvent.mouseDown(resizeHandleBottomRight);
     mocked(calculateDimensions).mockReturnValue({
+      elementKind: 'polyline',
       x: 0,
       y: 0,
       width: 50,
       height: 50,
+      points: [
+        { x: 0, y: 0 },
+        { x: 25, y: 25 },
+        { x: 50, y: 50 },
+      ],
     });
     fireEvent.mouseMove(resizeHandleBottomRight);
     fireEvent.mouseUp(resizeHandleBottomRight);
@@ -160,8 +183,65 @@ describe('<ResizeElement />', () => {
     });
   });
 
-  it('should not resize image elements', () => {
+  it('should resize line elements', () => {
     render(<ResizeElement elementId="element-1" />, {
+      wrapper: Wrapper,
+    });
+
+    // drag the end of a line from 0,0 to 50,50
+    const resizeHandleBottomRight = screen.getByTestId('resize-handle-end');
+    mocked(calculateDimensions).mockReturnValue({
+      elementKind: 'line',
+      x: 0,
+      y: 0,
+      width: 0,
+      height: 0,
+      points: [
+        { x: 0, y: 0 },
+        { x: 0, y: 0 },
+      ],
+    });
+    fireEvent.mouseDown(resizeHandleBottomRight);
+    mocked(calculateDimensions).mockReturnValue({
+      elementKind: 'line',
+      x: 0,
+      y: 0,
+      width: 50,
+      height: 50,
+      points: [
+        { x: 0, y: 0 },
+        { x: 50, y: 50 },
+      ],
+    });
+    fireEvent.mouseMove(resizeHandleBottomRight);
+    fireEvent.mouseUp(resizeHandleBottomRight);
+
+    const element = activeSlide.getElement('element-1');
+    expect(element).toEqual({
+      kind: 'line',
+      points: [
+        // the first point should still be 0,0
+        {
+          x: 0,
+          y: 0,
+        },
+        // the last point should be on the edges of the resize box
+        {
+          x: 50,
+          y: 50,
+        },
+      ],
+      position: {
+        x: 0,
+        y: 0,
+      },
+      strokeColor: '#ffffff',
+      type: 'path',
+    });
+  });
+
+  it('should not resize image elements', () => {
+    render(<ResizeElement elementId="element-2" />, {
       wrapper: Wrapper,
     });
 

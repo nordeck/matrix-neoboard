@@ -21,6 +21,7 @@ import {
   WhiteboardTestingContextProvider,
   mockEllipseElement,
   mockImageElement,
+  mockLineElement,
   mockPolylineElement,
   mockWhiteboardManager,
 } from '../../../../lib/testUtils/documentTestUtils';
@@ -59,7 +60,8 @@ describe('<ElementBorder />', () => {
           [
             ['element-0', mockEllipseElement()],
             ['element-1', mockPolylineElement()],
-            ['element-2', mockImageElement()],
+            ['element-2', mockLineElement()],
+            ['element-3', mockImageElement()],
           ],
         ],
       ],
@@ -101,11 +103,11 @@ describe('<ElementBorder />', () => {
     expect(screen.getByTestId('element-1-border')).toBeInTheDocument();
   });
 
-  it('should render a border for an active image element', () => {
+  it('should not render a border for an active line element', () => {
     activeSlide.setActiveElementIds(['element-2']);
 
     render(<ElementBorder elementIds={['element-2']} />, { wrapper: Wrapper });
 
-    expect(screen.getByTestId('element-2-border')).toBeInTheDocument();
+    expect(screen.queryByTestId('element-2-border')).not.toBeInTheDocument();
   });
 });

@@ -95,30 +95,24 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
 
   private readonly slides = new Map<string, WhiteboardSlideInstanceImpl>();
 
+  /**
+   * Provide current slide IDs.
+   */
   private readonly slideIdsObservable = concat(
-    defer(() =>
-      of(
-        this.synchronizedDocument.getDocument().getData(),
-        this.synchronizedDocument.getDocument().getData(),
-      ),
-    ),
+    defer(() => of(this.synchronizedDocument.getDocument().getData())),
     this.synchronizedDocument.getDocument().observeChanges(),
   ).pipe(
     map(getNormalizedSlideIds),
 
-    // get a pair of [previous, new] values
-    pairwise(),
+    distinctUntilChanged<string[]>(isEqual),
 
-    distinctUntilChanged<[string[], string[]]>(isEqual),
-
-    // create slide instances
-    tap(([previousSlideIds, slideIds]) => {
-      const toRemove = Array.from(this.slides.keys()).filter(
-        (slideId) => !slideIds.includes(slideId),
-      );
+    /**
+     * Add only missing slides here.
+     * Removal of slides is done by removeSlidesAndFixCurrentSlideObservable.
+     * Then publish the new slide IDs.
+     */
+    tap((slideIds) => {
       const toAdd = slideIds.filter((slideId) => !this.slides.has(slideId));
-
-      // add new slides first
       toAdd.forEach((slideId) => {
         const slideMetadata = getSlide(
           this.synchronizedDocument.getDocument().getData(),
@@ -137,6 +131,39 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
         );
         this.slides.set(slideId, slideInstance);
       });
+    }),
+
+    takeUntil(this.destroySubject),
+
+    shareReplay(1),
+  );
+
+  /**
+   * Remove deleted slides and set the current active slide.
+   */
+  private readonly removeSlidesAndFixCurrentSlideObservable = concat(
+    defer(() =>
+      of(
+        this.synchronizedDocument.getDocument().getData(),
+        this.synchronizedDocument.getDocument().getData(),
+      ),
+    ),
+    this.synchronizedDocument.getDocument().observeChanges(),
+  ).pipe(
+    map(getNormalizedSlideIds),
+
+    // get a pair of [previous, new] values
+    pairwise(),
+
+    distinctUntilChanged<[string[], string[]]>(isEqual),
+
+    /**
+     * Removed dropped slides here and set the active slide.
+     */
+    tap(([previousSlideIds, slideIds]) => {
+      const toRemove = Array.from(this.slides.keys()).filter(
+        (slideId) => !slideIds.includes(slideId),
+      );
 
       // bootstrap or repair the active slide id if unset or if
       // the selected slide was removed.
@@ -156,11 +183,7 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
       });
     }),
 
-    // unpack the newest array from the [previous, new] pair
-    map(([_, slideIds]) => slideIds),
-
     takeUntil(this.destroySubject),
-    shareReplay(1),
   );
 
   static create(
@@ -280,8 +303,13 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
         this.activeSlideIdSubject.next(this.activeSlideId);
       });
 
-    // ensure that the slides map is kept up-to-date
+    // ensure that the slide IDs are kept up-to-date
     this.observeSlideIds().pipe(takeUntil(this.destroySubject)).subscribe();
+    // subscribe to this one after the the slide IDs observable to remove deleted slides and
+    // set the new current slide
+    this.removeSlidesAndFixCurrentSlideObservable
+      .pipe(takeUntil(this.destroySubject))
+      .subscribe();
   }
 
   addSlide(): string {

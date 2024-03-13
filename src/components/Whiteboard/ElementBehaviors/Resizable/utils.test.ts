@@ -19,6 +19,7 @@ import {
   calculateDimensions,
   calculateDragDimension,
   calculateDragOrigin,
+  calculateLineDragDimensions,
 } from './utils';
 
 describe('calculateDragDimension', () => {
@@ -77,7 +78,8 @@ describe('calculateDragOrigin', () => {
   `(
     'should calculate drag origin for $handlePosition based on start dimensions',
     ({ handlePosition, expectedDragOriginX, expectedDragOriginY }) => {
-      const startDimension = {
+      const startDimension: Dimensions = {
+        elementKind: 'circle',
         x: 10,
         y: 15,
         width: 30,
@@ -91,6 +93,61 @@ describe('calculateDragOrigin', () => {
   );
 });
 
+describe('calculateLineDragDimensions', () => {
+  const dimensions: Dimensions = {
+    elementKind: 'line',
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0,
+    points: [
+      { x: 0, y: 0 },
+      { x: 0, y: 0 },
+    ],
+  };
+
+  it('should return given dimensions when elementKind is not line', () => {
+    const elementKind = 'circle';
+
+    expect(
+      calculateLineDragDimensions(
+        'start',
+        { ...dimensions, elementKind },
+        9,
+        9,
+      ),
+    ).toEqual({ ...dimensions, elementKind });
+  });
+
+  it('should return new dimensions when dragging start point', () => {
+    expect(calculateLineDragDimensions('start', dimensions, 50, 50)).toEqual({
+      elementKind: dimensions.elementKind,
+      x: 0,
+      y: 0,
+      width: 50,
+      height: 50,
+      points: [
+        { x: 50, y: 50 },
+        { x: 0, y: 0 },
+      ],
+    });
+  });
+
+  it('should return new dimensions when dragging end point', () => {
+    expect(calculateLineDragDimensions('end', dimensions, 50, 50)).toEqual({
+      elementKind: dimensions.elementKind,
+      x: 0,
+      y: 0,
+      width: 50,
+      height: 50,
+      points: [
+        { x: 0, y: 0 },
+        { x: 50, y: 50 },
+      ],
+    });
+  });
+});
+
 describe('calculateDimensions', () => {
   const viewportWidth = 100;
   const viewportHeight = 110;
@@ -98,6 +155,7 @@ describe('calculateDimensions', () => {
 
   beforeEach(() => {
     startDimension = {
+      elementKind: 'circle',
       x: 15,
       y: 30,
       width: 20,
@@ -150,6 +208,7 @@ describe('calculateDimensions', () => {
           viewportHeight,
         ),
       ).toEqual({
+        elementKind: startDimension.elementKind,
         x: expectedX,
         y: expectedY,
         width: expectedWidth,
@@ -191,6 +250,7 @@ describe('calculateDimensions', () => {
           viewportHeight,
         ),
       ).toEqual({
+        elementKind: startDimension.elementKind,
         x: expectedX,
         y: expectedY,
         width: expectedWidth,
@@ -216,6 +276,7 @@ describe('calculateDimensions', () => {
         viewportHeight,
       ),
     ).toEqual({
+      elementKind: startDimension.elementKind,
       x: 15,
       y: 30,
       width: 2,
@@ -268,6 +329,7 @@ describe('calculateDimensions', () => {
           viewportHeight,
         ),
       ).toEqual({
+        elementKind: startDimension.elementKind,
         x: expectedX,
         y: expectedY,
         width: expectedWidth,
@@ -317,6 +379,7 @@ describe('calculateDimensions', () => {
           viewportHeight,
         ),
       ).toEqual({
+        elementKind: startDimension.elementKind,
         x: expectedX,
         y: expectedY,
         width: expectedWidth,
@@ -360,6 +423,7 @@ describe('calculateDimensions', () => {
           40,
         ),
       ).toEqual({
+        elementKind: startDimension.elementKind,
         x: expectedX,
         y: expectedY,
         width: expectedWidth,

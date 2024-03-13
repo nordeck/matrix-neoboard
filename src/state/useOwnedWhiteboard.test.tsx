@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { RoomEvent } from '@matrix-widget-toolkit/api';
+import { RoomEvent, StateEvent } from '@matrix-widget-toolkit/api';
 import { WidgetApiMockProvider } from '@matrix-widget-toolkit/react';
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { renderHook } from '@testing-library/react-hooks';
@@ -62,6 +62,16 @@ describe('useOwnedWhiteboard', () => {
 
     await waitForNextUpdate();
 
+    expect(widgetApi.sendRoomEvent).not.toBeCalledWith(
+      'net.nordeck.whiteboard.document.create',
+      expect.anything(),
+    );
+    expect(widgetApi.sendStateEvent).not.toBeCalledWith(
+      'net.nordeck.whiteboard',
+      expect.anything(),
+      expect.anything(),
+    );
+
     expect(result.current).toEqual({
       loading: false,
       value: {
@@ -69,6 +79,100 @@ describe('useOwnedWhiteboard', () => {
         event: whiteboard,
       },
     });
+  });
+
+  it('should return an existing whiteboard when loading of whiteboards is slower', async () => {
+    const whiteboard = mockWhiteboard();
+
+    let resolveWhiteboards: (events: StateEvent<unknown>[]) => void = (
+      events,
+    ) => {};
+    widgetApi.receiveStateEvents.mockImplementation((eventType) => {
+      if (eventType === 'm.room.power_levels') {
+        return Promise.resolve([mockPowerLevelsEvent()]);
+      } else if (eventType === 'net.nordeck.whiteboard') {
+        return new Promise((resolve) => {
+          resolveWhiteboards = resolve;
+        });
+      } else {
+        return Promise.resolve([]);
+      }
+    });
+
+    const { result, waitForNextUpdate } = renderHook(
+      () => useOwnedWhiteboard(),
+      { wrapper: Wrapper },
+    );
+
+    expect(result.current).toEqual({ loading: true });
+
+    await waitForNextUpdate();
+
+    expect(result.current).toEqual({ loading: true });
+
+    resolveWhiteboards([whiteboard]);
+
+    await waitForNextUpdate();
+
+    expect(widgetApi.sendRoomEvent).not.toBeCalledWith(
+      'net.nordeck.whiteboard.document.create',
+      expect.anything(),
+    );
+    expect(widgetApi.sendStateEvent).not.toBeCalledWith(
+      'net.nordeck.whiteboard',
+      expect.anything(),
+      expect.anything(),
+    );
+
+    expect(result.current).toEqual({
+      loading: false,
+      value: {
+        type: 'whiteboard',
+        event: whiteboard,
+      },
+    });
+  });
+
+  it('should reject when loading of whiteboards is slower and fails', async () => {
+    let rejectWhiteboards: () => void = () => {};
+    widgetApi.receiveStateEvents.mockImplementation((eventType) => {
+      if (eventType === 'm.room.power_levels') {
+        return Promise.resolve([mockPowerLevelsEvent()]);
+      } else if (eventType === 'net.nordeck.whiteboard') {
+        return new Promise((resolve, reject) => {
+          rejectWhiteboards = reject;
+        });
+      } else {
+        return Promise.resolve([]);
+      }
+    });
+
+    const { result, waitForNextUpdate } = renderHook(
+      () => useOwnedWhiteboard(),
+      { wrapper: Wrapper },
+    );
+
+    expect(result.current).toEqual({ loading: true });
+
+    await waitForNextUpdate();
+
+    expect(result.current).toEqual({ loading: true });
+
+    rejectWhiteboards();
+
+    await waitForNextUpdate();
+
+    expect(widgetApi.sendRoomEvent).not.toBeCalledWith(
+      'net.nordeck.whiteboard.document.create',
+      expect.anything(),
+    );
+    expect(widgetApi.sendStateEvent).not.toBeCalledWith(
+      'net.nordeck.whiteboard',
+      expect.anything(),
+      expect.anything(),
+    );
+
+    expect(result.error).toEqual(new Error('could not load whiteboards'));
   });
 
   it('should create a new whiteboard', async () => {
@@ -159,6 +263,16 @@ describe('useOwnedWhiteboard', () => {
     );
 
     await waitForNextUpdate();
+
+    expect(widgetApi.sendRoomEvent).not.toBeCalledWith(
+      'net.nordeck.whiteboard.document.create',
+      expect.anything(),
+    );
+    expect(widgetApi.sendStateEvent).not.toBeCalledWith(
+      'net.nordeck.whiteboard',
+      expect.anything(),
+      expect.anything(),
+    );
 
     expect(result.current).toEqual({
       loading: false,
