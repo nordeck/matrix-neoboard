@@ -1,5 +1,18 @@
 # @nordeck/matrix-neoboard-widget
 
+## 1.14.0
+
+### Minor Changes
+
+- e7b3f97: Support resizing of lines
+- 05b5c18: Wait for the moderator to join if the user does not have enough permissions to create a whiteboard.
+- 54f5566: Text alignments now work for multiple selected elements
+
+### Patch Changes
+
+- ec3e8ea: Successive deletion of slides no longer causes the remote board to crash
+- cb6b2fa: Fix whiteboard initialization when whiteboards loading is slower.
+
 ## 1.13.0
 
 ### Minor Changes
