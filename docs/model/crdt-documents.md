@@ -184,6 +184,7 @@ An image element
 | Field      | Type       | Description                                                                                               |
 | ---------- | ---------- | --------------------------------------------------------------------------------------------------------- |
 | `type`     | `'image'`  | Identifies the element as an image.                                                                       |
+| `kind`     | `'image'`  | For images this is currently always `'image'`.                                                            |
 | `mxc`      | `'string'` | [MXC URI](https://spec.matrix.org/v1.9/client-server-api/#matrix-content-mxc-uris) pointing to the image. |
 | `fileName` | `string`   | Image file name.                                                                                          |
 | `position` | `Point`    | The position of the image on the whiteboard canvas.                                                       |
@@ -195,6 +196,7 @@ An image element
 ```json
 {
   "type": "image",
+  "kind": "image",
   "mxc": "mxc://example.com/test1234",
   "fileName": "example.jpg",
   "position": { "x": 50, "y": 100 },
