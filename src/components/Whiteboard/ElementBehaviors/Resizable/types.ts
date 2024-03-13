@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
-export type ResizeHandlePosition =
+import { ElementKind, PathKind, Point, ShapeKind } from '../../../../state';
+
+export type LineElementResizeHandlePosition = 'start' | 'end';
+
+export type PolylineAndShapeElementsResizeHandlePosition =
   | 'top'
   | 'topRight'
   | 'right'
@@ -23,6 +27,28 @@ export type ResizeHandlePosition =
   | 'bottomLeft'
   | 'left'
   | 'topLeft';
+
+export type ResizeHandlePosition =
+  | LineElementResizeHandlePosition
+  | PolylineAndShapeElementsResizeHandlePosition;
+
+export type LineElementResizeParams = {
+  elementKind: 'line';
+  handlePosition: LineElementResizeHandlePosition;
+  handlePositionX: number;
+  handlePositionY: number;
+};
+
+export type PolylineAndShapeElementsResizeParams = {
+  elementKind: Exclude<ElementKind, 'line'>;
+  handlePosition: PolylineAndShapeElementsResizeHandlePosition;
+  containerWidth: number;
+  containerHeight: number;
+};
+
+export type ResizeParams =
+  | LineElementResizeParams
+  | PolylineAndShapeElementsResizeParams;
 
 export type DimensionsVertical = {
   y: number;
@@ -34,4 +60,15 @@ export type DimensionsHorizontal = {
   width: number;
 };
 
-export type Dimensions = DimensionsVertical & DimensionsHorizontal;
+type DimensionsBase = DimensionsVertical & DimensionsHorizontal;
+
+export type PathElementDimensions = DimensionsBase & {
+  elementKind: PathKind;
+  points: Point[];
+};
+
+export type ShapeElementDimensions = DimensionsBase & {
+  elementKind: ShapeKind;
+};
+
+export type Dimensions = PathElementDimensions | ShapeElementDimensions;

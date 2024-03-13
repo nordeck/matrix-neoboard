@@ -20,6 +20,7 @@ import { ComponentType, PropsWithChildren } from 'react';
 import {
   WhiteboardTestingContextProvider,
   mockEllipseElement,
+  mockLineElement,
   mockPolylineElement,
   mockWhiteboardManager,
 } from '../../../../lib/testUtils/documentTestUtils';
@@ -58,6 +59,7 @@ describe('<ElementBorder />', () => {
           [
             ['element-0', mockEllipseElement()],
             ['element-1', mockPolylineElement()],
+            ['element-2', mockLineElement()],
           ],
         ],
       ],
@@ -97,5 +99,13 @@ describe('<ElementBorder />', () => {
     render(<ElementBorder elementIds={['element-1']} />, { wrapper: Wrapper });
 
     expect(screen.getByTestId('element-1-border')).toBeInTheDocument();
+  });
+
+  it('should not render a border for an active line element', () => {
+    activeSlide.setActiveElementIds(['element-2']);
+
+    render(<ElementBorder elementIds={['element-2']} />, { wrapper: Wrapper });
+
+    expect(screen.queryByTestId('element-2-border')).not.toBeInTheDocument();
   });
 });

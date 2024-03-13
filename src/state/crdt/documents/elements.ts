@@ -89,6 +89,7 @@ const pathElementSchema = elementBaseSchema
   .required();
 
 export type Element = ShapeElement | PathElement;
+export type ElementKind = ShapeKind | PathKind;
 
 export const elementSchema = Joi.alternatives<Element>().conditional('.type', [
   { is: 'shape', then: shapeElementSchema },

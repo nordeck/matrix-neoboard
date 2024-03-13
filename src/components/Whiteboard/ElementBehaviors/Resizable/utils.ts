@@ -15,12 +15,18 @@
  */
 
 import { clamp } from 'lodash';
+import { calculateBoundingRectForPoints } from '../../../../state';
 import { snapToGrid } from '../../Grid';
 import { DragEvent } from './ResizeHandle';
-import { Dimensions, ResizeHandlePosition } from './types';
+import {
+  Dimensions,
+  LineElementResizeHandlePosition,
+  PolylineAndShapeElementsResizeHandlePosition,
+  ResizeHandlePosition,
+} from './types';
 
 export function calculateDragOrigin(
-  handlePosition: ResizeHandlePosition,
+  handlePosition: PolylineAndShapeElementsResizeHandlePosition,
   startDimensions: Dimensions,
 ): { dragOriginX: number; dragOriginY: number } {
   switch (handlePosition) {
@@ -80,6 +86,43 @@ export function calculateDragDimension(
   };
 }
 
+export function calculateLineDragDimensions(
+  handlePosition: LineElementResizeHandlePosition,
+  dimensions: Dimensions,
+  dragX: number,
+  dragY: number,
+): Dimensions {
+  if (dimensions.elementKind !== 'line') {
+    return dimensions;
+  }
+
+  const start = dimensions.points[0];
+  const end = dimensions.points[dimensions.points.length - 1];
+  const cursor = { x: dragX - dimensions.x, y: dragY - dimensions.y };
+
+  let newPoints = dimensions.points;
+
+  if (handlePosition === 'start') {
+    newPoints = [cursor, end];
+  } else if (handlePosition === 'end') {
+    newPoints = [start, cursor];
+  }
+
+  const boundingRect = calculateBoundingRectForPoints(newPoints);
+
+  return {
+    elementKind: 'line',
+    x: dimensions.x + boundingRect.offsetX,
+    y: dimensions.y + boundingRect.offsetY,
+    width: boundingRect.width,
+    height: boundingRect.height,
+    points: newPoints.map((point) => ({
+      x: point.x - boundingRect.offsetX,
+      y: point.y - boundingRect.offsetY,
+    })),
+  };
+}
+
 export function calculateDimensions(
   handlePosition: ResizeHandlePosition,
   event: DragEvent,
@@ -98,16 +141,41 @@ export function calculateDimensions(
     gridCellSize === undefined ? rawDragY : snapToGrid(rawDragY, gridCellSize);
 
   const lockAspectRatio = forceLockAspectRatio || event.lockAspectRatio;
+
+  let dimensions: Dimensions;
+
+  if (
+    startDimensions.elementKind === 'line' ||
+    startDimensions.elementKind === 'polyline'
+  ) {
+    dimensions = {
+      ...startDimensions,
+      elementKind: startDimensions.elementKind,
+      points: startDimensions.points,
+    };
+  } else {
+    dimensions = {
+      elementKind: startDimensions.elementKind,
+      x: startDimensions.x,
+      y: startDimensions.y,
+      width: startDimensions.width,
+      height: startDimensions.height,
+    };
+  }
+
+  if (handlePosition === 'start' || handlePosition === 'end') {
+    return calculateLineDragDimensions(
+      handlePosition,
+      dimensions,
+      dragX,
+      dragY,
+    );
+  }
+
   const { dragOriginX, dragOriginY } = calculateDragOrigin(
     handlePosition,
     startDimensions,
   );
-  const dimensions = {
-    x: startDimensions.x,
-    y: startDimensions.y,
-    width: startDimensions.width,
-    height: startDimensions.height,
-  };
 
   if (lockAspectRatio) {
     if (
@@ -207,6 +275,16 @@ export function calculateDimensions(
       dimensions.x = position;
       dimensions.width = size;
     }
+  }
+
+  if (dimensions.elementKind === 'polyline') {
+    return {
+      ...dimensions,
+      points: dimensions.points.map((point) => ({
+        x: (point.x / startDimensions.width) * dimensions.width,
+        y: (point.y / startDimensions.height) * dimensions.height,
+      })),
+    };
   }
 
   return dimensions;
