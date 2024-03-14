@@ -21,7 +21,6 @@ import { IUploadFileActionFromWidgetResponseData } from 'matrix-widget-api';
 import { ComponentType, PropsWithChildren } from 'react';
 import { act } from 'react-dom/test-utils';
 import { ErrorCode, FileRejection } from 'react-dropzone';
-import { defer } from '../../lib';
 import { SnackbarProvider } from '../Snackbar';
 import {
   ImageUploadContextValue,
@@ -147,8 +146,16 @@ describe('<ImageUploadProvider />', () => {
     const file = new File([], 'example.jpg', {
       type: 'image/jpeg',
     });
-    const uploadDeferred = defer<IUploadFileActionFromWidgetResponseData>();
-    widgetApi.uploadFile.mockReturnValue(uploadDeferred.promise);
+    let resolveUploadPromise: (
+      value: IUploadFileActionFromWidgetResponseData,
+    ) => void;
+    const uploadPromise = new Promise<IUploadFileActionFromWidgetResponseData>(
+      (resolve) => {
+        resolveUploadPromise = resolve;
+      },
+    );
+
+    widgetApi.uploadFile.mockReturnValue(uploadPromise);
 
     act(() => {
       imageUploadContextValue.handleDrop([file], []);
@@ -159,7 +166,7 @@ describe('<ImageUploadProvider />', () => {
 
     // resolve upload Promise to finish the upload process
     act(() => {
-      uploadDeferred.resolve({
+      resolveUploadPromise({
         content_uri: 'mxc://example.com/abc123',
       });
     });

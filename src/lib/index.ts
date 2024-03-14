@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-export { defer } from './defer';
 export { determineImageSize } from './determineImageSize';
 export { isDefined } from './isDefined';
 export { FontsLoadedContextProvider, useFontsLoaded } from './useFontsLoaded';
