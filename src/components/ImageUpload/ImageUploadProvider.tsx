@@ -56,7 +56,7 @@ type ImageUploadResult = {
   mxc: string;
 };
 
-export type ImageUploadContextValue = {
+export type ImageUploadContextState = {
   /**
    * Handle a file drop from react-dropzone.
    * Show a loading snackbar as long as uploads are in progress.
@@ -84,7 +84,7 @@ class ResolutionTooHighError extends Error {
 }
 
 export const ImageUploadContext = createContext<
-  ImageUploadContextValue | undefined
+  ImageUploadContextState | undefined
 >(undefined);
 
 export function ImageUploadProvider({ children }: PropsWithChildren<{}>) {

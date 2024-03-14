@@ -17,10 +17,10 @@
 import { useContext } from 'react';
 import {
   ImageUploadContext,
-  ImageUploadContextValue,
+  ImageUploadContextState,
 } from './ImageUploadProvider';
 
-export function useImageUpload(): ImageUploadContextValue {
+export function useImageUpload(): ImageUploadContextState {
   const value = useContext(ImageUploadContext);
 
   if (!value) {
