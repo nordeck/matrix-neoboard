@@ -26,7 +26,15 @@ export type SnackbarProps = MuiSnackbarProps &
   Required<Pick<MuiSnackbarProps, 'message'>>;
 
 export type SnackbarContextValue = {
+  /**
+   * Clear the snackbar.
+   */
   clearSnackbar: () => void;
+  /**
+   * Show the snackbar.
+   *
+   * @param snackbar - MUI Snackbar props {@link SnackbarProps}
+   */
   showSnackbar: (snackbar: SnackbarProps) => void;
 };
 

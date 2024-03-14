@@ -204,10 +204,10 @@ export function ImageUploadProvider({ children }: PropsWithChildren<{}>) {
 /**
  * Show snackbars for the different types of errors.
  *
+ * @param showSnackbar - Function to show a snackbar {@link SnackbarContextValue}
  * @param errors - Errors for which a snackbar should be displayed
  * @param t - Translation function
  * @param maxUploadSizeBytes - Maximum allowed upload size in bytes
- *
  */
 function showErrorSnackbars(
   showSnackbar: (snackbar: SnackbarProps) => void,
