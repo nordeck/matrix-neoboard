@@ -45,6 +45,7 @@ describe('<ImageUploadProvider />', () => {
     widgetApi = mockWidgetApi();
     showSnackbar = jest.fn();
     clearSnackbar = jest.fn();
+    jest.spyOn(console, 'error');
 
     Wrapper = ({ children }) => {
       return (
@@ -59,6 +60,7 @@ describe('<ImageUploadProvider />', () => {
 
   afterEach(() => {
     widgetApi.stop();
+    jest.mocked(console.error).mockRestore();
   });
 
   it('should upload an image', async () => {
@@ -94,6 +96,7 @@ describe('<ImageUploadProvider />', () => {
   });
 
   it('should catch read file errors', async () => {
+    jest.mocked(console.error).mockImplementation(() => {});
     const { result } = renderHook(useImageUpload, {
       wrapper: Wrapper,
     });
@@ -109,6 +112,11 @@ describe('<ImageUploadProvider />', () => {
       results = await result.current.handleDrop([file], []);
     });
 
+    expect(console.error).toHaveBeenCalledTimes(1);
+    expect(console.error).toHaveBeenCalledWith(
+      'Error uploading an image',
+      readFileError,
+    );
     expect(results).toEqual([
       {
         status: 'rejected',
@@ -118,6 +126,7 @@ describe('<ImageUploadProvider />', () => {
   });
 
   it('should catch upload file errors', async () => {
+    jest.mocked(console.error).mockImplementation(() => {});
     const { result } = renderHook(useImageUpload, {
       wrapper: Wrapper,
     });
@@ -133,6 +142,11 @@ describe('<ImageUploadProvider />', () => {
       results = await result.current.handleDrop([file], []);
     });
 
+    expect(console.error).toHaveBeenCalledTimes(1);
+    expect(console.error).toHaveBeenCalledWith(
+      'Error uploading an image',
+      uploadFileError,
+    );
     expect(results).toEqual([
       {
         status: 'rejected',
@@ -227,6 +241,7 @@ describe('<ImageUploadProvider />', () => {
   });
 
   it('should show a snackbar for images that failed for other reasons', async () => {
+    jest.mocked(console.error).mockImplementation(() => {});
     const { result } = renderHook(useImageUpload, {
       wrapper: Wrapper,
     });
@@ -234,13 +249,17 @@ describe('<ImageUploadProvider />', () => {
     const file = new File([], 'example.jpg', {
       type: 'image/jpeg',
     });
-    jest
-      .mocked(file.arrayBuffer)
-      .mockRejectedValue(new Error('error reading file'));
+    const readFileError = new Error('error reading file');
+    jest.mocked(file.arrayBuffer).mockRejectedValue(readFileError);
     await act(async () => {
       await result.current.handleDrop([file], []);
     });
 
+    expect(console.error).toHaveBeenCalledTimes(1);
+    expect(console.error).toHaveBeenCalledWith(
+      'Error uploading an image',
+      readFileError,
+    );
     expect(showSnackbar).toHaveBeenCalledWith(
       expect.objectContaining({
         message: 'The file example.jpg cannot be uploaded.',

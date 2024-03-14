@@ -52,6 +52,7 @@ describe('useSlideImageUpload', () => {
     });
     const whiteboard = whiteboardManager.getActiveWhiteboardInstance()!;
     slide = whiteboard.getSlide(whiteboard.getActiveSlideId()!);
+    jest.spyOn(console, 'error');
 
     Wrapper = ({ children }) => {
       return (
@@ -69,6 +70,7 @@ describe('useSlideImageUpload', () => {
 
   afterEach(() => {
     widgetApi.stop();
+    jest.mocked(console.error).mockRestore();
   });
 
   it('should add an uploaded image to the slide', async () => {
@@ -88,16 +90,23 @@ describe('useSlideImageUpload', () => {
   });
 
   it('should not explode if there is an upload error', async () => {
+    jest.mocked(console.error).mockImplementation(() => {});
     render(<TestFileInput />, { wrapper: Wrapper });
 
     const file = new File([], 'example.jpg', {
       type: 'image/jpeg',
     });
+    const uploadError = new Error('upload error');
     jest.mocked(file.arrayBuffer).mockImplementation(() => {
-      throw new Error('upload error');
+      throw uploadError;
     });
     await userEvent.upload(screen.getByTestId('file-input'), file);
 
+    expect(console.error).toHaveBeenCalledTimes(1);
+    expect(console.error).toHaveBeenCalledWith(
+      'Error uploading an image',
+      uploadError,
+    );
     expect(slide.getElementIds().length).toBe(0);
   });
 });

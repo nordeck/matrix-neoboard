@@ -27,6 +27,7 @@ describe('useMaxUploadSize', () => {
 
   beforeEach(() => {
     widgetApi = mockWidgetApi();
+    jest.spyOn(console, 'error');
 
     Wrapper = ({ children }) => (
       <WidgetApiMockProvider value={widgetApi}>
@@ -37,6 +38,7 @@ describe('useMaxUploadSize', () => {
 
   afterEach(() => {
     widgetApi.stop();
+    jest.mocked(console.error).mockRestore();
   });
 
   it('should provide the fallback size before loading', () => {
@@ -58,12 +60,19 @@ describe('useMaxUploadSize', () => {
   });
 
   it('should provide the fallback value if loading the value fails', async () => {
+    jest.mocked(console.error).mockImplementation(() => {});
+    const apiError = new Error('api error');
     widgetApi.getMediaConfig.mockImplementation(() => {
-      throw new Error();
+      throw apiError;
     });
 
     const { result } = renderHook(useMaxUploadSize, { wrapper: Wrapper });
 
+    expect(console.error).toHaveBeenCalledTimes(1);
+    expect(console.error).toHaveBeenCalledWith(
+      'Error loading max upload size',
+      apiError,
+    );
     expect(result.current.maxUploadSizeBytes).toBe(fallbackMaxUploadSize);
   });
 });
