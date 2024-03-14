@@ -81,7 +81,9 @@ export function Layout() {
             <TabPanelStyled value={slideId} key={slideId}>
               <SlideProvider slideId={slideId}>
                 <ElementOverridesProvider>
-                  <ContentArea />
+                  <ImageUploadProvider>
+                    <ContentArea />
+                  </ImageUploadProvider>
                 </ElementOverridesProvider>
               </SlideProvider>
             </TabPanelStyled>
@@ -122,7 +124,7 @@ function ContentArea() {
   const { canStopPresentation } = usePowerLevels();
 
   return (
-    <ImageUploadProvider>
+    <>
       <Shortcuts />
 
       <ToolbarContainer
@@ -158,6 +160,6 @@ function ContentArea() {
           </Box>
         </ToolbarContainer>
       )}
-    </ImageUploadProvider>
+    </>
   );
 }
