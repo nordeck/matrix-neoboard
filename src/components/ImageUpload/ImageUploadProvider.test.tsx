@@ -16,16 +16,15 @@
 
 import { WidgetApiMockProvider } from '@matrix-widget-toolkit/react';
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
-import { render, screen, waitFor } from '@testing-library/react';
+import { SnackbarProps } from '@mui/material';
+import { waitFor } from '@testing-library/react';
+import { renderHook } from '@testing-library/react-hooks';
 import { IUploadFileActionFromWidgetResponseData } from 'matrix-widget-api';
 import { ComponentType, PropsWithChildren } from 'react';
 import { act } from 'react-dom/test-utils';
 import { ErrorCode, FileRejection } from 'react-dropzone';
-import { SnackbarProvider } from '../Snackbar';
-import {
-  ImageUploadContextValue,
-  ImageUploadProvider,
-} from './ImageUploadProvider';
+import { SnackbarContext } from '../Snackbar/SnackbarProvider';
+import { ImageUploadProvider } from './ImageUploadProvider';
 import { useImageUpload } from './useImageUpload';
 
 jest.mock('../../lib', () => ({
@@ -37,27 +36,23 @@ jest.mock('../../lib', () => ({
 }));
 
 describe('<ImageUploadProvider />', () => {
-  let ImageProviderTest: ComponentType<PropsWithChildren<{}>>;
+  let Wrapper: ComponentType<PropsWithChildren<{}>>;
   let widgetApi: MockedWidgetApi;
-  let imageUploadContextValue: ImageUploadContextValue;
+  let showSnackbar: (snackbar: SnackbarProps) => void;
+  let clearSnackbar: () => void;
 
   beforeEach(() => {
     widgetApi = mockWidgetApi();
+    showSnackbar = jest.fn();
+    clearSnackbar = jest.fn();
 
-    function ImageUploadContextValueExtractor() {
-      imageUploadContextValue = useImageUpload();
-      return null;
-    }
-
-    ImageProviderTest = () => {
+    Wrapper = ({ children }) => {
       return (
-        <SnackbarProvider>
+        <SnackbarContext.Provider value={{ showSnackbar, clearSnackbar }}>
           <WidgetApiMockProvider value={widgetApi}>
-            <ImageUploadProvider>
-              <ImageUploadContextValueExtractor />
-            </ImageUploadProvider>
+            <ImageUploadProvider>{children}</ImageUploadProvider>
           </WidgetApiMockProvider>
-        </SnackbarProvider>
+        </SnackbarContext.Provider>
       );
     };
   });
@@ -67,7 +62,9 @@ describe('<ImageUploadProvider />', () => {
   });
 
   it('should upload an image', async () => {
-    render(<ImageProviderTest />);
+    const { result } = renderHook(useImageUpload, {
+      wrapper: Wrapper,
+    });
 
     const file = new File([], 'example.jpg', {
       type: 'image/jpeg',
@@ -78,7 +75,7 @@ describe('<ImageUploadProvider />', () => {
 
     let results;
     await act(async () => {
-      results = await imageUploadContextValue.handleDrop([file], []);
+      results = await result.current.handleDrop([file], []);
     });
 
     expect(results).toEqual([
@@ -97,7 +94,9 @@ describe('<ImageUploadProvider />', () => {
   });
 
   it('should catch read file errors', async () => {
-    render(<ImageProviderTest />);
+    const { result } = renderHook(useImageUpload, {
+      wrapper: Wrapper,
+    });
 
     const file = new File([], 'example.jpg', {
       type: 'image/jpeg',
@@ -107,7 +106,7 @@ describe('<ImageUploadProvider />', () => {
 
     let results;
     await act(async () => {
-      results = await imageUploadContextValue.handleDrop([file], []);
+      results = await result.current.handleDrop([file], []);
     });
 
     expect(results).toEqual([
@@ -119,7 +118,9 @@ describe('<ImageUploadProvider />', () => {
   });
 
   it('should catch upload file errors', async () => {
-    render(<ImageProviderTest />);
+    const { result } = renderHook(useImageUpload, {
+      wrapper: Wrapper,
+    });
 
     const file = new File([], 'example.jpg', {
       type: 'image/jpeg',
@@ -129,7 +130,7 @@ describe('<ImageUploadProvider />', () => {
 
     let results;
     await act(async () => {
-      results = await imageUploadContextValue.handleDrop([file], []);
+      results = await result.current.handleDrop([file], []);
     });
 
     expect(results).toEqual([
@@ -141,7 +142,9 @@ describe('<ImageUploadProvider />', () => {
   });
 
   it('should show a snackbar while an image is uploaded', async () => {
-    render(<ImageProviderTest />);
+    const { result } = renderHook(useImageUpload, {
+      wrapper: Wrapper,
+    });
 
     const file = new File([], 'example.jpg', {
       type: 'image/jpeg',
@@ -158,47 +161,53 @@ describe('<ImageUploadProvider />', () => {
     widgetApi.uploadFile.mockReturnValue(uploadPromise);
 
     act(() => {
-      imageUploadContextValue.handleDrop([file], []);
+      result.current.handleDrop([file], []);
     });
 
     // upload ongoing, snackbar expected
-    expect(screen.getByText('The file is uploaded.')).toBeInTheDocument();
+    expect(showSnackbar).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: 'The file is uploaded.',
+      }),
+    );
+    expect(clearSnackbar).not.toHaveBeenCalled();
 
     // resolve upload Promise to finish the upload process
-    act(() => {
+    await act(async () => {
       resolveUploadPromise({
         content_uri: 'mxc://example.com/abc123',
       });
     });
 
     // the snackbar should disappear
-    await waitFor(() => {
-      expect(
-        screen.queryByText('The file is uploaded.'),
-      ).not.toBeInTheDocument();
-    });
+    expect(clearSnackbar).toHaveBeenCalled();
   });
 
   it('should show a snackbar for images that exceed the size limit', async () => {
-    render(<ImageProviderTest />);
+    const { result } = renderHook(useImageUpload, {
+      wrapper: Wrapper,
+    });
 
     const rejectedFile: FileRejection = {
       file: new File([], 'example.jpg'),
       errors: [{ message: 'file too large', code: ErrorCode.FileTooLarge }],
     };
     await act(async () => {
-      await imageUploadContextValue.handleDrop([], [rejectedFile]);
+      await result.current.handleDrop([], [rejectedFile]);
     });
 
-    expect(
-      screen.getByText(
-        'The file example.jpg cannot be uploaded due to its size. The upload is possible for a maximum of 25 MiB per file.',
-      ),
-    ).toBeInTheDocument();
+    expect(showSnackbar).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message:
+          'The file example.jpg cannot be uploaded due to its size. The upload is possible for a maximum of 25 MiB per file.',
+      }),
+    );
   });
 
   it('should show a snackbar for files with unsupported types', async () => {
-    render(<ImageProviderTest />);
+    const { result } = renderHook(useImageUpload, {
+      wrapper: Wrapper,
+    });
 
     const rejectedFile: FileRejection = {
       file: new File([], 'example.txt', { type: 'text/plain' }),
@@ -207,16 +216,20 @@ describe('<ImageUploadProvider />', () => {
       ],
     };
     await act(async () => {
-      await imageUploadContextValue.handleDrop([], [rejectedFile]);
+      await result.current.handleDrop([], [rejectedFile]);
     });
 
-    expect(
-      screen.getByText('The file example.txt cannot be uploaded.'),
-    ).toBeInTheDocument();
+    expect(showSnackbar).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: 'The file example.txt cannot be uploaded.',
+      }),
+    );
   });
 
   it('should show a snackbar for images that failed for other reasons', async () => {
-    render(<ImageProviderTest />);
+    const { result } = renderHook(useImageUpload, {
+      wrapper: Wrapper,
+    });
 
     const file = new File([], 'example.jpg', {
       type: 'image/jpeg',
@@ -225,12 +238,14 @@ describe('<ImageUploadProvider />', () => {
       .mocked(file.arrayBuffer)
       .mockRejectedValue(new Error('error reading file'));
     await act(async () => {
-      await imageUploadContextValue.handleDrop([file], []);
+      await result.current.handleDrop([file], []);
     });
 
-    expect(
-      screen.getByText('The file example.jpg cannot be uploaded.'),
-    ).toBeInTheDocument();
+    expect(showSnackbar).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: 'The file example.jpg cannot be uploaded.',
+      }),
+    );
   });
 
   describe('maxUploadSizeBytes', () => {
@@ -238,10 +253,12 @@ describe('<ImageUploadProvider />', () => {
       widgetApi.getMediaConfig.mockResolvedValue({
         'm.upload.size': 1337,
       });
-      render(<ImageProviderTest />);
+      const { result } = renderHook(useImageUpload, {
+        wrapper: Wrapper,
+      });
 
       await waitFor(() => {
-        expect(imageUploadContextValue.maxUploadSizeBytes).toBe(1337);
+        expect(result.current.maxUploadSizeBytes).toBe(1337);
       });
     });
 
@@ -249,10 +266,12 @@ describe('<ImageUploadProvider />', () => {
       widgetApi.getMediaConfig.mockResolvedValue({
         'm.upload.size': 268435456,
       });
-      render(<ImageProviderTest />);
+      const { result } = renderHook(useImageUpload, {
+        wrapper: Wrapper,
+      });
 
       await waitFor(() => {
-        expect(imageUploadContextValue.maxUploadSizeBytes).toBe(26214400);
+        expect(result.current.maxUploadSizeBytes).toBe(26214400);
       });
     });
   });
