@@ -177,8 +177,8 @@
     "space_macos": "␣"
   },
   "imageUpload": {
-    "fileIsUploaded_one": "Die Datei wird hochgeladen.",
-    "fileIsUploaded_other": "Die Dateien werden hochgeladen.",
+    "fileIsUploaded_one": "Die Datei wird hochgeladen…",
+    "fileIsUploaded_other": "Die Dateien werden hochgeladen…",
     "otherError_one": "Die Datei {{fileNames}} kann nicht hochgeladen werden.",
     "otherError_other": "Die Dateien {{fileNames}} konnten nicht hochgeladen werden.",
     "resolutionError_one": "Die Datei {{fileNames}} kann aufgrund ihrer Auflösung nicht hochgeladen werden. Der Upload ist mit maximal {{limit}} pro Datei möglich.",

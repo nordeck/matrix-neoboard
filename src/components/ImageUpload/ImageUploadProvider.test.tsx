@@ -167,7 +167,7 @@ describe('<ImageUploadProvider />', () => {
     // upload ongoing, snackbar expected
     expect(showSnackbar).toHaveBeenCalledWith(
       expect.objectContaining({
-        message: 'The file is uploaded.',
+        message: 'The file is being uploaded…',
       }),
     );
     expect(clearSnackbar).not.toHaveBeenCalled();

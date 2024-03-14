@@ -149,7 +149,7 @@ export function ImageUploadProvider({ children }: PropsWithChildren<{}>) {
       if (files.length > 0) {
         const message = t(
           'imageUpload.fileIsUploaded',
-          'The file is uploaded.',
+          'The file is being uploaded…',
           {
             count: files.length,
           },
