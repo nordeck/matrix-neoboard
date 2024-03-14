@@ -24,6 +24,9 @@ const skeletonAnimation = keyframes`
 
 /**
  * Similar to MUIs skeleton but SVG only.
+ *
+ * MUIs Skeleton component is not used, because there is a bug in Safari regarding foreignObjects
+ * {@link https://bugs.webkit.org/show_bug.cgi?id=23113}
  */
 export const Skeleton = styled('rect')({
   fill: 'rgba(23, 25, 28, 0.11)',
