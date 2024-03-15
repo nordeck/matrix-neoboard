@@ -18,16 +18,16 @@ import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ComponentType, PropsWithChildren } from 'react';
 import { SnackbarDismissAction } from './SnackbarDismissAction';
-import { SnackbarContextValue, SnackbarProvider } from './SnackbarProvider';
+import { SnackbarContextState, SnackbarProvider } from './SnackbarProvider';
 import { useSnackbar } from './useSnackbar';
 
 describe('<SnackbarDismissAction />', () => {
-  let snackbarContextValue: SnackbarContextValue;
+  let snackbarContextState: SnackbarContextState;
   let SnackbarProviderTest: ComponentType<PropsWithChildren<{}>>;
 
   beforeEach(() => {
     function SnackbarContextValueExtractor() {
-      snackbarContextValue = useSnackbar();
+      snackbarContextState = useSnackbar();
       return null;
     }
 
@@ -44,7 +44,7 @@ describe('<SnackbarDismissAction />', () => {
     render(<SnackbarProviderTest />);
 
     act(() => {
-      snackbarContextValue.showSnackbar({
+      snackbarContextState.showSnackbar({
         key: 'testSnackbar',
         message: 'test snackbar',
         action: <SnackbarDismissAction />,

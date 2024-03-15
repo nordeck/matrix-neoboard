@@ -25,7 +25,7 @@ export type SnackbarProps = MuiSnackbarProps &
   Required<Pick<MuiSnackbarProps, 'key'>> &
   Required<Pick<MuiSnackbarProps, 'message'>>;
 
-export type SnackbarContextValue = {
+export type SnackbarContextState = {
   /**
    * Clear the snackbar.
    */
@@ -38,7 +38,7 @@ export type SnackbarContextValue = {
   showSnackbar: (snackbar: SnackbarProps) => void;
 };
 
-export const SnackbarContext = createContext<SnackbarContextValue | undefined>(
+export const SnackbarContext = createContext<SnackbarContextState | undefined>(
   undefined,
 );
 
