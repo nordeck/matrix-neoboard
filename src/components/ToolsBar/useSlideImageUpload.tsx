@@ -94,7 +94,6 @@ function addImageToSlide(
   });
   slide.addElement({
     type: 'image',
-    kind: 'image',
     position: centredPosition,
     ...fittedSize,
     mxc,

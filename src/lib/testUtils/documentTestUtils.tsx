@@ -264,7 +264,6 @@ export function mockImageElement(
 ): ImageElement {
   return {
     type: 'image',
-    kind: 'image',
     mxc: 'mxc://example.com/test1234',
     fileName: 'test.jpg',
     position: { x: 10, y: 20 },

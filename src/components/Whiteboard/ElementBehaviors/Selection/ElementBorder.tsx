@@ -83,7 +83,8 @@ export function ElementBorder({ elementIds, padding = 1 }: ElementBorderProps) {
     height + 2 * (selectionBorderWidth / 2 + scaledPadding);
   const lineRenderProperties =
     elements.length === 1 &&
-    elements[0] &&
+    elements[0] !== undefined &&
+    'kind' in elements[0] &&
     elements[0].kind === 'line' &&
     getRenderProperties(elements[0]);
 
