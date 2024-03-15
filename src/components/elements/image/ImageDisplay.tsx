@@ -68,7 +68,7 @@ function ImageDisplay({
   useEffect(() => {
     let timeoutId: ReturnType<typeof setTimeout>;
 
-    if (loading === false && showSkeleton === true) {
+    if (!loading && showSkeleton) {
       // keep the skeleton around for some additional time,
       // so that the image has some time to render
       timeoutId = setTimeout(() => {
