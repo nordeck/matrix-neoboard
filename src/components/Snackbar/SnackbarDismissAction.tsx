@@ -32,6 +32,7 @@ export function DismissAction() {
     <IconButton
       aria-label={t('snackbar.dismissAction', 'Dismiss')}
       onClick={handleClick}
+      tabIndex={0}
     >
       <CloseIcon />
     </IconButton>
