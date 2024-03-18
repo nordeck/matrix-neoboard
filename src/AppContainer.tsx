@@ -24,7 +24,7 @@ import { Provider } from 'react-redux';
 import { App } from './App';
 import { GuidedTourProvider } from './components/GuidedTour';
 import { LayoutStateProvider } from './components/Layout';
-import { SnackbarProvider } from './components/Snackbar';
+import { Snackbar, SnackbarProvider } from './components/Snackbar';
 import { DraggableStyles } from './components/Whiteboard';
 import { WhiteboardHotkeysProvider } from './components/WhiteboardHotkeysProvider';
 import { PageLoader } from './components/common/PageLoader';
@@ -63,6 +63,7 @@ export const AppContainer = ({
                   <WhiteboardHotkeysProvider>
                     <GuidedTourProvider>
                       <SnackbarProvider>
+                        <Snackbar />
                         <App />
                       </SnackbarProvider>
                     </GuidedTourProvider>

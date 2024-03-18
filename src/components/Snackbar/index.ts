@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+export { Snackbar } from './Snackbar';
 export { SnackbarDismissAction } from './SnackbarDismissAction';
 export { SnackbarProvider } from './SnackbarProvider';
 export type { SnackbarProps } from './SnackbarProvider';

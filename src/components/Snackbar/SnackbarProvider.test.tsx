@@ -14,40 +14,50 @@
  * limitations under the License.
  */
 
-import { act, render, screen } from '@testing-library/react';
+import { act } from '@testing-library/react';
+import { renderHook } from '@testing-library/react-hooks';
 import { ComponentType, PropsWithChildren } from 'react';
-import { SnackbarProvider, SnackbarState } from './SnackbarProvider';
+import { SnackbarProvider } from './SnackbarProvider';
 import { useSnackbar } from './useSnackbar';
 
 describe('<SnackbarProvider />', () => {
-  let snackbarContextState: SnackbarState;
-  let SnackbarProviderTest: ComponentType<PropsWithChildren<{}>>;
+  let Wrapper: ComponentType<PropsWithChildren<{}>>;
 
   beforeEach(() => {
-    function SnackbarStateExtractor() {
-      snackbarContextState = useSnackbar();
-      return null;
-    }
-
-    SnackbarProviderTest = () => {
-      return (
-        <SnackbarProvider>
-          <SnackbarStateExtractor />
-        </SnackbarProvider>
-      );
-    };
+    Wrapper = ({ children }: PropsWithChildren<{}>) => (
+      <SnackbarProvider>{children}</SnackbarProvider>
+    );
   });
 
-  it('should provide a snackbar', () => {
-    render(<SnackbarProviderTest />);
+  it('should provide snackbar props after showSnackbar', () => {
+    const { result } = renderHook(useSnackbar, { wrapper: Wrapper });
 
     act(() => {
-      snackbarContextState.showSnackbar({
+      result.current.showSnackbar({
         key: 'testSnackbar',
         message: 'test snackbar',
       });
     });
 
-    expect(screen.getByText('test snackbar')).toBeInTheDocument();
+    expect(result.current.snackbarProps).toEqual(
+      expect.objectContaining({
+        key: 'testSnackbar',
+        message: 'test snackbar',
+      }),
+    );
+  });
+
+  it('should clear snackbar props after clearSnackbar', () => {
+    const { result } = renderHook(useSnackbar, { wrapper: Wrapper });
+
+    act(() => {
+      result.current.showSnackbar({
+        key: 'testSnackbar',
+        message: 'test snackbar',
+      });
+      result.current.clearSnackbar();
+    });
+
+    expect(result.current.snackbarProps).toBeUndefined();
   });
 });

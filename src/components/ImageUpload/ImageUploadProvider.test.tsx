@@ -49,7 +49,9 @@ describe('<ImageUploadProvider />', () => {
 
     Wrapper = ({ children }) => {
       return (
-        <SnackbarContext.Provider value={{ showSnackbar, clearSnackbar }}>
+        <SnackbarContext.Provider
+          value={{ showSnackbar, clearSnackbar, snackbarProps: {} }}
+        >
           <WidgetApiMockProvider value={widgetApi}>
             <ImageUploadProvider>{children}</ImageUploadProvider>
           </WidgetApiMockProvider>

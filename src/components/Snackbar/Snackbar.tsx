@@ -14,25 +14,15 @@
  * limitations under the License.
  */
 
-import CloseIcon from '@mui/icons-material/Close';
-import { IconButton } from '@mui/material';
-import React from 'react';
-import { useTranslation } from 'react-i18next';
+import { Snackbar as MuiSnackbar } from '@mui/material';
 import { useSnackbar } from './useSnackbar';
 
-export function DismissAction() {
-  const { t } = useTranslation();
-  const { clearSnackbar } = useSnackbar();
+export function Snackbar() {
+  const { snackbarProps } = useSnackbar();
 
-  return (
-    <IconButton
-      aria-label={t('snackbar.dismissAction', 'Dismiss')}
-      onClick={clearSnackbar}
-      tabIndex={0}
-    >
-      <CloseIcon />
-    </IconButton>
-  );
+  if (snackbarProps === undefined) {
+    return null;
+  }
+
+  return <MuiSnackbar {...snackbarProps} />;
 }
-
-export const SnackbarDismissAction = React.memo(DismissAction);

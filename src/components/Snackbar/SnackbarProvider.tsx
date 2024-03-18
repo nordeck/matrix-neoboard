@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
+import { SnackbarProps as MuiSnackbarProps, useTheme } from '@mui/material';
 import {
-  SnackbarProps as MuiSnackbarProps,
-  Snackbar,
-  useTheme,
-} from '@mui/material';
-import { PropsWithChildren, createContext, useCallback, useState } from 'react';
+  PropsWithChildren,
+  createContext,
+  useCallback,
+  useMemo,
+  useState,
+} from 'react';
 
 export type SnackbarProps = MuiSnackbarProps &
   Required<Pick<MuiSnackbarProps, 'key'>> &
@@ -36,6 +38,11 @@ export type SnackbarState = {
    * @param snackbar - MUI Snackbar props {@link SnackbarProps}
    */
   showSnackbar: (snackbar: SnackbarProps) => void;
+  /**
+   * Props to render the snackbar.
+   * Undefined if there should be no snackbar.
+   */
+  snackbarProps: MuiSnackbarProps | undefined;
 };
 
 export const SnackbarContext = createContext<SnackbarState | undefined>(
@@ -47,40 +54,54 @@ export const SnackbarContext = createContext<SnackbarState | undefined>(
  */
 export function SnackbarProvider({ children }: PropsWithChildren<{}>) {
   const theme = useTheme();
-  const [open, setOpen] = useState(false);
-  const [snackbar, setSnackbar] = useState<SnackbarProps>();
+  const [extraSnackbarProps, setExtraSnackbarProps] = useState<
+    SnackbarProps | undefined
+  >(undefined);
 
   const handleClose = useCallback(() => {
-    setOpen(false);
-  }, []);
+    setExtraSnackbarProps(undefined);
+  }, [setExtraSnackbarProps]);
 
   const showSnackbar = useCallback(
-    (snackbar: SnackbarProps) => {
-      setSnackbar(snackbar);
-      setOpen(true);
+    (snackbarProps: SnackbarProps) => {
+      setExtraSnackbarProps(snackbarProps);
     },
-    [setOpen, setSnackbar],
+    [setExtraSnackbarProps],
   );
+
+  const snackbarProps: MuiSnackbarProps | undefined = useMemo(() => {
+    if (extraSnackbarProps === undefined) {
+      return undefined;
+    }
+
+    return {
+      ...extraSnackbarProps,
+      anchorOrigin: { horizontal: 'center', vertical: 'top' },
+      onClose: handleClose,
+      open: true,
+      ContentProps: {
+        sx: {
+          background: theme.palette.background.default,
+          color: theme.palette.text.primary,
+          flexWrap: 'nowrap',
+        },
+      },
+    };
+  }, [
+    extraSnackbarProps,
+    handleClose,
+    theme.palette.background.default,
+    theme.palette.text.primary,
+  ]);
 
   return (
     <SnackbarContext.Provider
-      value={{ showSnackbar, clearSnackbar: handleClose }}
+      value={{
+        showSnackbar,
+        clearSnackbar: handleClose,
+        snackbarProps,
+      }}
     >
-      {snackbar && (
-        <Snackbar
-          {...snackbar}
-          anchorOrigin={{ horizontal: 'center', vertical: 'top' }}
-          onClose={handleClose}
-          open={open}
-          ContentProps={{
-            sx: {
-              background: theme.palette.background.default,
-              color: theme.palette.text.primary,
-              flexWrap: 'nowrap',
-            },
-          }}
-        />
-      )}
       {children}
     </SnackbarContext.Provider>
   );

@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { Snackbar } from '@mui/material';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ComponentType, PropsWithChildren } from 'react';
 import { SnackbarDismissAction } from './SnackbarDismissAction';
@@ -22,40 +23,36 @@ import { SnackbarProvider, SnackbarState } from './SnackbarProvider';
 import { useSnackbar } from './useSnackbar';
 
 describe('<SnackbarDismissAction />', () => {
-  let snackbarContextState: SnackbarState;
-  let SnackbarProviderTest: ComponentType<PropsWithChildren<{}>>;
+  let snackbarState: SnackbarState;
+  let Wrapper: ComponentType<PropsWithChildren<{}>>;
 
   beforeEach(() => {
     function SnackbarStateExtractor() {
-      snackbarContextState = useSnackbar();
+      snackbarState = useSnackbar();
+      jest.spyOn(snackbarState, 'clearSnackbar');
       return null;
     }
-
-    SnackbarProviderTest = () => {
-      return (
-        <SnackbarProvider>
-          <SnackbarStateExtractor />
-        </SnackbarProvider>
-      );
-    };
+    Wrapper = ({ children }: PropsWithChildren<{}>) => (
+      <SnackbarProvider>
+        <SnackbarStateExtractor />
+        {children}
+      </SnackbarProvider>
+    );
   });
 
   it('should provide a dismiss action that clears the snackbar', async () => {
-    render(<SnackbarProviderTest />);
-
-    act(() => {
-      snackbarContextState.showSnackbar({
-        key: 'testSnackbar',
-        message: 'test snackbar',
-        action: <SnackbarDismissAction />,
-      });
-    });
-    expect(screen.getByText('test snackbar')).toBeInTheDocument();
+    render(
+      <Snackbar
+        key="testSnackbar"
+        message="test snackbar"
+        action={<SnackbarDismissAction />}
+        open={true}
+      />,
+      { wrapper: Wrapper },
+    );
 
     await userEvent.click(screen.getByRole('button', { name: 'Dismiss' }));
 
-    await waitFor(() => {
-      expect(screen.queryByText('test snackbar')).not.toBeInTheDocument();
-    });
+    expect(snackbarState.clearSnackbar).toHaveBeenCalled();
   });
 });
