@@ -61,9 +61,15 @@ export const ConnectedElement = ({
         return <TriangleDisplay {...element} {...otherProps} />;
       }
     } else if (element.type === 'image') {
+      if (widgetApi.widgetParameters.baseUrl === undefined) {
+        // TODO implement proper handling to give the user some feedback
+        console.error('Image cannot be rendered due to missing base URL');
+        return null;
+      }
+
       return (
         <ImageDisplay
-          baseUrl={widgetApi.widgetParameters.baseUrl ?? ''}
+          baseUrl={widgetApi.widgetParameters.baseUrl}
           {...element}
           {...otherProps}
         />
