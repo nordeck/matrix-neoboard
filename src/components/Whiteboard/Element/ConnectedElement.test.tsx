@@ -34,9 +34,12 @@ describe('<ConnectedElement />', () => {
 
   beforeEach(() => {
     widgetApi = mockWidgetApi();
+    jest.spyOn(console, 'error');
+
     const { whiteboardManager } = mockWhiteboardManager({
       slides: [['slide-0', [['element-0', mockImageElement()]]]],
     });
+
     Wrapper = ({ children }) => (
       <LayoutStateProvider>
         <WhiteboardTestingContextProvider
@@ -61,7 +64,24 @@ describe('<ConnectedElement />', () => {
   });
 
   it('should render an image element', () => {
+    // @ts-ignore ignore readonly prop for tests
+    widgetApi.widgetParameters.baseUrl = 'https://example.com';
+
     render(<ConnectedElement id="element-0" />, { wrapper: Wrapper });
+
     expect(screen.getByTestId('element-element-0-image')).toBeInTheDocument();
+  });
+
+  it('should log and not render an image when there is no base URL', () => {
+    jest.mocked(console.error).mockImplementation(() => {});
+
+    render(<ConnectedElement id="element-0" />, { wrapper: Wrapper });
+
+    expect(console.error).toHaveBeenCalledWith(
+      'Image cannot be rendered due to missing base URL',
+    );
+    expect(
+      screen.queryByTestId('element-element-0-image'),
+    ).not.toBeInTheDocument();
   });
 });
