@@ -232,11 +232,10 @@ describe('YDocument', () => {
     expect(first.contentSizeInBytes).toBe(19);
     expect(first.documentSizeInBytes).toBe(26);
     expect(second.contentSizeInBytes).toBe(24);
-    // documentSizeInBytes is not fully deterministic, therefore we do a bounds
-    // check. The size depends on the clientID generated for the current
-    // session, that might be encoded with a variable length.
-    expect(second.documentSizeInBytes).toBeGreaterThanOrEqual(42);
-    expect(second.documentSizeInBytes).toBeLessThanOrEqual(43);
+    // Sanity check: The size of the document should have been increased.
+    expect(second.documentSizeInBytes).toBeGreaterThan(26);
+    // The last statistics should be the current document size.
+    expect(second.documentSizeInBytes).toBe(yDoc.store().length);
   });
 
   it('should clone the document', () => {
