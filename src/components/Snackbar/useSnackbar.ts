@@ -15,9 +15,9 @@
  */
 
 import { useContext } from 'react';
-import { SnackbarContext, SnackbarContextState } from './SnackbarProvider';
+import { SnackbarContext, SnackbarState } from './SnackbarProvider';
 
-export function useSnackbar(): SnackbarContextState {
+export function useSnackbar(): SnackbarState {
   const value = useContext(SnackbarContext);
 
   if (!value) {
