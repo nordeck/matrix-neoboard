@@ -16,11 +16,10 @@
 
 import CloseIcon from '@mui/icons-material/Close';
 import { IconButton } from '@mui/material';
-import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSnackbar } from './useSnackbar';
 
-export function DismissAction() {
+export function SnackbarDismissAction() {
   const { t } = useTranslation();
   const { clearSnackbar } = useSnackbar();
 
@@ -34,5 +33,3 @@ export function DismissAction() {
     </IconButton>
   );
 }
-
-export const SnackbarDismissAction = React.memo(DismissAction);
