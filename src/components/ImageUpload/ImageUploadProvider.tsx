@@ -273,7 +273,7 @@ function showErrorSnackbars(
       key: message,
       message,
       action: <SnackbarDismissAction />,
-      // autoHideDuration: 10000,
+      autoHideDuration: 10000,
     });
   }
 }

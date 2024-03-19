@@ -216,6 +216,7 @@ describe('<ImageUploadProvider />', () => {
       expect.objectContaining({
         message:
           'The file example.jpg cannot be uploaded due to its size. The upload is possible for a maximum of 25 MiB per file.',
+        autoHideDuration: 10000,
       }),
     );
   });
@@ -238,6 +239,7 @@ describe('<ImageUploadProvider />', () => {
     expect(showSnackbar).toHaveBeenCalledWith(
       expect.objectContaining({
         message: 'The file example.txt cannot be uploaded.',
+        autoHideDuration: 10000,
       }),
     );
   });
@@ -265,6 +267,7 @@ describe('<ImageUploadProvider />', () => {
     expect(showSnackbar).toHaveBeenCalledWith(
       expect.objectContaining({
         message: 'The file example.jpg cannot be uploaded.',
+        autoHideDuration: 10000,
       }),
     );
   });
