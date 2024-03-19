@@ -62,7 +62,6 @@ export const ConnectedElement = ({
       }
     } else if (element.type === 'image') {
       if (widgetApi.widgetParameters.baseUrl === undefined) {
-        // TODO implement proper handling to give the user some feedback
         console.error('Image cannot be rendered due to missing base URL');
         return null;
       }
