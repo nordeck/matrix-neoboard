@@ -82,7 +82,7 @@ describe('<ImageDisplay />', () => {
     expect(screen.getByTestId('element-element-0-image')).toBeInTheDocument();
   });
 
-  it('should render a skeleton while an image is loaded', async () => {
+  it('should render a skeleton until an image is loaded', async () => {
     render(
       <ImageDisplay
         elementId="element-0"
@@ -99,19 +99,14 @@ describe('<ImageDisplay />', () => {
       { wrapper: Wrapper },
     );
 
-    act(() => {
-      screen
-        .getByTestId('element-element-0-image')
-        .dispatchEvent(new Event('load'));
-    });
-
     expect(
       screen.getByTestId('element-element-0-skeleton'),
     ).toBeInTheDocument();
 
-    // wait additional time until the skeleton should be gone
     act(() => {
-      jest.advanceTimersByTime(3000);
+      screen
+        .getByTestId('element-element-0-image')
+        .dispatchEvent(new Event('load'));
     });
 
     expect(

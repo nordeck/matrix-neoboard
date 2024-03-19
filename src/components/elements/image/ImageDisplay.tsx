@@ -15,7 +15,7 @@
  */
 
 import { styled } from '@mui/material';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { ImageElement } from '../../../state';
 import {
   ElementContextMenu,
@@ -63,29 +63,12 @@ function ImageDisplay({
     [baseUrl, mxc],
   );
   const [loading, setLoading] = useState(true);
-  const [showSkeleton, setShowSkeleton] = useState(true);
-
-  useEffect(() => {
-    let timeoutId: ReturnType<typeof setTimeout>;
-
-    if (!loading && showSkeleton) {
-      // keep the skeleton around for some additional time,
-      // so that the image has some time to render
-      timeoutId = setTimeout(() => {
-        setShowSkeleton(false);
-      }, 2500);
-    }
-
-    return () => {
-      clearTimeout(timeoutId);
-    };
-  }, [loading, setShowSkeleton, showSkeleton]);
 
   const handleLoad = useCallback(() => {
     setLoading(false);
   }, [setLoading]);
 
-  const renderedSkeleton = showSkeleton ? (
+  const renderedSkeleton = loading ? (
     <Skeleton
       data-testid={`element-${elementId}-skeleton`}
       x={position.x}
