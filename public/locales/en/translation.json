@@ -235,14 +235,14 @@
   "toolsBar": {
     "arrowTool": "Arrow",
     "ellipseTool": "Ellipse",
+    "imageUploadTool": "Upload image",
     "lineTool": "Line",
     "penTool": "Pen",
     "rectangleTool": "Rectangle",
     "selectTool": "Select",
     "textTool": "Text",
     "title": "Tools",
-    "triangleTool": "Triangle",
-    "uploadTool": "Upload image"
+    "triangleTool": "Triangle"
   },
   "undoRedoBar": {
     "redo": "Redo",

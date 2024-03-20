@@ -235,14 +235,14 @@
   "toolsBar": {
     "arrowTool": "Pfeil",
     "ellipseTool": "Ellipse",
+    "imageUploadTool": "Bild hochladen",
     "lineTool": "Linie",
     "penTool": "Stift",
     "rectangleTool": "Rechteck",
     "selectTool": "Auswählen",
     "textTool": "Text",
     "title": "Werkzeuge",
-    "triangleTool": "Dreieck",
-    "uploadTool": "Bild hochladen"
+    "triangleTool": "Dreieck"
   },
   "undoRedoBar": {
     "redo": "Wiederholen",

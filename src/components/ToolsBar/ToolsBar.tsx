@@ -116,7 +116,7 @@ export function ToolsBar() {
         ))}
         {imageUploadEnabled && (
           <ToolbarButton
-            aria-label={t('toolsBar.uploadTool', 'Upload image')}
+            aria-label={t('toolsBar.imageUploadTool', 'Upload image')}
             {...getRootProps()}
           >
             <input {...getInputProps()} onClick={undefined} />
