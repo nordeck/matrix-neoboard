@@ -202,7 +202,7 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
     return null;
   }
 
-  if (element.kind === 'line') {
+  if (element.type === 'path' && element.kind === 'line') {
     const renderProperties = getRenderProperties(element);
 
     return (
@@ -241,6 +241,8 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
   const offsetY = boundingRect.offsetY;
   const height = boundingRect.height;
   const width = boundingRect.width;
+  const elementKind =
+    'kind' in element && element.kind !== 'line' ? element.kind : undefined;
 
   return (
     <g
@@ -253,7 +255,7 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
         onDragStop={handleDragStop}
         startDimensions={startDimensions}
         resizeParams={{
-          elementKind: element.kind,
+          elementKind,
           handlePosition: 'top',
           containerHeight: height,
           containerWidth: width,
@@ -266,7 +268,7 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
         onDragStop={handleDragStop}
         startDimensions={startDimensions}
         resizeParams={{
-          elementKind: element.kind,
+          elementKind,
           handlePosition: 'topRight',
           containerHeight: height,
           containerWidth: width,
@@ -279,7 +281,7 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
         onDragStop={handleDragStop}
         startDimensions={startDimensions}
         resizeParams={{
-          elementKind: element.kind,
+          elementKind,
           handlePosition: 'right',
           containerHeight: height,
           containerWidth: width,
@@ -292,7 +294,7 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
         onDragStop={handleDragStop}
         startDimensions={startDimensions}
         resizeParams={{
-          elementKind: element.kind,
+          elementKind,
           handlePosition: 'bottomRight',
           containerHeight: height,
           containerWidth: width,
@@ -305,7 +307,7 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
         onDragStop={handleDragStop}
         startDimensions={startDimensions}
         resizeParams={{
-          elementKind: element.kind,
+          elementKind,
           handlePosition: 'bottom',
           containerHeight: height,
           containerWidth: width,
@@ -318,7 +320,7 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
         onDragStop={handleDragStop}
         startDimensions={startDimensions}
         resizeParams={{
-          elementKind: element.kind,
+          elementKind,
           handlePosition: 'bottomLeft',
           containerHeight: height,
           containerWidth: width,
@@ -331,7 +333,7 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
         onDragStop={handleDragStop}
         startDimensions={startDimensions}
         resizeParams={{
-          elementKind: element.kind,
+          elementKind,
           handlePosition: 'left',
           containerHeight: height,
           containerWidth: width,
@@ -344,7 +346,7 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
         onDragStop={handleDragStop}
         startDimensions={startDimensions}
         resizeParams={{
-          elementKind: element.kind,
+          elementKind,
           handlePosition: 'topLeft',
           containerHeight: height,
           containerWidth: width,

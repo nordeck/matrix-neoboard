@@ -176,6 +176,16 @@
     "space_default": "Leertaste",
     "space_macos": "␣"
   },
+  "imageUpload": {
+    "fileIsUploaded_one": "Die Datei wird hochgeladen…",
+    "fileIsUploaded_other": "Die Dateien werden hochgeladen…",
+    "otherError_one": "Die Datei {{fileNames}} kann nicht hochgeladen werden.",
+    "otherError_other": "Die Dateien {{fileNames}} konnten nicht hochgeladen werden.",
+    "resolutionError_one": "Die Datei {{fileNames}} kann aufgrund ihrer Auflösung nicht hochgeladen werden. Der Upload ist mit maximal {{limit}} pro Datei möglich.",
+    "resolutionError_other": "Die Dateien {{fileNames}} können aufgrund ihrer Auflösung nicht hochgeladen werden. Der Upload ist mit maximal {{limit}} pro Datei möglich.",
+    "sizeError_one": "Die Datei {{fileNames}} kann aufgrund ihrer Größe nicht hochgeladen werden. Der Upload ist mit maximal {{limit}} pro Datei möglich.",
+    "sizeError_other": "Die Dateien {{fileNames}} können aufgrund ihrer Größe nicht hochgeladen werden. Der Upload ist mit maximal {{limit}} pro Datei möglich."
+  },
   "presentBar": {
     "disableEditing": "Bearbeitung sperren",
     "enableEditing": "Bearbeitung freigeben",
@@ -211,6 +221,9 @@
     "slideTitleLocked": "(gesperrt)",
     "title": "Folienübersicht"
   },
+  "snackbar": {
+    "dismissAction": "Ausblenden"
+  },
   "toolbar": {
     "toolbarAvatar": {
       "label_you": "{{displayName}} (Du)",
@@ -222,6 +235,7 @@
   "toolsBar": {
     "arrowTool": "Pfeil",
     "ellipseTool": "Ellipse",
+    "imageUploadTool": "Bild hochladen",
     "lineTool": "Linie",
     "penTool": "Stift",
     "rectangleTool": "Rechteck",

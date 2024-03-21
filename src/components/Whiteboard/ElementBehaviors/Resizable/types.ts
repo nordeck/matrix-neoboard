@@ -40,7 +40,7 @@ export type LineElementResizeParams = {
 };
 
 export type PolylineAndShapeElementsResizeParams = {
-  elementKind: Exclude<ElementKind, 'line'>;
+  elementKind?: Exclude<ElementKind, 'line'>;
   handlePosition: PolylineAndShapeElementsResizeHandlePosition;
   containerWidth: number;
   containerHeight: number;

@@ -31,6 +31,7 @@ import { ElementOverridesProvider } from '../ElementOverridesProvider';
 import { FullscreenModeBar } from '../FullscreenModeBar';
 import { GuidedTour } from '../GuidedTour';
 import { HelpCenterBar } from '../HelpCenterBar';
+import { ImageUploadProvider } from '../ImageUpload';
 import { PresentBar } from '../PresentBar';
 import { Shortcuts } from '../Shortcuts';
 import { SlideOverviewBar } from '../SlideOverviewBar';
@@ -80,7 +81,9 @@ export function Layout() {
             <TabPanelStyled value={slideId} key={slideId}>
               <SlideProvider slideId={slideId}>
                 <ElementOverridesProvider>
-                  <ContentArea />
+                  <ImageUploadProvider>
+                    <ContentArea />
+                  </ImageUploadProvider>
                 </ElementOverridesProvider>
               </SlideProvider>
             </TabPanelStyled>

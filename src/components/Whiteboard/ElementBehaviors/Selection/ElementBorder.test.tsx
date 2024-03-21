@@ -20,6 +20,7 @@ import { ComponentType, PropsWithChildren } from 'react';
 import {
   WhiteboardTestingContextProvider,
   mockEllipseElement,
+  mockImageElement,
   mockLineElement,
   mockPolylineElement,
   mockWhiteboardManager,
@@ -60,6 +61,7 @@ describe('<ElementBorder />', () => {
             ['element-0', mockEllipseElement()],
             ['element-1', mockPolylineElement()],
             ['element-2', mockLineElement()],
+            ['element-3', mockImageElement()],
           ],
         ],
       ],

@@ -88,12 +88,37 @@ const pathElementSchema = elementBaseSchema
   })
   .required();
 
-export type Element = ShapeElement | PathElement;
+export type ImageElement = ElementBase & {
+  type: 'image';
+  width: number;
+  height: number;
+  /**
+   * MXC URI of the image
+   * {@link https://spec.matrix.org/v1.9/client-server-api/#matrix-content-mxc-uris}
+   */
+  mxc: string;
+  fileName: string;
+};
+
+const imageElementSchema = elementBaseSchema
+  .append<ImageElement>({
+    type: Joi.string().valid('image').required(),
+    mxc: Joi.string()
+      .regex(/mxc:\/\/.*\/.*/)
+      .required(),
+    fileName: Joi.string().required(),
+    width: Joi.number().strict().required(),
+    height: Joi.number().strict().required(),
+  })
+  .required();
+
+export type Element = ShapeElement | PathElement | ImageElement;
 export type ElementKind = ShapeKind | PathKind;
 
 export const elementSchema = Joi.alternatives<Element>().conditional('.type', [
   { is: 'shape', then: shapeElementSchema },
   { is: 'path', then: pathElementSchema },
+  { is: 'image', then: imageElementSchema },
 ]);
 
 export function isValidElement(element: unknown): element is Element {
@@ -142,4 +167,55 @@ export function calculateBoundingRectForElements(
       : element?.width ?? elementsBoundingRect?.width ?? 0;
 
   return { offsetX: x, offsetY: y, width, height };
+}
+
+export type Size = {
+  width: number;
+  height: number;
+};
+
+/**
+ * Calculate the size of an element so that it fits into a container.
+ * Maintain the aspect ratio.
+ *
+ * @param elementSize - Element size
+ * @param containerSize - Container size to fit the element into
+ * @returns Fitted element size
+ */
+export function calculateFittedElementSize(
+  elementSize: Size,
+  containerSize: Size,
+): Size {
+  const resultSize = { ...elementSize };
+
+  if (elementSize.width > containerSize.width) {
+    const scaleFactor = containerSize.width / elementSize.width;
+    resultSize.width = containerSize.width;
+    resultSize.height = Math.round(elementSize.height * scaleFactor);
+  }
+
+  if (elementSize.height > containerSize.height) {
+    const scaleFactor = containerSize.height / elementSize.height;
+    resultSize.height = containerSize.height;
+    resultSize.width = Math.round(elementSize.width * scaleFactor);
+  }
+
+  return resultSize;
+}
+
+/**
+ * Calculate the position of an element so that it is centred inside a container.
+ *
+ * @param element - Element containing bounding rectangle size
+ * @param containerSize - Container size to centre the element inside
+ * @returns Centred top left position
+ */
+export function calculateCentredPosition(
+  element: Size,
+  containerSize: Size,
+): Point {
+  return {
+    x: Math.round((containerSize.width - element.width) / 2),
+    y: Math.round((containerSize.height - element.height) / 2),
+  };
 }

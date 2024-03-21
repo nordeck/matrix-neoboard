@@ -18,7 +18,12 @@ import {
   mockEllipseElement,
   mockLineElement,
 } from '../../../lib/testUtils/documentTestUtils';
-import { calculateBoundingRectForElements, isValidElement } from './elements';
+import {
+  calculateBoundingRectForElements,
+  calculateCentredPosition,
+  calculateFittedElementSize,
+  isValidElement,
+} from './elements';
 
 describe('isValidElement', () => {
   it.each(['line', 'polyline'])('should accept %j path event', (kind) => {
@@ -165,6 +170,56 @@ describe('isValidElement', () => {
 
     expect(isValidElement(data)).toBe(false);
   });
+
+  it('should accept a valid image element', () => {
+    const data = {
+      type: 'image',
+      mxc: 'mxc://example.com/test1234',
+      fileName: 'example.jpg',
+      position: { x: 10, y: 20 },
+      width: 100,
+      height: 100,
+    };
+
+    expect(isValidElement(data)).toBe(true);
+  });
+
+  it.each<Object>([
+    { type: undefined },
+    { type: null },
+    { type: 111 },
+    { type: '' },
+    { mxc: undefined },
+    { mxc: null },
+    { mxc: '111' },
+    { mxc: 'http://example.com/example.jpg' },
+    { mxc: 'https://example.com/example.jpg' },
+    { mxc: 'example.jpg' },
+    { fileName: undefined },
+    { fileName: null },
+    { position: undefined },
+    { position: null },
+    { position: 111 },
+    { position: {} },
+    { width: undefined },
+    { width: null },
+    { width: '111' },
+    { height: undefined },
+    { height: null },
+    { height: '111' },
+  ])('should reject an image event with patch %j', (patch: Object) => {
+    const data = {
+      type: 'image',
+      mxc: 'mxc://example.com/test1234',
+      fileName: 'example.jpg',
+      position: { x: 10, y: 20 },
+      width: 100,
+      height: 100,
+      ...patch,
+    };
+
+    expect(isValidElement(data)).toBe(false);
+  });
 });
 
 describe('calculateBoundingRectForElements', () => {
@@ -214,5 +269,93 @@ describe('calculateBoundingRectForElements', () => {
       width: 0,
       height: 0,
     });
+  });
+});
+
+describe('calculateCentredPosition', () => {
+  it('should return 0, 0 if everything is 0', () => {
+    expect(
+      calculateCentredPosition(
+        { width: 0, height: 0 },
+        { width: 0, height: 0 },
+      ),
+    ).toEqual({ x: 0, y: 0 });
+  });
+
+  it('should return 0, 0 if the element and the container have the same size', () => {
+    expect(
+      calculateCentredPosition(
+        { width: 100, height: 50 },
+        { width: 100, height: 50 },
+      ),
+    ).toEqual({ x: 0, y: 0 });
+  });
+
+  it('should calculate the centred position if the element is smaller than the container', () => {
+    expect(
+      calculateCentredPosition(
+        { width: 20, height: 10 },
+        { width: 100, height: 50 },
+      ),
+    ).toEqual({ x: 40, y: 20 });
+  });
+
+  it('should calculate the centred position if the element is larger than the container', () => {
+    expect(
+      calculateCentredPosition(
+        { width: 100, height: 50 },
+        { width: 20, height: 10 },
+      ),
+    ).toEqual({ x: -40, y: -20 });
+  });
+});
+
+describe('calculateFittedElementSize', () => {
+  it('should return 0, 0 if everything is 0', () => {
+    expect(
+      calculateFittedElementSize(
+        { width: 0, height: 0 },
+        { width: 0, height: 0 },
+      ),
+    ).toEqual({
+      width: 0,
+      height: 0,
+    });
+  });
+
+  it('should not change the size if the element already fits into the container', () => {
+    expect(
+      calculateFittedElementSize(
+        { width: 20, height: 10 },
+        { width: 100, height: 50 },
+      ),
+    ).toEqual({ width: 20, height: 10 });
+  });
+
+  it('should fit the element into the container if they both have the same aspect ratio', () => {
+    expect(
+      calculateFittedElementSize(
+        { width: 100, height: 50 },
+        { width: 20, height: 10 },
+      ),
+    ).toEqual({ width: 20, height: 10 });
+  });
+
+  it('should fit the element if it is wider than the container while keeping the aspect ratio', () => {
+    expect(
+      calculateFittedElementSize(
+        { width: 40, height: 50 },
+        { width: 20, height: 100 },
+      ),
+    ).toEqual({ width: 20, height: 25 });
+  });
+
+  it('should fit the element if it is higher than the container while keeping the aspect ratio', () => {
+    expect(
+      calculateFittedElementSize(
+        { width: 40, height: 50 },
+        { width: 100, height: 25 },
+      ),
+    ).toEqual({ width: 20, height: 25 });
   });
 });

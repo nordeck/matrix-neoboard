@@ -108,3 +108,7 @@ SVGSVGElement.prototype.createSVGPoint = function () {
 SVGSVGElement.prototype.getScreenCTM = function () {
   return { inverse: jest.fn() };
 };
+
+// Mock File APIs
+
+File.prototype.arrayBuffer = jest.fn();
