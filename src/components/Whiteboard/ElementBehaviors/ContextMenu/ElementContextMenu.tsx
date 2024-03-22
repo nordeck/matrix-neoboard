@@ -26,7 +26,6 @@ import { first, last } from 'lodash';
 import { MouseEvent, PropsWithChildren, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  useActiveElements,
   useSlideElementIds,
   useSlideIsLocked,
   useWhiteboardSlideInstance,
@@ -41,7 +40,8 @@ type ContextMenuState =
 export function ElementContextMenu({
   children,
   elementId,
-}: PropsWithChildren<{ elementId: string }>) {
+  elementIds,
+}: PropsWithChildren<{ elementId: string; elementIds: string[] }>) {
   const [state, setState] = useState<ContextMenuState>();
 
   const handleContextMenu = useCallback(
@@ -69,17 +69,20 @@ export function ElementContextMenu({
         {children}
       </Box>
 
-      {state !== undefined && <ContextMenuOptions state={state} />}
+      {state !== undefined && (
+        <ContextMenuOptions state={state} elementIds={elementIds} />
+      )}
     </>
   );
 }
 
 function ContextMenuOptions({
   state,
-}: PropsWithChildren<{ state: ContextMenuState }>) {
+  elementIds: ids,
+}: PropsWithChildren<{ state: ContextMenuState; elementIds: string[] }>) {
   const isLocked = useSlideIsLocked();
   const slideInstance = useWhiteboardSlideInstance();
-  const { activeElementIds } = useActiveElements();
+  const activeElementIds = ids;
   const elementIds = useSlideElementIds();
   const { t } = useTranslation();
   const menuTitle = t('elementContextMenu.title', 'Element');

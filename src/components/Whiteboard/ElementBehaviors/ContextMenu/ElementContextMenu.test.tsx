@@ -81,7 +81,7 @@ describe('<ElementContextMenu/>', () => {
 
   it('should render without exploding', async () => {
     render(
-      <ElementContextMenu elementId="element-1">
+      <ElementContextMenu elementId="element-1" elementIds={['element-1']}>
         <text data-testid="example-text" />
       </ElementContextMenu>,
       { wrapper: Wrapper },
@@ -96,9 +96,12 @@ describe('<ElementContextMenu/>', () => {
   });
 
   it('should open the context menu on right click', async () => {
-    render(<ElementContextMenu elementId="element-1" />, {
-      wrapper: Wrapper,
-    });
+    render(
+      <ElementContextMenu elementId="element-1" elementIds={['element-1']} />,
+      {
+        wrapper: Wrapper,
+      },
+    );
 
     const contextMenuTarget = screen.getByTestId(
       'element-context-menu-container',
@@ -128,17 +131,23 @@ describe('<ElementContextMenu/>', () => {
   });
 
   it('should have no accessibility violations', async () => {
-    const { container } = render(<ElementContextMenu elementId="id" />, {
-      wrapper: Wrapper,
-    });
+    const { container } = render(
+      <ElementContextMenu elementId="id" elementIds={['id']} />,
+      {
+        wrapper: Wrapper,
+      },
+    );
 
     expect(await axe(container)).toHaveNoViolations();
   });
 
   it('should have no accessibility violations for context menu', async () => {
-    const { container } = render(<ElementContextMenu elementId="id" />, {
-      wrapper: Wrapper,
-    });
+    const { container } = render(
+      <ElementContextMenu elementId="id" elementIds={['id']} />,
+      {
+        wrapper: Wrapper,
+      },
+    );
 
     const contextMenuTarget = screen.getByTestId(
       'element-context-menu-container',
@@ -156,9 +165,12 @@ describe('<ElementContextMenu/>', () => {
       .spyOn(window.navigator, 'userAgent', 'get')
       .mockReturnValue('Mac OS (jsdom)');
 
-    render(<ElementContextMenu elementId="element-1" />, {
-      wrapper: Wrapper,
-    });
+    render(
+      <ElementContextMenu elementId="element-1" elementIds={['element-1']} />,
+      {
+        wrapper: Wrapper,
+      },
+    );
 
     const contextMenuTarget = screen.getByTestId(
       'element-context-menu-container',
@@ -190,9 +202,15 @@ describe('<ElementContextMenu/>', () => {
   it('should move element forward', async () => {
     const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
     activeSlide.setActiveElementId('element-1');
-    render(<ElementContextMenu elementId="element-1" />, {
-      wrapper: Wrapper,
-    });
+    render(
+      <ElementContextMenu
+        elementId="element-1"
+        elementIds={activeSlide.getActiveElementIds()}
+      />,
+      {
+        wrapper: Wrapper,
+      },
+    );
 
     const contextMenuTarget = screen.getByTestId(
       'element-context-menu-container',
@@ -224,9 +242,15 @@ describe('<ElementContextMenu/>', () => {
   it('should move element to top', async () => {
     const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
     activeSlide.setActiveElementId('element-0');
-    render(<ElementContextMenu elementId="element-0" />, {
-      wrapper: Wrapper,
-    });
+    render(
+      <ElementContextMenu
+        elementId="element-0"
+        elementIds={activeSlide.getActiveElementIds()}
+      />,
+      {
+        wrapper: Wrapper,
+      },
+    );
 
     const contextMenuTarget = screen.getByTestId(
       'element-context-menu-container',
@@ -258,9 +282,15 @@ describe('<ElementContextMenu/>', () => {
   it('should move elements to top', async () => {
     const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
     activeSlide.setActiveElementIds(['element-0', 'element-1']);
-    render(<ElementContextMenu elementId="element-0" />, {
-      wrapper: Wrapper,
-    });
+    render(
+      <ElementContextMenu
+        elementId="element-0"
+        elementIds={activeSlide.getActiveElementIds()}
+      />,
+      {
+        wrapper: Wrapper,
+      },
+    );
 
     const contextMenuTarget = screen.getByTestId(
       'element-context-menu-container',
@@ -292,9 +322,15 @@ describe('<ElementContextMenu/>', () => {
   it('should move element backward', async () => {
     const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
     activeSlide.setActiveElementId('element-1');
-    render(<ElementContextMenu elementId="element-1" />, {
-      wrapper: Wrapper,
-    });
+    render(
+      <ElementContextMenu
+        elementId="element-1"
+        elementIds={activeSlide.getActiveElementIds()}
+      />,
+      {
+        wrapper: Wrapper,
+      },
+    );
 
     const contextMenuTarget = screen.getByTestId(
       'element-context-menu-container',
@@ -326,9 +362,15 @@ describe('<ElementContextMenu/>', () => {
   it('should move element to bottom', async () => {
     const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
     activeSlide.setActiveElementId('element-2');
-    render(<ElementContextMenu elementId="element-2" />, {
-      wrapper: Wrapper,
-    });
+    render(
+      <ElementContextMenu
+        elementId="element-2"
+        elementIds={activeSlide.getActiveElementIds()}
+      />,
+      {
+        wrapper: Wrapper,
+      },
+    );
 
     const contextMenuTarget = screen.getByTestId(
       'element-context-menu-container',
@@ -360,9 +402,15 @@ describe('<ElementContextMenu/>', () => {
   it('should move elements to bottom', async () => {
     const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
     activeSlide.setActiveElementIds(['element-1', 'element-2']);
-    render(<ElementContextMenu elementId="element-2" />, {
-      wrapper: Wrapper,
-    });
+    render(
+      <ElementContextMenu
+        elementId="element-2"
+        elementIds={activeSlide.getActiveElementIds()}
+      />,
+      {
+        wrapper: Wrapper,
+      },
+    );
 
     const contextMenuTarget = screen.getByTestId(
       'element-context-menu-container',
@@ -397,9 +445,15 @@ describe('<ElementContextMenu/>', () => {
   ])('%s', async (_testname, elementIdsToBeDeleted) => {
     const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
     activeSlide.setActiveElementIds(elementIdsToBeDeleted);
-    render(<ElementContextMenu elementId="element-1" />, {
-      wrapper: Wrapper,
-    });
+    render(
+      <ElementContextMenu
+        elementId="element-1"
+        elementIds={activeSlide.getActiveElementIds()}
+      />,
+      {
+        wrapper: Wrapper,
+      },
+    );
 
     const contextMenuTarget = screen.getByTestId(
       'element-context-menu-container',

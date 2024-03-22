@@ -14,8 +14,18 @@
  * limitations under the License.
  */
 
+import { Elements } from '../../../../state/types';
+
 export type WithSelectionProps = {
   readOnly: boolean;
-  active: boolean; // FIXME: this is not being used at all
+  active: boolean;
   elementId: string;
+};
+
+export type WithExtendedSelectionProps = {
+  readOnly: boolean;
+  active: boolean;
+  elementId: string;
+  elementIds: string[];
+  overrides: Elements;
 };
