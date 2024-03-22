@@ -15,7 +15,6 @@
  */
 
 import { useWidgetApi } from '@matrix-widget-toolkit/react';
-import { useActiveElements } from '../../../state';
 import { useElementOverride } from '../../ElementOverridesProvider';
 import EllipseDisplay from '../../elements/ellipse/Display';
 import ImageDisplay from '../../elements/image/ImageDisplay';
@@ -31,16 +30,15 @@ export const ConnectedElement = ({
   id: string;
   readOnly?: boolean;
 }) => {
-  const { activeElementIds } = useActiveElements();
   const widgetApi = useWidgetApi();
   const element = useElementOverride(id);
-  const isActive =
+  /* const isActive =
     !readOnly && id
       ? activeElementIds.length === 1 && activeElementIds[0] === id
-      : false;
+      : false; */
   const otherProps = {
     // TODO: Align names
-    active: isActive,
+    active: false, // FIXME: this is not being used at all
     readOnly,
     elementId: id,
   };

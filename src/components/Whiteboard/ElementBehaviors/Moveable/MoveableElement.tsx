@@ -19,13 +19,14 @@ import {
   PropsWithChildren,
   RefObject,
   useCallback,
+  useMemo,
   useRef,
   useState,
 } from 'react';
 import { DraggableCore, DraggableData, DraggableEvent } from 'react-draggable';
 import { useUnmount } from 'react-use';
 import {
-  useActiveElements,
+  // useActiveElements,
   useWhiteboardSlideInstance,
 } from '../../../../state';
 import {
@@ -49,7 +50,12 @@ export type MoveableElementProps = PropsWithChildren<{
 }>;
 
 export function MoveableElement({ children, elementId }: MoveableElementProps) {
-  const { activeElementIds } = useActiveElements();
+  //const { activeElementIds } = useActiveElements();
+
+  const activeElementIds: string[] = useMemo(() => {
+    return [];
+  }, []);
+
   const elements = useElementOverrides(activeElementIds);
   const { isShowGrid } = useLayoutState();
   const isDragging = useRef<boolean>(false);

@@ -23,11 +23,17 @@ import {
   Typography,
 } from '@mui/material';
 import { first, last } from 'lodash';
-import { MouseEvent, PropsWithChildren, useCallback, useState } from 'react';
+import {
+  MouseEvent,
+  PropsWithChildren,
+  useCallback,
+  useMemo,
+  useState,
+} from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  useActiveElements,
-  useSlideElementIds,
+  //  useActiveElements,
+  //  useSlideElementIds,
   useSlideIsLocked,
   useWhiteboardSlideInstance,
 } from '../../../../state';
@@ -45,9 +51,14 @@ export function ElementContextMenu({
   const { t } = useTranslation();
   const isLocked = useSlideIsLocked();
   const [state, setState] = useState<ContextMenuState>();
-  const { activeElementIds } = useActiveElements();
   const slideInstance = useWhiteboardSlideInstance();
-  const elementIds = useSlideElementIds();
+  // TODO: these should only be called if the menu is to be shown
+  // const { activeElementIds } = useActiveElements();
+  // const elementIds = useSlideElementIds();
+  const activeElementIds: string[] = useMemo(() => {
+    return [];
+  }, []);
+  const elementIds: string[] = [];
 
   const canMoveUp =
     activeElementIds.length === 1 && last(elementIds) !== activeElementIds[0];

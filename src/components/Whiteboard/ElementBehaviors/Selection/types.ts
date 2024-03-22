@@ -16,6 +16,6 @@
 
 export type WithSelectionProps = {
   readOnly: boolean;
-  active: boolean;
+  active: boolean; // FIXME: this is not being used at all
   elementId: string;
 };
