@@ -48,7 +48,7 @@ const TabPanelStyled = styled(TabPanel)(() => ({
   flex: 1,
   flexDirection: 'column',
 
-  '&.MuiTabPanel-hidden': {
+  '&.base-TabPanel-hidden': {
     display: 'none',
   },
 }));
