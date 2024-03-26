@@ -20,16 +20,18 @@ import {
   ElementContextMenu,
   MoveableElement,
   SelectableElement,
-  WithSelectionProps,
+  WithExtendedSelectionProps,
 } from '../../Whiteboard';
 import { getRenderProperties } from './getRenderProperties';
 
-export type PolylineElementProps = PathElement & WithSelectionProps;
+export type PolylineElementProps = PathElement & WithExtendedSelectionProps;
 
 const PolylineDisplay = ({
   readOnly,
   active,
   elementId,
+  elementIds,
+  overrides,
   ...element
 }: PolylineElementProps) => {
   const { strokeColor, strokeWidth, points } = getRenderProperties(element);
@@ -56,8 +58,12 @@ const PolylineDisplay = ({
       readOnly={readOnly}
       elementId={elementId}
     >
-      <MoveableElement elementId={elementId}>
-        <ElementContextMenu elementId={elementId}>
+      <MoveableElement
+        elementId={elementId}
+        elementIds={elementIds}
+        overrides={overrides}
+      >
+        <ElementContextMenu elementId={elementId} elementIds={elementIds}>
           {renderedChild}
         </ElementContextMenu>
       </MoveableElement>

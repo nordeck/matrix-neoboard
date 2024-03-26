@@ -15,7 +15,7 @@
  */
 
 import { useWidgetApi } from '@matrix-widget-toolkit/react';
-import { useActiveElements } from '../../../state';
+import { Elements } from '../../../state/types';
 import { useElementOverride } from '../../ElementOverridesProvider';
 import EllipseDisplay from '../../elements/ellipse/Display';
 import ImageDisplay from '../../elements/image/ImageDisplay';
@@ -27,22 +27,25 @@ import TriangleDisplay from '../../elements/triangle/Display';
 export const ConnectedElement = ({
   id,
   readOnly = false,
+  elementIds,
+  overrides,
 }: {
   id: string;
   readOnly?: boolean;
+  elementIds: string[];
+  overrides: Elements;
 }) => {
-  const { activeElementIds } = useActiveElements();
   const widgetApi = useWidgetApi();
   const element = useElementOverride(id);
   const isActive =
-    !readOnly && id
-      ? activeElementIds.length === 1 && activeElementIds[0] === id
-      : false;
+    !readOnly && id ? elementIds.length === 1 && elementIds[0] === id : false;
   const otherProps = {
     // TODO: Align names
     active: isActive,
     readOnly,
     elementId: id,
+    elementIds,
+    overrides,
   };
 
   if (element) {

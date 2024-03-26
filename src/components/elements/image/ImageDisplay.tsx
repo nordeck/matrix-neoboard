@@ -21,12 +21,12 @@ import {
   ElementContextMenu,
   MoveableElement,
   SelectableElement,
-  WithSelectionProps,
+  WithExtendedSelectionProps,
 } from '../../Whiteboard';
 import { Skeleton } from './Skeleton';
 
 type ImageDisplayProps = Omit<ImageElement, 'kind'> &
-  WithSelectionProps & {
+  WithExtendedSelectionProps & {
     /**
      * Matrix homeserver base URL
      */
@@ -55,6 +55,8 @@ function ImageDisplay({
   active,
   readOnly,
   elementId,
+  elementIds,
+  overrides,
 }: ImageDisplayProps) {
   // Image loading errors are dealt with in follow-up tasks.
   // Don't care about invalid http URLs here.
@@ -107,8 +109,12 @@ function ImageDisplay({
         readOnly={readOnly}
         elementId={elementId}
       >
-        <MoveableElement elementId={elementId}>
-          <ElementContextMenu elementId={elementId}>
+        <MoveableElement
+          elementId={elementId}
+          elementIds={elementIds}
+          overrides={overrides}
+        >
+          <ElementContextMenu elementId={elementId} elementIds={elementIds}>
             {renderedSkeleton}
             {renderedChild}
           </ElementContextMenu>

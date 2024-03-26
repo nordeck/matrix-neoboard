@@ -99,6 +99,8 @@ export function DragSelect() {
         <NoInteraction>
           <RectangleDisplay
             elementId="drag-selection"
+            elementIds={[]}
+            overrides={{}}
             data-testid="drag-selection"
             readOnly
             active={false}

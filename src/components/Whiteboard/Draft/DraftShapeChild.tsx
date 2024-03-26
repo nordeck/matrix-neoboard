@@ -22,14 +22,14 @@ import {
   useWhiteboardSlideInstance,
 } from '../../../state';
 import { useLayoutState } from '../../Layout';
-import { WithSelectionProps } from '../ElementBehaviors';
+import { WithExtendedSelectionProps } from '../ElementBehaviors';
 import { gridCellSize } from '../constants';
 import { DraftMouseHandler } from './DraftMouseHandler';
 import { createShape } from './createShape';
 
 export type DraftShapeChildProps = {
   kind: ShapeKind;
-  display: ComponentType<ShapeElement & WithSelectionProps>;
+  display: ComponentType<ShapeElement & WithExtendedSelectionProps>;
   sameLength?: boolean;
   fixedColor?: string;
 };
@@ -119,7 +119,14 @@ export const DraftShapeChild = ({
       onMouseUp={handleMouseUp}
     >
       {shape && (
-        <Display {...shape} elementId="draft" readOnly active={false} />
+        <Display
+          {...shape}
+          elementId="draft"
+          readOnly
+          active={false}
+          elementIds={[]}
+          overrides={{}}
+        />
       )}
     </DraftMouseHandler>
   );

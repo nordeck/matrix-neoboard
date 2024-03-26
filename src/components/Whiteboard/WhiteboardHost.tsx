@@ -24,6 +24,7 @@ import {
   useWhiteboardSlideInstance,
 } from '../../state';
 import { ElementBar } from '../ElementBar';
+import { useElementOverrides } from '../ElementOverridesProvider';
 import { useLayoutState } from '../Layout';
 import { CursorRenderer } from './CursorRenderer';
 import { DraftPicker } from './Draft/DraftPicker';
@@ -58,6 +59,7 @@ const WhiteboardHost = ({
   const { isShowCollaboratorsCursors, dragSelectStartCoords } =
     useLayoutState();
   const { activeElementIds } = useActiveElements();
+  const overrides = useElementOverrides(elementIds);
 
   return (
     <Box
@@ -92,7 +94,13 @@ const WhiteboardHost = ({
         {!readOnly && <UnSelectElementHandler />}
 
         {elementIds.map((e) => (
-          <ConnectedElement id={e} key={e} readOnly={readOnly} />
+          <ConnectedElement
+            id={e}
+            key={e}
+            readOnly={readOnly}
+            elementIds={activeElementIds}
+            overrides={overrides}
+          />
         ))}
 
         {!readOnly && <DraftPicker />}

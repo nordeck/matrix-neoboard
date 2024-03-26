@@ -35,7 +35,15 @@ export function SlidePreview() {
           viewportWidth={whiteboardWidth}
         >
           {elementIds.map((e) => {
-            return <ConnectedElement id={e} key={e} readOnly />;
+            return (
+              <ConnectedElement
+                id={e}
+                key={e}
+                readOnly
+                elementIds={[]}
+                overrides={{}}
+              />
+            );
           })}
         </SvgCanvas>
       )}

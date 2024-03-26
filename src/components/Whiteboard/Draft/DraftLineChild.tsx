@@ -23,14 +23,14 @@ import {
 } from '../../../state';
 import { EndMarker } from '../../../state/crdt/documents/elements';
 import { useLayoutState } from '../../Layout';
-import { WithSelectionProps } from '../ElementBehaviors';
+import { WithExtendedSelectionProps } from '../ElementBehaviors';
 import { gridCellSize } from '../constants';
 import { DraftMouseHandler } from './DraftMouseHandler';
 import { createShapeFromPoints } from './createShape';
 
 export type DraftLineChildProps = {
   kind: PathKind;
-  display: ComponentType<PathElement & WithSelectionProps>;
+  display: ComponentType<PathElement & WithExtendedSelectionProps>;
   onlyStartAndEndPoints?: boolean;
   endMarker?: EndMarker;
 };
@@ -120,7 +120,14 @@ export const DraftLineChild = ({
       onMouseUp={handleMouseUp}
     >
       {shape && (
-        <Display {...shape} elementId="draft" readOnly active={false} />
+        <Display
+          {...shape}
+          elementId="draft"
+          readOnly
+          active={false}
+          elementIds={[]}
+          overrides={{}}
+        />
       )}
     </DraftMouseHandler>
   );

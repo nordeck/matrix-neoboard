@@ -24,13 +24,10 @@ import {
 } from 'react';
 import { DraggableCore, DraggableData, DraggableEvent } from 'react-draggable';
 import { useUnmount } from 'react-use';
-import {
-  useActiveElements,
-  useWhiteboardSlideInstance,
-} from '../../../../state';
+import { useWhiteboardSlideInstance } from '../../../../state';
+import { Elements } from '../../../../state/types';
 import {
   createResetElementOverrides,
-  useElementOverrides,
   useSetElementOverride,
 } from '../../../ElementOverridesProvider';
 import { useLayoutState } from '../../../Layout';
@@ -46,11 +43,16 @@ const DraggableGroup = styled('g')({
 
 export type MoveableElementProps = PropsWithChildren<{
   elementId: string;
+  elementIds: string[];
+  overrides: Elements;
 }>;
 
-export function MoveableElement({ children, elementId }: MoveableElementProps) {
-  const { activeElementIds } = useActiveElements();
-  const elements = useElementOverrides(activeElementIds);
+export function MoveableElement({
+  children,
+  elementId,
+  overrides,
+}: MoveableElementProps) {
+  const elements = overrides;
   const { isShowGrid } = useLayoutState();
   const isDragging = useRef<boolean>(false);
   const nodeRef = useRef<SVGRectElement>(null);
@@ -66,7 +68,6 @@ export function MoveableElement({ children, elementId }: MoveableElementProps) {
       setElementOverride(createResetElementOverrides([elementId]));
     }
   });
-
   const handleStart = useCallback(() => {
     isDragging.current = true;
     addUserSelectStyles();

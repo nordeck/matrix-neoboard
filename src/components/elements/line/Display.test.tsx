@@ -60,6 +60,8 @@ describe('<Display />', () => {
     render(
       <Display
         elementId="element-0"
+        elementIds={['element-0']}
+        overrides={{}}
         {...element}
         active={false}
         readOnly={false}
@@ -79,6 +81,8 @@ describe('<Display />', () => {
     render(
       <Display
         elementId="element-0"
+        elementIds={['element-0']}
+        overrides={{}}
         {...element}
         active={false}
         readOnly={false}
