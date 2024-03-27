@@ -21,7 +21,9 @@ import {
   useWhiteboardSlideInstance,
 } from '../../../../state';
 import {
-  useElementOverride,
+  ElementOverrideUpdate,
+  createResetElementOverrides,
+  useElementOverrides,
   useSetElementOverride,
 } from '../../../ElementOverridesProvider';
 import { useLayoutState } from '../../../Layout';
@@ -29,220 +31,165 @@ import { getRenderProperties } from '../../../elements/line/getRenderProperties'
 import { useSvgCanvasContext } from '../../SvgCanvas';
 import { gridCellSize } from '../../constants';
 import { DragEvent, ResizeHandle } from './ResizeHandle';
-import { Dimensions, ResizeParams } from './types';
-import { calculateDimensions } from './utils';
+import { HandleProperties, ResizableProperties } from './types';
+import { computeResizing } from './utils';
 
 export type ResizeHandleWrapperProps = {
-  startDimensions: Dimensions | undefined;
+  handleProperties: HandleProperties;
   forceLockAspectRatio?: boolean;
-  onDrag: Dispatch<Dimensions>;
+  onDrag: Dispatch<ElementOverrideUpdate[]>;
   onDragStart: Dispatch<DragEvent>;
   onDragStop: Dispatch<DragEvent>;
-  resizeParams: ResizeParams;
+  resizableProperties?: ResizableProperties;
 };
 
 export function ResizeHandleWrapper({
-  startDimensions,
+  handleProperties,
   forceLockAspectRatio,
   onDrag,
   onDragStart,
   onDragStop,
-  resizeParams,
+  resizableProperties,
 }: ResizeHandleWrapperProps) {
   const { isShowGrid } = useLayoutState();
   const { viewportWidth, viewportHeight } = useSvgCanvasContext();
-  const { handlePosition } = resizeParams;
 
   const handleDrag = useCallback(
     (event: DragEvent) => {
-      if (startDimensions) {
-        onDrag(
-          calculateDimensions(
-            handlePosition,
-            event,
-            startDimensions,
-            viewportWidth,
-            viewportHeight,
-            forceLockAspectRatio,
-            isShowGrid ? gridCellSize : undefined,
-          ),
-        );
-      }
+      onDrag(
+        computeResizing(
+          handleProperties,
+          event,
+          viewportWidth,
+          viewportHeight,
+          forceLockAspectRatio,
+          isShowGrid ? gridCellSize : undefined,
+          resizableProperties,
+        ),
+      );
     },
     [
-      startDimensions,
-      onDrag,
-      handlePosition,
-      viewportWidth,
-      viewportHeight,
       forceLockAspectRatio,
+      handleProperties,
       isShowGrid,
+      onDrag,
+      resizableProperties,
+      viewportHeight,
+      viewportWidth,
     ],
   );
 
   return (
     <ResizeHandle
+      handleProperties={handleProperties}
       onDrag={handleDrag}
       onDragStart={onDragStart}
       onDragStop={onDragStop}
-      resizeParams={resizeParams}
     />
   );
 }
 
 export type ResizeElementProps = {
-  elementId: string;
+  elementIds: Array<string>;
 };
 
-export function ResizeElement({ elementId }: ResizeElementProps) {
+export function ResizeElement({ elementIds }: ResizeElementProps) {
+  const elements = useElementOverrides(elementIds);
+  const activeElements = Object.values(elements);
   const setElementOverride = useSetElementOverride();
   const slideInstance = useWhiteboardSlideInstance();
 
-  const element = useElementOverride(elementId);
-
-  const [startDimensions, setStartDimensions] = useState<
-    Dimensions | undefined
-  >();
+  const [resizableProperties, setResizableProperties] =
+    useState<ResizableProperties>();
 
   useUnmount(() => {
-    if (startDimensions) {
-      setElementOverride([{ elementId, elementOverride: undefined }]);
+    if (resizableProperties) {
+      setElementOverride(createResetElementOverrides(elementIds));
     }
   });
 
   const handleDragStart = useCallback(() => {
-    const element = slideInstance.getElement(elementId);
+    const boundingRect = calculateBoundingRectForElements(activeElements);
 
-    if (element?.type === 'shape') {
-      setStartDimensions({
-        elementKind: element.kind,
-        x: element.position.x,
-        y: element.position.y,
-        height: element.height,
-        width: element.width,
-      });
-    } else if (element?.type === 'path') {
-      const boundingRect = calculateBoundingRectForElements([element]);
-
-      setStartDimensions({
-        elementKind: element.kind,
-        x: boundingRect.offsetX,
-        y: boundingRect.offsetY,
-        height: boundingRect.height,
-        width: boundingRect.width,
-        points: element.points,
-      });
-    }
-  }, [slideInstance, elementId]);
+    setResizableProperties({
+      x: boundingRect.offsetX,
+      y: boundingRect.offsetY,
+      width: boundingRect.width,
+      height: boundingRect.height,
+      elements,
+    });
+  }, [activeElements, elements]);
 
   const handleDragStop = useCallback(() => {
-    if (!element || !startDimensions) {
-      return;
-    }
+    slideInstance.updateElements(
+      Object.entries(elements).map(([elementId, element]) => {
+        return {
+          elementId,
+          patch: {
+            position: element.position,
+            width: element.type === 'shape' ? element.width : undefined,
+            height: element.type === 'shape' ? element.height : undefined,
+            points: element.type === 'path' ? element.points : undefined,
+          },
+        };
+      }),
+    );
 
-    if (
-      element.type === 'shape' &&
-      (startDimensions.x !== element.position.x ||
-        startDimensions.y !== element.position.y ||
-        startDimensions.width !== element.width ||
-        startDimensions.height !== element.height)
-    ) {
-      slideInstance.updateElement(elementId, {
-        position: { x: element.position.x, y: element.position.y },
-        width: element.width,
-        height: element.height,
-      });
-    } else if (element.type === 'path') {
-      slideInstance.updateElement(elementId, {
-        position: { x: element.position.x, y: element.position.y },
-        points: element.points,
-      });
-    }
-
-    setStartDimensions(undefined);
-    setElementOverride([{ elementId, elementOverride: undefined }]);
-  }, [element, startDimensions, slideInstance, elementId, setElementOverride]);
+    setResizableProperties(undefined);
+    setElementOverride(createResetElementOverrides(elementIds));
+  }, [elementIds, elements, setElementOverride, slideInstance]);
 
   const handleDrag = useCallback(
-    (dimensions: Dimensions) => {
-      if (!startDimensions) {
-        return;
-      }
-
-      if (element?.type === 'shape') {
-        setElementOverride([
-          {
-            elementId,
-            elementOverride: {
-              height: dimensions.height,
-              width: dimensions.width,
-              position: { x: dimensions.x, y: dimensions.y },
-            },
-          },
-        ]);
-      } else if (
-        dimensions.elementKind === 'line' ||
-        dimensions.elementKind === 'polyline'
-      ) {
-        setElementOverride([
-          {
-            elementId,
-            elementOverride: {
-              position: { x: dimensions.x, y: dimensions.y },
-              points: dimensions.points,
-            },
-          },
-        ]);
-      }
-    },
-    [element, elementId, setElementOverride, startDimensions],
+    (elementOverrideUpdates: ElementOverrideUpdate[]) =>
+      setElementOverride(elementOverrideUpdates),
+    [setElementOverride],
   );
 
-  if (!element) {
+  if (activeElements.length === 0) {
     return null;
   }
 
-  if (element.type === 'path' && element.kind === 'line') {
-    const renderProperties = getRenderProperties(element);
+  if (
+    activeElements.length === 1 &&
+    activeElements[0].type === 'path' &&
+    activeElements[0].kind === 'line'
+  ) {
+    const renderProperties = getRenderProperties(activeElements[0]);
 
     return (
       <>
         <ResizeHandleWrapper
-          onDrag={handleDrag}
-          onDragStart={handleDragStart}
-          onDragStop={handleDragStop}
-          startDimensions={startDimensions}
-          resizeParams={{
-            elementKind: element.kind,
+          handleProperties={{
             handlePosition: 'start',
             handlePositionX: renderProperties.points.start.x,
             handlePositionY: renderProperties.points.start.y,
           }}
-        />
-        <ResizeHandleWrapper
           onDrag={handleDrag}
           onDragStart={handleDragStart}
           onDragStop={handleDragStop}
-          startDimensions={startDimensions}
-          resizeParams={{
-            elementKind: element.kind,
+          resizableProperties={resizableProperties}
+        />
+        <ResizeHandleWrapper
+          handleProperties={{
             handlePosition: 'end',
             handlePositionX: renderProperties.points.end.x,
             handlePositionY: renderProperties.points.end.y,
           }}
+          onDrag={handleDrag}
+          onDragStart={handleDragStart}
+          onDragStop={handleDragStop}
+          resizableProperties={resizableProperties}
         />
       </>
     );
   }
 
-  const boundingRect = calculateBoundingRectForElements([element]);
+  const boundingRect = calculateBoundingRectForElements(activeElements);
 
   const offsetX = boundingRect.offsetX;
   const offsetY = boundingRect.offsetY;
-  const height = boundingRect.height;
-  const width = boundingRect.width;
-  const elementKind =
-    'kind' in element && element.kind !== 'line' ? element.kind : undefined;
+  const containerHeight = boundingRect.height;
+  const containerWidth = boundingRect.width;
 
   return (
     <g
@@ -250,107 +197,99 @@ export function ResizeElement({ elementId }: ResizeElementProps) {
       transform={`translate(${offsetX} ${offsetY})`}
     >
       <ResizeHandleWrapper
-        onDrag={handleDrag}
-        onDragStart={handleDragStart}
-        onDragStop={handleDragStop}
-        startDimensions={startDimensions}
-        resizeParams={{
-          elementKind,
+        handleProperties={{
           handlePosition: 'top',
-          containerHeight: height,
-          containerWidth: width,
+          containerWidth,
+          containerHeight,
         }}
-      />
-
-      <ResizeHandleWrapper
         onDrag={handleDrag}
         onDragStart={handleDragStart}
         onDragStop={handleDragStop}
-        startDimensions={startDimensions}
-        resizeParams={{
-          elementKind,
+        resizableProperties={resizableProperties}
+      />
+
+      <ResizeHandleWrapper
+        handleProperties={{
           handlePosition: 'topRight',
-          containerHeight: height,
-          containerWidth: width,
+          containerWidth,
+          containerHeight,
         }}
-      />
-
-      <ResizeHandleWrapper
         onDrag={handleDrag}
         onDragStart={handleDragStart}
         onDragStop={handleDragStop}
-        startDimensions={startDimensions}
-        resizeParams={{
-          elementKind,
+        resizableProperties={resizableProperties}
+      />
+
+      <ResizeHandleWrapper
+        handleProperties={{
           handlePosition: 'right',
-          containerHeight: height,
-          containerWidth: width,
+          containerWidth,
+          containerHeight,
         }}
-      />
-
-      <ResizeHandleWrapper
         onDrag={handleDrag}
         onDragStart={handleDragStart}
         onDragStop={handleDragStop}
-        startDimensions={startDimensions}
-        resizeParams={{
-          elementKind,
+        resizableProperties={resizableProperties}
+      />
+
+      <ResizeHandleWrapper
+        handleProperties={{
           handlePosition: 'bottomRight',
-          containerHeight: height,
-          containerWidth: width,
+          containerWidth,
+          containerHeight,
         }}
-      />
-
-      <ResizeHandleWrapper
         onDrag={handleDrag}
         onDragStart={handleDragStart}
         onDragStop={handleDragStop}
-        startDimensions={startDimensions}
-        resizeParams={{
-          elementKind,
+        resizableProperties={resizableProperties}
+      />
+
+      <ResizeHandleWrapper
+        handleProperties={{
           handlePosition: 'bottom',
-          containerHeight: height,
-          containerWidth: width,
+          containerWidth,
+          containerHeight,
         }}
-      />
-
-      <ResizeHandleWrapper
         onDrag={handleDrag}
         onDragStart={handleDragStart}
         onDragStop={handleDragStop}
-        startDimensions={startDimensions}
-        resizeParams={{
-          elementKind,
+        resizableProperties={resizableProperties}
+      />
+
+      <ResizeHandleWrapper
+        handleProperties={{
           handlePosition: 'bottomLeft',
-          containerHeight: height,
-          containerWidth: width,
+          containerWidth,
+          containerHeight,
         }}
-      />
-
-      <ResizeHandleWrapper
         onDrag={handleDrag}
         onDragStart={handleDragStart}
         onDragStop={handleDragStop}
-        startDimensions={startDimensions}
-        resizeParams={{
-          elementKind,
+        resizableProperties={resizableProperties}
+      />
+
+      <ResizeHandleWrapper
+        handleProperties={{
           handlePosition: 'left',
-          containerHeight: height,
-          containerWidth: width,
+          containerWidth,
+          containerHeight,
         }}
-      />
-
-      <ResizeHandleWrapper
         onDrag={handleDrag}
         onDragStart={handleDragStart}
         onDragStop={handleDragStop}
-        startDimensions={startDimensions}
-        resizeParams={{
-          elementKind,
+        resizableProperties={resizableProperties}
+      />
+
+      <ResizeHandleWrapper
+        handleProperties={{
           handlePosition: 'topLeft',
-          containerHeight: height,
-          containerWidth: width,
+          containerWidth,
+          containerHeight,
         }}
+        onDrag={handleDrag}
+        onDragStart={handleDragStart}
+        onDragStop={handleDragStop}
+        resizableProperties={resizableProperties}
       />
     </g>
   );

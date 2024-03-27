@@ -17,26 +17,27 @@
 import { Dispatch, RefObject, useCallback, useRef } from 'react';
 import { DraggableCore, DraggableData, DraggableEvent } from 'react-draggable';
 import { useSvgCanvasContext } from '../../SvgCanvas';
-import { ResizeParams } from './types';
+import { HandleProperties } from './types';
+import { isLineElementHandleProperties } from './utils';
 
-export function calculateResizeHandlePosition(
-  scale: number,
-  resizeParams: ResizeParams,
-): {
+export function calculateResizeHandlePosition(params: {
+  handleProperties: HandleProperties;
+  scale: number;
+}): {
   x: number;
   y: number;
   width: number;
   height: number;
   cursor: string;
 } {
+  const { handleProperties, scale } = params;
   const handleWidth = 10 / scale;
   const selectionBorderPadding = 2 / scale;
-  const { elementKind, handlePosition } = resizeParams;
 
-  if (elementKind === 'line') {
-    const { handlePositionX, handlePositionY } = resizeParams;
+  if (isLineElementHandleProperties(handleProperties)) {
+    const { handlePositionX, handlePositionY } = handleProperties;
 
-    switch (handlePosition) {
+    switch (handleProperties.handlePosition) {
       case 'start':
         return {
           x: handlePositionX + handleWidth / -2,
@@ -54,88 +55,88 @@ export function calculateResizeHandlePosition(
           cursor: 'default',
         };
     }
-  } else {
-    const { containerWidth, containerHeight } = resizeParams;
+  }
 
-    switch (handlePosition) {
-      case 'top':
-        return {
-          x: handleWidth / 2 - selectionBorderPadding,
-          y: -handleWidth / 2 - selectionBorderPadding,
-          // Make sure we never get negative dimensions, if the element is too small
-          width: Math.max(
-            0,
-            containerWidth + 2 * selectionBorderPadding - handleWidth,
-          ),
-          height: handleWidth,
-          cursor: 'ns-resize',
-        };
-      case 'topRight':
-        return {
-          x: containerWidth - handleWidth / 2 + selectionBorderPadding,
-          y: -handleWidth / 2 - selectionBorderPadding,
-          width: handleWidth,
-          height: handleWidth,
-          cursor: 'ne-resize',
-        };
-      case 'right':
-        return {
-          x: containerWidth + selectionBorderPadding - handleWidth / 2,
-          y: handleWidth / 2 - selectionBorderPadding,
-          width: handleWidth,
-          height: Math.max(
-            0,
-            containerHeight + 2 * selectionBorderPadding - handleWidth,
-          ),
-          cursor: 'ew-resize',
-        };
-      case 'bottomRight':
-        return {
-          x: containerWidth - handleWidth / 2 + selectionBorderPadding,
-          y: containerHeight - handleWidth / 2 + selectionBorderPadding,
-          width: handleWidth,
-          height: handleWidth,
-          cursor: 'se-resize',
-        };
-      case 'bottom':
-        return {
-          x: handleWidth / 2 - selectionBorderPadding,
-          y: containerHeight - handleWidth / 2 + selectionBorderPadding,
-          width: Math.max(
-            0,
-            containerWidth + 2 * selectionBorderPadding - handleWidth,
-          ),
-          height: handleWidth,
-          cursor: 'ns-resize',
-        };
-      case 'bottomLeft':
-        return {
-          x: -handleWidth / 2 - selectionBorderPadding,
-          y: containerHeight - handleWidth / 2 + selectionBorderPadding,
-          width: handleWidth,
-          height: handleWidth,
-          cursor: 'sw-resize',
-        };
-      case 'left':
-        return {
-          x: -handleWidth / 2 - selectionBorderPadding,
-          y: handleWidth / 2 - selectionBorderPadding,
-          width: handleWidth,
-          height: Math.max(
-            0,
-            containerHeight + 2 * selectionBorderPadding - handleWidth,
-          ),
-          cursor: 'ew-resize',
-        };
-      case 'topLeft':
-        return {
-          x: -handleWidth / 2 - selectionBorderPadding,
-          y: -handleWidth / 2 - selectionBorderPadding,
-          width: handleWidth,
-          height: handleWidth,
-          cursor: 'nw-resize',
-        };
-    }
+  const { containerWidth, containerHeight } = handleProperties;
+
+  switch (handleProperties.handlePosition) {
+    case 'top':
+      return {
+        x: handleWidth / 2 - selectionBorderPadding,
+        y: -handleWidth / 2 - selectionBorderPadding,
+        // Make sure we never get negative dimensions, if the element is too small
+        width: Math.max(
+          0,
+          containerWidth + 2 * selectionBorderPadding - handleWidth,
+        ),
+        height: handleWidth,
+        cursor: 'ns-resize',
+      };
+    case 'topRight':
+      return {
+        x: containerWidth - handleWidth / 2 + selectionBorderPadding,
+        y: -handleWidth / 2 - selectionBorderPadding,
+        width: handleWidth,
+        height: handleWidth,
+        cursor: 'ne-resize',
+      };
+    case 'right':
+      return {
+        x: containerWidth + selectionBorderPadding - handleWidth / 2,
+        y: handleWidth / 2 - selectionBorderPadding,
+        width: handleWidth,
+        height: Math.max(
+          0,
+          containerHeight + 2 * selectionBorderPadding - handleWidth,
+        ),
+        cursor: 'ew-resize',
+      };
+    case 'bottomRight':
+      return {
+        x: containerWidth - handleWidth / 2 + selectionBorderPadding,
+        y: containerHeight - handleWidth / 2 + selectionBorderPadding,
+        width: handleWidth,
+        height: handleWidth,
+        cursor: 'se-resize',
+      };
+    case 'bottom':
+      return {
+        x: handleWidth / 2 - selectionBorderPadding,
+        y: containerHeight - handleWidth / 2 + selectionBorderPadding,
+        width: Math.max(
+          0,
+          containerWidth + 2 * selectionBorderPadding - handleWidth,
+        ),
+        height: handleWidth,
+        cursor: 'ns-resize',
+      };
+    case 'bottomLeft':
+      return {
+        x: -handleWidth / 2 - selectionBorderPadding,
+        y: containerHeight - handleWidth / 2 + selectionBorderPadding,
+        width: handleWidth,
+        height: handleWidth,
+        cursor: 'sw-resize',
+      };
+    case 'left':
+      return {
+        x: -handleWidth / 2 - selectionBorderPadding,
+        y: handleWidth / 2 - selectionBorderPadding,
+        width: handleWidth,
+        height: Math.max(
+          0,
+          containerHeight + 2 * selectionBorderPadding - handleWidth,
+        ),
+        cursor: 'ew-resize',
+      };
+    case 'topLeft':
+      return {
+        x: -handleWidth / 2 - selectionBorderPadding,
+        y: -handleWidth / 2 - selectionBorderPadding,
+        width: handleWidth,
+        height: handleWidth,
+        cursor: 'nw-resize',
+      };
   }
 }
 
@@ -148,26 +149,27 @@ export type DragEvent = {
 };
 
 export type ResizeHandleProps = {
+  handleProperties: HandleProperties;
   onDrag?: Dispatch<DragEvent>;
   onDragStart?: Dispatch<DragEvent>;
   onDragStop?: Dispatch<DragEvent>;
-  resizeParams: ResizeParams;
 };
 
-export function ResizeHandle({
-  onDrag,
-  onDragStart,
-  onDragStop,
-  resizeParams,
-}: ResizeHandleProps) {
+export function ResizeHandle(props: ResizeHandleProps) {
   const nodeRef = useRef<SVGRectElement>(null);
   const { scale, calculateSvgCoords } = useSvgCanvasContext();
-  const { handlePosition } = resizeParams;
 
-  const { x, y, width, height, cursor } = calculateResizeHandlePosition(
+  const {
+    handleProperties: { handlePosition },
+    onDrag,
+    onDragStart,
+    onDragStop,
+  } = props;
+
+  const { x, y, width, height, cursor } = calculateResizeHandlePosition({
+    ...props,
     scale,
-    resizeParams,
-  );
+  });
 
   const dispatchDragEvent = useCallback(
     (

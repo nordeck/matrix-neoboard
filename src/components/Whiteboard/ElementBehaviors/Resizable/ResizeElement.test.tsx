@@ -30,13 +30,13 @@ import { ElementOverridesProvider } from '../../../ElementOverridesProvider';
 import { LayoutStateProvider } from '../../../Layout';
 import { SvgCanvas } from '../../SvgCanvas';
 import { ResizeElement } from './ResizeElement';
-import { calculateDimensions } from './utils';
+import { computeResizing } from './utils';
 
 jest.mock('./utils', () => {
   const original = jest.requireActual('./utils');
   return {
     ...original,
-    calculateDimensions: jest.fn(),
+    computeResizing: jest.fn(),
   };
 });
 
@@ -118,7 +118,7 @@ describe('<ResizeElement />', () => {
   });
 
   it('should resize polyline elements', () => {
-    render(<ResizeElement elementId="element-0" />, {
+    render(<ResizeElement elementIds={['element-0']} />, {
       wrapper: Wrapper,
     });
 
@@ -126,31 +126,43 @@ describe('<ResizeElement />', () => {
     const resizeHandleBottomRight = screen.getByTestId(
       'resize-handle-bottomRight',
     );
-    mocked(calculateDimensions).mockReturnValue({
-      elementKind: 'polyline',
-      x: 0,
-      y: 0,
-      width: 0,
-      height: 0,
-      points: [
-        { x: 0, y: 0 },
-        { x: 0.5, y: 0.5 },
-        { x: 1, y: 1 },
-      ],
-    });
+    mocked(computeResizing).mockReturnValue([
+      {
+        elementId: 'element-0',
+        elementOverride: {
+          position: {
+            x: 0,
+            y: 0,
+          },
+          width: 0,
+          height: 0,
+          points: [
+            { x: 0, y: 0 },
+            { x: 0.5, y: 0.5 },
+            { x: 1, y: 1 },
+          ],
+        },
+      },
+    ]);
     fireEvent.mouseDown(resizeHandleBottomRight);
-    mocked(calculateDimensions).mockReturnValue({
-      elementKind: 'polyline',
-      x: 0,
-      y: 0,
-      width: 50,
-      height: 50,
-      points: [
-        { x: 0, y: 0 },
-        { x: 25, y: 25 },
-        { x: 50, y: 50 },
-      ],
-    });
+    mocked(computeResizing).mockReturnValue([
+      {
+        elementId: 'element-0',
+        elementOverride: {
+          position: {
+            x: 0,
+            y: 0,
+          },
+          width: 50,
+          height: 50,
+          points: [
+            { x: 0, y: 0 },
+            { x: 25, y: 25 },
+            { x: 50, y: 50 },
+          ],
+        },
+      },
+    ]);
     fireEvent.mouseMove(resizeHandleBottomRight);
     fireEvent.mouseUp(resizeHandleBottomRight);
 
@@ -184,35 +196,47 @@ describe('<ResizeElement />', () => {
   });
 
   it('should resize line elements', () => {
-    render(<ResizeElement elementId="element-1" />, {
+    render(<ResizeElement elementIds={['element-1']} />, {
       wrapper: Wrapper,
     });
 
     // drag the end of a line from 0,0 to 50,50
     const resizeHandleBottomRight = screen.getByTestId('resize-handle-end');
-    mocked(calculateDimensions).mockReturnValue({
-      elementKind: 'line',
-      x: 0,
-      y: 0,
-      width: 0,
-      height: 0,
-      points: [
-        { x: 0, y: 0 },
-        { x: 0, y: 0 },
-      ],
-    });
+    mocked(computeResizing).mockReturnValue([
+      {
+        elementId: 'element-1',
+        elementOverride: {
+          position: {
+            x: 0,
+            y: 0,
+          },
+          width: 0,
+          height: 0,
+          points: [
+            { x: 0, y: 0 },
+            { x: 0, y: 0 },
+          ],
+        },
+      },
+    ]);
     fireEvent.mouseDown(resizeHandleBottomRight);
-    mocked(calculateDimensions).mockReturnValue({
-      elementKind: 'line',
-      x: 0,
-      y: 0,
-      width: 50,
-      height: 50,
-      points: [
-        { x: 0, y: 0 },
-        { x: 50, y: 50 },
-      ],
-    });
+    mocked(computeResizing).mockReturnValue([
+      {
+        elementId: 'element-1',
+        elementOverride: {
+          position: {
+            x: 0,
+            y: 0,
+          },
+          width: 50,
+          height: 50,
+          points: [
+            { x: 0, y: 0 },
+            { x: 50, y: 50 },
+          ],
+        },
+      },
+    ]);
     fireEvent.mouseMove(resizeHandleBottomRight);
     fireEvent.mouseUp(resizeHandleBottomRight);
 
@@ -241,7 +265,7 @@ describe('<ResizeElement />', () => {
   });
 
   it('should not resize image elements', () => {
-    render(<ResizeElement elementId="element-2" />, {
+    render(<ResizeElement elementIds={['element-2']} />, {
       wrapper: Wrapper,
     });
 

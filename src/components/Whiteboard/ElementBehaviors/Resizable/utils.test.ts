@@ -14,12 +14,17 @@
  * limitations under the License.
  */
 
+import {
+  mockEllipseElement,
+  mockLineElement,
+} from '../../../../lib/testUtils/documentTestUtils';
+import { Element } from '../../../../state';
 import { Dimensions } from './types';
 import {
   calculateDimensions,
   calculateDragDimension,
   calculateDragOrigin,
-  calculateLineDragDimensions,
+  computeResizing,
 } from './utils';
 
 describe('calculateDragDimension', () => {
@@ -79,7 +84,6 @@ describe('calculateDragOrigin', () => {
     'should calculate drag origin for $handlePosition based on start dimensions',
     ({ handlePosition, expectedDragOriginX, expectedDragOriginY }) => {
       const startDimension: Dimensions = {
-        elementKind: 'circle',
         x: 10,
         y: 15,
         width: 30,
@@ -93,61 +97,6 @@ describe('calculateDragOrigin', () => {
   );
 });
 
-describe('calculateLineDragDimensions', () => {
-  const dimensions: Dimensions = {
-    elementKind: 'line',
-    x: 0,
-    y: 0,
-    width: 0,
-    height: 0,
-    points: [
-      { x: 0, y: 0 },
-      { x: 0, y: 0 },
-    ],
-  };
-
-  it('should return given dimensions when elementKind is not line', () => {
-    const elementKind = 'circle';
-
-    expect(
-      calculateLineDragDimensions(
-        'start',
-        { ...dimensions, elementKind },
-        9,
-        9,
-      ),
-    ).toEqual({ ...dimensions, elementKind });
-  });
-
-  it('should return new dimensions when dragging start point', () => {
-    expect(calculateLineDragDimensions('start', dimensions, 50, 50)).toEqual({
-      elementKind: dimensions.elementKind,
-      x: 0,
-      y: 0,
-      width: 50,
-      height: 50,
-      points: [
-        { x: 50, y: 50 },
-        { x: 0, y: 0 },
-      ],
-    });
-  });
-
-  it('should return new dimensions when dragging end point', () => {
-    expect(calculateLineDragDimensions('end', dimensions, 50, 50)).toEqual({
-      elementKind: dimensions.elementKind,
-      x: 0,
-      y: 0,
-      width: 50,
-      height: 50,
-      points: [
-        { x: 0, y: 0 },
-        { x: 50, y: 50 },
-      ],
-    });
-  });
-});
-
 describe('calculateDimensions', () => {
   const viewportWidth = 100;
   const viewportHeight = 110;
@@ -155,7 +104,6 @@ describe('calculateDimensions', () => {
 
   beforeEach(() => {
     startDimension = {
-      elementKind: 'circle',
       x: 15,
       y: 30,
       width: 20,
@@ -208,7 +156,6 @@ describe('calculateDimensions', () => {
           viewportHeight,
         ),
       ).toEqual({
-        elementKind: startDimension.elementKind,
         x: expectedX,
         y: expectedY,
         width: expectedWidth,
@@ -250,7 +197,6 @@ describe('calculateDimensions', () => {
           viewportHeight,
         ),
       ).toEqual({
-        elementKind: startDimension.elementKind,
         x: expectedX,
         y: expectedY,
         width: expectedWidth,
@@ -276,7 +222,6 @@ describe('calculateDimensions', () => {
         viewportHeight,
       ),
     ).toEqual({
-      elementKind: startDimension.elementKind,
       x: 15,
       y: 30,
       width: 2,
@@ -329,7 +274,6 @@ describe('calculateDimensions', () => {
           viewportHeight,
         ),
       ).toEqual({
-        elementKind: startDimension.elementKind,
         x: expectedX,
         y: expectedY,
         width: expectedWidth,
@@ -379,7 +323,6 @@ describe('calculateDimensions', () => {
           viewportHeight,
         ),
       ).toEqual({
-        elementKind: startDimension.elementKind,
         x: expectedX,
         y: expectedY,
         width: expectedWidth,
@@ -423,12 +366,238 @@ describe('calculateDimensions', () => {
           40,
         ),
       ).toEqual({
-        elementKind: startDimension.elementKind,
         x: expectedX,
         y: expectedY,
         width: expectedWidth,
         height: expectedHeight,
       });
+    },
+  );
+});
+
+describe('computeResizing', () => {
+  const event = {
+    deltaX: 0,
+    deltaY: 0,
+    lockAspectRatio: false,
+    x: 0,
+    y: 0,
+  };
+
+  const viewportWidth = 360;
+  const viewportHeight = 360;
+  const forceLockAspectRatio = false;
+  const gridCellSize = 40;
+
+  const line = mockLineElement({
+    position: { x: 120, y: 160 },
+    points: [
+      { x: 0, y: 0 },
+      { x: 120, y: 40 },
+    ],
+  });
+
+  const ellipse: Element = mockEllipseElement({
+    position: { x: 120, y: 120 },
+    width: 40,
+    height: 40,
+  });
+
+  it('should return no updates when resizableProperties are undefined', () => {
+    expect(
+      computeResizing(
+        { handlePosition: 'top', containerWidth: 0, containerHeight: 0 },
+        event,
+        viewportWidth,
+        viewportHeight,
+        forceLockAspectRatio,
+        gridCellSize,
+        undefined,
+      ),
+    ).toStrictEqual([]);
+  });
+
+  it.each`
+    handlePosition | handlePositionX | handlePositionY | dragX  | dragY  | expectedX | expectedY
+    ${'start'}     | ${120}          | ${160}          | ${80}  | ${120} | ${80}     | ${120}
+    ${'end'}       | ${240}          | ${200}          | ${280} | ${240} | ${120}    | ${160}
+  `(
+    'should compute resizing of line when dragging handlePosition $handlePosition',
+    ({
+      handlePosition,
+      handlePositionX,
+      handlePositionY,
+      dragX,
+      dragY,
+      expectedX,
+      expectedY,
+    }) => {
+      expect(
+        computeResizing(
+          { handlePosition, handlePositionX, handlePositionY },
+          { ...event, x: dragX, y: dragY },
+          viewportWidth,
+          viewportHeight,
+          forceLockAspectRatio,
+          gridCellSize,
+          {
+            x: 120,
+            y: 160,
+            width: 120,
+            height: 40,
+            elements: { line },
+          },
+        ),
+      ).toStrictEqual([
+        {
+          elementId: 'line',
+          elementOverride: {
+            position: { x: expectedX, y: expectedY },
+            points: [
+              { x: 0, y: 0 },
+              { x: 160, y: 80 },
+            ],
+          },
+        },
+      ]);
+    },
+  );
+
+  it('should not compute resizing of line', () => {
+    expect(
+      computeResizing(
+        { handlePosition: 'start', handlePositionX: 0, handlePositionY: 0 },
+        event,
+        viewportWidth,
+        viewportHeight,
+        forceLockAspectRatio,
+        gridCellSize,
+        {
+          x: 120,
+          y: 160,
+          width: 120,
+          height: 40,
+          elements: { ellipse },
+        },
+      ),
+    ).toStrictEqual([]);
+  });
+
+  it.each`
+    handlePosition   | dragX  | dragY  | expectedX | expectedY | expectedWidth | expectedHeight
+    ${'top'}         | ${120} | ${80}  | ${120}    | ${80}     | ${40}         | ${80}
+    ${'topRight'}    | ${200} | ${80}  | ${120}    | ${80}     | ${80}         | ${80}
+    ${'right'}       | ${200} | ${120} | ${120}    | ${120}    | ${80}         | ${40}
+    ${'bottomRight'} | ${200} | ${200} | ${120}    | ${120}    | ${80}         | ${80}
+    ${'bottom'}      | ${120} | ${200} | ${120}    | ${120}    | ${40}         | ${80}
+    ${'bottomLeft'}  | ${80}  | ${200} | ${80}     | ${120}    | ${80}         | ${80}
+    ${'left'}        | ${80}  | ${120} | ${80}     | ${120}    | ${80}         | ${40}
+    ${'topLeft'}     | ${80}  | ${80}  | ${80}     | ${80}     | ${80}         | ${80}
+  `(
+    'should compute resizing of shape when dragging handlePosition $handlePosition',
+    ({
+      handlePosition,
+      dragX,
+      dragY,
+      expectedX,
+      expectedY,
+      expectedWidth,
+      expectedHeight,
+    }) => {
+      expect(
+        computeResizing(
+          { handlePosition, containerWidth: 40, containerHeight: 40 },
+          { ...event, x: dragX, y: dragY },
+          viewportWidth,
+          viewportHeight,
+          forceLockAspectRatio,
+          gridCellSize,
+          {
+            x: 120,
+            y: 120,
+            width: 40,
+            height: 40,
+            elements: { ellipse },
+          },
+        ),
+      ).toStrictEqual([
+        {
+          elementId: 'ellipse',
+          elementOverride: {
+            position: { x: expectedX, y: expectedY },
+            width: expectedWidth,
+            height: expectedHeight,
+            points: undefined,
+          },
+        },
+      ]);
+    },
+  );
+
+  it.each`
+    handlePosition   | dragX  | dragY  | expectedEllipseX | expectedEllipseY | expectedEllipseWidth | expectedEllipseHeight | expectedLineX | expectedLineY | expectedLineWidth | expectedLineHeight
+    ${'top'}         | ${120} | ${40}  | ${120}           | ${40}            | ${40}                | ${80}                 | ${120}        | ${120}        | ${120}            | ${80}
+    ${'topRight'}    | ${360} | ${40}  | ${120}           | ${40}            | ${80}                | ${80}                 | ${120}        | ${120}        | ${240}            | ${80}
+    ${'right'}       | ${360} | ${120} | ${120}           | ${120}           | ${80}                | ${40}                 | ${120}        | ${160}        | ${240}            | ${40}
+    ${'bottomRight'} | ${360} | ${280} | ${120}           | ${120}           | ${80}                | ${80}                 | ${120}        | ${200}        | ${240}            | ${80}
+    ${'bottom'}      | ${120} | ${280} | ${120}           | ${120}           | ${40}                | ${80}                 | ${120}        | ${200}        | ${120}            | ${80}
+    ${'bottomLeft'}  | ${0}   | ${280} | ${0}             | ${120}           | ${80}                | ${80}                 | ${0}          | ${200}        | ${240}            | ${80}
+    ${'left'}        | ${0}   | ${120} | ${0}             | ${120}           | ${80}                | ${40}                 | ${0}          | ${160}        | ${240}            | ${40}
+    ${'topLeft'}     | ${0}   | ${40}  | ${0}             | ${40}            | ${80}                | ${80}                 | ${0}          | ${120}        | ${240}            | ${80}
+  `(
+    'should compute resizing of elements when dragging handlePosition $handlePosition',
+    ({
+      handlePosition,
+      dragX,
+      dragY,
+      expectedEllipseX,
+      expectedEllipseY,
+      expectedEllipseWidth,
+      expectedEllipseHeight,
+      expectedLineX,
+      expectedLineY,
+      expectedLineWidth,
+      expectedLineHeight,
+    }) => {
+      expect(
+        computeResizing(
+          { handlePosition, containerWidth: 120, containerHeight: 80 },
+          { ...event, x: dragX, y: dragY },
+          viewportWidth,
+          viewportHeight,
+          forceLockAspectRatio,
+          gridCellSize,
+          {
+            x: 120,
+            y: 120,
+            width: 120,
+            height: 80,
+            elements: { ellipse, line },
+          },
+        ),
+      ).toStrictEqual([
+        {
+          elementId: 'ellipse',
+          elementOverride: {
+            position: { x: expectedEllipseX, y: expectedEllipseY },
+            width: expectedEllipseWidth,
+            height: expectedEllipseHeight,
+            points: undefined,
+          },
+        },
+        {
+          elementId: 'line',
+          elementOverride: {
+            position: { x: expectedLineX, y: expectedLineY },
+            width: undefined,
+            height: undefined,
+            points: [
+              { x: 0, y: 0 },
+              { x: expectedLineWidth, y: expectedLineHeight },
+            ],
+          },
+        },
+      ]);
     },
   );
 });

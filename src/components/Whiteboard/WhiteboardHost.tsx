@@ -104,7 +104,7 @@ const WhiteboardHost = ({
             <ElementBorder elementIds={activeElementIds} />
             <ElementOutline elementIds={activeElementIds} />
             {dragSelectStartCoords === undefined && (
-              <ResizeElement elementId={activeElementIds[0]} />
+              <ResizeElement elementIds={activeElementIds} />
             )}
           </>
         )}
