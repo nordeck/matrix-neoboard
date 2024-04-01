@@ -110,10 +110,7 @@ function ImageDisplay({
         elementId={elementId}
       >
         <MoveableElement elementId={elementId} overrides={overrides}>
-          <ElementContextMenu
-            elementId={elementId}
-            activeElementIds={activeElementIds}
-          >
+          <ElementContextMenu activeElementIds={activeElementIds}>
             {renderedSkeleton}
             {renderedChild}
           </ElementContextMenu>

@@ -81,10 +81,7 @@ describe('<ElementContextMenu/>', () => {
 
   it('should render without exploding', async () => {
     render(
-      <ElementContextMenu
-        elementId="element-1"
-        activeElementIds={['element-1']}
-      >
+      <ElementContextMenu activeElementIds={['element-1']}>
         <text data-testid="example-text" />
       </ElementContextMenu>,
       { wrapper: Wrapper },
@@ -99,15 +96,9 @@ describe('<ElementContextMenu/>', () => {
   });
 
   it('should open the context menu on right click', async () => {
-    render(
-      <ElementContextMenu
-        elementId="element-1"
-        activeElementIds={['element-1']}
-      />,
-      {
-        wrapper: Wrapper,
-      },
-    );
+    render(<ElementContextMenu activeElementIds={['element-1']} />, {
+      wrapper: Wrapper,
+    });
 
     const contextMenuTarget = screen.getByTestId(
       'element-context-menu-container',
@@ -138,7 +129,7 @@ describe('<ElementContextMenu/>', () => {
 
   it('should have no accessibility violations', async () => {
     const { container } = render(
-      <ElementContextMenu elementId="id" activeElementIds={['id']} />,
+      <ElementContextMenu activeElementIds={['id']} />,
       {
         wrapper: Wrapper,
       },
@@ -149,7 +140,7 @@ describe('<ElementContextMenu/>', () => {
 
   it('should have no accessibility violations for context menu', async () => {
     const { container } = render(
-      <ElementContextMenu elementId="id" activeElementIds={['id']} />,
+      <ElementContextMenu activeElementIds={['id']} />,
       {
         wrapper: Wrapper,
       },
@@ -171,15 +162,9 @@ describe('<ElementContextMenu/>', () => {
       .spyOn(window.navigator, 'userAgent', 'get')
       .mockReturnValue('Mac OS (jsdom)');
 
-    render(
-      <ElementContextMenu
-        elementId="element-1"
-        activeElementIds={['element-1']}
-      />,
-      {
-        wrapper: Wrapper,
-      },
-    );
+    render(<ElementContextMenu activeElementIds={['element-1']} />, {
+      wrapper: Wrapper,
+    });
 
     const contextMenuTarget = screen.getByTestId(
       'element-context-menu-container',
@@ -213,7 +198,6 @@ describe('<ElementContextMenu/>', () => {
     activeSlide.setActiveElementId('element-1');
     render(
       <ElementContextMenu
-        elementId="element-1"
         activeElementIds={activeSlide.getActiveElementIds()}
       />,
       {
@@ -253,7 +237,6 @@ describe('<ElementContextMenu/>', () => {
     activeSlide.setActiveElementId('element-0');
     render(
       <ElementContextMenu
-        elementId="element-0"
         activeElementIds={activeSlide.getActiveElementIds()}
       />,
       {
@@ -293,7 +276,6 @@ describe('<ElementContextMenu/>', () => {
     activeSlide.setActiveElementIds(['element-0', 'element-1']);
     render(
       <ElementContextMenu
-        elementId="element-0"
         activeElementIds={activeSlide.getActiveElementIds()}
       />,
       {
@@ -333,7 +315,6 @@ describe('<ElementContextMenu/>', () => {
     activeSlide.setActiveElementId('element-1');
     render(
       <ElementContextMenu
-        elementId="element-1"
         activeElementIds={activeSlide.getActiveElementIds()}
       />,
       {
@@ -373,7 +354,6 @@ describe('<ElementContextMenu/>', () => {
     activeSlide.setActiveElementId('element-2');
     render(
       <ElementContextMenu
-        elementId="element-2"
         activeElementIds={activeSlide.getActiveElementIds()}
       />,
       {
@@ -413,7 +393,6 @@ describe('<ElementContextMenu/>', () => {
     activeSlide.setActiveElementIds(['element-1', 'element-2']);
     render(
       <ElementContextMenu
-        elementId="element-2"
         activeElementIds={activeSlide.getActiveElementIds()}
       />,
       {
@@ -456,7 +435,6 @@ describe('<ElementContextMenu/>', () => {
     activeSlide.setActiveElementIds(elementIdsToBeDeleted);
     render(
       <ElementContextMenu
-        elementId="element-1"
         activeElementIds={activeSlide.getActiveElementIds()}
       />,
       {

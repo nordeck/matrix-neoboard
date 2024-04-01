@@ -33,31 +33,24 @@ import {
 import { HotkeysHelp } from '../../../common/HotkeysHelp';
 import { isMacOS } from '../../../common/platform';
 
-type ContextMenuState =
-  | { elementId: string; position: PopoverPosition }
-  | undefined;
+type ContextMenuState = { position: PopoverPosition } | undefined;
 
 export function ElementContextMenu({
   children,
-  elementId,
   activeElementIds = [],
-}: PropsWithChildren<{ elementId: string; activeElementIds: string[] }>) {
+}: PropsWithChildren<{ activeElementIds: string[] }>) {
   const [state, setState] = useState<ContextMenuState>();
 
-  const handleContextMenu = useCallback(
-    (event: MouseEvent<SVGElement>) => {
-      event.preventDefault();
-      setState((state) =>
-        !state
-          ? {
-              position: { left: event.clientX + 2, top: event.clientY - 6 },
-              elementId,
-            }
-          : undefined,
-      );
-    },
-    [elementId],
-  );
+  const handleContextMenu = useCallback((event: MouseEvent<SVGElement>) => {
+    event.preventDefault();
+    setState((state) =>
+      !state
+        ? {
+            position: { left: event.clientX + 2, top: event.clientY - 6 },
+          }
+        : undefined,
+    );
+  }, []);
 
   return (
     <>

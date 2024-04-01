@@ -59,10 +59,7 @@ const PolylineDisplay = ({
       elementId={elementId}
     >
       <MoveableElement elementId={elementId} overrides={overrides}>
-        <ElementContextMenu
-          elementId={elementId}
-          activeElementIds={activeElementIds}
-        >
+        <ElementContextMenu activeElementIds={activeElementIds}>
           {renderedChild}
         </ElementContextMenu>
       </MoveableElement>
