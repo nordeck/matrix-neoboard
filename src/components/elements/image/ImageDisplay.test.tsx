@@ -72,8 +72,6 @@ describe('<ImageDisplay />', () => {
         position={{ x: 23, y: 42 }}
         active={false}
         readOnly={false}
-        elementIds={[]}
-        overrides={{}}
       />,
       { wrapper: Wrapper },
     );
@@ -97,8 +95,6 @@ describe('<ImageDisplay />', () => {
         position={{ x: 23, y: 42 }}
         active={false}
         readOnly={false}
-        elementIds={[]}
-        overrides={{}}
       />,
       { wrapper: Wrapper },
     );
@@ -131,8 +127,6 @@ describe('<ImageDisplay />', () => {
         position={{ x: 23, y: 42 }}
         active={false}
         readOnly={true}
-        elementIds={[]}
-        overrides={{}}
       />,
       { wrapper: Wrapper },
     );

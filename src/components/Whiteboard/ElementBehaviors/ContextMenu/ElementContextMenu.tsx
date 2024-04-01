@@ -40,8 +40,8 @@ type ContextMenuState =
 export function ElementContextMenu({
   children,
   elementId,
-  elementIds,
-}: PropsWithChildren<{ elementId: string; elementIds: string[] }>) {
+  activeElementIds = [],
+}: PropsWithChildren<{ elementId: string; activeElementIds: string[] }>) {
   const [state, setState] = useState<ContextMenuState>();
 
   const handleContextMenu = useCallback(
@@ -70,7 +70,7 @@ export function ElementContextMenu({
       </Box>
 
       {state !== undefined && (
-        <ContextMenuOptions state={state} elementIds={elementIds} />
+        <ContextMenuOptions state={state} activeElementIds={activeElementIds} />
       )}
     </>
   );
@@ -78,11 +78,10 @@ export function ElementContextMenu({
 
 function ContextMenuOptions({
   state,
-  elementIds: ids,
-}: PropsWithChildren<{ state: ContextMenuState; elementIds: string[] }>) {
+  activeElementIds,
+}: PropsWithChildren<{ state: ContextMenuState; activeElementIds: string[] }>) {
   const isLocked = useSlideIsLocked();
   const slideInstance = useWhiteboardSlideInstance();
-  const activeElementIds = ids;
   const elementIds = useSlideElementIds();
   const { t } = useTranslation();
   const menuTitle = t('elementContextMenu.title', 'Element');

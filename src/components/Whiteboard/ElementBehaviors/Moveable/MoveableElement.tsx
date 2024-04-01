@@ -43,14 +43,13 @@ const DraggableGroup = styled('g')({
 
 export type MoveableElementProps = PropsWithChildren<{
   elementId: string;
-  elementIds: string[];
-  overrides: Elements;
+  overrides?: Elements;
 }>;
 
 export function MoveableElement({
   children,
   elementId,
-  overrides,
+  overrides = {},
 }: MoveableElementProps) {
   const elements = overrides;
   const { isShowGrid } = useLayoutState();

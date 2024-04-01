@@ -27,24 +27,26 @@ import TriangleDisplay from '../../elements/triangle/Display';
 export const ConnectedElement = ({
   id,
   readOnly = false,
-  elementIds,
-  overrides,
+  activeElementIds = [],
+  overrides = {},
 }: {
   id: string;
   readOnly?: boolean;
-  elementIds: string[];
-  overrides: Elements;
+  activeElementIds?: string[];
+  overrides?: Elements;
 }) => {
   const widgetApi = useWidgetApi();
   const element = useElementOverride(id);
   const isActive =
-    !readOnly && id ? elementIds.length === 1 && elementIds[0] === id : false;
+    !readOnly && id
+      ? activeElementIds.length === 1 && activeElementIds[0] === id
+      : false;
   const otherProps = {
     // TODO: Align names
     active: isActive,
     readOnly,
     elementId: id,
-    elementIds,
+    activeElementIds,
     overrides,
   };
 

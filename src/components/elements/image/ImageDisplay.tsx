@@ -55,8 +55,8 @@ function ImageDisplay({
   active,
   readOnly,
   elementId,
-  elementIds,
-  overrides,
+  activeElementIds = [],
+  overrides = {},
 }: ImageDisplayProps) {
   // Image loading errors are dealt with in follow-up tasks.
   // Don't care about invalid http URLs here.
@@ -109,12 +109,11 @@ function ImageDisplay({
         readOnly={readOnly}
         elementId={elementId}
       >
-        <MoveableElement
-          elementId={elementId}
-          elementIds={elementIds}
-          overrides={overrides}
-        >
-          <ElementContextMenu elementId={elementId} elementIds={elementIds}>
+        <MoveableElement elementId={elementId} overrides={overrides}>
+          <ElementContextMenu
+            elementId={elementId}
+            activeElementIds={activeElementIds}
+          >
             {renderedSkeleton}
             {renderedChild}
           </ElementContextMenu>

@@ -120,14 +120,7 @@ export const DraftLineChild = ({
       onMouseUp={handleMouseUp}
     >
       {shape && (
-        <Display
-          {...shape}
-          elementId="draft"
-          readOnly
-          active={false}
-          elementIds={[]}
-          overrides={{}}
-        />
+        <Display {...shape} elementId="draft" readOnly active={false} />
       )}
     </DraftMouseHandler>
   );

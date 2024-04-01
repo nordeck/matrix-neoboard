@@ -31,8 +31,8 @@ const LineDisplay = ({
   readOnly,
   active,
   elementId,
-  elementIds,
-  overrides,
+  activeElementIds = [],
+  overrides = {},
   ...element
 }: LineElementProps) => {
   const {
@@ -69,12 +69,11 @@ const LineDisplay = ({
       readOnly={readOnly}
       elementId={elementId}
     >
-      <MoveableElement
-        elementId={elementId}
-        elementIds={elementIds}
-        overrides={overrides}
-      >
-        <ElementContextMenu elementId={elementId} elementIds={elementIds}>
+      <MoveableElement elementId={elementId} overrides={overrides}>
+        <ElementContextMenu
+          elementId={elementId}
+          activeElementIds={activeElementIds}
+        >
           {renderedChild}
         </ElementContextMenu>
       </MoveableElement>

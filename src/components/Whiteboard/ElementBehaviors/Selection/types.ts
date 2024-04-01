@@ -22,10 +22,7 @@ export type WithSelectionProps = {
   elementId: string;
 };
 
-export type WithExtendedSelectionProps = {
-  readOnly: boolean;
-  active: boolean;
-  elementId: string;
-  elementIds: string[];
-  overrides: Elements;
+export type WithExtendedSelectionProps = WithSelectionProps & {
+  activeElementIds?: string[];
+  overrides?: Elements;
 };

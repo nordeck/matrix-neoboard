@@ -81,7 +81,10 @@ describe('<ElementContextMenu/>', () => {
 
   it('should render without exploding', async () => {
     render(
-      <ElementContextMenu elementId="element-1" elementIds={['element-1']}>
+      <ElementContextMenu
+        elementId="element-1"
+        activeElementIds={['element-1']}
+      >
         <text data-testid="example-text" />
       </ElementContextMenu>,
       { wrapper: Wrapper },
@@ -97,7 +100,10 @@ describe('<ElementContextMenu/>', () => {
 
   it('should open the context menu on right click', async () => {
     render(
-      <ElementContextMenu elementId="element-1" elementIds={['element-1']} />,
+      <ElementContextMenu
+        elementId="element-1"
+        activeElementIds={['element-1']}
+      />,
       {
         wrapper: Wrapper,
       },
@@ -132,7 +138,7 @@ describe('<ElementContextMenu/>', () => {
 
   it('should have no accessibility violations', async () => {
     const { container } = render(
-      <ElementContextMenu elementId="id" elementIds={['id']} />,
+      <ElementContextMenu elementId="id" activeElementIds={['id']} />,
       {
         wrapper: Wrapper,
       },
@@ -143,7 +149,7 @@ describe('<ElementContextMenu/>', () => {
 
   it('should have no accessibility violations for context menu', async () => {
     const { container } = render(
-      <ElementContextMenu elementId="id" elementIds={['id']} />,
+      <ElementContextMenu elementId="id" activeElementIds={['id']} />,
       {
         wrapper: Wrapper,
       },
@@ -166,7 +172,10 @@ describe('<ElementContextMenu/>', () => {
       .mockReturnValue('Mac OS (jsdom)');
 
     render(
-      <ElementContextMenu elementId="element-1" elementIds={['element-1']} />,
+      <ElementContextMenu
+        elementId="element-1"
+        activeElementIds={['element-1']}
+      />,
       {
         wrapper: Wrapper,
       },
@@ -205,7 +214,7 @@ describe('<ElementContextMenu/>', () => {
     render(
       <ElementContextMenu
         elementId="element-1"
-        elementIds={activeSlide.getActiveElementIds()}
+        activeElementIds={activeSlide.getActiveElementIds()}
       />,
       {
         wrapper: Wrapper,
@@ -245,7 +254,7 @@ describe('<ElementContextMenu/>', () => {
     render(
       <ElementContextMenu
         elementId="element-0"
-        elementIds={activeSlide.getActiveElementIds()}
+        activeElementIds={activeSlide.getActiveElementIds()}
       />,
       {
         wrapper: Wrapper,
@@ -285,7 +294,7 @@ describe('<ElementContextMenu/>', () => {
     render(
       <ElementContextMenu
         elementId="element-0"
-        elementIds={activeSlide.getActiveElementIds()}
+        activeElementIds={activeSlide.getActiveElementIds()}
       />,
       {
         wrapper: Wrapper,
@@ -325,7 +334,7 @@ describe('<ElementContextMenu/>', () => {
     render(
       <ElementContextMenu
         elementId="element-1"
-        elementIds={activeSlide.getActiveElementIds()}
+        activeElementIds={activeSlide.getActiveElementIds()}
       />,
       {
         wrapper: Wrapper,
@@ -365,7 +374,7 @@ describe('<ElementContextMenu/>', () => {
     render(
       <ElementContextMenu
         elementId="element-2"
-        elementIds={activeSlide.getActiveElementIds()}
+        activeElementIds={activeSlide.getActiveElementIds()}
       />,
       {
         wrapper: Wrapper,
@@ -405,7 +414,7 @@ describe('<ElementContextMenu/>', () => {
     render(
       <ElementContextMenu
         elementId="element-2"
-        elementIds={activeSlide.getActiveElementIds()}
+        activeElementIds={activeSlide.getActiveElementIds()}
       />,
       {
         wrapper: Wrapper,
@@ -448,7 +457,7 @@ describe('<ElementContextMenu/>', () => {
     render(
       <ElementContextMenu
         elementId="element-1"
-        elementIds={activeSlide.getActiveElementIds()}
+        activeElementIds={activeSlide.getActiveElementIds()}
       />,
       {
         wrapper: Wrapper,

@@ -31,8 +31,8 @@ const EllipseDisplay = ({
   readOnly,
   active,
   elementId,
-  elementIds,
-  overrides,
+  activeElementIds = [],
+  overrides = {},
   ...shape
 }: EllipseElementProps) => {
   const width = shape.width;
@@ -83,12 +83,11 @@ const EllipseDisplay = ({
       readOnly={readOnly}
       elementId={elementId}
     >
-      <MoveableElement
-        elementId={elementId}
-        elementIds={elementIds}
-        overrides={overrides}
-      >
-        <ElementContextMenu elementId={elementId} elementIds={elementIds}>
+      <MoveableElement elementId={elementId} overrides={overrides}>
+        <ElementContextMenu
+          elementId={elementId}
+          activeElementIds={activeElementIds}
+        >
           {renderedChild}
         </ElementContextMenu>
       </MoveableElement>

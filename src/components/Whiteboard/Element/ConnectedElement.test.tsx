@@ -70,7 +70,7 @@ describe('<ConnectedElement />', () => {
     render(
       <ConnectedElement
         id="element-0"
-        elementIds={['element-0']}
+        activeElementIds={['element-0']}
         overrides={{}}
       />,
       { wrapper: Wrapper },
@@ -85,7 +85,7 @@ describe('<ConnectedElement />', () => {
     render(
       <ConnectedElement
         id="element-0"
-        elementIds={['element-0']}
+        activeElementIds={['element-0']}
         overrides={{}}
       />,
       { wrapper: Wrapper },

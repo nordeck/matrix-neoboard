@@ -59,7 +59,7 @@ const WhiteboardHost = ({
   const { isShowCollaboratorsCursors, dragSelectStartCoords } =
     useLayoutState();
   const { activeElementIds } = useActiveElements();
-  const overrides = useElementOverrides(elementIds);
+  const overrides = useElementOverrides(activeElementIds);
 
   return (
     <Box
@@ -98,7 +98,7 @@ const WhiteboardHost = ({
             id={e}
             key={e}
             readOnly={readOnly}
-            elementIds={activeElementIds}
+            activeElementIds={activeElementIds}
             overrides={overrides}
           />
         ))}
