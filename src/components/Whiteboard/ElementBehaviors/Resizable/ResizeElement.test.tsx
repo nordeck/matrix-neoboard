@@ -20,6 +20,7 @@ import { mocked } from 'jest-mock';
 import { ComponentType, PropsWithChildren } from 'react';
 import {
   WhiteboardTestingContextProvider,
+  mockImageElement,
   mockLineElement,
   mockPolylineElement,
   mockWhiteboardManager,
@@ -88,6 +89,7 @@ describe('<ResizeElement />', () => {
                 position: { x: 0, y: 0 },
               }),
             ],
+            ['element-2', mockImageElement()],
           ],
         ],
       ],
@@ -236,5 +238,15 @@ describe('<ResizeElement />', () => {
       strokeColor: '#ffffff',
       type: 'path',
     });
+  });
+
+  it('should not resize image elements', () => {
+    render(<ResizeElement elementId="element-2" />, {
+      wrapper: Wrapper,
+    });
+
+    expect(
+      screen.queryByTestId('resize-handle-se-resize'),
+    ).not.toBeInTheDocument();
   });
 });

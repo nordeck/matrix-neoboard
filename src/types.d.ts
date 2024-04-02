@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Nordeck IT + Consulting GmbH
+ * Copyright 2024 Nordeck IT + Consulting GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,20 @@
  * limitations under the License.
  */
 
-export { determineImageSize } from './determineImageSize';
-export { isDefined } from './isDefined';
-export { FontsLoadedContextProvider, useFontsLoaded } from './useFontsLoaded';
-export { useLatestValue } from './useLatestValue';
-export { getUserColor } from './userColor';
+type PromiseFulfilledResult<T> = {
+  status: 'fulfilled';
+  value: T;
+};
+
+type PromiseRejectedResult = {
+  status: 'rejected';
+  reason: unknown;
+};
+
+/**
+ * ESLint doesn't know about PromiseSettledResult.
+ * {@link https://github.com/vuejs/vue-cli/issues/7228}
+ */
+export type PromiseSettledResult<T> =
+  | PromiseFulfilledResult<T>
+  | PromiseRejectedResult;

@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
+import { useWidgetApi } from '@matrix-widget-toolkit/react';
 import { useActiveElements } from '../../../state';
 import { useElementOverride } from '../../ElementOverridesProvider';
 import EllipseDisplay from '../../elements/ellipse/Display';
+import ImageDisplay from '../../elements/image/ImageDisplay';
 import LineDisplay from '../../elements/line/Display';
 import PolylineDisplay from '../../elements/polyline/Display';
 import RectangleDisplay from '../../elements/rectangle/Display';
@@ -30,6 +32,7 @@ export const ConnectedElement = ({
   readOnly?: boolean;
 }) => {
   const { activeElementIds } = useActiveElements();
+  const widgetApi = useWidgetApi();
   const element = useElementOverride(id);
   const isActive =
     !readOnly && id
@@ -57,6 +60,19 @@ export const ConnectedElement = ({
       } else if (element.kind === 'triangle') {
         return <TriangleDisplay {...element} {...otherProps} />;
       }
+    } else if (element.type === 'image') {
+      if (widgetApi.widgetParameters.baseUrl === undefined) {
+        console.error('Image cannot be rendered due to missing base URL');
+        return null;
+      }
+
+      return (
+        <ImageDisplay
+          baseUrl={widgetApi.widgetParameters.baseUrl}
+          {...element}
+          {...otherProps}
+        />
+      );
     }
   }
 

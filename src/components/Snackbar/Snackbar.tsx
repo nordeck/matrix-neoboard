@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Nordeck IT + Consulting GmbH
+ * Copyright 2024 Nordeck IT + Consulting GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,15 @@
  * limitations under the License.
  */
 
-export { determineImageSize } from './determineImageSize';
-export { isDefined } from './isDefined';
-export { FontsLoadedContextProvider, useFontsLoaded } from './useFontsLoaded';
-export { useLatestValue } from './useLatestValue';
-export { getUserColor } from './userColor';
+import { Snackbar as MuiSnackbar } from '@mui/material';
+import { useSnackbar } from './useSnackbar';
+
+export function Snackbar() {
+  const { snackbarProps } = useSnackbar();
+
+  if (snackbarProps === undefined) {
+    return null;
+  }
+
+  return <MuiSnackbar {...snackbarProps} />;
+}
