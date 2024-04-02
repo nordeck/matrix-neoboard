@@ -3,16 +3,16 @@
   "description": "A whiteboard widget for the Element messenger",
   "author": "Nordeck IT + Consulting GmbH",
   "license": "Apache-2.0",
-  "version": "1.14.0",
+  "version": "1.15.0",
   "private": true,
   "dependencies": {
     "@fontsource/noto-emoji": "^5.0.18",
     "@matrix-widget-toolkit/api": "^3.2.1",
-    "@matrix-widget-toolkit/mui": "^1.1.6",
+    "@matrix-widget-toolkit/mui": "^1.2.1",
     "@matrix-widget-toolkit/react": "^1.0.6",
-    "@mui/base": "^5.0.0-beta.31",
+    "@mui/base": "^5.0.0-beta.40",
     "@mui/icons-material": "^5.15.4",
-    "@mui/lab": "^5.0.0-alpha.160",
+    "@mui/lab": "^5.0.0-alpha.169",
     "@mui/material": "^5.15.4",
     "@mui/utils": "^5.14.18",
     "@reduxjs/toolkit": "^1.9.7",
@@ -41,7 +41,7 @@
     "react-use": "^17.4.3",
     "rxjs": "^7.8.1",
     "tinycolor2": "^1.6.0",
-    "yjs": "^13.6.0"
+    "yjs": "^13.6.14"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.1",
