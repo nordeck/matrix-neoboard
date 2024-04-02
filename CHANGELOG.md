@@ -1,5 +1,11 @@
 # @nordeck/matrix-neoboard-widget
 
+## 1.15.0
+
+### Minor Changes
+
+- efb4758: Upload images
+
 ## 1.14.0
 
 ### Minor Changes
