@@ -17,6 +17,9 @@
 import type { Array as YArray, Map as YMap, Text as YText } from 'yjs';
 export { Array as YArray, Map as YMap, Text as YText } from 'yjs';
 
+// Typings broke with https://github.com/yjs/yjs/commit/83712cb1a67124f9f91467ae4f68dc9f841ce188
+// Ignore them until release of https://github.com/yjs/yjs/pull/614
+// @ts-ignore
 export interface SharedMap<
   Data,
   Keys extends keyof Data & string = keyof Data & string,
