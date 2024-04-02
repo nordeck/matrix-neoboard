@@ -3,7 +3,7 @@
   "description": "A whiteboard widget for the Element messenger",
   "author": "Nordeck IT + Consulting GmbH",
   "license": "Apache-2.0",
-  "version": "1.14.0",
+  "version": "1.15.0",
   "private": true,
   "dependencies": {
     "@fontsource/noto-emoji": "^5.0.18",
@@ -41,7 +41,7 @@
     "react-use": "^17.4.3",
     "rxjs": "^7.8.1",
     "tinycolor2": "^1.6.0",
-    "yjs": "^13.6.0"
+    "yjs": "^13.6.14"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.1",
