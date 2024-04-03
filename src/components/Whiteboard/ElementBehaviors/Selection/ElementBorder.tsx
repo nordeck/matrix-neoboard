@@ -14,16 +14,12 @@
  * limitations under the License.
  */
 
-import { styled, useTheme } from '@mui/material';
+import { useTheme } from '@mui/material';
 import { calculateBoundingRectForElements } from '../../../../state';
 import { useElementOverrides } from '../../../ElementOverridesProvider';
 import { useLayoutState } from '../../../Layout';
 import { getRenderProperties } from '../../../elements/line/getRenderProperties';
 import { useSvgCanvasContext } from '../../SvgCanvas';
-
-const NoInteraction = styled('g')({
-  pointerEvents: 'none',
-});
 
 function SelectionAnchor({
   x,
@@ -91,7 +87,7 @@ export function ElementBorder({ elementIds, padding = 1 }: ElementBorderProps) {
   return (
     <>
       {isInSelectionMode && (
-        <NoInteraction>
+        <g>
           {!lineRenderProperties && (
             <rect
               data-testid={`${elementIds[0]}-border`}
@@ -141,7 +137,7 @@ export function ElementBorder({ elementIds, padding = 1 }: ElementBorderProps) {
               />
             </>
           )}
-        </NoInteraction>
+        </g>
       )}
     </>
   );
