@@ -28,7 +28,7 @@ export function ElementOutline({ elementIds }: ElementOutlineProps) {
 
   return elements.length > 1 ? (
     <g pointerEvents="none">
-      {elements.map((element) => {
+      {elements.map((element, index) => {
         let width;
         let height;
 
@@ -44,6 +44,7 @@ export function ElementOutline({ elementIds }: ElementOutlineProps) {
 
         return (
           <rect
+            key={`element-${elementIds[index]}-outline`}
             fill="transparent"
             height={height}
             stroke={theme.palette.primary.main}
