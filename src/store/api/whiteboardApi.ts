@@ -26,8 +26,8 @@ import {
 import { ThunkExtraArgument } from '../store';
 import { baseApi } from './baseApi';
 
-const whiteboardsEntityAdapter = createEntityAdapter<StateEvent<Whiteboard>>({
-  selectId: (event) => event.state_key,
+const whiteboardsEntityAdapter = createEntityAdapter({
+  selectId: (event: StateEvent<Whiteboard>) => event.state_key,
   sortComparer: compareOriginServerTS,
 });
 
@@ -40,9 +40,12 @@ const whiteboardsEntityAdapter = createEntityAdapter<StateEvent<Whiteboard>>({
 export const whiteboardApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     /** Receive the list of all whiteboards in the current room */
-    getWhiteboards: builder.query<EntityState<StateEvent<Whiteboard>>, void>({
+    getWhiteboards: builder.query<
+      EntityState<StateEvent<Whiteboard>, string>,
+      void
+    >({
       // do the initial loading
-      async queryFn(_, { extra }) {
+      queryFn: async (_, { extra }) => {
         const widgetApi = await (extra as ThunkExtraArgument).widgetApi;
 
         try {

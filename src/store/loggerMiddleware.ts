@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-import { Action, Middleware } from '@reduxjs/toolkit';
+import { Middleware } from '@reduxjs/toolkit';
 import { getLogger } from 'loglevel';
 
 export const loggerMiddleware: Middleware = () => {
   const logger = getLogger('Redux');
 
-  return (next) => (action: Action) => {
+  return (next) => (action: unknown) => {
     logger.debug(action);
     return next(action);
   };
