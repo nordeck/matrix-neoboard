@@ -45,7 +45,7 @@ export const whiteboardApi = baseApi.injectEndpoints({
       void
     >({
       // do the initial loading
-      queryFn: async (_, { extra }) => {
+      async queryFn(_, { extra }) {
         const widgetApi = await (extra as ThunkExtraArgument).widgetApi;
 
         try {
