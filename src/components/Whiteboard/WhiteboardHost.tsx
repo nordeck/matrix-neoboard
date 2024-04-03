@@ -33,6 +33,7 @@ import {
   ElementBarWrapper,
   ElementBorder,
   ElementOutline,
+  MoveableElement,
   ResizeElement,
   UnSelectElementHandler,
 } from './ElementBehaviors';
@@ -93,6 +94,12 @@ const WhiteboardHost = ({
         {!hideDotGrid && <DotGrid />}
         {!readOnly && <UnSelectElementHandler />}
 
+        {!readOnly && activeElementIds.length > 0 && (
+          <MoveableElement>
+            <ElementBorder elementIds={activeElementIds} />
+          </MoveableElement>
+        )}
+
         {elementIds.map((e) => (
           <ConnectedElement
             id={e}
@@ -109,7 +116,6 @@ const WhiteboardHost = ({
 
         {!readOnly && activeElementIds.length > 0 && (
           <>
-            <ElementBorder elementIds={activeElementIds} />
             <ElementOutline elementIds={activeElementIds} />
             {dragSelectStartCoords === undefined && (
               <ResizeElement elementId={activeElementIds[0]} />

@@ -16,16 +16,18 @@
  */
 
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { ComponentType, PropsWithChildren } from 'react';
 import { act } from 'react-dom/test-utils';
 import { WhiteboardHost } from '.';
 import {
   WhiteboardTestingContextProvider,
   mockEllipseElement,
+  mockTextElement,
   mockWhiteboardManager,
 } from '../../lib/testUtils/documentTestUtils';
 import { Point, WhiteboardSlideInstance } from '../../state';
+import { ElementOverridesProvider } from '../ElementOverridesProvider';
 import { LayoutStateProvider, useLayoutState } from '../Layout';
 import { WhiteboardHotkeysProvider } from '../WhiteboardHotkeysProvider';
 
@@ -47,7 +49,20 @@ describe('<WhiteboardHost/>', () => {
     widgetApi = mockWidgetApi();
 
     const { whiteboardManager } = mockWhiteboardManager({
-      slides: [['slide-0', [['element-0', mockEllipseElement()]]]],
+      slides: [
+        [
+          'slide-0',
+          [
+            ['element-0', mockEllipseElement()],
+            [
+              'element-1',
+              mockTextElement({
+                position: { x: 200, y: 200 },
+              }),
+            ],
+          ],
+        ],
+      ],
     });
     const activeWhiteboard = whiteboardManager.getActiveWhiteboardInstance()!;
     activeSlide = activeWhiteboard.getSlide('slide-0');
@@ -65,7 +80,7 @@ describe('<WhiteboardHost/>', () => {
             whiteboardManager={whiteboardManager}
             widgetApi={widgetApi}
           >
-            {children}
+            <ElementOverridesProvider>{children}</ElementOverridesProvider>
           </WhiteboardTestingContextProvider>
         </WhiteboardHotkeysProvider>
       </LayoutStateProvider>
@@ -127,5 +142,44 @@ describe('<WhiteboardHost/>', () => {
     });
 
     expect(screen.queryByTestId('resize-element')).not.toBeInTheDocument();
+  });
+
+  it('should contain an element border if an element is selected', () => {
+    activeSlide.setActiveElementIds(['element-0']);
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    expect(screen.getByTestId('element-0-border')).toBeInTheDocument();
+  });
+
+  it('should move multiple selected elements by dragging the border', () => {
+    activeSlide.setActiveElementIds(['element-0', 'element-1']);
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    // move 150px on x and 250px on y axis
+    const border = screen.getByTestId('element-0-border');
+    fireEvent.mouseDown(border, {
+      clientX: 150,
+      clientY: 150,
+    });
+    fireEvent.mouseMove(border, {
+      clientX: 300,
+      clientY: 400,
+    });
+    fireEvent.mouseUp(border);
+
+    expect(activeSlide.getElement('element-0')?.position).toEqual({
+      x: 160,
+      y: 240,
+    });
+    expect(activeSlide.getElement('element-1')?.position).toEqual({
+      x: 360,
+      y: 440,
+    });
+  });
+
+  it('should not contain an element border if no element is selected', () => {
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    expect(screen.queryByTestId('element-0-border')).not.toBeInTheDocument();
   });
 });
