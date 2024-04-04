@@ -95,7 +95,7 @@ const WhiteboardHost = ({
         {!readOnly && <UnSelectElementHandler />}
 
         {!readOnly && activeElementIds.length > 0 && (
-          <MoveableElement>
+          <MoveableElement overrides={overrides}>
             <ElementBorder elementIds={activeElementIds} />
           </MoveableElement>
         )}
