@@ -45,7 +45,7 @@ const DraggableGroup = styled('g')({
 });
 
 export type MoveableElementProps = PropsWithChildren<{
-  elementId: string;
+  elementId?: string;
 }>;
 
 export function MoveableElement({ children, elementId }: MoveableElementProps) {
@@ -63,7 +63,10 @@ export function MoveableElement({ children, elementId }: MoveableElementProps) {
   useUnmount(() => {
     if (isDragging.current) {
       removeUserSelectStyles();
-      setElementOverride(createResetElementOverrides([elementId]));
+
+      if (elementId !== undefined) {
+        setElementOverride(createResetElementOverrides([elementId]));
+      }
     }
   });
 
