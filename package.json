@@ -100,7 +100,7 @@
     "deduplicate": "yarn-deduplicate",
     "depcheck": "depcheck --ignores=@types/jest,@types/node,prettier-plugin-organize-imports,typescript,i18next-parser,@changesets/cli,@testing-library/dom,babel-plugin-transform-import-meta",
     "lint": "eslint .",
-    "prepare": "husky install",
+    "prepare": "husky",
     "translate": "i18next \"src/**/*.{ts,tsx}\"",
     "prettier:check": "prettier --check .",
     "prettier:write": "prettier --write .",

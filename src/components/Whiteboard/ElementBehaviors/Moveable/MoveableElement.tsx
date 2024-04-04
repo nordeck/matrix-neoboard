@@ -51,7 +51,6 @@ export function MoveableElement({
   elementId,
   overrides = {},
 }: MoveableElementProps) {
-  const elements = overrides;
   const { isShowGrid } = useLayoutState();
   const isDragging = useRef<boolean>(false);
   const nodeRef = useRef<SVGRectElement>(null);
@@ -82,7 +81,7 @@ export function MoveableElement({
 
       setElementOverride(
         calculateElementOverrideUpdates(
-          elements,
+          overrides,
           data.deltaX,
           data.deltaY,
           viewportWidth,
@@ -90,15 +89,15 @@ export function MoveableElement({
         ),
       );
     },
-    [setElementOverride, viewportHeight, viewportWidth, elements],
+    [setElementOverride, viewportHeight, viewportWidth, overrides],
   );
 
   const handleStop = useCallback(() => {
-    setElementOverride(createResetElementOverrides(Object.keys(elements)));
+    setElementOverride(createResetElementOverrides(Object.keys(overrides)));
 
     if (deltaX !== 0 || deltaY !== 0) {
       slideInstance.updateElements(
-        Object.entries(elements).map(([elementId, element]) => {
+        Object.entries(overrides).map(([elementId, element]) => {
           const x = isShowGrid
             ? snapToGrid(element.position.x, gridCellSize)
             : element.position.x;
@@ -116,7 +115,14 @@ export function MoveableElement({
 
     isDragging.current = false;
     removeUserSelectStyles();
-  }, [deltaX, deltaY, isShowGrid, setElementOverride, slideInstance, elements]);
+  }, [
+    deltaX,
+    deltaY,
+    isShowGrid,
+    setElementOverride,
+    slideInstance,
+    overrides,
+  ]);
 
   return (
     <DraggableCore
