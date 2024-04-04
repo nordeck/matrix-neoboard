@@ -55,88 +55,88 @@ export function calculateResizeHandlePosition(params: {
           cursor: 'default',
         };
     }
-  }
+  } else {
+    const { containerWidth, containerHeight } = handleProperties;
 
-  const { containerWidth, containerHeight } = handleProperties;
-
-  switch (handleProperties.handlePosition) {
-    case 'top':
-      return {
-        x: handleWidth / 2 - selectionBorderPadding,
-        y: -handleWidth / 2 - selectionBorderPadding,
-        // Make sure we never get negative dimensions, if the element is too small
-        width: Math.max(
-          0,
-          containerWidth + 2 * selectionBorderPadding - handleWidth,
-        ),
-        height: handleWidth,
-        cursor: 'ns-resize',
-      };
-    case 'topRight':
-      return {
-        x: containerWidth - handleWidth / 2 + selectionBorderPadding,
-        y: -handleWidth / 2 - selectionBorderPadding,
-        width: handleWidth,
-        height: handleWidth,
-        cursor: 'ne-resize',
-      };
-    case 'right':
-      return {
-        x: containerWidth + selectionBorderPadding - handleWidth / 2,
-        y: handleWidth / 2 - selectionBorderPadding,
-        width: handleWidth,
-        height: Math.max(
-          0,
-          containerHeight + 2 * selectionBorderPadding - handleWidth,
-        ),
-        cursor: 'ew-resize',
-      };
-    case 'bottomRight':
-      return {
-        x: containerWidth - handleWidth / 2 + selectionBorderPadding,
-        y: containerHeight - handleWidth / 2 + selectionBorderPadding,
-        width: handleWidth,
-        height: handleWidth,
-        cursor: 'se-resize',
-      };
-    case 'bottom':
-      return {
-        x: handleWidth / 2 - selectionBorderPadding,
-        y: containerHeight - handleWidth / 2 + selectionBorderPadding,
-        width: Math.max(
-          0,
-          containerWidth + 2 * selectionBorderPadding - handleWidth,
-        ),
-        height: handleWidth,
-        cursor: 'ns-resize',
-      };
-    case 'bottomLeft':
-      return {
-        x: -handleWidth / 2 - selectionBorderPadding,
-        y: containerHeight - handleWidth / 2 + selectionBorderPadding,
-        width: handleWidth,
-        height: handleWidth,
-        cursor: 'sw-resize',
-      };
-    case 'left':
-      return {
-        x: -handleWidth / 2 - selectionBorderPadding,
-        y: handleWidth / 2 - selectionBorderPadding,
-        width: handleWidth,
-        height: Math.max(
-          0,
-          containerHeight + 2 * selectionBorderPadding - handleWidth,
-        ),
-        cursor: 'ew-resize',
-      };
-    case 'topLeft':
-      return {
-        x: -handleWidth / 2 - selectionBorderPadding,
-        y: -handleWidth / 2 - selectionBorderPadding,
-        width: handleWidth,
-        height: handleWidth,
-        cursor: 'nw-resize',
-      };
+    switch (handleProperties.handlePosition) {
+      case 'top':
+        return {
+          x: handleWidth / 2 - selectionBorderPadding,
+          y: -handleWidth / 2 - selectionBorderPadding,
+          // Make sure we never get negative dimensions, if the element is too small
+          width: Math.max(
+            0,
+            containerWidth + 2 * selectionBorderPadding - handleWidth,
+          ),
+          height: handleWidth,
+          cursor: 'ns-resize',
+        };
+      case 'topRight':
+        return {
+          x: containerWidth - handleWidth / 2 + selectionBorderPadding,
+          y: -handleWidth / 2 - selectionBorderPadding,
+          width: handleWidth,
+          height: handleWidth,
+          cursor: 'ne-resize',
+        };
+      case 'right':
+        return {
+          x: containerWidth + selectionBorderPadding - handleWidth / 2,
+          y: handleWidth / 2 - selectionBorderPadding,
+          width: handleWidth,
+          height: Math.max(
+            0,
+            containerHeight + 2 * selectionBorderPadding - handleWidth,
+          ),
+          cursor: 'ew-resize',
+        };
+      case 'bottomRight':
+        return {
+          x: containerWidth - handleWidth / 2 + selectionBorderPadding,
+          y: containerHeight - handleWidth / 2 + selectionBorderPadding,
+          width: handleWidth,
+          height: handleWidth,
+          cursor: 'se-resize',
+        };
+      case 'bottom':
+        return {
+          x: handleWidth / 2 - selectionBorderPadding,
+          y: containerHeight - handleWidth / 2 + selectionBorderPadding,
+          width: Math.max(
+            0,
+            containerWidth + 2 * selectionBorderPadding - handleWidth,
+          ),
+          height: handleWidth,
+          cursor: 'ns-resize',
+        };
+      case 'bottomLeft':
+        return {
+          x: -handleWidth / 2 - selectionBorderPadding,
+          y: containerHeight - handleWidth / 2 + selectionBorderPadding,
+          width: handleWidth,
+          height: handleWidth,
+          cursor: 'sw-resize',
+        };
+      case 'left':
+        return {
+          x: -handleWidth / 2 - selectionBorderPadding,
+          y: handleWidth / 2 - selectionBorderPadding,
+          width: handleWidth,
+          height: Math.max(
+            0,
+            containerHeight + 2 * selectionBorderPadding - handleWidth,
+          ),
+          cursor: 'ew-resize',
+        };
+      case 'topLeft':
+        return {
+          x: -handleWidth / 2 - selectionBorderPadding,
+          y: -handleWidth / 2 - selectionBorderPadding,
+          width: handleWidth,
+          height: handleWidth,
+          cursor: 'nw-resize',
+        };
+    }
   }
 }
 
