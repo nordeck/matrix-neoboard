@@ -35,9 +35,10 @@ export function calculateResizeHandlePosition(params: {
   const selectionBorderPadding = 2 / scale;
 
   if (isLineElementHandleProperties(handleProperties)) {
-    const { handlePositionX, handlePositionY } = handleProperties;
+    const { handlePosition, handlePositionX, handlePositionY } =
+      handleProperties;
 
-    switch (handleProperties.handlePosition) {
+    switch (handlePosition) {
       case 'start':
         return {
           x: handlePositionX + handleWidth / -2,
@@ -56,9 +57,10 @@ export function calculateResizeHandlePosition(params: {
         };
     }
   } else {
-    const { containerWidth, containerHeight } = handleProperties;
+    const { handlePosition, containerWidth, containerHeight } =
+      handleProperties;
 
-    switch (handleProperties.handlePosition) {
+    switch (handlePosition) {
       case 'top':
         return {
           x: handleWidth / 2 - selectionBorderPadding,
