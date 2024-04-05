@@ -21,16 +21,18 @@ import {
   MoveableElement,
   SelectableElement,
   TextElement,
-  WithSelectionProps,
+  WithExtendedSelectionProps,
 } from '../../Whiteboard';
 import { getRenderProperties } from './getRenderProperties';
 
-export type EllipseElementProps = ShapeElement & WithSelectionProps;
+export type EllipseElementProps = ShapeElement & WithExtendedSelectionProps;
 
 const EllipseDisplay = ({
   readOnly,
   active,
   elementId,
+  activeElementIds = [],
+  overrides = {},
   ...shape
 }: EllipseElementProps) => {
   const width = shape.width;
@@ -81,8 +83,8 @@ const EllipseDisplay = ({
       readOnly={readOnly}
       elementId={elementId}
     >
-      <MoveableElement elementId={elementId}>
-        <ElementContextMenu elementId={elementId}>
+      <MoveableElement elementId={elementId} overrides={overrides}>
+        <ElementContextMenu activeElementIds={activeElementIds}>
           {renderedChild}
         </ElementContextMenu>
       </MoveableElement>

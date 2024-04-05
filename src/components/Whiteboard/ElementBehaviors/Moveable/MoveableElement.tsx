@@ -24,13 +24,10 @@ import {
 } from 'react';
 import { DraggableCore, DraggableData, DraggableEvent } from 'react-draggable';
 import { useUnmount } from 'react-use';
-import {
-  useActiveElements,
-  useWhiteboardSlideInstance,
-} from '../../../../state';
+import { useWhiteboardSlideInstance } from '../../../../state';
+import { Elements } from '../../../../state/types';
 import {
   createResetElementOverrides,
-  useElementOverrides,
   useSetElementOverride,
 } from '../../../ElementOverridesProvider';
 import { useLayoutState } from '../../../Layout';
@@ -46,11 +43,14 @@ const DraggableGroup = styled('g')({
 
 export type MoveableElementProps = PropsWithChildren<{
   elementId?: string;
+  overrides?: Elements;
 }>;
 
-export function MoveableElement({ children, elementId }: MoveableElementProps) {
-  const { activeElementIds } = useActiveElements();
-  const elements = useElementOverrides(activeElementIds);
+export function MoveableElement({
+  children,
+  elementId,
+  overrides = {},
+}: MoveableElementProps) {
   const { isShowGrid } = useLayoutState();
   const isDragging = useRef<boolean>(false);
   const nodeRef = useRef<SVGRectElement>(null);
@@ -69,7 +69,6 @@ export function MoveableElement({ children, elementId }: MoveableElementProps) {
       }
     }
   });
-
   const handleStart = useCallback(() => {
     isDragging.current = true;
     addUserSelectStyles();
@@ -85,7 +84,7 @@ export function MoveableElement({ children, elementId }: MoveableElementProps) {
 
       setElementOverride(
         calculateElementOverrideUpdates(
-          elements,
+          overrides,
           data.deltaX,
           data.deltaY,
           viewportWidth,
@@ -93,15 +92,15 @@ export function MoveableElement({ children, elementId }: MoveableElementProps) {
         ),
       );
     },
-    [setElementOverride, viewportHeight, viewportWidth, elements],
+    [setElementOverride, viewportHeight, viewportWidth, overrides],
   );
 
   const handleStop = useCallback(() => {
-    setElementOverride(createResetElementOverrides(Object.keys(elements)));
+    setElementOverride(createResetElementOverrides(Object.keys(overrides)));
 
     if (deltaX !== 0 || deltaY !== 0) {
       slideInstance.updateElements(
-        Object.entries(elements).map(([elementId, element]) => {
+        Object.entries(overrides).map(([elementId, element]) => {
           const x = isShowGrid
             ? snapToGrid(element.position.x, gridCellSize)
             : element.position.x;
@@ -119,7 +118,14 @@ export function MoveableElement({ children, elementId }: MoveableElementProps) {
 
     isDragging.current = false;
     removeUserSelectStyles();
-  }, [deltaX, deltaY, isShowGrid, setElementOverride, slideInstance, elements]);
+  }, [
+    deltaX,
+    deltaY,
+    isShowGrid,
+    setElementOverride,
+    slideInstance,
+    overrides,
+  ]);
 
   return (
     <DraggableCore

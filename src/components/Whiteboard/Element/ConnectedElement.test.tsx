@@ -67,7 +67,14 @@ describe('<ConnectedElement />', () => {
     // @ts-ignore ignore readonly prop for tests
     widgetApi.widgetParameters.baseUrl = 'https://example.com';
 
-    render(<ConnectedElement id="element-0" />, { wrapper: Wrapper });
+    render(
+      <ConnectedElement
+        id="element-0"
+        activeElementIds={['element-0']}
+        overrides={{}}
+      />,
+      { wrapper: Wrapper },
+    );
 
     expect(screen.getByTestId('element-element-0-image')).toBeInTheDocument();
   });
@@ -75,7 +82,14 @@ describe('<ConnectedElement />', () => {
   it('should log and not render an image when there is no base URL', () => {
     jest.mocked(console.error).mockImplementation(() => {});
 
-    render(<ConnectedElement id="element-0" />, { wrapper: Wrapper });
+    render(
+      <ConnectedElement
+        id="element-0"
+        activeElementIds={['element-0']}
+        overrides={{}}
+      />,
+      { wrapper: Wrapper },
+    );
 
     expect(console.error).toHaveBeenCalledWith(
       'Image cannot be rendered due to missing base URL',

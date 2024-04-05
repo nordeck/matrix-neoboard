@@ -21,12 +21,12 @@ import {
   MoveableElement,
   SelectableElement,
   TextElement,
-  WithSelectionProps,
+  WithExtendedSelectionProps,
 } from '../../Whiteboard';
 import { getRenderProperties } from './getRenderProperties';
 
 export type RectangleElementProps = ShapeElement &
-  WithSelectionProps & {
+  WithExtendedSelectionProps & {
     'data-testid'?: string;
   };
 
@@ -34,6 +34,8 @@ const RectangleDisplay = ({
   readOnly,
   active,
   elementId,
+  activeElementIds = [],
+  overrides = {},
   'data-testid': dataTestid,
   ...shape
 }: RectangleElementProps) => {
@@ -77,8 +79,8 @@ const RectangleDisplay = ({
       readOnly={readOnly}
       elementId={elementId}
     >
-      <MoveableElement elementId={elementId}>
-        <ElementContextMenu elementId={elementId}>
+      <MoveableElement elementId={elementId} overrides={overrides}>
+        <ElementContextMenu activeElementIds={activeElementIds}>
           {renderedChild}
         </ElementContextMenu>
       </MoveableElement>

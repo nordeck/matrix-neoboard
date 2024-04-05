@@ -21,16 +21,18 @@ import {
   MoveableElement,
   SelectableElement,
   TextElement,
-  WithSelectionProps,
+  WithExtendedSelectionProps,
 } from '../../Whiteboard';
 import { getRenderProperties } from './getRenderProperties';
 
-export type TriangleElementProps = ShapeElement & WithSelectionProps;
+export type TriangleElementProps = ShapeElement & WithExtendedSelectionProps;
 
 const TriangleDisplay = ({
   readOnly,
   active,
   elementId,
+  activeElementIds = [],
+  overrides = {},
   ...shape
 }: TriangleElementProps) => {
   const {
@@ -75,8 +77,8 @@ const TriangleDisplay = ({
       readOnly={readOnly}
       elementId={elementId}
     >
-      <MoveableElement elementId={elementId}>
-        <ElementContextMenu elementId={elementId}>
+      <MoveableElement elementId={elementId} overrides={overrides}>
+        <ElementContextMenu activeElementIds={activeElementIds}>
           {renderedChild}
         </ElementContextMenu>
       </MoveableElement>
