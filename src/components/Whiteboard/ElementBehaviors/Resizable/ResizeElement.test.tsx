@@ -30,13 +30,13 @@ import { ElementOverridesProvider } from '../../../ElementOverridesProvider';
 import { LayoutStateProvider } from '../../../Layout';
 import { SvgCanvas } from '../../SvgCanvas';
 import { ResizeElement } from './ResizeElement';
-import { calculateDimensions } from './utils';
+import { computeResizing } from './utils';
 
 jest.mock('./utils', () => {
   const original = jest.requireActual('./utils');
   return {
     ...original,
-    calculateDimensions: jest.fn(),
+    computeResizing: jest.fn(),
   };
 });
 
@@ -60,6 +60,23 @@ describe('<ResizeElement />', () => {
   let activeSlide: WhiteboardSlideInstance;
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
 
+  const polylineElement = mockPolylineElement({
+    points: [
+      { x: 0, y: 0 },
+      { x: 0.5, y: 0.5 },
+      { x: 1, y: 1 },
+    ],
+    position: { x: 0, y: 0 },
+  });
+
+  const lineElement = mockLineElement({
+    points: [
+      { x: 0, y: 0 },
+      { x: 0, y: 0 },
+    ],
+    position: { x: 0, y: 0 },
+  });
+
   beforeEach(() => {
     widgetApi = mockWidgetApi();
 
@@ -68,27 +85,8 @@ describe('<ResizeElement />', () => {
         [
           'slide-0',
           [
-            [
-              'element-0',
-              mockPolylineElement({
-                points: [
-                  { x: 0, y: 0 },
-                  { x: 0.5, y: 0.5 },
-                  { x: 1, y: 1 },
-                ],
-                position: { x: 0, y: 0 },
-              }),
-            ],
-            [
-              'element-1',
-              mockLineElement({
-                points: [
-                  { x: 0, y: 0 },
-                  { x: 0, y: 0 },
-                ],
-                position: { x: 0, y: 0 },
-              }),
-            ],
+            ['element-0', polylineElement],
+            ['element-1', lineElement],
             ['element-2', mockImageElement()],
           ],
         ],
@@ -118,7 +116,7 @@ describe('<ResizeElement />', () => {
   });
 
   it('should resize polyline elements', () => {
-    render(<ResizeElement elementId="element-0" />, {
+    render(<ResizeElement elementIds={['element-0']} />, {
       wrapper: Wrapper,
     });
 
@@ -126,37 +124,32 @@ describe('<ResizeElement />', () => {
     const resizeHandleBottomRight = screen.getByTestId(
       'resize-handle-bottomRight',
     );
-    mocked(calculateDimensions).mockReturnValue({
-      elementKind: 'polyline',
-      x: 0,
-      y: 0,
-      width: 0,
-      height: 0,
-      points: [
-        { x: 0, y: 0 },
-        { x: 0.5, y: 0.5 },
-        { x: 1, y: 1 },
-      ],
-    });
+    mocked(computeResizing).mockReturnValue([
+      {
+        elementId: 'element-0',
+        elementOverride: polylineElement,
+      },
+    ]);
     fireEvent.mouseDown(resizeHandleBottomRight);
-    mocked(calculateDimensions).mockReturnValue({
-      elementKind: 'polyline',
-      x: 0,
-      y: 0,
-      width: 50,
-      height: 50,
-      points: [
-        { x: 0, y: 0 },
-        { x: 25, y: 25 },
-        { x: 50, y: 50 },
-      ],
-    });
+    mocked(computeResizing).mockReturnValue([
+      {
+        elementId: 'element-0',
+        elementOverride: {
+          position: polylineElement.position,
+          points: [
+            { x: 0, y: 0 },
+            { x: 25, y: 25 },
+            { x: 50, y: 50 },
+          ],
+        },
+      },
+    ]);
     fireEvent.mouseMove(resizeHandleBottomRight);
     fireEvent.mouseUp(resizeHandleBottomRight);
 
     const element = activeSlide.getElement('element-0');
     expect(element).toEqual({
-      kind: 'polyline',
+      ...polylineElement,
       points: [
         // the first point should still be 0,0
         {
@@ -174,51 +167,41 @@ describe('<ResizeElement />', () => {
           y: 50,
         },
       ],
-      position: {
-        x: 0,
-        y: 0,
-      },
-      strokeColor: '#ffffff',
-      type: 'path',
     });
   });
 
   it('should resize line elements', () => {
-    render(<ResizeElement elementId="element-1" />, {
+    render(<ResizeElement elementIds={['element-1']} />, {
       wrapper: Wrapper,
     });
 
     // drag the end of a line from 0,0 to 50,50
     const resizeHandleBottomRight = screen.getByTestId('resize-handle-end');
-    mocked(calculateDimensions).mockReturnValue({
-      elementKind: 'line',
-      x: 0,
-      y: 0,
-      width: 0,
-      height: 0,
-      points: [
-        { x: 0, y: 0 },
-        { x: 0, y: 0 },
-      ],
-    });
+    mocked(computeResizing).mockReturnValue([
+      {
+        elementId: 'element-1',
+        elementOverride: lineElement,
+      },
+    ]);
     fireEvent.mouseDown(resizeHandleBottomRight);
-    mocked(calculateDimensions).mockReturnValue({
-      elementKind: 'line',
-      x: 0,
-      y: 0,
-      width: 50,
-      height: 50,
-      points: [
-        { x: 0, y: 0 },
-        { x: 50, y: 50 },
-      ],
-    });
+    mocked(computeResizing).mockReturnValue([
+      {
+        elementId: 'element-1',
+        elementOverride: {
+          position: lineElement.position,
+          points: [
+            { x: 0, y: 0 },
+            { x: 50, y: 50 },
+          ],
+        },
+      },
+    ]);
     fireEvent.mouseMove(resizeHandleBottomRight);
     fireEvent.mouseUp(resizeHandleBottomRight);
 
     const element = activeSlide.getElement('element-1');
     expect(element).toEqual({
-      kind: 'line',
+      ...lineElement,
       points: [
         // the first point should still be 0,0
         {
@@ -231,22 +214,115 @@ describe('<ResizeElement />', () => {
           y: 50,
         },
       ],
-      position: {
-        x: 0,
-        y: 0,
-      },
-      strokeColor: '#ffffff',
-      type: 'path',
     });
   });
 
   it('should not resize image elements', () => {
-    render(<ResizeElement elementId="element-2" />, {
+    render(<ResizeElement elementIds={['element-2']} />, {
       wrapper: Wrapper,
     });
 
     expect(
       screen.queryByTestId('resize-handle-se-resize'),
     ).not.toBeInTheDocument();
+  });
+
+  it('should resize multiple elements', () => {
+    render(<ResizeElement elementIds={['element-0', 'element-1']} />, {
+      wrapper: Wrapper,
+    });
+
+    // drag a resize box from 0,0 to 100,100
+    const resizeHandleBottomRight = screen.getByTestId(
+      'resize-handle-bottomRight',
+    );
+    mocked(computeResizing).mockReturnValue([
+      {
+        elementId: 'element-0',
+        elementOverride: {
+          position: polylineElement.position,
+          points: [
+            { x: 0, y: 0 },
+            { x: 0.5, y: 0.5 },
+            { x: 1, y: 1 },
+          ],
+        },
+      },
+      {
+        elementId: 'element-1',
+        elementOverride: {
+          position: lineElement.position,
+          points: [
+            { x: 0, y: 0 },
+            { x: 0, y: 0 },
+          ],
+        },
+      },
+    ]);
+    fireEvent.mouseDown(resizeHandleBottomRight);
+    mocked(computeResizing).mockReturnValue([
+      {
+        elementId: 'element-0',
+        elementOverride: {
+          position: polylineElement.position,
+          points: [
+            { x: 0, y: 0 },
+            { x: 50, y: 50 },
+            { x: 100, y: 100 },
+          ],
+        },
+      },
+      {
+        elementId: 'element-1',
+        elementOverride: {
+          position: lineElement.position,
+          points: [
+            { x: 0, y: 0 },
+            { x: 100, y: 100 },
+          ],
+        },
+      },
+    ]);
+    fireEvent.mouseMove(resizeHandleBottomRight);
+    fireEvent.mouseUp(resizeHandleBottomRight);
+
+    const elements = activeSlide.getElements(['element-0', 'element-1']);
+    expect(elements).toEqual({
+      'element-0': {
+        ...polylineElement,
+        points: [
+          // the first point should still be 0,0
+          {
+            x: 0,
+            y: 0,
+          },
+          // the middle point should still be in the middle
+          {
+            x: 50,
+            y: 50,
+          },
+          // the last point should be on the edges of the resize box
+          {
+            x: 100,
+            y: 100,
+          },
+        ],
+      },
+      'element-1': {
+        ...lineElement,
+        points: [
+          // the first point should still be 0,0
+          {
+            x: 0,
+            y: 0,
+          },
+          // the last point should be on the edges of the resize box
+          {
+            x: 100,
+            y: 100,
+          },
+        ],
+      },
+    });
   });
 });

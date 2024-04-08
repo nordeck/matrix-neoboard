@@ -15,21 +15,47 @@
  */
 
 import { clamp } from 'lodash';
-import { calculateBoundingRectForPoints } from '../../../../state';
+import { calculateBoundingRectForPoints, Point } from '../../../../state';
+import { ElementOverrideUpdate } from '../../../ElementOverridesProvider';
 import { snapToGrid } from '../../Grid';
 import { DragEvent } from './ResizeHandle';
 import {
   Dimensions,
-  LineElementResizeHandlePosition,
-  PolylineAndShapeElementsResizeHandlePosition,
-  ResizeHandlePosition,
+  HandlePosition,
+  HandlePositionName,
+  LineElementHandlePosition,
+  LineElementHandlePositionName,
+  ResizableProperties,
 } from './types';
 
+export function isLineElementHandlePosition(
+  handlePosition: HandlePosition,
+): handlePosition is LineElementHandlePosition {
+  return handlePosition.name === 'start' || handlePosition.name === 'end';
+}
+
+function computeDrag(
+  event: DragEvent,
+  viewportWidth: number,
+  viewportHeight: number,
+  gridCellSize?: number,
+): { dragX: number; dragY: number } {
+  const rawDragX = clamp(event.x, 0, viewportWidth);
+  const rawDragY = clamp(event.y, 0, viewportHeight);
+
+  const dragX =
+    gridCellSize === undefined ? rawDragX : snapToGrid(rawDragX, gridCellSize);
+  const dragY =
+    gridCellSize === undefined ? rawDragY : snapToGrid(rawDragY, gridCellSize);
+
+  return { dragX, dragY };
+}
+
 export function calculateDragOrigin(
-  handlePosition: PolylineAndShapeElementsResizeHandlePosition,
+  handlePositionName: HandlePositionName,
   startDimensions: Dimensions,
 ): { dragOriginX: number; dragOriginY: number } {
-  switch (handlePosition) {
+  switch (handlePositionName) {
     case 'left':
     case 'topLeft':
     case 'top':
@@ -86,45 +112,8 @@ export function calculateDragDimension(
   };
 }
 
-export function calculateLineDragDimensions(
-  handlePosition: LineElementResizeHandlePosition,
-  dimensions: Dimensions,
-  dragX: number,
-  dragY: number,
-): Dimensions {
-  if (dimensions.elementKind !== 'line') {
-    return dimensions;
-  }
-
-  const start = dimensions.points[0];
-  const end = dimensions.points[dimensions.points.length - 1];
-  const cursor = { x: dragX - dimensions.x, y: dragY - dimensions.y };
-
-  let newPoints = dimensions.points;
-
-  if (handlePosition === 'start') {
-    newPoints = [cursor, end];
-  } else if (handlePosition === 'end') {
-    newPoints = [start, cursor];
-  }
-
-  const boundingRect = calculateBoundingRectForPoints(newPoints);
-
-  return {
-    elementKind: 'line',
-    x: dimensions.x + boundingRect.offsetX,
-    y: dimensions.y + boundingRect.offsetY,
-    width: boundingRect.width,
-    height: boundingRect.height,
-    points: newPoints.map((point) => ({
-      x: point.x - boundingRect.offsetX,
-      y: point.y - boundingRect.offsetY,
-    })),
-  };
-}
-
 export function calculateDimensions(
-  handlePosition: ResizeHandlePosition,
+  handlePositionName: HandlePositionName,
   event: DragEvent,
   startDimensions: Dimensions,
   viewportWidth: number,
@@ -132,60 +121,32 @@ export function calculateDimensions(
   forceLockAspectRatio: boolean = false,
   gridCellSize?: number,
 ): Dimensions {
-  const rawDragX = clamp(event.x, 0, viewportWidth);
-  const rawDragY = clamp(event.y, 0, viewportHeight);
-
-  const dragX =
-    gridCellSize === undefined ? rawDragX : snapToGrid(rawDragX, gridCellSize);
-  const dragY =
-    gridCellSize === undefined ? rawDragY : snapToGrid(rawDragY, gridCellSize);
+  const { dragX, dragY } = computeDrag(
+    event,
+    viewportWidth,
+    viewportHeight,
+    gridCellSize,
+  );
 
   const lockAspectRatio = forceLockAspectRatio || event.lockAspectRatio;
 
-  let dimensions: Dimensions;
-
-  if (
-    startDimensions.elementKind === 'line' ||
-    startDimensions.elementKind === 'polyline'
-  ) {
-    dimensions = {
-      ...startDimensions,
-      elementKind: startDimensions.elementKind,
-      points: startDimensions.points,
-    };
-  } else {
-    dimensions = {
-      elementKind: startDimensions.elementKind,
-      x: startDimensions.x,
-      y: startDimensions.y,
-      width: startDimensions.width,
-      height: startDimensions.height,
-    };
-  }
-
-  if (handlePosition === 'start' || handlePosition === 'end') {
-    return calculateLineDragDimensions(
-      handlePosition,
-      dimensions,
-      dragX,
-      dragY,
-    );
-  }
+  const dimensions = { ...startDimensions };
 
   const { dragOriginX, dragOriginY } = calculateDragOrigin(
-    handlePosition,
+    handlePositionName,
     startDimensions,
   );
 
   if (lockAspectRatio) {
     if (
-      handlePosition === 'topLeft' ||
-      handlePosition === 'bottomRight' ||
-      handlePosition === 'topRight' ||
-      handlePosition === 'bottomLeft'
+      handlePositionName === 'topLeft' ||
+      handlePositionName === 'bottomRight' ||
+      handlePositionName === 'topRight' ||
+      handlePositionName === 'bottomLeft'
     ) {
       const risingDiagonal =
-        handlePosition === 'topRight' || handlePosition === 'bottomLeft';
+        handlePositionName === 'topRight' ||
+        handlePositionName === 'bottomLeft';
       const aspectRatio = startDimensions.height / startDimensions.width;
       // calculate the best possible coords without leaving the viewport or
       // loosing the aspect ratio!
@@ -212,7 +173,10 @@ export function calculateDimensions(
           ? dragOriginY - size * aspectRatio
           : dragOriginY;
       dimensions.height = size * aspectRatio;
-    } else if (handlePosition === 'top' || handlePosition === 'bottom') {
+    } else if (
+      handlePositionName === 'top' ||
+      handlePositionName === 'bottom'
+    ) {
       const aspectRatio = startDimensions.width / startDimensions.height;
       // calculate the best possible coords without leaving the viewport or
       // loosing the aspect ratio!
@@ -230,7 +194,10 @@ export function calculateDimensions(
       dimensions.height = size;
       dimensions.x = centerX - (size * aspectRatio) / 2;
       dimensions.width = size * aspectRatio;
-    } else if (handlePosition === 'left' || handlePosition === 'right') {
+    } else if (
+      handlePositionName === 'left' ||
+      handlePositionName === 'right'
+    ) {
       const aspectRatio = startDimensions.height / startDimensions.width;
       // calculate the best possible coords without leaving the viewport or
       // loosing the aspect ratio!
@@ -251,12 +218,12 @@ export function calculateDimensions(
     }
   } else {
     if (
-      handlePosition === 'topLeft' ||
-      handlePosition === 'top' ||
-      handlePosition === 'topRight' ||
-      handlePosition === 'bottom' ||
-      handlePosition === 'bottomLeft' ||
-      handlePosition === 'bottomRight'
+      handlePositionName === 'topLeft' ||
+      handlePositionName === 'top' ||
+      handlePositionName === 'topRight' ||
+      handlePositionName === 'bottom' ||
+      handlePositionName === 'bottomLeft' ||
+      handlePositionName === 'bottomRight'
     ) {
       const { position, size } = calculateDragDimension(dragOriginY, dragY);
       dimensions.y = position;
@@ -264,12 +231,12 @@ export function calculateDimensions(
     }
 
     if (
-      handlePosition === 'topLeft' ||
-      handlePosition === 'left' ||
-      handlePosition === 'bottomLeft' ||
-      handlePosition === 'topRight' ||
-      handlePosition === 'right' ||
-      handlePosition === 'bottomRight'
+      handlePositionName === 'topLeft' ||
+      handlePositionName === 'left' ||
+      handlePositionName === 'bottomLeft' ||
+      handlePositionName === 'topRight' ||
+      handlePositionName === 'right' ||
+      handlePositionName === 'bottomRight'
     ) {
       const { position, size } = calculateDragDimension(dragOriginX, dragX);
       dimensions.x = position;
@@ -277,15 +244,130 @@ export function calculateDimensions(
     }
   }
 
-  if (dimensions.elementKind === 'polyline') {
-    return {
-      ...dimensions,
-      points: dimensions.points.map((point) => ({
-        x: (point.x / startDimensions.width) * dimensions.width,
-        y: (point.y / startDimensions.height) * dimensions.height,
-      })),
-    };
+  return dimensions;
+}
+
+function computeResizingOfLineElement(
+  handlePositionName: LineElementHandlePositionName,
+  resizableProperties: ResizableProperties,
+  dragX: number,
+  dragY: number,
+): ElementOverrideUpdate[] {
+  const [elementId, element] = Object.entries(resizableProperties.elements)[0];
+
+  if (element.type !== 'path' || element.kind !== 'line') {
+    return [];
   }
 
-  return dimensions;
+  const start = element.points[0];
+  const end = element.points[element.points.length - 1];
+
+  const cursor = {
+    x: dragX - resizableProperties.x,
+    y: dragY - resizableProperties.y,
+  };
+
+  let newPoints: Point[];
+
+  if (handlePositionName === 'start') {
+    newPoints = [cursor, end];
+  } else {
+    newPoints = [start, cursor];
+  }
+
+  const boundingRect = calculateBoundingRectForPoints(newPoints);
+
+  return [
+    {
+      elementId,
+      elementOverride: {
+        position: {
+          x: resizableProperties.x + boundingRect.offsetX,
+          y: resizableProperties.y + boundingRect.offsetY,
+        },
+        points: newPoints.map((point) => ({
+          x: point.x - boundingRect.offsetX,
+          y: point.y - boundingRect.offsetY,
+        })),
+      },
+    },
+  ];
+}
+
+export function computeResizing(
+  handlePosition: HandlePosition,
+  event: DragEvent,
+  viewportWidth: number,
+  viewportHeight: number,
+  forceLockAspectRatio: boolean = false,
+  gridCellSize?: number,
+  resizableProperties?: ResizableProperties,
+): ElementOverrideUpdate[] {
+  if (!resizableProperties) {
+    return [];
+  }
+
+  if (isLineElementHandlePosition(handlePosition)) {
+    const { dragX, dragY } = computeDrag(
+      event,
+      viewportWidth,
+      viewportHeight,
+      gridCellSize,
+    );
+
+    return computeResizingOfLineElement(
+      handlePosition.name,
+      resizableProperties,
+      dragX,
+      dragY,
+    );
+  }
+
+  const dimensions = calculateDimensions(
+    handlePosition.name,
+    event,
+    resizableProperties,
+    viewportWidth,
+    viewportHeight,
+    forceLockAspectRatio,
+    gridCellSize,
+  );
+
+  return Object.entries(resizableProperties.elements).map(
+    ([elementId, element]) => {
+      return {
+        elementId,
+        elementOverride: {
+          position: {
+            x:
+              dimensions.x +
+              ((element.position.x - resizableProperties.x) /
+                resizableProperties.width) *
+                dimensions.width,
+            y:
+              dimensions.y +
+              ((element.position.y - resizableProperties.y) /
+                resizableProperties.height) *
+                dimensions.height,
+          },
+          width:
+            element.type === 'shape'
+              ? (element.width / resizableProperties.width) * dimensions.width
+              : undefined,
+          height:
+            element.type === 'shape'
+              ? (element.height / resizableProperties.height) *
+                dimensions.height
+              : undefined,
+          points:
+            element.type === 'path'
+              ? element.points.map((point) => ({
+                  x: (point.x / resizableProperties.width) * dimensions.width,
+                  y: (point.y / resizableProperties.height) * dimensions.height,
+                }))
+              : undefined,
+        },
+      };
+    },
+  );
 }

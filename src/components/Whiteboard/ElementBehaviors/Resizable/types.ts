@@ -14,11 +14,17 @@
  * limitations under the License.
  */
 
-import { ElementKind, PathKind, Point, ShapeKind } from '../../../../state';
+import { Elements } from '../../../../state/types';
 
-export type LineElementResizeHandlePosition = 'start' | 'end';
+export type LineElementHandlePositionName = 'start' | 'end';
 
-export type PolylineAndShapeElementsResizeHandlePosition =
+export type LineElementHandlePosition = {
+  name: LineElementHandlePositionName;
+  x: number;
+  y: number;
+};
+
+export type HandlePositionName =
   | 'top'
   | 'topRight'
   | 'right'
@@ -28,47 +34,21 @@ export type PolylineAndShapeElementsResizeHandlePosition =
   | 'left'
   | 'topLeft';
 
-export type ResizeHandlePosition =
-  | LineElementResizeHandlePosition
-  | PolylineAndShapeElementsResizeHandlePosition;
+export type HandlePosition =
+  | {
+      name: HandlePositionName;
+      containerWidth: number;
+      containerHeight: number;
+    }
+  | LineElementHandlePosition;
 
-export type LineElementResizeParams = {
-  elementKind: 'line';
-  handlePosition: LineElementResizeHandlePosition;
-  handlePositionX: number;
-  handlePositionY: number;
-};
-
-export type PolylineAndShapeElementsResizeParams = {
-  elementKind?: Exclude<ElementKind, 'line'>;
-  handlePosition: PolylineAndShapeElementsResizeHandlePosition;
-  containerWidth: number;
-  containerHeight: number;
-};
-
-export type ResizeParams =
-  | LineElementResizeParams
-  | PolylineAndShapeElementsResizeParams;
-
-export type DimensionsVertical = {
+export type Dimensions = {
+  x: number;
   y: number;
+  width: number;
   height: number;
 };
 
-export type DimensionsHorizontal = {
-  x: number;
-  width: number;
+export type ResizableProperties = Dimensions & {
+  elements: Elements;
 };
-
-type DimensionsBase = DimensionsVertical & DimensionsHorizontal;
-
-export type PathElementDimensions = DimensionsBase & {
-  elementKind: PathKind;
-  points: Point[];
-};
-
-export type ShapeElementDimensions = DimensionsBase & {
-  elementKind: ShapeKind;
-};
-
-export type Dimensions = PathElementDimensions | ShapeElementDimensions;
