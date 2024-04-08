@@ -26,7 +26,6 @@ import { first, last } from 'lodash';
 import { MouseEvent, PropsWithChildren, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  useActiveElements,
   useSlideElementIds,
   useSlideIsLocked,
   useWhiteboardSlideInstance,
@@ -34,20 +33,52 @@ import {
 import { HotkeysHelp } from '../../../common/HotkeysHelp';
 import { isMacOS } from '../../../common/platform';
 
-type ContextMenuState =
-  | { elementId: string; position: PopoverPosition }
-  | undefined;
+type ContextMenuState = { position: PopoverPosition } | undefined;
 
 export function ElementContextMenu({
   children,
-  elementId,
-}: PropsWithChildren<{ elementId: string }>) {
-  const { t } = useTranslation();
-  const isLocked = useSlideIsLocked();
+  activeElementIds = [],
+}: PropsWithChildren<{ activeElementIds: string[] }>) {
   const [state, setState] = useState<ContextMenuState>();
-  const { activeElementIds } = useActiveElements();
+
+  const handleContextMenu = useCallback((event: MouseEvent<SVGElement>) => {
+    event.preventDefault();
+    setState((state) =>
+      !state
+        ? {
+            position: { left: event.clientX + 2, top: event.clientY - 6 },
+          }
+        : undefined,
+    );
+  }, []);
+
+  return (
+    <>
+      <Box
+        component="g"
+        onContextMenu={handleContextMenu}
+        data-testid="element-context-menu-container"
+      >
+        {children}
+      </Box>
+
+      {state !== undefined && (
+        <ContextMenuOptions state={state} activeElementIds={activeElementIds} />
+      )}
+    </>
+  );
+}
+
+function ContextMenuOptions({
+  state,
+  activeElementIds,
+}: PropsWithChildren<{ state: ContextMenuState; activeElementIds: string[] }>) {
+  const isLocked = useSlideIsLocked();
   const slideInstance = useWhiteboardSlideInstance();
   const elementIds = useSlideElementIds();
+  const { t } = useTranslation();
+  const menuTitle = t('elementContextMenu.title', 'Element');
+  const [open, setOpen] = useState(true);
 
   const canMoveUp =
     activeElementIds.length === 1 && last(elementIds) !== activeElementIds[0];
@@ -57,7 +88,7 @@ export function ElementContextMenu({
   const canMoveBottom = canMoveDown || activeElementIds.length > 1;
 
   const handleClose = useCallback(() => {
-    setState(undefined);
+    setOpen(false);
   }, []);
 
   const handleClickBringToFront = useCallback(() => {
@@ -81,21 +112,6 @@ export function ElementContextMenu({
     }
   }, [activeElementIds, handleClose, slideInstance]);
 
-  const handleContextMenu = useCallback(
-    (event: MouseEvent<SVGElement>) => {
-      event.preventDefault();
-      setState((state) =>
-        !state
-          ? {
-              position: { left: event.clientX + 2, top: event.clientY - 6 },
-              elementId,
-            }
-          : undefined,
-      );
-    },
-    [elementId],
-  );
-
   const handleClickBringForward = useCallback(() => {
     if (activeElementIds.length === 1) {
       slideInstance.moveElementUp(activeElementIds[0]);
@@ -110,89 +126,77 @@ export function ElementContextMenu({
     }
   }, [activeElementIds, handleClose, slideInstance]);
 
-  const menuTitle = t('elementContextMenu.title', 'Element');
-  const open = Boolean(state);
   return (
-    <>
-      <Box
-        component="g"
-        onContextMenu={handleContextMenu}
-        data-testid="element-context-menu-container"
-      >
-        {children}
-      </Box>
-
-      <Menu
-        componentsProps={{
-          backdrop: {
-            // Make sure to close the context menu if the user clicks on the
-            // backdrop
-            onContextMenu: (e) => {
-              e.preventDefault();
-              handleClose();
-            },
+    <Menu
+      componentsProps={{
+        backdrop: {
+          // Make sure to close the context menu if the user clicks on the
+          // backdrop
+          onContextMenu: (e) => {
+            e.preventDefault();
+            handleClose();
           },
-        }}
-        MenuListProps={{
-          'aria-label': menuTitle,
-          dense: true,
-          sx: { minWidth: '242px' },
-        }}
-        open={open && !isLocked}
-        onClose={handleClose}
-        anchorReference="anchorPosition"
-        anchorPosition={state?.position}
-      >
-        {activeElementIds.length < 2 && (
-          <MenuItem onClick={handleClickBringForward} disabled={!canMoveUp}>
-            <ListItemText>
-              {t('elementContextMenu.bringForward', 'Bring forward')}
-            </ListItemText>
-            <Typography variant="body2" color="text.secondary">
-              <HotkeysHelp keys={isMacOS() ? 'meta+arrowup' : 'ctrl+arrowup'} />
-            </Typography>
-          </MenuItem>
-        )}
-        {activeElementIds.length < 2 && (
-          <MenuItem
-            divider
-            onClick={handleClickBringBackward}
-            disabled={!canMoveDown}
-          >
-            <ListItemText>
-              {t('elementContextMenu.bringBackward', 'Bring backward')}
-            </ListItemText>
-            <Typography variant="body2" color="text.secondary">
-              <HotkeysHelp
-                keys={isMacOS() ? 'meta+arrowdown' : 'ctrl+arrowdown'}
-              />
-            </Typography>
-          </MenuItem>
-        )}
-        <MenuItem onClick={handleClickBringToFront} disabled={!canMoveTop}>
+        },
+      }}
+      MenuListProps={{
+        'aria-label': menuTitle,
+        dense: true,
+        sx: { minWidth: '242px' },
+      }}
+      open={open && !isLocked}
+      onClose={handleClose}
+      anchorReference="anchorPosition"
+      anchorPosition={state?.position}
+    >
+      {activeElementIds.length < 2 && (
+        <MenuItem onClick={handleClickBringForward} disabled={!canMoveUp}>
           <ListItemText>
-            {t('elementContextMenu.bringToFront', 'Bring to front')}
-          </ListItemText>
-        </MenuItem>
-        <MenuItem
-          divider
-          onClick={handleClickBringToBack}
-          disabled={!canMoveBottom}
-        >
-          <ListItemText>
-            {t('elementContextMenu.bringToBack', 'Bring to back')}
-          </ListItemText>
-        </MenuItem>
-
-        <MenuItem onClick={handleDelete}>
-          <ListItemText sx={{ color: 'error.main' }}>
-            {t('elementContextMenu.deleteElement', 'Delete')}
+            {t('elementContextMenu.bringForward', 'Bring forward')}
           </ListItemText>
           <Typography variant="body2" color="text.secondary">
-            <HotkeysHelp keys={isMacOS() ? 'backspace' : 'delete'} />
+            <HotkeysHelp keys={isMacOS() ? 'meta+arrowup' : 'ctrl+arrowup'} />
           </Typography>
         </MenuItem>
-      </Menu>
-    </>
+      )}
+      {activeElementIds.length < 2 && (
+        <MenuItem
+          divider
+          onClick={handleClickBringBackward}
+          disabled={!canMoveDown}
+        >
+          <ListItemText>
+            {t('elementContextMenu.bringBackward', 'Bring backward')}
+          </ListItemText>
+          <Typography variant="body2" color="text.secondary">
+            <HotkeysHelp
+              keys={isMacOS() ? 'meta+arrowdown' : 'ctrl+arrowdown'}
+            />
+          </Typography>
+        </MenuItem>
+      )}
+      <MenuItem onClick={handleClickBringToFront} disabled={!canMoveTop}>
+        <ListItemText>
+          {t('elementContextMenu.bringToFront', 'Bring to front')}
+        </ListItemText>
+      </MenuItem>
+      <MenuItem
+        divider
+        onClick={handleClickBringToBack}
+        disabled={!canMoveBottom}
+      >
+        <ListItemText>
+          {t('elementContextMenu.bringToBack', 'Bring to back')}
+        </ListItemText>
+      </MenuItem>
+
+      <MenuItem onClick={handleDelete}>
+        <ListItemText sx={{ color: 'error.main' }}>
+          {t('elementContextMenu.deleteElement', 'Delete')}
+        </ListItemText>
+        <Typography variant="body2" color="text.secondary">
+          <HotkeysHelp keys={isMacOS() ? 'backspace' : 'delete'} />
+        </Typography>
+      </MenuItem>
+    </Menu>
   );
 }

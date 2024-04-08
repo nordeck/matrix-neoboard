@@ -20,17 +20,19 @@ import {
   ElementContextMenu,
   MoveableElement,
   SelectableElement,
-  WithSelectionProps,
+  WithExtendedSelectionProps,
 } from '../../Whiteboard';
 import { getRenderProperties } from './getRenderProperties';
 import { useEndMarker } from './useEndMarker';
 
-export type LineElementProps = PathElement & WithSelectionProps;
+export type LineElementProps = PathElement & WithExtendedSelectionProps;
 
 const LineDisplay = ({
   readOnly,
   active,
   elementId,
+  activeElementIds = [],
+  overrides = {},
   ...element
 }: LineElementProps) => {
   const {
@@ -67,8 +69,8 @@ const LineDisplay = ({
       readOnly={readOnly}
       elementId={elementId}
     >
-      <MoveableElement elementId={elementId}>
-        <ElementContextMenu elementId={elementId}>
+      <MoveableElement elementId={elementId} overrides={overrides}>
+        <ElementContextMenu activeElementIds={activeElementIds}>
           {renderedChild}
         </ElementContextMenu>
       </MoveableElement>
