@@ -31,11 +31,11 @@ import { getRenderProperties } from '../../../elements/line/getRenderProperties'
 import { useSvgCanvasContext } from '../../SvgCanvas';
 import { gridCellSize } from '../../constants';
 import { DragEvent, ResizeHandle } from './ResizeHandle';
-import { HandleProperties, ResizableProperties } from './types';
+import { HandlePosition, ResizableProperties } from './types';
 import { computeResizing } from './utils';
 
 export type ResizeHandleWrapperProps = {
-  handleProperties: HandleProperties;
+  handlePosition: HandlePosition;
   forceLockAspectRatio?: boolean;
   onDrag: Dispatch<ElementOverrideUpdate[]>;
   onDragStart: Dispatch<DragEvent>;
@@ -44,7 +44,7 @@ export type ResizeHandleWrapperProps = {
 };
 
 export function ResizeHandleWrapper({
-  handleProperties,
+  handlePosition,
   forceLockAspectRatio,
   onDrag,
   onDragStart,
@@ -58,7 +58,7 @@ export function ResizeHandleWrapper({
     (event: DragEvent) => {
       onDrag(
         computeResizing(
-          handleProperties,
+          handlePosition,
           event,
           viewportWidth,
           viewportHeight,
@@ -70,7 +70,7 @@ export function ResizeHandleWrapper({
     },
     [
       forceLockAspectRatio,
-      handleProperties,
+      handlePosition,
       isShowGrid,
       onDrag,
       resizableProperties,
@@ -81,7 +81,7 @@ export function ResizeHandleWrapper({
 
   return (
     <ResizeHandle
-      handleProperties={handleProperties}
+      position={handlePosition}
       onDrag={handleDrag}
       onDragStart={onDragStart}
       onDragStop={onDragStop}
@@ -149,6 +149,7 @@ export function ResizeElement({ elementIds }: ResizeElementProps) {
     return null;
   }
 
+  // if a single line is selected, show resize handles at start and end points
   if (
     activeElements.length === 1 &&
     activeElements[0].type === 'path' &&
@@ -159,10 +160,10 @@ export function ResizeElement({ elementIds }: ResizeElementProps) {
     return (
       <>
         <ResizeHandleWrapper
-          handleProperties={{
-            handlePosition: 'start',
-            handlePositionX: renderProperties.points.start.x,
-            handlePositionY: renderProperties.points.start.y,
+          handlePosition={{
+            name: 'start',
+            x: renderProperties.points.start.x,
+            y: renderProperties.points.start.y,
           }}
           onDrag={handleDrag}
           onDragStart={handleDragStart}
@@ -170,10 +171,10 @@ export function ResizeElement({ elementIds }: ResizeElementProps) {
           resizableProperties={resizableProperties}
         />
         <ResizeHandleWrapper
-          handleProperties={{
-            handlePosition: 'end',
-            handlePositionX: renderProperties.points.end.x,
-            handlePositionY: renderProperties.points.end.y,
+          handlePosition={{
+            name: 'end',
+            x: renderProperties.points.end.x,
+            y: renderProperties.points.end.y,
           }}
           onDrag={handleDrag}
           onDragStart={handleDragStart}
@@ -197,8 +198,8 @@ export function ResizeElement({ elementIds }: ResizeElementProps) {
       transform={`translate(${offsetX} ${offsetY})`}
     >
       <ResizeHandleWrapper
-        handleProperties={{
-          handlePosition: 'top',
+        handlePosition={{
+          name: 'top',
           containerWidth,
           containerHeight,
         }}
@@ -209,8 +210,8 @@ export function ResizeElement({ elementIds }: ResizeElementProps) {
       />
 
       <ResizeHandleWrapper
-        handleProperties={{
-          handlePosition: 'topRight',
+        handlePosition={{
+          name: 'topRight',
           containerWidth,
           containerHeight,
         }}
@@ -221,8 +222,8 @@ export function ResizeElement({ elementIds }: ResizeElementProps) {
       />
 
       <ResizeHandleWrapper
-        handleProperties={{
-          handlePosition: 'right',
+        handlePosition={{
+          name: 'right',
           containerWidth,
           containerHeight,
         }}
@@ -233,8 +234,8 @@ export function ResizeElement({ elementIds }: ResizeElementProps) {
       />
 
       <ResizeHandleWrapper
-        handleProperties={{
-          handlePosition: 'bottomRight',
+        handlePosition={{
+          name: 'bottomRight',
           containerWidth,
           containerHeight,
         }}
@@ -245,8 +246,8 @@ export function ResizeElement({ elementIds }: ResizeElementProps) {
       />
 
       <ResizeHandleWrapper
-        handleProperties={{
-          handlePosition: 'bottom',
+        handlePosition={{
+          name: 'bottom',
           containerWidth,
           containerHeight,
         }}
@@ -257,8 +258,8 @@ export function ResizeElement({ elementIds }: ResizeElementProps) {
       />
 
       <ResizeHandleWrapper
-        handleProperties={{
-          handlePosition: 'bottomLeft',
+        handlePosition={{
+          name: 'bottomLeft',
           containerWidth,
           containerHeight,
         }}
@@ -269,8 +270,8 @@ export function ResizeElement({ elementIds }: ResizeElementProps) {
       />
 
       <ResizeHandleWrapper
-        handleProperties={{
-          handlePosition: 'left',
+        handlePosition={{
+          name: 'left',
           containerWidth,
           containerHeight,
         }}
@@ -281,8 +282,8 @@ export function ResizeElement({ elementIds }: ResizeElementProps) {
       />
 
       <ResizeHandleWrapper
-        handleProperties={{
-          handlePosition: 'topLeft',
+        handlePosition={{
+          name: 'topLeft',
           containerWidth,
           containerHeight,
         }}

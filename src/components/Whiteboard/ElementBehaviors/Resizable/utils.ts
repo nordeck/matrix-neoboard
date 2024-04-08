@@ -22,19 +22,16 @@ import { DragEvent } from './ResizeHandle';
 import {
   Dimensions,
   HandlePosition,
-  HandleProperties,
+  HandlePositionName,
   LineElementHandlePosition,
-  LineElementHandleProperties,
+  LineElementHandlePositionName,
   ResizableProperties,
 } from './types';
 
-export function isLineElementHandleProperties(
-  handleProperties: HandleProperties,
-): handleProperties is LineElementHandleProperties {
-  return (
-    handleProperties.handlePosition === 'start' ||
-    handleProperties.handlePosition === 'end'
-  );
+export function isLineElementHandlePosition(
+  handlePosition: HandlePosition,
+): handlePosition is LineElementHandlePosition {
+  return handlePosition.name === 'start' || handlePosition.name === 'end';
 }
 
 function computeDrag(
@@ -55,10 +52,10 @@ function computeDrag(
 }
 
 export function calculateDragOrigin(
-  handlePosition: HandlePosition,
+  handlePositionName: HandlePositionName,
   startDimensions: Dimensions,
 ): { dragOriginX: number; dragOriginY: number } {
-  switch (handlePosition) {
+  switch (handlePositionName) {
     case 'left':
     case 'topLeft':
     case 'top':
@@ -116,7 +113,7 @@ export function calculateDragDimension(
 }
 
 export function calculateDimensions(
-  handlePosition: HandlePosition,
+  handlePositionName: HandlePositionName,
   event: DragEvent,
   startDimensions: Dimensions,
   viewportWidth: number,
@@ -136,19 +133,20 @@ export function calculateDimensions(
   const dimensions = { ...startDimensions };
 
   const { dragOriginX, dragOriginY } = calculateDragOrigin(
-    handlePosition,
+    handlePositionName,
     startDimensions,
   );
 
   if (lockAspectRatio) {
     if (
-      handlePosition === 'topLeft' ||
-      handlePosition === 'bottomRight' ||
-      handlePosition === 'topRight' ||
-      handlePosition === 'bottomLeft'
+      handlePositionName === 'topLeft' ||
+      handlePositionName === 'bottomRight' ||
+      handlePositionName === 'topRight' ||
+      handlePositionName === 'bottomLeft'
     ) {
       const risingDiagonal =
-        handlePosition === 'topRight' || handlePosition === 'bottomLeft';
+        handlePositionName === 'topRight' ||
+        handlePositionName === 'bottomLeft';
       const aspectRatio = startDimensions.height / startDimensions.width;
       // calculate the best possible coords without leaving the viewport or
       // loosing the aspect ratio!
@@ -175,7 +173,10 @@ export function calculateDimensions(
           ? dragOriginY - size * aspectRatio
           : dragOriginY;
       dimensions.height = size * aspectRatio;
-    } else if (handlePosition === 'top' || handlePosition === 'bottom') {
+    } else if (
+      handlePositionName === 'top' ||
+      handlePositionName === 'bottom'
+    ) {
       const aspectRatio = startDimensions.width / startDimensions.height;
       // calculate the best possible coords without leaving the viewport or
       // loosing the aspect ratio!
@@ -193,7 +194,10 @@ export function calculateDimensions(
       dimensions.height = size;
       dimensions.x = centerX - (size * aspectRatio) / 2;
       dimensions.width = size * aspectRatio;
-    } else if (handlePosition === 'left' || handlePosition === 'right') {
+    } else if (
+      handlePositionName === 'left' ||
+      handlePositionName === 'right'
+    ) {
       const aspectRatio = startDimensions.height / startDimensions.width;
       // calculate the best possible coords without leaving the viewport or
       // loosing the aspect ratio!
@@ -214,12 +218,12 @@ export function calculateDimensions(
     }
   } else {
     if (
-      handlePosition === 'topLeft' ||
-      handlePosition === 'top' ||
-      handlePosition === 'topRight' ||
-      handlePosition === 'bottom' ||
-      handlePosition === 'bottomLeft' ||
-      handlePosition === 'bottomRight'
+      handlePositionName === 'topLeft' ||
+      handlePositionName === 'top' ||
+      handlePositionName === 'topRight' ||
+      handlePositionName === 'bottom' ||
+      handlePositionName === 'bottomLeft' ||
+      handlePositionName === 'bottomRight'
     ) {
       const { position, size } = calculateDragDimension(dragOriginY, dragY);
       dimensions.y = position;
@@ -227,12 +231,12 @@ export function calculateDimensions(
     }
 
     if (
-      handlePosition === 'topLeft' ||
-      handlePosition === 'left' ||
-      handlePosition === 'bottomLeft' ||
-      handlePosition === 'topRight' ||
-      handlePosition === 'right' ||
-      handlePosition === 'bottomRight'
+      handlePositionName === 'topLeft' ||
+      handlePositionName === 'left' ||
+      handlePositionName === 'bottomLeft' ||
+      handlePositionName === 'topRight' ||
+      handlePositionName === 'right' ||
+      handlePositionName === 'bottomRight'
     ) {
       const { position, size } = calculateDragDimension(dragOriginX, dragX);
       dimensions.x = position;
@@ -244,7 +248,7 @@ export function calculateDimensions(
 }
 
 function computeResizingOfLineElement(
-  handlePosition: LineElementHandlePosition,
+  handlePositionName: LineElementHandlePositionName,
   resizableProperties: ResizableProperties,
   dragX: number,
   dragY: number,
@@ -265,7 +269,7 @@ function computeResizingOfLineElement(
 
   let newPoints: Point[];
 
-  if (handlePosition === 'start') {
+  if (handlePositionName === 'start') {
     newPoints = [cursor, end];
   } else {
     newPoints = [start, cursor];
@@ -291,7 +295,7 @@ function computeResizingOfLineElement(
 }
 
 export function computeResizing(
-  handleProperties: HandleProperties,
+  handlePosition: HandlePosition,
   event: DragEvent,
   viewportWidth: number,
   viewportHeight: number,
@@ -303,7 +307,7 @@ export function computeResizing(
     return [];
   }
 
-  if (isLineElementHandleProperties(handleProperties)) {
+  if (isLineElementHandlePosition(handlePosition)) {
     const { dragX, dragY } = computeDrag(
       event,
       viewportWidth,
@@ -312,7 +316,7 @@ export function computeResizing(
     );
 
     return computeResizingOfLineElement(
-      handleProperties.handlePosition,
+      handlePosition.name,
       resizableProperties,
       dragX,
       dragY,
@@ -320,7 +324,7 @@ export function computeResizing(
   }
 
   const dimensions = calculateDimensions(
-    handleProperties.handlePosition,
+    handlePosition.name,
     event,
     resizableProperties,
     viewportWidth,

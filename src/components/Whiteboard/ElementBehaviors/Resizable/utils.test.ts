@@ -406,7 +406,7 @@ describe('computeResizing', () => {
   it('should return no updates when resizableProperties are undefined', () => {
     expect(
       computeResizing(
-        { handlePosition: 'top', containerWidth: 0, containerHeight: 0 },
+        { name: 'top', containerWidth: 0, containerHeight: 0 },
         event,
         viewportWidth,
         viewportHeight,
@@ -414,27 +414,19 @@ describe('computeResizing', () => {
         gridCellSize,
         undefined,
       ),
-    ).toStrictEqual([]);
+    ).toEqual([]);
   });
 
   it.each`
-    handlePosition | handlePositionX | handlePositionY | dragX  | dragY  | expectedX | expectedY
-    ${'start'}     | ${120}          | ${160}          | ${80}  | ${120} | ${80}     | ${120}
-    ${'end'}       | ${240}          | ${200}          | ${280} | ${240} | ${120}    | ${160}
+    name       | x      | y      | dragX  | dragY  | expectedX | expectedY
+    ${'start'} | ${120} | ${160} | ${80}  | ${120} | ${80}     | ${120}
+    ${'end'}   | ${240} | ${200} | ${280} | ${240} | ${120}    | ${160}
   `(
-    'should compute resizing of line when dragging handlePosition $handlePosition',
-    ({
-      handlePosition,
-      handlePositionX,
-      handlePositionY,
-      dragX,
-      dragY,
-      expectedX,
-      expectedY,
-    }) => {
+    'should compute resizing of line when dragging handle $name',
+    ({ name, x, y, dragX, dragY, expectedX, expectedY }) => {
       expect(
         computeResizing(
-          { handlePosition, handlePositionX, handlePositionY },
+          { name, x, y },
           { ...event, x: dragX, y: dragY },
           viewportWidth,
           viewportHeight,
@@ -448,7 +440,7 @@ describe('computeResizing', () => {
             elements: { line },
           },
         ),
-      ).toStrictEqual([
+      ).toEqual([
         {
           elementId: 'line',
           elementOverride: {
@@ -466,7 +458,7 @@ describe('computeResizing', () => {
   it('should not compute resizing of line', () => {
     expect(
       computeResizing(
-        { handlePosition: 'start', handlePositionX: 0, handlePositionY: 0 },
+        { name: 'start', x: 0, y: 0 },
         event,
         viewportWidth,
         viewportHeight,
@@ -480,11 +472,11 @@ describe('computeResizing', () => {
           elements: { ellipse },
         },
       ),
-    ).toStrictEqual([]);
+    ).toEqual([]);
   });
 
   it.each`
-    handlePosition   | dragX  | dragY  | expectedX | expectedY | expectedWidth | expectedHeight
+    name             | dragX  | dragY  | expectedX | expectedY | expectedWidth | expectedHeight
     ${'top'}         | ${120} | ${80}  | ${120}    | ${80}     | ${40}         | ${80}
     ${'topRight'}    | ${200} | ${80}  | ${120}    | ${80}     | ${80}         | ${80}
     ${'right'}       | ${200} | ${120} | ${120}    | ${120}    | ${80}         | ${40}
@@ -494,9 +486,9 @@ describe('computeResizing', () => {
     ${'left'}        | ${80}  | ${120} | ${80}     | ${120}    | ${80}         | ${40}
     ${'topLeft'}     | ${80}  | ${80}  | ${80}     | ${80}     | ${80}         | ${80}
   `(
-    'should compute resizing of shape when dragging handlePosition $handlePosition',
+    'should compute resizing of shape when dragging handle $name',
     ({
-      handlePosition,
+      name,
       dragX,
       dragY,
       expectedX,
@@ -506,7 +498,7 @@ describe('computeResizing', () => {
     }) => {
       expect(
         computeResizing(
-          { handlePosition, containerWidth: 40, containerHeight: 40 },
+          { name, containerWidth: 40, containerHeight: 40 },
           { ...event, x: dragX, y: dragY },
           viewportWidth,
           viewportHeight,
@@ -520,7 +512,7 @@ describe('computeResizing', () => {
             elements: { ellipse },
           },
         ),
-      ).toStrictEqual([
+      ).toEqual([
         {
           elementId: 'ellipse',
           elementOverride: {
@@ -535,7 +527,7 @@ describe('computeResizing', () => {
   );
 
   it.each`
-    handlePosition   | dragX  | dragY  | expectedEllipseX | expectedEllipseY | expectedEllipseWidth | expectedEllipseHeight | expectedLineX | expectedLineY | expectedLineWidth | expectedLineHeight
+    name             | dragX  | dragY  | expectedEllipseX | expectedEllipseY | expectedEllipseWidth | expectedEllipseHeight | expectedLineX | expectedLineY | expectedLineWidth | expectedLineHeight
     ${'top'}         | ${120} | ${40}  | ${120}           | ${40}            | ${40}                | ${80}                 | ${120}        | ${120}        | ${120}            | ${80}
     ${'topRight'}    | ${360} | ${40}  | ${120}           | ${40}            | ${80}                | ${80}                 | ${120}        | ${120}        | ${240}            | ${80}
     ${'right'}       | ${360} | ${120} | ${120}           | ${120}           | ${80}                | ${40}                 | ${120}        | ${160}        | ${240}            | ${40}
@@ -545,9 +537,9 @@ describe('computeResizing', () => {
     ${'left'}        | ${0}   | ${120} | ${0}             | ${120}           | ${80}                | ${40}                 | ${0}          | ${160}        | ${240}            | ${40}
     ${'topLeft'}     | ${0}   | ${40}  | ${0}             | ${40}            | ${80}                | ${80}                 | ${0}          | ${120}        | ${240}            | ${80}
   `(
-    'should compute resizing of elements when dragging handlePosition $handlePosition',
+    'should compute resizing of elements when dragging handle $name',
     ({
-      handlePosition,
+      name,
       dragX,
       dragY,
       expectedEllipseX,
@@ -561,7 +553,7 @@ describe('computeResizing', () => {
     }) => {
       expect(
         computeResizing(
-          { handlePosition, containerWidth: 120, containerHeight: 80 },
+          { name, containerWidth: 120, containerHeight: 80 },
           { ...event, x: dragX, y: dragY },
           viewportWidth,
           viewportHeight,
@@ -575,7 +567,7 @@ describe('computeResizing', () => {
             elements: { ellipse, line },
           },
         ),
-      ).toStrictEqual([
+      ).toEqual([
         {
           elementId: 'ellipse',
           elementOverride: {

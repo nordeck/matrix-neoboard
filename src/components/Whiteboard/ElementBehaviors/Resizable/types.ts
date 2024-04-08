@@ -16,15 +16,15 @@
 
 import { Elements } from '../../../../state/types';
 
-export type LineElementHandlePosition = 'start' | 'end';
+export type LineElementHandlePositionName = 'start' | 'end';
 
-export type LineElementHandleProperties = {
-  handlePosition: LineElementHandlePosition;
-  handlePositionX: number;
-  handlePositionY: number;
+export type LineElementHandlePosition = {
+  name: LineElementHandlePositionName;
+  x: number;
+  y: number;
 };
 
-export type HandlePosition =
+export type HandlePositionName =
   | 'top'
   | 'topRight'
   | 'right'
@@ -34,13 +34,13 @@ export type HandlePosition =
   | 'left'
   | 'topLeft';
 
-export type HandleProperties =
+export type HandlePosition =
   | {
-      handlePosition: HandlePosition;
+      name: HandlePositionName;
       containerWidth: number;
       containerHeight: number;
     }
-  | LineElementHandleProperties;
+  | LineElementHandlePosition;
 
 export type Dimensions = {
   x: number;
