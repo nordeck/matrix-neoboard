@@ -36,7 +36,10 @@ export class WhiteboardManagerImpl implements WhiteboardManager {
     private readonly signalingChannel: SignalingChannel,
   ) {}
 
-  selectActiveWhiteboardInstance(whiteboardEvent: StateEvent<Whiteboard>) {
+  selectActiveWhiteboardInstance(
+    whiteboardEvent: StateEvent<Whiteboard>,
+    userId: string,
+  ) {
     if (this.activeWhiteboard?.getWhiteboardId() !== whiteboardEvent.event_id) {
       this.activeWhiteboard?.destroy();
       this.activeWhiteboard = WhiteboardInstanceImpl.create(
@@ -45,6 +48,7 @@ export class WhiteboardManagerImpl implements WhiteboardManager {
         this.sessionManager,
         this.signalingChannel,
         whiteboardEvent,
+        userId,
       );
     }
   }

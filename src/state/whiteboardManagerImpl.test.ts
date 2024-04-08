@@ -46,7 +46,7 @@ describe('WhiteboardManagerImpl', () => {
 
     const event = widgetApi.mockSendStateEvent(mockWhiteboard());
 
-    whiteboardManager.selectActiveWhiteboardInstance(event);
+    whiteboardManager.selectActiveWhiteboardInstance(event, '@user-id');
 
     expect(whiteboardManager.getActiveWhiteboardInstance()).toBeInstanceOf(
       WhiteboardInstanceImpl,
@@ -65,7 +65,7 @@ describe('WhiteboardManagerImpl', () => {
       mockWhiteboard({ event_id: '$event-id-1', state_key: 'whiteboard-1' }),
     );
 
-    whiteboardManager.selectActiveWhiteboardInstance(event0);
+    whiteboardManager.selectActiveWhiteboardInstance(event0, '@user-id');
 
     const destroySpy = jest.spyOn(
       whiteboardManager.getActiveWhiteboardInstance() as WhiteboardInstanceImpl,
@@ -73,10 +73,10 @@ describe('WhiteboardManagerImpl', () => {
     );
 
     // send same event
-    whiteboardManager.selectActiveWhiteboardInstance(event0);
+    whiteboardManager.selectActiveWhiteboardInstance(event0, '@user-id');
     expect(destroySpy).not.toBeCalled();
 
-    whiteboardManager.selectActiveWhiteboardInstance(event1);
+    whiteboardManager.selectActiveWhiteboardInstance(event1, '@user-id');
 
     expect(destroySpy).toBeCalled();
   });

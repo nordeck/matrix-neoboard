@@ -14,24 +14,20 @@
  * limitations under the License.
  */
 
-import {
-  extractWidgetParameters,
-  StateEvent,
-  WidgetApi,
-} from '@matrix-widget-toolkit/api';
+import { StateEvent, WidgetApi } from '@matrix-widget-toolkit/api';
 import { cloneDeep, isEqual } from 'lodash';
 import {
   BehaviorSubject,
+  Observable,
+  Subject,
   concat,
   defer,
   distinctUntilChanged,
   filter,
   map,
-  Observable,
   of,
   pairwise,
   shareReplay,
-  Subject,
   takeUntil,
   tap,
 } from 'rxjs';
@@ -41,12 +37,13 @@ import {
   CommunicationChannel,
   FOCUS_ON_MESSAGE,
   FocusOn,
-  isValidFocusOnMessage,
   SessionManager,
   SignalingChannel,
   WebRtcCommunicationChannel,
+  isValidFocusOnMessage,
 } from './communication';
 import {
+  WhiteboardDocument,
   createWhiteboardDocument,
   generateAddSlide,
   generateDuplicateSlide,
@@ -56,23 +53,22 @@ import {
   getSlide,
   isValidWhiteboardDocument,
   isValidWhiteboardDocumentSnapshot,
-  WhiteboardDocument,
 } from './crdt';
 import {
-  convertWhiteboardToExportFormat,
   WhiteboardDocumentExport,
+  convertWhiteboardToExportFormat,
 } from './export';
 import { generateLoadWhiteboardFromExport } from './export/loadWhiteboardFromExport';
 import { PresentationManagerImpl } from './presentationManagerImpl';
 import { LocalForageDocumentStorage } from './storage';
 import { SynchronizedDocumentImpl } from './synchronizedDocumentImpl';
 import {
-  isWhiteboardUndoManagerContext,
   PresentationManager,
   SynchronizedDocument,
   WhiteboardInstance,
   WhiteboardSlideInstance,
   WhiteboardStatistics,
+  isWhiteboardUndoManagerContext,
 } from './types';
 import { WhiteboardSlideInstanceImpl } from './whiteboardSlideInstanceImpl';
 
@@ -192,6 +188,7 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
     sessionManager: SessionManager,
     signalingChannel: SignalingChannel,
     whiteboardEvent: StateEvent<Whiteboard>,
+    userId: string,
   ): WhiteboardInstanceImpl {
     const enableObserveVisibilityStateSubject = new BehaviorSubject(true);
     const communicationChannel = new WebRtcCommunicationChannel(
@@ -214,11 +211,6 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
         snapshotValidator: isValidWhiteboardDocumentSnapshot,
       },
     );
-
-    const userId = extractWidgetParameters().userId;
-    if (!userId) {
-      throw new Error('The userId must be defined');
-    }
 
     return new WhiteboardInstanceImpl(
       document,

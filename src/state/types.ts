@@ -30,7 +30,10 @@ import { WhiteboardDocumentExport } from './export';
 /** Creates and holds the currently selected {@link WhiteboardInstance} based on a whiteboard state event */
 export type WhiteboardManager = {
   /** Create an instance of the whiteboard */
-  selectActiveWhiteboardInstance(whiteboardEvent: StateEvent<Whiteboard>): void;
+  selectActiveWhiteboardInstance(
+    whiteboardEvent: StateEvent<Whiteboard>,
+    userId: string,
+  ): void;
   /** Get the active whiteboard instance */
   getActiveWhiteboardInstance(): WhiteboardInstance | undefined;
 };

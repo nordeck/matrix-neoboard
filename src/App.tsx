@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { useWidgetApi } from '@matrix-widget-toolkit/react';
 import { useTranslation } from 'react-i18next';
 import { Layout } from './components/Layout';
 import { PageLoader } from './components/common/PageLoader';
@@ -23,9 +24,14 @@ export const App = () => {
   const { t } = useTranslation();
   const { value, loading } = useOwnedWhiteboard();
   const whiteboardManager = useWhiteboardManager();
+  const ownUserId = useWidgetApi().widgetParameters.userId;
+
+  if (!ownUserId) {
+    throw new Error('Unknown user id');
+  }
 
   if (!loading && value.type === 'whiteboard' && value.event) {
-    whiteboardManager.selectActiveWhiteboardInstance(value.event);
+    whiteboardManager.selectActiveWhiteboardInstance(value.event, ownUserId);
   }
 
   if (
