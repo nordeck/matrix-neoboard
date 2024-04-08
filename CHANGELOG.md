@@ -1,5 +1,16 @@
 # @nordeck/matrix-neoboard-widget
 
+## 1.16.0
+
+### Minor Changes
+
+- 3cfaf24: Multiple selected elements can now be moved around by dragging anywhere inside the selection
+- ea52fc6: Support multiselect resizing
+
+### Patch Changes
+
+- 86254d9: Improve performance of multiple selection actions in slides with hundreds of elements
+
 ## 1.15.0
 
 ### Minor Changes
