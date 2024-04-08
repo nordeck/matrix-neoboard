@@ -72,7 +72,7 @@ export function ColorPicker({
   const buttonId = useId();
   const gridId = useId();
 
-  if (color === undefined || color === 'transparent') {
+  if (color === undefined) {
     return null;
   }
 

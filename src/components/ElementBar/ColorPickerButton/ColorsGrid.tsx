@@ -62,6 +62,10 @@ export function ColorsGrid({
 
   const colorPalette: Array<{ label: string; color: string }> = [
     {
+      label: t('colorPicker.colors.transparent', 'Transparent'),
+      color: 'transparent',
+    },
+    {
       label: t('colorPicker.colors.white', 'White'),
       color: common.white,
     },
