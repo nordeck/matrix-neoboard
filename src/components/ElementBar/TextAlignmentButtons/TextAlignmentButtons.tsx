@@ -17,7 +17,7 @@
 import FormatAlignCenterIcon from '@mui/icons-material/FormatAlignCenter';
 import FormatAlignLeftIcon from '@mui/icons-material/FormatAlignLeft';
 import FormatAlignRightIcon from '@mui/icons-material/FormatAlignRight';
-import { ChangeEvent, useCallback } from 'react';
+import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   TextAlignment,
@@ -35,15 +35,8 @@ export function TextAlignmentButtons() {
   const slideInstance = useWhiteboardSlideInstance();
 
   const handleRadioClick = useCallback(
-    (event: ChangeEvent<HTMLInputElement>) => {
-      if (!event.target.checked) {
-        return;
-      }
-
-      const updates = calculateTextAlignmentUpdates(
-        elements,
-        event.target.value as TextAlignment,
-      );
+    (textAlignment: TextAlignment) => {
+      const updates = calculateTextAlignmentUpdates(elements, textAlignment);
 
       if (updates.length > 0) {
         slideInstance.updateElements(updates);
@@ -78,32 +71,34 @@ export function TextAlignmentButtons() {
       aria-label={t('elementBar.textAlignment', 'Text Alignment')}
     >
       <ToolbarRadio
-        inputProps={{ 'aria-label': t('elementBar.textAlignmentLeft', 'Left') }}
+        inputProps={{
+          'aria-label': t('elementBar.textAlignmentLeft', 'Left'),
+          onClick: () => handleRadioClick('left'),
+        }}
         icon={<FormatAlignLeftIcon />}
         checkedIcon={<FormatAlignLeftIcon />}
         value={'left'}
         checked={textAlignment === 'left'}
-        onChange={handleRadioClick}
       />
       <ToolbarRadio
         inputProps={{
           'aria-label': t('elementBar.textAlignmentCenter', 'Center'),
+          onClick: () => handleRadioClick('center'),
         }}
         icon={<FormatAlignCenterIcon />}
         checkedIcon={<FormatAlignCenterIcon />}
         value={'center'}
         checked={textAlignment === 'center'}
-        onChange={handleRadioClick}
       />
       <ToolbarRadio
         inputProps={{
           'aria-label': t('elementBar.textAlignmentRight', 'Right'),
+          onClick: () => handleRadioClick('right'),
         }}
         icon={<FormatAlignRightIcon />}
         checkedIcon={<FormatAlignRightIcon />}
         value={'right'}
         checked={textAlignment === 'right'}
-        onChange={handleRadioClick}
       />
     </ToolbarRadioGroup>
   );

@@ -144,4 +144,19 @@ describe('<TextAlignmentButtons/>', () => {
       expect.objectContaining({ textAlignment: 'right' }),
     );
   });
+
+  it('should switch the text alignment even if the alignment option is already active', async () => {
+    render(<TextAlignmentButtons />, { wrapper: Wrapper });
+
+    expect(screen.getByRole('radio', { name: 'Left' })).toBeChecked();
+
+    await userEvent.click(screen.getByRole('radio', { name: 'Left' }));
+
+    expect(slide.getElement('element-0')).toEqual(
+      expect.objectContaining({ textAlignment: 'left' }),
+    );
+    expect(slide.getElement('element-2')).toEqual(
+      expect.objectContaining({ textAlignment: 'left' }),
+    );
+  });
 });
