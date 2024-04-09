@@ -31,7 +31,7 @@ export function calculateTextAlignmentUpdates(
   const updates: ElementUpdate[] = [];
 
   for (const [elementId, element] of Object.entries(elements)) {
-    if (element.type !== 'shape') {
+    if (element.type !== 'shape' || element.textAlignment === textAlignment) {
       continue;
     }
 

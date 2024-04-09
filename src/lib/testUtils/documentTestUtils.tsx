@@ -217,7 +217,9 @@ export function mockPeerConnectionStatistics(
   };
 }
 
-export function mockEllipseElement(shape: Partial<ShapeElement> = {}): Element {
+export function mockEllipseElement(
+  shape: Partial<ShapeElement> = {},
+): ShapeElement {
   return {
     type: 'shape',
     kind: 'ellipse',

@@ -55,4 +55,17 @@ describe('calculateTextAlignmentUpdates', () => {
       },
     ]);
   });
+
+  it('should return updates only if there are changes', () => {
+    expect(
+      calculateTextAlignmentUpdates(
+        {
+          'element-0': element0,
+          'element-1': { ...element1, textAlignment: 'left' },
+          'element-2': { ...element2, textAlignment: 'left' },
+        },
+        'left',
+      ),
+    ).toEqual([]);
+  });
 });
