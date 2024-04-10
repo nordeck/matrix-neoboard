@@ -1,5 +1,11 @@
 # @nordeck/matrix-neoboard-widget
 
+## 1.16.1
+
+### Patch Changes
+
+- 837c54d: Fix text alignment not applied if the option is already active
+
 ## 1.16.0
 
 ### Minor Changes
