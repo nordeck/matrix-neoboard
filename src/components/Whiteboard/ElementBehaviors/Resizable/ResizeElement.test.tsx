@@ -77,6 +77,8 @@ describe('<ResizeElement />', () => {
     position: { x: 0, y: 0 },
   });
 
+  const imageElement = mockImageElement();
+
   beforeEach(() => {
     widgetApi = mockWidgetApi();
 
@@ -87,7 +89,7 @@ describe('<ResizeElement />', () => {
           [
             ['element-0', polylineElement],
             ['element-1', lineElement],
-            ['element-2', mockImageElement()],
+            ['element-2', imageElement],
           ],
         ],
       ],
@@ -217,14 +219,41 @@ describe('<ResizeElement />', () => {
     });
   });
 
-  it('should not resize image elements', () => {
+  it('should resize image elements', () => {
     render(<ResizeElement elementIds={['element-2']} />, {
       wrapper: Wrapper,
     });
 
-    expect(
-      screen.queryByTestId('resize-handle-se-resize'),
-    ).not.toBeInTheDocument();
+    // drag a resize box from 0,0 to 50,50
+    const resizeHandleBottomRight = screen.getByTestId(
+      'resize-handle-bottomRight',
+    );
+    mocked(computeResizing).mockReturnValue([
+      {
+        elementId: 'element-2',
+        elementOverride: imageElement,
+      },
+    ]);
+    fireEvent.mouseDown(resizeHandleBottomRight);
+    mocked(computeResizing).mockReturnValue([
+      {
+        elementId: 'element-2',
+        elementOverride: {
+          position: imageElement.position,
+          width: 50,
+          height: 50,
+        },
+      },
+    ]);
+    fireEvent.mouseMove(resizeHandleBottomRight);
+    fireEvent.mouseUp(resizeHandleBottomRight);
+
+    const element = activeSlide.getElement('element-2');
+    expect(element).toEqual({
+      ...imageElement,
+      width: 50,
+      height: 50,
+    });
   });
 
   it('should resize multiple elements', () => {
