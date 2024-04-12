@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Nordeck IT + Consulting GmbH
+ * Copyright 2024 Nordeck IT + Consulting GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
-export { determineImageSize } from './determineImageSize';
-export { findForegroundColor } from './findForegroundColor';
-export { isDefined } from './isDefined';
-export { FontsLoadedContextProvider, useFontsLoaded } from './useFontsLoaded';
-export { useLatestValue } from './useLatestValue';
-export { getUserColor } from './userColor';
+import tinycolor2 from 'tinycolor2';
+
+export function findForegroundColor(backgroundColor: string): string {
+  return tinycolor2(backgroundColor).isLight() ||
+    tinycolor2(backgroundColor).getAlpha() === 0
+    ? '#000'
+    : '#fff';
+}

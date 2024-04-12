@@ -224,6 +224,9 @@
   "snackbar": {
     "dismissAction": "Ausblenden"
   },
+  "textColorPicker": {
+    "title": "Wähle eine Textfarbe"
+  },
   "toolbar": {
     "toolbarAvatar": {
       "label_you": "{{displayName}} (Du)",

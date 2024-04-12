@@ -40,7 +40,7 @@ import {
 import { WhiteboardManager, WhiteboardSlideInstance } from '../../../state';
 import { LayoutStateProvider, useLayoutState } from '../../Layout';
 import { Toolbar } from '../../common/Toolbar';
-import { ColorPicker } from './ColorPicker';
+import { ElementColorPicker } from './ElementColorPicker';
 
 let widgetApi: MockedWidgetApi;
 
@@ -48,7 +48,7 @@ afterEach(() => widgetApi.stop());
 
 beforeEach(() => (widgetApi = mockWidgetApi()));
 
-describe('<ColorPicker/>', () => {
+describe('<ElementColorPicker/>', () => {
   let whiteboardManager: jest.Mocked<WhiteboardManager>;
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
   let activeColor: string;
@@ -94,7 +94,7 @@ describe('<ColorPicker/>', () => {
   });
 
   it('should render without exploding', async () => {
-    render(<ColorPicker />, { wrapper: Wrapper });
+    render(<ElementColorPicker />, { wrapper: Wrapper });
 
     const button = screen.getByRole('button', { name: 'Pick a color' });
     expect(button).toHaveAttribute('aria-haspopup', 'grid');
@@ -147,7 +147,7 @@ describe('<ColorPicker/>', () => {
   });
 
   it('should have no accessibility violations', async () => {
-    const { container } = render(<ColorPicker />, { wrapper: Wrapper });
+    const { container } = render(<ElementColorPicker />, { wrapper: Wrapper });
 
     expect(
       screen.getByRole('button', { name: 'Pick a color' }),
@@ -157,7 +157,9 @@ describe('<ColorPicker/>', () => {
   });
 
   it('should have no accessibility violations, when open', async () => {
-    const { baseElement } = render(<ColorPicker />, { wrapper: Wrapper });
+    const { baseElement } = render(<ElementColorPicker />, {
+      wrapper: Wrapper,
+    });
 
     await userEvent.click(screen.getByRole('button', { name: 'Pick a color' }));
 
@@ -177,7 +179,7 @@ describe('<ColorPicker/>', () => {
   });
 
   it('should select another color by mouse', async () => {
-    render(<ColorPicker />, { wrapper: Wrapper });
+    render(<ElementColorPicker />, { wrapper: Wrapper });
 
     await userEvent.click(screen.getByRole('button', { name: 'Pick a color' }));
     const grid = await screen.findByRole('grid', { name: 'Colors' });
@@ -197,19 +199,19 @@ describe('<ColorPicker/>', () => {
    * @param elementIds - ID of the elements to set the colour for
    * @param color - HEX code of the colour to set
    */
-  async function renderColorPickerAndSetElementColors(
+  async function renderElementColorPickerAndSetElementColors(
     elementIds: string[],
     color: string,
   ) {
     activeSlide.setActiveElementIds(elementIds);
-    render(<ColorPicker />, { wrapper: Wrapper });
+    render(<ElementColorPicker />, { wrapper: Wrapper });
     await userEvent.click(screen.getByRole('button', { name: 'Pick a color' }));
     const grid = await screen.findByRole('grid', { name: 'Colors' });
     await userEvent.click(within(grid).getByRole('button', { name: color }));
   }
 
   it('should set the colour for a single selected shape element', async () => {
-    await renderColorPickerAndSetElementColors(['element-1'], 'Red');
+    await renderElementColorPickerAndSetElementColors(['element-1'], 'Red');
 
     expect(selectElementColors(activeSlide)).toEqual({
       'element-0': green[500],
@@ -222,7 +224,7 @@ describe('<ColorPicker/>', () => {
   });
 
   it('should set the colour for a single selected path element', async () => {
-    await renderColorPickerAndSetElementColors(['element-2'], 'Red');
+    await renderElementColorPickerAndSetElementColors(['element-2'], 'Red');
 
     expect(selectElementColors(activeSlide)).toEqual({
       'element-0': green[500],
@@ -235,7 +237,7 @@ describe('<ColorPicker/>', () => {
   });
 
   it('should set the colour for multiple selected elements but not for text elements', async () => {
-    await renderColorPickerAndSetElementColors(
+    await renderElementColorPickerAndSetElementColors(
       ['element-1', 'element-2', 'element-4'],
       'Red',
     );
@@ -251,7 +253,7 @@ describe('<ColorPicker/>', () => {
   });
 
   it('should select another color by keyboard', async () => {
-    render(<ColorPicker />, { wrapper: Wrapper });
+    render(<ElementColorPicker />, { wrapper: Wrapper });
 
     const colorButton = screen.getByRole('button', { name: 'Pick a color' });
     colorButton.focus();
@@ -284,7 +286,7 @@ describe('<ColorPicker/>', () => {
   `(
     'should move focus from $fromColorName to $toColorName on $key',
     async ({ fromColor, fromColorName, key, toColorName, toColor }) => {
-      render(<ColorPicker />, { wrapper: Wrapper });
+      render(<ElementColorPicker />, { wrapper: Wrapper });
 
       act(() => setActiveColor(fromColor));
 
@@ -317,7 +319,7 @@ describe('<ColorPicker/>', () => {
   );
 
   it('should not move focus to left if the focus on the first element', async () => {
-    render(<ColorPicker />, { wrapper: Wrapper });
+    render(<ElementColorPicker />, { wrapper: Wrapper });
 
     act(() => setActiveColor(common.white));
 
@@ -332,7 +334,7 @@ describe('<ColorPicker/>', () => {
   });
 
   it('should not move focus to right if the focus on the last element', async () => {
-    render(<ColorPicker />, { wrapper: Wrapper });
+    render(<ElementColorPicker />, { wrapper: Wrapper });
 
     act(() => setActiveColor(common.black));
 
@@ -347,7 +349,7 @@ describe('<ColorPicker/>', () => {
   });
 
   it('should be hidden when selected color is transparent', async () => {
-    render(<ColorPicker />, { wrapper: Wrapper });
+    render(<ElementColorPicker />, { wrapper: Wrapper });
 
     const colorButton = screen.queryByRole('button', { name: 'Pick a color' });
 
@@ -358,7 +360,7 @@ describe('<ColorPicker/>', () => {
 
   it('should be hidden when only text elements are selected', async () => {
     activeSlide.setActiveElementIds(['element-4', 'element-5']);
-    render(<ColorPicker />, { wrapper: Wrapper });
+    render(<ElementColorPicker />, { wrapper: Wrapper });
     const colorButton = screen.queryByRole('button', { name: 'Pick a color' });
 
     expect(colorButton).not.toBeInTheDocument();
