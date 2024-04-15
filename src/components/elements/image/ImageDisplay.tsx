@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
-import { styled } from '@mui/material';
+import { HideImageOutlined } from '@mui/icons-material';
+import { Tooltip, styled } from '@mui/material';
+import { alpha, useTheme } from '@mui/material/styles';
 import React, { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ImageElement } from '../../../state';
 import {
   ElementContextMenu,
@@ -58,17 +61,26 @@ function ImageDisplay({
   activeElementIds = [],
   overrides = {},
 }: ImageDisplayProps) {
-  // Image loading errors are dealt with in follow-up tasks.
-  // Don't care about invalid http URLs here.
-  const httpUri = useMemo(
-    () => convertMxcToHttpUrl(mxc, baseUrl) ?? '',
-    [baseUrl, mxc],
-  );
+  const theme = useTheme();
+  const { t } = useTranslation();
+
+  const [loadError, setLoadError] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const handleLoad = useCallback(() => {
     setLoading(false);
+    setLoadError(false);
   }, [setLoading]);
+
+  const handleLoadError = useCallback(() => {
+    setLoading(false);
+    setLoadError(true);
+  }, [setLoading, setLoadError]);
+
+  const httpUri = useMemo(
+    () => convertMxcToHttpUrl(mxc, baseUrl) ?? '',
+    [baseUrl, mxc],
+  );
 
   const renderedSkeleton = loading ? (
     <Skeleton
@@ -80,7 +92,36 @@ function ImageDisplay({
     />
   ) : null;
 
-  const renderedChild = (
+  const renderedError = loadError ? (
+    <Tooltip title={t('imageUpload.loadError', 'The file is not available.')}>
+      <g data-testid={`element-${elementId}-error-container`}>
+        <rect
+          data-testid={`element-${elementId}-error-placeholder`}
+          x={position.x}
+          y={position.y}
+          height={height}
+          fill={alpha(theme.palette.error.main, 0.05)}
+          stroke={theme.palette.error.main}
+          strokeWidth={`2`}
+          strokeDashoffset={10}
+          strokeDasharray={'5 0 5'}
+          width={width}
+        />
+        <HideImageOutlined
+          data-testid={`element-${elementId}-error-icon`}
+          x={position.x + width / 2 - width / 6}
+          y={position.y + height / 2 - height / 6}
+          width={width / 3}
+          height={height / 3}
+          sx={(theme) => ({
+            color: alpha(theme.palette.error.main, 0.3),
+          })}
+        />
+      </g>
+    </Tooltip>
+  ) : null;
+
+  const renderedChild = !loadError ? (
     <Image
       data-testid={`element-${elementId}-image`}
       href={httpUri}
@@ -90,14 +131,15 @@ function ImageDisplay({
       height={height}
       preserveAspectRatio="none"
       onLoad={handleLoad}
+      onError={handleLoadError}
       loading={loading}
     />
-  );
+  ) : null;
 
   if (readOnly) {
     return (
       <>
-        {renderedSkeleton} {renderedChild}
+        {renderedSkeleton} {renderedChild} {renderedError}
       </>
     );
   }
@@ -113,6 +155,7 @@ function ImageDisplay({
           <ElementContextMenu activeElementIds={activeElementIds}>
             {renderedSkeleton}
             {renderedChild}
+            {renderedError}
           </ElementContextMenu>
         </MoveableElement>
       </SelectableElement>
