@@ -41,6 +41,7 @@ export function DotGrid() {
         />
       </pattern>
       <rect
+        data-testid="grid"
         fill="url(#pattern-circles)"
         height="100%"
         width="100%"
