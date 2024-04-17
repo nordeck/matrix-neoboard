@@ -15,36 +15,37 @@
  */
 
 import {
-  mockEllipseElement,
+  mockCircleElement,
   mockLineElement,
+  mockRectangleElement,
 } from '../../../lib/testUtils/documentTestUtils';
 import { calculateTextBoldUpdates } from './calculateTextBoldUpdates';
 
 describe('calculateTextBoldUpdates', () => {
-  const element0 = mockLineElement();
-  const element1 = mockEllipseElement();
-  const element2 = mockEllipseElement();
+  const rectangle = mockRectangleElement();
+  const circle = mockCircleElement();
+  const line = mockLineElement();
 
   it('should return an empty list for empty elements', () => {
     expect(calculateTextBoldUpdates({}, true)).toEqual([]);
   });
 
   it('should return updates only for shape elements', () => {
-    expect(
-      calculateTextBoldUpdates({ element0, element1, element2 }, true),
-    ).toEqual([
-      { elementId: 'element1', patch: { textBold: true } },
-      { elementId: 'element2', patch: { textBold: true } },
-    ]);
+    expect(calculateTextBoldUpdates({ rectangle, circle, line }, true)).toEqual(
+      [
+        { elementId: 'rectangle', patch: { textBold: true } },
+        { elementId: 'circle', patch: { textBold: true } },
+      ],
+    );
   });
 
   it('should return updates only if there are changes', () => {
     expect(
       calculateTextBoldUpdates(
         {
-          element0,
-          element1: { ...element1, textBold: true },
-          element2: { ...element2, textBold: true },
+          rectangle: { ...rectangle, textBold: true },
+          circle: { ...circle, textBold: true },
+          line,
         },
         true,
       ),

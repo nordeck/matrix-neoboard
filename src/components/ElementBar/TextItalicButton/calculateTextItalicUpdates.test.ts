@@ -15,15 +15,16 @@
  */
 
 import {
-  mockEllipseElement,
+  mockCircleElement,
   mockLineElement,
+  mockRectangleElement,
 } from '../../../lib/testUtils/documentTestUtils';
 import { calculateTextItalicUpdates } from './calculateTextItalicUpdates';
 
 describe('calculateTextItalicUpdates', () => {
-  const element0 = mockLineElement();
-  const element1 = mockEllipseElement();
-  const element2 = mockEllipseElement();
+  const rectangle = mockRectangleElement();
+  const circle = mockCircleElement();
+  const line = mockLineElement();
 
   it('should return an empty list for empty elements', () => {
     expect(calculateTextItalicUpdates({}, true)).toEqual([]);
@@ -31,10 +32,10 @@ describe('calculateTextItalicUpdates', () => {
 
   it('should return updates only for shape elements', () => {
     expect(
-      calculateTextItalicUpdates({ element0, element1, element2 }, true),
+      calculateTextItalicUpdates({ rectangle, circle, line }, true),
     ).toEqual([
-      { elementId: 'element1', patch: { textItalic: true } },
-      { elementId: 'element2', patch: { textItalic: true } },
+      { elementId: 'rectangle', patch: { textItalic: true } },
+      { elementId: 'circle', patch: { textItalic: true } },
     ]);
   });
 
@@ -42,9 +43,9 @@ describe('calculateTextItalicUpdates', () => {
     expect(
       calculateTextItalicUpdates(
         {
-          element0,
-          element1: { ...element1, textItalic: true },
-          element2: { ...element2, textItalic: true },
+          rectangle: { ...rectangle, textItalic: true },
+          circle: { ...circle, textItalic: true },
+          line,
         },
         true,
       ),
