@@ -67,7 +67,6 @@ export function TextAlignmentButtons() {
 
   return (
     <ToolbarRadioGroup
-      flexWrap="wrap"
       aria-label={t('elementBar.textAlignment', 'Text Alignment')}
     >
       <ToolbarRadio

@@ -17,16 +17,9 @@
 import { styled } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
 import { useUnmount } from 'react-use';
-import tinycolor2 from 'tinycolor2';
+import { findForegroundColor } from '../../../../lib';
 import { TextAlignment, useWhiteboardSlideInstance } from '../../../../state';
 import { TextEditor } from './TextEditor';
-
-function findForegroundColor(backgroundColor: string) {
-  return tinycolor2(backgroundColor).isLight() ||
-    tinycolor2(backgroundColor).getAlpha() === 0
-    ? '#000'
-    : '#fff';
-}
 
 export type ForeignObjectNoInteractionProps = {
   paddingTop?: number;
@@ -53,6 +46,7 @@ export type TextElementProps = {
 
   fillColor: string;
   elementId: string;
+  textColor?: string;
 };
 
 export const TextElement = ({
@@ -65,10 +59,12 @@ export const TextElement = ({
   height,
   fillColor,
   elementId,
+  textColor,
 }: TextElementProps) => {
   const slideInstance = useWhiteboardSlideInstance();
   const [unsubmittedText, setUnsubmittedText] = useState(text);
   const activeElement = slideInstance.getElement(elementId);
+  const color = textColor ?? findForegroundColor(fillColor);
 
   useEffect(() => {
     setUnsubmittedText(text);
@@ -93,7 +89,7 @@ export const TextElement = ({
   return (
     <ForeignObjectNoInteraction x={x} y={y} height={height} width={width}>
       <TextEditor
-        color={findForegroundColor(fillColor)}
+        color={color}
         content={unsubmittedText}
         contentAlignment={textAlignment}
         editModeOnMount={
