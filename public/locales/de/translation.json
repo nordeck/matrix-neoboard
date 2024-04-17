@@ -87,7 +87,8 @@
   "elementBar": {
     "deleteElement_one": "Element löschen",
     "deleteElement_other": "Elemente löschen",
-    "duplicateActiveElement": "Element duplizieren",
+    "duplicateActiveElement_one": "Element duplizieren",
+    "duplicateActiveElement_other": "Elemente duplizieren",
     "textAlignment": "Textausrichtung",
     "textAlignmentCenter": "Zentriert",
     "textAlignmentLeft": "Links",

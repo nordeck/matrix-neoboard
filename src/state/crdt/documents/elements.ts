@@ -100,6 +100,7 @@ export type ImageElement = ElementBase & {
    */
   mxc: string;
   fileName: string;
+  available?: boolean;
 };
 
 const imageElementSchema = elementBaseSchema
@@ -111,6 +112,7 @@ const imageElementSchema = elementBaseSchema
     fileName: Joi.string().required(),
     width: Joi.number().strict().required(),
     height: Joi.number().strict().required(),
+    available: Joi.boolean().strict().optional(),
   })
   .required();
 

@@ -271,6 +271,7 @@ export function mockImageElement(
     position: { x: 10, y: 20 },
     width: 200,
     height: 100,
+    available: true,
     ...image,
   };
 }
