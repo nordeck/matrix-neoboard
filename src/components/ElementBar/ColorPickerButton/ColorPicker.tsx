@@ -16,34 +16,37 @@
 
 import { Popover } from '@mui/material';
 import { unstable_useId as useId } from '@mui/utils';
-import { MouseEvent, useCallback, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { ComponentType, MouseEvent, useCallback, useState } from 'react';
 import {
   useActiveElements,
   useElements,
   useWhiteboardSlideInstance,
 } from '../../../state';
-import { useLayoutState } from '../../Layout';
+import { ElementUpdate, Elements } from '../../../state/types';
 import { ToolbarSubMenu } from '../../common/Toolbar';
-import { ColorPickerIcon } from './ColorPickerIcon';
 import { ColorsGrid } from './ColorsGrid';
-import { calculateColorChangeUpdates } from './calculateColorChangeUpdates';
-import { extractFirstNonTransparentOrFirstColor } from './extractFirstNonTransparentOrFirstColor';
 
-export function ColorPicker() {
-  const { t } = useTranslation();
+export type ColorPickerProps = {
+  color?: string;
+  setColor?: (color: string) => void;
+  /** The icon component to be used for the color picker in the element bar */
+  Icon: ComponentType<{ color: string }>;
+  /** Function that calculates the element updates to apply the color change */
+  calculateUpdatesFn: (elements: Elements, color: string) => ElementUpdate[];
+  label: string;
+};
 
-  const { activeColor, setActiveColor } = useLayoutState();
+export function ColorPicker({
+  color,
+  setColor,
+  calculateUpdatesFn,
+  Icon,
+  label,
+}: ColorPickerProps) {
   const slideInstance = useWhiteboardSlideInstance();
-
   const { activeElementIds } = useActiveElements();
   const activeElements = useElements(activeElementIds);
-  const color =
-    extractFirstNonTransparentOrFirstColor(Object.values(activeElements)) ??
-    activeColor;
-
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-
   const open = Boolean(anchorEl);
 
   const handleClick = useCallback((event: MouseEvent<HTMLButtonElement>) => {
@@ -56,36 +59,36 @@ export function ColorPicker() {
 
   const handleOnChange = useCallback(
     (color: string) => {
-      setActiveColor(color);
-      const updates = calculateColorChangeUpdates(activeElements, color);
+      setColor?.(color);
+      const updates = calculateUpdatesFn(activeElements, color);
 
       if (updates.length) {
         slideInstance.updateElements(updates);
       }
     },
-    [activeElements, setActiveColor, slideInstance],
+    [activeElements, calculateUpdatesFn, setColor, slideInstance],
   );
-
-  const colorPickerTitle = t('colorPicker.title', 'Pick a color');
 
   const buttonId = useId();
   const gridId = useId();
 
+  if (color === undefined || color === 'transparent') {
+    return null;
+  }
+
   return (
     <>
-      {color !== 'transparent' && (
-        <ToolbarSubMenu
-          aria-controls={open ? gridId : undefined}
-          aria-expanded={open ? 'true' : undefined}
-          aria-haspopup="grid"
-          id={buttonId}
-          sx={{ padding: '2px' }}
-          onClick={handleClick}
-          aria-label={colorPickerTitle}
-        >
-          <ColorPickerIcon color={color} />
-        </ToolbarSubMenu>
-      )}
+      <ToolbarSubMenu
+        aria-controls={open ? gridId : undefined}
+        aria-expanded={open ? 'true' : undefined}
+        aria-haspopup="grid"
+        id={buttonId}
+        sx={{ height: '34px', padding: '0', width: '34px' }}
+        onClick={handleClick}
+        aria-label={label}
+      >
+        <Icon color={color} />
+      </ToolbarSubMenu>
 
       <Popover
         anchorEl={anchorEl}

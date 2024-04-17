@@ -77,7 +77,27 @@ export function DragSelect() {
         shape,
         slideInstance.getElements(slideInstance.getElementIds()),
       );
-      slideInstance.setActiveElementIds(activeElementIds);
+
+      // Add active elements in the order of their selection
+      const sortedActiveElementIds: string[] = [];
+
+      // Keep order of already selected elements
+      const currentActiveElements = slideInstance.getActiveElementIds();
+
+      for (const currentActiveElement of currentActiveElements) {
+        if (activeElementIds.includes(currentActiveElement)) {
+          sortedActiveElementIds.push(currentActiveElement);
+        }
+      }
+
+      // Add new elements
+      for (const activeElementId of activeElementIds) {
+        if (sortedActiveElementIds.includes(activeElementId) === false) {
+          sortedActiveElementIds.push(activeElementId);
+        }
+      }
+
+      slideInstance.setActiveElementIds(sortedActiveElementIds);
     }
   }, [shape, slideInstance]);
 
