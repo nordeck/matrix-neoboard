@@ -17,11 +17,11 @@
 import { ElementUpdate, Elements } from '../../../state/types';
 
 /**
- * Calculates the updates to update element colours.
+ * Calculates the updates to update element color.
  *
- * @param elements - Elements to update the colours of
- * @param color - Colour to apply
- * @returns List of updates to apply the colour
+ * @param elements - Elements to update the color of
+ * @param color - color to apply
+ * @returns List of updates to apply the color
  */
 export function calculateColorChangeUpdates(
   elements: Elements,
@@ -39,7 +39,7 @@ export function calculateColorChangeUpdates(
       });
     } else if (
       element?.type === 'shape' &&
-      // skip transparent shape elements because they are texts without a colour
+      // skip transparent shape elements because they are texts without a color
       element.fillColor !== 'transparent'
     ) {
       updates.push({

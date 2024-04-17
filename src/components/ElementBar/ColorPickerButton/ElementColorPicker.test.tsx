@@ -194,10 +194,10 @@ describe('<ElementColorPicker/>', () => {
   });
 
   /**
-   * Renders the colour picker, selects some elements and sets their colours.
+   * Renders the color picker, selects some elements and sets their colours.
    *
-   * @param elementIds - ID of the elements to set the colour for
-   * @param color - HEX code of the colour to set
+   * @param elementIds - ID of the elements to set the color for
+   * @param color - HEX code of the color to set
    */
   async function renderElementColorPickerAndSetElementColors(
     elementIds: string[],
@@ -210,7 +210,7 @@ describe('<ElementColorPicker/>', () => {
     await userEvent.click(within(grid).getByRole('button', { name: color }));
   }
 
-  it('should set the colour for a single selected shape element', async () => {
+  it('should set the color for a single selected shape element', async () => {
     await renderElementColorPickerAndSetElementColors(['element-1'], 'Red');
 
     expect(selectElementColors(activeSlide)).toEqual({
@@ -223,7 +223,7 @@ describe('<ElementColorPicker/>', () => {
     });
   });
 
-  it('should set the colour for a single selected path element', async () => {
+  it('should set the color for a single selected path element', async () => {
     await renderElementColorPickerAndSetElementColors(['element-2'], 'Red');
 
     expect(selectElementColors(activeSlide)).toEqual({
@@ -236,7 +236,7 @@ describe('<ElementColorPicker/>', () => {
     });
   });
 
-  it('should set the colour for multiple selected elements but not for text elements', async () => {
+  it('should set the color for multiple selected elements but not for text elements', async () => {
     await renderElementColorPickerAndSetElementColors(
       ['element-1', 'element-2', 'element-4'],
       'Red',
@@ -368,10 +368,10 @@ describe('<ElementColorPicker/>', () => {
 });
 
 /**
- * Extracts a map from element ID to the element colour.
+ * Extracts a map from element ID to the element color.
  *
  * @param activeSlide - The slide to get the element, color map of
- * @returns Record that maps element ID to the element colour
+ * @returns Record that maps element ID to the element color
  */
 function selectElementColors(
   activeSlide: WhiteboardSlideInstance,

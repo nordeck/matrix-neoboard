@@ -29,9 +29,9 @@ import { ColorsGrid } from './ColorsGrid';
 export type ColorPickerProps = {
   color?: string;
   setColor?: (color: string) => void;
-  /** The icon component to be used for the colour picker in the element bar */
+  /** The icon component to be used for the color picker in the element bar */
   Icon: ComponentType<{ color: string }>;
-  /** Function that calculates the element updates to apply the colour change */
+  /** Function that calculates the element updates to apply the color change */
   calculateUpdatesFn: (elements: Elements, color: string) => ElementUpdate[];
   label: string;
 };
