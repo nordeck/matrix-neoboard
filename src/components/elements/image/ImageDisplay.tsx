@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-import { HideImageOutlined } from '@mui/icons-material';
-import { Container, Tooltip, styled } from '@mui/material';
-import { alpha, useTheme } from '@mui/material/styles';
+import { styled } from '@mui/material';
 import React, { useCallback, useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+
 import { ImageElement, useWhiteboardSlideInstance } from '../../../state';
 import {
   ElementContextMenu,
@@ -26,6 +24,7 @@ import {
   SelectableElement,
   WithExtendedSelectionProps,
 } from '../../Whiteboard';
+import { ImagePlaceholder } from './ImagePlaceholder';
 import { Skeleton } from './Skeleton';
 
 type ImageDisplayProps = Omit<ImageElement, 'kind'> &
@@ -61,10 +60,7 @@ function ImageDisplay({
   activeElementIds = [],
   overrides = {},
 }: ImageDisplayProps) {
-  const theme = useTheme();
-  const { t } = useTranslation();
   const slideInstance = useWhiteboardSlideInstance();
-
   const [loadError, setLoadError] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -102,32 +98,12 @@ function ImageDisplay({
   ) : null;
 
   const renderedPlaceholder = loadError ? (
-    <Container data-testid={`element-${elementId}-error-container`}>
-      <Tooltip title={t('imageUpload.loadError', 'The file is not available.')}>
-        <rect
-          data-testid={`element-${elementId}-error-placeholder`}
-          x={position.x}
-          y={position.y}
-          height={height}
-          fill={alpha(theme.palette.error.main, 0.05)}
-          stroke={theme.palette.error.main}
-          strokeWidth={`2`}
-          strokeDashoffset={10}
-          strokeDasharray={'5 0 5'}
-          width={width}
-        />
-      </Tooltip>
-      <HideImageOutlined
-        data-testid={`element-${elementId}-error-icon`}
-        x={position.x + width / 2 - width / 6}
-        y={position.y + height / 2 - height / 6}
-        width={width / 3}
-        height={height / 3}
-        sx={(theme) => ({
-          color: alpha(theme.palette.error.main, 0.3),
-        })}
-      />
-    </Container>
+    <ImagePlaceholder
+      position={position}
+      width={width}
+      height={height}
+      elementId={elementId}
+    />
   ) : null;
 
   const renderedChild = !loadError ? (
