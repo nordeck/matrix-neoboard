@@ -30,10 +30,10 @@ export function ElementBar() {
 
   return (
     <Toolbar aria-label={toolbarTitle}>
-      <TextColorPicker />
-      <ElementColorPicker />
       <TextBoldButton />
       <TextItalicButton />
+      <TextColorPicker />
+      <ElementColorPicker />
       <TextAlignmentButtons />
       <DuplicateActiveElementButton />
       <DeleteActiveElementButton />
