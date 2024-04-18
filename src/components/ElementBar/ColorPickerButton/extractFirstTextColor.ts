@@ -37,12 +37,5 @@ export function extractFirstTextColor(elements: Element[]): string | undefined {
     }
   }
 
-  // no element with a text found, fall back to the calculated value of the first element with a text prop
-  for (const element of elements) {
-    if ('text' in element) {
-      return findForegroundColor(element.fillColor);
-    }
-  }
-
   return undefined;
 }

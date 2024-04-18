@@ -34,6 +34,8 @@ export type ColorPickerProps = {
   /** Function that calculates the element updates to apply the color change */
   calculateUpdatesFn: (elements: Elements, color: string) => ElementUpdate[];
   label: string;
+  /** If true, the color picker also shows the transparent color */
+  showTransparent?: boolean;
 };
 
 export function ColorPicker({
@@ -42,6 +44,7 @@ export function ColorPicker({
   calculateUpdatesFn,
   Icon,
   label,
+  showTransparent,
 }: ColorPickerProps) {
   const slideInstance = useWhiteboardSlideInstance();
   const { activeElementIds } = useActiveElements();
@@ -118,6 +121,7 @@ export function ColorPicker({
           activeColor={color}
           onChange={handleOnChange}
           onClose={handleClose}
+          showTransparent={showTransparent}
         />
       </Popover>
     </>

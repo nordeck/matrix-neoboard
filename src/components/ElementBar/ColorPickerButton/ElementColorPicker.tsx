@@ -47,6 +47,7 @@ export function ElementColorPicker() {
       calculateUpdatesFn={calculateColorChangeUpdates}
       Icon={ColorPickerIcon}
       label={t('colorPicker.title', 'Pick a color')}
+      showTransparent={true}
     />
   );
 }
