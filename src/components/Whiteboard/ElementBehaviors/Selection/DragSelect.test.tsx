@@ -27,7 +27,11 @@ import { Point, WhiteboardSlideInstance } from '../../../../state';
 import { LayoutStateProvider, useLayoutState } from '../../../Layout';
 import { WhiteboardHotkeysProvider } from '../../../WhiteboardHotkeysProvider';
 import { SvgCanvas } from '../../SvgCanvas';
+import { calculateSvgCoords } from '../../SvgCanvas/utils';
 import { DragSelect } from './DragSelect';
+
+// Mock to avoid SVG native functions not available in the test context
+jest.mock('../../SvgCanvas/utils');
 
 describe('<DragSelect/>', () => {
   let activeSlide: WhiteboardSlideInstance;
@@ -44,11 +48,18 @@ describe('<DragSelect/>', () => {
         [
           'slide-0',
           [
-            ['element-0', mockEllipseElement()],
+            [
+              'element-0',
+              mockEllipseElement({
+                position: { x: 0, y: 0 },
+                width: 50,
+                height: 50,
+              }),
+            ],
             [
               'element-1',
               mockEllipseElement({
-                position: { x: 20, y: 20 },
+                position: { x: 50, y: 50 },
                 width: 50,
                 height: 50,
               }),
@@ -56,7 +67,7 @@ describe('<DragSelect/>', () => {
             [
               'element-2',
               mockEllipseElement({
-                position: { x: 51, y: 51 },
+                position: { x: 101, y: 101 },
                 width: 50,
                 height: 50,
               }),
@@ -108,6 +119,7 @@ describe('<DragSelect/>', () => {
   it('should not render a selection if there is a mouse move but not start coordinates', () => {
     render(<DragSelect />, { wrapper: Wrapper });
 
+    jest.mocked(calculateSvgCoords).mockReturnValue({ x: 50, y: 50 });
     fireEvent.mouseMove(screen.getByTestId('drag-select-layer'), {
       clientX: 50,
       clientY: 50,
@@ -123,6 +135,7 @@ describe('<DragSelect/>', () => {
     act(() => {
       setDragSelectStartCoords({ x: 0, y: 0 });
     });
+    jest.mocked(calculateSvgCoords).mockReturnValue({ x: 50, y: 50 });
     fireEvent.mouseMove(screen.getByTestId('drag-select-layer'), {
       clientX: 50,
       clientY: 50,
@@ -131,21 +144,31 @@ describe('<DragSelect/>', () => {
     expect(screen.getByTestId('drag-selection')).toBeInTheDocument();
   });
 
-  it('should select elements intersecting the selection', () => {
+  it('should select elements intersecting the selection in the order they are selected', () => {
     render(<DragSelect />, { wrapper: Wrapper });
 
-    // draw a selection from top left to 50,50
+    // Select an area with only element-1 inside
     act(() => {
-      setDragSelectStartCoords({ x: 0, y: 0 });
+      setDragSelectStartCoords({ x: 60, y: 60 });
     });
+    jest.mocked(calculateSvgCoords).mockReturnValue({ x: 70, y: 70 });
     fireEvent.mouseMove(screen.getByTestId('drag-select-layer'), {
-      clientX: 50,
-      clientY: 50,
+      clientX: 70,
+      clientY: 70,
+    });
+
+    expect(activeSlide.getActiveElementIds()).toEqual(['element-1']);
+
+    // Now extend the selection to the corner where element-0 is located
+    jest.mocked(calculateSvgCoords).mockReturnValue({ x: 0, y: 0 });
+    fireEvent.mouseMove(screen.getByTestId('drag-select-layer'), {
+      clientX: 0,
+      clientY: 0,
     });
 
     expect(activeSlide.getActiveElementIds()).toEqual([
-      'element-0',
       'element-1',
+      'element-0',
     ]);
   });
 });

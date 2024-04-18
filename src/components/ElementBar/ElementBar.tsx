@@ -16,7 +16,8 @@
 
 import { useTranslation } from 'react-i18next';
 import { Toolbar } from '../common/Toolbar';
-import { ColorPicker } from './ColorPickerButton';
+import { ElementColorPicker } from './ColorPickerButton/ElementColorPicker';
+import { TextColorPicker } from './ColorPickerButton/TextColorPicker';
 import { DeleteActiveElementButton } from './DeleteActiveElementButton/DeleteActiveElementButton';
 import { DuplicateActiveElementButton } from './DuplicateActiveElementButton';
 import { TextAlignmentButtons } from './TextAlignmentButtons';
@@ -29,9 +30,10 @@ export function ElementBar() {
 
   return (
     <Toolbar aria-label={toolbarTitle}>
+      <TextColorPicker />
+      <ElementColorPicker />
       <TextBoldButton />
       <TextItalicButton />
-      <ColorPicker />
       <TextAlignmentButtons />
       <DuplicateActiveElementButton />
       <DeleteActiveElementButton />

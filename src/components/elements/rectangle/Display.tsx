@@ -66,6 +66,7 @@ const RectangleDisplay = ({
           width={text.width}
           height={text.height}
           fillColor={shape.fillColor}
+          textColor={shape.textColor}
         />
       )}
     </g>

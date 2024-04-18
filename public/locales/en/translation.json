@@ -226,6 +226,9 @@
   "snackbar": {
     "dismissAction": "Dismiss"
   },
+  "textColorPicker": {
+    "title": "Pick a text color"
+  },
   "toolbar": {
     "toolbarAvatar": {
       "label_you": "{{displayName}} (You)",
