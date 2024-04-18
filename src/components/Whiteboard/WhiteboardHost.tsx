@@ -148,7 +148,7 @@ export const WhiteboardHostConnected = () => {
       elementIds={elementIds}
       readOnly={isLocked || (isViewingPresentation && !isEditEnabled)}
       hideCursors={!isEditEnabled}
-      hideDotGrid={isPresenting || isViewingPresentation}
+      hideDotGrid={isViewingPresentation}
       withOutline={isPresenting}
     />
   );
