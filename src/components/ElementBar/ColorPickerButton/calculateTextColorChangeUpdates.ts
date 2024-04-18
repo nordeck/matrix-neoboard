@@ -17,35 +17,29 @@
 import { ElementUpdate, Elements } from '../../../state/types';
 
 /**
- * Calculates the updates to update element color.
+ * Create Element patches for text color updates
+ * Only create patches for elements with a text and a color change.
  *
- * @param elements - Elements to update the color of
- * @param color - color to apply
- * @returns List of updates to apply the color
+ * @param elements - Elements for which the updates are to be generated
+ * @param color - Text color to set in the updates
+ * @returns Element patches for text color updates
  */
-export function calculateColorChangeUpdates(
+export function calculateTextColorChangeUpdates(
   elements: Elements,
   color: string,
 ): ElementUpdate[] {
-  const updates = [];
+  const updates: ElementUpdate[] = [];
 
   for (const [elementId, element] of Object.entries(elements)) {
-    if (element?.type === 'path') {
-      updates.push({
-        elementId,
-        patch: {
-          strokeColor: color,
-        },
-      });
-    } else if (
-      element?.type === 'shape' &&
-      // skip transparent shape elements because they are texts without a color
-      element.fillColor !== 'transparent'
+    if (
+      element.type === 'shape' &&
+      element.text.length > 0 &&
+      element.textColor !== color
     ) {
       updates.push({
         elementId,
         patch: {
-          fillColor: color,
+          textColor: color,
         },
       });
     }

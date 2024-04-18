@@ -56,6 +56,7 @@ const TriangleDisplay = ({
           active={active}
           text={shape.text}
           textAlignment={text.alignment}
+          textColor={shape.textColor}
           elementId={elementId}
           x={text.position.x}
           y={text.position.y}
