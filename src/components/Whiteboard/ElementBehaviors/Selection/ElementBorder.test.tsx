@@ -87,20 +87,17 @@ describe('<ElementBorder />', () => {
     widgetApi.stop();
   });
 
-  it('should render a border for an active shape element', () => {
-    activeSlide.setActiveElementIds(['element-0']);
+  it.each`
+    type          | id
+    ${'shape'}    | ${'element-0'}
+    ${'polyline'} | ${'element-1'}
+    ${'image'}    | ${'element-3'}
+  `('should render a border for an active $type element', ({ id }) => {
+    activeSlide.setActiveElementIds([id]);
 
-    render(<ElementBorder elementIds={['element-0']} />, { wrapper: Wrapper });
+    render(<ElementBorder elementIds={[id]} />, { wrapper: Wrapper });
 
-    expect(screen.getByTestId('element-0-border')).toBeInTheDocument();
-  });
-
-  it('should render a border for an active polyline element', () => {
-    activeSlide.setActiveElementIds(['element-1']);
-
-    render(<ElementBorder elementIds={['element-1']} />, { wrapper: Wrapper });
-
-    expect(screen.getByTestId('element-1-border')).toBeInTheDocument();
+    expect(screen.getByTestId(`${id}-border`)).toBeInTheDocument();
   });
 
   it('should not render a border for an active line element', () => {
