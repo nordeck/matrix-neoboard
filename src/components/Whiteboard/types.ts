@@ -32,5 +32,7 @@ export type ElementRenderProperties = {
     width: number;
     height: number;
     alignment: TextAlignment;
+    bold: boolean;
+    italic: boolean;
   };
 };

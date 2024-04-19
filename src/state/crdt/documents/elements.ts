@@ -48,6 +48,9 @@ export type ShapeElement = ElementBase & {
   strokeWidth?: number;
   text: string;
   textAlignment?: TextAlignment;
+  textColor?: string;
+  textBold?: boolean;
+  textItalic?: boolean;
 };
 
 const shapeElementSchema = elementBaseSchema
@@ -63,6 +66,9 @@ const shapeElementSchema = elementBaseSchema
     strokeWidth: Joi.number().strict(),
     text: Joi.string().min(0).required(),
     textAlignment: Joi.string().valid('left', 'center', 'right'),
+    textColor: Joi.string().strict(),
+    textBold: Joi.boolean(),
+    textItalic: Joi.boolean(),
   })
   .required();
 

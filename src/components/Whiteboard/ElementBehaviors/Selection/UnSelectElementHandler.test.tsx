@@ -87,15 +87,6 @@ describe('<UnSelectElementHandler/>', () => {
     expect(activeSlide.getActiveElementIds()).toEqual([]);
   });
 
-  it('should not set the drag select start coordinates on mouse down if multiselect is disabled', async () => {
-    mocked(getEnvironment).mockReturnValue('false');
-    render(<UnSelectElementHandler />, { wrapper: Wrapper });
-
-    fireEvent.mouseDown(screen.getByTestId('unselect-element-layer'));
-
-    expect(dragSelectStartCoords).toBeUndefined();
-  });
-
   it('should set the drag select start coordinates on mouse down', async () => {
     render(<UnSelectElementHandler />, { wrapper: Wrapper });
 

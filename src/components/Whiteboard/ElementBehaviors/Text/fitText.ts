@@ -20,17 +20,29 @@ const minFontSize = 10;
 const maxFontSize = 800;
 const maxSteps = 10;
 
-export function fitText(element: HTMLElement) {
+export function fitText(
+  element: HTMLElement,
+  fontWeightBold = false,
+  fontStyleItalic = false,
+) {
   const width = element.clientWidth;
   const height = element.clientHeight;
 
-  const { fontSize, paddingTop } = getTextSize(width, height, {
-    innerHTML: element.innerHTML,
-    innerText: element.innerText,
-  });
+  const { fontSize, paddingTop, paddingHorizontal } = getTextSize(
+    width,
+    height,
+    {
+      innerHTML: element.innerHTML,
+      innerText: element.innerText,
+    },
+    {
+      fontWeightBold,
+      fontStyleItalic,
+    },
+  );
 
   element.style.fontSize = `${fontSize}px`;
-  element.style.paddingTop = `${paddingTop}px`;
+  element.style.padding = `${paddingTop}px ${paddingHorizontal}em 0`;
 }
 
 export function getTemporaryElement(): {
@@ -72,10 +84,16 @@ export function getTextSize(
   width: number,
   height: number,
   content: { innerHTML?: string; innerText: string },
-  opts: { disableLigatures?: boolean; fontFamily?: string } = {},
+  opts: {
+    disableLigatures?: boolean;
+    fontFamily?: string;
+    fontWeightBold?: boolean;
+    fontStyleItalic?: boolean;
+  } = {},
 ): {
   fontSize: number;
   paddingTop: number;
+  paddingHorizontal: number;
 } {
   width = Math.round(width);
   height = Math.round(height);
@@ -88,6 +106,8 @@ export function getTextSize(
   element.style.wordBreak = 'unset';
   element.style.overflowWrap = 'unset';
   element.style.textAlign = 'center';
+  element.style.fontWeight = opts.fontWeightBold ? 'bold' : 'normal';
+  element.style.fontStyle = opts.fontStyleItalic ? 'italic' : 'normal';
   element.style.overflow = 'visible';
   element.style.fontVariantLigatures = opts?.disableLigatures
     ? 'none'
@@ -99,6 +119,10 @@ export function getTextSize(
   } else {
     element.innerText = content.innerText;
   }
+
+  // add horizontal padding to balance the italic font style
+  const paddingHorizontal = opts.fontStyleItalic ? 0.2 : 0;
+  element.style.padding = `0 ${paddingHorizontal}em`;
 
   // Do a binary search to find the best matching text size, in a few steps
   let stepSize = maxFontSize - minFontSize;
@@ -130,5 +154,5 @@ export function getTextSize(
 
   element.innerText = '';
 
-  return { fontSize, paddingTop };
+  return { fontSize, paddingTop, paddingHorizontal };
 }

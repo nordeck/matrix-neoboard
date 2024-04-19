@@ -75,6 +75,7 @@
       "purple": "Purple",
       "red": "Red",
       "teal": "Teal",
+      "transparent": "Transparent",
       "white": "White",
       "yellow": "Yellow"
     },
@@ -92,6 +93,8 @@
     "textAlignmentCenter": "Center",
     "textAlignmentLeft": "Left",
     "textAlignmentRight": "Right",
+    "textBold": "Bold",
+    "textItalic": "Italic",
     "title": "Element"
   },
   "elementContextMenu": {
@@ -223,6 +226,9 @@
   },
   "snackbar": {
     "dismissAction": "Dismiss"
+  },
+  "textColorPicker": {
+    "title": "Pick a text color"
   },
   "toolbar": {
     "toolbarAvatar": {

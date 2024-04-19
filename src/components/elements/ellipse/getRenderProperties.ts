@@ -42,6 +42,8 @@ export function getRenderProperties(
       width: fitSquareLengthX,
       height: fitSquareLengthY,
       alignment: shape.textAlignment ?? 'center',
+      bold: shape.textBold ?? false,
+      italic: shape.textItalic ?? false,
     },
   };
 }

@@ -20,7 +20,7 @@ import {
   mockLineElement,
   mockTextElement,
 } from '../../../lib/testUtils/documentTestUtils';
-import { extractFirstNonTransparentOrFirstColor } from './extractFirstNonTransparentOrFirstColor';
+import { extractFirstColor } from './extractFirstColor';
 
 describe('extractFirstNonTransparentColorOrFirst', () => {
   const textElement1 = mockTextElement();
@@ -33,32 +33,28 @@ describe('extractFirstNonTransparentColorOrFirst', () => {
   });
 
   it('should return undefined if there are no elements', () => {
-    expect(extractFirstNonTransparentOrFirstColor([])).toBeUndefined();
+    expect(extractFirstColor([])).toBeUndefined();
   });
 
   it('should return "transparent" if there are only text elements', () => {
-    expect(
-      extractFirstNonTransparentOrFirstColor([textElement1, textElement2]),
-    ).toBe('transparent');
+    expect(extractFirstColor([textElement1, textElement2])).toBe('transparent');
   });
 
-  it('should return the color of the first non-transparent element (shape element)', () => {
-    expect(
-      extractFirstNonTransparentOrFirstColor([
-        textElement1,
-        shapeElement,
-        pathElement,
-      ]),
-    ).toBe(red[500]);
+  it('should return the color of the first element (shape element)', () => {
+    expect(extractFirstColor([shapeElement, textElement1, pathElement])).toBe(
+      red[500],
+    );
   });
 
-  it('should return the color of the first non-transparent element (path element)', () => {
-    expect(
-      extractFirstNonTransparentOrFirstColor([
-        textElement1,
-        pathElement,
-        shapeElement,
-      ]),
-    ).toBe(green[500]);
+  it('should return the color of the first element (text element)', () => {
+    expect(extractFirstColor([textElement1, shapeElement, pathElement])).toBe(
+      'transparent',
+    );
+  });
+
+  it('should return the color of the first element (path element)', () => {
+    expect(extractFirstColor([pathElement, textElement1, shapeElement])).toBe(
+      green[500],
+    );
   });
 });

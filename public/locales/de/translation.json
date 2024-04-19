@@ -75,6 +75,7 @@
       "purple": "Lila",
       "red": "Rot",
       "teal": "Blaugrün",
+      "transparent": "Transparent",
       "white": "Weiß",
       "yellow": "Gelb"
     },
@@ -92,6 +93,8 @@
     "textAlignmentCenter": "Zentriert",
     "textAlignmentLeft": "Links",
     "textAlignmentRight": "Rechts",
+    "textBold": "Fett",
+    "textItalic": "Kursiv",
     "title": "Element"
   },
   "elementContextMenu": {
@@ -223,6 +226,9 @@
   },
   "snackbar": {
     "dismissAction": "Ausblenden"
+  },
+  "textColorPicker": {
+    "title": "Wähle eine Textfarbe"
   },
   "toolbar": {
     "toolbarAvatar": {
