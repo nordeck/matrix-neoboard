@@ -17,26 +17,23 @@
 import { Element } from '../../../state';
 
 /**
- * Extracts the first non-transparent color of the elements, if available.
- * Otherwise returns "transparent" if elements are not empty.
+ * Extracts the first color of the elements, if available.
  * Otherwise returns "undefined".
  *
  * @param elements - elements to search for a color
- * @returns first non-transparent color or "transparent" or "undefined"
+ * @returns first color or "undefined"
  */
-export function extractFirstNonTransparentOrFirstColor(
-  elements: Element[],
-): string | undefined {
+export function extractFirstColor(elements: Element[]): string | undefined {
   if (elements.length === 0) {
     return undefined;
   }
 
   for (const element of elements) {
-    if (element.type === 'shape' && element.fillColor !== 'transparent') {
+    if (element.type === 'shape') {
       return element.fillColor;
     }
 
-    if (element.type === 'path' && element.strokeColor !== 'transparent') {
+    if (element.type === 'path') {
       return element.strokeColor;
     }
   }
