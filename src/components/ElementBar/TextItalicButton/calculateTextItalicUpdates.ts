@@ -14,37 +14,27 @@
  * limitations under the License.
  */
 
-import { ElementUpdate, Elements } from '../../../state/types';
+import { Elements, ElementUpdate } from '../../../state/types';
 
 /**
- * Calculates the element color updates.
+ * Calculate the text italic updates for all shape elements.
  *
- * @param elements - Elements to update the color of
- * @param color - Color to apply
- * @returns List of updates to apply the color
+ * @param elements - Elements for which the text italic is to be calculated for
+ * @param textItalic - The desired value for the text italic property
+ * @returns List of element updates
  */
-export function calculateColorChangeUpdates(
+export function calculateTextItalicUpdates(
   elements: Elements,
-  color: string,
+  textItalic: boolean,
 ): ElementUpdate[] {
-  const updates = [];
+  const updates: ElementUpdate[] = [];
 
   for (const [elementId, element] of Object.entries(elements)) {
-    if (element?.type === 'path') {
-      updates.push({
-        elementId,
-        patch: {
-          strokeColor: color,
-        },
-      });
-    } else if (element?.type === 'shape') {
-      updates.push({
-        elementId,
-        patch: {
-          fillColor: color,
-        },
-      });
+    if (element.type !== 'shape' || !!element.textItalic === textItalic) {
+      continue;
     }
+
+    updates.push({ elementId, patch: { textItalic } });
   }
 
   return updates;

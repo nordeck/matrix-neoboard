@@ -14,30 +14,40 @@
  * limitations under the License.
  */
 
+import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useActiveElements, useElements } from '../../../state';
 import { useLayoutState } from '../../Layout';
 import { ColorPicker } from './ColorPicker';
 import { ColorPickerIcon } from './ColorPickerIcon';
 import { calculateColorChangeUpdates } from './calculateColorChangeUpdates';
-import { extractFirstNonTransparentOrFirstColor } from './extractFirstNonTransparentOrFirstColor';
+import { extractFirstColor } from './extractFirstColor';
 
 export function ElementColorPicker() {
   const { t } = useTranslation();
   const { activeElementIds } = useActiveElements();
   const activeElements = useElements(activeElementIds);
   const { activeColor, setActiveColor } = useLayoutState();
-  const color =
-    extractFirstNonTransparentOrFirstColor(Object.values(activeElements)) ??
-    activeColor;
+
+  const color = extractFirstColor(Object.values(activeElements)) ?? activeColor;
+
+  const setActiveColorIfNotTransparent = useCallback(
+    (color: string): void => {
+      if (color !== 'transparent') {
+        setActiveColor(color);
+      }
+    },
+    [setActiveColor],
+  );
 
   return (
     <ColorPicker
       color={color}
-      setColor={setActiveColor}
+      setColor={setActiveColorIfNotTransparent}
       calculateUpdatesFn={calculateColorChangeUpdates}
       Icon={ColorPickerIcon}
       label={t('colorPicker.title', 'Pick a color')}
+      showTransparent={true}
     />
   );
 }

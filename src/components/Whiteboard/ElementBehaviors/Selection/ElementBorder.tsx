@@ -113,7 +113,7 @@ export function ElementBorder({ elementIds, padding = 1 }: ElementBorderProps) {
                 borderWidth={selectionBorderWidth}
               />
             </>
-          ) : elements[0].type === 'image' ? null : (
+          ) : (
             <>
               <SelectionAnchor
                 x={selectionX}

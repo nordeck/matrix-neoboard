@@ -27,13 +27,14 @@ describe('calculateColorChangeUpdates', () => {
   const shapeElement = mockEllipseElement();
   const pathElement = mockLineElement();
 
-  it('should update shape and path but not text elements', () => {
+  it('should update all elements', () => {
     expect(
       calculateColorChangeUpdates(
         { textElement, shapeElement, pathElement },
         red[500],
       ),
     ).toEqual([
+      { elementId: 'textElement', patch: { fillColor: red[500] } },
       { elementId: 'shapeElement', patch: { fillColor: red[500] } },
       { elementId: 'pathElement', patch: { strokeColor: red[500] } },
     ]);

@@ -14,37 +14,27 @@
  * limitations under the License.
  */
 
-import { ElementUpdate, Elements } from '../../../state/types';
+import { Elements, ElementUpdate } from '../../../state/types';
 
 /**
- * Calculates the element color updates.
+ * Calculate the text bold updates for all shape elements.
  *
- * @param elements - Elements to update the color of
- * @param color - Color to apply
- * @returns List of updates to apply the color
+ * @param elements - Elements for which the text bold is to be calculated for
+ * @param textBold - The desired value for the text bold property
+ * @returns List of element updates
  */
-export function calculateColorChangeUpdates(
+export function calculateTextBoldUpdates(
   elements: Elements,
-  color: string,
+  textBold: boolean,
 ): ElementUpdate[] {
-  const updates = [];
+  const updates: ElementUpdate[] = [];
 
   for (const [elementId, element] of Object.entries(elements)) {
-    if (element?.type === 'path') {
-      updates.push({
-        elementId,
-        patch: {
-          strokeColor: color,
-        },
-      });
-    } else if (element?.type === 'shape') {
-      updates.push({
-        elementId,
-        patch: {
-          fillColor: color,
-        },
-      });
+    if (element.type !== 'shape' || !!element.textBold === textBold) {
+      continue;
     }
+
+    updates.push({ elementId, patch: { textBold } });
   }
 
   return updates;
