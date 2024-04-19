@@ -93,6 +93,8 @@
     "textAlignmentCenter": "Center",
     "textAlignmentLeft": "Left",
     "textAlignmentRight": "Right",
+    "textBold": "Bold",
+    "textItalic": "Italic",
     "title": "Element"
   },
   "elementContextMenu": {

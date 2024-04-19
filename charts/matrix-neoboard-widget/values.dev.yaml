@@ -5,7 +5,5 @@ env:
     value: "https://github.com/nordeck/matrix-neoboard"
   - name: REACT_APP_HOME_SERVER_URL
     value: "https://synapse.dev.nordeck.systems"
-  - name: REACT_APP_MULTISELECT
-    value: "true"
   - name: REACT_APP_IMAGES
     value: "true"

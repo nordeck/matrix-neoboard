@@ -37,30 +37,40 @@ type EditableProps = {
   editMode: boolean;
   contentEditable: boolean;
   textAlign: TextAlignment;
+  textBold: boolean;
+  textItalic: boolean;
 };
 
 const Editable = styled('div', {
-  shouldForwardProp: (p) => p !== 'editMode' && p !== 'textAlign',
-})<EditableProps>(({ editMode, contentEditable, textAlign }) => ({
-  lineHeight: 1.2,
-  wordBreak: 'unset',
-  wordWrap: 'unset',
-  overflowWrap: 'unset',
-  textAlign,
-  height: '100%',
-  // Selection only works in edit mode
-  userSelect: editMode ? 'initial' : 'none',
-  cursor: editMode ? 'text' : 'inherit',
-  // We disabled pointer event on the outer container, enable it here again
-  pointerEvents: contentEditable ? 'all' : 'none',
-  // Hide the caret till we are actually editing
-  caretColor: editMode ? 'inherit' : 'transparent',
-  // We need the overflow to trigger scrollWidth/scrollHeight changes for fitText
-  overflow: 'visible',
-  // Remove UA styling
-  outline: '0px solid transparent !important',
-  boxShadow: 'none !important',
-}));
+  shouldForwardProp: (p) =>
+    p !== 'editMode' &&
+    p !== 'textAlign' &&
+    p !== 'textBold' &&
+    p !== 'textItalic',
+})<EditableProps>(
+  ({ editMode, contentEditable, textAlign, textBold, textItalic }) => ({
+    lineHeight: 1.2,
+    wordBreak: 'unset',
+    wordWrap: 'unset',
+    overflowWrap: 'unset',
+    textAlign,
+    fontWeight: textBold ? 'bold' : 'normal',
+    fontStyle: textItalic ? 'italic' : 'normal',
+    height: '100%',
+    // Selection only works in edit mode
+    userSelect: editMode ? 'initial' : 'none',
+    cursor: editMode ? 'text' : 'inherit',
+    // We disabled pointer event on the outer container, enable it here again
+    pointerEvents: contentEditable ? 'all' : 'none',
+    // Hide the caret till we are actually editing
+    caretColor: editMode ? 'inherit' : 'transparent',
+    // We need the overflow to trigger scrollWidth/scrollHeight changes for fitText
+    overflow: 'visible',
+    // Remove UA styling
+    outline: '0px solid transparent !important',
+    boxShadow: 'none !important',
+  }),
+);
 
 const setCaretToTheEnd = (element: HTMLDivElement) => {
   let lastChild = element.lastChild;
@@ -85,6 +95,8 @@ const setCaretToTheEnd = (element: HTMLDivElement) => {
 export type TextEditorProps = {
   content: string;
   contentAlignment: TextAlignment;
+  contentBold: boolean;
+  contentItalic: boolean;
   editable?: boolean;
   color: string;
   onChange: Dispatch<string>;
@@ -100,6 +112,8 @@ export type TextEditorProps = {
 export function TextEditor({
   content,
   contentAlignment,
+  contentBold,
+  contentItalic,
   editable = false,
   color,
   onChange,
@@ -157,10 +171,10 @@ export function TextEditor({
     // as part of this keystroke.
     window.requestAnimationFrame(() => {
       if (textRef.current) {
-        fitText(textRef.current);
+        fitText(textRef.current, contentBold, contentItalic);
       }
     });
-  }, [textRef]);
+  }, [contentBold, contentItalic, textRef]);
 
   const handleKeyUp = useCallback(() => {
     if (textRef.current) {
@@ -194,11 +208,13 @@ export function TextEditor({
   useLayoutEffect(() => {
     // Every time content or the shape changes, re-calculate the perfect font size
     if (textRef.current) {
-      fitText(textRef.current);
+      fitText(textRef.current, contentBold, contentItalic);
     }
   }, [
     textRef,
     content,
+    contentBold,
+    contentItalic,
     // Width, height, and fontsLoaded are used to trigger calculating the size
     width,
     height,
@@ -211,6 +227,8 @@ export function TextEditor({
       contentEditable={editable}
       editMode={isEditMode}
       textAlign={contentAlignment}
+      textBold={contentBold}
+      textItalic={contentItalic}
       onBlur={onBlur}
       onClick={handleMouseEvents}
       onDoubleClick={handleDoubleClick}

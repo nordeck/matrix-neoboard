@@ -93,6 +93,8 @@
     "textAlignmentCenter": "Zentriert",
     "textAlignmentLeft": "Links",
     "textAlignmentRight": "Rechts",
+    "textBold": "Fett",
+    "textItalic": "Kursiv",
     "title": "Element"
   },
   "elementContextMenu": {
