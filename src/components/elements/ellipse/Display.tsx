@@ -61,7 +61,10 @@ const EllipseDisplay = ({
         <TextElement
           active={active}
           text={shape.text}
+          textColor={shape.textColor}
           textAlignment={text.alignment}
+          textBold={text.bold}
+          textItalic={text.italic}
           elementId={elementId}
           x={text.position.x}
           y={text.position.y}

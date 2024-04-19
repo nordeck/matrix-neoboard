@@ -15,6 +15,7 @@
  */
 
 export { determineImageSize } from './determineImageSize';
+export { findForegroundColor } from './findForegroundColor';
 export { isDefined } from './isDefined';
 export { FontsLoadedContextProvider, useFontsLoaded } from './useFontsLoaded';
 export { useLatestValue } from './useLatestValue';

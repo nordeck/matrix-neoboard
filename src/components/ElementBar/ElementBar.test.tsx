@@ -26,7 +26,11 @@ import {
   mockWhiteboardManager,
   WhiteboardTestingContextProvider,
 } from '../../lib/testUtils/documentTestUtils';
-import { WhiteboardInstance, WhiteboardManager } from '../../state';
+import {
+  WhiteboardInstance,
+  WhiteboardManager,
+  WhiteboardSlideInstance,
+} from '../../state';
 import { LayoutStateProvider } from '../Layout';
 import { ElementBar } from './ElementBar';
 
@@ -40,6 +44,7 @@ describe('<ElementBar/>', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
   let whiteboardManager: jest.Mocked<WhiteboardManager>;
   let activeWhiteboardInstance: WhiteboardInstance;
+  let activeSlide: WhiteboardSlideInstance;
 
   beforeEach(() => {
     ({ whiteboardManager } = mockWhiteboardManager({
@@ -49,14 +54,14 @@ describe('<ElementBar/>', () => {
           [
             ['element-1', mockEllipseElement()],
             ['element-2', mockLineElement()],
-            ['element-3', mockEllipseElement()],
+            ['element-3', mockEllipseElement({ text: 'test' })],
           ],
         ],
       ],
     }));
 
     activeWhiteboardInstance = whiteboardManager.getActiveWhiteboardInstance()!;
-    const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
+    activeSlide = activeWhiteboardInstance.getSlide('slide-0');
     activeSlide.setActiveElementId('element-1');
 
     Wrapper = ({ children }) => (
@@ -70,9 +75,16 @@ describe('<ElementBar/>', () => {
   });
 
   it('should render without exploding', () => {
+    activeSlide.setActiveElementIds(['element-1', 'element-2', 'element-3']);
     render(<ElementBar />, { wrapper: Wrapper });
 
     const toolbar = screen.getByRole('toolbar', { name: 'Element' });
+
+    expect(
+      within(toolbar).getByRole('button', {
+        name: 'Pick a text color',
+      }),
+    ).toBeInTheDocument();
 
     expect(
       within(toolbar).getByRole('button', {

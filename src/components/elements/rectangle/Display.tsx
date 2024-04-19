@@ -58,12 +58,15 @@ const RectangleDisplay = ({
           active={active}
           text={shape.text}
           textAlignment={text.alignment}
+          textBold={text.bold}
+          textItalic={text.italic}
           elementId={elementId}
           x={text.position.x}
           y={text.position.y}
           width={text.width}
           height={text.height}
           fillColor={shape.fillColor}
+          textColor={shape.textColor}
         />
       )}
     </g>

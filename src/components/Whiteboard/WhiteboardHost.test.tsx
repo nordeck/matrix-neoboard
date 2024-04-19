@@ -26,7 +26,11 @@ import {
   mockTextElement,
   mockWhiteboardManager,
 } from '../../lib/testUtils/documentTestUtils';
-import { Point, WhiteboardSlideInstance } from '../../state';
+import {
+  Point,
+  WhiteboardInstance,
+  WhiteboardSlideInstance,
+} from '../../state';
 import { ElementOverridesProvider } from '../ElementOverridesProvider';
 import { LayoutStateProvider, useLayoutState } from '../Layout';
 import { WhiteboardHotkeysProvider } from '../WhiteboardHotkeysProvider';
@@ -40,8 +44,10 @@ jest.mock('./SvgCanvas/utils', () => {
 });
 
 describe('<WhiteboardHost/>', () => {
+  let activeWhiteboard: WhiteboardInstance;
   let activeSlide: WhiteboardSlideInstance;
   let setDragSelectStartCoords: (point: Point | undefined) => void;
+  let setShowGrid: (value: boolean) => void;
   let widgetApi: MockedWidgetApi;
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
 
@@ -64,11 +70,11 @@ describe('<WhiteboardHost/>', () => {
         ],
       ],
     });
-    const activeWhiteboard = whiteboardManager.getActiveWhiteboardInstance()!;
+    activeWhiteboard = whiteboardManager.getActiveWhiteboardInstance()!;
     activeSlide = activeWhiteboard.getSlide('slide-0');
 
     function LayoutStateExtractor() {
-      ({ setDragSelectStartCoords } = useLayoutState());
+      ({ setDragSelectStartCoords, setShowGrid } = useLayoutState());
       return null;
     }
 
@@ -181,5 +187,14 @@ describe('<WhiteboardHost/>', () => {
     render(<WhiteboardHost />, { wrapper: Wrapper });
 
     expect(screen.queryByTestId('element-0-border')).not.toBeInTheDocument();
+  });
+
+  it('should show the grid for the presenter in presentation mode if it is enabled', () => {
+    setShowGrid(true);
+    activeWhiteboard.getPresentationManager().startPresentation();
+
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    expect(screen.getByTestId('grid')).toBeInTheDocument();
   });
 });
