@@ -38,6 +38,8 @@ export type TextElementProps = {
   active?: boolean;
   text: string;
   textAlignment: TextAlignment;
+  textBold: boolean;
+  textItalic: boolean;
 
   x: number;
   y: number;
@@ -53,6 +55,8 @@ export const TextElement = ({
   active,
   text,
   textAlignment,
+  textBold,
+  textItalic,
   x,
   y,
   width,
@@ -92,6 +96,8 @@ export const TextElement = ({
         color={color}
         content={unsubmittedText}
         contentAlignment={textAlignment}
+        contentBold={textBold}
+        contentItalic={textItalic}
         editModeOnMount={
           activeElement?.type === 'shape' &&
           activeElement?.kind === 'rectangle' &&

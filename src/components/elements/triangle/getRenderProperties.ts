@@ -52,6 +52,8 @@ export function getRenderProperties(
       width: width - horizontalPadding * 2,
       height: height - paddingTop - paddingBottom,
       alignment: shape.textAlignment ?? 'center',
+      bold: shape.textBold ?? false,
+      italic: shape.textItalic ?? false,
     },
 
     points: {
