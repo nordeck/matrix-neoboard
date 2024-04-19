@@ -88,7 +88,8 @@
   "elementBar": {
     "deleteElement_one": "Delete element",
     "deleteElement_other": "Delete elements",
-    "duplicateActiveElement": "Duplicate the active element",
+    "duplicateActiveElement_one": "Duplicate the active element",
+    "duplicateActiveElement_other": "Duplicate the active elements",
     "textAlignment": "Text Alignment",
     "textAlignmentCenter": "Center",
     "textAlignmentLeft": "Left",
@@ -182,6 +183,7 @@
   "imageUpload": {
     "fileIsUploaded_one": "The file is being uploaded…",
     "fileIsUploaded_other": "The files are being uploaded…",
+    "loadError": "The file is not available.",
     "otherError_one": "The file {{fileNames}} cannot be uploaded.",
     "otherError_other": "The files {{fileNames}} could not be uploaded.",
     "resolutionError_one": "The file {{fileNames}} cannot be uploaded due to its resolution. The upload is possible for a maximum of {{limit}} per file.",

@@ -114,6 +114,42 @@ describe('<ImageDisplay />', () => {
     ).not.toBeInTheDocument();
   });
 
+  it('should render an error when an image is not available', async () => {
+    render(
+      <ImageDisplay
+        elementId="element-0"
+        type="image"
+        fileName="example.jpeg"
+        baseUrl="https://example.com"
+        mxc="mxc://example.com/test1234"
+        width={200}
+        height={300}
+        position={{ x: 23, y: 42 }}
+        active={false}
+        readOnly={false}
+      />,
+      { wrapper: Wrapper },
+    );
+
+    expect(
+      screen.getByTestId('element-element-0-skeleton'),
+    ).toBeInTheDocument();
+
+    act(() => {
+      screen
+        .getByTestId('element-element-0-image')
+        .dispatchEvent(new Event('error'));
+    });
+
+    expect(
+      screen.getByTestId('element-element-0-error-container'),
+    ).toBeInTheDocument();
+
+    expect(
+      screen.queryByTestId('element-element-0-image'),
+    ).not.toBeInTheDocument();
+  });
+
   it('should not have a context menu in read-only mode', () => {
     render(
       <ImageDisplay
