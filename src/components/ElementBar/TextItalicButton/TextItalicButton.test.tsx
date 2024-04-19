@@ -47,9 +47,15 @@ describe('<TextItalicButton />', () => {
         [
           'slide',
           [
-            ['rectangle', mockRectangleElement({ textItalic: false })],
-            ['circle', mockCircleElement({ textItalic: true })],
-            ['triangle', mockTriangleElement({ textItalic: false })],
+            [
+              'rectangle',
+              mockRectangleElement({ text: 'Hello', textItalic: false }),
+            ],
+            ['circle', mockCircleElement({ text: 'Hello', textItalic: true })],
+            [
+              'triangle',
+              mockTriangleElement({ text: 'Hello', textItalic: false }),
+            ],
             ['line', mockLineElement()],
           ],
         ],

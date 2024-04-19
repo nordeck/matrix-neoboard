@@ -17,6 +17,7 @@
 import FormatItalicIcon from '@mui/icons-material/FormatItalic';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import { isEmptyText } from '../../../lib';
 import {
   useActiveElements,
   useElements,
@@ -44,6 +45,14 @@ export function TextItalicButton() {
   );
 
   if (elements.every((element) => element.type !== 'shape')) {
+    return null;
+  }
+
+  if (
+    elements.every(
+      (element) => element.type === 'shape' && isEmptyText(element.text),
+    )
+  ) {
     return null;
   }
 
