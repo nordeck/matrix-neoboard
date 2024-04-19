@@ -23,13 +23,16 @@ import { ColorPickerIcon } from './ColorPickerIcon';
 import { calculateColorChangeUpdates } from './calculateColorChangeUpdates';
 import { extractFirstColor } from './extractFirstColor';
 
+/**
+ * Color picker will only be displayed if at least an element with a color is selected, such as shapes and paths.
+ */
 export function ElementColorPicker() {
   const { t } = useTranslation();
   const { activeElementIds } = useActiveElements();
   const activeElements = useElements(activeElementIds);
-  const { activeColor, setActiveColor } = useLayoutState();
+  const { setActiveColor } = useLayoutState();
 
-  const color = extractFirstColor(Object.values(activeElements)) ?? activeColor;
+  const color = extractFirstColor(Object.values(activeElements));
 
   const setActiveColorIfNotTransparent = useCallback(
     (color: string): void => {

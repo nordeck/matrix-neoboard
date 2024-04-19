@@ -24,10 +24,6 @@ import { Element } from '../../../state';
  * @returns first color or "undefined"
  */
 export function extractFirstColor(elements: Element[]): string | undefined {
-  if (elements.length === 0) {
-    return undefined;
-  }
-
   for (const element of elements) {
     if (element.type === 'shape') {
       return element.fillColor;
@@ -38,5 +34,5 @@ export function extractFirstColor(elements: Element[]): string | undefined {
     }
   }
 
-  return 'transparent';
+  return undefined;
 }
