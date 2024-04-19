@@ -17,7 +17,7 @@
 import { styled } from '@mui/material';
 import React, { useCallback, useMemo, useState } from 'react';
 
-import { ImageElement, useWhiteboardSlideInstance } from '../../../state';
+import { ImageElement } from '../../../state';
 import {
   ElementContextMenu,
   MoveableElement,
@@ -60,27 +60,18 @@ function ImageDisplay({
   activeElementIds = [],
   overrides = {},
 }: ImageDisplayProps) {
-  const slideInstance = useWhiteboardSlideInstance();
   const [loadError, setLoadError] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const handleLoad = useCallback(() => {
     setLoading(false);
     setLoadError(false);
-
-    slideInstance.updateElement(elementId, {
-      available: true,
-    });
-  }, [setLoading, slideInstance, elementId]);
+  }, [setLoading, setLoadError]);
 
   const handleLoadError = useCallback(() => {
     setLoading(false);
     setLoadError(true);
-
-    slideInstance.updateElement(elementId, {
-      available: false,
-    });
-  }, [setLoading, setLoadError, slideInstance, elementId]);
+  }, [setLoading, setLoadError]);
 
   const httpUri = useMemo(
     () => convertMxcToHttpUrl(mxc, baseUrl) ?? '',

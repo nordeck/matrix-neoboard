@@ -63,27 +63,20 @@ export function DuplicateActiveElementButton() {
   const { t } = useTranslation();
   const slideInstance = useWhiteboardSlideInstance();
   const { activeElementIds } = useActiveElements();
-  const sortedActiveElementIds = slideInstance.sortElementIds(activeElementIds);
-  const elements = Object.values(
-    slideInstance.getElements(sortedActiveElementIds),
-  );
-  // Filter out elements that should not be duplicatable, like unavailable images
-  const duplicatableElements = elements.filter(
-    (element) => !(element.type === 'image' && element.available === false),
-  );
 
   const handleDuplicate = useCallback(() => {
+    const sortedActiveElementIds =
+      slideInstance.sortElementIds(activeElementIds);
+    const elements = Object.values(
+      slideInstance.getElements(sortedActiveElementIds),
+    );
     const boundingRect = calculateBoundingRectForElements(elements);
-    const duplicatedElements = duplicatableElements.map((element) =>
+    const duplicatedElements = elements.map((element) =>
       duplicate(element, gridCellSize, boundingRect),
     );
 
     slideInstance.addElements(duplicatedElements);
-  }, [elements, slideInstance, duplicatableElements]);
-
-  if (!duplicatableElements.length) {
-    return null;
-  }
+  }, [activeElementIds, slideInstance]);
 
   const duplicateActiveElementLabel = t(
     'elementBar.duplicateActiveElement',
