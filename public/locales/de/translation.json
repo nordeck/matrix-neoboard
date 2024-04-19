@@ -88,7 +88,8 @@
   "elementBar": {
     "deleteElement_one": "Element löschen",
     "deleteElement_other": "Elemente löschen",
-    "duplicateActiveElement": "Element duplizieren",
+    "duplicateActiveElement_one": "Element duplizieren",
+    "duplicateActiveElement_other": "Elemente duplizieren",
     "textAlignment": "Textausrichtung",
     "textAlignmentCenter": "Zentriert",
     "textAlignmentLeft": "Links",
@@ -182,6 +183,7 @@
   "imageUpload": {
     "fileIsUploaded_one": "Die Datei wird hochgeladen…",
     "fileIsUploaded_other": "Die Dateien werden hochgeladen…",
+    "loadError": "Die Datei ist nicht verfügbar.",
     "otherError_one": "Die Datei {{fileNames}} kann nicht hochgeladen werden.",
     "otherError_other": "Die Dateien {{fileNames}} konnten nicht hochgeladen werden.",
     "resolutionError_one": "Die Datei {{fileNames}} kann aufgrund ihrer Auflösung nicht hochgeladen werden. Der Upload ist mit maximal {{limit}} pro Datei möglich.",

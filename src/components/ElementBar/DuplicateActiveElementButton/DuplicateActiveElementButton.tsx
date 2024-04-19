@@ -81,6 +81,7 @@ export function DuplicateActiveElementButton() {
   const duplicateActiveElementLabel = t(
     'elementBar.duplicateActiveElement',
     'Duplicate the active element',
+    { count: activeElementIds.length },
   );
 
   return (

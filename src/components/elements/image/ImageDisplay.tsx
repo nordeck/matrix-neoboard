@@ -16,6 +16,7 @@
 
 import { styled } from '@mui/material';
 import React, { useCallback, useMemo, useState } from 'react';
+
 import { ImageElement } from '../../../state';
 import {
   ElementContextMenu,
@@ -23,6 +24,7 @@ import {
   SelectableElement,
   WithExtendedSelectionProps,
 } from '../../Whiteboard';
+import { ImagePlaceholder } from './ImagePlaceholder';
 import { Skeleton } from './Skeleton';
 
 type ImageDisplayProps = Omit<ImageElement, 'kind'> &
@@ -58,17 +60,23 @@ function ImageDisplay({
   activeElementIds = [],
   overrides = {},
 }: ImageDisplayProps) {
-  // Image loading errors are dealt with in follow-up tasks.
-  // Don't care about invalid http URLs here.
-  const httpUri = useMemo(
-    () => convertMxcToHttpUrl(mxc, baseUrl) ?? '',
-    [baseUrl, mxc],
-  );
+  const [loadError, setLoadError] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const handleLoad = useCallback(() => {
     setLoading(false);
-  }, [setLoading]);
+    setLoadError(false);
+  }, [setLoading, setLoadError]);
+
+  const handleLoadError = useCallback(() => {
+    setLoading(false);
+    setLoadError(true);
+  }, [setLoading, setLoadError]);
+
+  const httpUri = useMemo(
+    () => convertMxcToHttpUrl(mxc, baseUrl) ?? '',
+    [baseUrl, mxc],
+  );
 
   const renderedSkeleton = loading ? (
     <Skeleton
@@ -80,7 +88,16 @@ function ImageDisplay({
     />
   ) : null;
 
-  const renderedChild = (
+  const renderedPlaceholder = loadError ? (
+    <ImagePlaceholder
+      position={position}
+      width={width}
+      height={height}
+      elementId={elementId}
+    />
+  ) : null;
+
+  const renderedChild = !loadError ? (
     <Image
       data-testid={`element-${elementId}-image`}
       href={httpUri}
@@ -90,14 +107,15 @@ function ImageDisplay({
       height={height}
       preserveAspectRatio="none"
       onLoad={handleLoad}
+      onError={handleLoadError}
       loading={loading}
     />
-  );
+  ) : null;
 
   if (readOnly) {
     return (
       <>
-        {renderedSkeleton} {renderedChild}
+        {renderedSkeleton} {renderedChild} {renderedPlaceholder}
       </>
     );
   }
@@ -113,6 +131,7 @@ function ImageDisplay({
           <ElementContextMenu activeElementIds={activeElementIds}>
             {renderedSkeleton}
             {renderedChild}
+            {renderedPlaceholder}
           </ElementContextMenu>
         </MoveableElement>
       </SelectableElement>
