@@ -35,10 +35,10 @@ export function getRenderProperties(
   const height = shape.height;
 
   // Based on https://puzzling.stackexchange.com/a/40221
-  const fitSquareLength = (width * height) / (width + height);
+  const fitSquareLength = (width * height) / (width + height) || 0;
   const paddingTop = height - fitSquareLength;
   const horizontalPadding = (width - fitSquareLength) / 2;
-  const paddingBottom = 10;
+  const paddingBottom = fitSquareLength > 10 ? 10 : 0;
 
   return {
     strokeColor: shape.fillColor,
