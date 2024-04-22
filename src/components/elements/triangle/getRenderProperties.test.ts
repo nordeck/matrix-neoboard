@@ -58,6 +58,35 @@ describe('getRenderProperties', () => {
     expect(view.text?.height).toBeCloseTo(23.33, 1);
   });
 
+  it('should provide the properties for a triangle element with zero width and height', () => {
+    const view = getRenderProperties(
+      mockTriangleElement({ width: 0, height: 0 }),
+    );
+
+    expect(view).toEqual({
+      strokeColor: '#ffffff',
+      strokeWidth: 2,
+
+      text: {
+        position: { x: 0, y: 1 },
+        width: 0,
+        height: 0,
+        alignment: 'center',
+        bold: false,
+        italic: false,
+      },
+
+      points: {
+        p0X: 0,
+        p0Y: 1,
+        p1X: 0,
+        p1Y: 1,
+        p2X: 0,
+        p2Y: 1,
+      },
+    });
+  });
+
   it('should provide the properties for a triangle element with custom text alignment', () => {
     const view = getRenderProperties({
       type: 'shape',
