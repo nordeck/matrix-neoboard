@@ -19,7 +19,7 @@
     "emoji-regex": "^10.3.0",
     "i18next": "^23.11.2",
     "i18next-chained-backend": "^4.6.2",
-    "i18next-http-backend": "^2.5.0",
+    "i18next-http-backend": "^2.5.1",
     "joi": "^17.12.3",
     "js-base64": "^3.7.7",
     "localforage": "^1.10.0",
