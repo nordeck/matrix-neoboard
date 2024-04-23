@@ -37,8 +37,6 @@ export function getRenderProperties(
       width: width - padding * 2,
       height: height - padding * 2,
       alignment: shape.textAlignment ?? 'center',
-      bold: shape.textBold ?? false,
-      italic: shape.textItalic ?? false,
     },
   };
 }

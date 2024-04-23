@@ -17,10 +17,10 @@
 import { ElementUpdate, Elements } from '../../../state/types';
 
 /**
- * Calculates the element color updates.
+ * Calculates the updates to update element color.
  *
  * @param elements - Elements to update the color of
- * @param color - Color to apply
+ * @param color - color to apply
  * @returns List of updates to apply the color
  */
 export function calculateColorChangeUpdates(
@@ -37,7 +37,11 @@ export function calculateColorChangeUpdates(
           strokeColor: color,
         },
       });
-    } else if (element?.type === 'shape') {
+    } else if (
+      element?.type === 'shape' &&
+      // skip transparent shape elements because they are texts without a color
+      element.fillColor !== 'transparent'
+    ) {
       updates.push({
         elementId,
         patch: {

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import { mockTriangleElement } from '../../../lib/testUtils/documentTestUtils';
 import { getRenderProperties } from './getRenderProperties';
 
 describe('getRenderProperties', () => {
@@ -38,8 +37,6 @@ describe('getRenderProperties', () => {
         width: expect.any(Number),
         height: expect.any(Number),
         alignment: 'center',
-        bold: false,
-        italic: false,
       },
 
       points: {
@@ -108,8 +105,6 @@ describe('getRenderProperties', () => {
         width: expect.any(Number),
         height: expect.any(Number),
         alignment: 'right',
-        bold: false,
-        italic: false,
       },
 
       points: {
@@ -119,60 +114,6 @@ describe('getRenderProperties', () => {
         p1Y: 15,
         p2X: 110,
         p2Y: 65,
-      },
-    });
-  });
-
-  it('should provide the properties for a triangle element with text bold', () => {
-    const view = getRenderProperties(mockTriangleElement({ textBold: true }));
-
-    expect(view).toEqual({
-      strokeColor: '#ffffff',
-      strokeWidth: 2,
-
-      text: {
-        position: { x: expect.any(Number), y: expect.any(Number) },
-        width: expect.any(Number),
-        height: expect.any(Number),
-        alignment: 'center',
-        bold: true,
-        italic: false,
-      },
-
-      points: {
-        p0X: 0,
-        p0Y: 101,
-        p1X: 25,
-        p1Y: 1,
-        p2X: 50,
-        p2Y: 101,
-      },
-    });
-  });
-
-  it('should provide the properties for a triangle element with text italic', () => {
-    const view = getRenderProperties(mockTriangleElement({ textItalic: true }));
-
-    expect(view).toEqual({
-      strokeColor: '#ffffff',
-      strokeWidth: 2,
-
-      text: {
-        position: { x: expect.any(Number), y: expect.any(Number) },
-        width: expect.any(Number),
-        height: expect.any(Number),
-        alignment: 'center',
-        bold: false,
-        italic: true,
-      },
-
-      points: {
-        p0X: 0,
-        p0Y: 101,
-        p1X: 25,
-        p1Y: 1,
-        p2X: 50,
-        p2Y: 101,
       },
     });
   });

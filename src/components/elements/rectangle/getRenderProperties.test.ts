@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import { mockRectangleElement } from '../../../lib/testUtils/documentTestUtils';
 import { getRenderProperties } from './getRenderProperties';
 
 describe('getRenderProperties', () => {
@@ -38,8 +37,6 @@ describe('getRenderProperties', () => {
         width: 80,
         height: 30,
         alignment: 'center',
-        bold: false,
-        italic: false,
       },
     });
   });
@@ -65,45 +62,6 @@ describe('getRenderProperties', () => {
         width: 80,
         height: 30,
         alignment: 'right',
-        bold: false,
-        italic: false,
-      },
-    });
-  });
-
-  it('should provide the properties for a rectangle element with text bold', () => {
-    const view = getRenderProperties(mockRectangleElement({ textBold: true }));
-    expect(view).toEqual({
-      strokeColor: '#ffffff',
-      strokeWidth: 2,
-
-      text: {
-        position: { x: expect.any(Number), y: expect.any(Number) },
-        width: expect.any(Number),
-        height: expect.any(Number),
-        alignment: 'center',
-        bold: true,
-        italic: false,
-      },
-    });
-  });
-
-  it('should provide the properties for a rectangle element with text italic', () => {
-    const view = getRenderProperties(
-      mockRectangleElement({ textItalic: true }),
-    );
-
-    expect(view).toEqual({
-      strokeColor: '#ffffff',
-      strokeWidth: 2,
-
-      text: {
-        position: { x: expect.any(Number), y: expect.any(Number) },
-        width: expect.any(Number),
-        height: expect.any(Number),
-        alignment: 'center',
-        bold: false,
-        italic: true,
       },
     });
   });
@@ -130,8 +88,6 @@ describe('getRenderProperties', () => {
         width: 80,
         height: 30,
         alignment: 'center',
-        bold: false,
-        italic: false,
       },
     });
   });

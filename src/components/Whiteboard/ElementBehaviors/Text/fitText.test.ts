@@ -135,33 +135,6 @@ describe('fitText', () => {
     expect(container.style.paddingTop).toEqual('5px');
     expect(container.style.height).toEqual('70px');
   });
-
-  it.each`
-    fontStyleItalic | expectedPadding
-    ${false}        | ${'0px 0em 0px'}
-    ${true}         | ${'0px 0.2em 0px'}
-    ${undefined}    | ${'0px 0em 0px'}
-  `(
-    'should handle the horizontal padding for fontStyleItalic $fontStyleItalic accordingly',
-    ({ fontStyleItalic, expectedPadding }) => {
-      const container = createContainerElement(0, 0, {
-        '405px': [0, 0],
-        '603px': [0, 0],
-        '701px': [0, 0],
-        '751px': [0, 0],
-        '775px': [0, 0],
-        '788px': [0, 0],
-        '794px': [0, 0],
-        '797px': [0, 0],
-        '798px': [0, 0],
-        '799px': [0, 0],
-      });
-
-      fitText(container, undefined, fontStyleItalic);
-
-      expect(container.style.padding).toEqual(expectedPadding);
-    },
-  );
 });
 
 function createContainerElement(

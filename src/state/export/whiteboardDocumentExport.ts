@@ -29,10 +29,23 @@ const slideExportSchema = Joi.object<SlideExport, true>({
   lock: Joi.object().unknown(),
 }).unknown();
 
+export type WhiteboardFileExport = {
+  /** MXC URI of the exported file. */
+  mxc: string;
+  /** Base-64 encoded file data. */
+  data: string;
+};
+
+const whiteboardFileExportSchema = Joi.object<WhiteboardFileExport, true>({
+  mxc: Joi.string().required(),
+  data: Joi.string().required(),
+});
+
 export type WhiteboardDocumentExport = {
   version: 'net.nordeck.whiteboard@v1';
   whiteboard: {
     slides: Array<SlideExport>;
+    files: Array<WhiteboardFileExport>;
   };
 };
 
@@ -43,6 +56,7 @@ const whiteboardDocumentExportSchema = Joi.object<
   version: Joi.string().valid('net.nordeck.whiteboard@v1').required(),
   whiteboard: Joi.object({
     slides: Joi.array().items(slideExportSchema).required(),
+    files: Joi.array().items(whiteboardFileExportSchema),
   })
     .unknown()
     .required(),

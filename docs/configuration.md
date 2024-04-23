@@ -14,6 +14,9 @@ REACT_APP_HOME_SERVER_URL=https://matrix-client.matrix.org
 # External link to the documentation that will be shown in the help menu if defined.
 REACT_APP_HELP_CENTER_URL="https://github.com/nordeck/matrix-neoboard"
 
+# optional - enables multiselect
+REACT_APP_MULTISELECT=false
+
 # optional - enables image upload
 REACT_APP_IMAGES=true
 

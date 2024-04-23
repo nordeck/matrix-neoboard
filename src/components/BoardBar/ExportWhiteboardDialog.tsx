@@ -165,7 +165,7 @@ function ExportWhiteboardDialogContent({
         </Button>
 
         {fileFormat === 'nwb' ? (
-          <ExportWhiteboardDialogDownloadFile onClick={onClose}>
+          <ExportWhiteboardDialogDownloadFile onAfterDownload={onClose}>
             {downloadTitle}
           </ExportWhiteboardDialogDownloadFile>
         ) : (

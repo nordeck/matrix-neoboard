@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import { mockEllipseElement } from '../../../lib/testUtils/documentTestUtils';
 import { getRenderProperties } from './getRenderProperties';
 
 describe('getRenderProperties', () => {
@@ -38,8 +37,6 @@ describe('getRenderProperties', () => {
         width: expect.any(Number),
         height: expect.any(Number),
         alignment: 'center',
-        bold: false,
-        italic: false,
       },
     });
 
@@ -70,46 +67,6 @@ describe('getRenderProperties', () => {
         width: expect.any(Number),
         height: expect.any(Number),
         alignment: 'right',
-        bold: false,
-        italic: false,
-      },
-    });
-  });
-
-  it('should provide the properties for an ellipse element with text bold', () => {
-    const shape = mockEllipseElement({ textBold: true });
-    const view = getRenderProperties(shape);
-
-    expect(view).toEqual({
-      strokeColor: '#ffffff',
-      strokeWidth: 2,
-
-      text: {
-        position: { x: expect.any(Number), y: expect.any(Number) },
-        width: expect.any(Number),
-        height: expect.any(Number),
-        alignment: 'center',
-        bold: true,
-        italic: false,
-      },
-    });
-  });
-
-  it('should provide the properties for an ellipse element with text italic', () => {
-    const shape = mockEllipseElement({ textItalic: true });
-    const view = getRenderProperties(shape);
-
-    expect(view).toEqual({
-      strokeColor: '#ffffff',
-      strokeWidth: 2,
-
-      text: {
-        position: { x: expect.any(Number), y: expect.any(Number) },
-        width: expect.any(Number),
-        height: expect.any(Number),
-        alignment: 'center',
-        bold: false,
-        italic: true,
       },
     });
   });

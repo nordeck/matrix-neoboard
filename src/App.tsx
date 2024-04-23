@@ -30,7 +30,12 @@ export const App = () => {
     throw new Error('Unknown user id');
   }
 
-  if (!loading && value.type === 'whiteboard' && value.event) {
+  if (
+    !loading &&
+    value.type === 'whiteboard' &&
+    value.event &&
+    whiteboardManager.getActiveWhiteboardInstance() === undefined
+  ) {
     whiteboardManager.selectActiveWhiteboardInstance(value.event, ownUserId);
   }
 

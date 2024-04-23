@@ -33,7 +33,7 @@ describe('extractFirstTextColor', () => {
     ).toBeUndefined();
   });
 
-  it('should return the first explicitly defined text color', () => {
+  it('should return the first explicitly set text color', () => {
     expect(
       extractFirstTextColor([
         // no text
@@ -44,6 +44,10 @@ describe('extractFirstTextColor', () => {
         mockEllipseElement({ text: 'test', textColor: red[700] }),
       ]),
     ).toEqual(red[500]);
+  });
+
+  it('should return the first implicit text color of the first empty text element', () => {
+    expect(extractFirstTextColor([mockEllipseElement()])).toEqual('#000');
   });
 
   it('should return the first implicit text color', () => {

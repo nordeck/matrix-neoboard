@@ -110,19 +110,6 @@ describe('TextColorPicker', () => {
 
     expect(colorButton).not.toBeInTheDocument();
   });
-
-  it('should not show the transparent color button', async () => {
-    activeSlide.setActiveElementIds(['element-2']);
-    render(<TextColorPicker />, { wrapper: Wrapper });
-    await userEvent.click(
-      screen.getByRole('button', { name: 'Pick a text color' }),
-    );
-    const grid = await screen.findByRole('grid', { name: 'Colors' });
-
-    expect(
-      within(grid).queryByRole('button', { name: 'Transparent' }),
-    ).not.toBeInTheDocument();
-  });
 });
 
 function selectTextColors(activeSlide: WhiteboardSlideInstance) {

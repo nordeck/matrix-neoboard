@@ -165,60 +165,6 @@ describe('calculateDimensions', () => {
   );
 
   it.each`
-    handlePosition   | dragX | dragY | expectedX | expectedY | expectedWidth | expectedHeight
-    ${'top'}         | ${25} | ${20} | ${15}     | ${20}     | ${20}         | ${50}
-    ${'top'}         | ${25} | ${50} | ${15}     | ${50}     | ${20}         | ${20}
-    ${'topRight'}    | ${25} | ${20} | ${15}     | ${20}     | ${10}         | ${50}
-    ${'topRight'}    | ${25} | ${50} | ${15}     | ${50}     | ${10}         | ${20}
-    ${'right'}       | ${45} | ${50} | ${15}     | ${30}     | ${30}         | ${40}
-    ${'right'}       | ${5}  | ${50} | ${5}      | ${30}     | ${10}         | ${40}
-    ${'bottomRight'} | ${45} | ${50} | ${15}     | ${30}     | ${30}         | ${20}
-    ${'bottomRight'} | ${5}  | ${20} | ${5}      | ${20}     | ${10}         | ${10}
-    ${'bottom'}      | ${15} | ${80} | ${15}     | ${30}     | ${20}         | ${50}
-    ${'bottom'}      | ${15} | ${5}  | ${15}     | ${5}      | ${20}         | ${25}
-    ${'bottomLeft'}  | ${30} | ${80} | ${30}     | ${30}     | ${5}          | ${50}
-    ${'bottomLeft'}  | ${5}  | ${5}  | ${5}      | ${5}      | ${30}         | ${25}
-    ${'left'}        | ${30} | ${40} | ${30}     | ${30}     | ${5}          | ${40}
-    ${'left'}        | ${5}  | ${5}  | ${5}      | ${30}     | ${30}         | ${40}
-    ${'topLeft'}     | ${25} | ${20} | ${25}     | ${20}     | ${10}         | ${50}
-    ${'topLeft'}     | ${5}  | ${50} | ${5}      | ${50}     | ${30}         | ${20}
-  `(
-    'should calculate dimensions for drag at $position to $dragX,$dragY with inverted lock aspect ratio',
-    ({
-      handlePosition,
-      dragX,
-      dragY,
-      expectedX,
-      expectedY,
-      expectedWidth,
-      expectedHeight,
-    }) => {
-      const event = {
-        deltaX: 1,
-        deltaY: 1,
-        lockAspectRatio: true,
-        x: dragX,
-        y: dragY,
-      };
-      expect(
-        calculateDimensions(
-          handlePosition,
-          event,
-          startDimension,
-          viewportWidth,
-          viewportHeight,
-          true,
-        ),
-      ).toEqual({
-        x: expectedX,
-        y: expectedY,
-        width: expectedWidth,
-        height: expectedHeight,
-      });
-    },
-  );
-
-  it.each`
     handlePosition   | dragX  | dragY  | expectedX | expectedY | expectedWidth | expectedHeight
     ${'bottomRight'} | ${120} | ${40}  | ${15}     | ${30}     | ${85}         | ${10}
     ${'bottomRight'} | ${20}  | ${120} | ${15}     | ${30}     | ${5}          | ${80}
@@ -440,6 +386,7 @@ describe('computeResizing', () => {
 
   const viewportWidth = 360;
   const viewportHeight = 360;
+  const forceLockAspectRatio = false;
   const gridCellSize = 40;
 
   const line = mockLineElement({
@@ -463,7 +410,7 @@ describe('computeResizing', () => {
         event,
         viewportWidth,
         viewportHeight,
-        false,
+        forceLockAspectRatio,
         gridCellSize,
         undefined,
       ),
@@ -483,7 +430,7 @@ describe('computeResizing', () => {
           { ...event, x: dragX, y: dragY },
           viewportWidth,
           viewportHeight,
-          false,
+          forceLockAspectRatio,
           gridCellSize,
           {
             x: 120,
@@ -515,7 +462,7 @@ describe('computeResizing', () => {
         event,
         viewportWidth,
         viewportHeight,
-        false,
+        forceLockAspectRatio,
         gridCellSize,
         {
           x: 120,
@@ -555,7 +502,7 @@ describe('computeResizing', () => {
           { ...event, x: dragX, y: dragY },
           viewportWidth,
           viewportHeight,
-          false,
+          forceLockAspectRatio,
           gridCellSize,
           {
             x: 120,
@@ -610,7 +557,7 @@ describe('computeResizing', () => {
           { ...event, x: dragX, y: dragY },
           viewportWidth,
           viewportHeight,
-          false,
+          forceLockAspectRatio,
           gridCellSize,
           {
             x: 120,

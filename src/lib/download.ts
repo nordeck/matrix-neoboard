@@ -14,4 +14,25 @@
  * limitations under the License.
  */
 
-export { TextBoldButton } from './TextBoldButton';
+/**
+ * Trigger a download.
+ *
+ * @param url - URL to download
+ * @param filename - Filename of the download
+ * @param [target] - Target of the download, defaults to '_blank'
+ *
+ * @returns void
+ */
+export function download(url: string, filename: string, target: string): void {
+  const link = document.createElement('a');
+  link.href = url;
+  link.setAttribute('download', filename);
+
+  if (target) {
+    link.setAttribute('target', target);
+  }
+
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+}

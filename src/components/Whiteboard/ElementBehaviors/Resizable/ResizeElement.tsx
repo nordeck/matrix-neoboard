@@ -36,8 +36,7 @@ import { computeResizing } from './utils';
 
 export type ResizeHandleWrapperProps = {
   handlePosition: HandlePosition;
-  /** If true the behaviour of locking the aspect ratio is inverted. */
-  invertLockAspectRatio?: boolean;
+  forceLockAspectRatio?: boolean;
   onDrag: Dispatch<ElementOverrideUpdate[]>;
   onDragStart: Dispatch<DragEvent>;
   onDragStop: Dispatch<DragEvent>;
@@ -46,7 +45,7 @@ export type ResizeHandleWrapperProps = {
 
 export function ResizeHandleWrapper({
   handlePosition,
-  invertLockAspectRatio,
+  forceLockAspectRatio,
   onDrag,
   onDragStart,
   onDragStop,
@@ -63,14 +62,14 @@ export function ResizeHandleWrapper({
           event,
           viewportWidth,
           viewportHeight,
-          invertLockAspectRatio,
+          forceLockAspectRatio,
           isShowGrid ? gridCellSize : undefined,
           resizableProperties,
         ),
       );
     },
     [
-      invertLockAspectRatio,
+      forceLockAspectRatio,
       handlePosition,
       isShowGrid,
       onDrag,
@@ -128,14 +127,8 @@ export function ResizeElement({ elementIds }: ResizeElementProps) {
           elementId,
           patch: {
             position: element.position,
-            width:
-              element.type === 'shape' || element.type === 'image'
-                ? element.width
-                : undefined,
-            height:
-              element.type === 'shape' || element.type === 'image'
-                ? element.height
-                : undefined,
+            width: element.type === 'shape' ? element.width : undefined,
+            height: element.type === 'shape' ? element.height : undefined,
             points: element.type === 'path' ? element.points : undefined,
           },
         };
@@ -198,8 +191,6 @@ export function ResizeElement({ elementIds }: ResizeElementProps) {
   const offsetY = boundingRect.offsetY;
   const containerHeight = boundingRect.height;
   const containerWidth = boundingRect.width;
-  const invertLockAspectRatio =
-    activeElements.length > 1 || activeElements[0].type === 'image';
 
   return (
     <g
@@ -216,7 +207,6 @@ export function ResizeElement({ elementIds }: ResizeElementProps) {
         onDragStart={handleDragStart}
         onDragStop={handleDragStop}
         resizableProperties={resizableProperties}
-        invertLockAspectRatio={invertLockAspectRatio}
       />
 
       <ResizeHandleWrapper
@@ -229,7 +219,6 @@ export function ResizeElement({ elementIds }: ResizeElementProps) {
         onDragStart={handleDragStart}
         onDragStop={handleDragStop}
         resizableProperties={resizableProperties}
-        invertLockAspectRatio={invertLockAspectRatio}
       />
 
       <ResizeHandleWrapper
@@ -242,7 +231,6 @@ export function ResizeElement({ elementIds }: ResizeElementProps) {
         onDragStart={handleDragStart}
         onDragStop={handleDragStop}
         resizableProperties={resizableProperties}
-        invertLockAspectRatio={invertLockAspectRatio}
       />
 
       <ResizeHandleWrapper
@@ -255,7 +243,6 @@ export function ResizeElement({ elementIds }: ResizeElementProps) {
         onDragStart={handleDragStart}
         onDragStop={handleDragStop}
         resizableProperties={resizableProperties}
-        invertLockAspectRatio={invertLockAspectRatio}
       />
 
       <ResizeHandleWrapper
@@ -268,7 +255,6 @@ export function ResizeElement({ elementIds }: ResizeElementProps) {
         onDragStart={handleDragStart}
         onDragStop={handleDragStop}
         resizableProperties={resizableProperties}
-        invertLockAspectRatio={invertLockAspectRatio}
       />
 
       <ResizeHandleWrapper
@@ -281,7 +267,6 @@ export function ResizeElement({ elementIds }: ResizeElementProps) {
         onDragStart={handleDragStart}
         onDragStop={handleDragStop}
         resizableProperties={resizableProperties}
-        invertLockAspectRatio={invertLockAspectRatio}
       />
 
       <ResizeHandleWrapper
@@ -294,7 +279,6 @@ export function ResizeElement({ elementIds }: ResizeElementProps) {
         onDragStart={handleDragStart}
         onDragStop={handleDragStop}
         resizableProperties={resizableProperties}
-        invertLockAspectRatio={invertLockAspectRatio}
       />
 
       <ResizeHandleWrapper
@@ -307,7 +291,6 @@ export function ResizeElement({ elementIds }: ResizeElementProps) {
         onDragStart={handleDragStart}
         onDragStop={handleDragStop}
         resizableProperties={resizableProperties}
-        invertLockAspectRatio={invertLockAspectRatio}
       />
     </g>
   );

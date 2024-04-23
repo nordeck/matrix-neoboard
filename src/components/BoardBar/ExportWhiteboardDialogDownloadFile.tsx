@@ -14,30 +14,48 @@
  * limitations under the License.
  */
 
+import { useWidgetApi } from '@matrix-widget-toolkit/react';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { LoadingButton } from '@mui/lab';
-import { PropsWithChildren, useEffect, useState } from 'react';
+import {
+  PropsWithChildren,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
+import { download } from '../../lib';
 import { useActiveWhiteboardInstance } from '../../state';
 import { useGetRoomNameQuery } from '../../store';
 
 export function ExportWhiteboardDialogDownloadFile({
   children,
-  onClick,
-}: PropsWithChildren<{ onClick: () => void }>) {
+  onAfterDownload,
+}: PropsWithChildren<{ onAfterDownload: () => void }>) {
   const { data: roomNameStateEvent } = useGetRoomNameQuery();
   const roomName = roomNameStateEvent?.event?.content.name ?? 'NeoBoard';
+  const [shouldDownload, setShouldDownload] = useState(false);
+  const downloadUrl = useGenerateFile(shouldDownload);
+  const downloaded = useRef<boolean>(false);
 
-  const downloadUrl = useGenerateFile();
+  const handleClick = useCallback(() => {
+    setShouldDownload(true);
+  }, [setShouldDownload]);
+
+  useEffect(() => {
+    if (!downloaded.current && downloadUrl) {
+      download(downloadUrl, roomName, '_blank');
+      // make sure to download only once
+      downloaded.current = true;
+      onAfterDownload();
+    }
+  }, [downloadUrl, onAfterDownload, roomName]);
 
   return (
     <LoadingButton
-      component="a"
-      download={`${roomName}.nwb`}
-      loading={!downloadUrl}
-      href={downloadUrl}
-      onClick={onClick}
+      loading={shouldDownload}
+      onClick={handleClick}
       startIcon={<FileDownloadIcon />}
-      target="_blank"
       variant="contained"
     >
       {children}
@@ -45,23 +63,44 @@ export function ExportWhiteboardDialogDownloadFile({
   );
 }
 
-function useGenerateFile() {
+function useGenerateFile(shouldDownload: boolean): string | undefined {
   const [downloadUrl, setDownloadUrl] = useState<string>();
   const whiteboardInstance = useActiveWhiteboardInstance();
+  const widgetApi = useWidgetApi();
+  const unmounted = useRef<boolean>(false);
 
   useEffect(() => {
+    if (!shouldDownload) {
+      return;
+    }
+
     setDownloadUrl(undefined);
+    let url: string;
 
-    const whiteboardContent = whiteboardInstance.export();
-    const blob = new Blob([JSON.stringify(whiteboardContent)]);
-    const url = URL.createObjectURL(blob);
+    const doExport = async () => {
+      const whiteboardContent = await whiteboardInstance.export(
+        // Just pass an empty base URL here as a fallback.
+        // It will be handled in the export function.
+        widgetApi.widgetParameters.baseUrl ?? '',
+      );
+      const blob = new Blob([JSON.stringify(whiteboardContent)]);
+      url = URL.createObjectURL(blob);
 
-    setDownloadUrl(url);
+      if (!unmounted.current) {
+        setDownloadUrl(url);
+      }
+    };
+
+    doExport();
 
     return () => {
-      URL.revokeObjectURL(url);
+      unmounted.current = true;
+
+      if (url) {
+        URL.revokeObjectURL(url);
+      }
     };
-  }, [whiteboardInstance]);
+  }, [shouldDownload, whiteboardInstance, widgetApi.widgetParameters.baseUrl]);
 
   return downloadUrl;
 }

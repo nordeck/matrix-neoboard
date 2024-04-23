@@ -15,8 +15,10 @@
  */
 
 export { determineImageSize } from './determineImageSize';
+export { download } from './download';
 export { findForegroundColor } from './findForegroundColor';
 export { isDefined } from './isDefined';
+export * from './matrix';
 export { FontsLoadedContextProvider, useFontsLoaded } from './useFontsLoaded';
 export { useLatestValue } from './useLatestValue';
 export { getUserColor } from './userColor';

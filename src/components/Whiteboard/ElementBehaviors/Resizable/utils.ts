@@ -118,7 +118,7 @@ export function calculateDimensions(
   startDimensions: Dimensions,
   viewportWidth: number,
   viewportHeight: number,
-  invertLockAspectRatio: boolean = false,
+  forceLockAspectRatio: boolean = false,
   gridCellSize?: number,
 ): Dimensions {
   const { dragX, dragY } = computeDrag(
@@ -128,9 +128,8 @@ export function calculateDimensions(
     gridCellSize,
   );
 
-  const lockAspectRatio = invertLockAspectRatio
-    ? !event.lockAspectRatio
-    : event.lockAspectRatio;
+  const lockAspectRatio = forceLockAspectRatio || event.lockAspectRatio;
+
   const dimensions = { ...startDimensions };
 
   const { dragOriginX, dragOriginY } = calculateDragOrigin(
@@ -300,7 +299,7 @@ export function computeResizing(
   event: DragEvent,
   viewportWidth: number,
   viewportHeight: number,
-  invertLockAspectRatio: boolean = false,
+  forceLockAspectRatio: boolean = false,
   gridCellSize?: number,
   resizableProperties?: ResizableProperties,
 ): ElementOverrideUpdate[] {
@@ -330,7 +329,7 @@ export function computeResizing(
     resizableProperties,
     viewportWidth,
     viewportHeight,
-    invertLockAspectRatio,
+    forceLockAspectRatio,
     gridCellSize,
   );
 
@@ -352,11 +351,11 @@ export function computeResizing(
                 dimensions.height,
           },
           width:
-            element.type === 'shape' || element.type === 'image'
+            element.type === 'shape'
               ? (element.width / resizableProperties.width) * dimensions.width
               : undefined,
           height:
-            element.type === 'shape' || element.type === 'image'
+            element.type === 'shape'
               ? (element.height / resizableProperties.height) *
                 dimensions.height
               : undefined,

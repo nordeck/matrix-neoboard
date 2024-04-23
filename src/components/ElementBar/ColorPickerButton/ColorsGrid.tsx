@@ -47,8 +47,6 @@ export interface ColorsGridProps {
   activeColor: string;
   onChange?: Dispatch<string>;
   onClose?: DispatchWithoutAction;
-  /** If true, the color picker also shows the transparent color */
-  showTransparent?: boolean;
 }
 
 export function ColorsGrid({
@@ -56,7 +54,6 @@ export function ColorsGrid({
   activeColor,
   onChange,
   onClose,
-  showTransparent,
 }: ColorsGridProps) {
   const ref = useRef<HTMLTableElement>(null);
   const { t } = useTranslation();
@@ -64,14 +61,6 @@ export function ColorsGrid({
   const [activeFocus, setActiveFocus] = useState(activeColor);
 
   const colorPalette: Array<{ label: string; color: string }> = [
-    ...(showTransparent
-      ? [
-          {
-            label: t('colorPicker.colors.transparent', 'Transparent'),
-            color: 'transparent',
-          },
-        ]
-      : []),
     {
       label: t('colorPicker.colors.white', 'White'),
       color: common.white,

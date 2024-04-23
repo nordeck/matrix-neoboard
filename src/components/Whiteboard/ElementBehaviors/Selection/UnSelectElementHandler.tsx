@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { MouseEvent, useCallback } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import {
@@ -25,6 +26,9 @@ import { HOTKEY_SCOPE_WHITEBOARD } from '../../../WhiteboardHotkeysProvider';
 import { useSvgCanvasContext } from '../../SvgCanvas';
 
 export function UnSelectElementHandler() {
+  const multiselect =
+    getEnvironment('REACT_APP_MULTISELECT', 'false') === 'true';
+
   const { activeElementId } = useActiveElement();
   const slideInstance = useWhiteboardSlideInstance();
   const { setDragSelectStartCoords } = useLayoutState();
@@ -38,11 +42,13 @@ export function UnSelectElementHandler() {
 
   const handleMouseDown = useCallback(
     (event: MouseEvent<SVGRectElement>) => {
-      const point = calculateSvgCoords({
-        x: event.clientX,
-        y: event.clientY,
-      });
-      setDragSelectStartCoords(point);
+      if (multiselect) {
+        const point = calculateSvgCoords({
+          x: event.clientX,
+          y: event.clientY,
+        });
+        setDragSelectStartCoords(point);
+      }
 
       if (activeElementId) {
         slideInstance.setActiveElementId(undefined);
@@ -53,6 +59,7 @@ export function UnSelectElementHandler() {
       slideInstance,
       calculateSvgCoords,
       setDragSelectStartCoords,
+      multiselect,
     ],
   );
 
