@@ -37,8 +37,21 @@ describe('<ExportWhiteboardDialogDownloadFile />', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
   let whiteboardManager: jest.Mocked<WhiteboardManager>;
   const onClick = jest.fn();
+  let downloadElement: HTMLAnchorElement;
 
   beforeEach(() => {
+    const createElement = document.createElement.bind(document);
+    jest.spyOn(document, 'createElement').mockImplementation((tag) => {
+      const element = createElement(tag);
+
+      if (element instanceof HTMLAnchorElement) {
+        downloadElement = element;
+        jest.spyOn(element, 'setAttribute');
+      }
+
+      return element;
+    });
+
     ({ whiteboardManager } = mockWhiteboardManager());
 
     Wrapper = ({ children }: PropsWithChildren<{}>) => {
@@ -55,6 +68,10 @@ describe('<ExportWhiteboardDialogDownloadFile />', () => {
     jest.mocked(URL.createObjectURL).mockReturnValue('blob:url');
   });
 
+  afterEach(() => {
+    jest.mocked(document.createElement).mockRestore();
+  });
+
   it('should render without exploding', () => {
     render(
       <ExportWhiteboardDialogDownloadFile onClick={onClick}>
@@ -63,7 +80,9 @@ describe('<ExportWhiteboardDialogDownloadFile />', () => {
       { wrapper: Wrapper },
     );
 
-    expect(screen.getByRole('link', { name: 'Download' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Download' }),
+    ).toBeInTheDocument();
   });
 
   it('should have no accessibility violations', async () => {
@@ -74,7 +93,9 @@ describe('<ExportWhiteboardDialogDownloadFile />', () => {
       { wrapper: Wrapper },
     );
 
-    expect(screen.getByRole('link', { name: 'Download' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Download' }),
+    ).toBeInTheDocument();
 
     expect(await axe(container)).toHaveNoViolations();
   });
@@ -87,23 +108,8 @@ describe('<ExportWhiteboardDialogDownloadFile />', () => {
       { wrapper: Wrapper },
     );
 
-    await userEvent.click(screen.getByRole('link', { name: 'Download' }));
-
+    await userEvent.click(screen.getByRole('button', { name: 'Download' }));
     expect(onClick).toBeCalled();
-  });
-
-  it('should provide download button', () => {
-    render(
-      <ExportWhiteboardDialogDownloadFile onClick={onClick}>
-        Download
-      </ExportWhiteboardDialogDownloadFile>,
-      { wrapper: Wrapper },
-    );
-
-    const downloadButton = screen.getByRole('link', { name: 'Download' });
-
-    expect(downloadButton).toHaveAttribute('href', 'blob:url');
-    expect(downloadButton).toHaveAttribute('download', 'NeoBoard.nwb');
   });
 
   it('should use the room name for the file name', async () => {
@@ -116,14 +122,15 @@ describe('<ExportWhiteboardDialogDownloadFile />', () => {
       { wrapper: Wrapper },
     );
 
-    const downloadButton = screen.getByRole('link', { name: 'Download' });
+    await userEvent.click(screen.getByRole('button', { name: 'Download' }));
 
-    await waitFor(() => {
-      expect(downloadButton).toHaveAttribute('download', 'My Room.nwb');
-    });
+    expect(downloadElement?.setAttribute).toHaveBeenCalledWith(
+      'download',
+      'My Room.nwb',
+    );
   });
 
-  it('should download the correct whiteboard content', () => {
+  it('should download the correct whiteboard content', async () => {
     const blobSpy = jest.spyOn(global, 'Blob').mockReturnValue({
       size: 0,
       type: '',
@@ -140,24 +147,32 @@ describe('<ExportWhiteboardDialogDownloadFile />', () => {
       { wrapper: Wrapper },
     );
 
-    expect(blobSpy).toBeCalledWith([
-      '{"version":"net.nordeck.whiteboard@v1","whiteboard":{"slides":[{"elements":[{"type":"shape","kind":"ellipse","position":{"x":0,"y":1},"fillColor":"#ffffff","height":100,"width":50,"text":""}]}]}}',
-    ]);
-  });
+    userEvent.click(screen.getByRole('button', { name: 'Download' }));
 
-  it('should revoke URL on unload', async () => {
-    const { unmount } = render(
-      <ExportWhiteboardDialogDownloadFile onClick={onClick}>
-        Download
-      </ExportWhiteboardDialogDownloadFile>,
-      { wrapper: Wrapper },
-    );
-
-    const link = await screen.findByRole('link', { name: 'Download' });
-    expect(link).toHaveAttribute('href', 'blob:url');
-
-    unmount();
-
-    expect(URL.revokeObjectURL).toBeCalledWith('blob:url');
+    await waitFor(() => {
+      expect(blobSpy).toBeCalledWith([
+        JSON.stringify({
+          version: 'net.nordeck.whiteboard@v1',
+          whiteboard: {
+            slides: [
+              {
+                elements: [
+                  {
+                    type: 'shape',
+                    kind: 'ellipse',
+                    position: { x: 0, y: 1 },
+                    fillColor: '#ffffff',
+                    height: 100,
+                    width: 50,
+                    text: '',
+                  },
+                ],
+              },
+            ],
+            files: [],
+          },
+        }),
+      ]);
+    });
   });
 });

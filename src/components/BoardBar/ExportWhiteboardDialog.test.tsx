@@ -155,7 +155,7 @@ describe('<ExportWhiteboardDialog/>', () => {
     );
 
     await userEvent.click(
-      within(dialog).getByRole('link', { name: 'Download' }),
+      within(dialog).getByRole('button', { name: 'Download' }),
     );
 
     expect(onClose).toBeCalled();

@@ -203,6 +203,7 @@ describe('<BoardBar/>', () => {
       version: 'net.nordeck.whiteboard@v1',
       whiteboard: {
         slides: [{ elements: [] }, { elements: [] }, { elements: [] }],
+        files: [],
       },
     };
 
@@ -221,9 +222,9 @@ describe('<BoardBar/>', () => {
       within(dialog).getByRole('button', { name: 'Import' }),
     );
 
-    expect(whiteboardManager.getActiveWhiteboardInstance()?.export()).toEqual(
-      data,
-    );
+    expect(
+      await whiteboardManager.getActiveWhiteboardInstance()?.export(''),
+    ).toEqual(data);
 
     await waitFor(() => {
       expect(dialog).not.toBeInTheDocument();

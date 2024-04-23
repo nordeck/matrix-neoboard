@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
+import { useWidgetApi } from '@matrix-widget-toolkit/react';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { LoadingButton } from '@mui/lab';
-import { PropsWithChildren, useEffect, useState } from 'react';
+import { PropsWithChildren, useCallback, useState } from 'react';
+import { downloadData } from '../../lib';
 import { useActiveWhiteboardInstance } from '../../state';
 import { useGetRoomNameQuery } from '../../store';
 
@@ -24,20 +26,13 @@ export function ExportWhiteboardDialogDownloadFile({
   children,
   onClick,
 }: PropsWithChildren<{ onClick: () => void }>) {
-  const { data: roomNameStateEvent } = useGetRoomNameQuery();
-  const roomName = roomNameStateEvent?.event?.content.name ?? 'NeoBoard';
-
-  const downloadUrl = useGenerateFile();
+  const { isDownloading, handleDownloadClick } = useWhiteboardDownload(onClick);
 
   return (
     <LoadingButton
-      component="a"
-      download={`${roomName}.nwb`}
-      loading={!downloadUrl}
-      href={downloadUrl}
-      onClick={onClick}
+      loading={isDownloading}
+      onClick={handleDownloadClick}
       startIcon={<FileDownloadIcon />}
-      target="_blank"
       variant="contained"
     >
       {children}
@@ -45,23 +40,30 @@ export function ExportWhiteboardDialogDownloadFile({
   );
 }
 
-function useGenerateFile() {
-  const [downloadUrl, setDownloadUrl] = useState<string>();
-  const whiteboardInstance = useActiveWhiteboardInstance();
+function useWhiteboardDownload(onDownloadFinished: () => void) {
+  const { data: roomNameStateEvent } = useGetRoomNameQuery();
+  const roomName = roomNameStateEvent?.event?.content.name ?? 'NeoBoard';
+  const whiteboard = useActiveWhiteboardInstance();
+  const [isDownloading, setIsDownloading] = useState(false);
+  const widgetApi = useWidgetApi();
 
-  useEffect(() => {
-    setDownloadUrl(undefined);
+  const handleDownloadClick = useCallback(async () => {
+    setIsDownloading(true);
+    const filename = `${roomName}.nwb`;
+    const whiteboardData = await whiteboard.export(
+      widgetApi.widgetParameters.baseUrl ?? '',
+    );
+    downloadData(filename, whiteboardData);
+    onDownloadFinished();
+  }, [
+    onDownloadFinished,
+    roomName,
+    whiteboard,
+    widgetApi.widgetParameters.baseUrl,
+  ]);
 
-    const whiteboardContent = whiteboardInstance.export();
-    const blob = new Blob([JSON.stringify(whiteboardContent)]);
-    const url = URL.createObjectURL(blob);
-
-    setDownloadUrl(url);
-
-    return () => {
-      URL.revokeObjectURL(url);
-    };
-  }, [whiteboardInstance]);
-
-  return downloadUrl;
+  return {
+    handleDownloadClick,
+    isDownloading,
+  };
 }
