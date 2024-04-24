@@ -69,7 +69,9 @@ describe('<HelpCenterBar/>', () => {
 
     await userEvent.keyboard('[Escape]');
 
-    expect(menu).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(menu).not.toBeInTheDocument();
+    });
   });
 
   it('should have no accessibility violations', async () => {
@@ -111,7 +113,9 @@ describe('<HelpCenterBar/>', () => {
 
     await userEvent.click(helpCenterButton);
 
-    expect(menu).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(menu).not.toBeInTheDocument();
+    });
   });
 
   it('should open the about dialog and close the menu', async () => {
@@ -175,14 +179,14 @@ describe('<HelpCenterBar/>', () => {
 
     expect(screen.getByText('Tour running: NO')).toBeInTheDocument();
 
-    const toolbar = screen.getByRole('toolbar', { name: 'Help center' });
-    const menuSettingsMenu = within(toolbar).getByRole('button', {
+    const toolbar = await screen.findByRole('toolbar', { name: 'Help center' });
+    const menuSettingsMenu = await within(toolbar).findByRole('button', {
       name: 'Help',
     });
     await userEvent.click(menuSettingsMenu);
 
-    const menu = screen.getByRole('menu', { name: 'Help' });
-    const button = screen.getByRole('menuitem', {
+    const menu = await screen.findByRole('menu', { name: 'Help' });
+    const button = await screen.findByRole('menuitem', {
       name: 'Reset onboarding',
     });
 
@@ -190,6 +194,8 @@ describe('<HelpCenterBar/>', () => {
 
     expect(screen.getByText('Tour running: YES')).toBeInTheDocument();
 
-    expect(menu).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(menu).not.toBeInTheDocument();
+    });
   });
 });

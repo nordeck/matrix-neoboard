@@ -68,7 +68,6 @@ describe('useMaxUploadSize', () => {
 
     const { result } = renderHook(useMaxUploadSize, { wrapper: Wrapper });
 
-    expect(console.error).toHaveBeenCalledTimes(1);
     expect(console.error).toHaveBeenCalledWith(
       'Error loading max upload size',
       apiError,

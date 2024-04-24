@@ -210,7 +210,9 @@ describe('<Collaborators>', () => {
 
     await userEvent.keyboard('[Space]');
 
-    expect(menu).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(menu).not.toBeInTheDocument();
+    });
   });
 
   it('should show more button for more users', async () => {
@@ -246,6 +248,8 @@ describe('<Collaborators>', () => {
 
     await userEvent.keyboard('[Escape]');
 
-    expect(menu).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(menu).not.toBeInTheDocument();
+    });
   });
 });

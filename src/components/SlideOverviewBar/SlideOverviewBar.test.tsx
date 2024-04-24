@@ -68,7 +68,7 @@ describe('<SideOverviewBar/>', () => {
     );
   });
 
-  it('should render without exploding', () => {
+  it('should render without exploding', async () => {
     render(<SlideOverviewBar />, { wrapper: Wrapper });
 
     const nav = screen.getByRole('navigation', { name: 'Slide Overview' });
@@ -77,7 +77,7 @@ describe('<SideOverviewBar/>', () => {
       within(nav).getByRole('button', { name: 'Add slide' }),
     ).toBeInTheDocument();
 
-    const tabList = within(nav).getByRole('tablist', { name: 'Slides' });
+    const tabList = await within(nav).findByRole('tablist', { name: 'Slides' });
     const tabs = within(tabList).getAllByRole('tab');
 
     expect(tabs).toHaveLength(3);
@@ -113,7 +113,7 @@ describe('<SideOverviewBar/>', () => {
   it('should have no accessibility violations for context menu', async () => {
     const { baseElement } = render(<SlideOverviewBar />, { wrapper: Wrapper });
 
-    const tab = screen.getByRole('tab', { name: 'Slide 2' });
+    const tab = await screen.findByRole('tab', { name: 'Slide 2' });
     await userEvent.pointer({ keys: '[MouseRight]', target: tab });
 
     expect(
@@ -155,7 +155,7 @@ describe('<SideOverviewBar/>', () => {
   it('should duplicate a slide', async () => {
     render(<SlideOverviewBar />, { wrapper: Wrapper });
 
-    const tab = screen.getByRole('tab', { name: 'Slide 2' });
+    const tab = await screen.findByRole('tab', { name: 'Slide 2' });
     await userEvent.pointer({ keys: '[MouseRight]', target: tab });
 
     const menu = screen.getByRole('menu', { name: 'Slide 2' });
@@ -179,7 +179,7 @@ describe('<SideOverviewBar/>', () => {
 
     render(<SlideOverviewBar />, { wrapper: Wrapper });
 
-    const tab = screen.getByRole('tab', { name: 'Slide 2 (locked)' });
+    const tab = await screen.findByRole('tab', { name: 'Slide 2 (locked)' });
     await userEvent.pointer({ keys: '[MouseRight]', target: tab });
 
     const menu = screen.getByRole('menu', { name: 'Slide 2' });
@@ -192,7 +192,7 @@ describe('<SideOverviewBar/>', () => {
   it('should delete a slide', async () => {
     render(<SlideOverviewBar />, { wrapper: Wrapper });
 
-    const tab = screen.getByRole('tab', { name: 'Slide 2' });
+    const tab = await screen.findByRole('tab', { name: 'Slide 2' });
     await userEvent.pointer({ keys: '[MouseRight]', target: tab });
 
     const menu = screen.getByRole('menu', { name: 'Slide 2' });
@@ -209,7 +209,7 @@ describe('<SideOverviewBar/>', () => {
 
     render(<SlideOverviewBar />, { wrapper: Wrapper });
 
-    const tab = screen.getByRole('tab', { name: 'Slide 1' });
+    const tab = await screen.findByRole('tab', { name: 'Slide 1' });
     await userEvent.pointer({ keys: '[MouseRight]', target: tab });
 
     const menu = screen.getByRole('menu', { name: 'Slide 1' });
@@ -227,7 +227,7 @@ describe('<SideOverviewBar/>', () => {
 
     render(<SlideOverviewBar />, { wrapper: Wrapper });
 
-    const tab = screen.getByRole('tab', { name: 'Slide 2 (locked)' });
+    const tab = await screen.findByRole('tab', { name: 'Slide 2 (locked)' });
     await userEvent.pointer({ keys: '[MouseRight]', target: tab });
 
     const menu = screen.getByRole('menu', { name: 'Slide 2' });
@@ -240,7 +240,7 @@ describe('<SideOverviewBar/>', () => {
   it('should bring everyone to slide', async () => {
     render(<SlideOverviewBar />, { wrapper: Wrapper });
 
-    const tab = screen.getByRole('tab', { name: 'Slide 2' });
+    const tab = await screen.findByRole('tab', { name: 'Slide 2' });
     await userEvent.pointer({ keys: '[MouseRight]', target: tab });
 
     const menu = screen.getByRole('menu', { name: 'Slide 2' });
@@ -260,7 +260,7 @@ describe('<SideOverviewBar/>', () => {
   it('should lock the slide', async () => {
     render(<SlideOverviewBar />, { wrapper: Wrapper });
 
-    const tab = screen.getByRole('tab', { name: 'Slide 2' });
+    const tab = await screen.findByRole('tab', { name: 'Slide 2' });
     await userEvent.pointer({ keys: '[MouseRight]', target: tab });
 
     const menu = screen.getByRole('menu', { name: 'Slide 2' });
@@ -285,7 +285,7 @@ describe('<SideOverviewBar/>', () => {
 
     render(<SlideOverviewBar />, { wrapper: Wrapper });
 
-    const tab = screen.getByRole('tab', { name: 'Slide 2 (locked)' });
+    const tab = await screen.findByRole('tab', { name: 'Slide 2 (locked)' });
     await userEvent.pointer({ keys: '[MouseRight]', target: tab });
 
     const menu = screen.getByRole('menu', { name: 'Slide 2' });
@@ -303,7 +303,7 @@ describe('<SideOverviewBar/>', () => {
   it('should select the active slide', async () => {
     render(<SlideOverviewBar />, { wrapper: Wrapper });
 
-    const tab = screen.getByRole('tab', { name: 'Slide 2' });
+    const tab = await screen.findByRole('tab', { name: 'Slide 2' });
     await userEvent.click(tab);
 
     expect(tab).toHaveAttribute('aria-selected', 'true');
@@ -312,11 +312,11 @@ describe('<SideOverviewBar/>', () => {
   it('should select the active slide via keyboard', async () => {
     render(<SlideOverviewBar />, { wrapper: Wrapper });
 
-    const firstTab = screen.getByRole('tab', {
+    const firstTab = await screen.findByRole('tab', {
       name: 'Slide 1',
       selected: true,
     });
-    const secondTab = screen.getByRole('tab', {
+    const secondTab = await screen.findByRole('tab', {
       name: 'Slide 2',
       selected: false,
     });
@@ -336,13 +336,14 @@ describe('<SideOverviewBar/>', () => {
   it('should reorder slides via keyboard', async () => {
     const { baseElement } = render(<SlideOverviewBar />, { wrapper: Wrapper });
 
-    const tab = screen.getByRole('tab', {
+    const tab = await screen.findByRole('tab', {
       name: 'Slide 2',
       selected: false,
       description: /Press the M key to start a drag./,
     });
 
     tab.focus();
+
     await userEvent.keyboard('M');
 
     await waitForAnnouncement(
@@ -375,8 +376,10 @@ describe('<SideOverviewBar/>', () => {
   it('should select the active slide via keyboard after reorder', async () => {
     render(<SlideOverviewBar />, { wrapper: Wrapper });
 
-    const tab = screen.getByRole('tab', { name: 'Slide 1', selected: true });
-    tab.focus();
+    await waitFor(() => {
+      const tab = screen.getByRole('tab', { name: 'Slide 1', selected: true });
+      tab.focus();
+    });
 
     await userEvent.keyboard('M');
     await userEvent.keyboard('{ArrowDown}');

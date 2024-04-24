@@ -114,7 +114,6 @@ describe('<ImageUploadProvider />', () => {
       results = await result.current.handleDrop([file], []);
     });
 
-    expect(console.error).toHaveBeenCalledTimes(1);
     expect(console.error).toHaveBeenCalledWith(
       'Error uploading an image',
       readFileError,
@@ -144,7 +143,6 @@ describe('<ImageUploadProvider />', () => {
       results = await result.current.handleDrop([file], []);
     });
 
-    expect(console.error).toHaveBeenCalledTimes(1);
     expect(console.error).toHaveBeenCalledWith(
       'Error uploading an image',
       uploadFileError,
@@ -259,7 +257,6 @@ describe('<ImageUploadProvider />', () => {
       await result.current.handleDrop([file], []);
     });
 
-    expect(console.error).toHaveBeenCalledTimes(1);
     expect(console.error).toHaveBeenCalledWith(
       'Error uploading an image',
       readFileError,

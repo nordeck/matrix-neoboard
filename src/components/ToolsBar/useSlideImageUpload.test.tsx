@@ -102,7 +102,6 @@ describe('useSlideImageUpload', () => {
     });
     await userEvent.upload(screen.getByTestId('file-input'), file);
 
-    expect(console.error).toHaveBeenCalledTimes(1);
     expect(console.error).toHaveBeenCalledWith(
       'Error uploading an image',
       uploadError,

@@ -130,7 +130,9 @@ describe('<BoardBar/>', () => {
 
     await userEvent.keyboard('[Escape]');
 
-    expect(settingsMenu).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(settingsMenu).not.toBeInTheDocument();
+    });
   });
 
   it('should open the settings menu and show import button for user with the right power level and not show if no power level', async () => {
