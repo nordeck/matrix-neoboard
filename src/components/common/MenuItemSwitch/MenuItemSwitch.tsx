@@ -65,7 +65,7 @@ export function MenuItemSwitch({
   }, []);
 
   const handleSwitchChange = useCallback(
-    (_, value: boolean) => {
+    (_: unknown, value: boolean) => {
       onChange(value);
     },
     [onChange],

@@ -23,7 +23,7 @@ export function SlidesProvider({ children }: PropsWithChildren<{}>) {
   const { activeSlideId } = useActiveSlide();
 
   const handleSelectSlide = useCallback(
-    (_, slideId: string | number | boolean | null) => {
+    (_: unknown, slideId: string | number | boolean | null) => {
       if (typeof slideId === 'string') {
         whiteboardInstance.setActiveSlideId(slideId);
       }

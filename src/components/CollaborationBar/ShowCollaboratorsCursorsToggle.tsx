@@ -35,7 +35,7 @@ export function ShowCollaboratorsCursorsToggle() {
       );
 
   const handleChange = useCallback(
-    (_, checked: boolean) => {
+    (_: unknown, checked: boolean) => {
       setShowCollaboratorsCursors(checked);
     },
     [setShowCollaboratorsCursors],

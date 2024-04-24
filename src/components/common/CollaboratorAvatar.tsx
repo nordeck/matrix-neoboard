@@ -40,11 +40,12 @@ export function CollaboratorAvatar({
       displayName={displayName}
       avatarUrl={avatarUrl}
       sx={(theme) => ({
-        outline: `${getUserColor(userId)} ${
-          presenter ? 'dashed' : 'solid'
-        } 2px`,
+        outline: `${getUserColor(userId)} ${presenter ? 'dashed' : 'solid'} 2px`,
         border: `2px solid ${theme.palette.background.default}`,
       })}
+      placeholder={undefined}
+      onPointerEnterCapture={undefined}
+      onPointerLeaveCapture={undefined}
     />
   );
 }
