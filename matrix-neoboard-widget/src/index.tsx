@@ -16,14 +16,16 @@
 
 import { WidgetApiImpl } from '@matrix-widget-toolkit/api';
 import { getEnvironment, getNonce } from '@matrix-widget-toolkit/mui';
+import {
+  createStore,
+  createWhiteboardManager,
+} from '@nordeck/matrix-neoboard-react-sdk';
 import log from 'loglevel';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { AppContainer } from './AppContainer';
 import './i18n';
 import './logger';
-import { createWhiteboardManager } from './state';
-import { createStore } from './store';
 import { widgetCapabilities } from './widgetCapabilities';
 
 declare global {

@@ -54,6 +54,7 @@ jobs:
         run: yarn build
 
       - name: generate disclaimer
+        working-directory: ./matrix-neoboard-widget/
         run: yarn generate-disclaimer
 
       - name: Login to ghcr.io
@@ -84,7 +85,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' || github.event_name == 'pull_request' && secrets.GH_APP_OS_APP_ID != '' }}
-          context: .
+          context: ./matrix-neoboard-widget/
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           platforms: linux/amd64,linux/arm64,linux/s390x
@@ -160,7 +161,7 @@ jobs:
       - name: Upload artifact to GitHub pages
         uses: actions/upload-pages-artifact@v3
         with:
-          path: 'build'
+          path: 'matrix-neoboard-widget/build'
 
       - name: Deploy to GitHub Pages
         id: deployment

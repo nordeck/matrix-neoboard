@@ -18,11 +18,14 @@ import {
   WidgetApiLanguageDetector,
   WidgetToolkitI18nBackend,
 } from '@matrix-widget-toolkit/mui';
+import {
+  WhiteboardReactI18nBackend,
+  setLocale,
+} from '@nordeck/matrix-neoboard-react-sdk';
 import i18n from 'i18next';
 import ChainedBackend from 'i18next-chained-backend';
 import HttpBackend from 'i18next-http-backend';
 import { initReactI18next } from 'react-i18next';
-import { setLocale } from './lib/locale';
 
 i18n
   .use(ChainedBackend)
@@ -30,7 +33,11 @@ i18n
   .use(initReactI18next)
   .init({
     backend: {
-      backends: [HttpBackend, WidgetToolkitI18nBackend],
+      backends: [
+        HttpBackend,
+        WhiteboardReactI18nBackend,
+        WidgetToolkitI18nBackend,
+      ],
       backendOptions: [
         { loadPath: `${process.env.PUBLIC_URL}/locales/{{lng}}/{{ns}}.json` },
       ],

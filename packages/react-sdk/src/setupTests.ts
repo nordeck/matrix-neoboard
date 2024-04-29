@@ -26,7 +26,6 @@ import { TextDecoder, TextEncoder } from 'util';
 import './i18n';
 import { setLocale } from './lib/locale';
 import './lib/testUtils/webRtcMock';
-import './logger';
 
 // Use a different configuration for i18next during tests
 jest.mock('./i18n', () => {

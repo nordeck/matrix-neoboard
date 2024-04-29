@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Nordeck IT + Consulting GmbH
+ * Copyright 2024 Nordeck IT + Consulting GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-export { determineImageSize } from './determineImageSize';
-export { findForegroundColor } from './findForegroundColor';
-export { isDefined } from './isDefined';
-export { FontsLoadedContextProvider, useFontsLoaded } from './useFontsLoaded';
-export { useLatestValue } from './useLatestValue';
-export { getUserColor } from './userColor';
+import resourcesToBackend from 'i18next-resources-to-backend';
+
+export const WhiteboardReactI18nBackend = resourcesToBackend((lng, ns, clb) => {
+  import(`./locales/${lng}/${ns}.json`)
+    .then((resources) => clb(null, resources))
+    .catch((err) => clb(err, undefined));
+});

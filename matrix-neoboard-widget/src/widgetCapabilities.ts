@@ -20,12 +20,6 @@ import {
   STATE_EVENT_ROOM_MEMBER,
 } from '@matrix-widget-toolkit/api';
 import {
-  EventDirection,
-  MatrixCapabilities,
-  WidgetApiFromWidgetAction,
-  WidgetEventCapability,
-} from 'matrix-widget-api';
-import {
   ROOM_EVENT_DOCUMENT_CHUNK,
   ROOM_EVENT_DOCUMENT_CREATE,
   ROOM_EVENT_DOCUMENT_SNAPSHOT,
@@ -33,7 +27,13 @@ import {
   STATE_EVENT_WHITEBOARD,
   STATE_EVENT_WHITEBOARD_SESSIONS,
   TO_DEVICE_MESSAGE_CONNECTION_SIGNALING,
-} from './model';
+} from '@nordeck/matrix-neoboard-react-sdk';
+import {
+  EventDirection,
+  MatrixCapabilities,
+  WidgetApiFromWidgetAction,
+  WidgetEventCapability,
+} from 'matrix-widget-api';
 
 const { userId } = extractWidgetParameters();
 
