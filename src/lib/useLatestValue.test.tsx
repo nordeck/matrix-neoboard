@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react';
 import { act } from 'react-dom/test-utils';
 import { Subject } from 'rxjs';
 import { useLatestValue } from './useLatestValue';

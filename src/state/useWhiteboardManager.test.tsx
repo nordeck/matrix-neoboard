@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react';
 import { ComponentType, PropsWithChildren } from 'react';
 import { WhiteboardManager } from './types';
 import {
@@ -50,10 +50,12 @@ describe('useWhiteboardManager', () => {
   });
 
   it('hook should throw without context', () => {
-    const { result } = renderHook(() => useWhiteboardManager());
+    jest.spyOn(console, 'error').mockImplementation(() => {});
 
-    expect(result.error?.message).toMatch(
-      'useWhiteboardManager can only be used inside of <WhiteboardManagerProvider>',
+    expect(() => renderHook(() => useWhiteboardManager())).toThrow(
+      Error(
+        'useWhiteboardManager can only be used inside of <WhiteboardManagerProvider>',
+      ),
     );
   });
 });

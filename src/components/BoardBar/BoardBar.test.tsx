@@ -15,7 +15,7 @@
  */
 
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { axe } from 'jest-axe';
 import { ComponentType, PropsWithChildren } from 'react';
@@ -51,34 +51,40 @@ describe('<BoardBar/>', () => {
     );
   });
 
-  it('should render without exploding', () => {
+  it('should render without exploding', async () => {
     render(<BoardBar />, { wrapper: Wrapper });
 
     const toolbar = screen.getByRole('toolbar', { name: 'Board' });
 
-    expect(
-      within(toolbar).getByRole('checkbox', {
-        name: 'Open slide overview',
-      }),
-    ).toBeInTheDocument();
+    await act(() => {
+      expect(
+        within(toolbar).getByRole('checkbox', {
+          name: 'Open slide overview',
+        }),
+      ).toBeInTheDocument();
 
-    expect(
-      within(toolbar).getByRole('button', { name: 'Settings' }),
-    ).toBeInTheDocument();
+      expect(
+        within(toolbar).getByRole('button', { name: 'Settings' }),
+      ).toBeInTheDocument();
+    });
   });
 
   it('should have no accessibility violations', async () => {
     const { container } = render(<BoardBar />, { wrapper: Wrapper });
 
-    expect(await axe(container)).toHaveNoViolations();
+    await act(async () => {
+      expect(await axe(container)).toHaveNoViolations();
+    });
   });
 
-  it('should provide anchor for the guided tour', () => {
+  it('should provide anchor for the guided tour', async () => {
     render(<BoardBar />, { wrapper: Wrapper });
 
     const toolbar = screen.getByRole('toolbar', { name: 'Board' });
 
-    expect(toolbar).toHaveAttribute('data-guided-tour-target', 'settings');
+    await act(() => {
+      expect(toolbar).toHaveAttribute('data-guided-tour-target', 'settings');
+    });
   });
 
   it('should toggle the slide overview bar', async () => {
@@ -198,7 +204,10 @@ describe('<BoardBar/>', () => {
     render(<BoardBar />, { wrapper: Wrapper });
 
     const filePickerInput = screen.getByTestId('import-file-picker');
-    expect(filePickerInput).toHaveAttribute('accept', '.nwb');
+    expect(filePickerInput).toHaveAttribute(
+      'accept',
+      'application/octet-stream,.nwb',
+    );
     expect(filePickerInput).not.toHaveAttribute('multiple');
 
     const data: WhiteboardDocumentExport = {

@@ -15,7 +15,7 @@
  */
 
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
-import { render, screen, within } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { axe } from 'jest-axe';
 import { ComponentType, PropsWithChildren } from 'react';
@@ -54,37 +54,43 @@ describe('<CollaborationBar>', () => {
     );
   });
 
-  it('should render without exploding', () => {
+  it('should render without exploding', async () => {
     render(<CollaborationBar />, { wrapper: Wrapper });
 
     const toolbar = screen.getByRole('toolbar', { name: 'Collaboration' });
 
-    expect(
-      within(toolbar).getByRole('checkbox', {
-        name: "Show collaborators' cursors",
-        checked: false,
-      }),
-    ).toBeInTheDocument();
-    expect(
-      within(toolbar).getByRole('button', { name: '@user-id (You)' }),
-    ).toBeInTheDocument();
+    await act(async () => {
+      expect(
+        within(toolbar).getByRole('checkbox', {
+          name: "Show collaborators' cursors",
+          checked: false,
+        }),
+      ).toBeInTheDocument();
+      expect(
+        within(toolbar).getByRole('button', { name: '@user-id (You)' }),
+      ).toBeInTheDocument();
+    });
   });
 
   it('should have no accessibility violations', async () => {
     const { container } = render(<CollaborationBar />, { wrapper: Wrapper });
 
-    expect(await axe(container)).toHaveNoViolations();
+    await act(async () => {
+      expect(await axe(container)).toHaveNoViolations();
+    });
   });
 
-  it('should provide anchor for the guided tour', () => {
+  it('should provide anchor for the guided tour', async () => {
     render(<CollaborationBar />, { wrapper: Wrapper });
 
     const toolbar = screen.getByRole('toolbar', { name: 'Collaboration' });
 
-    expect(toolbar).toHaveAttribute(
-      'data-guided-tour-target',
-      'collaborationbar',
-    );
+    await act(async () => {
+      expect(toolbar).toHaveAttribute(
+        'data-guided-tour-target',
+        'collaborationbar',
+      );
+    });
   });
 
   it('should toggle show cursors', async () => {
@@ -130,8 +136,10 @@ describe('<CollaborationBar>', () => {
 
     render(<CollaborationBar />, { wrapper: Wrapper });
 
-    expect(
-      screen.queryByRole('checkbox', { name: /cursors$/ }),
-    ).not.toBeInTheDocument();
+    await act(async () => {
+      expect(
+        screen.queryByRole('checkbox', { name: /cursors$/ }),
+      ).not.toBeInTheDocument();
+    });
   });
 });

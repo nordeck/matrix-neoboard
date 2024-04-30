@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-import { act, waitFor } from '@testing-library/react';
-import { renderHook } from '@testing-library/react-hooks';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { ComponentType, PropsWithChildren } from 'react';
 import { FontsLoadedContextProvider, useFontsLoaded } from './useFontsLoaded';
 

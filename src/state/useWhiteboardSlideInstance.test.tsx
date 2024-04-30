@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { act, renderHook } from '@testing-library/react-hooks';
+import { act, renderHook } from '@testing-library/react';
 import { ComponentType, PropsWithChildren } from 'react';
 import {
   mockEllipseElement,
@@ -53,19 +53,23 @@ beforeEach(() => {
 
 describe('<SlideProvider/>', () => {
   it('should provide SlideContext', () => {
-    const { result } = renderHook(() => useWhiteboardSlideInstance(), {
-      wrapper: Wrapper,
-    });
+    jest.spyOn(console, 'error').mockImplementation(() => {});
 
-    expect(result.error).toBeUndefined();
+    expect(() =>
+      renderHook(() => useWhiteboardSlideInstance(), {
+        wrapper: Wrapper,
+      }),
+    ).not.toThrow();
   });
 
   it('should provide ActiveElementProvider', () => {
-    const { result } = renderHook(() => useActiveElement(), {
-      wrapper: Wrapper,
-    });
+    jest.spyOn(console, 'error').mockImplementation(() => {});
 
-    expect(result.error).toBeUndefined();
+    expect(() =>
+      renderHook(() => useActiveElement(), {
+        wrapper: Wrapper,
+      }),
+    ).not.toThrow();
   });
 });
 
@@ -82,10 +86,12 @@ describe('useWhiteboardSlideInstance', () => {
   });
 
   it('hook should throw without context', () => {
-    const { result } = renderHook(() => useWhiteboardSlideInstance());
+    jest.spyOn(console, 'error').mockImplementation(() => {});
 
-    expect(result.error?.message).toMatch(
-      'useWhiteboardSlideInstance can only be used inside of <SlideProvider>',
+    expect(() => renderHook(() => useWhiteboardSlideInstance())).toThrow(
+      Error(
+        'useWhiteboardSlideInstance can only be used inside of <SlideProvider>',
+      ),
     );
   });
 });
@@ -342,18 +348,22 @@ describe('useSlideIsLocked', () => {
   });
 
   it('hook should throw if slide does not exist', () => {
-    const { result } = renderHook(() => useSlideIsLocked('not-exists'), {
-      wrapper: Wrapper,
-    });
+    jest.spyOn(console, 'error').mockImplementation(() => {});
 
-    expect(result.error?.message).toMatch('SlideId does not exist');
+    expect(() =>
+      renderHook(() => useSlideIsLocked('not-exists'), {
+        wrapper: Wrapper,
+      }),
+    ).toThrow(Error('SlideId does not exist'));
   });
 
   it('hook should throw without context', () => {
-    const { result } = renderHook(() => useSlideIsLocked());
+    jest.spyOn(console, 'error').mockImplementation(() => {});
 
-    expect(result.error?.message).toMatch(
-      'useSlideIsLocked without slideId can only be used inside of <SlideProvider>',
+    expect(() => renderHook(() => useSlideIsLocked())).toThrow(
+      Error(
+        'useSlideIsLocked without slideId can only be used inside of <SlideProvider>',
+      ),
     );
   });
 });

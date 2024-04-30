@@ -15,7 +15,7 @@
  */
 
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { axe } from 'jest-axe';
 import { ComponentType, PropsWithChildren } from 'react';
@@ -156,17 +156,21 @@ describe('<Collaborators>', () => {
 
     const group = screen.getByRole('group', { name: 'Collaborators' });
 
-    expect(
-      within(group).getByRole('button', {
-        name: '@user-alice is presenting',
-      }),
-    ).toBeInTheDocument();
+    await act(async () => {
+      expect(
+        within(group).getByRole('button', {
+          name: '@user-alice is presenting',
+        }),
+      ).toBeInTheDocument();
+    });
   });
 
   it('should have no accessibility violations', async () => {
     const { container } = render(<Collaborators />, { wrapper: Wrapper });
 
-    expect(await axe(container)).toHaveNoViolations();
+    await act(async () => {
+      expect(await axe(container)).toHaveNoViolations();
+    });
   });
 
   it('should show active users', async () => {

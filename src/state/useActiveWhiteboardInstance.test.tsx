@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { act, renderHook } from '@testing-library/react-hooks';
+import { act, renderHook } from '@testing-library/react';
 import { ComponentType, PropsWithChildren } from 'react';
 import { Subject, of } from 'rxjs';
 import {
@@ -64,12 +64,13 @@ describe('useActiveWhiteboardInstance', () => {
 
   it('hook should throw if no active whiteboard instance is available', () => {
     whiteboardManager.getActiveWhiteboardInstance.mockReturnValue(undefined);
+    jest.spyOn(console, 'error').mockImplementation(() => {});
 
-    const { result } = renderHook(() => useActiveWhiteboardInstance(), {
-      wrapper: Wrapper,
-    });
-
-    expect(result.error?.message).toMatch('No active whiteboard instance');
+    expect(() =>
+      renderHook(() => useActiveWhiteboardInstance(), {
+        wrapper: Wrapper,
+      }),
+    ).toThrow(Error('No active whiteboard instance'));
   });
 });
 
@@ -97,12 +98,13 @@ describe('useActiveWhiteboardInstanceSlideIds', () => {
 
   it('hook should throw if no active whiteboard instance is available', () => {
     whiteboardManager.getActiveWhiteboardInstance.mockReturnValue(undefined);
+    jest.spyOn(console, 'error').mockImplementation(() => {});
 
-    const { result } = renderHook(() => useActiveWhiteboardInstanceSlideIds(), {
-      wrapper: Wrapper,
-    });
-
-    expect(result.error?.message).toMatch('No active whiteboard instance');
+    expect(() =>
+      renderHook(() => useActiveWhiteboardInstance(), {
+        wrapper: Wrapper,
+      }),
+    ).toThrow(Error('No active whiteboard instance'));
   });
 });
 
@@ -177,13 +179,13 @@ describe('useActiveWhiteboardInstanceStatistics', () => {
 
   it('hook should throw if no active whiteboard instance is available', () => {
     whiteboardManager.getActiveWhiteboardInstance.mockReturnValue(undefined);
+    jest.spyOn(console, 'error').mockImplementation(() => {});
 
-    const { result } = renderHook(
-      () => useActiveWhiteboardInstanceStatistics(),
-      { wrapper: Wrapper },
-    );
-
-    expect(result.error?.message).toMatch('No active whiteboard instance');
+    expect(() =>
+      renderHook(() => useActiveWhiteboardInstance(), {
+        wrapper: Wrapper,
+      }),
+    ).toThrow(Error('No active whiteboard instance'));
   });
 });
 

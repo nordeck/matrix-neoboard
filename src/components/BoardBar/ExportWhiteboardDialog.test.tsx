@@ -15,7 +15,7 @@
  */
 
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
-import { render, screen, within } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { axe } from 'jest-axe';
 import { ComponentType, PropsWithChildren } from 'react';
@@ -71,19 +71,21 @@ describe('<ExportWhiteboardDialog/>', () => {
       description: 'Please choose your preferred format.',
     });
 
-    expect(
-      within(dialog).getByRole('combobox', { name: 'File format' }),
-    ).toHaveTextContent('PDF-File (.pdf)');
+    await act(async () => {
+      expect(
+        within(dialog).getByRole('combobox', { name: 'File format' }),
+      ).toHaveTextContent('PDF-File (.pdf)');
 
-    expect(
-      within(dialog).getByRole('button', { name: 'Cancel' }),
-    ).toHaveFocus();
-    expect(
-      within(dialog).getByRole('button', { name: 'Close' }),
-    ).toBeInTheDocument();
-    expect(
-      within(dialog).getByRole('link', { name: 'Download' }),
-    ).toBeInTheDocument();
+      expect(
+        within(dialog).getByRole('button', { name: 'Cancel' }),
+      ).toHaveFocus();
+      expect(
+        within(dialog).getByRole('button', { name: 'Close' }),
+      ).toBeInTheDocument();
+      expect(
+        within(dialog).getByRole('link', { name: 'Download' }),
+      ).toBeInTheDocument();
+    });
   });
 
   it('should have no accessibility violations', async () => {
@@ -95,7 +97,9 @@ describe('<ExportWhiteboardDialog/>', () => {
     expect(screen.getByRole('link', { name: 'Download' })).toBeInTheDocument();
 
     // the popover is opened in a portal, so we check the baseElement, i.e. <body/>.
-    expect(await axe(baseElement)).toHaveNoViolations();
+    await act(async () => {
+      expect(await axe(baseElement)).toHaveNoViolations();
+    });
   });
 
   it('should close dialog on close', async () => {

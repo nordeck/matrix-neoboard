@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { render, screen, within } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { axe } from 'jest-axe';
 import { Toolbar } from './Toolbar';
@@ -101,7 +101,10 @@ describe('Toolbar', () => {
       </Toolbar>,
     );
 
-    screen.getByRole('button', { name: 'B' }).focus();
+    act(() => {
+      screen.getByRole('button', { name: 'B' }).focus();
+    });
+
     await userEvent.keyboard('[ArrowRight]');
     expect(screen.getByRole('button', { name: 'C' })).toHaveFocus();
   });
@@ -115,7 +118,9 @@ describe('Toolbar', () => {
       </Toolbar>,
     );
 
-    screen.getByRole('button', { name: 'B' }).focus();
+    act(() => {
+      screen.getByRole('button', { name: 'B' }).focus();
+    });
     await userEvent.keyboard('[ArrowLeft]');
     expect(screen.getByRole('checkbox', { name: 'A' })).toHaveFocus();
   });
@@ -129,7 +134,9 @@ describe('Toolbar', () => {
       </Toolbar>,
     );
 
-    screen.getByRole('button', { name: 'B' }).focus();
+    act(() => {
+      screen.getByRole('button', { name: 'B' }).focus();
+    });
     await userEvent.keyboard('[ArrowDown]');
     expect(screen.getByRole('button', { name: 'C' })).toHaveFocus();
   });
@@ -143,7 +150,9 @@ describe('Toolbar', () => {
       </Toolbar>,
     );
 
-    screen.getByRole('button', { name: 'B' }).focus();
+    act(() => {
+      screen.getByRole('button', { name: 'B' }).focus();
+    });
     await userEvent.keyboard('[ArrowUp]');
     expect(screen.getByRole('checkbox', { name: 'A' })).toHaveFocus();
   });
@@ -161,7 +170,9 @@ describe('Toolbar', () => {
       </Toolbar>,
     );
 
-    screen.getByRole('checkbox', { name: 'A' }).focus();
+    act(() => {
+      screen.getByRole('checkbox', { name: 'A' }).focus();
+    });
     await userEvent.keyboard('[ArrowLeft]');
     expect(screen.getByRole('radio', { name: 'E' })).toHaveFocus();
   });
@@ -179,7 +190,9 @@ describe('Toolbar', () => {
       </Toolbar>,
     );
 
-    screen.getByRole('radio', { name: 'E' }).focus();
+    act(() => {
+      screen.getByRole('radio', { name: 'E' }).focus();
+    });
     await userEvent.keyboard('[ArrowRight]');
     expect(screen.getByRole('checkbox', { name: 'A' })).toHaveFocus();
   });
@@ -193,7 +206,9 @@ describe('Toolbar', () => {
       </Toolbar>,
     );
 
-    screen.getByRole('button', { name: 'C' }).focus();
+    act(() => {
+      screen.getByRole('button', { name: 'C' }).focus();
+    });
     await userEvent.keyboard('[Home]');
     expect(screen.getByRole('checkbox', { name: 'A' })).toHaveFocus();
   });
@@ -207,7 +222,9 @@ describe('Toolbar', () => {
       </Toolbar>,
     );
 
-    screen.getByRole('checkbox', { name: 'A' }).focus();
+    act(() => {
+      screen.getByRole('checkbox', { name: 'A' }).focus();
+    });
     await userEvent.keyboard('[End]');
     expect(screen.getByRole('button', { name: 'C' })).toHaveFocus();
   });
@@ -224,7 +241,9 @@ describe('Toolbar', () => {
       </>,
     );
 
-    screen.getByRole('checkbox', { name: 'A' }).focus();
+    act(() => {
+      screen.getByRole('checkbox', { name: 'A' }).focus();
+    });
 
     const buttonB = screen.getByRole('button', { name: 'B' });
     await userEvent.keyboard('[ArrowRight]');
@@ -278,7 +297,9 @@ describe('Toolbar', () => {
       </Toolbar>,
     );
 
-    screen.getByRole('radio', { name: 'B' }).focus();
+    act(() => {
+      screen.getByRole('radio', { name: 'B' }).focus();
+    });
     await userEvent.keyboard('[ArrowDown]');
     expect(screen.getByRole('radio', { name: 'C' })).toHaveFocus();
   });
@@ -301,7 +322,9 @@ describe('Toolbar', () => {
       </Toolbar>,
     );
 
-    screen.getByRole('radio', { name: 'F' }).focus();
+    act(() => {
+      screen.getByRole('radio', { name: 'F' }).focus();
+    });
     await userEvent.keyboard('[ArrowUp]');
     expect(screen.getByRole('radio', { name: 'E' })).toHaveFocus();
   });
@@ -324,7 +347,9 @@ describe('Toolbar', () => {
       </Toolbar>,
     );
 
-    screen.getByRole('radio', { name: 'E' }).focus();
+    act(() => {
+      screen.getByRole('radio', { name: 'E' }).focus();
+    });
     await userEvent.keyboard('[ArrowUp]');
     expect(screen.getByRole('radio', { name: 'G' })).toHaveFocus();
   });
@@ -347,7 +372,9 @@ describe('Toolbar', () => {
       </Toolbar>,
     );
 
-    screen.getByRole('radio', { name: 'D' }).focus();
+    act(() => {
+      screen.getByRole('radio', { name: 'D' }).focus();
+    });
     await userEvent.keyboard('[ArrowDown]');
     expect(screen.getByRole('radio', { name: 'B' })).toHaveFocus();
   });
@@ -372,7 +399,9 @@ describe('Toolbar', () => {
         </Toolbar>,
       );
 
-      screen.getByRole('radio', { name: 'D', checked: false }).focus();
+      act(() => {
+        screen.getByRole('radio', { name: 'D', checked: false }).focus();
+      });
       await userEvent.keyboard(key);
       expect(screen.getByRole('radio', { name: 'D' })).toBeChecked();
     },
@@ -393,7 +422,10 @@ describe('Toolbar', () => {
     );
 
     const radioB = screen.getByRole('radio', { name: 'B' });
-    radioB.focus();
+
+    act(() => {
+      radioB.focus();
+    });
 
     await userEvent.keyboard('[Tab]');
     expect(radioB).not.toHaveFocus();
@@ -429,7 +461,9 @@ describe('Toolbar', () => {
       </Toolbar>,
     );
 
-    screen.getByRole('button', { name: 'A' }).focus();
+    act(() => {
+      screen.getByRole('button', { name: 'A' }).focus();
+    });
     await userEvent.keyboard('[ArrowDown]');
 
     expect(onClick).toBeCalled();

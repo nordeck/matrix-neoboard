@@ -70,27 +70,31 @@ describe('<PresentBar/>', () => {
     );
   });
 
-  it('should render without exploding', () => {
+  it('should render without exploding', async () => {
     render(<PresentBar />, { wrapper: Wrapper });
 
     const toolbar = screen.getByRole('toolbar', { name: 'Present' });
 
-    expect(
-      within(toolbar).getByRole('checkbox', {
-        name: 'Start presentation',
-        checked: false,
-      }),
-    ).toBeInTheDocument();
+    await act(async () => {
+      expect(
+        within(toolbar).getByRole('checkbox', {
+          name: 'Start presentation',
+          checked: false,
+        }),
+      ).toBeInTheDocument();
+    });
   });
 
   it('should have no accessibility violations', async () => {
     const { container } = render(<PresentBar />, { wrapper: Wrapper });
 
-    expect(
-      screen.getByRole('checkbox', { name: 'Start presentation' }),
-    ).toBeInTheDocument();
+    await act(async () => {
+      expect(
+        screen.getByRole('checkbox', { name: 'Start presentation' }),
+      ).toBeInTheDocument();
 
-    expect(await axe(container)).toHaveNoViolations();
+      expect(await axe(container)).toHaveNoViolations();
+    });
   });
 
   it('should have no accessibility violations when viewing a presentation', async () => {
@@ -98,7 +102,9 @@ describe('<PresentBar/>', () => {
 
     const { container } = render(<PresentBar />, { wrapper: Wrapper });
 
-    expect(await axe(container)).toHaveNoViolations();
+    await act(async () => {
+      expect(await axe(container)).toHaveNoViolations();
+    });
   });
 
   it('should start the presentation', async () => {

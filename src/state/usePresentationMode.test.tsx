@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { act, renderHook } from '@testing-library/react-hooks';
+import { act, renderHook } from '@testing-library/react';
 import { ComponentType, PropsWithChildren } from 'react';
 import { mockWhiteboardManager } from '../lib/testUtils/documentTestUtils';
 import { WhiteboardManager } from './types';

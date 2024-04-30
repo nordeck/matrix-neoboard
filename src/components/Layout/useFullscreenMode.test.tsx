@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-import { act } from '@testing-library/react';
-import { renderHook } from '@testing-library/react-hooks';
+import { act, renderHook } from '@testing-library/react';
 import { ComponentType, PropsWithChildren } from 'react';
 import { mockFullscreenApi } from '../../lib/testUtils/documentTestUtils';
 import { useFullscreenMode } from './useFullscreenMode';

@@ -15,7 +15,7 @@
  */
 
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { axe } from 'jest-axe';
 import { ComponentType, PropsWithChildren } from 'react';
@@ -55,7 +55,7 @@ describe('<ExportWhiteboardDialogDownloadFile />', () => {
     jest.mocked(URL.createObjectURL).mockReturnValue('blob:url');
   });
 
-  it('should render without exploding', () => {
+  it('should render without exploding', async () => {
     render(
       <ExportWhiteboardDialogDownloadFile onClick={onClick}>
         Download
@@ -63,7 +63,11 @@ describe('<ExportWhiteboardDialogDownloadFile />', () => {
       { wrapper: Wrapper },
     );
 
-    expect(screen.getByRole('link', { name: 'Download' })).toBeInTheDocument();
+    await act(() => {
+      expect(
+        screen.getByRole('link', { name: 'Download' }),
+      ).toBeInTheDocument();
+    });
   });
 
   it('should have no accessibility violations', async () => {
@@ -76,7 +80,9 @@ describe('<ExportWhiteboardDialogDownloadFile />', () => {
 
     expect(screen.getByRole('link', { name: 'Download' })).toBeInTheDocument();
 
-    expect(await axe(container)).toHaveNoViolations();
+    await act(async () => {
+      expect(await axe(container)).toHaveNoViolations();
+    });
   });
 
   it('should emit onClick on download', async () => {
@@ -92,7 +98,7 @@ describe('<ExportWhiteboardDialogDownloadFile />', () => {
     expect(onClick).toBeCalled();
   });
 
-  it('should provide download button', () => {
+  it('should provide download button', async () => {
     render(
       <ExportWhiteboardDialogDownloadFile onClick={onClick}>
         Download
@@ -102,8 +108,10 @@ describe('<ExportWhiteboardDialogDownloadFile />', () => {
 
     const downloadButton = screen.getByRole('link', { name: 'Download' });
 
-    expect(downloadButton).toHaveAttribute('href', 'blob:url');
-    expect(downloadButton).toHaveAttribute('download', 'NeoBoard.nwb');
+    await act(() => {
+      expect(downloadButton).toHaveAttribute('href', 'blob:url');
+      expect(downloadButton).toHaveAttribute('download', 'NeoBoard.nwb');
+    });
   });
 
   it('should use the room name for the file name', async () => {
@@ -123,7 +131,7 @@ describe('<ExportWhiteboardDialogDownloadFile />', () => {
     });
   });
 
-  it('should download the correct whiteboard content', () => {
+  it('should download the correct whiteboard content', async () => {
     const blobSpy = jest.spyOn(global, 'Blob').mockReturnValue({
       size: 0,
       type: '',
@@ -140,9 +148,11 @@ describe('<ExportWhiteboardDialogDownloadFile />', () => {
       { wrapper: Wrapper },
     );
 
-    expect(blobSpy).toBeCalledWith([
-      '{"version":"net.nordeck.whiteboard@v1","whiteboard":{"slides":[{"elements":[{"type":"shape","kind":"ellipse","position":{"x":0,"y":1},"fillColor":"#ffffff","height":100,"width":50,"text":""}]}]}}',
-    ]);
+    await act(async () => {
+      expect(blobSpy).toBeCalledWith([
+        '{"version":"net.nordeck.whiteboard@v1","whiteboard":{"slides":[{"elements":[{"type":"shape","kind":"ellipse","position":{"x":0,"y":1},"fillColor":"#ffffff","height":100,"width":50,"text":""}]}]}}',
+      ]);
+    });
   });
 
   it('should revoke URL on unload', async () => {

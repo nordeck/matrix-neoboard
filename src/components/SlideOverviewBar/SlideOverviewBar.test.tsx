@@ -20,6 +20,7 @@ import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { axe } from 'jest-axe';
 import { ComponentType, PropsWithChildren } from 'react';
+import { act } from 'react-dom/test-utils';
 import {
   WhiteboardTestingContextProvider,
   mockWhiteboardManager,
@@ -107,7 +108,9 @@ describe('<SideOverviewBar/>', () => {
   it('should have no accessibility violations', async () => {
     const { container } = render(<SlideOverviewBar />, { wrapper: Wrapper });
 
-    expect(await axe(container)).toHaveNoViolations();
+    await act(async () => {
+      expect(await axe(container)).toHaveNoViolations();
+    });
   });
 
   it('should have no accessibility violations for context menu', async () => {
@@ -320,7 +323,8 @@ describe('<SideOverviewBar/>', () => {
       name: 'Slide 2',
       selected: false,
     });
-    firstTab.focus();
+
+    await waitFor(() => firstTab.focus());
 
     // Navigating with arrow keys doesn't change the selected tab…
     await userEvent.keyboard('{ArrowDown}');
@@ -342,7 +346,7 @@ describe('<SideOverviewBar/>', () => {
       description: /Press the M key to start a drag./,
     });
 
-    tab.focus();
+    await waitFor(() => tab.focus());
 
     await userEvent.keyboard('M');
 
