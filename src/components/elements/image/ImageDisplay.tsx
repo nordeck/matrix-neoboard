@@ -15,7 +15,7 @@
  */
 
 import { styled } from '@mui/material';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import { ImageElement } from '../../../state';
 import {
@@ -51,6 +51,7 @@ const Image = styled('image', {
 function ImageDisplay({
   baseUrl,
   mxc,
+  mimeType,
   width,
   height,
   position,
@@ -62,6 +63,7 @@ function ImageDisplay({
 }: ImageDisplayProps) {
   const [loadError, setLoadError] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [imageUri, setImageUri] = useState<undefined | string>();
 
   const handleLoad = useCallback(() => {
     setLoading(false);
@@ -73,10 +75,36 @@ function ImageDisplay({
     setLoadError(true);
   }, [setLoading, setLoadError]);
 
-  const httpUri = useMemo(
-    () => convertMxcToHttpUrl(mxc, baseUrl) ?? '',
-    [baseUrl, mxc],
-  );
+  // This effect determines the image URI.
+  useEffect(() => {
+    (async () => {
+      const httpUrl = convertMxcToHttpUrl(mxc, baseUrl);
+
+      if (httpUrl === null) {
+        // Clear the image URI if there is no HTTP URL.
+        setImageUri('');
+        return;
+      }
+
+      if (mimeType === 'image/svg+xml') {
+        // Special handling of SVG images, because the media repo response does not provide mime type information for it.
+        // Fetch it and set it from a Blob.
+        const response = await fetch(httpUrl);
+        const rawBlob = await response.blob();
+        const svgBlob = rawBlob.slice(0, rawBlob.size, mimeType);
+        setImageUri(URL.createObjectURL(svgBlob));
+        return;
+      }
+
+      return setImageUri(httpUrl);
+    })();
+
+    return () => {
+      if (imageUri) {
+        URL.revokeObjectURL(imageUri);
+      }
+    };
+  }, [baseUrl, imageUri, mimeType, mxc]);
 
   const renderedSkeleton = loading ? (
     <Skeleton
@@ -97,20 +125,21 @@ function ImageDisplay({
     />
   ) : null;
 
-  const renderedChild = !loadError ? (
-    <Image
-      data-testid={`element-${elementId}-image`}
-      href={httpUri}
-      x={position.x}
-      y={position.y}
-      width={width}
-      height={height}
-      preserveAspectRatio="none"
-      onLoad={handleLoad}
-      onError={handleLoadError}
-      loading={loading}
-    />
-  ) : null;
+  const renderedChild =
+    imageUri !== undefined && !loadError ? (
+      <Image
+        data-testid={`element-${elementId}-image`}
+        href={imageUri}
+        x={position.x}
+        y={position.y}
+        width={width}
+        height={height}
+        preserveAspectRatio="none"
+        onLoad={handleLoad}
+        onError={handleLoadError}
+        loading={loading}
+      />
+    ) : null;
 
   if (readOnly) {
     return (

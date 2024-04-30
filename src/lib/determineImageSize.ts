@@ -23,21 +23,24 @@
  */
 export async function determineImageSize(
   imageData: ArrayBuffer,
+  type: string,
 ): Promise<{ width: number; height: number }> {
   return new Promise<{ width: number; height: number }>((resolve, reject) => {
     const image = new Image();
 
     const handleLoad = () => {
       image.removeEventListener('error', handleError);
+      URL.revokeObjectURL(image.src);
       resolve({ width: image.width, height: image.height });
     };
     const handleError = () => {
       image.removeEventListener('load', handleLoad);
+      URL.revokeObjectURL(image.src);
       reject();
     };
     image.addEventListener('error', handleError, { once: true });
     image.addEventListener('load', handleLoad, { once: true });
 
-    image.src = URL.createObjectURL(new Blob([imageData]));
+    image.src = URL.createObjectURL(new Blob([imageData], { type }));
   });
 }

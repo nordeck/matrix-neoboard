@@ -16,11 +16,13 @@
 
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { act, render, screen } from '@testing-library/react';
+import fetchMock from 'fetch-mock-jest';
 import { ComponentType, PropsWithChildren } from 'react';
 import {
   WhiteboardTestingContextProvider,
   mockWhiteboardManager,
 } from '../../../lib/testUtils/documentTestUtils';
+import { ImageMimeType } from '../../../state';
 import { LayoutStateProvider } from '../../Layout';
 import { SlidesProvider } from '../../Layout/SlidesProvider';
 import { whiteboardHeight, whiteboardWidth } from '../../Whiteboard';
@@ -52,19 +54,59 @@ describe('<ImageDisplay />', () => {
         </WhiteboardTestingContextProvider>
       </LayoutStateProvider>
     );
+
+    jest.mocked(URL.createObjectURL).mockReturnValue('data:test');
+    fetchMock.get(
+      'https://example.com/_matrix/media/v3/download/example.com/test1234',
+      '',
+    );
   });
 
   afterEach(() => {
     jest.useRealTimers();
     widgetApi.stop();
+    jest.mocked(URL.createObjectURL).mockReset();
+    fetchMock.mockReset();
   });
 
-  it('should render without exploding', () => {
+  it.each([
+    ['example.gif', 'image/gif'],
+    ['example.jpeg', 'image/jpeg'],
+    ['example.png', 'image/png'],
+  ] as [string, ImageMimeType][])(
+    'should render %s without exploding',
+    (fileName, mimeType) => {
+      render(
+        <ImageDisplay
+          elementId="element-0"
+          type="image"
+          fileName={fileName}
+          mimeType={mimeType}
+          baseUrl="https://example.com"
+          mxc="mxc://example.com/test1234"
+          width={200}
+          height={300}
+          position={{ x: 23, y: 42 }}
+          active={false}
+          readOnly={false}
+        />,
+        { wrapper: Wrapper },
+      );
+
+      expect(
+        screen.getByTestId('element-element-0-skeleton'),
+      ).toBeInTheDocument();
+      expect(screen.getByTestId('element-element-0-image')).toBeInTheDocument();
+    },
+  );
+
+  it('should render example.svg without exploding', async () => {
     render(
       <ImageDisplay
         elementId="element-0"
         type="image"
-        fileName="example.jpeg"
+        fileName="example.svg"
+        mimeType="image/svg+xml"
         baseUrl="https://example.com"
         mxc="mxc://example.com/test1234"
         width={200}
@@ -79,7 +121,8 @@ describe('<ImageDisplay />', () => {
     expect(
       screen.getByTestId('element-element-0-skeleton'),
     ).toBeInTheDocument();
-    expect(screen.getByTestId('element-element-0-image')).toBeInTheDocument();
+    const imageElement = await screen.findByTestId('element-element-0-image');
+    expect(imageElement).toBeInTheDocument();
   });
 
   it('should render a skeleton until an image is loaded', async () => {
@@ -88,6 +131,7 @@ describe('<ImageDisplay />', () => {
         elementId="element-0"
         type="image"
         fileName="example.jpeg"
+        mimeType="image/jpeg"
         baseUrl="https://example.com"
         mxc="mxc://example.com/test1234"
         width={200}
@@ -120,6 +164,7 @@ describe('<ImageDisplay />', () => {
         elementId="element-0"
         type="image"
         fileName="example.jpeg"
+        mimeType="image/jpeg"
         baseUrl="https://example.com"
         mxc="mxc://example.com/test1234"
         width={200}
@@ -156,6 +201,7 @@ describe('<ImageDisplay />', () => {
         elementId="element-0"
         type="image"
         fileName="example.jpeg"
+        mimeType="image/jpeg"
         baseUrl="https://example.com"
         mxc="mxc://example.com/test1234"
         width={200}

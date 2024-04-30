@@ -87,6 +87,7 @@ describe('<ImageUploadProvider />', () => {
         status: 'fulfilled',
         value: {
           fileName: 'example.jpg',
+          mimeType: 'image/jpeg',
           mxc: 'mxc://example.com/abc123',
           size: {
             width: 40,

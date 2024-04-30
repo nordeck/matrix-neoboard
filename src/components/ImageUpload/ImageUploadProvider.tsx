@@ -20,9 +20,10 @@ import { PropsWithChildren, createContext, useCallback, useRef } from 'react';
 import { ErrorCode, FileRejection } from 'react-dropzone';
 import { useTranslation } from 'react-i18next';
 import { determineImageSize } from '../../lib';
-import { Size } from '../../state';
+import { ImageMimeType, Size } from '../../state';
 import { PromiseSettledResult } from '../../types';
 import { SnackbarDismissAction, SnackbarProps, useSnackbar } from '../Snackbar';
+import { defaultAcceptedImageTypes } from './consts';
 import { useMaxUploadSize } from './useMaxUploadSize';
 
 /**
@@ -46,8 +47,9 @@ type UploadErrors = {
   other: string[];
 };
 
-type ImageUploadResult = {
+export type ImageUploadResult = {
   fileName: string;
+  mimeType: ImageMimeType;
   size: Size;
   /**
    * MXC URI pointing to the uploaded image.
@@ -112,19 +114,29 @@ export function ImageUploadProvider({ children }: PropsWithChildren<{}>) {
   }, []);
 
   const uploadImage = useCallback(
-    async (file: File) => {
+    async (file: File): Promise<ImageUploadResult> => {
       uploadQueue.current.add(file);
 
       try {
         const imageData = await file.arrayBuffer();
-        const size = await determineImageSize(imageData);
+        const size = await determineImageSize(imageData, file.type);
 
         if (size.width * size.height > maxResolutionPixels) {
           throw new ResolutionTooHighError();
         }
 
+        if (!isAllowedMimeType(file.type)) {
+          // This should not happen, because the file type should be validated by Dropzone.
+          throw new Error('Unsupported filetype');
+        }
+
         const uploadResult = await widgetApi.uploadFile(imageData);
-        return { fileName: file.name, size, mxc: uploadResult.content_uri };
+        return {
+          fileName: file.name,
+          mimeType: file.type,
+          size,
+          mxc: uploadResult.content_uri,
+        };
       } catch (error) {
         console.error('Error uploading an image', error);
 
@@ -276,4 +288,8 @@ function showErrorSnackbars(
       autoHideDuration: 10000,
     });
   }
+}
+
+function isAllowedMimeType(type: string): type is ImageMimeType {
+  return Object.keys(defaultAcceptedImageTypes).includes(type);
 }

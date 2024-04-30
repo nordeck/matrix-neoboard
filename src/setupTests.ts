@@ -19,6 +19,7 @@
 // expect(element).toHaveTextContent(/react/i)
 // learn more: https://github.com/testing-library/jest-dom
 import '@testing-library/jest-dom';
+import fetchMock from 'fetch-mock';
 import { toHaveNoViolations } from 'jest-axe';
 import log from 'loglevel';
 import { TextDecoder, TextEncoder } from 'util';
@@ -105,3 +106,8 @@ SVGSVGElement.prototype.getScreenCTM = function () {
 // Mock File APIs
 
 File.prototype.arrayBuffer = jest.fn();
+
+// Mock the fetch API
+Object.assign(global, {
+  fetch: fetchMock.sandbox(),
+});
