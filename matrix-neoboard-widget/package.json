@@ -75,7 +75,8 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/nordeck/matrix-neoboard.git"
+    "url": "https://github.com/nordeck/matrix-neoboard.git",
+    "directory": "matrix-neoboard-widget"
   },
   "bugs": {
     "url": "https://github.com/nordeck/matrix-neoboard/issues"
