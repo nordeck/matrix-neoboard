@@ -45,6 +45,8 @@ export async function exportWhiteboard(
   doc: SharedMap<WhiteboardDocument>,
   baseUrl: string,
 ): Promise<WhiteboardDocumentExport> {
+  const files = await exportFiles(doc, baseUrl);
+
   return {
     version: 'net.nordeck.whiteboard@v1',
     whiteboard: {
@@ -54,7 +56,8 @@ export async function exportWhiteboard(
           .filter(isDefined),
         lock: getSlideLock(doc, slideId) ? {} : undefined,
       })),
-      files: await exportFiles(doc, baseUrl),
+      // Only add files if there is at least one
+      ...(files.length > 0 ? { files } : {}),
     },
   };
 }

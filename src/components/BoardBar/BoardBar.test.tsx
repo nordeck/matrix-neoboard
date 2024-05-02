@@ -203,7 +203,6 @@ describe('<BoardBar/>', () => {
       version: 'net.nordeck.whiteboard@v1',
       whiteboard: {
         slides: [{ elements: [] }, { elements: [] }, { elements: [] }],
-        files: [],
       },
     };
 

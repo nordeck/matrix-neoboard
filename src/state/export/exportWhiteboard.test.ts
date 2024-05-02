@@ -85,7 +85,6 @@ describe('convertWhiteboardToExportFormat', () => {
           { elements: [mockEllipseElement({ kind: 'circle' })] },
           { elements: [mockEllipseElement({ kind: 'triangle' })] },
         ],
-        files: [],
       },
     });
   });
@@ -168,9 +167,6 @@ describe('convertWhiteboardToExportFormat', () => {
             ],
           },
         ],
-        files: [
-          // since all files have errors, no data for them is expected here
-        ],
       },
     });
   });
@@ -215,7 +211,6 @@ describe('convertWhiteboardToExportFormat', () => {
             ],
           },
         ],
-        files: [],
       },
     });
   });
@@ -237,7 +232,6 @@ describe('convertWhiteboardToExportFormat', () => {
       version: 'net.nordeck.whiteboard@v1',
       whiteboard: {
         slides: [{ elements: [] }, { elements: [], lock: {} }],
-        files: [],
       },
     });
   });

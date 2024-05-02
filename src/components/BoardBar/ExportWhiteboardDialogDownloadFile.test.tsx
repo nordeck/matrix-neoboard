@@ -169,7 +169,6 @@ describe('<ExportWhiteboardDialogDownloadFile />', () => {
                 ],
               },
             ],
-            files: [],
           },
         }),
       ]);
