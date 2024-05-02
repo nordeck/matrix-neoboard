@@ -2,4 +2,4 @@
 '@nordeck/matrix-neoboard-widget': minor
 ---
 
-Export board with uoloaded images
+Export board with uploaded images
