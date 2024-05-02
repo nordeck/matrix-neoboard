@@ -1,5 +1,23 @@
 # @nordeck/matrix-neoboard-widget
 
+## 1.17.0
+
+### Minor Changes
+
+- 4667a5a: Release multiselect feature
+- 72bd0e6: Support bold and italic text formatting
+- 0977ec5: Change color of text fields
+- 8663080: Change color of texts
+- a6779a5: Images can now be resized
+
+### Patch Changes
+
+- a67b6ee: Bugfix for grid can not be visible during presentation
+- 3fa82a7: Placeholder appears if file is not available
+- b8df79e: Bugfix for - toolbar text alignment is incorrect when shape is too close to right canvas border
+- 3632c66: Don't show color picker for elements without color properties (ie, images)
+- b94c10b: Fix TextElement size calculation in triangle shapes
+
 ## 1.16.1
 
 ### Patch Changes
