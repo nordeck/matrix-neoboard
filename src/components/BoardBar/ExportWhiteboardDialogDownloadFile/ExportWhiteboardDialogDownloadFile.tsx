@@ -48,10 +48,15 @@ function useWhiteboardDownload(onDownloadFinished: () => void) {
   const widgetApi = useWidgetApi();
 
   const handleDownloadClick = useCallback(async () => {
+    if (widgetApi.widgetParameters.baseUrl === undefined) {
+      // this should never happen, because there is a check that baseUrl is defined on start
+      throw new Error('baseUrl widget parameter not set');
+    }
+
     setIsDownloading(true);
     const filename = `${roomName}.nwb`;
     const whiteboardData = await whiteboard.export(
-      widgetApi.widgetParameters.baseUrl ?? '',
+      widgetApi.widgetParameters.baseUrl,
     );
     downloadData(filename, whiteboardData);
     onDownloadFinished();

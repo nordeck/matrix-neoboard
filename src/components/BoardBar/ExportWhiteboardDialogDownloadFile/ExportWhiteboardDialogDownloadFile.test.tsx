@@ -31,7 +31,11 @@ let widgetApi: MockedWidgetApi;
 
 afterEach(() => widgetApi.stop());
 
-beforeEach(() => (widgetApi = mockWidgetApi()));
+beforeEach(() => {
+  widgetApi = mockWidgetApi();
+  // @ts-ignore forcefully set for tests
+  widgetApi.widgetParameters.baseUrl = 'https://example.com';
+});
 
 describe('<ExportWhiteboardDialogDownloadFile />', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
