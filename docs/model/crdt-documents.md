@@ -181,14 +181,15 @@ An image element
 
 #### Fields
 
-| Field      | Type       | Description                                                                                               |
-| ---------- | ---------- | --------------------------------------------------------------------------------------------------------- |
-| `type`     | `'image'`  | Identifies the element as an image.                                                                       |
-| `mxc`      | `'string'` | [MXC URI](https://spec.matrix.org/v1.9/client-server-api/#matrix-content-mxc-uris) pointing to the image. |
-| `fileName` | `string`   | Image file name.                                                                                          |
-| `position` | `Point`    | The position of the image on the whiteboard canvas.                                                       |
-| `width`    | `number`   | Scaling of the image on the x-axis.                                                                       |
-| `height`   | `number`   | Scaling of the image on the y-axis.                                                                       |
+| Field      | Type                                                            | Description                                                                                               |
+| ---------- | --------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `type`     | `'image'`                                                       | Identifies the element as an image.                                                                       |
+| `mxc`      | `'string'`                                                      | [MXC URI](https://spec.matrix.org/v1.9/client-server-api/#matrix-content-mxc-uris) pointing to the image. |
+| `fileName` | `string`                                                        | Image file name.                                                                                          |
+| `mimeType` | `'image/gif' \| 'image/jpeg' \| 'image/png' \| 'image/svg+xml'` | Supported image mime type.                                                                                |
+| `position` | `Point`                                                         | The position of the image on the whiteboard canvas.                                                       |
+| `width`    | `number`                                                        | Scaling of the image on the x-axis.                                                                       |
+| `height`   | `number`                                                        | Scaling of the image on the y-axis.                                                                       |
 
 #### Example
 

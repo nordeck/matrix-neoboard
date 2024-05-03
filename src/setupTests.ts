@@ -19,10 +19,10 @@
 // expect(element).toHaveTextContent(/react/i)
 // learn more: https://github.com/testing-library/jest-dom
 import '@testing-library/jest-dom';
+import fetchMock from 'fetch-mock';
 import { toHaveNoViolations } from 'jest-axe';
 import { TextDecoder, TextEncoder } from 'util';
 // Make sure to initialize i18n (see mock below)
-import fetchMock from 'fetch-mock';
 import log from 'loglevel';
 import './i18n';
 import { setLocale } from './lib/locale';

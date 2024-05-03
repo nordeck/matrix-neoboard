@@ -25,6 +25,7 @@ export type {
   ElementBase,
   ElementKind,
   ImageElement,
+  ImageMimeType,
   PathElement,
   PathKind,
   ShapeElement,

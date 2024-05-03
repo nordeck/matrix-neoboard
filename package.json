@@ -75,6 +75,7 @@
     "eslint-plugin-notice": "^0.9.10",
     "eslint-plugin-promise": "^6.1.1",
     "fetch-mock": "^9.11.0",
+    "fetch-mock-jest": "^1.5.1",
     "husky": "^9.0.11",
     "i18next-parser": "^8.13.0",
     "jest-axe": "^8.0.0",
