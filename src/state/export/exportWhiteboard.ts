@@ -93,6 +93,7 @@ function downloadFiles(
   baseUrl: string,
 ): Promise<WhiteboardFileExport>[] {
   const promises: Promise<WhiteboardFileExport>[] = [];
+  const handledMxcs: string[] = [];
 
   for (const slideId of getNormalizedSlideIds(doc)) {
     for (const elementId of getNormalizedElementIds(doc, slideId)) {
@@ -102,6 +103,11 @@ function downloadFiles(
         continue;
       }
 
+      if (handledMxcs.includes(element.get('mxc'))) {
+        continue;
+      }
+
+      handledMxcs.push(element.get('mxc'));
       promises.push(downloadFile(element, baseUrl));
     }
   }

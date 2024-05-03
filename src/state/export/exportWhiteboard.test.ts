@@ -124,6 +124,47 @@ describe('convertWhiteboardToExportFormat', () => {
     });
   });
 
+  it('should deduplicate exported images', async () => {
+    const document = createWhiteboardDocument();
+    // add the mock image element twice
+    document.performChange((doc) => {
+      const [addElement0] = generateAddElement(slide0, mockImageElement());
+      addElement0(doc);
+    });
+    document.performChange((doc) => {
+      const [addElement1] = generateAddElement(slide0, mockImageElement());
+      addElement1(doc);
+    });
+
+    // expect only one download to happen
+    fetchMock.get(
+      'https://example.com/_matrix/media/v3/download/example.com/test1234',
+      'test image data',
+    );
+
+    jest.mocked(convertBlobToBase64).mockImplementation(async (blob: Blob) => {
+      // ensure that the response data is passed into the function
+      expect(await blob.text()).toEqual('test image data');
+      return btoa('encoded test image data');
+    });
+
+    expect(
+      await exportWhiteboard(document.getData(), 'https://example.com'),
+    ).toEqual({
+      version: 'net.nordeck.whiteboard@v1',
+      whiteboard: {
+        slides: [{ elements: [mockImageElement(), mockImageElement()] }],
+        files: [
+          // expect one file in the exported data
+          {
+            data: btoa('encoded test image data'),
+            mxc: 'mxc://example.com/test1234',
+          },
+        ],
+      },
+    });
+  });
+
   it('should skip image downloads with errors', async () => {
     const document = createWhiteboardDocument();
     document.performChange((doc) => {
