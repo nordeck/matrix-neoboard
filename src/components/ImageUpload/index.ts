@@ -15,5 +15,6 @@
  */
 
 export { ImageUploadProvider } from './ImageUploadProvider';
+export type { ImageUploadResult } from './ImageUploadProvider';
 export { defaultAcceptedImageTypes } from './consts';
 export { useImageUpload } from './useImageUpload';

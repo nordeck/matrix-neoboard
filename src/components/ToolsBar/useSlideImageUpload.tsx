@@ -17,13 +17,13 @@
 import { useCallback } from 'react';
 import { FileRejection, useDropzone } from 'react-dropzone';
 import {
-  Size,
   WhiteboardSlideInstance,
   calculateCentredPosition,
   calculateFittedElementSize,
   useWhiteboardSlideInstance,
 } from '../../state';
 import {
+  ImageUploadResult,
   defaultAcceptedImageTypes,
   useImageUpload as useImageUploadContext,
 } from '../ImageUpload';
@@ -43,12 +43,7 @@ export function useSlideImageUpload() {
 
       results.forEach((result) => {
         if (result.status === 'fulfilled') {
-          addImageToSlide(
-            slide,
-            result.value.mxc,
-            result.value.fileName,
-            result.value.size,
-          );
+          addImageToSlide(slide, result.value);
         }
       });
     },
@@ -80,11 +75,9 @@ export function useSlideImageUpload() {
  */
 function addImageToSlide(
   slide: WhiteboardSlideInstance,
-  mxc: string,
-  fileName: string,
-  imageSize: Size,
+  uploadResult: ImageUploadResult,
 ): void {
-  const fittedSize = calculateFittedElementSize(imageSize, {
+  const fittedSize = calculateFittedElementSize(uploadResult.size, {
     width: whiteboardWidth,
     height: whiteboardHeight,
   });
@@ -96,7 +89,8 @@ function addImageToSlide(
     type: 'image',
     position: centredPosition,
     ...fittedSize,
-    mxc,
-    fileName,
+    mxc: uploadResult.mxc,
+    fileName: uploadResult.fileName,
+    mimeType: uploadResult.mimeType,
   });
 }

@@ -10,3 +10,6 @@ ADD LICENSE /usr/share/nginx/html/LICENSE.txt
 
 # Allow loading images from all HTTP(s) URLs and blobs
 ENV CSP_IMG_SRC="http: https: blob:"
+
+# Allow to fetch data from all HTTP(s) URLs
+ENV CSP_CONNECT_SRC="http: https:"
