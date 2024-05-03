@@ -22,9 +22,9 @@ import { ComponentType, PropsWithChildren } from 'react';
 import {
   WhiteboardTestingContextProvider,
   mockWhiteboardManager,
-} from '../../lib/testUtils/documentTestUtils';
-import { mockRoomName } from '../../lib/testUtils/matrixTestUtils';
-import { WhiteboardManager } from '../../state';
+} from '../../../lib/testUtils/documentTestUtils';
+import { mockRoomName } from '../../../lib/testUtils/matrixTestUtils';
+import { WhiteboardManager } from '../../../state';
 import { ExportWhiteboardDialogDownloadFile } from './ExportWhiteboardDialogDownloadFile';
 
 let widgetApi: MockedWidgetApi;

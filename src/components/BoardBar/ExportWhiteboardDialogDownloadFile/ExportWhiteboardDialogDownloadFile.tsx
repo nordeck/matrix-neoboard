@@ -18,9 +18,9 @@ import { useWidgetApi } from '@matrix-widget-toolkit/react';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { LoadingButton } from '@mui/lab';
 import { PropsWithChildren, useCallback, useState } from 'react';
-import { downloadData } from '../../lib';
-import { useActiveWhiteboardInstance } from '../../state';
-import { useGetRoomNameQuery } from '../../store';
+import { useActiveWhiteboardInstance } from '../../../state';
+import { useGetRoomNameQuery } from '../../../store';
+import { downloadData } from './download';
 
 export function ExportWhiteboardDialogDownloadFile({
   children,
