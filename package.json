@@ -17,6 +17,7 @@
     "@mui/utils": "^5.14.18",
     "@reduxjs/toolkit": "^1.9.7",
     "emoji-regex": "^10.3.0",
+    "fetch-mock-jest": "^1.5.1",
     "i18next": "^23.11.2",
     "i18next-chained-backend": "^4.6.2",
     "i18next-http-backend": "^2.5.1",

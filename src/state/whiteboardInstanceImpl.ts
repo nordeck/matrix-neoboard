@@ -54,10 +54,7 @@ import {
   isValidWhiteboardDocument,
   isValidWhiteboardDocumentSnapshot,
 } from './crdt';
-import {
-  WhiteboardDocumentExport,
-  convertWhiteboardToExportFormat,
-} from './export';
+import { WhiteboardDocumentExport, exportWhiteboard } from './export';
 import { generateLoadWhiteboardFromExport } from './export/loadWhiteboardFromExport';
 import { PresentationManagerImpl } from './presentationManagerImpl';
 import { LocalForageDocumentStorage } from './storage';
@@ -396,9 +393,10 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
     return this.loadingSubject;
   }
 
-  export(): WhiteboardDocumentExport {
-    return convertWhiteboardToExportFormat(
+  async export(baseUrl: string): Promise<WhiteboardDocumentExport> {
+    return exportWhiteboard(
       this.synchronizedDocument.getDocument().getData(),
+      baseUrl,
     );
   }
 

@@ -16,7 +16,7 @@
 
 import { styled } from '@mui/material';
 import React, { useCallback, useEffect, useState } from 'react';
-
+import { convertMxcToHttpUrl } from '../../../lib';
 import { ImageElement } from '../../../state';
 import {
   ElementContextMenu,
@@ -166,26 +166,6 @@ function ImageDisplay({
       </SelectableElement>
     </>
   );
-}
-
-/**
- * Converts an MXC URI to an HTTP URL.
- * {@link https://github.com/matrix-org/matrix-js-sdk/blob/1b7695cdca841672d582168a19bfe77f00207fea/src/content-repo.ts#L36}
- *
- * @todo This should probably live inside the widget toolkit
- * @param mxcUrl - MXC URL {@link https://spec.matrix.org/v1.9/client-server-api/#matrix-content-mxc-uris}
- * @param baseUrl - Homeserver base URL
- * @returns HTTP URL or null if the MXC URI cannot be parsed
- */
-function convertMxcToHttpUrl(mxcUrl: string, baseUrl: string): string | null {
-  if (mxcUrl.indexOf('mxc://') !== 0) {
-    return null;
-  }
-
-  const serverAndMediaId = mxcUrl.slice(6);
-  const prefix = '/_matrix/media/v3/download/';
-
-  return baseUrl + prefix + serverAndMediaId;
 }
 
 export default React.memo(ImageDisplay);

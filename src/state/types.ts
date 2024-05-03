@@ -102,8 +102,13 @@ export type WhiteboardInstance = {
    */
   observeIsLoading(): Observable<boolean>;
 
-  /** Get the export file representation of the whiteboard. */
-  export(): WhiteboardDocumentExport;
+  /**
+   * Get the export file representation of the whiteboard.
+   *
+   * @param baseUrl - Homeserver base URL used to download images
+   * @returns exported document
+   */
+  export(baseUrl: string): Promise<WhiteboardDocumentExport>;
   /** Replace the whiteboard contents with the contents of the export file. */
   import(whiteboardDocumentExport: WhiteboardDocumentExport): void;
 
