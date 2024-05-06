@@ -36,7 +36,11 @@ let widgetApi: MockedWidgetApi;
 
 afterEach(() => widgetApi.stop());
 
-beforeEach(() => (widgetApi = mockWidgetApi()));
+beforeEach(() => {
+  widgetApi = mockWidgetApi();
+  // @ts-ignore forcefully set for tests
+  widgetApi.widgetParameters.baseUrl = 'https://example.com';
+});
 
 describe('<ExportWhiteboardDialog/>', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
@@ -155,7 +159,7 @@ describe('<ExportWhiteboardDialog/>', () => {
     );
 
     await userEvent.click(
-      within(dialog).getByRole('link', { name: 'Download' }),
+      within(dialog).getByRole('button', { name: 'Download' }),
     );
 
     expect(onClose).toBeCalled();

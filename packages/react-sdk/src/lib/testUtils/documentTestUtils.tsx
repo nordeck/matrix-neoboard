@@ -313,6 +313,7 @@ export function mockImageElement(
     type: 'image',
     mxc: 'mxc://example.com/test1234',
     fileName: 'test.jpg',
+    mimeType: 'image/jpeg',
     position: { x: 10, y: 20 },
     width: 200,
     height: 100,

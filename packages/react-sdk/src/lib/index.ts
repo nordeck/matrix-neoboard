@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
+export { convertBlobToBase64 } from './convertBlobToBase64';
 export { determineImageSize } from './determineImageSize';
 export { findForegroundColor } from './findForegroundColor';
 export { isDefined } from './isDefined';
 export { setLocale } from './locale';
+export * from './matrix';
 export { FontsLoadedContextProvider, useFontsLoaded } from './useFontsLoaded';
 export { useLatestValue } from './useLatestValue';
 export { getUserColor } from './userColor';

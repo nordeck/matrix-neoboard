@@ -16,6 +16,7 @@
 
 import Joi from 'joi';
 import loglevel from 'loglevel';
+import { defaultAcceptedImageTypes } from '../../../components/ImageUpload';
 import {
   BoundingRect,
   calculateBoundingRectForPoints,
@@ -94,6 +95,12 @@ const pathElementSchema = elementBaseSchema
   })
   .required();
 
+export type ImageMimeType =
+  | 'image/gif'
+  | 'image/jpeg'
+  | 'image/png'
+  | 'image/svg+xml';
+
 export type ImageElement = ElementBase & {
   type: 'image';
   width: number;
@@ -104,6 +111,7 @@ export type ImageElement = ElementBase & {
    */
   mxc: string;
   fileName: string;
+  mimeType: ImageMimeType;
 };
 
 const imageElementSchema = elementBaseSchema
@@ -113,6 +121,9 @@ const imageElementSchema = elementBaseSchema
       .regex(/mxc:\/\/.*\/.*/)
       .required(),
     fileName: Joi.string().required(),
+    mimeType: Joi.string()
+      .valid(...Object.keys(defaultAcceptedImageTypes))
+      .required(),
     width: Joi.number().strict().required(),
     height: Joi.number().strict().required(),
   })

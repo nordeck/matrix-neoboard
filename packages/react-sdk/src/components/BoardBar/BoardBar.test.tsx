@@ -221,9 +221,9 @@ describe('<BoardBar/>', () => {
       within(dialog).getByRole('button', { name: 'Import' }),
     );
 
-    expect(whiteboardManager.getActiveWhiteboardInstance()?.export()).toEqual(
-      data,
-    );
+    expect(
+      await whiteboardManager.getActiveWhiteboardInstance()?.export(''),
+    ).toEqual(data);
 
     await waitFor(() => {
       expect(dialog).not.toBeInTheDocument();
