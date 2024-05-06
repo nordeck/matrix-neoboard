@@ -1,90 +1,22 @@
 {
-  "name": "@nordeck/matrix-neoboard-widget",
-  "description": "A whiteboard widget for the Element messenger",
-  "author": "Nordeck IT + Consulting GmbH",
-  "license": "Apache-2.0",
-  "version": "1.17.0",
+  "name": "root",
   "private": true,
-  "dependencies": {
-    "@fontsource/noto-emoji": "^5.0.19",
-    "@matrix-widget-toolkit/api": "^3.2.1",
-    "@matrix-widget-toolkit/mui": "^1.2.1",
-    "@matrix-widget-toolkit/react": "^1.0.6",
-    "@mui/base": "^5.0.0-beta.40",
-    "@mui/icons-material": "^5.15.15",
-    "@mui/lab": "^5.0.0-alpha.170",
-    "@mui/material": "^5.15.15",
-    "@mui/utils": "^5.14.18",
-    "@reduxjs/toolkit": "^1.9.7",
-    "emoji-regex": "^10.3.0",
-    "fetch-mock-jest": "^1.5.1",
-    "i18next": "^23.11.2",
-    "i18next-chained-backend": "^4.6.2",
-    "i18next-http-backend": "^2.5.1",
-    "joi": "^17.13.0",
-    "js-base64": "^3.7.7",
-    "localforage": "^1.10.0",
-    "lodash": "^4.17.21",
-    "loglevel": "^1.9.1",
-    "loglevel-plugin-prefix": "^0.8.4",
-    "matrix-widget-api": "^1.6.0",
-    "pdfmake": "^0.2.10",
-    "react": "^17.0.2",
-    "react-beautiful-dnd": "^13.1.1",
-    "react-dom": "^17.0.2",
-    "react-draggable": "^4.4.6",
-    "react-dropzone": "^14.2.3",
-    "react-hotkeys-hook": "^4.5.0",
-    "react-i18next": "^14.0.0",
-    "react-joyride": "^2.8.1",
-    "react-redux": "^7.2.9",
-    "react-transition-group": "^4.4.5",
-    "react-use": "^17.4.3",
-    "rxjs": "^7.8.1",
-    "tinycolor2": "^1.6.0",
-    "yjs": "^13.6.15"
-  },
+  "workspaces": [
+    "matrix-neoboard-widget",
+    "packages/*"
+  ],
   "devDependencies": {
     "@changesets/cli": "^2.27.1",
-    "@craco/craco": "^7.1.0",
-    "@matrix-widget-toolkit/testing": "^2.4.0",
-    "@testing-library/dom": "^8.20.1",
-    "@testing-library/jest-dom": "^6.4.2",
-    "@testing-library/react": "^12.1.5",
-    "@testing-library/react-hooks": "^8.0.1",
-    "@testing-library/user-event": "^14.5.2",
-    "@types/jest": "^27.5.2",
-    "@types/jest-axe": "^3.5.9",
-    "@types/lodash": "^4.17.0",
-    "@types/node": "^20.8.6",
-    "@types/pdfmake": "^0.2.9",
-    "@types/react": "^17.0.39",
-    "@types/react-beautiful-dnd": "^13.1.8",
-    "@types/react-dom": "^17.0.0",
-    "@types/react-i18next": "^8.1.0",
-    "@types/react-redux": "^7.1.25",
-    "@types/react-transition-group": "^4.4.10",
-    "@types/tinycolor2": "^1.4.6",
-    "babel-plugin-transform-import-meta": "^2.2.1",
-    "cross-env": "^7.0.3",
     "depcheck": "^1.4.7",
-    "dotenv-cli": "^7.4.1",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-config-react-app": "^7.0.1",
     "eslint-plugin-notice": "^0.9.10",
     "eslint-plugin-promise": "^6.1.1",
-    "fetch-mock": "^9.11.0",
-    "fetch-mock-jest": "^1.5.1",
     "husky": "^9.0.11",
-    "i18next-parser": "^8.13.0",
-    "jest-axe": "^8.0.0",
-    "jest-mock": "^29.7.0",
     "lint-staged": "^15.2.2",
     "prettier": "^3.2.5",
     "prettier-plugin-organize-imports": "^3.2.4",
-    "react-scripts": "5.0.1",
-    "typescript": "^5.4.3",
     "yarn-deduplicate": "^6.0.2"
   },
   "engines": {
@@ -92,34 +24,22 @@
     "yarn": ">=1.22.1 <2.0.0"
   },
   "scripts": {
-    "docker": "yarn run docker:build && yarn run docker:run && yarn run docker:remove",
-    "docker:build": "docker build -t nordeck/matrix-neoboard-widget .",
-    "docker:run": "dotenv -c -- docker run -it --rm -e REACT_APP_HOME_SERVER_URL -p 3000:8080 --name matrix-neoboard-widget nordeck/matrix-neoboard-widget",
-    "start": "cross-env HTTPS=true BROWSER=none craco start",
-    "dev": "cross-env BROWSER=none ESLINT_NO_DEV_ERRORS=true TSC_COMPILE_ON_ERROR=true WDS_SOCKET_PORT=0 craco start",
-    "build": "cross-env GENERATE_SOURCEMAP=false INLINE_RUNTIME_CHUNK=false craco build",
-    "test": "craco test",
-    "test:all": "craco test --coverage --watchAll=false",
+    "docker:build": "yarn workspace @nordeck/matrix-neoboard-widget docker:build",
+    "start": "yarn workspace @nordeck/matrix-neoboard-widget start",
+    "dev": "yarn workspace @nordeck/matrix-neoboard-widget dev",
+    "build": "yarn workspaces run build",
+    "test": "yarn workspaces run test",
+    "test:all": "yarn workspaces run test:all",
+    "tsc": "yarn workspaces run tsc",
     "deduplicate": "yarn-deduplicate",
-    "depcheck": "depcheck --ignores=@types/jest,@types/node,prettier-plugin-organize-imports,typescript,i18next-parser,@changesets/cli,@testing-library/dom,babel-plugin-transform-import-meta",
-    "lint": "eslint .",
+    "depcheck": "yarn depcheck:root && yarn workspaces run depcheck",
+    "depcheck:root": "depcheck --ignores=prettier-plugin-organize-imports,@changesets/cli",
+    "lint": "yarn workspaces run lint --max-warnings=0",
     "prepare": "husky",
-    "translate": "i18next \"src/**/*.{ts,tsx}\"",
+    "translate": "yarn workspaces run translate",
     "prettier:check": "prettier --check .",
     "prettier:write": "prettier --write .",
-    "generate-disclaimer": "cp LICENSE ./build/LICENSE.txt && cp NOTICE ./build/NOTICE.txt && yarn licenses generate-disclaimer --prod >> ./build/NOTICE.txt && yarn licenses list --prod --json --no-progress > ./build/licenses.json"
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+    "generate-disclaimer": "yarn workspaces run generate-disclaimer"
   },
   "jest": {
     "transformIgnorePatterns": [
@@ -141,13 +61,5 @@
     "*.{yaml,yml,json,md}": [
       "prettier --write"
     ]
-  },
-  "homepage": "/",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/nordeck/matrix-neoboard.git"
-  },
-  "bugs": {
-    "url": "https://github.com/nordeck/matrix-neoboard/issues"
   }
 }

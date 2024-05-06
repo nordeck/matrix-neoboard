@@ -142,4 +142,5 @@ task-definition.json
 .env.local
 
 # Translation helper files
-public/locales/*/translation_old.json
+matrix-neoboard-widget/public/locales/*/translation_old.json
+packages/react-sdk/src/locales/*/translation_old.json
