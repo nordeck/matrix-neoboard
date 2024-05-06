@@ -24,6 +24,9 @@
     "yarn": ">=1.22.1 <2.0.0"
   },
   "scripts": {
+    "docker:build": "yarn workspace @nordeck/matrix-neoboard-widget docker:build",
+    "start": "yarn workspace @nordeck/matrix-neoboard-widget start",
+    "dev": "yarn workspace @nordeck/matrix-neoboard-widget dev",
     "build": "yarn workspaces run build",
     "test": "yarn workspaces run test",
     "test:all": "yarn workspaces run test:all",
