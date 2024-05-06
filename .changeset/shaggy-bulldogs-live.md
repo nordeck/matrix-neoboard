@@ -1,5 +1,5 @@
 ---
-'@nordeck/matrix-neoboard-react-sdk': major
+'@nordeck/matrix-neoboard-react-sdk': minor
 ---
 
-Initial release
+Initial version
