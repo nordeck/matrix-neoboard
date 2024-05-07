@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
+const path = require('path');
+
 module.exports = {
+  ignorePatterns: ['**/build/**', '**/craco.config.js', '**/jest.config.js'],
   plugins: ['promise', 'notice'],
   extends: [
     'react-app',
@@ -27,7 +30,7 @@ module.exports = {
     'notice/notice': [
       'error',
       {
-        templateFile: 'scripts/license-header.txt',
+        templateFile: path.resolve(__dirname, './scripts/license-header.txt'),
         onNonMatchingHeader: 'replace',
         templateVars: { NAME: 'Nordeck IT + Consulting GmbH' },
         varRegexps: { NAME: /.+/ },

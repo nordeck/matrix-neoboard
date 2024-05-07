@@ -1,0 +1,264 @@
+{
+  "app": {
+    "waitModeratorJoin": "Bitte warte auf den Moderator."
+  },
+  "boardBar": {
+    "exportWhiteboardDialog": {
+      "cancel": "Abbrechen",
+      "close": "Schließen",
+      "description": "Bitte wähle dein gewünschtes Format.",
+      "download": "Herunterladen",
+      "fileFormat": {
+        "nwb": "NeoBoard-Datei (.nwb)",
+        "pdf": "PDF-Datei (.pdf)",
+        "title": "Dateiformat"
+      },
+      "notAccessibleTooltip": "Das bereitgestellte PDF ist aktuell nicht barrierefrei und kann nicht mit einem Screen Reader gelesen werden.",
+      "pdfError": "Bei der Erstellung des PDFs ist ein Fehler aufgetreten.",
+      "title": "Inhalt exportieren"
+    },
+    "hideSlideBarTitle": "Folienübersicht schließen",
+    "importWhiteboardDialog": {
+      "close": "Schließen",
+      "errorDescription": "Deine Datei kann nicht geladen werden, versuche es mit einer anderen Datei.",
+      "errorTitle": "Fehler",
+      "selectFile": "Datei auswählen",
+      "selectFileLabel": "Ausgewählte Datei: „{{fileName}}“. Klicke um eine andere Datei auszuwählen.",
+      "success": {
+        "cancel": "Abbrechen",
+        "import": "Importieren"
+      },
+      "successDescription": "Deine Inhalte werden überschrieben. Diese Aktion ist durch die Nutzung von „Rückgängig“ umkehrbar.",
+      "successTitle": "Achtung",
+      "title": "Inhalt importieren"
+    },
+    "menu": {
+      "developerTools": "Entwicklerwerkzeuge",
+      "export": "Exportieren…",
+      "grid": "Raster",
+      "import": "Importieren…",
+      "title": "Einstellungen"
+    },
+    "showSlideBarTitle": "Folienübersicht öffnen",
+    "title": "Tafel"
+  },
+  "collaborationBar": {
+    "collaborators": {
+      "menu": {
+        "title_one": "Ein weiterer Mitwirkender",
+        "title_other": "{{count}} weitere Mitwirkende"
+      },
+      "title": "Mitwirkende"
+    },
+    "hideCollaboratorsCursors": "Zeiger der Mitwirkenden ausblenden",
+    "showCollaboratorsCursors": "Zeiger der Mitwirkenden anzeigen",
+    "title": "Zusammenarbeit"
+  },
+  "colorPicker": {
+    "colors": {
+      "amber": "Bernstein",
+      "black": "Schwarz",
+      "blue": "Blau",
+      "blueGrey": "Blaugrau",
+      "brown": "Braun",
+      "cyan": "Cyan",
+      "deepOrange": "Dunkelorange",
+      "deepPurple": "Dunkellila",
+      "green": "Grün",
+      "grey": "Grau",
+      "indigo": "Indigoblau",
+      "lightBlue": "Hellblau",
+      "lightGreen": "Hellgrün",
+      "lime": "Kalk",
+      "orange": "Orange",
+      "pink": "Rosa",
+      "purple": "Lila",
+      "red": "Rot",
+      "teal": "Blaugrün",
+      "transparent": "Transparent",
+      "white": "Weiß",
+      "yellow": "Gelb"
+    },
+    "gridTitle": "Farben",
+    "title": "Wähle eine Farbe"
+  },
+  "copyableTextButton": {
+    "copy-to-clipboard": "In die Zwischenablage kopieren"
+  },
+  "elementBar": {
+    "deleteElement_one": "Element löschen",
+    "deleteElement_other": "Elemente löschen",
+    "duplicateActiveElement_one": "Element duplizieren",
+    "duplicateActiveElement_other": "Elemente duplizieren",
+    "textAlignment": "Textausrichtung",
+    "textAlignmentCenter": "Zentriert",
+    "textAlignmentLeft": "Links",
+    "textAlignmentRight": "Rechts",
+    "textBold": "Fett",
+    "textItalic": "Kursiv",
+    "title": "Element"
+  },
+  "elementContextMenu": {
+    "bringBackward": "Nach hinten",
+    "bringForward": "Nach vorne",
+    "bringToBack": "In den Hintergrund",
+    "bringToFront": "In den Vordergrund",
+    "deleteElement": "Löschen",
+    "title": "Element"
+  },
+  "fullscreenModeBar": {
+    "fullscreenOff": "Vollbild aus",
+    "fullscreenOn": "Vollbild an",
+    "title": "Vollbildmodus"
+  },
+  "guidedTour": {
+    "back": "Zurück",
+    "collaborationBar": {
+      "content": "<p>Um zu sehen, wer aktuell auf dem NeoBoard aktiv ist, schaue einfach hier nach. Es werden dir alle Teilnehmer:innen angezeigt, die gerade online sind oder es kürzlich waren. Und wenn es mal voll wird, klicke auf die Zahl rechts neben den ersten fünf Teilnehmer:innen um zu sehen, wer außerdem online ist. Mit dem kleinen Auge kannst du die Mauszeiger der anderen ein- oder ausblenden.</p>",
+      "title": "Kollaboration"
+    },
+    "complete": "Abschließen",
+    "helpCenter": {
+      "content": "<p>Der Hilfebereich bietet dir einen schnellen Zugriff auf das Benutzerhandbuch und eine Übersicht aller Tastaturbefehle. Außerdem kannst du dort auch jederzeit diese Tour neu starten, um nochmal in Ruhe alles zu erkunden.</p><p>Viel Spaß, kreative Ideen und viel Erfolg mit dem NeoBoard!</p>",
+      "title": "Hilfebereich"
+    },
+    "introduction": {
+      "content": "<p>Herzlich willkommen auf dem NeoBoard. In dieser Einführung erhältst du Tipps zur Verwendung des NeoBoards, damit du im Handumdrehen mit der Gestaltung beginnen kannst. Los geht's!</p>",
+      "title": "Willkommen"
+    },
+    "next": "Weiter",
+    "settings": {
+      "content": "<p>Du kannst das NeoBoard und damit die geleistete Arbeit exportieren und (bspw. in einem anderen Raum) wieder importieren oder als Sicherungskopie ablegen. Außerdem kannst du das Raster (de-)aktivieren.</p>",
+      "title": "Einstellungen"
+    },
+    "slideCount": "{{index}} von {{total}}",
+    "slideOverview": {
+      "content": "<p>Hier findest du die Folien aller Teilnehmer:innen. Klicke auf den Button, um eine Folie hinzuzufügen. Mit der rechten Maustaste öffnest du das Kontextmenü und kannst vorhandene Folien löschen, gegen Veränderungen schützen, indem du sie sperrst oder alle Teilnehmer:innen hierher holen. Mit gedrückter linker Maustaste kannst du die Reihenfolge der Folien verändern.</p>",
+      "title": "Folienübersicht"
+    },
+    "toolsbar": {
+      "content": "<p>Die Werkzeugleiste enthält alle Werkzeuge und Objekte, die zur Gestaltung deiner Folie zur Verfügung stehen. Wähle ein Objekt aus und bewege die Maus an eine beliebige Stelle auf der Folie, um es zu platzieren. Formen zeichnest du mit der Mausbewegung bei gedrückter linker Maustaste. Text platzierst du auf die gleiche Weise und kannst direkt lostippen.</p>",
+      "title": "Werkzeuge"
+    }
+  },
+  "helpCenter": {
+    "info": {
+      "close": "Schließen",
+      "commitHash": "Commit hash",
+      "showLess": "Weniger anzeigen",
+      "showMore": "Mehr anzeigen",
+      "title": "Über NeoBoard",
+      "version": "Version {{version}}"
+    },
+    "menu": {
+      "about": "Über NeoBoard",
+      "helpCenter": "Hilfezentrum",
+      "resetOnboarding": "Einführung zurücksetzen",
+      "title": "Hilfe"
+    },
+    "title": "Hilfe"
+  },
+  "hotKeysHelp": {
+    "alt_default": "Alt",
+    "alt_macos": "⌥",
+    "arrowDown": "↓",
+    "arrowLeft": "←",
+    "arrowRight": "→",
+    "arrowUp": "↑",
+    "backspace_default": "←",
+    "backspace_macos": "⌫",
+    "ctrl_default": "Strg",
+    "ctrl_macos": "⌃",
+    "delete_default": "Entf",
+    "delete_macos": "⌦",
+    "enter_default": "Eingabe",
+    "enter_macos": "⏎",
+    "escape": "Esc",
+    "meta_macos": "⌘",
+    "shift_default": "Umschalt",
+    "shift_macos": "⇧",
+    "space_default": "Leertaste",
+    "space_macos": "␣"
+  },
+  "imageUpload": {
+    "fileIsUploaded_one": "Die Datei wird hochgeladen…",
+    "fileIsUploaded_other": "Die Dateien werden hochgeladen…",
+    "loadError": "Die Datei ist nicht verfügbar.",
+    "otherError_one": "Die Datei {{fileNames}} kann nicht hochgeladen werden.",
+    "otherError_other": "Die Dateien {{fileNames}} konnten nicht hochgeladen werden.",
+    "resolutionError_one": "Die Datei {{fileNames}} kann aufgrund ihrer Auflösung nicht hochgeladen werden. Der Upload ist mit maximal {{limit}} pro Datei möglich.",
+    "resolutionError_other": "Die Dateien {{fileNames}} können aufgrund ihrer Auflösung nicht hochgeladen werden. Der Upload ist mit maximal {{limit}} pro Datei möglich.",
+    "sizeError_one": "Die Datei {{fileNames}} kann aufgrund ihrer Größe nicht hochgeladen werden. Der Upload ist mit maximal {{limit}} pro Datei möglich.",
+    "sizeError_other": "Die Dateien {{fileNames}} können aufgrund ihrer Größe nicht hochgeladen werden. Der Upload ist mit maximal {{limit}} pro Datei möglich."
+  },
+  "presentBar": {
+    "disableEditing": "Bearbeitung sperren",
+    "enableEditing": "Bearbeitung freigeben",
+    "endPresentation": "Präsentation beenden",
+    "startPresentation": "Präsentation starten",
+    "title": "Präsentieren"
+  },
+  "presentToolsBar": {
+    "nextSlide": "Nächste Folie",
+    "previousSlide": "Vorherige Folie"
+  },
+  "slideOverviewBar": {
+    "addSlide": "Folie hinzufügen",
+    "contextMenu": {
+      "bringEveryoneToSlide": "Bring alle hierhin",
+      "deleteSlide": "Löschen",
+      "duplicateSlide": "Folie duplizieren",
+      "lockSlide": "Sperren",
+      "title": "Folie {{index}}"
+    },
+    "dragAndDrop": {
+      "dragInstructions": "Drücke die M-Taste um diese Folie zu verschieben. Während des Verschiebens, nutze die Pfeiltasten um den Eintrag zu verschieben und Escape um es abzubrechen. Stelle sicher das dein Screen Reader im Fokus oder Formular Modus ist.",
+      "dragStart": "Du hast eine Folie aufgehoben. Sie befindet sich an Position {{startPosition}} von {{totalCount}} in der Liste. Nutze die Pfeiltasten zum verschieben, die M-Taste zum Ablegen und Escape zum Abbrechen.",
+      "dropped": "Du hast die Folie abgelegt. Sie wurde von Position {{startPosition}} nach {{destinationPosition}} verschoben.",
+      "droppedOnNoDropTarget": "Du hast die Folie abgelegt während du nicht über einer gültigen Ablagestelle gewesen bist. Die Folie ist zu ihrer ursprünglichen Position {{startPosition}} zurückgekehrt.",
+      "movedPosition": "Du hast die Folie zu Position {{position}} von {{totalCount}} verschoben.",
+      "movementCanceled": "Verschieben abgebrochen. Die Folie ist zu ihrer ursprünglichen Position {{startPosition}} zurückgekehrt.",
+      "notOverDropTarget": "Du befindest dich aktuell nicht über einer gültigen Ablagestelle."
+    },
+    "slideListTitle": "Folien",
+    "slideLockedTooltip": "Gesperrt",
+    "slideTitle": "Folie",
+    "slideTitleLocked": "(gesperrt)",
+    "title": "Folienübersicht"
+  },
+  "snackbar": {
+    "dismissAction": "Ausblenden"
+  },
+  "textColorPicker": {
+    "title": "Wähle eine Textfarbe"
+  },
+  "toolbar": {
+    "toolbarAvatar": {
+      "label_you": "{{displayName}} (Du)",
+      "labelPresenter": "{{displayName}} präsentiert",
+      "labelPresenting_you": "{{displayName}} (Du) präsentiert",
+      "more": "+{{furtherCount}}"
+    }
+  },
+  "toolsBar": {
+    "arrowTool": "Pfeil",
+    "ellipseTool": "Ellipse",
+    "imageUploadTool": "Bild hochladen",
+    "lineTool": "Linie",
+    "penTool": "Stift",
+    "rectangleTool": "Rechteck",
+    "selectTool": "Auswählen",
+    "textTool": "Text",
+    "title": "Werkzeuge",
+    "triangleTool": "Dreieck"
+  },
+  "undoRedoBar": {
+    "redo": "Wiederholen",
+    "title": "Rückgängig",
+    "undo": "Rückgängig"
+  },
+  "uploadBar": {
+    "title": "Hochladen",
+    "upload": "Hochladen"
+  }
+}

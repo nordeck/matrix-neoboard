@@ -1,0 +1,84 @@
+{
+  "name": "@nordeck/matrix-neoboard-widget",
+  "description": "A whiteboard widget for the Element messenger",
+  "author": "Nordeck IT + Consulting GmbH",
+  "license": "Apache-2.0",
+  "version": "1.17.0",
+  "private": true,
+  "dependencies": {
+    "@matrix-widget-toolkit/api": "^3.3.1",
+    "@matrix-widget-toolkit/mui": "^2.0.0",
+    "@nordeck/matrix-neoboard-react-sdk": "0.0.1",
+    "i18next": "^23.11.2",
+    "i18next-chained-backend": "^4.6.2",
+    "i18next-http-backend": "^2.5.1",
+    "loglevel": "^1.9.1",
+    "loglevel-plugin-prefix": "^0.8.4",
+    "matrix-widget-api": "^1.6.0",
+    "react": "^10.2.0",
+    "react-dom": "^18.2.0",
+    "react-i18next": "^14.1.1",
+    "react-redux": "^9.1.1"
+  },
+  "devDependencies": {
+    "@craco/craco": "^7.1.0",
+    "@testing-library/jest-dom": "^6.4.2",
+    "@testing-library/react": "^14.2.2",
+    "@types/jest": "^27.5.2",
+    "@types/node": "^20.8.6",
+    "@types/react": "^18.2.74",
+    "@types/react-dom": "^18.2.24",
+    "@types/react-i18next": "^8.1.0",
+    "@types/react-redux": "^7.1.25",
+    "babel-plugin-transform-import-meta": "^2.2.1",
+    "cross-env": "^7.0.3",
+    "depcheck": "^1.4.7",
+    "dotenv-cli": "^7.4.1",
+    "eslint": "^8.57.0",
+    "i18next-parser": "^8.13.0",
+    "prettier": "^3.2.5",
+    "react-scripts": "5.0.1",
+    "typescript": "^5.4.3"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "yarn": ">=1.22.1 <2.0.0"
+  },
+  "scripts": {
+    "docker": "yarn run docker:build && yarn run docker:run",
+    "docker:build": "docker build -t nordeck/matrix-neoboard-widget .",
+    "docker:run": "dotenv -c -- docker run -it --rm -e REACT_APP_HOME_SERVER_URL -p 3000:8080 --name matrix-neoboard-widget nordeck/matrix-neoboard-widget",
+    "start": "cross-env HTTPS=true BROWSER=none craco start",
+    "dev": "cross-env BROWSER=none ESLINT_NO_DEV_ERRORS=true TSC_COMPILE_ON_ERROR=true WDS_SOCKET_PORT=0 craco start",
+    "build": "cross-env GENERATE_SOURCEMAP=false INLINE_RUNTIME_CHUNK=false craco build",
+    "tsc": "tsc",
+    "test": "jest --watch",
+    "test:all": "jest --coverage --watchAll=false",
+    "depcheck": "depcheck --ignores=babel-plugin-transform-import-meta --ignore-dirs=build",
+    "lint": "eslint .",
+    "translate": "i18next \"src/**/*.{ts,tsx}\"",
+    "prettier:check": "prettier --check .",
+    "prettier:write": "prettier --write .",
+    "generate-disclaimer": "cp ../LICENSE ./build/LICENSE.txt && cp NOTICE ./build/NOTICE.txt && yarn licenses generate-disclaimer --prod >> ./build/NOTICE.txt && yarn licenses list --prod --json --no-progress > ./build/licenses.json"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nordeck/matrix-neoboard.git",
+    "directory": "matrix-neoboard-widget"
+  },
+  "bugs": {
+    "url": "https://github.com/nordeck/matrix-neoboard/issues"
+  }
+}
