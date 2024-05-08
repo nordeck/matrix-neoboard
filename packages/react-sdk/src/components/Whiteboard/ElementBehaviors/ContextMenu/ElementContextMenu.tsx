@@ -52,6 +52,10 @@ export function ElementContextMenu({
     );
   }, []);
 
+  const handleClose = useCallback(() => {
+    setState(undefined);
+  }, []);
+
   return (
     <>
       <Box
@@ -63,16 +67,27 @@ export function ElementContextMenu({
       </Box>
 
       {state !== undefined && (
-        <ContextMenuOptions state={state} activeElementIds={activeElementIds} />
+        <ContextMenuOptions
+          state={state}
+          activeElementIds={activeElementIds}
+          onClose={handleClose}
+        />
       )}
     </>
   );
 }
 
+type ContextMenuOptionsProps = PropsWithChildren<{
+  state: ContextMenuState;
+  activeElementIds: string[];
+  onClose: () => void;
+}>;
+
 function ContextMenuOptions({
   state,
   activeElementIds,
-}: PropsWithChildren<{ state: ContextMenuState; activeElementIds: string[] }>) {
+  onClose,
+}: ContextMenuOptionsProps) {
   const isLocked = useSlideIsLocked();
   const slideInstance = useWhiteboardSlideInstance();
   const elementIds = useSlideElementIds();
@@ -89,7 +104,8 @@ function ContextMenuOptions({
 
   const handleClose = useCallback(() => {
     setOpen(false);
-  }, []);
+    onClose();
+  }, [onClose]);
 
   const handleClickBringToFront = useCallback(() => {
     if (activeElementIds.length > 0) {
@@ -128,16 +144,6 @@ function ContextMenuOptions({
 
   return (
     <Menu
-      componentsProps={{
-        backdrop: {
-          // Make sure to close the context menu if the user clicks on the
-          // backdrop
-          onContextMenu: (e) => {
-            e.preventDefault();
-            handleClose();
-          },
-        },
-      }}
       MenuListProps={{
         'aria-label': menuTitle,
         dense: true,
