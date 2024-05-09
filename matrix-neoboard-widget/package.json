@@ -73,6 +73,7 @@
       "last 1 safari version"
     ]
   },
+  "homepage": "/",
   "repository": {
     "type": "git",
     "url": "https://github.com/nordeck/matrix-neoboard.git",

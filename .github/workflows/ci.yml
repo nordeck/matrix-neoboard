@@ -150,7 +150,7 @@ jobs:
           REACT_APP_HELP_CENTER_URL="https://github.com/nordeck/matrix-neoboard"
           EOF
 
-          sed -i 's,"homepage": "/","homepage": "/matrix-neoboard",' package.json
+          sed -i 's,"homepage": "/","homepage": "/matrix-neoboard",' matrix-neoboard-widget/package.json
 
       - name: build
         run: yarn build
