@@ -7,9 +7,9 @@
   "private": true,
   "dependencies": {
     "@matrix-widget-toolkit/api": "^3.2.1",
-    "@matrix-widget-toolkit/mui": "^1.2.1",
+    "@matrix-widget-toolkit/mui": "^2.0.0",
     "@nordeck/matrix-neoboard-react-sdk": "0.0.1",
-    "i18next": "^23.11.2",
+    "i18next": "^23.11.4",
     "i18next-chained-backend": "^4.6.2",
     "i18next-http-backend": "^2.5.1",
     "loglevel": "^1.9.1",
