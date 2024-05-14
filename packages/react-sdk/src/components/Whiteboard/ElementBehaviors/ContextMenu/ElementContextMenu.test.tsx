@@ -127,6 +127,36 @@ describe('<ElementContextMenu/>', () => {
     ).toBeInTheDocument();
   });
 
+  it('should reopen the context menu', async () => {
+    render(<ElementContextMenu activeElementIds={['element-1']} />, {
+      wrapper: Wrapper,
+    });
+
+    const contextMenuTarget = screen.getByTestId(
+      'element-context-menu-container',
+    );
+
+    // right click inside the element should open the context menu
+    await userEvent.pointer({
+      keys: '[MouseRight]',
+      target: contextMenuTarget,
+    });
+    expect(screen.getByRole('menu', { name: 'Element' })).toBeInTheDocument();
+
+    // press ESC should dismiss it
+    await userEvent.keyboard('[Escape]');
+    expect(
+      screen.queryByRole('menu', { name: 'Element' }),
+    ).not.toBeInTheDocument();
+
+    // another right click inside the element should open the context menu again
+    await userEvent.pointer({
+      keys: '[MouseRight]',
+      target: contextMenuTarget,
+    });
+    expect(screen.getByRole('menu', { name: 'Element' })).toBeInTheDocument();
+  });
+
   it('should have no accessibility violations', async () => {
     const { container } = render(
       <ElementContextMenu activeElementIds={['id']} />,
