@@ -15,12 +15,13 @@
  */
 
 import { useWidgetApi } from '@matrix-widget-toolkit/react';
+import { Theme, ThemeProvider } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { Layout } from './components/Layout';
 import { PageLoader } from './components/common/PageLoader';
 import { useOwnedWhiteboard, useWhiteboardManager } from './state';
 
-export const App = () => {
+export const App = ({ theme }: { theme?: Theme }) => {
   const { t } = useTranslation();
   const { value, loading } = useOwnedWhiteboard();
   const whiteboardManager = useWhiteboardManager();
@@ -50,5 +51,13 @@ export const App = () => {
     );
   }
 
-  return <Layout />;
+  if (theme) {
+    return (
+      <ThemeProvider theme={theme}>
+        <Layout />
+      </ThemeProvider>
+    );
+  } else {
+    return <Layout />;
+  }
 };
