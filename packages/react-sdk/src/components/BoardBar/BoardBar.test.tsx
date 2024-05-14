@@ -25,7 +25,9 @@ import {
 } from '../../lib/testUtils/documentTestUtils';
 import { mockPowerLevelsEvent } from '../../lib/testUtils/matrixTestUtils';
 import { WhiteboardDocumentExport, WhiteboardManager } from '../../state';
+import { ImageUploadProvider } from '../ImageUpload';
 import { LayoutStateProvider } from '../Layout/useLayoutState';
+import { SnackbarProvider } from '../Snackbar';
 import { BoardBar } from './BoardBar';
 
 let widgetApi: MockedWidgetApi;
@@ -46,7 +48,11 @@ describe('<BoardBar/>', () => {
         whiteboardManager={whiteboardManager}
         widgetApi={widgetApi}
       >
-        <LayoutStateProvider>{children}</LayoutStateProvider>
+        <SnackbarProvider>
+          <ImageUploadProvider>
+            <LayoutStateProvider>{children}</LayoutStateProvider>
+          </ImageUploadProvider>
+        </SnackbarProvider>
       </WhiteboardTestingContextProvider>
     );
   });
