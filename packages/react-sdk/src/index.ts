@@ -27,6 +27,3 @@ export * from './lib/testUtils/documentTestUtils';
 export * from './model';
 export * from './state';
 export * from './store';
-export { baseApi } from './store/api/baseApi';
-export { powerLevelsApi } from './store/api/powerLevelsApi';
-export { roomNameApi } from './store/api/roomNameApi';
