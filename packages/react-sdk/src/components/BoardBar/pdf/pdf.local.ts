@@ -16,7 +16,7 @@
 
 import * as pdfMake from 'pdfmake/build/pdfmake';
 import { TDocumentDefinitions } from 'pdfmake/interfaces';
-import { initializeFonts } from './initializeFonts';
+import { createFontConfig } from './createFontConfig';
 
 /**
  * Generate the PDF in a separate module that can either:
@@ -24,7 +24,7 @@ import { initializeFonts } from './initializeFonts';
  *   2. be imported lazily as a separate module
  */
 export function generatePdf(content: TDocumentDefinitions): Promise<Blob> {
-  const cfg = initializeFonts();
+  const cfg = createFontConfig();
   const pdf = pdfMake.createPdf(content, undefined, cfg.fonts, cfg.vfs);
   return new Promise<Blob>((resolve) => pdf.getBlob(resolve));
 }

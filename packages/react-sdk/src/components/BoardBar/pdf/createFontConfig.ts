@@ -23,7 +23,7 @@ type FontConfig = {
   fonts: TFontDictionary;
 };
 
-export function initializeFonts(): FontConfig {
+export function createFontConfig(): FontConfig {
   const config: FontConfig = {
     vfs: {
       'Inter-400.woff2': inter400,
