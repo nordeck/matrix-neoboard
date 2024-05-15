@@ -14,34 +14,36 @@
  * limitations under the License.
  */
 
-import * as pdfMake from 'pdfmake/build/pdfmake';
-import * as pdfFonts from 'pdfmake/build/vfs_fonts';
+import { TFontDictionary } from 'pdfmake/interfaces';
 import { inter400 } from './inter';
 import { notoEmojiRegular } from './noto-emoji-regular';
 
-initializeFonts(pdfMake);
+type FontConfig = {
+  vfs: { [file: string]: string };
+  fonts: TFontDictionary;
+};
 
-function initializeFonts(pdf: typeof pdfMake) {
-  pdf.vfs = {
-    'Inter-400.woff2': inter400,
-    'NotoEmoji-Regular.ttf': notoEmojiRegular,
+export function createFontConfig(): FontConfig {
+  const config: FontConfig = {
+    vfs: {
+      'Inter-400.woff2': inter400,
+      'NotoEmoji-Regular.ttf': notoEmojiRegular,
+    },
+    fonts: {},
   };
 
-  Object.entries(pdfFonts.pdfMake.vfs).forEach(([n, f]) => {
-    pdf.vfs[n] = f;
-  });
-
-  pdf.fonts = {};
-  pdf.fonts['Roboto'] = {
+  config.fonts['Roboto'] = {
     normal: 'Roboto-Regular.ttf',
     bold: 'Roboto-Medium.ttf',
     italics: 'Roboto-Italic.ttf',
     bolditalics: 'Roboto-MediumItalic.ttf',
   };
-  pdf.fonts['Inter'] = {
+  config.fonts['Inter'] = {
     normal: 'Inter-400.woff2',
   };
-  pdf.fonts['Noto Emoji'] = {
+  config.fonts['Noto Emoji'] = {
     normal: 'NotoEmoji-Regular.ttf',
   };
+
+  return config;
 }
