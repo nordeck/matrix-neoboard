@@ -27,4 +27,3 @@ export * from './lib/testUtils/documentTestUtils';
 export * from './model';
 export * from './state';
 export * from './store';
-export * from './store/api';
