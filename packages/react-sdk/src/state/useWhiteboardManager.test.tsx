@@ -57,5 +57,7 @@ describe('useWhiteboardManager', () => {
         'useWhiteboardManager can only be used inside of <WhiteboardManagerProvider>',
       ),
     );
+
+    jest.mocked(console.error).mockRestore();
   });
 });
