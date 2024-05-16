@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-// Always make sure to initialize fonts if PDFs are generated.
-import './initializeFonts';
-
 import * as pdfMake from 'pdfmake/build/pdfmake';
 import { TDocumentDefinitions } from 'pdfmake/interfaces';
+import { createFontConfig } from './createFontConfig';
 
 /**
  * Generate the PDF in a separate module that can either:
@@ -26,6 +24,7 @@ import { TDocumentDefinitions } from 'pdfmake/interfaces';
  *   2. be imported lazily as a separate module
  */
 export function generatePdf(content: TDocumentDefinitions): Promise<Blob> {
-  const pdf = pdfMake.createPdf(content);
+  const cfg = createFontConfig();
+  const pdf = pdfMake.createPdf(content, undefined, cfg.fonts, cfg.vfs);
   return new Promise<Blob>((resolve) => pdf.getBlob(resolve));
 }

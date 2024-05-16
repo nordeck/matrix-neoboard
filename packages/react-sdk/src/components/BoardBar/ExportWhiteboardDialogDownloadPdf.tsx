@@ -86,7 +86,6 @@ function useGeneratePdf(
   roomName: string,
   onError?: Dispatch<string | undefined>,
 ) {
-  const { t } = useTranslation();
   const widgetApi = useWidgetApi();
 
   const [downloadUrl, setDownloadUrl] = useState<string>();
@@ -114,14 +113,13 @@ function useGeneratePdf(
         setDownloadUrl(url);
       },
       error: (e) => {
+        // Make sure the URL is also revoked on error, so we don't leak
+        if (url) {
+          URL.revokeObjectURL(url);
+        }
         const logger = getLogger('ExportWhiteboardDialogDownloadPdf');
         logger.error('Error while generating the PDF', e);
-        onError?.(
-          t(
-            'boardBar.exportWhiteboardDialog.pdfError',
-            'Something went wrong while generating the PDF.',
-          ),
-        );
+        onError?.(e.message);
       },
     });
 
@@ -135,7 +133,6 @@ function useGeneratePdf(
     getUserDisplayName,
     onError,
     roomName,
-    t,
     whiteboardInstance,
     widgetApi.widgetParameters.userId,
   ]);

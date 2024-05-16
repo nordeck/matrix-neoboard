@@ -26,7 +26,9 @@ export function createWhiteboardPdf(params: {
   const contentObservable = from(createWhiteboardPdfDefinition(params));
 
   if (window.Worker) {
-    const worker = new Worker(new URL('./pdf.worker.ts', import.meta.url));
+    const worker = new Worker(new URL('./pdf.worker.ts', import.meta.url), {
+      type: 'module',
+    });
 
     return contentObservable.pipe(
       switchMap((content) => {
