@@ -1,5 +1,24 @@
 # @nordeck/matrix-neoboard-widget
 
+## 1.18.0
+
+### Minor Changes
+
+- 37d77c0: Board import with uploaded images
+- e0f36b7: Export board with uploaded images
+
+### Patch Changes
+
+- 6e7d9a2: Element context menus now open on first right click
+- 97cd416: Use `@nordeck/matrix-neoboard-react-sdk` package
+- Updated dependencies [37d77c0]
+- Updated dependencies [5e58068]
+- Updated dependencies [818b295]
+- Updated dependencies [6e7d9a2]
+- Updated dependencies [97cd416]
+- Updated dependencies [7c19c50]
+  - @nordeck/matrix-neoboard-react-sdk@0.1.0
+
 ## 1.17.0
 
 ### Minor Changes
