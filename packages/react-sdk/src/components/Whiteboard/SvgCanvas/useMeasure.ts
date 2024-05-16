@@ -15,8 +15,8 @@
  */
 
 import { RefObject } from 'react';
-import { useMeasure as useMeasureInternal } from 'react-use';
 import { UseMeasureResult } from 'react-use/lib/useMeasure';
+import { useMeasure as useMeasureInternal } from '../../../lib';
 
 export function useMeasure<
   E extends HTMLElement | SVGElement = HTMLElement,
