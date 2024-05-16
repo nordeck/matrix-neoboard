@@ -35,6 +35,16 @@ export function ElementBarWrapper({
     width: canvasWidth,
     height: canvasHeight,
   } = useSvgCanvasContext();
+
+  if (
+    // no elements selected
+    elementIds.length === 0 ||
+    // modifications are locked
+    isLocked
+  ) {
+    return null;
+  }
+
   const {
     offsetX: x,
     offsetY: y,
@@ -45,9 +55,6 @@ export function ElementBarWrapper({
   const offset = 10;
 
   function calculateTopPosition() {
-    if (elements.length === 0) {
-      return 0;
-    }
     const position = y * scale;
     const positionAbove = position - elementBarHeight - offset;
     const positionBelow = position + height * scale + offset;
@@ -63,28 +70,19 @@ export function ElementBarWrapper({
   }
 
   function calculateLeftPosition() {
-    if (elements.length === 0) {
-      return 0;
-    }
-
     const position = (x + width / 2) * scale - elementBarWidth / 2;
-
     return clamp(position, 0, canvasWidth - elementBarWidth);
   }
 
   return (
-    <>
-      {elements.length !== 0 && !isLocked && (
-        <Box
-          ref={sizeRef}
-          position="absolute"
-          zIndex={(theme) => theme.zIndex.appBar}
-          left={calculateLeftPosition()}
-          top={calculateTopPosition()}
-        >
-          {children}
-        </Box>
-      )}
-    </>
+    <Box
+      ref={sizeRef}
+      position="absolute"
+      zIndex={(theme) => theme.zIndex.appBar}
+      left={calculateLeftPosition()}
+      top={calculateTopPosition()}
+    >
+      {children}
+    </Box>
   );
 }
