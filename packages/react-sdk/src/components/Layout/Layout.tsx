@@ -53,7 +53,12 @@ const TabPanelStyled = styled(TabPanel)(() => ({
   },
 }));
 
-export function Layout() {
+export type LayoutProps = {
+  // Height of component, default to '100vh'
+  height?: number | string;
+};
+
+export function Layout({ height = '100vh' }: LayoutProps) {
   const { loading } = useIsWhiteboardLoading();
   const { isDeveloperToolsVisible, isSlideOverviewVisible } = useLayoutState();
   const slideIds = useActiveWhiteboardInstanceSlideIds();
@@ -68,7 +73,7 @@ export function Layout() {
     <SlidesProvider>
       <GuidedTour disabled={isViewingPresentation} />
 
-      <Stack height="100vh" direction="row" bgcolor="background.paper">
+      <Stack height={height} direction="row" bgcolor="background.paper">
         <AnimatedSidebar
           visible={isSlideOverviewVisible && !isViewingPresentation}
           direction="right"

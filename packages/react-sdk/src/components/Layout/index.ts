@@ -15,5 +15,6 @@
  */
 
 export { Layout } from './Layout';
+export type { LayoutProps } from './Layout';
 export { LayoutStateProvider, useLayoutState } from './useLayoutState';
 export type { ActiveTool } from './useLayoutState';
