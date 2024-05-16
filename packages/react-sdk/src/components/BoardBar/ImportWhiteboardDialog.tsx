@@ -32,6 +32,8 @@ import { unstable_useId as useId, visuallyHidden } from '@mui/utils';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useActiveWhiteboardInstance } from '../../state';
+import { importWhiteboard } from '../../state/import';
+import { useImageUpload } from '../ImageUpload';
 import { ImportedWhiteboard } from './types';
 
 export function ImportWhiteboardDialog({
@@ -47,13 +49,14 @@ export function ImportWhiteboardDialog({
 }) {
   const { t } = useTranslation();
   const whiteboardInstance = useActiveWhiteboardInstance();
+  const { handleDrop } = useImageUpload();
 
   const handleOnImport = useCallback(() => {
     if (importedWhiteboard?.isError === false) {
-      whiteboardInstance.import(importedWhiteboard.data);
+      importWhiteboard(whiteboardInstance, importedWhiteboard.data, handleDrop);
     }
     onClose();
-  }, [importedWhiteboard, onClose, whiteboardInstance]);
+  }, [handleDrop, importedWhiteboard, onClose, whiteboardInstance]);
 
   const selectFileButtonLabel = t(
     'boardBar.importWhiteboardDialog.selectFileLabel',

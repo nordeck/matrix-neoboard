@@ -182,19 +182,22 @@ describe('isValidElement', () => {
     expect(isValidElement(data)).toBe(false);
   });
 
-  it('should accept a valid image element', () => {
-    const data = {
-      type: 'image',
-      mxc: 'mxc://example.com/test1234',
-      fileName: 'example.jpg',
-      mimeType: 'image/jpeg',
-      position: { x: 10, y: 20 },
-      width: 100,
-      height: 100,
-    };
+  it.each(['', 'mxc://example.com/test1234'])(
+    'should accept valid image elements with MXC "%s"',
+    (mxc) => {
+      const data = {
+        type: 'image',
+        mxc,
+        fileName: 'example.jpg',
+        mimeType: 'image/jpeg',
+        position: { x: 10, y: 20 },
+        width: 100,
+        height: 100,
+      };
 
-    expect(isValidElement(data)).toBe(true);
-  });
+      expect(isValidElement(data)).toBe(true);
+    },
+  );
 
   it.each<Object>([
     { type: undefined },

@@ -119,6 +119,7 @@ const imageElementSchema = elementBaseSchema
     type: Joi.string().valid('image').required(),
     mxc: Joi.string()
       .regex(/mxc:\/\/.*\/.*/)
+      .allow('')
       .required(),
     fileName: Joi.string().required(),
     mimeType: Joi.string()
