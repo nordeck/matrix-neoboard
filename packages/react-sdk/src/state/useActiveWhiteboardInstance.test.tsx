@@ -71,6 +71,8 @@ describe('useActiveWhiteboardInstance', () => {
         wrapper: Wrapper,
       }),
     ).toThrow(Error('No active whiteboard instance'));
+
+    jest.mocked(console.error).mockRestore();
   });
 });
 
@@ -105,6 +107,8 @@ describe('useActiveWhiteboardInstanceSlideIds', () => {
         wrapper: Wrapper,
       }),
     ).toThrow(Error('No active whiteboard instance'));
+
+    jest.mocked(console.error).mockRestore();
   });
 });
 
@@ -186,6 +190,8 @@ describe('useActiveWhiteboardInstanceStatistics', () => {
         wrapper: Wrapper,
       }),
     ).toThrow(Error('No active whiteboard instance'));
+
+    jest.mocked(console.error).mockRestore();
   });
 });
 

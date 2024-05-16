@@ -60,6 +60,8 @@ describe('<SlideProvider/>', () => {
         wrapper: Wrapper,
       }),
     ).not.toThrow();
+
+    jest.mocked(console.error).mockRestore();
   });
 
   it('should provide ActiveElementProvider', () => {
@@ -70,6 +72,8 @@ describe('<SlideProvider/>', () => {
         wrapper: Wrapper,
       }),
     ).not.toThrow();
+
+    jest.mocked(console.error).mockRestore();
   });
 });
 
@@ -93,6 +97,8 @@ describe('useWhiteboardSlideInstance', () => {
         'useWhiteboardSlideInstance can only be used inside of <SlideProvider>',
       ),
     );
+
+    jest.mocked(console.error).mockRestore();
   });
 });
 
@@ -355,6 +361,8 @@ describe('useSlideIsLocked', () => {
         wrapper: Wrapper,
       }),
     ).toThrow(Error('SlideId does not exist'));
+
+    jest.mocked(console.error).mockRestore();
   });
 
   it('hook should throw without context', () => {
@@ -365,5 +373,7 @@ describe('useSlideIsLocked', () => {
         'useSlideIsLocked without slideId can only be used inside of <SlideProvider>',
       ),
     );
+
+    jest.mocked(console.error).mockRestore();
   });
 });
