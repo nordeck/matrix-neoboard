@@ -21,7 +21,7 @@
     "@reduxjs/toolkit": "^2.2.3",
     "emoji-regex": "^10.3.0",
     "i18next": "^23.11.2",
-    "joi": "^17.13.0",
+    "joi": "^17.13.1",
     "js-base64": "^3.7.7",
     "localforage": "^1.10.0",
     "lodash": "^4.17.21",

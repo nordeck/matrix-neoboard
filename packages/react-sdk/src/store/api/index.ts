@@ -14,15 +14,18 @@
  * limitations under the License.
  */
 
+export { baseApi } from './baseApi';
 export {
   documentSnapshotApi,
   useCreateDocumentMutation,
 } from './documentSnapshotApi';
 export {
+  powerLevelsApi,
   useGetPowerLevelsQuery,
   usePatchPowerLevelsMutation,
 } from './powerLevelsApi';
 export {
+  roomMemberApi,
   selectRoomMember,
   selectRoomMembers,
   useGetRoomMembersQuery,

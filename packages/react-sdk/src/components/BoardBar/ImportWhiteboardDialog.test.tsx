@@ -24,7 +24,9 @@ import {
   mockWhiteboardManager,
 } from '../../lib/testUtils/documentTestUtils';
 import { WhiteboardDocumentExport, WhiteboardManager } from '../../state';
+import { ImageUploadProvider } from '../ImageUpload';
 import { LayoutStateProvider } from '../Layout';
+import { SnackbarProvider } from '../Snackbar';
 import { ImportWhiteboardDialog } from './ImportWhiteboardDialog';
 
 let widgetApi: MockedWidgetApi;
@@ -56,7 +58,11 @@ describe('<ImportWhiteboardDialog/>', () => {
           whiteboardManager={whiteboardManager}
           widgetApi={widgetApi}
         >
-          <LayoutStateProvider>{children}</LayoutStateProvider>
+          <SnackbarProvider>
+            <ImageUploadProvider>
+              <LayoutStateProvider>{children}</LayoutStateProvider>
+            </ImageUploadProvider>
+          </SnackbarProvider>
         </WhiteboardTestingContextProvider>
       );
     };

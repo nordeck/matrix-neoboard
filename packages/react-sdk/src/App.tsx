@@ -16,11 +16,15 @@
 
 import { useWidgetApi } from '@matrix-widget-toolkit/react';
 import { useTranslation } from 'react-i18next';
-import { Layout } from './components/Layout';
+import { Layout, LayoutProps } from './components/Layout';
 import { PageLoader } from './components/common/PageLoader';
 import { useOwnedWhiteboard, useWhiteboardManager } from './state';
 
-export const App = () => {
+export type AppProps = {
+  layoutProps?: LayoutProps;
+};
+
+export const App = ({ layoutProps }: AppProps) => {
   const { t } = useTranslation();
   const { value, loading } = useOwnedWhiteboard();
   const whiteboardManager = useWhiteboardManager();
@@ -50,5 +54,5 @@ export const App = () => {
     );
   }
 
-  return <Layout />;
+  return <Layout {...layoutProps} />;
 };

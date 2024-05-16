@@ -149,7 +149,10 @@ function ExportWhiteboardDialogContent({
 
         {error && (
           <Alert role="status" severity="error" sx={{ mt: 2 }}>
-            {error}
+            {t(
+              'boardBar.exportWhiteboardDialog.pdfError',
+              'Something went wrong while generating the PDF.',
+            )}
           </Alert>
         )}
       </DialogContent>
