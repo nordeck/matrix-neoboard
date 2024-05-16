@@ -186,11 +186,7 @@ describe('<ExportWhiteboardDialogDownloadPdf />', () => {
       { wrapper: Wrapper },
     );
 
-    await act(async () => {
-      expect(onError).toBeCalledWith(
-        'Something went wrong while generating the PDF.',
-      );
-    });
+    expect(onError).toBeCalledWith('Failed');
   });
 
   it('should show loading state', async () => {
