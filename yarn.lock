@@ -10184,6 +10184,18 @@ react-joyride@^2.8.1:
     tree-changes "^0.11.2"
     type-fest "^4.15.0"
 
+react-redux@^7.2.0:
+  version "7.2.9"
+  resolved "https://registry.yarnpkg.com/react-redux/-/react-redux-7.2.9.tgz#09488fbb9416a4efe3735b7235055442b042481d"
+  integrity sha512-Gx4L3uM182jEEayZfRbI/G11ZpYdNAnBs70lFVMNdHJI76XYtR+7m0MN+eAs7UHBPhWXcnFPaS+9owSCJQHNpQ==
+  dependencies:
+    "@babel/runtime" "^7.15.4"
+    "@types/react-redux" "^7.1.20"
+    hoist-non-react-statics "^3.3.2"
+    loose-envify "^1.4.0"
+    prop-types "^15.7.2"
+    react-is "^17.0.2"
+
 react-redux@^9.1.1:
   version "9.1.1"
   resolved "https://registry.yarnpkg.com/react-redux/-/react-redux-9.1.1.tgz#852ec13084bd7375e26db697d2fc9027ffada204"
