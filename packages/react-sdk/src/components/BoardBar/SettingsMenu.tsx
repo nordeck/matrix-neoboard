@@ -124,7 +124,7 @@ export function SettingsMenu() {
   } = useDropzone({
     onDrop,
     maxFiles: 1,
-    accept: { '': ['.nwb'] },
+    accept: { 'application/octet-stream': ['.nwb'] },
     noDrag: true,
     multiple: false,
     // the keyboard interactions are already provided by the MenuItems

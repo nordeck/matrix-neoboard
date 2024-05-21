@@ -29,7 +29,7 @@ export function ShowSlideOverviewToggle() {
     : t('boardBar.showSlideBarTitle', 'Open slide overview');
 
   const handleVisibilityChange = useCallback(
-    (_, checked) => {
+    (_: unknown, checked: boolean) => {
       setSlideOverviewVisible(checked);
     },
     [setSlideOverviewVisible],

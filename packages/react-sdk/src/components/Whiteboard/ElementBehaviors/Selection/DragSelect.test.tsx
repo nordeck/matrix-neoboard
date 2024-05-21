@@ -15,8 +15,7 @@
  */
 
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
-import { fireEvent, render, screen } from '@testing-library/react';
-import { act } from '@testing-library/react-hooks';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { ComponentType, PropsWithChildren } from 'react';
 import {
   WhiteboardTestingContextProvider,

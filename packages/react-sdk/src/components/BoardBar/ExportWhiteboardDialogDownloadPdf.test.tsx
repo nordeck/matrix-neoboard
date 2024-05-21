@@ -15,7 +15,7 @@
  */
 
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { axe } from 'jest-axe';
 import { ComponentType, PropsWithChildren } from 'react';
@@ -115,8 +115,10 @@ describe('<ExportWhiteboardDialogDownloadPdf />', () => {
 
     const downloadButton = screen.getByRole('link', { name: 'Download' });
 
-    expect(downloadButton).toHaveAttribute('href', 'blob:url');
-    expect(downloadButton).toHaveAttribute('download', 'NeoBoard.pdf');
+    await act(async () => {
+      expect(downloadButton).toHaveAttribute('href', 'blob:url');
+      expect(downloadButton).toHaveAttribute('download', 'NeoBoard.pdf');
+    });
   });
 
   it('should use the room name for the file name', async () => {
@@ -144,11 +146,13 @@ describe('<ExportWhiteboardDialogDownloadPdf />', () => {
       { wrapper: Wrapper },
     );
 
-    expect(createWhiteboardPdf).toBeCalledTimes(1);
-    expect(createWhiteboardPdf).toBeCalledWith({
-      authorName: '@user-id',
-      roomName: 'NeoBoard',
-      whiteboardInstance: whiteboardManager.getActiveWhiteboardInstance(),
+    await act(async () => {
+      expect(createWhiteboardPdf).toBeCalledTimes(1);
+      expect(createWhiteboardPdf).toBeCalledWith({
+        authorName: '@user-id',
+        roomName: 'NeoBoard',
+        whiteboardInstance: whiteboardManager.getActiveWhiteboardInstance(),
+      });
     });
   });
 
@@ -185,7 +189,7 @@ describe('<ExportWhiteboardDialogDownloadPdf />', () => {
     expect(onError).toBeCalledWith('Failed');
   });
 
-  it('should show loading state', () => {
+  it('should show loading state', async () => {
     jest.mocked(createWhiteboardPdf).mockReturnValue(NEVER);
 
     render(
@@ -195,8 +199,10 @@ describe('<ExportWhiteboardDialogDownloadPdf />', () => {
       { wrapper: Wrapper },
     );
 
-    expect(
-      screen.getByRole('progressbar', { name: 'Download' }),
-    ).toBeInTheDocument();
+    await act(async () => {
+      expect(
+        screen.getByRole('progressbar', { name: 'Download' }),
+      ).toBeInTheDocument();
+    });
   });
 });

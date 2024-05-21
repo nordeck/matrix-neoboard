@@ -22,7 +22,7 @@ import {
 } from '@nordeck/matrix-neoboard-react-sdk';
 import log from 'loglevel';
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { AppContainer } from './AppContainer';
 import './i18n';
 import './logger';
@@ -55,7 +55,9 @@ const widgetApiPromise = WidgetApiImpl.create({
 const store = createStore({ widgetApi: widgetApiPromise });
 const whiteboardManager = createWhiteboardManager(store, widgetApiPromise);
 
-ReactDOM.render(
+const container = document.getElementById('root');
+const root = createRoot(container!);
+root.render(
   <React.StrictMode>
     <AppContainer
       widgetApiPromise={widgetApiPromise}
@@ -63,5 +65,4 @@ ReactDOM.render(
       whiteboardManager={whiteboardManager}
     />
   </React.StrictMode>,
-  document.getElementById('root'),
 );

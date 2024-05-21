@@ -16,7 +16,7 @@
 
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { Menu } from '@mui/material';
-import { render, screen, within } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { axe } from 'jest-axe';
 import { ComponentType, PropsWithChildren } from 'react';
@@ -75,18 +75,20 @@ describe('<MenuItemSwitch>', () => {
       { wrapper: Wrapper },
     );
 
-    expect(
-      await axe(baseElement, {
-        rules: {
-          // the menu is opened in a portal, so we must check the baseElement,
-          // i.e. <body/>. In that case we get false positive warning
-          region: { enabled: false },
-          // the switch in the menu item seems to not be allowed, but we
-          // accept it for now.
-          'nested-interactive': { enabled: false },
-        },
-      }),
-    ).toHaveNoViolations();
+    await act(async () => {
+      expect(
+        await axe(baseElement, {
+          rules: {
+            // the menu is opened in a portal, so we must check the baseElement,
+            // i.e. <body/>. In that case we get false positive warning
+            region: { enabled: false },
+            // the switch in the menu item seems to not be allowed, but we
+            // accept it for now.
+            'nested-interactive': { enabled: false },
+          },
+        }),
+      ).toHaveNoViolations();
+    });
   });
 
   it('should toggle by click on menu item and close the menu', async () => {

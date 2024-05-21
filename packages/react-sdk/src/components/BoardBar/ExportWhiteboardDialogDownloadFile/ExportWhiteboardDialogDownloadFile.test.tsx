@@ -15,7 +15,7 @@
  */
 
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { axe } from 'jest-axe';
 import { ComponentType, PropsWithChildren } from 'react';
@@ -29,7 +29,9 @@ import { ExportWhiteboardDialogDownloadFile } from './ExportWhiteboardDialogDown
 
 let widgetApi: MockedWidgetApi;
 
-afterEach(() => widgetApi.stop());
+afterEach(() => {
+  widgetApi.stop();
+});
 
 beforeEach(() => {
   widgetApi = mockWidgetApi();
@@ -76,7 +78,7 @@ describe('<ExportWhiteboardDialogDownloadFile />', () => {
     jest.mocked(document.createElement).mockRestore();
   });
 
-  it('should render without exploding', () => {
+  it('should render without exploding', async () => {
     render(
       <ExportWhiteboardDialogDownloadFile onClick={onClick}>
         Download
@@ -84,9 +86,11 @@ describe('<ExportWhiteboardDialogDownloadFile />', () => {
       { wrapper: Wrapper },
     );
 
-    expect(
-      screen.getByRole('button', { name: 'Download' }),
-    ).toBeInTheDocument();
+    await act(() => {
+      expect(
+        screen.getByRole('button', { name: 'Download' }),
+      ).toBeInTheDocument();
+    });
   });
 
   it('should have no accessibility violations', async () => {
@@ -101,7 +105,9 @@ describe('<ExportWhiteboardDialogDownloadFile />', () => {
       screen.getByRole('button', { name: 'Download' }),
     ).toBeInTheDocument();
 
-    expect(await axe(container)).toHaveNoViolations();
+    await act(async () => {
+      expect(await axe(container)).toHaveNoViolations();
+    });
   });
 
   it('should emit onClick on download', async () => {

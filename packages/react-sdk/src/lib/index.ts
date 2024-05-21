@@ -22,4 +22,5 @@ export { setLocale } from './locale';
 export * from './matrix';
 export { FontsLoadedContextProvider, useFontsLoaded } from './useFontsLoaded';
 export { useLatestValue } from './useLatestValue';
+export { useMeasure } from './useMeasure';
 export { getUserColor } from './userColor';

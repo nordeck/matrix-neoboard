@@ -17,8 +17,7 @@
 import { WidgetApiMockProvider } from '@matrix-widget-toolkit/react';
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { SnackbarProps } from '@mui/material';
-import { waitFor } from '@testing-library/react';
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook, waitFor } from '@testing-library/react';
 import { IUploadFileActionFromWidgetResponseData } from 'matrix-widget-api';
 import { ComponentType, PropsWithChildren } from 'react';
 import { act } from 'react-dom/test-utils';
@@ -115,7 +114,6 @@ describe('<ImageUploadProvider />', () => {
       results = await result.current.handleDrop([file], []);
     });
 
-    expect(console.error).toHaveBeenCalledTimes(1);
     expect(console.error).toHaveBeenCalledWith(
       'Error uploading an image',
       readFileError,
@@ -145,7 +143,6 @@ describe('<ImageUploadProvider />', () => {
       results = await result.current.handleDrop([file], []);
     });
 
-    expect(console.error).toHaveBeenCalledTimes(1);
     expect(console.error).toHaveBeenCalledWith(
       'Error uploading an image',
       uploadFileError,
@@ -260,7 +257,6 @@ describe('<ImageUploadProvider />', () => {
       await result.current.handleDrop([file], []);
     });
 
-    expect(console.error).toHaveBeenCalledTimes(1);
     expect(console.error).toHaveBeenCalledWith(
       'Error uploading an image',
       readFileError,

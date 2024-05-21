@@ -26,10 +26,8 @@ import { bufferTime, filter } from 'rxjs';
 import { ThunkExtraArgument } from '../store';
 import { baseApi } from './baseApi';
 
-const roomMemberEventEntityAdapter = createEntityAdapter<
-  StateEvent<RoomMemberStateEventContent>
->({
-  selectId: (event) => event.state_key,
+const roomMemberEventEntityAdapter = createEntityAdapter({
+  selectId: (event: StateEvent<RoomMemberStateEventContent>) => event.state_key,
 });
 
 /**
@@ -45,7 +43,7 @@ export const roomMemberApi = baseApi.injectEndpoints({
      * Return the room member events from the current room.
      */
     getRoomMembers: builder.query<
-      EntityState<StateEvent<RoomMemberStateEventContent>>,
+      EntityState<StateEvent<RoomMemberStateEventContent>, string>,
       void
     >({
       queryFn: async (_, { extra }) => {

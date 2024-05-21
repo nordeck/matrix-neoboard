@@ -33,7 +33,7 @@ export function TextBoldButton() {
   const { t } = useTranslation();
 
   const handleClick = useCallback(
-    (textBold) => {
+    (textBold: boolean) => {
       const updates = calculateTextBoldUpdates(activeElements, textBold);
 
       if (updates.length > 0) {

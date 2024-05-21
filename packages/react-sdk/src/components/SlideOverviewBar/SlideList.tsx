@@ -17,7 +17,6 @@
 import { TabsListProps, TabsListProvider, useTabsList } from '@mui/base';
 import { Box } from '@mui/material';
 import { forwardRef } from 'react';
-import { Droppable } from 'react-beautiful-dnd';
 import { useTranslation } from 'react-i18next';
 import {
   useActiveSlide,
@@ -25,6 +24,7 @@ import {
 } from '../../state';
 import { SlideListItem } from './SlideListItem';
 import { SlidesDragDropContext } from './SlidesDragDropContext';
+import { StrictModeDroppable } from './StrictModeDroppable';
 
 export function SlideList() {
   const { t } = useTranslation();
@@ -35,7 +35,7 @@ export function SlideList() {
 
   return (
     <SlidesDragDropContext>
-      <Droppable droppableId="slide-overview" type="slide">
+      <StrictModeDroppable droppableId="slide-overview" type="slide">
         {(provided, snapshot) => (
           <SlideListTabs
             aria-label={slideListTitle}
@@ -55,7 +55,7 @@ export function SlideList() {
             {provided.placeholder}
           </SlideListTabs>
         )}
-      </Droppable>
+      </StrictModeDroppable>
     </SlidesDragDropContext>
   );
 }

@@ -15,7 +15,7 @@
  */
 
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
-import { renderHook } from '@testing-library/react-hooks';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { ComponentType, PropsWithChildren } from 'react';
 import {
   WhiteboardTestingContextProvider,
@@ -46,13 +46,15 @@ beforeEach(() => {
 });
 
 describe('usePowerLevels', () => {
-  it('should have no power while loading', () => {
+  it('should have no power while loading', async () => {
     const { result } = renderHook(() => usePowerLevels(), {
       wrapper,
     });
 
-    expect(result.current).toEqual({
-      canImportWhiteboard: undefined,
+    await act(async () => {
+      expect(result.current).toEqual({
+        canImportWhiteboard: undefined,
+      });
     });
   });
 
@@ -74,7 +76,7 @@ describe('usePowerLevels', () => {
       }),
     );
 
-    const { result, waitFor } = renderHook(() => usePowerLevels(), {
+    const { result } = renderHook(() => usePowerLevels(), {
       wrapper,
     });
 
@@ -102,7 +104,7 @@ describe('usePowerLevels', () => {
       }),
     );
 
-    const { result, waitFor } = renderHook(() => usePowerLevels(), {
+    const { result } = renderHook(() => usePowerLevels(), {
       wrapper,
     });
 
@@ -130,7 +132,7 @@ describe('usePowerLevels', () => {
       }),
     );
 
-    const { result, waitFor } = renderHook(() => usePowerLevels(), {
+    const { result } = renderHook(() => usePowerLevels(), {
       wrapper,
     });
 
