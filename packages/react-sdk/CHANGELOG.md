@@ -1,5 +1,11 @@
 # @nordeck/matrix-neoboard-react-sdk
 
+## 0.1.1
+
+### Patch Changes
+
+- cc4f174: Bump to React 18.x, Redux 5.x, React Redux 9.x and Redux Toolkit 2.x
+
 ## 0.1.0
 
 ### Minor Changes
