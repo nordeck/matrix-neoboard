@@ -1,5 +1,13 @@
 # @nordeck/matrix-neoboard-widget
 
+## 1.18.1
+
+### Patch Changes
+
+- cc4f174: Bump to React 18.x, Redux 5.x, React Redux 9.x and Redux Toolkit 2.x
+- Updated dependencies [cc4f174]
+  - @nordeck/matrix-neoboard-react-sdk@0.1.1
+
 ## 1.18.0
 
 ### Minor Changes
