@@ -141,8 +141,10 @@ describe('<Collaborators>', () => {
       name: 'Alice (You)',
     });
 
+    // The "presentation" role is searched for here, as the image has an empty alt tag.
+    // https://www.w3.org/TR/html-aria/#docconformance
     expect(
-      within(ownAvatarButton).getByRole('img', { hidden: true }),
+      within(ownAvatarButton).getByRole('presentation', { hidden: true }),
     ).toHaveAttribute(
       'src',
       expect.stringMatching(/\/_matrix\/media\/r0\/thumbnail\/alice/i),
