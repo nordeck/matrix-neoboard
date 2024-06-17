@@ -64,7 +64,7 @@
     "babel-plugin-transform-import-meta": "^2.2.1",
     "depcheck": "^1.4.7",
     "eslint": "^8.57.0",
-    "fetch-mock": "^9.11.0",
+    "fetch-mock": "^10.0.5",
     "fetch-mock-jest": "^1.5.1",
     "i18next-parser": "^9.0.0",
     "i18next-resources-to-backend": "^1.2.1",
