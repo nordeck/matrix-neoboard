@@ -1703,10 +1703,10 @@
   resolved "https://registry.yarnpkg.com/@fontsource/inter/-/inter-5.0.18.tgz#eaddac790ee74b70932030f37ebaa9fc76decbd8"
   integrity sha512-YCsoYPTcs713sI7tLtxaPrIhXAXvEetGg5Ry02ivA8qUOb3fQHojbK/X9HLD5OOKvFUNR2Ynkwb1kR1hVKQHpw==
 
-"@fontsource/noto-emoji@^5.0.18":
-  version "5.0.19"
-  resolved "https://registry.yarnpkg.com/@fontsource/noto-emoji/-/noto-emoji-5.0.19.tgz#e6f5bd370b8d6322fd03c46df564e4561fa1903a"
-  integrity sha512-a2n0XlYXZi0Q2J763C/mvFsqx6X7k9I12U111EtNhzrCK+A5VaGhH49hGli880YokM8txDE3i3zF39qrEvljIw==
+"@fontsource/noto-emoji@^5.0.20":
+  version "5.0.20"
+  resolved "https://registry.yarnpkg.com/@fontsource/noto-emoji/-/noto-emoji-5.0.20.tgz#fa1eeae45527a05582b7920851b1fe84186c4906"
+  integrity sha512-uQl5p1qU91ygiPRnNs5JKS6vt9o/yZg2D5IY5f/vFjE9QCxz7crYhMjQEUvc4FGGaFKMJ5i8FdGUzW3cCC4ULQ==
 
 "@gilbarbara/deep-equal@^0.1.1":
   version "0.1.2"
@@ -6292,7 +6292,7 @@ for-each@^0.3.3:
   dependencies:
     is-callable "^1.1.3"
 
-fork-ts-checker-webpack-plugin@^6.5.0, fork-ts-checker-webpack-plugin@^6.5.3:
+fork-ts-checker-webpack-plugin@^6.5.0:
   version "6.5.3"
   resolved "https://registry.yarnpkg.com/fork-ts-checker-webpack-plugin/-/fork-ts-checker-webpack-plugin-6.5.3.tgz#eda2eff6e22476a2688d10661688c47f611b37f3"
   integrity sha512-SbH/l9ikmMWycd5puHJKTkZJKddF4iRLyW3DeZ08HTI7NGyLS38MXd/KGgeWumQO7YNQbW2u/NtPT2YowbPaGQ==
