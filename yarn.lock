@@ -7985,10 +7985,10 @@ jest@^27.4.3:
     import-local "^3.0.2"
     jest-cli "^27.5.1"
 
-joi@^17.13.1:
-  version "17.13.1"
-  resolved "https://registry.yarnpkg.com/joi/-/joi-17.13.1.tgz#9c7b53dc3b44dd9ae200255cc3b398874918a6ca"
-  integrity sha512-vaBlIKCyo4FCUtCm7Eu4QZd/q02bWcxfUO6YSXAZOWF6gzcLBeba8kwotUdYJjDLW8Cz8RywsSOqiNJZW0mNvg==
+joi@^17.13.3:
+  version "17.13.3"
+  resolved "https://registry.yarnpkg.com/joi/-/joi-17.13.3.tgz#0f5cc1169c999b30d344366d384b12d92558bcec"
+  integrity sha512-otDA4ldcIx+ZXsKHWmp0YizCweVRZG96J10b0FevjfuncLO1oX59THoAmHkNubYJ+9gWsYsp5k8v4ib6oDv1fA==
   dependencies:
     "@hapi/hoek" "^9.3.0"
     "@hapi/topo" "^5.1.0"
@@ -12867,10 +12867,10 @@ yarn-deduplicate@^6.0.2:
     semver "^7.5.0"
     tslib "^2.5.0"
 
-yjs@^13.6.16:
-  version "13.6.16"
-  resolved "https://registry.yarnpkg.com/yjs/-/yjs-13.6.16.tgz#4ac8a1393495af390dcfa0631e3d24cfc50fc9a3"
-  integrity sha512-uEq+n/dFIecBElEdeQea8nDnltScBfuhCSyAxDw4CosveP9Ag0eW6iZi2mdpW7EgxSFT7VXK2MJl3tKaLTmhAQ==
+yjs@^13.6.18:
+  version "13.6.18"
+  resolved "https://registry.yarnpkg.com/yjs/-/yjs-13.6.18.tgz#d1575203478bc99ad1b89c098e7d4bacb7f91c3b"
+  integrity sha512-GBTjO4QCmv2HFKFkYIJl7U77hIB1o22vSCSQD1Ge8ZxWbIbn8AltI4gyXbtL+g5/GJep67HCMq3Y5AmNwDSyEg==
   dependencies:
     lib0 "^0.2.86"
 
