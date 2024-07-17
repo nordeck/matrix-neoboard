@@ -95,7 +95,6 @@ describe('<ToolsBar/>', () => {
     expect(
       within(radiogroup).getByRole('radio', { name: 'Arrow' }),
     ).not.toBeChecked();
-
     expect(
       screen.queryByRole('presentation', { name: 'Upload image' }),
     ).not.toBeInTheDocument();
@@ -122,6 +121,10 @@ describe('<ToolsBar/>', () => {
   });
 
   it('should disable all buttons if the slide is locked and not active', () => {
+    mocked(getEnvironment).mockImplementation((name) => {
+      return name === 'REACT_APP_IMAGES' ? 'true' : 'false';
+    });
+
     whiteboardManager
       .getActiveWhiteboardInstance()
       ?.getSlide('slide-0')
@@ -137,6 +140,9 @@ describe('<ToolsBar/>', () => {
     expect(screen.getByRole('radio', { name: 'Triangle' })).toBeDisabled();
     expect(screen.getByRole('radio', { name: 'Line' })).toBeDisabled();
     expect(screen.getByRole('radio', { name: 'Arrow' })).toBeDisabled();
+    expect(
+      screen.getByRole('presentation', { name: 'Upload image' }),
+    ).toBeDisabled();
 
     expect(screen.getByRole('radio', { name: 'Select' })).not.toBeChecked();
     expect(screen.getByRole('radio', { name: 'Text' })).not.toBeChecked();
