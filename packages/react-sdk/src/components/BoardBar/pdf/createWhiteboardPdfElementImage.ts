@@ -17,16 +17,23 @@
 import { Content } from 'pdfmake/interfaces';
 import { ImageElement } from '../../../state';
 import { WhiteboardFileExport } from '../../../state/export/whiteboardDocumentExport';
-import { image } from './utils';
+import { conv2png, image } from './utils';
 
-// TODO: check for mimeType, only png & jpeg are supported
 export function createWhiteboardPdfElementImage(
   element: ImageElement,
   files: WhiteboardFileExport[],
 ): Content {
   const file = files.find((f) => f.mxc === element.mxc);
   if (file) {
-    return image(element, file.data);
+    // pdfmake only supports png and jpeg images,
+    // so we use a canvas to convert other image types to png
+    // ref: https://pdfmake.github.io/docs/0.1/document-definition-object/images/
+    if (element.mimeType === 'image/png' || element.mimeType === 'image/jpeg') {
+      return image(element, file.data);
+    } else {
+      const data = conv2png(element, file.data);
+      return image(element, data);
+    }
   }
 
   console.error('Could not get image url', element);
