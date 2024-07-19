@@ -16,11 +16,14 @@
 
 import { Content } from 'pdfmake/interfaces';
 import { WhiteboardSlideInstance } from '../../../state';
+import { WhiteboardFileExport } from '../../../state/export/whiteboardDocumentExport';
+import { createWhiteboardPdfElementImage } from './createWhiteboardPdfElementImage';
 import { createWhiteboardPdfElementPath } from './createWhiteboardPdfElementPath';
 import { createWhiteboardPdfElementShape } from './createWhiteboardPdfElementShape';
 
 export function createWhiteboardPdfContentSlide(
   slideInstance: WhiteboardSlideInstance,
+  files?: Array<WhiteboardFileExport>,
 ): Content {
   return slideInstance.getElementIds().map((elementId) => {
     const element = slideInstance.getElement(elementId);
@@ -32,7 +35,15 @@ export function createWhiteboardPdfContentSlide(
       case 'path':
         return createWhiteboardPdfElementPath(element);
 
+      case 'image':
+        if (!files) {
+          console.error('No files provided for image element', element);
+          return [];
+        }
+        return createWhiteboardPdfElementImage(element, files!);
+
       default:
+        console.error('Unknown element type', element);
         return [];
     }
   });

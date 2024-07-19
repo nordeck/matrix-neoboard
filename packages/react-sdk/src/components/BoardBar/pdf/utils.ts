@@ -18,7 +18,7 @@ import emojiRegex from 'emoji-regex';
 import { get } from 'lodash';
 import { CanvasElement, Content, ContentText } from 'pdfmake/interfaces';
 import tinycolor2 from 'tinycolor2';
-import { ShapeElement } from '../../../state';
+import { ImageElement, ShapeElement } from '../../../state';
 import { ElementRenderProperties } from '../../Whiteboard';
 import { getTextSize } from '../../Whiteboard/ElementBehaviors/Text/fitText';
 
@@ -27,6 +27,16 @@ export function canvas(element: CanvasElement): Content {
     canvas: [element],
     unbreakable: true,
     absolutePosition: { x: 0, y: 0 },
+  };
+}
+
+export function image(element: ImageElement, base64content: string): Content {
+  const dataURL = 'data:' + element.mimeType + ';base64,' + base64content;
+  return {
+    image: dataURL,
+    width: element.width,
+    height: element.height,
+    absolutePosition: { x: element.position.x, y: element.position.y },
   };
 }
 

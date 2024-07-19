@@ -22,6 +22,7 @@ export function createWhiteboardPdf(params: {
   whiteboardInstance: WhiteboardInstance;
   roomName: string;
   authorName: string;
+  baseUrl: string;
 }): Observable<Blob> {
   const contentObservable = from(createWhiteboardPdfDefinition(params));
 
