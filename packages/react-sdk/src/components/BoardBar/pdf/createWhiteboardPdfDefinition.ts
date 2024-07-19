@@ -26,13 +26,16 @@ export async function createWhiteboardPdfDefinition({
   whiteboardInstance,
   roomName,
   authorName,
+  baseUrl,
 }: {
   whiteboardInstance: WhiteboardInstance;
   roomName: string;
   authorName: string;
+  baseUrl: string;
 }): Promise<TDocumentDefinitions> {
   // make sure the font is loaded so the text size calculations are correct
   await forceLoadFontFamily('Noto Emoji');
+  const whiteboardExport = await whiteboardInstance.export(baseUrl);
 
   return {
     pageMargins: 0,
@@ -44,7 +47,12 @@ export async function createWhiteboardPdfDefinition({
 
         if (slide) {
           return {
-            stack: [createWhiteboardPdfContentSlide(slide)],
+            stack: [
+              createWhiteboardPdfContentSlide(
+                slide,
+                whiteboardExport.whiteboard.files,
+              ),
+            ],
             pageBreak: idx > 0 ? 'before' : undefined,
           };
         }

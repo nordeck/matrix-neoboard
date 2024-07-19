@@ -91,6 +91,7 @@ describe('createWhiteboardPdfDefinition', () => {
         whiteboardInstance,
         roomName: 'My Room',
         authorName: 'Alice',
+        baseUrl: 'https://example.com',
       }),
     ).toMatchSnapshot();
   });
@@ -105,6 +106,7 @@ describe('createWhiteboardPdfDefinition', () => {
       whiteboardInstance,
       roomName: 'My Room',
       authorName: 'Alice',
+      baseUrl: 'https://example.com',
     });
 
     expect(spy).toBeCalledWith('Noto Emoji');

@@ -36,7 +36,11 @@ let widgetApi: MockedWidgetApi;
 
 afterEach(() => widgetApi.stop());
 
-beforeEach(() => (widgetApi = mockWidgetApi()));
+beforeEach(() => {
+  widgetApi = mockWidgetApi();
+  // @ts-ignore forcefully set for tests
+  widgetApi.widgetParameters.baseUrl = 'https://example.com';
+});
 
 describe('<ExportWhiteboardDialogDownloadPdf />', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
@@ -151,6 +155,7 @@ describe('<ExportWhiteboardDialogDownloadPdf />', () => {
       expect(createWhiteboardPdf).toBeCalledWith({
         authorName: '@user-id',
         roomName: 'NeoBoard',
+        baseUrl: 'https://example.com',
         whiteboardInstance: whiteboardManager.getActiveWhiteboardInstance(),
       });
     });
