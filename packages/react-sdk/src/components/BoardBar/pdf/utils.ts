@@ -40,6 +40,19 @@ export function image(element: ImageElement, base64content: string): Content {
   };
 }
 
+export function conv2png(element: ImageElement, base64content: string): string {
+  const img = new Image();
+  img.src = 'data:' + element.mimeType + ';base64,' + base64content;
+
+  const canvas = document.createElement('canvas');
+  [canvas.width, canvas.height] = [element.width, element.height];
+
+  const ctx = canvas.getContext('2d') ?? new CanvasRenderingContext2D();
+  ctx.drawImage(img, 0, 0, element.width, element.height);
+
+  return canvas.toDataURL('image/png').split(',')[1];
+}
+
 export function textContent(
   element: ShapeElement,
   textProperties: NonNullable<ElementRenderProperties['text']>,
