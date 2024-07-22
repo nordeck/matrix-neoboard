@@ -62,8 +62,8 @@ export function useOwnedWhiteboard(): UseOwnedWhiteboardResponse {
   // TODO: Build UI to select the whiteboard to display it in the widget
   // For now we select the own / first whiteboard we find.
   const whiteboard = whiteboardsState
-    ? selectWhiteboardById(whiteboardsState, widgetApi.widgetId) ??
-      first(selectAllWhiteboards(whiteboardsState))
+    ? (selectWhiteboardById(whiteboardsState, widgetApi.widgetId) ??
+      first(selectAllWhiteboards(whiteboardsState)))
     : undefined;
 
   const {
