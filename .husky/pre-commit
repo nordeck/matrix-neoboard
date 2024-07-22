@@ -1,4 +1,2 @@
-#!/bin/sh
-. "$(dirname "$0")/_/husky.sh"
-
+#!/usr/bin/env sh
 node ./node_modules/lint-staged/bin/lint-staged.js
