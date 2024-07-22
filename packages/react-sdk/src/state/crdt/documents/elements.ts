@@ -178,11 +178,11 @@ export function calculateBoundingRectForElements(
   const height =
     element?.type === 'path'
       ? calculateBoundingRectForPoints(element.points).height
-      : element?.height ?? elementsBoundingRect?.height ?? 0;
+      : (element?.height ?? elementsBoundingRect?.height ?? 0);
   const width =
     element?.type === 'path'
       ? calculateBoundingRectForPoints(element.points).width
-      : element?.width ?? elementsBoundingRect?.width ?? 0;
+      : (element?.width ?? elementsBoundingRect?.width ?? 0);
 
   return { offsetX: x, offsetY: y, width, height };
 }

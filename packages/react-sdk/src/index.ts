@@ -15,12 +15,12 @@
  */
 
 export * from './App';
+export * from './components/common/PageLoader';
 export * from './components/GuidedTour';
 export * from './components/Layout';
 export * from './components/Snackbar';
 export { DraggableStyles } from './components/Whiteboard/ElementBehaviors/Moveable';
 export * from './components/WhiteboardHotkeysProvider';
-export * from './components/common/PageLoader';
 export * from './i18n';
 export * from './lib';
 export * from './lib/testUtils/documentTestUtils';

@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 
-export { SvgCanvas } from './SvgCanvas';
 export { useSvgCanvasContext } from './context';
+export { SvgCanvas } from './SvgCanvas';
 export { useMeasure } from './useMeasure';

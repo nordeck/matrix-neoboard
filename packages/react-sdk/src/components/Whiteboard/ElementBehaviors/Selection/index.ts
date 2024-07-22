@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
+export { calculateIntersect } from './calculateIntersect';
 export { ElementBarWrapper } from './ElementBarWrapper';
 export { ElementBorder } from './ElementBorder';
 export { ElementOutline } from './ElementOutline';
 export { SelectableElement } from './SelectableElement';
-export { UnSelectElementHandler } from './UnSelectElementHandler';
-export { calculateIntersect } from './calculateIntersect';
 export type { WithExtendedSelectionProps, WithSelectionProps } from './types';
+export { UnSelectElementHandler } from './UnSelectElementHandler';
