@@ -85,11 +85,12 @@ describe('usePowerLevels', () => {
         canInitializeWhiteboard: true,
         canImportWhiteboard: true,
         canStopPresentation: true,
+        canRenameRoom: true,
       });
     });
   });
 
-  it('should have power if user is a moderator', async () => {
+  it('should have whiteboard power, but no rename power, if user is a moderator', async () => {
     widgetApi.mockSendStateEvent(
       mockPowerLevelsEvent({
         content: {
@@ -113,6 +114,7 @@ describe('usePowerLevels', () => {
         canInitializeWhiteboard: false,
         canImportWhiteboard: true,
         canStopPresentation: true,
+        canRenameRoom: false,
       });
     });
   });
@@ -141,6 +143,7 @@ describe('usePowerLevels', () => {
         canInitializeWhiteboard: false,
         canImportWhiteboard: false,
         canStopPresentation: false,
+        canRenameRoom: false,
       });
     });
   });

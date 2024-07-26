@@ -20,13 +20,14 @@ import {
   STATE_EVENT_POWER_LEVELS,
 } from '@matrix-widget-toolkit/api';
 import { useWidgetApi } from '@matrix-widget-toolkit/react';
-import { STATE_EVENT_WHITEBOARD } from '../../model';
+import { STATE_EVENT_ROOM_NAME, STATE_EVENT_WHITEBOARD } from '../../model';
 import { useGetPowerLevelsQuery } from './powerLevelsApi';
 
 export type PowerLevels = {
   canInitializeWhiteboard: boolean | undefined;
   canImportWhiteboard: boolean | undefined;
   canStopPresentation: boolean | undefined;
+  canRenameRoom: boolean | undefined;
 };
 
 export function usePowerLevels({
@@ -39,6 +40,7 @@ export function usePowerLevels({
   let canInitializeWhiteboard: boolean | undefined = undefined;
   let canImportWhiteboard: boolean | undefined = undefined;
   let canStopPresentation: boolean | undefined = undefined;
+  let canRenameRoom: boolean | undefined = undefined;
 
   if (!isLoading && powerLevels) {
     const powerContent = powerLevels.event?.content;
@@ -50,12 +52,18 @@ export function usePowerLevels({
       hasStateEventPower(powerContent, userId, STATE_EVENT_WHITEBOARD);
     canImportWhiteboard = canModerate;
     canStopPresentation = canModerate;
+    canRenameRoom = hasStateEventPower(
+      powerContent,
+      userId,
+      STATE_EVENT_ROOM_NAME,
+    );
   }
 
   return {
     canInitializeWhiteboard,
     canImportWhiteboard,
     canStopPresentation,
+    canRenameRoom,
   };
 }
 
