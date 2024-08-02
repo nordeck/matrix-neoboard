@@ -43,6 +43,7 @@ describe('<UnSelectElementHandler/>', () => {
   let dragSelectStartCoords: Point | undefined;
   let widgetApi: MockedWidgetApi;
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
+  let textElement: HTMLDivElement;
 
   beforeEach(() => {
     mocked(getEnvironment).mockReturnValue('true');
@@ -58,6 +59,11 @@ describe('<UnSelectElementHandler/>', () => {
       ({ dragSelectStartCoords } = useLayoutState());
       return null;
     }
+
+    const textNode = document.createTextNode('test');
+    textElement = document.createElement('div');
+    textElement.appendChild(textNode);
+    document.body.appendChild(textElement);
 
     Wrapper = ({ children }) => (
       <LayoutStateProvider>
@@ -75,16 +81,19 @@ describe('<UnSelectElementHandler/>', () => {
   });
 
   afterEach(() => {
+    textElement.remove();
     widgetApi.stop();
   });
 
-  it('should clear active elements on click', async () => {
+  it('should clear active elements and selection on click', async () => {
     activeSlide.setActiveElementIds(['element-0']);
     render(<UnSelectElementHandler />, { wrapper: Wrapper });
+    selectText();
 
     await userEvent.click(screen.getByTestId('unselect-element-layer'));
 
     expect(activeSlide.getActiveElementIds()).toEqual([]);
+    expect(window.getSelection()?.containsNode(textElement)).toBe(false);
   });
 
   it('should set the drag select start coordinates on mouse down', async () => {
@@ -94,4 +103,11 @@ describe('<UnSelectElementHandler/>', () => {
 
     expect(dragSelectStartCoords).toEqual({ x: 23, y: 42 });
   });
+
+  const selectText = () => {
+    const range = document.createRange();
+    range.selectNode(textElement);
+    const selection = window.getSelection();
+    selection?.addRange(range);
+  };
 });
