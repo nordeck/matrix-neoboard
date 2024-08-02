@@ -91,7 +91,7 @@ export function ElementBorder({ elementIds, padding = 1 }: ElementBorderProps) {
           {!lineRenderProperties && (
             <>
               <line
-                key={`element-${elementIds[0]}-border-south`}
+                data-testid={`${elementIds[0]}-border-top`}
                 fill="none"
                 stroke={theme.palette.primary.main}
                 strokeWidth={selectionBorderWidth}
@@ -101,7 +101,7 @@ export function ElementBorder({ elementIds, padding = 1 }: ElementBorderProps) {
                 y2={selectionY}
               />
               <line
-                key={`element-${elementIds[0]}-border-east`}
+                data-testid={`${elementIds[0]}-border-right`}
                 fill="none"
                 stroke={theme.palette.primary.main}
                 strokeWidth={selectionBorderWidth}
@@ -111,7 +111,7 @@ export function ElementBorder({ elementIds, padding = 1 }: ElementBorderProps) {
                 y2={selectionY + selectionHeight}
               />
               <line
-                key={`element-${elementIds[0]}-border-north`}
+                data-testid={`${elementIds[0]}-border-bottom`}
                 fill="none"
                 stroke={theme.palette.primary.main}
                 strokeWidth={selectionBorderWidth}
@@ -121,7 +121,7 @@ export function ElementBorder({ elementIds, padding = 1 }: ElementBorderProps) {
                 y2={selectionY + selectionHeight}
               />
               <line
-                key={`element-${elementIds[0]}-border-west`}
+                data-testid={`${elementIds[0]}-border-left`}
                 fill="none"
                 stroke={theme.palette.primary.main}
                 strokeWidth={selectionBorderWidth}
