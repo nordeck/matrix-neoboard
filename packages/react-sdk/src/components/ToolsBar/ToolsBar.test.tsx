@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { axe } from 'jest-axe';
-import { mocked } from 'jest-mock';
 import { ComponentType, PropsWithChildren } from 'react';
 import {
   WhiteboardTestingContextProvider,
@@ -100,11 +98,7 @@ describe('<ToolsBar/>', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('should render the upload image too if REACT_APP_IMAGES = true', () => {
-    mocked(getEnvironment).mockImplementation((name) => {
-      return name === 'REACT_APP_IMAGES' ? 'true' : 'false';
-    });
-
+  it('should render the upload image', () => {
     render(<ToolsBar />, { wrapper: Wrapper });
 
     expect(
@@ -121,10 +115,6 @@ describe('<ToolsBar/>', () => {
   });
 
   it('should disable all buttons if the slide is locked and not active', () => {
-    mocked(getEnvironment).mockImplementation((name) => {
-      return name === 'REACT_APP_IMAGES' ? 'true' : 'false';
-    });
-
     whiteboardManager
       .getActiveWhiteboardInstance()
       ?.getSlide('slide-0')
