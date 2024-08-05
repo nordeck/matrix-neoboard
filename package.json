@@ -19,6 +19,10 @@
     "prettier-plugin-organize-imports": "^4.0.0",
     "yarn-deduplicate": "^6.0.2"
   },
+  "resolutions": {
+    "**/react-scripts/@svgr/webpack/@svgr/plugin-svgo/svgo/css-select/nth-check": "^2.0.1",
+    "**/react-scripts/resolve-url-loader": "^5.0.0"
+  },
   "engines": {
     "node": ">=20.0.0",
     "yarn": ">=1.22.1 <2.0.0"
