@@ -45,6 +45,13 @@ describe('<UnSelectElementHandler/>', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
   let textElement: HTMLDivElement;
 
+  beforeAll(() => {
+    const textNode = document.createTextNode('test');
+    textElement = document.createElement('div');
+    textElement.appendChild(textNode);
+    document.body.appendChild(textElement);
+  });
+
   beforeEach(() => {
     mocked(getEnvironment).mockReturnValue('true');
     widgetApi = mockWidgetApi();
@@ -59,11 +66,6 @@ describe('<UnSelectElementHandler/>', () => {
       ({ dragSelectStartCoords } = useLayoutState());
       return null;
     }
-
-    const textNode = document.createTextNode('test');
-    textElement = document.createElement('div');
-    textElement.appendChild(textNode);
-    document.body.appendChild(textElement);
 
     Wrapper = ({ children }) => (
       <LayoutStateProvider>
@@ -81,8 +83,11 @@ describe('<UnSelectElementHandler/>', () => {
   });
 
   afterEach(() => {
-    textElement.remove();
     widgetApi.stop();
+  });
+
+  afterAll(() => {
+    textElement.remove();
   });
 
   it('should clear active elements and selection on click', async () => {
