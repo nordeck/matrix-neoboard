@@ -100,8 +100,8 @@ export const withContextMenu = <P extends object>(
     }, [handleClose, slideId, whiteboardInstance]);
 
     const handleInsertSlide = useCallback(() => {
-      const slideId = whiteboardInstance.addSlide(slideIndex - 1);
-      whiteboardInstance.setActiveSlideId(slideId);
+      const newSlideId = whiteboardInstance.addSlide(slideIndex + 1);
+      whiteboardInstance.setActiveSlideId(newSlideId);
       handleClose();
     }, [handleClose, slideIndex, whiteboardInstance]);
 

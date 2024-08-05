@@ -297,6 +297,28 @@ describe('WhiteboardInstanceImpl', () => {
     expect(whiteboardInstance.getSlideIds()).toEqual([slide0, slide2, slide1]);
   });
 
+  it('should add new slides between existing slides', async () => {
+    const whiteboardInstance = new WhiteboardInstanceImpl(
+      synchronizedDocument,
+      communicationChannel,
+      mockWhiteboard(),
+      '@user-id',
+    );
+
+    const slide1 = whiteboardInstance.addSlide();
+    const slide2 = whiteboardInstance.addSlide();
+    const newSlide1 = whiteboardInstance.addSlide(1);
+    const newSlide3 = whiteboardInstance.addSlide(3);
+
+    expect(whiteboardInstance.getSlideIds()).toEqual([
+      slide0,
+      newSlide1,
+      slide1,
+      newSlide3,
+      slide2,
+    ]);
+  });
+
   it('should duplicate a slide', async () => {
     const whiteboardInstance = new WhiteboardInstanceImpl(
       synchronizedDocument,
