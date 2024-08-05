@@ -46,6 +46,7 @@ export function UnSelectElementHandler() {
 
       if (activeElementId) {
         slideInstance.setActiveElementId(undefined);
+        window.getSelection()?.empty();
       }
     },
     [
