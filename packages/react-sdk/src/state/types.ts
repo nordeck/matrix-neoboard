@@ -54,10 +54,13 @@ export type WhiteboardInstance = {
   /** Returns the id of the whiteboard. */
   getWhiteboardId(): string;
   /**
-   * Add a new slide at the end of the whiteboard.
+   * Add a new slide to the whiteboard.
+   *
+   * @param index - If provided, add the slide at the index.
+   *                Else add the slide to the end.
    * @returns the id of the created slide.
    */
-  addSlide(): string;
+  addSlide(index?: number): string;
   /**
    * Creates a copy of the selected slide directly after it.
    * @throws if the slide does not exist

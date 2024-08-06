@@ -301,9 +301,15 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
       .subscribe();
   }
 
-  addSlide(): string {
+  addSlide(index?: number): string {
     const [changeFn, slideId] = generateAddSlide();
-    this.synchronizedDocument.getDocument().performChange(changeFn);
+    this.synchronizedDocument.getDocument().performChange((doc) => {
+      changeFn(doc);
+
+      if (index !== undefined) {
+        generateMoveSlide(slideId, index)(doc);
+      }
+    });
 
     return slideId;
   }
