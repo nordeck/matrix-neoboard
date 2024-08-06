@@ -97,7 +97,9 @@ describe('<ElementBorder />', () => {
 
     render(<ElementBorder elementIds={[id]} />, { wrapper: Wrapper });
 
-    expect(screen.getByTestId(`${id}-border`)).toBeInTheDocument();
+    for (const side of ['top', 'right', 'bottom', 'left']) {
+      expect(screen.getByTestId(`${id}-border-${side}`)).toBeInTheDocument();
+    }
   });
 
   it('should not render a border for an active line element', () => {
@@ -105,6 +107,10 @@ describe('<ElementBorder />', () => {
 
     render(<ElementBorder elementIds={['element-2']} />, { wrapper: Wrapper });
 
-    expect(screen.queryByTestId('element-2-border')).not.toBeInTheDocument();
+    for (const side of ['top', 'right', 'bottom', 'left']) {
+      expect(
+        screen.queryByTestId(`element-2-border-${side}`),
+      ).not.toBeInTheDocument();
+    }
   });
 });

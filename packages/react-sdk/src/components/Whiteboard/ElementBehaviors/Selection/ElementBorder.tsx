@@ -89,16 +89,48 @@ export function ElementBorder({ elementIds, padding = 1 }: ElementBorderProps) {
       {isInSelectionMode && (
         <g>
           {!lineRenderProperties && (
-            <rect
-              data-testid={`${elementIds[0]}-border`}
-              fill="transparent"
-              height={selectionHeight}
-              stroke={theme.palette.primary.main}
-              strokeWidth={selectionBorderWidth}
-              width={selectionWidth}
-              x={selectionX}
-              y={selectionY}
-            />
+            <>
+              <line
+                data-testid={`${elementIds[0]}-border-top`}
+                fill="none"
+                stroke={theme.palette.primary.main}
+                strokeWidth={selectionBorderWidth}
+                x1={selectionX}
+                x2={selectionX + selectionWidth}
+                y1={selectionY}
+                y2={selectionY}
+              />
+              <line
+                data-testid={`${elementIds[0]}-border-right`}
+                fill="none"
+                stroke={theme.palette.primary.main}
+                strokeWidth={selectionBorderWidth}
+                x1={selectionX + selectionWidth}
+                x2={selectionX + selectionWidth}
+                y1={selectionY}
+                y2={selectionY + selectionHeight}
+              />
+              <line
+                data-testid={`${elementIds[0]}-border-bottom`}
+                fill="none"
+                stroke={theme.palette.primary.main}
+                strokeWidth={selectionBorderWidth}
+                x1={selectionX + selectionWidth}
+                x2={selectionX}
+                y1={selectionY + selectionHeight}
+                y2={selectionY + selectionHeight}
+              />
+              <line
+                data-testid={`${elementIds[0]}-border-left`}
+                fill="none"
+                stroke={theme.palette.primary.main}
+                strokeWidth={selectionBorderWidth}
+                x1={selectionX}
+                x2={selectionX}
+                y1={selectionY + selectionHeight}
+                y2={selectionY}
+              />
+            </>
           )}
           {lineRenderProperties ? (
             <>

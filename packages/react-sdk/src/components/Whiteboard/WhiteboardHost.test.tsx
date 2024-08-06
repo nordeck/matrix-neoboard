@@ -154,7 +154,11 @@ describe('<WhiteboardHost/>', () => {
     activeSlide.setActiveElementIds(['element-0']);
     render(<WhiteboardHost />, { wrapper: Wrapper });
 
-    expect(screen.getByTestId('element-0-border')).toBeInTheDocument();
+    for (const side of ['top', 'right', 'bottom', 'left']) {
+      expect(
+        screen.getByTestId(`element-0-border-${side}`),
+      ).toBeInTheDocument();
+    }
   });
 
   it('should move multiple selected elements by dragging the border', () => {
@@ -162,7 +166,7 @@ describe('<WhiteboardHost/>', () => {
     render(<WhiteboardHost />, { wrapper: Wrapper });
 
     // move 150px on x and 250px on y axis
-    const border = screen.getByTestId('element-0-border');
+    const border = screen.getByTestId('element-0-border-top');
     fireEvent.mouseDown(border, {
       clientX: 150,
       clientY: 150,
@@ -186,7 +190,11 @@ describe('<WhiteboardHost/>', () => {
   it('should not contain an element border if no element is selected', () => {
     render(<WhiteboardHost />, { wrapper: Wrapper });
 
-    expect(screen.queryByTestId('element-0-border')).not.toBeInTheDocument();
+    for (const side of ['top', 'right', 'bottom', 'left']) {
+      expect(
+        screen.queryByTestId(`element-0-border-${side}`),
+      ).not.toBeInTheDocument();
+    }
   });
 
   it('should show the grid for the presenter in presentation mode if it is enabled', () => {
