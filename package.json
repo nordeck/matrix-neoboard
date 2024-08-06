@@ -7,16 +7,19 @@
   ],
   "devDependencies": {
     "@changesets/cli": "^2.27.7",
+    "@eslint/js": "^9.8.0",
     "depcheck": "^1.4.7",
-    "eslint": "^8.57.0",
+    "eslint": "^9.8.0",
     "eslint-config-prettier": "^9.1.0",
-    "eslint-config-react-app": "^7.0.1",
+    "eslint-plugin-jest": "^28.7.0",
     "eslint-plugin-notice": "^1.0.0",
-    "eslint-plugin-promise": "^6.6.0",
+    "eslint-plugin-promise": "^7.0.0",
+    "eslint-plugin-react": "^7.35.0",
     "husky": "^9.1.1",
     "lint-staged": "^15.2.7",
     "prettier": "^3.3.3",
     "prettier-plugin-organize-imports": "^4.0.0",
+    "typescript-eslint": "^8.0.1",
     "yarn-deduplicate": "^6.0.2"
   },
   "resolutions": {
@@ -52,7 +55,7 @@
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
-      "yarn eslint",
+      "yarn lint",
       "bash -c \"yarn tsc --pretty\"",
       "prettier --write"
     ],
