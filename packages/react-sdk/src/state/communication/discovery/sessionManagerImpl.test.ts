@@ -46,7 +46,7 @@ describe('SessionManagerImpl', () => {
     const { sessionId } = await sessionManager.join('whiteboard-id');
 
     expect(sessionId).toEqual(expect.any(String));
-    expect(widgetApi.sendStateEvent).toBeCalledWith(
+    expect(widgetApi.sendStateEvent).toHaveBeenCalledWith(
       'net.nordeck.whiteboard.sessions',
       {
         sessions: [
@@ -66,7 +66,7 @@ describe('SessionManagerImpl', () => {
     const { sessionId: firstSessionId } =
       await sessionManager.join('whiteboard-id-0');
 
-    expect(widgetApi.sendStateEvent).toBeCalledWith(
+    expect(widgetApi.sendStateEvent).toHaveBeenCalledWith(
       'net.nordeck.whiteboard.sessions',
       {
         sessions: [
@@ -83,7 +83,7 @@ describe('SessionManagerImpl', () => {
     const { sessionId: secondSessionId } =
       await sessionManager.join('whiteboard-id-1');
 
-    expect(widgetApi.sendStateEvent).toBeCalledWith(
+    expect(widgetApi.sendStateEvent).toHaveBeenCalledWith(
       'net.nordeck.whiteboard.sessions',
       {
         sessions: [
@@ -103,7 +103,7 @@ describe('SessionManagerImpl', () => {
 
     const { sessionId } = await sessionManager.join('whiteboard-id');
 
-    expect(widgetApi.sendStateEvent).toBeCalledWith(
+    expect(widgetApi.sendStateEvent).toHaveBeenCalledWith(
       'net.nordeck.whiteboard.sessions',
       {
         sessions: [
@@ -138,7 +138,7 @@ describe('SessionManagerImpl', () => {
 
     const { sessionId } = await sessionManager.join('whiteboard-id');
 
-    expect(widgetApi.sendStateEvent).toBeCalledWith(
+    expect(widgetApi.sendStateEvent).toHaveBeenCalledWith(
       'net.nordeck.whiteboard.sessions',
       {
         sessions: [
@@ -160,11 +160,13 @@ describe('SessionManagerImpl', () => {
 
     const { sessionId } = await sessionManager.join('whiteboard-id');
 
-    expect(widgetApi.sendStateEvent).toBeCalledTimes(1);
+    expect(widgetApi.sendStateEvent).toHaveBeenCalledTimes(1);
 
     jest.advanceTimersByTime(sessionTimeout * 0.8);
 
-    await waitFor(() => expect(widgetApi.sendStateEvent).toBeCalledTimes(2));
+    await waitFor(() =>
+      expect(widgetApi.sendStateEvent).toHaveBeenCalledTimes(2),
+    );
 
     expect(widgetApi.sendStateEvent).toHaveBeenNthCalledWith(
       2,
@@ -192,7 +194,7 @@ describe('SessionManagerImpl', () => {
 
     const { sessionId } = await sessionManager.join('whiteboard-id');
 
-    expect(widgetApi.sendStateEvent).toBeCalledWith(
+    expect(widgetApi.sendStateEvent).toHaveBeenCalledWith(
       'net.nordeck.whiteboard.sessions',
       {
         sessions: [
@@ -352,7 +354,7 @@ describe('SessionManagerImpl', () => {
     ]);
 
     expect(sessionManager.getSessions()).toEqual([]);
-    expect(widgetApi.sendStateEvent).toBeCalledWith(
+    expect(widgetApi.sendStateEvent).toHaveBeenCalledWith(
       'net.nordeck.whiteboard.sessions',
       {
         sessions: [

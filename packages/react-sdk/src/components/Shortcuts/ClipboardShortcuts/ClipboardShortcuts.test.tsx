@@ -80,11 +80,11 @@ describe('<CopyAndPasteShortcuts>', () => {
 
     const clipboardData = fireClipboardEvent('copy');
 
-    expect(clipboardData.setData).toBeCalledWith(
+    expect(clipboardData.setData).toHaveBeenCalledWith(
       'text/plain',
       'Hello World 1 Hello World 2',
     );
-    expect(clipboardData.setData).toBeCalledWith(
+    expect(clipboardData.setData).toHaveBeenCalledWith(
       'text/html',
       expect.stringContaining('<span data-meta='),
     );
@@ -98,7 +98,7 @@ describe('<CopyAndPasteShortcuts>', () => {
 
     const clipboardData = fireClipboardEvent('copy');
 
-    expect(clipboardData.setData).not.toBeCalled();
+    expect(clipboardData.setData).not.toHaveBeenCalled();
   });
 
   it('should ignore copy if keyboard scope is disabled', () => {
@@ -111,7 +111,7 @@ describe('<CopyAndPasteShortcuts>', () => {
 
     const clipboardData = fireClipboardEvent('copy');
 
-    expect(clipboardData.setData).not.toBeCalled();
+    expect(clipboardData.setData).not.toHaveBeenCalled();
   });
 
   it('should ignore copy if the presentation mode is active', () => {
@@ -121,7 +121,7 @@ describe('<CopyAndPasteShortcuts>', () => {
 
     const clipboardData = fireClipboardEvent('copy');
 
-    expect(clipboardData.setData).not.toBeCalled();
+    expect(clipboardData.setData).not.toHaveBeenCalled();
   });
 
   it('should cut contents', () => {
@@ -131,11 +131,11 @@ describe('<CopyAndPasteShortcuts>', () => {
 
     const clipboardData = fireClipboardEvent('cut');
 
-    expect(clipboardData.setData).toBeCalledWith(
+    expect(clipboardData.setData).toHaveBeenCalledWith(
       'text/plain',
       'Hello World 1 Hello World 2',
     );
-    expect(clipboardData.setData).toBeCalledWith(
+    expect(clipboardData.setData).toHaveBeenCalledWith(
       'text/html',
       expect.stringContaining('<span data-meta='),
     );
@@ -152,7 +152,7 @@ describe('<CopyAndPasteShortcuts>', () => {
 
     const clipboardData = fireClipboardEvent('cut');
 
-    expect(clipboardData.setData).not.toBeCalled();
+    expect(clipboardData.setData).not.toHaveBeenCalled();
   });
 
   it('should ignore cut if no element is selected', () => {
@@ -163,7 +163,7 @@ describe('<CopyAndPasteShortcuts>', () => {
 
     const clipboardData = fireClipboardEvent('cut');
 
-    expect(clipboardData.setData).not.toBeCalled();
+    expect(clipboardData.setData).not.toHaveBeenCalled();
   });
 
   it('should ignore cut if keyboard scope is disabled', () => {
@@ -176,7 +176,7 @@ describe('<CopyAndPasteShortcuts>', () => {
 
     const clipboardData = fireClipboardEvent('cut');
 
-    expect(clipboardData.setData).not.toBeCalled();
+    expect(clipboardData.setData).not.toHaveBeenCalled();
   });
 
   it('should ignore cut if the presentation mode is active', () => {
@@ -186,7 +186,7 @@ describe('<CopyAndPasteShortcuts>', () => {
 
     const clipboardData = fireClipboardEvent('cut');
 
-    expect(clipboardData.setData).not.toBeCalled();
+    expect(clipboardData.setData).not.toHaveBeenCalled();
   });
 
   it('should paste content', () => {
@@ -226,7 +226,7 @@ describe('<CopyAndPasteShortcuts>', () => {
       'text/plain': 'Bye Bye',
     });
 
-    expect(clipboardData.getData).not.toBeCalled();
+    expect(clipboardData.getData).not.toHaveBeenCalled();
   });
 
   it('should ignore paste if keyboard scope is disabled', () => {
@@ -241,7 +241,7 @@ describe('<CopyAndPasteShortcuts>', () => {
       'text/plain': 'Bye Bye',
     });
 
-    expect(clipboardData.getData).not.toBeCalled();
+    expect(clipboardData.getData).not.toHaveBeenCalled();
   });
 
   it('should ignore paste if the presentation mode is active', () => {
@@ -253,7 +253,7 @@ describe('<CopyAndPasteShortcuts>', () => {
       'text/plain': 'Bye Bye',
     });
 
-    expect(clipboardData.getData).not.toBeCalled();
+    expect(clipboardData.getData).not.toHaveBeenCalled();
   });
 });
 

@@ -135,7 +135,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
 
     const element = mockLineElement();
 
-    expect(() => slideInstance.addElement(element)).toThrowError(
+    expect(() => slideInstance.addElement(element)).toThrow(
       'Can not modify slide, slide is locked',
     );
   });
@@ -166,7 +166,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
 
     const element0 = slideInstance.addElement(mockLineElement());
 
-    expect(performChangeSpy).toBeCalled();
+    expect(performChangeSpy).toHaveBeenCalled();
     expect(slideInstance.getActiveElementId()).toEqual(element0);
   });
 
@@ -226,7 +226,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
     const element0 = slideInstance.addElement(element);
     slideInstance.lockSlide();
 
-    expect(() => slideInstance.removeElements([element0])).toThrowError(
+    expect(() => slideInstance.removeElements([element0])).toThrow(
       'Can not modify slide, slide is locked',
     );
   });
@@ -311,7 +311,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       slideInstance.updateElement(element0, {
         strokeColor: '#000000',
       }),
-    ).toThrowError('Can not modify slide, slide is locked');
+    ).toThrow('Can not modify slide, slide is locked');
   });
 
   it('should move element to bottom', () => {
@@ -410,7 +410,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
     const element0 = slideInstance.addElement(element);
     slideInstance.lockSlide();
 
-    expect(() => slideInstance.moveElementsToBottom([element0])).toThrowError(
+    expect(() => slideInstance.moveElementsToBottom([element0])).toThrow(
       'Can not modify slide, slide is locked',
     );
   });
@@ -455,7 +455,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
     const element0 = slideInstance.addElement(element);
     slideInstance.lockSlide();
 
-    expect(() => slideInstance.moveElementDown(element0)).toThrowError(
+    expect(() => slideInstance.moveElementDown(element0)).toThrow(
       'Can not modify slide, slide is locked',
     );
   });
@@ -500,7 +500,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
     const element0 = slideInstance.addElement(element);
     slideInstance.lockSlide();
 
-    expect(() => slideInstance.moveElementUp(element0)).toThrowError(
+    expect(() => slideInstance.moveElementUp(element0)).toThrow(
       'Can not modify slide, slide is locked',
     );
   });
@@ -601,7 +601,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
     const element0 = slideInstance.addElement(element);
     slideInstance.lockSlide();
 
-    expect(() => slideInstance.moveElementsToTop([element0])).toThrowError(
+    expect(() => slideInstance.moveElementsToTop([element0])).toThrow(
       'Can not modify slide, slide is locked',
     );
   });
@@ -863,7 +863,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
     slideInstance.publishCursorPosition({ x: 1, y: 2 });
 
     await waitFor(() => {
-      expect(communicationChannel.broadcastMessage).toBeCalledWith(
+      expect(communicationChannel.broadcastMessage).toHaveBeenCalledWith(
         'net.nordeck.whiteboard.cursor_update',
         { slideId: slide0, position: { x: 1, y: 2 } },
       );
@@ -884,14 +884,14 @@ describe('WhiteboardSlideInstanceImpl', () => {
     slideInstance.publishCursorPosition({ x: 7, y: 8 });
 
     await waitFor(() => {
-      expect(communicationChannel.broadcastMessage).toBeCalledTimes(2);
+      expect(communicationChannel.broadcastMessage).toHaveBeenCalledTimes(2);
     });
 
-    expect(communicationChannel.broadcastMessage).toBeCalledWith(
+    expect(communicationChannel.broadcastMessage).toHaveBeenCalledWith(
       'net.nordeck.whiteboard.cursor_update',
       { slideId: slide0, position: { x: 1, y: 2 } },
     );
-    expect(communicationChannel.broadcastMessage).toBeCalledWith(
+    expect(communicationChannel.broadcastMessage).toHaveBeenCalledWith(
       'net.nordeck.whiteboard.cursor_update',
       { slideId: slide0, position: { x: 7, y: 8 } },
     );

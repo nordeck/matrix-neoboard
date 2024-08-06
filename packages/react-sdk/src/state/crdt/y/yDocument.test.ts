@@ -75,10 +75,10 @@ describe('YDocument', () => {
     const publish = firstValueFrom(yDoc.observePublish());
 
     expect(() => {
-      yDoc.performChange((doc) => {
+      yDoc.performChange(() => {
         throw new Error();
       });
-    }).toThrowError();
+    }).toThrow();
 
     // Do a second change to verify that the first try did not trigger any
     // events.
@@ -185,7 +185,7 @@ describe('YDocument', () => {
 
   it('should throw error if merge fails', async () => {
     const yDoc = YDocument.create<Example>(exampleMigrations, '0');
-    expect(() => yDoc.mergeFrom(new Uint8Array([1, 2, 3, 4]))).toThrowError();
+    expect(() => yDoc.mergeFrom(new Uint8Array([1, 2, 3, 4]))).toThrow();
   });
 
   it('should only capture performed changes for the undo manager', async () => {

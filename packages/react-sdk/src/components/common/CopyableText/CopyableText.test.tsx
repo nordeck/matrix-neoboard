@@ -42,7 +42,7 @@ describe('<CopyableText/>', () => {
 
     await userEvent.click(copyButton);
 
-    expect(navigator.clipboard.writeText).toBeCalledWith('Hello World');
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith('Hello World');
     expect(screen.getByTestId('CheckOutlinedIcon')).toBeInTheDocument();
 
     await userEvent.tab();

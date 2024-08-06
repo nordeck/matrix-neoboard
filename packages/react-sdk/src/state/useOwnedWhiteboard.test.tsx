@@ -59,11 +59,11 @@ describe('useOwnedWhiteboard', () => {
 
     expect(result.current).toEqual({ loading: true });
 
-    expect(widgetApi.sendRoomEvent).not.toBeCalledWith(
+    expect(widgetApi.sendRoomEvent).not.toHaveBeenCalledWith(
       'net.nordeck.whiteboard.document.create',
       expect.anything(),
     );
-    expect(widgetApi.sendStateEvent).not.toBeCalledWith(
+    expect(widgetApi.sendStateEvent).not.toHaveBeenCalledWith(
       'net.nordeck.whiteboard',
       expect.anything(),
       expect.anything(),
@@ -83,9 +83,7 @@ describe('useOwnedWhiteboard', () => {
   it('should return an existing whiteboard when loading of whiteboards is slower', async () => {
     const whiteboard = mockWhiteboard();
 
-    let resolveWhiteboards: (events: StateEvent<unknown>[]) => void = (
-      events,
-    ) => {};
+    let resolveWhiteboards: (events: StateEvent<unknown>[]) => void = () => {};
     widgetApi.receiveStateEvents.mockImplementation((eventType) => {
       if (eventType === 'm.room.power_levels') {
         return Promise.resolve([mockPowerLevelsEvent()]);
@@ -108,11 +106,11 @@ describe('useOwnedWhiteboard', () => {
 
     resolveWhiteboards([whiteboard]);
 
-    expect(widgetApi.sendRoomEvent).not.toBeCalledWith(
+    expect(widgetApi.sendRoomEvent).not.toHaveBeenCalledWith(
       'net.nordeck.whiteboard.document.create',
       expect.anything(),
     );
-    expect(widgetApi.sendStateEvent).not.toBeCalledWith(
+    expect(widgetApi.sendStateEvent).not.toHaveBeenCalledWith(
       'net.nordeck.whiteboard',
       expect.anything(),
       expect.anything(),
@@ -131,13 +129,14 @@ describe('useOwnedWhiteboard', () => {
 
   // TODO: adjust this to the new error handling
   // https://github.com/testing-library/react-hooks-testing-library/blob/chore/migration-guide/MIGRATION_GUIDE.md#resulterror
+  // eslint-disable-next-line
   it.skip('should reject when loading of whiteboards is slower and fails', async () => {
     let rejectWhiteboards: () => void = () => {};
     widgetApi.receiveStateEvents.mockImplementation((eventType) => {
       if (eventType === 'm.room.power_levels') {
         return Promise.resolve([mockPowerLevelsEvent()]);
       } else if (eventType === 'net.nordeck.whiteboard') {
-        return new Promise((resolve, reject) => {
+        return new Promise((_resolve, reject) => {
           rejectWhiteboards = reject;
         });
       } else {
@@ -155,11 +154,11 @@ describe('useOwnedWhiteboard', () => {
 
     rejectWhiteboards();
 
-    expect(widgetApi.sendRoomEvent).not.toBeCalledWith(
+    expect(widgetApi.sendRoomEvent).not.toHaveBeenCalledWith(
       'net.nordeck.whiteboard.document.create',
       expect.anything(),
     );
-    expect(widgetApi.sendStateEvent).not.toBeCalledWith(
+    expect(widgetApi.sendStateEvent).not.toHaveBeenCalledWith(
       'net.nordeck.whiteboard',
       expect.anything(),
       expect.anything(),
@@ -179,12 +178,15 @@ describe('useOwnedWhiteboard', () => {
       expect(result.current).toEqual({ loading: true });
     });
 
-    expect(widgetApi.sendStateEvent).toBeCalledWith('m.room.power_levels', {
-      events: { 'net.nordeck.whiteboard.sessions': 0 },
-      users_default: 100,
-    });
+    expect(widgetApi.sendStateEvent).toHaveBeenCalledWith(
+      'm.room.power_levels',
+      {
+        events: { 'net.nordeck.whiteboard.sessions': 0 },
+        users_default: 100,
+      },
+    );
 
-    expect(widgetApi.sendRoomEvent).toBeCalledWith(
+    expect(widgetApi.sendRoomEvent).toHaveBeenCalledWith(
       'net.nordeck.whiteboard.document.create',
       {},
     );
@@ -193,7 +195,7 @@ describe('useOwnedWhiteboard', () => {
       (e: RoomEvent) => e.event_id,
     );
 
-    expect(widgetApi.sendStateEvent).toBeCalledWith(
+    expect(widgetApi.sendStateEvent).toHaveBeenCalledWith(
       'net.nordeck.whiteboard',
       { documentId },
       { stateKey: 'widget-id' },
@@ -255,11 +257,11 @@ describe('useOwnedWhiteboard', () => {
       }),
     );
 
-    expect(widgetApi.sendRoomEvent).not.toBeCalledWith(
+    expect(widgetApi.sendRoomEvent).not.toHaveBeenCalledWith(
       'net.nordeck.whiteboard.document.create',
       expect.anything(),
     );
-    expect(widgetApi.sendStateEvent).not.toBeCalledWith(
+    expect(widgetApi.sendStateEvent).not.toHaveBeenCalledWith(
       'net.nordeck.whiteboard',
       expect.anything(),
       expect.anything(),
@@ -296,10 +298,13 @@ describe('useOwnedWhiteboard', () => {
       expect(result.current).toEqual({ loading: true });
     });
 
-    expect(widgetApi.sendStateEvent).toBeCalledWith('m.room.power_levels', {
-      events: { 'net.nordeck.whiteboard.sessions': 0 },
-      users_default: 100,
-    });
+    expect(widgetApi.sendStateEvent).toHaveBeenCalledWith(
+      'm.room.power_levels',
+      {
+        events: { 'net.nordeck.whiteboard.sessions': 0 },
+        users_default: 100,
+      },
+    );
 
     await waitFor(() => {
       expect(result.current).toEqual({
@@ -319,6 +324,7 @@ describe('useOwnedWhiteboard', () => {
 
   // TODO: adjust this to the new error handling
   // https://github.com/testing-library/react-hooks-testing-library/blob/chore/migration-guide/MIGRATION_GUIDE.md#resulterror
+  // eslint-disable-next-line
   it.skip('should reject if whiteboard creation fails', async () => {
     widgetApi.mockSendStateEvent(mockPowerLevelsEvent());
 

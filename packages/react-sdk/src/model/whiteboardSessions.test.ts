@@ -87,7 +87,7 @@ describe('isValidWhiteboardSessionsStateEvent', () => {
     ).toBe(true);
   });
 
-  it.each<Object>([
+  it.each<object>([
     { sessions: undefined },
     { sessions: null },
     { sessions: 111 },
@@ -191,7 +191,7 @@ describe('isValidWhiteboardSessionsStateEvent', () => {
         },
       ],
     },
-  ])('should reject event with patch %j', (patch: Object) => {
+  ])('should reject event with patch %j', (patch: object) => {
     expect(
       isValidWhiteboardSessionsStateEvent({
         content: {

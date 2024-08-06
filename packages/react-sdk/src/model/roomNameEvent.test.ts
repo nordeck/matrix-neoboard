@@ -50,9 +50,9 @@ describe('isValidRoomNameEvent', () => {
     ).toBe(true);
   });
 
-  it.each<Object>([{ name: undefined }, { name: null }, { name: 111 }])(
+  it.each<object>([{ name: undefined }, { name: null }, { name: 111 }])(
     'should reject event with patch %j',
-    (patch: Object) => {
+    (patch: object) => {
       expect(
         isValidRoomNameEvent({
           content: {

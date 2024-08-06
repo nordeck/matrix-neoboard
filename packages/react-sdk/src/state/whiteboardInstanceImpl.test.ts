@@ -140,8 +140,8 @@ describe('WhiteboardInstanceImpl', () => {
     const changeFn = generateRemoveSlide(slide0);
     document.performChange(changeFn);
 
-    expect(destroySlideSpy).toBeCalled();
-    expect(() => whiteboardInstance.getSlide(slide0)).toThrowError(
+    expect(destroySlideSpy).toHaveBeenCalled();
+    expect(() => whiteboardInstance.getSlide(slide0)).toThrow(
       'SlideId does not exist',
     );
   });
@@ -370,7 +370,7 @@ describe('WhiteboardInstanceImpl', () => {
 
     whiteboardInstance.removeSlide(slide1);
 
-    expect(destroySlideSpy).toBeCalled();
+    expect(destroySlideSpy).toHaveBeenCalled();
     expect(whiteboardInstance.getSlideIds()).toEqual([slide0, slide2]);
   });
 
@@ -384,7 +384,7 @@ describe('WhiteboardInstanceImpl', () => {
 
     whiteboardInstance.focusOn(slide0);
 
-    expect(communicationChannel.broadcastMessage).toBeCalledWith(
+    expect(communicationChannel.broadcastMessage).toHaveBeenCalledWith(
       'net.nordeck.whiteboard.focus_on',
       { slideId: slide0 },
     );
@@ -418,7 +418,7 @@ describe('WhiteboardInstanceImpl', () => {
       '@user-id',
     );
 
-    expect(() => whiteboardInstance.getSlide('not-exists')).toThrowError(
+    expect(() => whiteboardInstance.getSlide('not-exists')).toThrow(
       'SlideId does not exist',
     );
   });
@@ -646,10 +646,10 @@ describe('WhiteboardInstanceImpl', () => {
     expect(await undoRedoState).toEqual([{ canUndo: false, canRedo: false }]);
     expect(await presentationState).toEqual([{ type: 'idle' }]);
 
-    expect(synchronizedDocument.destroy).toBeCalled();
-    expect(communicationChannel.destroy).toBeCalled();
+    expect(synchronizedDocument.destroy).toHaveBeenCalled();
+    expect(communicationChannel.destroy).toHaveBeenCalled();
 
-    expect(destroySlideSpy).toBeCalled();
+    expect(destroySlideSpy).toHaveBeenCalled();
   });
 });
 

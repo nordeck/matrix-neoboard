@@ -137,11 +137,14 @@ describe('patchPowerLevels', () => {
       }),
     });
 
-    expect(widgetApi.sendStateEvent).toBeCalledWith('m.room.power_levels', {
-      users: { '@user-id': 100 },
-      users_default: 0,
-      events_default: 0,
-    });
+    expect(widgetApi.sendStateEvent).toHaveBeenCalledWith(
+      'm.room.power_levels',
+      {
+        users: { '@user-id': 100 },
+        users_default: 0,
+        events_default: 0,
+      },
+    );
   });
 
   it('should be idempotent', async () => {
@@ -172,6 +175,6 @@ describe('patchPowerLevels', () => {
       }),
     });
 
-    expect(widgetApi.sendStateEvent).not.toBeCalled();
+    expect(widgetApi.sendStateEvent).not.toHaveBeenCalled();
   });
 });
