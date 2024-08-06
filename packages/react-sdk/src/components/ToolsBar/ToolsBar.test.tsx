@@ -130,9 +130,7 @@ describe('<ToolsBar/>', () => {
     expect(screen.getByRole('radio', { name: 'Triangle' })).toBeDisabled();
     expect(screen.getByRole('radio', { name: 'Line' })).toBeDisabled();
     expect(screen.getByRole('radio', { name: 'Arrow' })).toBeDisabled();
-    expect(
-      screen.getByRole('presenbuttontation', { name: 'Upload image' }),
-    ).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Upload image' })).toBeDisabled();
 
     expect(screen.getByRole('radio', { name: 'Select' })).not.toBeChecked();
     expect(screen.getByRole('radio', { name: 'Text' })).not.toBeChecked();
