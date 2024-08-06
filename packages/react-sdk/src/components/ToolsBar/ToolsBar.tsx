@@ -117,12 +117,11 @@ export function ToolsBar() {
           {...getRootProps()}
           // This must be button and it MUST be after getRootProps as the dropzone would otherwise set it to the "presentation" role
           // However in this case we want it to be a button
-          role='button'
+          role="button"
         >
           {/* We are hiding it for screen readers and instead expect the button to be used */}
           <input aria-hidden={true} {...getInputProps()} onClick={undefined} />
-          <UploadIcon
-            sx={{ height: 22 }} />
+          <UploadIcon sx={{ height: 22 }} />
         </ToolbarButton>
       </ToolbarRadioGroup>
     </Toolbar>
