@@ -94,7 +94,7 @@ describe('<ToolsBar/>', () => {
       within(radiogroup).getByRole('radio', { name: 'Arrow' }),
     ).not.toBeChecked();
     expect(
-      screen.getByRole('presentation', { name: 'Upload image' }),
+      screen.getByRole('button', { name: 'Upload image' }),
     ).toBeInTheDocument();
   });
 
@@ -102,7 +102,7 @@ describe('<ToolsBar/>', () => {
     render(<ToolsBar />, { wrapper: Wrapper });
 
     expect(
-      screen.getByRole('presentation', { name: 'Upload image' }),
+      screen.getByRole('button', { name: 'Upload image' }),
     ).toBeInTheDocument();
   });
 
@@ -131,7 +131,7 @@ describe('<ToolsBar/>', () => {
     expect(screen.getByRole('radio', { name: 'Line' })).toBeDisabled();
     expect(screen.getByRole('radio', { name: 'Arrow' })).toBeDisabled();
     expect(
-      screen.getByRole('presentation', { name: 'Upload image' }),
+      screen.getByRole('presenbuttontation', { name: 'Upload image' }),
     ).toBeDisabled();
 
     expect(screen.getByRole('radio', { name: 'Select' })).not.toBeChecked();
