@@ -94,8 +94,8 @@ describe('<ToolsBar/>', () => {
       within(radiogroup).getByRole('radio', { name: 'Arrow' }),
     ).not.toBeChecked();
     expect(
-      screen.queryByRole('presentation', { name: 'Upload image' }),
-    ).not.toBeInTheDocument();
+      screen.getByRole('presentation', { name: 'Upload image' }),
+    ).toBeInTheDocument();
   });
 
   it('should render the upload image', () => {
