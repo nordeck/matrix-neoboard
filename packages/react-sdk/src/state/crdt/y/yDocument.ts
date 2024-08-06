@@ -107,7 +107,7 @@ export class YDocument<T extends Record<string, unknown>>
 
   performChange(callback: ChangeFn<T>): void {
     this.applyAndNotifyChanges(() => {
-      this.doc.transact((t) => callback(this.getRoot()), UNDO_MANAGER_SCOPE);
+      this.doc.transact(() => callback(this.getRoot()), UNDO_MANAGER_SCOPE);
     });
   }
 

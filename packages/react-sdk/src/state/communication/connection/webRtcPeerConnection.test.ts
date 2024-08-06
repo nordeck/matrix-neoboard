@@ -59,7 +59,7 @@ describe('WebRtcPeerConnection', () => {
       impoliteSessionId,
     );
 
-    expect(jest.spyOn(window, 'RTCPeerConnection')).toBeCalledWith({
+    expect(jest.spyOn(window, 'RTCPeerConnection')).toHaveBeenCalledWith({
       iceServers: [
         {
           urls: ['stun:turn.matrix.org'],
@@ -83,7 +83,7 @@ describe('WebRtcPeerConnection', () => {
       { turnServer },
     );
 
-    expect(jest.spyOn(window, 'RTCPeerConnection')).toBeCalledWith({
+    expect(jest.spyOn(window, 'RTCPeerConnection')).toHaveBeenCalledWith({
       iceServers: [turnServer],
     });
 
@@ -106,7 +106,7 @@ describe('WebRtcPeerConnection', () => {
 
     connection.close();
 
-    expect(rtcPeerConnection.close).toBeCalled();
+    expect(rtcPeerConnection.close).toHaveBeenCalled();
     await expect(statisticsPromise).resolves.toEqual(expect.any(Array));
     await expect(messagesPromise).resolves.toEqual([]);
   });
@@ -127,16 +127,16 @@ describe('WebRtcPeerConnection', () => {
     });
 
     it('should create data channel', () => {
-      expect(rtcPeerConnection.createDataChannel).toBeCalledWith('0');
+      expect(rtcPeerConnection.createDataChannel).toHaveBeenCalledWith('0');
     });
 
     it('should perform negotiation', async () => {
       rtcPeerConnection.emitNegotiationNeeded();
 
-      expect(rtcPeerConnection.setLocalDescription).toBeCalled();
+      expect(rtcPeerConnection.setLocalDescription).toHaveBeenCalled();
 
       await waitFor(() =>
-        expect(signalingChannel.sendDescription).toBeCalledWith(
+        expect(signalingChannel.sendDescription).toHaveBeenCalledWith(
           '@other-user',
           'session-a',
           'session-b_session-a',
@@ -149,7 +149,7 @@ describe('WebRtcPeerConnection', () => {
       });
 
       await waitFor(() => {
-        expect(rtcPeerConnection.setRemoteDescription).toBeCalledWith({
+        expect(rtcPeerConnection.setRemoteDescription).toHaveBeenCalledWith({
           sdp: 'sdp',
           type: 'answer',
         });
@@ -159,10 +159,10 @@ describe('WebRtcPeerConnection', () => {
     it('should ignore incoming offer mid negotiation', async () => {
       rtcPeerConnection.emitNegotiationNeeded();
 
-      expect(rtcPeerConnection.setLocalDescription).toBeCalled();
+      expect(rtcPeerConnection.setLocalDescription).toHaveBeenCalled();
 
       await waitFor(() =>
-        expect(signalingChannel.sendDescription).toBeCalledWith(
+        expect(signalingChannel.sendDescription).toHaveBeenCalledWith(
           '@other-user',
           'session-a',
           'session-b_session-a',
@@ -179,9 +179,9 @@ describe('WebRtcPeerConnection', () => {
       });
 
       await waitFor(() => {
-        expect(rtcPeerConnection.setRemoteDescription).toBeCalledTimes(1);
+        expect(rtcPeerConnection.setRemoteDescription).toHaveBeenCalledTimes(1);
       });
-      expect(rtcPeerConnection.setRemoteDescription).toBeCalledWith({
+      expect(rtcPeerConnection.setRemoteDescription).toHaveBeenCalledWith({
         sdp: 'sdp',
         type: 'answer',
       });
@@ -193,18 +193,18 @@ describe('WebRtcPeerConnection', () => {
       });
 
       await waitFor(() => {
-        expect(rtcPeerConnection.setRemoteDescription).toBeCalledWith({
+        expect(rtcPeerConnection.setRemoteDescription).toHaveBeenCalledWith({
           sdp: 'sdp',
           type: 'offer',
         });
       });
 
       await waitFor(() => {
-        expect(rtcPeerConnection.setLocalDescription).toBeCalled();
+        expect(rtcPeerConnection.setLocalDescription).toHaveBeenCalled();
       });
 
       await waitFor(() =>
-        expect(signalingChannel.sendDescription).toBeCalledWith(
+        expect(signalingChannel.sendDescription).toHaveBeenCalledWith(
           '@other-user',
           'session-a',
           'session-b_session-a',
@@ -230,7 +230,7 @@ describe('WebRtcPeerConnection', () => {
     });
 
     it('should accept data channel', async () => {
-      expect(rtcPeerConnection.createDataChannel).not.toBeCalled();
+      expect(rtcPeerConnection.createDataChannel).not.toHaveBeenCalled();
 
       rtcPeerConnection.emitDataChannel(rtcDataChannel);
 
@@ -254,10 +254,10 @@ describe('WebRtcPeerConnection', () => {
     it('should perform negotiation and cancel on incoming offer', async () => {
       rtcPeerConnection.emitNegotiationNeeded();
 
-      expect(rtcPeerConnection.setLocalDescription).toBeCalled();
+      expect(rtcPeerConnection.setLocalDescription).toHaveBeenCalled();
 
       await waitFor(() =>
-        expect(signalingChannel.sendDescription).toBeCalledWith(
+        expect(signalingChannel.sendDescription).toHaveBeenCalledWith(
           '@user-id',
           'session-b',
           'session-b_session-a',
@@ -270,18 +270,18 @@ describe('WebRtcPeerConnection', () => {
       });
 
       await waitFor(() => {
-        expect(rtcPeerConnection.setRemoteDescription).toBeCalledWith({
+        expect(rtcPeerConnection.setRemoteDescription).toHaveBeenCalledWith({
           sdp: 'sdp',
           type: 'offer',
         });
       });
 
       await waitFor(() => {
-        expect(rtcPeerConnection.setLocalDescription).toBeCalled();
+        expect(rtcPeerConnection.setLocalDescription).toHaveBeenCalled();
       });
 
       await waitFor(() =>
-        expect(signalingChannel.sendDescription).toBeCalledWith(
+        expect(signalingChannel.sendDescription).toHaveBeenCalledWith(
           '@user-id',
           'session-b',
           'session-b_session-a',
@@ -293,10 +293,10 @@ describe('WebRtcPeerConnection', () => {
     it('should perform negotiation', async () => {
       rtcPeerConnection.emitNegotiationNeeded();
 
-      expect(rtcPeerConnection.setLocalDescription).toBeCalled();
+      expect(rtcPeerConnection.setLocalDescription).toHaveBeenCalled();
 
       await waitFor(() =>
-        expect(signalingChannel.sendDescription).toBeCalledWith(
+        expect(signalingChannel.sendDescription).toHaveBeenCalledWith(
           '@user-id',
           'session-b',
           'session-b_session-a',
@@ -309,7 +309,7 @@ describe('WebRtcPeerConnection', () => {
       });
 
       await waitFor(() => {
-        expect(rtcPeerConnection.setRemoteDescription).toBeCalledWith({
+        expect(rtcPeerConnection.setRemoteDescription).toHaveBeenCalledWith({
           sdp: 'sdp',
           type: 'answer',
         });
@@ -322,18 +322,18 @@ describe('WebRtcPeerConnection', () => {
       });
 
       await waitFor(() => {
-        expect(rtcPeerConnection.setRemoteDescription).toBeCalledWith({
+        expect(rtcPeerConnection.setRemoteDescription).toHaveBeenCalledWith({
           sdp: 'sdp',
           type: 'offer',
         });
       });
 
       await waitFor(() => {
-        expect(rtcPeerConnection.setLocalDescription).toBeCalled();
+        expect(rtcPeerConnection.setLocalDescription).toHaveBeenCalled();
       });
 
       await waitFor(() =>
-        expect(signalingChannel.sendDescription).toBeCalledWith(
+        expect(signalingChannel.sendDescription).toHaveBeenCalledWith(
           '@user-id',
           'session-b',
           'session-b_session-a',
@@ -370,7 +370,7 @@ describe('WebRtcPeerConnection', () => {
       rtcPeerConnection.emitIceCandidate(candidate1);
       rtcPeerConnection.emitIceCandidate(null);
 
-      expect(signalingChannel.sendCandidates).toBeCalledWith(
+      expect(signalingChannel.sendCandidates).toHaveBeenCalledWith(
         '@other-user',
         'session-a',
         'session-b_session-a',
@@ -383,7 +383,7 @@ describe('WebRtcPeerConnection', () => {
       rtcPeerConnection.emitIceCandidate(candidate0);
       rtcPeerConnection.emitIceCandidate(emptyCandidate);
 
-      expect(signalingChannel.sendCandidates).toBeCalledWith(
+      expect(signalingChannel.sendCandidates).toHaveBeenCalledWith(
         '@other-user',
         'session-a',
         'session-b_session-a',
@@ -396,7 +396,7 @@ describe('WebRtcPeerConnection', () => {
       rtcPeerConnection.emitIceCandidate(candidate1);
 
       await waitFor(() => {
-        expect(signalingChannel.sendCandidates).toBeCalledWith(
+        expect(signalingChannel.sendCandidates).toHaveBeenCalledWith(
           '@other-user',
           'session-a',
           'session-b_session-a',
@@ -418,7 +418,7 @@ describe('WebRtcPeerConnection', () => {
       });
 
       await waitFor(() => {
-        expect(rtcPeerConnection.addIceCandidate).toBeCalledTimes(4);
+        expect(rtcPeerConnection.addIceCandidate).toHaveBeenCalledTimes(4);
       });
       expect(rtcPeerConnection.addIceCandidate).toHaveBeenNthCalledWith(
         1,
@@ -438,13 +438,13 @@ describe('WebRtcPeerConnection', () => {
     it('should restart ice if ice connection state is failed', () => {
       rtcPeerConnection.updateIceConnectionState('failed');
 
-      expect(rtcPeerConnection.restartIce).toBeCalled();
+      expect(rtcPeerConnection.restartIce).toHaveBeenCalled();
     });
 
     it('should send message', () => {
       connection.sendMessage('com.example.test', { key: 'value' });
 
-      expect(rtcDataChannel.send).toBeCalledWith(
+      expect(rtcDataChannel.send).toHaveBeenCalledWith(
         '{"type":"com.example.test","content":{"key":"value"}}',
       );
     });

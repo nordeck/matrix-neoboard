@@ -53,7 +53,7 @@ describe('isValidPresentSlideMessage', () => {
     ).toBe(true);
   });
 
-  it.each<Object>([
+  it.each<object>([
     { view: null },
     { view: 111 },
     { view: {} },
@@ -65,7 +65,7 @@ describe('isValidPresentSlideMessage', () => {
     { view: { isEditMode: null, slideId: 'slide-0' } },
     { view: { isEditMode: 111, slideId: 'slide-0' } },
     { view: { isEditMode: '', slideId: 'slide-0' } },
-  ])('should reject message with patch %j', (patch: Object) => {
+  ])('should reject message with patch %j', (patch: object) => {
     expect(
       isValidPresentSlideMessage({
         senderSessionId: 'sender-session-id',

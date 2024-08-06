@@ -50,12 +50,12 @@ describe('isValidWhiteboardStateEvent', () => {
     ).toBe(true);
   });
 
-  it.each<Object>([
+  it.each<object>([
     { documentId: undefined },
     { documentId: null },
     { documentId: '' },
     { documentId: 111 },
-  ])('should reject event with patch %j', (patch: Object) => {
+  ])('should reject event with patch %j', (patch: object) => {
     expect(
       isValidWhiteboardStateEvent({
         content: {

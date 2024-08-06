@@ -326,7 +326,7 @@ describe('createDocument', () => {
       }),
     });
 
-    expect(widgetApi.sendRoomEvent).toBeCalledWith(
+    expect(widgetApi.sendRoomEvent).toHaveBeenCalledWith(
       'net.nordeck.whiteboard.document.create',
       {},
     );
@@ -346,7 +346,7 @@ describe('createDocument', () => {
       message: 'Could not create a document: Some Error',
     });
 
-    expect(widgetApi.sendStateEvent).not.toBeCalled();
+    expect(widgetApi.sendStateEvent).not.toHaveBeenCalled();
   });
 });
 
@@ -376,7 +376,7 @@ describe('createDocumentSnapshot', () => {
       }),
     });
 
-    expect(widgetApi.sendRoomEvent).toBeCalledWith(
+    expect(widgetApi.sendRoomEvent).toHaveBeenCalledWith(
       'net.nordeck.whiteboard.document.snapshot',
       {
         chunkCount: 1,
@@ -386,7 +386,7 @@ describe('createDocumentSnapshot', () => {
         },
       },
     );
-    expect(widgetApi.sendRoomEvent).toBeCalledWith(
+    expect(widgetApi.sendRoomEvent).toHaveBeenCalledWith(
       'net.nordeck.whiteboard.document.chunk',
       {
         documentId: '$document-0',
@@ -436,7 +436,7 @@ describe('createDocumentSnapshot', () => {
       }),
     });
 
-    expect(widgetApi.sendRoomEvent).toBeCalledWith(
+    expect(widgetApi.sendRoomEvent).toHaveBeenCalledWith(
       'net.nordeck.whiteboard.document.snapshot',
       {
         chunkCount: 2,
@@ -446,7 +446,7 @@ describe('createDocumentSnapshot', () => {
         },
       },
     );
-    expect(widgetApi.sendRoomEvent).toBeCalledWith(
+    expect(widgetApi.sendRoomEvent).toHaveBeenCalledWith(
       'net.nordeck.whiteboard.document.chunk',
       {
         documentId: '$document-0',
@@ -458,7 +458,7 @@ describe('createDocumentSnapshot', () => {
         },
       },
     );
-    expect(widgetApi.sendRoomEvent).toBeCalledWith(
+    expect(widgetApi.sendRoomEvent).toHaveBeenCalledWith(
       'net.nordeck.whiteboard.document.chunk',
       {
         documentId: '$document-0',
@@ -491,7 +491,7 @@ describe('createDocumentSnapshot', () => {
       message: 'Could not create document snapshot: Some Error',
     });
 
-    expect(widgetApi.sendStateEvent).not.toBeCalled();
+    expect(widgetApi.sendStateEvent).not.toHaveBeenCalled();
   });
 });
 
@@ -511,14 +511,14 @@ describe('findLatestSnapshot', () => {
       findLatestSnapshot(widgetApi, '$document-0'),
     ).resolves.toBeUndefined();
 
-    expect(widgetApi.readEventRelations).toBeCalledTimes(2);
-    expect(widgetApi.readEventRelations).toBeCalledWith('$document-0', {
+    expect(widgetApi.readEventRelations).toHaveBeenCalledTimes(2);
+    expect(widgetApi.readEventRelations).toHaveBeenCalledWith('$document-0', {
       eventType: 'net.nordeck.whiteboard.document.snapshot',
       from: undefined,
       limit: 50,
       relationType: 'm.reference',
     });
-    expect(widgetApi.readEventRelations).toBeCalledWith('$document-0', {
+    expect(widgetApi.readEventRelations).toHaveBeenCalledWith('$document-0', {
       eventType: 'net.nordeck.whiteboard.document.snapshot',
       from: 'next-token',
       limit: 50,
@@ -545,14 +545,14 @@ describe('findLatestSnapshot', () => {
       findLatestSnapshot(widgetApi, '$document-0'),
     ).resolves.toBeUndefined();
 
-    expect(widgetApi.readEventRelations).toBeCalledTimes(3);
-    expect(widgetApi.readEventRelations).toBeCalledWith('$document-0', {
+    expect(widgetApi.readEventRelations).toHaveBeenCalledTimes(3);
+    expect(widgetApi.readEventRelations).toHaveBeenCalledWith('$document-0', {
       eventType: 'net.nordeck.whiteboard.document.snapshot',
       from: undefined,
       limit: 50,
       relationType: 'm.reference',
     });
-    expect(widgetApi.readEventRelations).toBeCalledWith(
+    expect(widgetApi.readEventRelations).toHaveBeenCalledWith(
       '$document-snapshot-0',
       {
         eventType: 'net.nordeck.whiteboard.document.chunk',
@@ -561,7 +561,7 @@ describe('findLatestSnapshot', () => {
         relationType: 'm.reference',
       },
     );
-    expect(widgetApi.readEventRelations).toBeCalledWith(
+    expect(widgetApi.readEventRelations).toHaveBeenCalledWith(
       '$document-snapshot-0',
       {
         eventType: 'net.nordeck.whiteboard.document.chunk',
@@ -589,14 +589,14 @@ describe('findLatestSnapshot', () => {
       findLatestSnapshot(widgetApi, '$document-0'),
     ).resolves.toBeUndefined();
 
-    expect(widgetApi.readEventRelations).toBeCalledTimes(2);
-    expect(widgetApi.readEventRelations).toBeCalledWith('$document-0', {
+    expect(widgetApi.readEventRelations).toHaveBeenCalledTimes(2);
+    expect(widgetApi.readEventRelations).toHaveBeenCalledWith('$document-0', {
       eventType: 'net.nordeck.whiteboard.document.snapshot',
       from: undefined,
       limit: 50,
       relationType: 'm.reference',
     });
-    expect(widgetApi.readEventRelations).toBeCalledWith(
+    expect(widgetApi.readEventRelations).toHaveBeenCalledWith(
       '$document-snapshot-0',
       {
         eventType: 'net.nordeck.whiteboard.document.chunk',

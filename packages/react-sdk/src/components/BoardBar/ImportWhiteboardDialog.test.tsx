@@ -186,7 +186,7 @@ describe('<ImportWhiteboardDialog/>', () => {
       within(dialog).getByRole('button', { name: 'Close' }),
     );
 
-    expect(onClose).toBeCalled();
+    expect(onClose).toHaveBeenCalled();
   });
 
   it('should close dialog on cancel', async () => {
@@ -206,7 +206,7 @@ describe('<ImportWhiteboardDialog/>', () => {
       within(dialog).getByRole('button', { name: 'Cancel' }),
     );
 
-    expect(onClose).toBeCalled();
+    expect(onClose).toHaveBeenCalled();
   });
 
   it('should select a different file', async () => {
@@ -228,8 +228,8 @@ describe('<ImportWhiteboardDialog/>', () => {
       }),
     );
 
-    expect(onRetry).toBeCalled();
-    expect(onClose).not.toBeCalled();
+    expect(onRetry).toHaveBeenCalled();
+    expect(onClose).not.toHaveBeenCalled();
   });
 
   it('should import the whiteboard', async () => {
@@ -253,6 +253,6 @@ describe('<ImportWhiteboardDialog/>', () => {
       await whiteboardManager.getActiveWhiteboardInstance()?.export(''),
     ).toEqual(data);
 
-    expect(onClose).toBeCalled();
+    expect(onClose).toHaveBeenCalled();
   });
 });

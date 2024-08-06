@@ -158,7 +158,7 @@ export function deserializeFromHtml(
     }
 
     return {};
-  } catch (err) {
+  } catch {
     return {};
   }
 }

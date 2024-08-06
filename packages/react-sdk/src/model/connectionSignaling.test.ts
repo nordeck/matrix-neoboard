@@ -78,7 +78,7 @@ describe('isValidConnectionSignalingMessage', () => {
     ).toBe(true);
   });
 
-  it.each<Object>([
+  it.each<object>([
     { description: undefined },
     { description: { type: 'answer' } },
     { description: { type: 'offer' } },
@@ -90,7 +90,7 @@ describe('isValidConnectionSignalingMessage', () => {
     { candidates: [{ sdpMLineIndex: null }] },
     { candidates: [{ sdpMid: null }] },
     { candidates: [{ usernameFragment: null }] },
-  ])('should accept event with patch %j', (patch: Object) => {
+  ])('should accept event with patch %j', (patch: object) => {
     expect(
       isValidConnectionSignalingMessage({
         content: {
@@ -117,7 +117,7 @@ describe('isValidConnectionSignalingMessage', () => {
     ).toBe(true);
   });
 
-  it.each<Object>([
+  it.each<object>([
     { sessionId: undefined },
     { sessionId: null },
     { sessionId: 111 },
@@ -140,7 +140,7 @@ describe('isValidConnectionSignalingMessage', () => {
     { candidates: [{ sdpMLineIndex: '111' }] },
     { candidates: [{ sdpMid: 111 }] },
     { candidates: [{ usernameFragment: 111 }] },
-  ])('should reject event with patch %j', (patch: Object) => {
+  ])('should reject event with patch %j', (patch: object) => {
     expect(
       isValidConnectionSignalingMessage({
         content: {

@@ -324,8 +324,8 @@ describe('<StyledJoyride/>', () => {
       }),
     ).toBeInTheDocument();
 
-    expect(onEnter).toBeCalled();
-    expect(onLeave).toBeCalled();
+    expect(onEnter).toHaveBeenCalled();
+    expect(onLeave).toHaveBeenCalled();
   });
 
   it('should hide the joyride if disabled', async () => {

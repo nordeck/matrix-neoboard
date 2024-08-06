@@ -51,7 +51,7 @@ describe('ToDeviceMessageSignalingChannel', () => {
         ],
       );
 
-      expect(widgetApi.sendToDeviceMessage).toBeCalledWith(
+      expect(widgetApi.sendToDeviceMessage).toHaveBeenCalledWith(
         'net.nordeck.whiteboard.connection_signaling',
         false,
         {
@@ -75,7 +75,7 @@ describe('ToDeviceMessageSignalingChannel', () => {
         }),
       );
 
-      expect(widgetApi.sendToDeviceMessage).toBeCalledWith(
+      expect(widgetApi.sendToDeviceMessage).toHaveBeenCalledWith(
         'net.nordeck.whiteboard.connection_signaling',
         false,
         {
@@ -233,7 +233,7 @@ describe('ToDeviceMessageSignalingChannel', () => {
         sessionId: '@peer-session-id',
       });
 
-      expect(widgetApi.sendToDeviceMessage).toBeCalledWith(
+      expect(widgetApi.sendToDeviceMessage).toHaveBeenCalledWith(
         'net.nordeck.whiteboard.connection_signaling',
         true,
         {

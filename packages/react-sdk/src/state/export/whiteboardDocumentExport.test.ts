@@ -92,7 +92,7 @@ describe('isValidWhiteboardExportDocument', () => {
     ).toBe(true);
   });
 
-  it.each<Object>([
+  it.each<object>([
     { version: undefined },
     { version: null },
     { version: '' },
@@ -116,7 +116,7 @@ describe('isValidWhiteboardExportDocument', () => {
     { whiteboard: { slides: [{ elements: [{}] }] } },
     { whiteboard: { slides: [{ elements: [], lock: null }] } },
     { whiteboard: { slides: [{ elements: [], lock: 111 }] } },
-  ])('should reject event with patch %j', (patch: Object) => {
+  ])('should reject event with patch %j', (patch: object) => {
     expect(
       isValidWhiteboardExportDocument({
         version: 'net.nordeck.whiteboard@v1',

@@ -164,7 +164,7 @@ describe('updateWhiteboard', () => {
       }),
     });
 
-    expect(widgetApi.sendStateEvent).toBeCalledWith(
+    expect(widgetApi.sendStateEvent).toHaveBeenCalledWith(
       'net.nordeck.whiteboard',
       whiteboard,
       {
@@ -200,7 +200,7 @@ describe('updateWhiteboard', () => {
       }),
     });
 
-    expect(widgetApi.sendStateEvent).toBeCalledWith(
+    expect(widgetApi.sendStateEvent).toHaveBeenCalledWith(
       'net.nordeck.whiteboard',
       whiteboard,
       { stateKey: 'whiteboard-0' },
@@ -226,9 +226,11 @@ describe('updateWhiteboard', () => {
       message: 'Could not update whiteboard: Some Error',
     });
 
-    expect(widgetApi.sendStateEvent).not.toBeCalled();
+    expect(widgetApi.sendStateEvent).not.toHaveBeenCalled();
   });
 
+  // Does this test make any sense without an assertion?
+  // eslint-disable-next-line
   it('should be idempotent', async () => {
     const store = createStore({ widgetApi });
     const whiteboard = mockWhiteboard().content;

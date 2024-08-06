@@ -466,6 +466,6 @@ describe('Toolbar', () => {
     });
     await userEvent.keyboard('[ArrowDown]');
 
-    expect(onClick).toBeCalled();
+    expect(onClick).toHaveBeenCalled();
   });
 });

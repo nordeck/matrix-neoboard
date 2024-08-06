@@ -105,8 +105,8 @@ describe('<MenuItemSwitch>', () => {
 
     await userEvent.click(screen.getByRole('menuitemcheckbox'));
 
-    expect(onChange).toBeCalledWith(false);
-    expect(onClick).toBeCalled();
+    expect(onChange).toHaveBeenCalledWith(false);
+    expect(onClick).toHaveBeenCalled();
   });
 
   it('should toggle click on switch', async () => {
@@ -123,8 +123,8 @@ describe('<MenuItemSwitch>', () => {
 
     await userEvent.click(screen.getByRole('checkbox'));
 
-    expect(onChange).toBeCalledWith(false);
-    expect(onClick).not.toBeCalled();
+    expect(onChange).toHaveBeenCalledWith(false);
+    expect(onClick).not.toHaveBeenCalled();
   });
 
   it('should toggle switch by pressing space', async () => {
@@ -141,8 +141,8 @@ describe('<MenuItemSwitch>', () => {
 
     await userEvent.keyboard('[Space]');
 
-    expect(onChange).toBeCalledWith(false);
-    expect(onClick).not.toBeCalled();
+    expect(onChange).toHaveBeenCalledWith(false);
+    expect(onClick).not.toHaveBeenCalled();
   });
 
   it('should toggle switch and close menu by pressing enter', async () => {
@@ -159,7 +159,7 @@ describe('<MenuItemSwitch>', () => {
 
     await userEvent.keyboard('[Enter]');
 
-    expect(onChange).toBeCalledWith(false);
-    expect(onClick).toBeCalled();
+    expect(onChange).toHaveBeenCalledWith(false);
+    expect(onClick).toHaveBeenCalled();
   });
 });

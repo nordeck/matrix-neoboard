@@ -89,7 +89,7 @@ describe('isValidElement', () => {
     expect(isValidElement(data)).toBe(true);
   });
 
-  it.each<Object>([
+  it.each<object>([
     { type: undefined },
     { type: null },
     { type: 111 },
@@ -114,7 +114,7 @@ describe('isValidElement', () => {
     { endMarker: 111 },
     { endMarker: '' },
     { endMarker: 'triangle' },
-  ])('should reject path event with patch %j', (patch: Object) => {
+  ])('should reject path event with patch %j', (patch: object) => {
     const data = {
       type: 'path',
       position: { x: 1, y: 2 },
@@ -127,7 +127,7 @@ describe('isValidElement', () => {
     expect(isValidElement(data)).toBe(false);
   });
 
-  it.each<Object>([
+  it.each<object>([
     { type: undefined },
     { type: null },
     { type: 111 },
@@ -167,7 +167,7 @@ describe('isValidElement', () => {
     { textItalic: null },
     { textItalic: 111 },
     { textItalic: 'other' },
-  ])('should reject shape event with patch %j', (patch: Object) => {
+  ])('should reject shape event with patch %j', (patch: object) => {
     const data = {
       type: 'shape',
       position: { x: 1, y: 2 },
@@ -199,7 +199,7 @@ describe('isValidElement', () => {
     },
   );
 
-  it.each<Object>([
+  it.each<object>([
     { type: undefined },
     { type: null },
     { type: 111 },
@@ -225,7 +225,7 @@ describe('isValidElement', () => {
     { height: undefined },
     { height: null },
     { height: '111' },
-  ])('should reject an image event with patch %j', (patch: Object) => {
+  ])('should reject an image event with patch %j', (patch: object) => {
     const data = {
       type: 'image',
       mxc: 'mxc://example.com/test1234',

@@ -37,14 +37,14 @@ describe('pointSchema', () => {
     expect(pointSchema.validate(data).error).toBeUndefined();
   });
 
-  it.each<Object>([
+  it.each<object>([
     { x: undefined },
     { x: null },
     { x: '1' },
     { y: undefined },
     { y: null },
     { y: '1' },
-  ])('should reject event with patch %j', (patch: Object) => {
+  ])('should reject event with patch %j', (patch: object) => {
     const data = {
       x: 1,
       y: 2,

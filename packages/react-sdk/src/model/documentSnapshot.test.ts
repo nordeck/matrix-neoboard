@@ -57,7 +57,7 @@ describe('isValidDocumentSnapshotRoomEvent', () => {
     ).toBe(true);
   });
 
-  it.each<Object>([
+  it.each<object>([
     { chunkCount: undefined },
     { chunkCount: null },
     { chunkCount: 1.1 },
@@ -73,7 +73,7 @@ describe('isValidDocumentSnapshotRoomEvent', () => {
     { 'm.relates_to': { rel_type: 'm.reference', event_id: undefined } },
     { 'm.relates_to': { rel_type: 'm.reference', event_id: null } },
     { 'm.relates_to': { rel_type: 'm.reference', event_id: '' } },
-  ])('should reject event with patch %j', (patch: Object) => {
+  ])('should reject event with patch %j', (patch: object) => {
     expect(
       isValidDocumentSnapshotRoomEvent({
         content: {

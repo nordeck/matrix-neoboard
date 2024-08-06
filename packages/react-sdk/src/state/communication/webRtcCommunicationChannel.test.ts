@@ -133,14 +133,14 @@ describe('WebRtcCommunicationChannel', () => {
   });
 
   it('should add peer connections for joined sessions', () => {
-    expect(sessionManager.join).toBeCalledWith('whiteboard-id');
+    expect(sessionManager.join).toHaveBeenCalledWith('whiteboard-id');
     expect(channel.getStatistics()).toMatchObject({
       localSessionId: 'session-id',
     });
 
     joinedSubject.next(anotherSession);
 
-    expect(jest.mocked(WebRtcPeerConnection)).toBeCalledWith(
+    expect(jest.mocked(WebRtcPeerConnection)).toHaveBeenCalledWith(
       signalingChannel,
       anotherSession,
       'session-id',
@@ -160,7 +160,7 @@ describe('WebRtcCommunicationChannel', () => {
     statisticsSubject.next(peerConnectionStatistics);
     leftSubject.next(anotherSession);
 
-    expect(peerConnection.close).toBeCalled();
+    expect(peerConnection.close).toHaveBeenCalled();
     expect(channel.getStatistics()).toEqual({
       localSessionId: 'session-id',
       peerConnections: {},
@@ -175,8 +175,8 @@ describe('WebRtcCommunicationChannel', () => {
     mockDocumentVisibilityState('hidden');
 
     jest.advanceTimersByTime(250);
-    expect(sessionManager.leave).toBeCalled();
-    expect(peerConnection.close).toBeCalled();
+    expect(sessionManager.leave).toHaveBeenCalled();
+    expect(peerConnection.close).toHaveBeenCalled();
     await waitFor(() => {
       expect(sessionManager.getSessionId()).toBeUndefined();
     });
@@ -184,8 +184,8 @@ describe('WebRtcCommunicationChannel', () => {
     // Make the tab visible again
     mockDocumentVisibilityState('visible');
 
-    expect(sessionManager.join).toBeCalledTimes(2);
-    expect(sessionManager.join).toBeCalledWith('whiteboard-id');
+    expect(sessionManager.join).toHaveBeenCalledTimes(2);
+    expect(sessionManager.join).toHaveBeenCalledWith('whiteboard-id');
   });
 
   it('should skip disconnect while the browser is hidden if disabled', async () => {
@@ -198,8 +198,8 @@ describe('WebRtcCommunicationChannel', () => {
     mockDocumentVisibilityState('hidden');
 
     jest.advanceTimersByTime(1250);
-    expect(sessionManager.leave).not.toBeCalled();
-    expect(peerConnection.close).not.toBeCalled();
+    expect(sessionManager.leave).not.toHaveBeenCalled();
+    expect(peerConnection.close).not.toHaveBeenCalled();
   });
 
   it('should forward statistics from peer connections', async () => {
@@ -248,7 +248,7 @@ describe('WebRtcCommunicationChannel', () => {
 
     channel.broadcastMessage('example_type', { key: 'value' });
 
-    expect(peerConnection.sendMessage).toBeCalledWith('example_type', {
+    expect(peerConnection.sendMessage).toHaveBeenCalledWith('example_type', {
       key: 'value',
     });
   });
@@ -268,10 +268,10 @@ describe('WebRtcCommunicationChannel', () => {
     await expect(messagesPromise).resolves.toEqual([]);
     await expect(statisticsPromise).resolves.toEqual([]);
     await waitFor(() => {
-      expect(sessionManager.leave).toBeCalled();
+      expect(sessionManager.leave).toHaveBeenCalled();
     });
     await waitFor(() => {
-      expect(peerConnection.close).toBeCalled();
+      expect(peerConnection.close).toHaveBeenCalled();
     });
   });
 });

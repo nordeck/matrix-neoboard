@@ -119,7 +119,7 @@ describe('<ExportWhiteboardDialogDownloadFile />', () => {
     );
 
     await userEvent.click(screen.getByRole('button', { name: 'Download' }));
-    expect(onClick).toBeCalled();
+    expect(onClick).toHaveBeenCalled();
   });
 
   it('should use the room name for the file name', async () => {
@@ -160,7 +160,7 @@ describe('<ExportWhiteboardDialogDownloadFile />', () => {
     userEvent.click(screen.getByRole('button', { name: 'Download' }));
 
     await waitFor(() => {
-      expect(blobSpy).toBeCalledWith([
+      expect(blobSpy).toHaveBeenCalledWith([
         JSON.stringify({
           version: 'net.nordeck.whiteboard@v1',
           whiteboard: {

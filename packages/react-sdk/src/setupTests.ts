@@ -21,17 +21,17 @@
 import '@testing-library/jest-dom';
 import fetchMock from 'fetch-mock';
 import { toHaveNoViolations } from 'jest-axe';
-import { TextDecoder, TextEncoder } from 'util';
-// Make sure to initialize i18n (see mock below)
 import log from 'loglevel';
+import { webcrypto } from 'node:crypto';
+import { TextDecoder, TextEncoder } from 'util';
 import './i18n';
 import { setLocale } from './lib/locale';
 import './lib/testUtils/webRtcMock';
 
 // Use a different configuration for i18next during tests
 jest.mock('./i18n', () => {
-  const i18n = require('i18next');
-  const { initReactI18next } = require('react-i18next');
+  const i18n = jest.requireActual('i18next');
+  const { initReactI18next } = jest.requireActual('react-i18next');
 
   i18n.use(initReactI18next).init({
     fallbackLng: 'en',
@@ -68,7 +68,6 @@ window.URL.revokeObjectURL = jest.fn();
 
 // global.crypto is used by lib0 (introduced by yjs) that has no automatic
 // definition in jsdom
-const { webcrypto } = require('node:crypto');
 Object.defineProperty(global.globalThis, 'crypto', { value: webcrypto });
 
 // Provide a mock for the Clipboard API
@@ -97,7 +96,7 @@ SVGSVGElement.prototype.createSVGPoint = function () {
 };
 
 // only mocking necessary props here
-// @ts-ignore
+// @ts-expect-error test setup
 SVGSVGElement.prototype.getScreenCTM = function () {
   return { inverse: jest.fn() };
 };

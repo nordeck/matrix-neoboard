@@ -309,7 +309,7 @@ describe('SynchronizedDocumentImpl', () => {
 
     doc.performChange((doc) => doc.set('num', 10));
 
-    expect(communicationChannel.broadcastMessage).toBeCalledWith(
+    expect(communicationChannel.broadcastMessage).toHaveBeenCalledWith(
       'net.nordeck.whiteboard.document_update',
       { documentId: '$document-0', data: expect.any(String) },
     );
@@ -436,7 +436,7 @@ describe('SynchronizedDocumentImpl', () => {
       });
     });
 
-    expect(storage.store).toBeCalledWith('$document-0', doc.store());
+    expect(storage.store).toHaveBeenCalledWith('$document-0', doc.store());
 
     expect(await statistics).toEqual([
       {
@@ -525,7 +525,10 @@ describe('SynchronizedDocumentImpl', () => {
       snapshotsSend: 0,
     });
 
-    expect(storage.store).toBeCalledWith('$document-0', expect.any(Uint8Array));
+    expect(storage.store).toHaveBeenCalledWith(
+      '$document-0',
+      expect.any(Uint8Array),
+    );
   });
 
   it('should persist a snapshot in the room', async () => {
@@ -579,7 +582,7 @@ describe('SynchronizedDocumentImpl', () => {
     jest.advanceTimersByTime(5000);
 
     await waitFor(() => {
-      expect(widgetApi.sendRoomEvent).toBeCalledTimes(2);
+      expect(widgetApi.sendRoomEvent).toHaveBeenCalledTimes(2);
     });
 
     expect(await statistics).toEqual({
@@ -647,7 +650,7 @@ describe('SynchronizedDocumentImpl', () => {
     jest.advanceTimersByTime(5000);
 
     await waitFor(() => {
-      expect(widgetApi.sendRoomEvent).toBeCalledTimes(2);
+      expect(widgetApi.sendRoomEvent).toHaveBeenCalledTimes(2);
     });
 
     doc.performChange((doc) => doc.set('num', 11));
@@ -662,7 +665,7 @@ describe('SynchronizedDocumentImpl', () => {
       await Promise.resolve();
     }
 
-    expect(widgetApi.sendRoomEvent).toBeCalledTimes(4);
+    expect(widgetApi.sendRoomEvent).toHaveBeenCalledTimes(4);
   });
 
   it('should return the document', () => {
@@ -742,12 +745,12 @@ function isValidExampleDocument(
   return typeof json.num === 'number' && typeof json.text === 'string';
 }
 
-export function isValidExampleDocumentSnapshot(data: Uint8Array): boolean {
+function isValidExampleDocumentSnapshot(data: Uint8Array): boolean {
   const document = createExampleDocument();
 
   try {
     document.mergeFrom(data);
-  } catch (ex) {
+  } catch {
     return false;
   }
 
