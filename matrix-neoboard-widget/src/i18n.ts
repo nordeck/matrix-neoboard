@@ -14,22 +14,36 @@
  * limitations under the License.
  */
 
-import {
-  WidgetApiLanguageDetector,
-  WidgetToolkitI18nBackend,
-} from '@matrix-widget-toolkit/mui';
+import { extractWidgetParameters } from '@matrix-widget-toolkit/api';
+import { WidgetToolkitI18nBackend } from '@matrix-widget-toolkit/mui';
 import {
   WhiteboardReactI18nBackend,
   setLocale,
 } from '@nordeck/matrix-neoboard-react-sdk';
 import i18n from 'i18next';
+import LanguageDetector, {
+  CustomDetector,
+} from 'i18next-browser-languagedetector';
 import ChainedBackend from 'i18next-chained-backend';
 import HttpBackend from 'i18next-http-backend';
 import { initReactI18next } from 'react-i18next';
 
+const widgetApiLanguageDetector: CustomDetector = {
+  name: 'widgetApi',
+  lookup: () => {
+    const { clientLanguage } = extractWidgetParameters();
+    return clientLanguage;
+  },
+};
+
+const neoboardLanguageDetector = new LanguageDetector(undefined, {
+  order: ['widgetApi', 'navigator'],
+});
+neoboardLanguageDetector.addDetector(widgetApiLanguageDetector);
+
 i18n
   .use(ChainedBackend)
-  .use(WidgetApiLanguageDetector)
+  .use(neoboardLanguageDetector)
   .use(initReactI18next)
   .init({
     backend: {
