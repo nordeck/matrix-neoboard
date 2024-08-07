@@ -44,7 +44,7 @@ export function calculateResizeHandlePosition(params: {
           y: y + handleWidth / -2,
           width: handleWidth,
           height: handleWidth,
-          cursor: 'default',
+          cursor: 'pointer',
         };
       case 'end':
         return {
@@ -52,7 +52,7 @@ export function calculateResizeHandlePosition(params: {
           y: y + handleWidth / -2,
           width: handleWidth,
           height: handleWidth,
-          cursor: 'default',
+          cursor: 'pointer',
         };
     }
   } else {

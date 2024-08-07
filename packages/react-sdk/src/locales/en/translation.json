@@ -208,6 +208,7 @@
       "bringEveryoneToSlide": "Bring all here",
       "deleteSlide": "Delete",
       "duplicateSlide": "Duplicate slide",
+      "insertSlide": "Insert slide",
       "lockSlide": "Lock",
       "title": "Slide {{index}}"
     },

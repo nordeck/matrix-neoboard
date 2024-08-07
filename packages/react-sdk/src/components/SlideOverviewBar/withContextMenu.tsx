@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import AddIcon from '@mui/icons-material/Add';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
@@ -98,6 +99,12 @@ export const withContextMenu = <P extends object>(
       handleClose();
     }, [handleClose, slideId, whiteboardInstance]);
 
+    const handleInsertSlide = useCallback(() => {
+      const newSlideId = whiteboardInstance.addSlide(slideIndex + 1);
+      whiteboardInstance.setActiveSlideId(newSlideId);
+      handleClose();
+    }, [handleClose, slideIndex, whiteboardInstance]);
+
     const handleContextMenu = useCallback(
       (event: MouseEvent<HTMLButtonElement>) => {
         event.preventDefault();
@@ -164,6 +171,14 @@ export const withContextMenu = <P extends object>(
                 'slideOverviewBar.contextMenu.duplicateSlide',
                 'Duplicate slide',
               )}
+            </ListItemText>
+          </MenuItem>
+          <MenuItem onClick={handleInsertSlide}>
+            <ListItemIcon sx={{ color: 'text.primary' }}>
+              <AddIcon />
+            </ListItemIcon>
+            <ListItemText>
+              {t('slideOverviewBar.contextMenu.insertSlide', 'Insert slide')}
             </ListItemText>
           </MenuItem>
           <MenuItem divider onClick={handleClickBringEveryoneToSlide}>
