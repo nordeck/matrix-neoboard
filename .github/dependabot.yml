@@ -35,11 +35,11 @@ updates:
       version-updates:
         applies-to: version-updates
         patterns:
-          - "*"
+          - '*'
       security-updates:
         applies-to: security-updates
         patterns:
-          - "*"
+          - '*'
   - package-ecosystem: 'docker'
     directory: '/matrix-neoboard-widget/'
     open-pull-requests-limit: 15
@@ -50,8 +50,8 @@ updates:
       version-updates:
         applies-to: version-updates
         patterns:
-          - "*"
+          - '*'
       security-updates:
         applies-to: security-updates
         patterns:
-          - "*"
+          - '*'
