@@ -23,8 +23,8 @@ import {
   mockWhiteboardManager,
 } from '../../lib/testUtils/documentTestUtils';
 import { WhiteboardSlideInstance } from '../../state';
-import { ImageUploadProvider } from '../ImageUpload';
 import { SnackbarProvider } from '../Snackbar';
+import { ImageUploadProvider } from './ImageUploadProvider';
 import { useSlideImageUpload } from './useSlideImageUpload';
 
 jest.mock('../../lib', () => ({

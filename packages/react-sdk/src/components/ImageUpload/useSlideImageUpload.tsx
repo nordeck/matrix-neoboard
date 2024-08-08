@@ -22,18 +22,32 @@ import {
   calculateFittedElementSize,
   useWhiteboardSlideInstance,
 } from '../../state';
-import {
-  ImageUploadResult,
-  defaultAcceptedImageTypes,
-  useImageUpload as useImageUploadContext,
-} from '../ImageUpload';
 import { whiteboardHeight, whiteboardWidth } from '../Whiteboard';
+import { defaultAcceptedImageTypes } from './consts';
+import { ImageUploadResult } from './ImageUploadProvider';
+import { useImageUpload as useImageUploadContext } from './useImageUpload';
+
+type UseSlideImageUploadArgs = {
+  /**
+   * If true, do not handle click.
+   */
+  noClick?: boolean;
+  /**
+   * If true, do not handle drag.
+   */
+  noDrag?: boolean;
+};
 
 /**
  * Hook that uploads images to the current slide.
  * Uses react-dropzone {@link https://react-dropzone.js.org/}.
  */
-export function useSlideImageUpload() {
+export function useSlideImageUpload(
+  { noClick = false, noDrag = false }: UseSlideImageUploadArgs = {
+    noClick: false,
+    noDrag: false,
+  },
+) {
   const slide = useWhiteboardSlideInstance();
   const imageUpload = useImageUploadContext();
 
@@ -54,7 +68,8 @@ export function useSlideImageUpload() {
     onDrop: handleDrop,
     accept: defaultAcceptedImageTypes,
     maxSize: imageUpload.maxUploadSizeBytes,
-    noDrag: true,
+    noClick,
+    noDrag,
     multiple: true,
     noKeyboard: true,
   });

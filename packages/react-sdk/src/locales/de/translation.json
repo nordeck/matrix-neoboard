@@ -1,5 +1,6 @@
 {
   "app": {
+    "dropToUpload": "Loslassen zum Hochladen",
     "waitModeratorJoin": "Bitte warte auf den Moderator."
   },
   "boardBar": {

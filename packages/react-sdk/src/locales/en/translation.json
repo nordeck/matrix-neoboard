@@ -1,5 +1,6 @@
 {
   "app": {
+    "dropToUpload": "Drop to upload",
     "waitModeratorJoin": "Wait for the moderator to join."
   },
   "boardBar": {
