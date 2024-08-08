@@ -32,10 +32,14 @@ updates:
     schedule:
       interval: 'weekly'
     groups:
-      github-version-updates:
+      version-updates:
         applies-to: version-updates
-      github-security-updates:
+        patterns:
+          - "*"
+      security-updates:
         applies-to: security-updates
+        patterns:
+          - "*"
   - package-ecosystem: 'docker'
     directory: '/matrix-neoboard-widget/'
     open-pull-requests-limit: 15
@@ -43,7 +47,11 @@ updates:
     schedule:
       interval: 'weekly'
     groups:
-      github-version-updates:
+      version-updates:
         applies-to: version-updates
-      github-security-updates:
+        patterns:
+          - "*"
+      security-updates:
         applies-to: security-updates
+        patterns:
+          - "*"
