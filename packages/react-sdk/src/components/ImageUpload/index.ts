@@ -18,3 +18,5 @@ export { defaultAcceptedImageTypes } from './consts';
 export { ImageUploadProvider } from './ImageUploadProvider';
 export type { ImageUploadResult } from './ImageUploadProvider';
 export { useImageUpload } from './useImageUpload';
+export { useSlideImageDropUpload } from './useSlideImageDropUpload';
+export { useSlideImageUpload } from './useSlideImageUpload';
