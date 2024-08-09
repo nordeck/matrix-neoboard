@@ -18,14 +18,17 @@ import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { mocked } from 'jest-mock';
 import { ComponentType, PropsWithChildren } from 'react';
+import { useStore } from 'react-redux';
 import {
   WhiteboardTestingContextProvider,
   mockImageElement,
   mockLineElement,
   mockPolylineElement,
+  mockRectangleElement,
   mockWhiteboardManager,
 } from '../../../../lib/testUtils/documentTestUtils';
 import { WhiteboardSlideInstance } from '../../../../state';
+import { StoreType } from '../../../../store';
 import { ElementOverridesProvider } from '../../../ElementOverridesProvider';
 import { LayoutStateProvider } from '../../../Layout';
 import { SvgCanvas } from '../../SvgCanvas';
@@ -59,6 +62,7 @@ describe('<ResizeElement />', () => {
   let widgetApi: MockedWidgetApi;
   let activeSlide: WhiteboardSlideInstance;
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
+  let store: StoreType;
 
   const polylineElement = mockPolylineElement({
     points: [
@@ -78,6 +82,7 @@ describe('<ResizeElement />', () => {
   });
 
   const imageElement = mockImageElement();
+  const rectangleElement = mockRectangleElement();
 
   beforeEach(() => {
     widgetApi = mockWidgetApi();
@@ -90,6 +95,7 @@ describe('<ResizeElement />', () => {
             ['element-0', polylineElement],
             ['element-1', lineElement],
             ['element-2', imageElement],
+            ['element-3', rectangleElement],
           ],
         ],
       ],
@@ -97,12 +103,18 @@ describe('<ResizeElement />', () => {
     const activeWhiteboard = whiteboardManager.getActiveWhiteboardInstance()!;
     activeSlide = activeWhiteboard.getSlide('slide-0');
 
+    const ExtractStore = () => {
+      store = useStore();
+      return null;
+    };
+
     Wrapper = ({ children }) => (
       <LayoutStateProvider>
         <WhiteboardTestingContextProvider
           whiteboardManager={whiteboardManager}
           widgetApi={widgetApi}
         >
+          <ExtractStore />
           <ElementOverridesProvider>
             <SvgCanvas viewportWidth={200} viewportHeight={200}>
               {children}
@@ -115,6 +127,48 @@ describe('<ResizeElement />', () => {
 
   afterEach(() => {
     widgetApi.stop();
+  });
+
+  it('should resize rectangles and store the size', () => {
+    render(<ResizeElement elementIds={['element-3']} />, {
+      wrapper: Wrapper,
+    });
+
+    // drag a resize box from 0,0 to 50,50
+    const resizeHandleBottomRight = screen.getByTestId(
+      'resize-handle-bottomRight',
+    );
+    mocked(computeResizing).mockReturnValue([
+      {
+        elementId: 'element-3',
+        elementOverride: rectangleElement,
+      },
+    ]);
+    fireEvent.mouseDown(resizeHandleBottomRight);
+    mocked(computeResizing).mockReturnValue([
+      {
+        elementId: 'element-3',
+        elementOverride: {
+          position: rectangleElement.position,
+          width: 50,
+          height: 50,
+        },
+      },
+    ]);
+    fireEvent.mouseMove(resizeHandleBottomRight);
+    fireEvent.mouseUp(resizeHandleBottomRight);
+
+    const element = activeSlide.getElement('element-3');
+    expect(element).toEqual({
+      ...rectangleElement,
+      width: 50,
+      height: 50,
+    });
+
+    expect(store.getState().shapeSizesReducer.rectangle).toEqual({
+      width: 50,
+      height: 50,
+    });
   });
 
   it('should resize polyline elements', () => {

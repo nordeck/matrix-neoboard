@@ -20,6 +20,8 @@ import {
   calculateBoundingRectForElements,
   useWhiteboardSlideInstance,
 } from '../../../../state';
+import { useAppDispatch } from '../../../../store';
+import { setShapeSize } from '../../../../store/shapeSizesSlide';
 import {
   ElementOverrideUpdate,
   createResetElementOverrides,
@@ -99,6 +101,7 @@ export function ResizeElement({ elementIds }: ResizeElementProps) {
   const activeElements = Object.values(elements);
   const setElementOverride = useSetElementOverride();
   const slideInstance = useWhiteboardSlideInstance();
+  const dispatch = useAppDispatch();
 
   const [resizableProperties, setResizableProperties] =
     useState<ResizableProperties>();
@@ -142,9 +145,24 @@ export function ResizeElement({ elementIds }: ResizeElementProps) {
       }),
     );
 
+    if (Object.values(elements).length === 1) {
+      const element = Object.values(elements)[0];
+
+      if (element.type === 'shape') {
+        // If the element is a shape, update last size in the store
+
+        const shapeSize = {
+          width: element.width,
+          height: element.height,
+        };
+
+        dispatch(setShapeSize({ kind: element.kind, size: shapeSize }));
+      }
+    }
+
     setResizableProperties(undefined);
     setElementOverride(createResetElementOverrides(elementIds));
-  }, [elementIds, elements, setElementOverride, slideInstance]);
+  }, [dispatch, elementIds, elements, setElementOverride, slideInstance]);
 
   const handleDrag = useCallback(
     (elementOverrideUpdates: ElementOverrideUpdate[]) =>
