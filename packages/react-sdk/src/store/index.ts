@@ -16,6 +16,7 @@
 
 export * from './api';
 export { useAppDispatch } from './reduxToolkitHooks';
+export { shapeSizesReducer } from './shapeSizesSlide';
 export { createStore } from './store';
 export type {
   AppDispatch,

@@ -26,6 +26,7 @@ const NoInteraction = styled('g')({
 });
 
 export type DraftMouseHandlerProps = PropsWithChildren<{
+  onClick?: Dispatch<Point>;
   onMouseDown?: Dispatch<Point>;
   onMouseLeave?: Dispatch<Point>;
   onMouseMove?: Dispatch<Point>;
@@ -33,6 +34,7 @@ export type DraftMouseHandlerProps = PropsWithChildren<{
 }>;
 
 export function DraftMouseHandler({
+  onClick,
   onMouseUp,
   onMouseLeave,
   onMouseDown,
@@ -45,6 +47,16 @@ export function DraftMouseHandler({
     activeTool === 'polyline'
       ? `url("${editRoundedUrl}") 3 21, crosshair`
       : 'crosshair';
+
+  const handleClick = useCallback(
+    (ev: MouseEvent<SVGRectElement>) => {
+      if (onClick) {
+        const point = calculateSvgCoords({ x: ev.clientX, y: ev.clientY });
+        onClick(point);
+      }
+    },
+    [calculateSvgCoords, onClick],
+  );
 
   const handleMouseUp = useCallback(
     (ev: MouseEvent<SVGRectElement>) => {
@@ -93,6 +105,7 @@ export function DraftMouseHandler({
       <rect
         fill="transparent"
         height="100%"
+        onClick={handleClick}
         onMouseDown={handleMouseDown}
         onMouseLeave={handleMouseLeave}
         onMouseMove={handleMouseMove}
