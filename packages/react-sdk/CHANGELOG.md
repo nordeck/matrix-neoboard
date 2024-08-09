@@ -1,5 +1,21 @@
 # @nordeck/matrix-neoboard-react-sdk
 
+## 0.2.0
+
+### Minor Changes
+
+- 97fc138: Image upload is now always available. The "REACT_APP_IMAGES" environment variable has been removed.
+- e249c05: Slides can be added at a specific position the a new slide context menu item „Insert slide“
+- d0f1463: Slides can now be navigated by arrow keys and space in presentaton mode
+
+### Patch Changes
+
+- d25d9a0: Upload image button becomes disabled when the slide is locked
+- f86a6d4: PDF export now includes images
+- d1f60e7: change cursor to pointer when aiming at line resize handles
+- a1099f4: paint element border/resize handles on top of all elements
+- da7fae3: Texts are now unselected, if unselecting an element
+
 ## 0.1.1
 
 ### Patch Changes

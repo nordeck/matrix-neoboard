@@ -1,5 +1,25 @@
 # @nordeck/matrix-neoboard-widget
 
+## 1.19.0
+
+### Minor Changes
+
+- e249c05: Slides can be added at a specific position the a new slide context menu item „Insert slide“
+- d0f1463: Slides can now be navigated by arrow keys and space in presentaton mode
+
+### Patch Changes
+
+- da7fae3: Texts are now unselected, if unselecting an element
+- Updated dependencies [97fc138]
+- Updated dependencies [e249c05]
+- Updated dependencies [d0f1463]
+- Updated dependencies [d25d9a0]
+- Updated dependencies [f86a6d4]
+- Updated dependencies [d1f60e7]
+- Updated dependencies [a1099f4]
+- Updated dependencies [da7fae3]
+  - @nordeck/matrix-neoboard-react-sdk@0.2.0
+
 ## 1.18.1
 
 ### Patch Changes
