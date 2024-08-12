@@ -176,7 +176,7 @@ export function generateUnlockSlide(
 }
 
 /**
- * Removes all duplicating or leftover slide ids that can happen due to
+ * Removes all duplicate or leftover slide IDs that may occur due to
  * conflicts.
  **/
 function cleanupSlideIds(doc: SharedMap<WhiteboardDocument>): void {
@@ -486,7 +486,7 @@ export function generate(
 }
 
 /**
- * Removes all duplicating or leftover element ids that can happen due too
+ * Removes all duplicate or leftover element IDs that may occur due to
  * conflicts.
  **/
 function cleanupElementIds(slide: SharedMap<Slide>): void {
