@@ -22,6 +22,8 @@ export type ElementRenderProperties = {
   strokeColor?: string;
   /** The width of the stroke */
   strokeWidth: number;
+  /** Horizontal corner radius */
+  rx?: number;
 
   /**
    * Properties for the text field is displayed on top of the element. Positions
