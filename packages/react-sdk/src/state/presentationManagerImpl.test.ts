@@ -118,11 +118,11 @@ describe('presentationManager', () => {
       { type: 'idle' },
       { type: 'presenting', isEditMode: false },
     ]);
-    expect(communicationChannel.broadcastMessage).toBeCalledWith(
+    expect(communicationChannel.broadcastMessage).toHaveBeenCalledWith(
       'net.nordeck.whiteboard.present_slide',
       { view: { isEditMode: false, slideId: 'slide-0' } },
     );
-    expect(whiteboardInstance.setActiveSlideId).not.toBeCalled();
+    expect(whiteboardInstance.setActiveSlideId).not.toHaveBeenCalled();
   });
 
   it('should stop the presentation', async () => {
@@ -138,11 +138,11 @@ describe('presentationManager', () => {
       { type: 'presenting', isEditMode: false },
       { type: 'idle' },
     ]);
-    expect(communicationChannel.broadcastMessage).toBeCalledWith(
+    expect(communicationChannel.broadcastMessage).toHaveBeenCalledWith(
       'net.nordeck.whiteboard.present_slide',
       { view: undefined },
     );
-    expect(whiteboardInstance.setActiveSlideId).not.toBeCalled();
+    expect(whiteboardInstance.setActiveSlideId).not.toHaveBeenCalled();
   });
 
   it('should accept presentation start of a different user', async () => {
@@ -163,8 +163,8 @@ describe('presentationManager', () => {
       { type: 'idle' },
       { type: 'presentation', presenterUserId: '@user-bob', isEditMode: false },
     ]);
-    expect(whiteboardInstance.clearUndoManager).not.toBeCalled();
-    expect(whiteboardInstance.setActiveSlideId).toBeCalledWith('slide-0');
+    expect(whiteboardInstance.clearUndoManager).not.toHaveBeenCalled();
+    expect(whiteboardInstance.setActiveSlideId).toHaveBeenCalledWith('slide-0');
   });
 
   it('should accept presentation stop of a different user', async () => {
@@ -194,8 +194,8 @@ describe('presentationManager', () => {
       { type: 'presentation', presenterUserId: '@user-bob', isEditMode: false },
       { type: 'idle' },
     ]);
-    expect(whiteboardInstance.clearUndoManager).not.toBeCalled();
-    expect(whiteboardInstance.setActiveSlideId).not.toBeCalled();
+    expect(whiteboardInstance.clearUndoManager).not.toHaveBeenCalled();
+    expect(whiteboardInstance.setActiveSlideId).not.toHaveBeenCalled();
   });
 
   it('should accept the edit mode from a different user', async () => {
@@ -217,8 +217,8 @@ describe('presentationManager', () => {
       { type: 'presentation', presenterUserId: '@user-bob', isEditMode: false },
       { type: 'presentation', presenterUserId: '@user-bob', isEditMode: true },
     ]);
-    expect(whiteboardInstance.clearUndoManager).toBeCalled();
-    expect(whiteboardInstance.setActiveSlideId).toBeCalledWith('slide-0');
+    expect(whiteboardInstance.clearUndoManager).toHaveBeenCalled();
+    expect(whiteboardInstance.setActiveSlideId).toHaveBeenCalledWith('slide-0');
   });
 
   it('should update the presentation state when a presenting user becomes disconnected', async () => {
@@ -253,7 +253,7 @@ describe('presentationManager', () => {
       { type: 'presentation', presenterUserId: '@user-bob', isEditMode: false },
       { type: 'idle' },
     ]);
-    expect(whiteboardInstance.setActiveSlideId).not.toBeCalled();
+    expect(whiteboardInstance.setActiveSlideId).not.toHaveBeenCalled();
   });
 
   it('should broadcast the active slide when it changes', async () => {
@@ -261,7 +261,7 @@ describe('presentationManager', () => {
     observeActiveSlideIdSubject.next('slide-1');
     observeActiveSlideIdSubject.next('slide-2');
 
-    expect(communicationChannel.broadcastMessage).toBeCalledTimes(3);
+    expect(communicationChannel.broadcastMessage).toHaveBeenCalledTimes(3);
 
     expect(communicationChannel.broadcastMessage).toHaveBeenNthCalledWith(
       1,
@@ -305,9 +305,9 @@ describe('presentationManager', () => {
     };
     observeCommunicationStatisticsSubject.next(communicationStatistics);
 
-    expect(communicationChannel.broadcastMessage).toBeCalledTimes(2);
+    expect(communicationChannel.broadcastMessage).toHaveBeenCalledTimes(2);
 
-    expect(communicationChannel.broadcastMessage).toBeCalledWith(
+    expect(communicationChannel.broadcastMessage).toHaveBeenCalledWith(
       'net.nordeck.whiteboard.present_slide',
       { view: { isEditMode: false, slideId: 'slide-0' } },
     );
@@ -324,7 +324,7 @@ describe('presentationManager', () => {
     observeCommunicationStatisticsSubject.next(communicationStatistics);
 
     observeActiveSlideIdSubject.next('slide-2');
-    expect(communicationChannel.broadcastMessage).toBeCalledTimes(2);
+    expect(communicationChannel.broadcastMessage).toHaveBeenCalledTimes(2);
 
     expect(communicationChannel.broadcastMessage).toHaveBeenNthCalledWith(
       1,
@@ -383,7 +383,7 @@ describe('presentationManager', () => {
       { type: 'presenting', isEditMode: true },
       { type: 'presenting', isEditMode: false },
     ]);
-    expect(communicationChannel.broadcastMessage).toBeCalledTimes(3);
+    expect(communicationChannel.broadcastMessage).toHaveBeenCalledTimes(3);
     expect(communicationChannel.broadcastMessage).toHaveBeenNthCalledWith(
       1,
       'net.nordeck.whiteboard.present_slide',
@@ -416,7 +416,7 @@ describe('presentationManager', () => {
       { type: 'presenting', isEditMode: true },
       { type: 'presenting', isEditMode: false },
     ]);
-    expect(communicationChannel.broadcastMessage).toBeCalledTimes(3);
+    expect(communicationChannel.broadcastMessage).toHaveBeenCalledTimes(3);
     expect(communicationChannel.broadcastMessage).toHaveBeenNthCalledWith(
       1,
       'net.nordeck.whiteboard.present_slide',
@@ -444,7 +444,7 @@ describe('presentationManager', () => {
       },
     });
 
-    expect(whiteboardInstance.clearUndoManager).toBeCalled();
+    expect(whiteboardInstance.clearUndoManager).toHaveBeenCalled();
   });
 
   it('should not clear the undo manager', async () => {
@@ -459,6 +459,6 @@ describe('presentationManager', () => {
       },
     });
 
-    expect(whiteboardInstance.clearUndoManager).not.toBeCalled();
+    expect(whiteboardInstance.clearUndoManager).not.toHaveBeenCalled();
   });
 });

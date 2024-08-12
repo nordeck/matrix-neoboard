@@ -407,7 +407,7 @@ export class WebRtcPeerConnection implements PeerConnection {
               message,
             );
           }
-        } catch (err) {
+        } catch {
           this.logger.warn(
             `Received invalid message JSON for connection ${this.connectionId}`,
             data,

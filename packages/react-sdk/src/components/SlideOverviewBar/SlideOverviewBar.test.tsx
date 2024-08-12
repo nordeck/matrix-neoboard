@@ -254,7 +254,7 @@ describe('<SideOverviewBar/>', () => {
     );
     await waitFor(() => expect(menu).not.toBeInTheDocument());
 
-    expect(communicationChannel.broadcastMessage).toBeCalledWith(
+    expect(communicationChannel.broadcastMessage).toHaveBeenCalledWith(
       'net.nordeck.whiteboard.focus_on',
       { slideId: 'slide-1' },
     );
@@ -415,7 +415,6 @@ async function waitForAnnouncement(
   await waitFor(() => {
     expect(
       // We are not able to access an aria-live region via the testing library
-      // eslint-disable-next-line testing-library/no-node-access
       element.querySelector('[aria-live=assertive]'),
     ).toHaveTextContent(message);
   });

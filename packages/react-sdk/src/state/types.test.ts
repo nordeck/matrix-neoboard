@@ -53,14 +53,14 @@ describe('isWhiteboardUndoManagerContext', () => {
     ).toBe(true);
   });
 
-  it.each<Object>([
+  it.each<Record<string, unknown>>([
     { currentSlideId: undefined },
     { currentSlideId: null },
     { currentSlideId: 111 },
     { currentElementIds: null },
     { currentElementIds: 111 },
     { currentElementIds: ['element-0', 111] },
-  ])('should reject context with patch %j', (patch: Object) => {
+  ])('should reject context with patch %j', (patch: object) => {
     const data = {
       currentSlideId: 'slide-0',
       currentElementIds: ['element-0'],

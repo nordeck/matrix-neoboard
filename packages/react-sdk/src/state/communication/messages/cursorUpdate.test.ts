@@ -46,7 +46,7 @@ describe('isValidCursorUpdateMessage', () => {
     ).toBe(true);
   });
 
-  it.each<Object>([
+  it.each<object>([
     { slideId: undefined },
     { slideId: null },
     { slideId: 111 },
@@ -62,7 +62,7 @@ describe('isValidCursorUpdateMessage', () => {
     { position: { x: 1, y: undefined } },
     { position: { x: 1, y: null } },
     { position: { x: 1, y: '2' } },
-  ])('should reject message with patch %j', (patch: Object) => {
+  ])('should reject message with patch %j', (patch: object) => {
     expect(
       isValidCursorUpdateMessage({
         senderSessionId: 'sender-session-id',

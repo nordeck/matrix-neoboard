@@ -106,7 +106,7 @@ describe('<ExportWhiteboardDialogDownloadPdf />', () => {
 
     await userEvent.click(screen.getByRole('link', { name: 'Download' }));
 
-    expect(onClick).toBeCalled();
+    expect(onClick).toHaveBeenCalled();
   });
 
   it('should provide download button', async () => {
@@ -151,8 +151,8 @@ describe('<ExportWhiteboardDialogDownloadPdf />', () => {
     );
 
     await act(async () => {
-      expect(createWhiteboardPdf).toBeCalledTimes(1);
-      expect(createWhiteboardPdf).toBeCalledWith({
+      expect(createWhiteboardPdf).toHaveBeenCalledTimes(1);
+      expect(createWhiteboardPdf).toHaveBeenCalledWith({
         authorName: '@user-id',
         roomName: 'NeoBoard',
         baseUrl: 'https://example.com',
@@ -174,7 +174,7 @@ describe('<ExportWhiteboardDialogDownloadPdf />', () => {
 
     unmount();
 
-    expect(URL.revokeObjectURL).toBeCalledWith('blob:url');
+    expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:url');
   });
 
   it('should handle error while generating PDF', async () => {
@@ -191,7 +191,7 @@ describe('<ExportWhiteboardDialogDownloadPdf />', () => {
       { wrapper: Wrapper },
     );
 
-    expect(onError).toBeCalledWith('Failed');
+    expect(onError).toHaveBeenCalledWith('Failed');
   });
 
   it('should show loading state', async () => {

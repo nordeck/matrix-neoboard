@@ -46,7 +46,7 @@ describe('isValidDocumentUpdateMessage', () => {
     ).toBe(true);
   });
 
-  it.each<Object>([
+  it.each<object>([
     { documentId: undefined },
     { documentId: null },
     { documentId: 111 },
@@ -55,7 +55,7 @@ describe('isValidDocumentUpdateMessage', () => {
     { data: null },
     { data: 111 },
     { data: '' },
-  ])('should reject message with patch %j', (patch: Object) => {
+  ])('should reject message with patch %j', (patch: object) => {
     expect(
       isValidDocumentUpdateMessage({
         senderSessionId: 'sender-session-id',
