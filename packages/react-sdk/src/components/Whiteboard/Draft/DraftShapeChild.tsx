@@ -21,16 +21,26 @@ import {
   ShapeKind,
   useWhiteboardSlideInstance,
 } from '../../../state';
+import {
+  useAppDispatch,
+  useAppSelector,
+} from '../../../store/reduxToolkitHooks';
+import { selectShapeSizes, setShapeSize } from '../../../store/shapeSizesSlide';
 import { useLayoutState } from '../../Layout';
 import { WithExtendedSelectionProps } from '../ElementBehaviors';
 import { gridCellSize } from '../constants';
 import { DraftMouseHandler } from './DraftMouseHandler';
+import { calculateShapeCoords } from './calculateShapeCoords';
 import { createShape } from './createShape';
 
 export type DraftShapeChildProps = {
   kind: ShapeKind;
   display: ComponentType<ShapeElement & WithExtendedSelectionProps>;
   sameLength?: boolean;
+  /**
+   * If set, force use of this color.
+   * Otherwise use the last active color.
+   */
   fixedColor?: string;
   rounded?: boolean;
 };
@@ -48,6 +58,53 @@ export const DraftShapeChild = ({
   const { activeColor } = useLayoutState();
   const slideInstance = useWhiteboardSlideInstance();
   const { setActiveTool } = useLayoutState();
+  const shapeSizes = useAppSelector((state) => selectShapeSizes(state));
+  const dispatch = useAppDispatch();
+
+  const updateShapeSize = useCallback(() => {
+    if (startCoords === undefined || endCoords === undefined) {
+      // Nothing to do if there are not start or end coordinates
+      return;
+    }
+
+    const shapeSize = {
+      width: Math.abs(startCoords.x - endCoords.x),
+      height: Math.abs(startCoords.y - endCoords.y),
+    };
+    dispatch(setShapeSize({ kind, size: shapeSize }));
+  }, [dispatch, endCoords, kind, startCoords]);
+
+  const handleClick = useCallback(
+    (point: Point) => {
+      const { startCoords, endCoords } = calculateShapeCoords(
+        kind,
+        point,
+        shapeSizes,
+      );
+
+      slideInstance.addElement(
+        createShape({
+          kind,
+          startCoords,
+          endCoords,
+          fillColor: fixedColor ?? activeColor,
+          gridCellSize: isShowGrid ? gridCellSize : undefined,
+          sameLength,
+        }),
+      );
+      setActiveTool('select');
+    },
+    [
+      activeColor,
+      fixedColor,
+      isShowGrid,
+      kind,
+      sameLength,
+      setActiveTool,
+      shapeSizes,
+      slideInstance,
+    ],
+  );
 
   const handleMouseUp = useCallback(() => {
     if (startCoords && endCoords) {
@@ -64,6 +121,7 @@ export const DraftShapeChild = ({
       );
       setActiveTool('select');
     }
+    updateShapeSize();
     setStartCoords(undefined);
     setEndCoords(undefined);
   }, [
@@ -76,6 +134,7 @@ export const DraftShapeChild = ({
     isShowGrid,
     sameLength,
     fixedColor,
+    updateShapeSize,
     rounded,
   ]);
 
@@ -119,6 +178,7 @@ export const DraftShapeChild = ({
 
   return (
     <DraftMouseHandler
+      onClick={handleClick}
       onMouseDown={handleMouseDown}
       onMouseLeave={handleMouseUp}
       onMouseMove={handleMouseMove}
