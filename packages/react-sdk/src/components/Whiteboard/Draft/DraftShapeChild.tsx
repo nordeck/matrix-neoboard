@@ -37,6 +37,10 @@ export type DraftShapeChildProps = {
   kind: ShapeKind;
   display: ComponentType<ShapeElement & WithExtendedSelectionProps>;
   sameLength?: boolean;
+  /**
+   * If set, force use of this color.
+   * Otherwise use the last active color.
+   */
   fixedColor?: string;
 };
 
@@ -81,7 +85,7 @@ export const DraftShapeChild = ({
           kind,
           startCoords,
           endCoords,
-          fillColor: fixedColor || activeColor,
+          fillColor: fixedColor ?? activeColor,
           gridCellSize: isShowGrid ? gridCellSize : undefined,
           sameLength,
         }),
