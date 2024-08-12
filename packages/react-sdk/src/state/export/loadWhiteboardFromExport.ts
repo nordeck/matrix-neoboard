@@ -19,24 +19,35 @@ import {
   generateAddElement,
   generateAddSlide,
   generateLockSlide,
+  generateMoveSlide,
   generateRemoveSlide,
   getNormalizedSlideIds,
   WhiteboardDocument,
 } from '../crdt';
 import { WhiteboardDocumentExport } from './whiteboardDocumentExport';
 
+/**
+ * Load a whiteboard from an export file.
+ *
+ * @param whiteboard - The new whiteboard from the export file
+ * @param ownUserId - The current user's ID, used for locks
+ * @param atSlideIndex - If set, the new whiteboard will not replace the existing data.
+ */
 export function generateLoadWhiteboardFromExport(
   whiteboard: WhiteboardDocumentExport,
   ownUserId: string,
+  atSlideIndex?: number,
 ): ChangeFn<WhiteboardDocument> {
   return (doc) => {
-    const oldSlideIds = getNormalizedSlideIds(doc);
-    oldSlideIds.forEach((slideId) => {
-      const removeSlide = generateRemoveSlide(slideId);
-      removeSlide(doc);
-    });
+    if (atSlideIndex === undefined) {
+      const oldSlideIds = getNormalizedSlideIds(doc);
+      oldSlideIds.forEach((slideId) => {
+        const removeSlide = generateRemoveSlide(slideId);
+        removeSlide(doc);
+      });
+    }
 
-    whiteboard.whiteboard.slides.forEach((slide) => {
+    whiteboard.whiteboard.slides.forEach((slide, index) => {
       const [addSlide, slideId] = generateAddSlide();
       addSlide(doc);
 
@@ -44,6 +55,11 @@ export function generateLoadWhiteboardFromExport(
         const [addElement] = generateAddElement(slideId, element);
         addElement(doc);
       });
+
+      if (atSlideIndex !== undefined) {
+        const moveSlide = generateMoveSlide(slideId, atSlideIndex + index);
+        moveSlide(doc);
+      }
 
       if (slide.lock) {
         const lockSlide = generateLockSlide(slideId, ownUserId);

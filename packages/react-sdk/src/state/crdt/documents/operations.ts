@@ -116,10 +116,10 @@ export function generateMoveSlide(
 
     // This is not optimal. We don't have a true move operation available,
     // instead we removing an entry and adding it again. One thing is good:
-    // non of the operations ever get lost. The delete operation is executed,
+    // none of the operations ever get lost. The delete operation is executed,
     // and even if executed twice, only the one element is deleted. Adding is
     // also always done, however, this operation can not be deduplicated and
-    // can happen multiple times if conflicting. Therefore we might end up
+    // can happen multiple times if conflicting. Therefore, we might end up
     // with a duplicate entry on conflicts. We have to make sure to handle
     // that later.
     // Best would be support for a move operation in Yjs directly.
@@ -176,7 +176,7 @@ export function generateUnlockSlide(
 }
 
 /**
- * Removes all duplicating or leftover slide ids that can happen due too
+ * Removes all duplicating or leftover slide ids that can happen due to
  * conflicts.
  **/
 function cleanupSlideIds(doc: SharedMap<WhiteboardDocument>): void {

@@ -158,4 +158,64 @@ describe('generateLoadWhiteboardFromExport', () => {
       slideIds: [slide0, slide1],
     });
   });
+
+  it('should insert the slides at the desired slide index', () => {
+    const exportDocument: WhiteboardDocumentExport = {
+      version: 'net.nordeck.whiteboard@v1',
+      whiteboard: {
+        slides: [
+          { elements: [mockEllipseElement({ kind: 'ellipse' })] },
+          { elements: [mockEllipseElement({ kind: 'circle' })] },
+        ],
+      },
+    };
+
+    const document = createWhiteboardDocument();
+
+    const importWhiteboard = generateLoadWhiteboardFromExport(
+      exportDocument,
+      '@user-id',
+      1,
+    );
+    document.performChange(importWhiteboard);
+
+    const doc = document.getData();
+
+    const [slide0, slide1, slide2, slide3] = getNormalizedSlideIds(doc);
+
+    const [slide0Element0] = getNormalizedElementIds(doc, slide0);
+    const [slide1Element0] = getNormalizedElementIds(doc, slide1);
+    const [slide2Element0] = getNormalizedElementIds(doc, slide1);
+    const [slide3Element0] = getNormalizedElementIds(doc, slide1);
+
+    expect(doc.toJSON()).toEqual({
+      slides: {
+        [slide0]: {
+          elements: {
+            [slide0Element0]: mockEllipseElement({ kind: 'ellipse' }),
+          },
+          elementIds: [slide0Element0],
+        },
+        [slide1]: {
+          elements: {
+            [slide1Element0]: mockEllipseElement({ kind: 'ellipse' }),
+          },
+          elementIds: [slide0Element0],
+        },
+        [slide2]: {
+          elements: {
+            [slide2Element0]: mockEllipseElement({ kind: 'circle' }),
+          },
+          elementIds: [slide1Element0],
+        },
+        [slide3]: {
+          elements: {
+            [slide3Element0]: mockEllipseElement({ kind: 'circle' }),
+          },
+          elementIds: [slide1Element0],
+        },
+      },
+      slideIds: [slide0, slide1, slide2],
+    });
+  });
 });

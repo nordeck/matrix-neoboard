@@ -406,11 +406,18 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
     );
   }
 
-  import(whiteboardDocumentExport: WhiteboardDocumentExport): void {
+  import(
+    whiteboardDocumentExport: WhiteboardDocumentExport,
+    atSlideIndex?: number,
+  ): void {
     this.synchronizedDocument
       .getDocument()
       .performChange(
-        generateLoadWhiteboardFromExport(whiteboardDocumentExport, this.userId),
+        generateLoadWhiteboardFromExport(
+          whiteboardDocumentExport,
+          this.userId,
+          atSlideIndex,
+        ),
       );
   }
 
