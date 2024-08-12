@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { axe } from 'jest-axe';
-import { mocked } from 'jest-mock';
 import { ComponentType, PropsWithChildren } from 'react';
 import {
   WhiteboardTestingContextProvider,
@@ -87,6 +85,9 @@ describe('<ToolsBar/>', () => {
       within(radiogroup).getByRole('radio', { name: 'Rectangle' }),
     ).not.toBeChecked();
     expect(
+      within(radiogroup).getByRole('radio', { name: 'Rounded rectangle' }),
+    ).not.toBeChecked();
+    expect(
       within(radiogroup).getByRole('radio', { name: 'Triangle' }),
     ).not.toBeChecked();
     expect(
@@ -96,19 +97,15 @@ describe('<ToolsBar/>', () => {
       within(radiogroup).getByRole('radio', { name: 'Arrow' }),
     ).not.toBeChecked();
     expect(
-      screen.queryByRole('presentation', { name: 'Upload image' }),
-    ).not.toBeInTheDocument();
+      screen.getByRole('button', { name: 'Upload image' }),
+    ).toBeInTheDocument();
   });
 
-  it('should render the upload image too if REACT_APP_IMAGES = true', () => {
-    mocked(getEnvironment).mockImplementation((name) => {
-      return name === 'REACT_APP_IMAGES' ? 'true' : 'false';
-    });
-
+  it('should render the upload image', () => {
     render(<ToolsBar />, { wrapper: Wrapper });
 
     expect(
-      screen.getByRole('presentation', { name: 'Upload image' }),
+      screen.getByRole('button', { name: 'Upload image' }),
     ).toBeInTheDocument();
   });
 
@@ -121,10 +118,6 @@ describe('<ToolsBar/>', () => {
   });
 
   it('should disable all buttons if the slide is locked and not active', () => {
-    mocked(getEnvironment).mockImplementation((name) => {
-      return name === 'REACT_APP_IMAGES' ? 'true' : 'false';
-    });
-
     whiteboardManager
       .getActiveWhiteboardInstance()
       ?.getSlide('slide-0')
@@ -137,18 +130,22 @@ describe('<ToolsBar/>', () => {
     expect(screen.getByRole('radio', { name: 'Pen' })).toBeDisabled();
     expect(screen.getByRole('radio', { name: 'Ellipse' })).toBeDisabled();
     expect(screen.getByRole('radio', { name: 'Rectangle' })).toBeDisabled();
+    expect(
+      screen.getByRole('radio', { name: 'Rounded rectangle' }),
+    ).toBeDisabled();
     expect(screen.getByRole('radio', { name: 'Triangle' })).toBeDisabled();
     expect(screen.getByRole('radio', { name: 'Line' })).toBeDisabled();
     expect(screen.getByRole('radio', { name: 'Arrow' })).toBeDisabled();
-    expect(
-      screen.getByRole('presentation', { name: 'Upload image' }),
-    ).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Upload image' })).toBeDisabled();
 
     expect(screen.getByRole('radio', { name: 'Select' })).not.toBeChecked();
     expect(screen.getByRole('radio', { name: 'Text' })).not.toBeChecked();
     expect(screen.getByRole('radio', { name: 'Pen' })).not.toBeChecked();
     expect(screen.getByRole('radio', { name: 'Ellipse' })).not.toBeChecked();
     expect(screen.getByRole('radio', { name: 'Rectangle' })).not.toBeChecked();
+    expect(
+      screen.getByRole('radio', { name: 'Rounded rectangle' }),
+    ).not.toBeChecked();
     expect(screen.getByRole('radio', { name: 'Triangle' })).not.toBeChecked();
     expect(screen.getByRole('radio', { name: 'Line' })).not.toBeChecked();
     expect(screen.getByRole('radio', { name: 'Arrow' })).not.toBeChecked();

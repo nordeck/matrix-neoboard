@@ -47,6 +47,9 @@ export const DraftPicker = (): ReactElement | null => {
     case 'rectangle':
       return <RectangleDraft />;
 
+    case 'rounded-rectangle':
+      return <RectangleDraft rounded={true} />;
+
     case 'triangle':
       return <TriangleDraft />;
   }

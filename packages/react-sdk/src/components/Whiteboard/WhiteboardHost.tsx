@@ -94,12 +94,6 @@ const WhiteboardHost = ({
         {!hideDotGrid && <DotGrid />}
         {!readOnly && <UnSelectElementHandler />}
 
-        {!readOnly && activeElementIds.length > 0 && (
-          <MoveableElement overrides={overrides}>
-            <ElementBorder elementIds={activeElementIds} />
-          </MoveableElement>
-        )}
-
         {elementIds.map((e) => (
           <ConnectedElement
             id={e}
@@ -111,6 +105,12 @@ const WhiteboardHost = ({
         ))}
 
         {!readOnly && <DraftPicker />}
+
+        {!readOnly && activeElementIds.length > 0 && (
+          <MoveableElement overrides={overrides}>
+            <ElementBorder elementIds={activeElementIds} />
+          </MoveableElement>
+        )}
 
         {dragSelectStartCoords && <DragSelect />}
 

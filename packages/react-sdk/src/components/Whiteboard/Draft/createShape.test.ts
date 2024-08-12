@@ -36,6 +36,27 @@ describe('createShape', () => {
     });
   });
 
+  it('should create a rounded rectangle', () => {
+    const result = createShape({
+      kind: 'rectangle',
+      startCoords: { x: 10, y: 20 },
+      endCoords: { x: 30, y: 40 },
+      fillColor: '#ffffff',
+      rounded: true,
+    });
+
+    expect(result).toEqual({
+      width: 20,
+      height: 20,
+      position: { x: 10, y: 20 },
+      type: 'shape',
+      kind: 'rectangle',
+      text: '',
+      fillColor: '#ffffff',
+      borderRadius: 20,
+    });
+  });
+
   it('should choose the right shape if start and end position are inverted', () => {
     const result = createShape({
       kind: 'rectangle',

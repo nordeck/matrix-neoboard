@@ -28,6 +28,7 @@ export function getRenderProperties(
   return {
     strokeColor: shape.strokeColor ?? shape.fillColor,
     strokeWidth: shape.strokeWidth ?? 2,
+    rx: shape.borderRadius,
 
     text: {
       position: {

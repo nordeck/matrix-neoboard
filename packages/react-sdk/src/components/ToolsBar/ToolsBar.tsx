@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import CircleIcon from '@mui/icons-material/Circle';
 import EditRoundedIcon from '@mui/icons-material/EditRounded';
 import NorthEastIcon from '@mui/icons-material/NorthEast';
@@ -28,13 +27,12 @@ import { Toolbar, ToolbarButton, ToolbarRadioGroup } from '../common/Toolbar';
 import { ToolbarRadio } from '../common/Toolbar/ToolbarRadio';
 import { CursorDefaultIcon } from '../icons/CursorDefaultIcon';
 import { LineIcon } from '../icons/LineIcon';
+import { RoundedSquareIcon } from '../icons/RoundedSquareIcon';
 import { TriangleIcon } from '../icons/TriangleIcon';
 import { UploadIcon } from '../icons/UploadIcon';
 import { useSlideImageUpload } from './useSlideImageUpload';
 
 export function ToolsBar() {
-  const imageUploadEnabled =
-    getEnvironment('REACT_APP_IMAGES', 'false') === 'true';
   const { t } = useTranslation();
   const isLocked = useSlideIsLocked();
   const { activeTool, setActiveTool } = useLayoutState();
@@ -59,6 +57,11 @@ export function ToolsBar() {
         label: t('toolsBar.rectangleTool', 'Rectangle'),
         icon: <SquareIcon />,
         value: 'rectangle',
+      },
+      {
+        label: t('toolsBar.roundedRectangleTool', 'Rounded rectangle'),
+        icon: <RoundedSquareIcon />,
+        value: 'rounded-rectangle',
       },
       {
         label: t('toolsBar.ellipseTool', 'Ellipse'),
@@ -114,16 +117,18 @@ export function ToolsBar() {
             onChange={handleRadioClick}
           />
         ))}
-        {imageUploadEnabled && (
-          <ToolbarButton
-            aria-label={t('toolsBar.imageUploadTool', 'Upload image')}
-            disabled={isLocked}
-            {...getRootProps()}
-          >
-            <input {...getInputProps()} onClick={undefined} />
-            <UploadIcon sx={{ height: 22 }} />
-          </ToolbarButton>
-        )}
+        <ToolbarButton
+          aria-label={t('toolsBar.imageUploadTool', 'Upload image')}
+          disabled={isLocked}
+          {...getRootProps()}
+          // This must be button and it MUST be after getRootProps as the dropzone would otherwise set it to the "presentation" role
+          // However in this case we want it to be a button
+          role="button"
+        >
+          {/* We are hiding it for screen readers and instead expect the button to be used */}
+          <input aria-hidden={true} {...getInputProps()} onClick={undefined} />
+          <UploadIcon sx={{ height: 22 }} />
+        </ToolbarButton>
       </ToolbarRadioGroup>
     </Toolbar>
   );

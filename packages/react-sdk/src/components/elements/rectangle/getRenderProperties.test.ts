@@ -44,6 +44,34 @@ describe('getRenderProperties', () => {
     });
   });
 
+  it('should provide the properties for a rounded rectangle element', () => {
+    const view = getRenderProperties({
+      type: 'shape',
+      kind: 'rectangle',
+      position: { x: 10, y: 15 },
+      fillColor: '#00ffff',
+      width: 100,
+      height: 50,
+      text: 'My Text',
+      borderRadius: 20,
+    });
+
+    expect(view).toEqual({
+      strokeColor: '#00ffff',
+      strokeWidth: 2,
+      rx: 20,
+
+      text: {
+        position: { x: 20, y: 25 },
+        width: 80,
+        height: 30,
+        alignment: 'center',
+        bold: false,
+        italic: false,
+      },
+    });
+  });
+
   it('should provide the properties for a rectangle element with custom text alignment', () => {
     const view = getRenderProperties({
       type: 'shape',
