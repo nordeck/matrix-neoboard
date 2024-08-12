@@ -248,6 +248,7 @@
     "lineTool": "Linie",
     "penTool": "Stift",
     "rectangleTool": "Rechteck",
+    "roundedRectangleTool": "Abgerundetes Rechteck",
     "selectTool": "Auswählen",
     "textTool": "Text",
     "title": "Werkzeuge",
