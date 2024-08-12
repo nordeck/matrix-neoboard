@@ -53,7 +53,7 @@ describe('isWhiteboardUndoManagerContext', () => {
     ).toBe(true);
   });
 
-  it.each<object>([
+  it.each<Record<string, unknown>>([
     { currentSlideId: undefined },
     { currentSlideId: null },
     { currentSlideId: 111 },
