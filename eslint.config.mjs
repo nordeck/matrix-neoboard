@@ -100,7 +100,7 @@ export default ts.config(
       'react/react-in-jsx-scope': 'off',
     },
   },
-  // Test specific configuration
+  // Test-specific configuration
   {
     files: ['**/*.test.*'],
     rules: {
