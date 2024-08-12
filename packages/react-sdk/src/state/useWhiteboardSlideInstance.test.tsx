@@ -85,7 +85,7 @@ describe('useWhiteboardSlideInstance', () => {
       wrapper: Wrapper,
     });
 
-    expect(getSlide).toBeCalledWith('slide-0');
+    expect(getSlide).toHaveBeenCalledWith('slide-0');
     expect(result.current).toBe(getSlide.mock.results[0].value);
   });
 
@@ -163,7 +163,7 @@ describe('useElement(s)', () => {
     });
 
     expect(result.current).toEqual(mockEllipseElement());
-    expect(getElement).toBeCalledWith('element-0');
+    expect(getElement).toHaveBeenCalledWith('element-0');
   });
 
   it('should return the elements', () => {
@@ -177,7 +177,7 @@ describe('useElement(s)', () => {
     });
 
     expect(result.current).toEqual({ 'element-0': mockEllipseElement() });
-    expect(getElement).toBeCalledWith('element-0');
+    expect(getElement).toHaveBeenCalledWith('element-0');
   });
 
   it('should update if the element ids change', () => {

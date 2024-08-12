@@ -323,7 +323,7 @@ export async function findLatestSnapshot(
  */
 async function* findChunks(
   widgetApi: WidgetApi,
-  documentId: string,
+  _documentId: string,
   snapshotEvent: RoomEvent<DocumentSnapshot>,
 ): AsyncGenerator<RoomEvent<DocumentChunk>> {
   let fromChunk: string | undefined = undefined;

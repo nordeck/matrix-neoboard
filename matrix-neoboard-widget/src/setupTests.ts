@@ -22,5 +22,5 @@ import '@testing-library/jest-dom';
 
 // global.crypto is used by lib0 (introduced by yjs) that has no automatic
 // definition in jsdom
-const { webcrypto } = require('node:crypto');
+import { webcrypto } from 'node:crypto';
 Object.defineProperty(global.globalThis, 'crypto', { value: webcrypto });

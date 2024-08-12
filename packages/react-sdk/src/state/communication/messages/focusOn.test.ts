@@ -44,12 +44,12 @@ describe('isValidFocusOnMessage', () => {
     ).toBe(true);
   });
 
-  it.each<Object>([
+  it.each<object>([
     { slideId: undefined },
     { slideId: null },
     { slideId: 111 },
     { slideId: '' },
-  ])('should reject message with patch %j', (patch: Object) => {
+  ])('should reject message with patch %j', (patch: object) => {
     expect(
       isValidFocusOnMessage({
         senderSessionId: 'sender-session-id',

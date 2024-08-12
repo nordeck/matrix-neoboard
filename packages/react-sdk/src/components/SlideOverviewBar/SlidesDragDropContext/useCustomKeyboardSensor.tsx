@@ -79,7 +79,7 @@ export function bindEvents(
 ): () => void {
   const unbindings: UnbindFn[] = bindings.map(
     (binding: EventBinding): UnbindFn => {
-      const options: Object = getOptions(sharedOptions, binding.options);
+      const options: object = getOptions(sharedOptions, binding.options);
 
       el.addEventListener(binding.eventName, binding.fn, options);
 
@@ -239,7 +239,6 @@ export function useCustomKeyboardSensor(api: SensorAPI) {
         const preDrag = api.tryGetLock(
           draggableId,
           // abort function not defined yet
-          // eslint-disable-next-line no-use-before-define
           stop,
           { sourceEvent: event },
         );
@@ -264,7 +263,6 @@ export function useCustomKeyboardSensor(api: SensorAPI) {
           // unbind dragging bindings
           unbindEventsRef.current();
           // start listening for capture again
-          // eslint-disable-next-line no-use-before-define
           listenForCapture();
         }
 
@@ -277,7 +275,6 @@ export function useCustomKeyboardSensor(api: SensorAPI) {
       },
     }),
     // not including startPendingDrag as it is not defined initially
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [api],
   );
 

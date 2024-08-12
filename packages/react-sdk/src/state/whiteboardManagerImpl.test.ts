@@ -74,10 +74,10 @@ describe('WhiteboardManagerImpl', () => {
 
     // send same event
     whiteboardManager.selectActiveWhiteboardInstance(event0, '@user-id');
-    expect(destroySpy).not.toBeCalled();
+    expect(destroySpy).not.toHaveBeenCalled();
 
     whiteboardManager.selectActiveWhiteboardInstance(event1, '@user-id');
 
-    expect(destroySpy).toBeCalled();
+    expect(destroySpy).toHaveBeenCalled();
   });
 });

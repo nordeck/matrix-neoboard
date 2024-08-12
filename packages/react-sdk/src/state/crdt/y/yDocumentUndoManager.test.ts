@@ -241,28 +241,28 @@ describe('YDocumentUndoManager', () => {
     yDoc.performChange((doc) => {
       doc.get('map').set('element-1', { num: 10 });
     });
-    expect(keepUndoRedoItem).toBeCalledTimes(2);
-    expect(keepUndoRedoItem).toBeCalledWith(yDoc.getData());
-    expect(checkUndoItem).toBeCalledTimes(1);
+    expect(keepUndoRedoItem).toHaveBeenCalledTimes(2);
+    expect(keepUndoRedoItem).toHaveBeenCalledWith(yDoc.getData());
+    expect(checkUndoItem).toHaveBeenCalledTimes(1);
     expect(checkUndoItem).toHaveBeenNthCalledWith(1, [
       { props: ['map', 'element-1'], isDeletion: false, isInsertion: true },
     ]);
-    expect(checkRedoItem).toBeCalledTimes(0);
+    expect(checkRedoItem).toHaveBeenCalledTimes(0);
 
     // change element-1 -> one insertion, one deletion
     setupMock();
     yDoc.performChange((doc) => {
       doc.get('map').set('element-1', { num: 25 });
     });
-    expect(keepUndoRedoItem).toBeCalledTimes(2);
-    expect(checkUndoItem).toBeCalledTimes(2);
+    expect(keepUndoRedoItem).toHaveBeenCalledTimes(2);
+    expect(checkUndoItem).toHaveBeenCalledTimes(2);
     expect(checkUndoItem).toHaveBeenNthCalledWith(1, [
       { props: ['map', 'element-1'], isDeletion: true, isInsertion: true },
     ]);
     expect(checkUndoItem).toHaveBeenNthCalledWith(2, [
       { props: ['map', 'element-1'], isDeletion: false, isInsertion: true },
     ]);
-    expect(checkRedoItem).toBeCalledTimes(0);
+    expect(checkRedoItem).toHaveBeenCalledTimes(0);
 
     // delete element-1 -> no insertion, one deletion
     // add element-2 -> one insertion, no deletion
@@ -271,8 +271,8 @@ describe('YDocumentUndoManager', () => {
       doc.get('map').delete('element-1');
       doc.get('map').set('element-2', { num: 30 });
     });
-    expect(keepUndoRedoItem).toBeCalledTimes(2);
-    expect(checkUndoItem).toBeCalledTimes(3);
+    expect(keepUndoRedoItem).toHaveBeenCalledTimes(2);
+    expect(checkUndoItem).toHaveBeenCalledTimes(3);
     expect(checkUndoItem).toHaveBeenNthCalledWith(1, [
       { props: ['map', 'element-1'], isDeletion: true, isInsertion: false },
       { props: ['map', 'element-2'], isDeletion: false, isInsertion: true },
@@ -283,22 +283,22 @@ describe('YDocumentUndoManager', () => {
     expect(checkUndoItem).toHaveBeenNthCalledWith(3, [
       { props: ['map', 'element-1'], isDeletion: false, isInsertion: true },
     ]);
-    expect(checkRedoItem).toBeCalledTimes(0);
+    expect(checkRedoItem).toHaveBeenCalledTimes(0);
 
     // undo last operation will add reverse to the redo stack
     // delete element-2 -> no insertion, one deletion
     // add element-1 -> one insertion, no deletion
     setupMock();
     undoManager.undo();
-    expect(keepUndoRedoItem).toBeCalledTimes(2);
-    expect(checkUndoItem).toBeCalledTimes(2);
+    expect(keepUndoRedoItem).toHaveBeenCalledTimes(2);
+    expect(checkUndoItem).toHaveBeenCalledTimes(2);
     expect(checkUndoItem).toHaveBeenNthCalledWith(1, [
       { props: ['map', 'element-1'], isDeletion: true, isInsertion: true },
     ]);
     expect(checkUndoItem).toHaveBeenNthCalledWith(2, [
       { props: ['map', 'element-1'], isDeletion: false, isInsertion: true },
     ]);
-    expect(checkRedoItem).toBeCalledTimes(1);
+    expect(checkRedoItem).toHaveBeenCalledTimes(1);
     expect(checkRedoItem).toHaveBeenNthCalledWith(1, [
       { props: ['map', 'element-2'], isDeletion: true, isInsertion: false },
       { props: ['map', 'element-1'], isDeletion: false, isInsertion: true },

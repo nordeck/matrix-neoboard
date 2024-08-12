@@ -16,7 +16,8 @@
 
 import Joi from 'joi';
 import loglevel from 'loglevel';
-import { defaultAcceptedImageTypes } from '../../../components/ImageUpload';
+// Do not import from the index file to prevent cyclic dependencies
+import { defaultAcceptedImageTypes } from '../../../components/ImageUpload/consts';
 import {
   BoundingRect,
   calculateBoundingRectForPoints,

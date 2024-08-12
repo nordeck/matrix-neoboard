@@ -33,7 +33,7 @@ describe('forceLoadFontFamily', () => {
 
     expect(await forceLoadFontFamily('My Font')).toBeUndefined();
 
-    expect(loadMyFont).toBeCalledTimes(2);
-    expect(loadOtherFont).not.toBeCalled();
+    expect(loadMyFont).toHaveBeenCalledTimes(2);
+    expect(loadOtherFont).not.toHaveBeenCalled();
   });
 });

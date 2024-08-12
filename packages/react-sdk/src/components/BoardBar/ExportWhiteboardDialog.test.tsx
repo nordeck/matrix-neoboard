@@ -117,7 +117,7 @@ describe('<ExportWhiteboardDialog/>', () => {
       within(dialog).getByRole('button', { name: 'Close' }),
     );
 
-    expect(onClose).toBeCalled();
+    expect(onClose).toHaveBeenCalled();
   });
 
   it('should close dialog on cancel', async () => {
@@ -131,7 +131,7 @@ describe('<ExportWhiteboardDialog/>', () => {
       within(dialog).getByRole('button', { name: 'Cancel' }),
     );
 
-    expect(onClose).toBeCalled();
+    expect(onClose).toHaveBeenCalled();
   });
 
   it('should close dialog on download pdf', async () => {
@@ -145,7 +145,7 @@ describe('<ExportWhiteboardDialog/>', () => {
       within(dialog).getByRole('link', { name: 'Download' }),
     );
 
-    expect(onClose).toBeCalled();
+    expect(onClose).toHaveBeenCalled();
   });
 
   it('should close dialog on download file', async () => {
@@ -166,7 +166,7 @@ describe('<ExportWhiteboardDialog/>', () => {
       within(dialog).getByRole('button', { name: 'Download' }),
     );
 
-    expect(onClose).toBeCalled();
+    expect(onClose).toHaveBeenCalled();
   });
 
   it('should handle error while generating PDF', async () => {

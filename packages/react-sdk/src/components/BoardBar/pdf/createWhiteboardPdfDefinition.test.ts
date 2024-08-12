@@ -109,6 +109,6 @@ describe('createWhiteboardPdfDefinition', () => {
       baseUrl: 'https://example.com',
     });
 
-    expect(spy).toBeCalledWith('Noto Emoji');
+    expect(spy).toHaveBeenCalledWith('Noto Emoji');
   });
 });

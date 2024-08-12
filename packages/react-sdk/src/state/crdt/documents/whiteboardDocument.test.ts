@@ -144,7 +144,7 @@ describe('whiteboardDocumentSchema', () => {
     expect(whiteboardDocumentSchema.validate(data).error).toBeUndefined();
   });
 
-  it.each<Object>([
+  it.each<object>([
     { slides: undefined },
     { slides: null },
     { slides: 111 },
@@ -178,7 +178,7 @@ describe('whiteboardDocumentSchema', () => {
     { slideIds: undefined },
     { slideIds: null },
     { slideIds: 111 },
-  ])('should reject event with patch %j', (patch: Object) => {
+  ])('should reject event with patch %j', (patch: object) => {
     const data = {
       slides: {},
       slideIds: [],
@@ -212,7 +212,7 @@ describe('isValidWhiteboardDocument', () => {
     expect(isValidWhiteboardDocument(document)).toBe(true);
   });
 
-  it.each<Object>([
+  it.each<object>([
     { slides: undefined },
     { slides: null },
     { slides: 111 },
@@ -221,7 +221,7 @@ describe('isValidWhiteboardDocument', () => {
     { slideIds: null },
     { slideIds: 111 },
     { slideIds: new YText() },
-  ])('should reject event with patch %j', (patch: Object) => {
+  ])('should reject event with patch %j', (patch: object) => {
     const document = createWhiteboardDocument();
 
     document.performChange(generateAddSlide()[0]);
