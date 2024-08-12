@@ -29,6 +29,7 @@ export type ActiveTool =
   | 'select'
   | 'text'
   | 'rectangle'
+  | 'rounded-rectangle'
   | 'polyline'
   | 'line'
   | 'arrow'

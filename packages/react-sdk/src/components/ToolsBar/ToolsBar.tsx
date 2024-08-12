@@ -27,6 +27,7 @@ import { Toolbar, ToolbarButton, ToolbarRadioGroup } from '../common/Toolbar';
 import { ToolbarRadio } from '../common/Toolbar/ToolbarRadio';
 import { CursorDefaultIcon } from '../icons/CursorDefaultIcon';
 import { LineIcon } from '../icons/LineIcon';
+import { RoundedSquareIcon } from '../icons/RoundedSquareIcon';
 import { TriangleIcon } from '../icons/TriangleIcon';
 import { UploadIcon } from '../icons/UploadIcon';
 import { useSlideImageUpload } from './useSlideImageUpload';
@@ -56,6 +57,11 @@ export function ToolsBar() {
         label: t('toolsBar.rectangleTool', 'Rectangle'),
         icon: <SquareIcon />,
         value: 'rectangle',
+      },
+      {
+        label: t('toolsBar.roundedRectangleTool', 'Rounded rectangle'),
+        icon: <RoundedSquareIcon />,
+        value: 'rounded-rectangle',
       },
       {
         label: t('toolsBar.ellipseTool', 'Ellipse'),

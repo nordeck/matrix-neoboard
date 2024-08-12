@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Nordeck IT + Consulting GmbH
+ * Copyright 2024 Nordeck IT + Consulting GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,27 +14,9 @@
  * limitations under the License.
  */
 
-import React from 'react';
-import { DraftShapeChild } from '../../Whiteboard';
-import RectangleDisplay from './Display';
+import { createSvgIcon } from '@mui/material';
 
-type RectangleDraftProps = {
-  fixedColor?: string;
-  rounded?: boolean;
-};
-
-const RectangleDraft: React.FC<RectangleDraftProps> = ({
-  fixedColor,
-  rounded,
-}) => {
-  return (
-    <DraftShapeChild
-      display={RectangleDisplay}
-      kind="rectangle"
-      fixedColor={fixedColor}
-      rounded={rounded}
-    />
-  );
-};
-
-export default RectangleDraft;
+export const RoundedSquareIcon = createSvgIcon(
+  <rect x="3" y="3" width="18" height="18" rx="4"></rect>,
+  'RoundedSquare',
+);

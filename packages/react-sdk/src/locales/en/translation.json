@@ -248,6 +248,7 @@
     "lineTool": "Line",
     "penTool": "Pen",
     "rectangleTool": "Rectangle",
+    "roundedRectangleTool": "Rounded rectangle",
     "selectTool": "Select",
     "textTool": "Text",
     "title": "Tools",

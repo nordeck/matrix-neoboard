@@ -42,6 +42,7 @@ export type DraftShapeChildProps = {
    * Otherwise use the last active color.
    */
   fixedColor?: string;
+  rounded?: boolean;
 };
 
 export const DraftShapeChild = ({
@@ -49,6 +50,7 @@ export const DraftShapeChild = ({
   display: Display,
   sameLength,
   fixedColor,
+  rounded,
 }: DraftShapeChildProps) => {
   const { isShowGrid } = useLayoutState();
   const [startCoords, setStartCoords] = useState<Point>();
@@ -114,6 +116,7 @@ export const DraftShapeChild = ({
           fillColor: fixedColor || activeColor,
           gridCellSize: isShowGrid ? gridCellSize : undefined,
           sameLength,
+          rounded,
         }),
       );
       setActiveTool('select');
@@ -132,6 +135,7 @@ export const DraftShapeChild = ({
     sameLength,
     fixedColor,
     updateShapeSize,
+    rounded,
   ]);
 
   const handleMouseMove = useCallback(
@@ -157,6 +161,7 @@ export const DraftShapeChild = ({
             fillColor: fixedColor || activeColor,
             gridCellSize: isShowGrid ? gridCellSize : undefined,
             sameLength,
+            rounded,
           })
         : undefined,
     [
@@ -167,6 +172,7 @@ export const DraftShapeChild = ({
       sameLength,
       startCoords,
       fixedColor,
+      rounded,
     ],
   );
 

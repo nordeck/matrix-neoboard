@@ -39,7 +39,7 @@ const RectangleDisplay = ({
   'data-testid': dataTestid,
   ...shape
 }: RectangleElementProps) => {
-  const { strokeColor, strokeWidth, text } = getRenderProperties(shape);
+  const { rx, strokeColor, strokeWidth, text } = getRenderProperties(shape);
 
   const renderedChild = (
     <g data-testid={dataTestid}>
@@ -51,6 +51,7 @@ const RectangleDisplay = ({
         stroke={strokeColor}
         strokeWidth={strokeWidth}
         width={shape.width}
+        rx={rx}
       />
 
       {text && (
