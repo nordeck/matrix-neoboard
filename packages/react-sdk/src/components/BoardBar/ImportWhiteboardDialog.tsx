@@ -26,23 +26,37 @@ import {
   DialogTitle,
   IconButton,
   Stack,
+  TextField,
   Tooltip,
 } from '@mui/material';
 import { unstable_useId as useId, visuallyHidden } from '@mui/utils';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useActiveWhiteboardInstance } from '../../state';
 import { importWhiteboard } from '../../state/import';
 import { useImageUpload } from '../ImageUpload';
 import { ImportedWhiteboard } from './types';
 
+function parseSlideIndex(indexString: string): number | undefined {
+  let index: number | undefined = Number.parseInt(indexString);
+  if (Number.isNaN(index)) {
+    index = undefined;
+  } else {
+    // Decrement index to match the internal zero-based index
+    index--;
+  }
+  return index;
+}
+
 export function ImportWhiteboardDialog({
   open,
+  defaultAtSlideIndex,
   importedWhiteboard,
   onClose,
   onRetry,
 }: {
   open: boolean;
+  defaultAtSlideIndex?: number;
   importedWhiteboard: ImportedWhiteboard | undefined;
   onClose: () => void;
   onRetry: () => void;
@@ -50,13 +64,30 @@ export function ImportWhiteboardDialog({
   const { t } = useTranslation();
   const whiteboardInstance = useActiveWhiteboardInstance();
   const { handleDrop } = useImageUpload();
+  // To match the UI, this index is one-based. Internally, the index is zero-based.
+  const [atSlideIndexString, setAtSlideIndexString] = useState(
+    defaultAtSlideIndex === undefined
+      ? ''
+      : (defaultAtSlideIndex + 1).toString(),
+  );
 
   const handleOnImport = useCallback(() => {
     if (importedWhiteboard?.isError === false) {
-      importWhiteboard(whiteboardInstance, importedWhiteboard.data, handleDrop);
+      importWhiteboard(
+        whiteboardInstance,
+        importedWhiteboard.data,
+        handleDrop,
+        parseSlideIndex(atSlideIndexString),
+      );
     }
     onClose();
-  }, [handleDrop, importedWhiteboard, onClose, whiteboardInstance]);
+  }, [
+    atSlideIndexString,
+    handleDrop,
+    importedWhiteboard,
+    onClose,
+    whiteboardInstance,
+  ]);
 
   const selectFileButtonLabel = t(
     'boardBar.importWhiteboardDialog.selectFileLabel',
@@ -127,17 +158,33 @@ export function ImportWhiteboardDialog({
           </Box>
         </Button>
 
-        {importedWhiteboard?.isError === false ? (
-          <Alert severity="warning" role="status" sx={{ mt: 1 }}>
-            <AlertTitle>
-              {t('boardBar.importWhiteboardDialog.successTitle', 'Caution')}
-            </AlertTitle>
-            {t(
-              'boardBar.importWhiteboardDialog.successDescription',
-              'Your contents will be replaced. This operation is reversible by using “undo”.',
-            )}
-          </Alert>
-        ) : (
+        <TextField
+          margin="dense"
+          label={t(
+            'boardBar.importWhiteboardDialog.atSlideIndex',
+            'Insert before slide',
+          )}
+          type="number"
+          fullWidth
+          variant="standard"
+          value={atSlideIndexString}
+          onChange={(e) => setAtSlideIndexString(e.currentTarget.value)}
+          inputProps={{ min: 1, step: 1 }}
+        />
+
+        {importedWhiteboard?.isError === false &&
+          Number.isNaN(Number.parseInt(atSlideIndexString)) && (
+            <Alert severity="warning" role="status" sx={{ mt: 1 }}>
+              <AlertTitle>
+                {t('boardBar.importWhiteboardDialog.successTitle', 'Caution')}
+              </AlertTitle>
+              {t(
+                'boardBar.importWhiteboardDialog.successDescription',
+                'Your contents will be replaced. This operation is reversible by using “undo”.',
+              )}
+            </Alert>
+          )}
+        {importedWhiteboard?.isError === true && (
           <Alert severity="error" role="status" sx={{ mt: 1 }}>
             <AlertTitle>
               {t('boardBar.importWhiteboardDialog.errorTitle', 'Error')}

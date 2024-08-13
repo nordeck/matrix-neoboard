@@ -20,6 +20,7 @@
     },
     "hideSlideBarTitle": "Folienübersicht schließen",
     "importWhiteboardDialog": {
+      "atSlideIndex": "Einfügen vor Folie",
       "close": "Schließen",
       "errorDescription": "Deine Datei kann nicht geladen werden, versuche es mit einer anderen Datei.",
       "errorTitle": "Fehler",

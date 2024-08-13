@@ -20,6 +20,7 @@
     },
     "hideSlideBarTitle": "Close slide overview",
     "importWhiteboardDialog": {
+      "atSlideIndex": "Insert before slide",
       "close": "Close",
       "errorDescription": "Your file can't be loaded. Please try again by selecting a different file.",
       "errorTitle": "Error",
