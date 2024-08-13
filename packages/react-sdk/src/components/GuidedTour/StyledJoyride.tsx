@@ -52,6 +52,11 @@ export function StyledJoyride({ steps, disabled }: StyledJoyrideProps) {
       stepIndex={stepIndex}
       steps={steps}
       callback={({ status, action, index, type, controlled }) => {
+        if (status === 'paused' && action === 'next') {
+          // Ignore next actions, if the tour is paused
+          return;
+        }
+
         if (status === STATUS.FINISHED || status === STATUS.SKIPPED) {
           completeGuidedTour();
         }
