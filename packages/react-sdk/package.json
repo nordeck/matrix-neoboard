@@ -82,7 +82,7 @@
     "test": "jest --watch",
     "test:all": "jest --coverage --watchAll=false",
     "deduplicate": "yarn-deduplicate",
-    "depcheck": "depcheck --ignores=babel-plugin-transform-import-meta",
+    "depcheck": "depcheck --ignores=\"babel-plugin-transform-import-meta,@types/jest\"",
     "lint": "eslint .",
     "translate": "i18next \"src/**/*.{ts,tsx}\"",
     "prettier:check": "prettier --check .",
