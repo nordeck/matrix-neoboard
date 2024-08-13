@@ -18,6 +18,7 @@ import { ClipboardShortcuts } from './ClipboardShortcuts';
 import { DeleteShortcut } from './DeleteShortcut';
 import { PresentationShortcuts } from './PresentationShortcuts';
 import { ReorderElementsShortcuts } from './ReorderElementShortcuts';
+import { TextFormattingShortcuts } from './TextFormattingShortcuts';
 import { UndoRedoShortcuts } from './UndoRedoShortcuts';
 
 export function Shortcuts() {
@@ -29,6 +30,7 @@ export function Shortcuts() {
       <ReorderElementsShortcuts />
       <DeleteShortcut />
       <PresentationShortcuts />
+      <TextFormattingShortcuts />
     </>
   );
 }
