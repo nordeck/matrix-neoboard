@@ -15,54 +15,30 @@
  */
 
 import FormatBoldIcon from '@mui/icons-material/FormatBold';
-import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  useActiveElements,
-  useElements,
-  useWhiteboardSlideInstance,
-} from '../../../state';
+import { useToggleBold } from '../../../lib/text-formatting';
+import { useActiveElements, useElements } from '../../../state';
 import { ToolbarToggle } from '../../common/Toolbar';
-import { calculateTextBoldUpdates } from './calculateTextBoldUpdates';
 
 export function TextBoldButton() {
-  const slideInstance = useWhiteboardSlideInstance();
+  const { t } = useTranslation();
+  const { isBold, toggleBold } = useToggleBold();
+
   const { activeElementIds } = useActiveElements();
   const activeElements = useElements(activeElementIds);
   const elements = Object.values(activeElements);
-  const { t } = useTranslation();
-
-  const handleClick = useCallback(
-    (textBold: boolean) => {
-      const updates = calculateTextBoldUpdates(activeElements, textBold);
-
-      if (updates.length > 0) {
-        slideInstance.updateElements(updates);
-      }
-    },
-    [activeElements, slideInstance],
-  );
 
   if (elements.every((element) => element.type !== 'shape')) {
     return null;
   }
 
-  let textBold = false;
-
-  for (const element of elements) {
-    if (element.type === 'shape' && element.textBold !== undefined) {
-      textBold = element.textBold;
-      break;
-    }
-  }
-
   return (
     <ToolbarToggle
-      checked={textBold}
+      checked={isBold}
       checkedIcon={<FormatBoldIcon />}
       icon={<FormatBoldIcon />}
       inputProps={{ 'aria-label': t('elementBar.textBold', 'Bold') }}
-      onClick={() => handleClick(!textBold)}
+      onClick={toggleBold}
     />
   );
 }

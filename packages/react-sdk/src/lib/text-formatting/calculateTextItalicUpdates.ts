@@ -14,27 +14,27 @@
  * limitations under the License.
  */
 
-import { Elements, ElementUpdate } from '../../../state/types';
+import { Elements, ElementUpdate } from '../../state/types';
 
 /**
- * Calculate the text bold updates for all shape elements.
+ * Calculate the text italic updates for all shape elements.
  *
- * @param elements - Elements for which the text bold is to be calculated for
- * @param textBold - The desired value for the text bold property
+ * @param elements - Elements for which the text italic is to be calculated for
+ * @param textItalic - The desired value for the text italic property
  * @returns List of element updates
  */
-export function calculateTextBoldUpdates(
+export function calculateTextItalicUpdates(
   elements: Elements,
-  textBold: boolean,
+  textItalic: boolean,
 ): ElementUpdate[] {
   const updates: ElementUpdate[] = [];
 
   for (const [elementId, element] of Object.entries(elements)) {
-    if (element.type !== 'shape' || !!element.textBold === textBold) {
+    if (element.type !== 'shape' || !!element.textItalic === textItalic) {
       continue;
     }
 
-    updates.push({ elementId, patch: { textBold } });
+    updates.push({ elementId, patch: { textItalic } });
   }
 
   return updates;

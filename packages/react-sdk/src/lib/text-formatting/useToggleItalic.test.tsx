@@ -15,10 +15,10 @@
  */
 
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
-import { act, render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { axe } from 'jest-axe';
+import { act, renderHook } from '@testing-library/react';
 import { ComponentType, PropsWithChildren } from 'react';
+import { Toolbar } from '../../components/common/Toolbar';
+import { WhiteboardSlideInstance } from '../../state';
 import {
   WhiteboardTestingContextProvider,
   mockCircleElement,
@@ -26,22 +26,17 @@ import {
   mockRectangleElement,
   mockTriangleElement,
   mockWhiteboardManager,
-} from '../../../lib/testUtils/documentTestUtils';
-import { WhiteboardSlideInstance } from '../../../state';
-import { Toolbar } from '../../common/Toolbar';
-import { TextItalicButton } from './TextItalicButton';
+} from '../testUtils/documentTestUtils';
+import { useToggleItalic } from './useToggleItalic';
 
-let widgetApi: MockedWidgetApi;
-
-afterEach(() => widgetApi.stop());
-
-beforeEach(() => (widgetApi = mockWidgetApi()));
-
-describe('<TextItalicButton />', () => {
+describe('useToggleItalic', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
   let slide: WhiteboardSlideInstance;
+  let widgetApi: MockedWidgetApi;
 
   beforeEach(() => {
+    widgetApi = mockWidgetApi();
+
     const { whiteboardManager } = mockWhiteboardManager({
       slides: [
         [
@@ -69,46 +64,44 @@ describe('<TextItalicButton />', () => {
     );
   });
 
-  it('should render without exploding', () => {
-    render(<TextItalicButton />, { wrapper: Wrapper });
-    expect(
-      screen.getByRole('checkbox', { name: 'Italic' }),
-    ).toBeInTheDocument();
+  afterEach(() => {
+    widgetApi.stop();
   });
 
-  it('should have no accessibility violations', async () => {
-    const { container } = render(<TextItalicButton />, { wrapper: Wrapper });
-    expect(await axe(container)).toHaveNoViolations();
+  it('should reflect the italic text state of the first element (not italic)', () => {
+    const { result } = renderHook(useToggleItalic, { wrapper: Wrapper });
+    expect(result.current.isItalic).toBe(false);
   });
 
-  it('should reflect the italic text state of the first element', () => {
-    render(<TextItalicButton />, { wrapper: Wrapper });
-    expect(screen.getByRole('checkbox', { name: 'Italic' })).not.toBeChecked();
-  });
-
-  it('should hide for non-shape elements', async () => {
-    render(<TextItalicButton />, { wrapper: Wrapper });
-
-    const checkbox = screen.getByRole('checkbox', { name: 'Italic' });
+  it('should toggle italic for one element', async () => {
+    slide.setActiveElementId('rectangle');
+    const { result } = renderHook(useToggleItalic, { wrapper: Wrapper });
 
     act(() => {
-      slide.setActiveElementId('line');
+      result.current.toggleItalic();
     });
-
-    await waitFor(() => {
-      expect(checkbox).not.toBeInTheDocument();
-    });
-  });
-
-  // Only test one toggle case here.
-  // The rest is covered by useToggleItalic hook tests.
-  it('should switch italic text for one element', async () => {
-    slide.setActiveElementId('rectangle');
-    render(<TextItalicButton />, { wrapper: Wrapper });
-
-    await userEvent.click(screen.getByRole('checkbox', { name: 'Italic' }));
 
     expect(slide.getElement('rectangle')).toEqual(
+      expect.objectContaining({ textItalic: true }),
+    );
+  });
+
+  it('should switch italic text for several elements', async () => {
+    const { result } = renderHook(useToggleItalic, { wrapper: Wrapper });
+
+    act(() => {
+      result.current.toggleItalic();
+    });
+
+    expect(slide.getElement('rectangle')).toEqual(
+      expect.objectContaining({ textItalic: true }),
+    );
+
+    expect(slide.getElement('circle')).toEqual(
+      expect.objectContaining({ textItalic: true }),
+    );
+
+    expect(slide.getElement('triangle')).toEqual(
       expect.objectContaining({ textItalic: true }),
     );
   });
