@@ -18,7 +18,7 @@ import {
   mockCircleElement,
   mockLineElement,
   mockRectangleElement,
-} from '../../../lib/testUtils/documentTestUtils';
+} from '../testUtils/documentTestUtils';
 import { calculateTextBoldUpdates } from './calculateTextBoldUpdates';
 
 describe('calculateTextBoldUpdates', () => {

@@ -18,7 +18,7 @@ import {
   mockCircleElement,
   mockLineElement,
   mockRectangleElement,
-} from '../../../lib/testUtils/documentTestUtils';
+} from '../../lib/testUtils/documentTestUtils';
 import { calculateTextItalicUpdates } from './calculateTextItalicUpdates';
 
 describe('calculateTextItalicUpdates', () => {
