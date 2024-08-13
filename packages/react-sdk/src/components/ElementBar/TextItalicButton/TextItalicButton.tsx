@@ -15,54 +15,30 @@
  */
 
 import FormatItalicIcon from '@mui/icons-material/FormatItalic';
-import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  useActiveElements,
-  useElements,
-  useWhiteboardSlideInstance,
-} from '../../../state';
+import { useToggleItalic } from '../../../lib/text-formatting';
+import { useActiveElements, useElements } from '../../../state';
 import { ToolbarToggle } from '../../common/Toolbar';
-import { calculateTextItalicUpdates } from './calculateTextItalicUpdates';
 
 export function TextItalicButton() {
-  const slideInstance = useWhiteboardSlideInstance();
   const { activeElementIds } = useActiveElements();
   const activeElements = useElements(activeElementIds);
   const elements = Object.values(activeElements);
   const { t } = useTranslation();
 
-  const handleClick = useCallback(
-    (textItalic: boolean) => {
-      const updates = calculateTextItalicUpdates(activeElements, textItalic);
-
-      if (updates.length > 0) {
-        slideInstance.updateElements(updates);
-      }
-    },
-    [activeElements, slideInstance],
-  );
+  const { isItalic, toggleItalic } = useToggleItalic();
 
   if (elements.every((element) => element.type !== 'shape')) {
     return null;
   }
 
-  let textItalic = false;
-
-  for (const element of elements) {
-    if (element.type === 'shape' && element.textItalic !== undefined) {
-      textItalic = element.textItalic;
-      break;
-    }
-  }
-
   return (
     <ToolbarToggle
-      checked={textItalic}
+      checked={isItalic}
       checkedIcon={<FormatItalicIcon />}
       icon={<FormatItalicIcon />}
       inputProps={{ 'aria-label': t('elementBar.textItalic', 'Italic') }}
-      onClick={() => handleClick(!textItalic)}
+      onClick={toggleItalic}
     />
   );
 }

@@ -15,10 +15,10 @@
  */
 
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
-import { act, render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { axe } from 'jest-axe';
+import { act, renderHook } from '@testing-library/react';
 import { ComponentType, PropsWithChildren } from 'react';
+import { Toolbar } from '../../components/common/Toolbar';
+import { WhiteboardSlideInstance } from '../../state';
 import {
   WhiteboardTestingContextProvider,
   mockCircleElement,
@@ -26,22 +26,17 @@ import {
   mockRectangleElement,
   mockTriangleElement,
   mockWhiteboardManager,
-} from '../../../lib/testUtils/documentTestUtils';
-import { WhiteboardSlideInstance } from '../../../state';
-import { Toolbar } from '../../common/Toolbar';
-import { TextBoldButton } from './TextBoldButton';
+} from '../testUtils/documentTestUtils';
+import { useToggleBold } from './useToggleBold';
 
-let widgetApi: MockedWidgetApi;
-
-afterEach(() => widgetApi.stop());
-
-beforeEach(() => (widgetApi = mockWidgetApi()));
-
-describe('<TextBoldButton />', () => {
+describe('useToggleBold', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
   let slide: WhiteboardSlideInstance;
+  let widgetApi: MockedWidgetApi;
 
   beforeEach(() => {
+    widgetApi = mockWidgetApi();
+
     const { whiteboardManager } = mockWhiteboardManager({
       slides: [
         [
@@ -69,44 +64,44 @@ describe('<TextBoldButton />', () => {
     );
   });
 
-  it('should render without exploding', () => {
-    render(<TextBoldButton />, { wrapper: Wrapper });
-    expect(screen.getByRole('checkbox', { name: 'Bold' })).toBeInTheDocument();
+  afterEach(() => {
+    widgetApi.stop();
   });
 
-  it('should have no accessibility violations', async () => {
-    const { container } = render(<TextBoldButton />, { wrapper: Wrapper });
-    expect(await axe(container)).toHaveNoViolations();
+  it('should reflect the bold text state of the first element (not bold)', () => {
+    const { result } = renderHook(useToggleBold, { wrapper: Wrapper });
+    expect(result.current.isBold).toBe(false);
   });
 
-  it('should reflect the bold text state of the first element', () => {
-    render(<TextBoldButton />, { wrapper: Wrapper });
-    expect(screen.getByRole('checkbox', { name: 'Bold' })).not.toBeChecked();
-  });
-
-  it('should hide for non-shape elements', async () => {
-    render(<TextBoldButton />, { wrapper: Wrapper });
-
-    const checkbox = screen.getByRole('checkbox', { name: 'Bold' });
+  it('should toggle bold for one element', async () => {
+    slide.setActiveElementId('rectangle');
+    const { result } = renderHook(useToggleBold, { wrapper: Wrapper });
 
     act(() => {
-      slide.setActiveElementId('line');
+      result.current.toggleBold();
     });
-
-    await waitFor(() => {
-      expect(checkbox).not.toBeInTheDocument();
-    });
-  });
-
-  // Only test one toggle case here.
-  // The rest is covered by useToggleBold hook tests.
-  it('should switch bold text for one element', async () => {
-    slide.setActiveElementId('rectangle');
-    render(<TextBoldButton />, { wrapper: Wrapper });
-
-    await userEvent.click(screen.getByRole('checkbox', { name: 'Bold' }));
 
     expect(slide.getElement('rectangle')).toEqual(
+      expect.objectContaining({ textBold: true }),
+    );
+  });
+
+  it('should switch bold text for several elements', async () => {
+    const { result } = renderHook(useToggleBold, { wrapper: Wrapper });
+
+    act(() => {
+      result.current.toggleBold();
+    });
+
+    expect(slide.getElement('rectangle')).toEqual(
+      expect.objectContaining({ textBold: true }),
+    );
+
+    expect(slide.getElement('circle')).toEqual(
+      expect.objectContaining({ textBold: true }),
+    );
+
+    expect(slide.getElement('triangle')).toEqual(
       expect.objectContaining({ textBold: true }),
     );
   });
