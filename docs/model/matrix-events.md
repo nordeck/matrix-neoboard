@@ -7,6 +7,12 @@ The Matrix protocol is used as the base communication and storage layer for the 
 The whiteboard state is stored using the following events in a Matrix room:
 
 ```
+┌────────────────────────────────┐
+│                                │
+│ net.nordeck.whiteboard.preview │
+│                                │
+└────────────────────────────────┘
+
 ┌────────────────────────────────┐                  ┌─────────────────────────────────┐
 │                                │                  │                                 │
 │ net.nordeck.whiteboard         │◄─────────────────┤ net.nordeck.whiteboard.sessions │
@@ -99,6 +105,35 @@ The `state_key` of the event is also referred to as _whiteboard id_.
   "state_key": "<whiteboard-id>",
   "content": {
     "documentId": "$H1-nssrxUGbrMdKSDJcACCpmc4PrClb2WDSOrGUv6bs"
+  },
+  "event_id": "$event-id",
+  "room_id": "!room-id",
+  "origin_server_ts": 1665134498391
+}
+```
+
+### `net.nordeck.whiteboard.preview` (State Event)
+
+Holds a preview of the whiteboard's first slide, in SVG or JPEG format (to be settled).
+This is useful for Matrix clients that wish to show a preview of the whiteboard's contents but
+as being an unencrypted state event, preview data can be made available to users that are not members
+of the room.
+
+#### Content
+
+| Field     | Type     | Description                                                                  |
+| --------- | -------- | ---------------------------------------------------------------------------- |
+| `preview` | `string` | A svg+xml or base64 string that can be set as the source of an image object. |
+
+#### Example
+
+```json
+{
+  "type": "net.nordeck.whiteboard.preview",
+  "sender": "@user-id",
+  "state_key": "",
+  "content": {
+    "preview": "data:image/png;base64,..."
   },
   "event_id": "$event-id",
   "room_id": "!room-id",

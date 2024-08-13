@@ -45,6 +45,12 @@ export function useWhiteboardSlideInstance(): WhiteboardSlideInstance {
   return whiteboardInstance.getSlide(slideId);
 }
 
+export function useWhiteboardFirstSlideInstance(): WhiteboardSlideInstance {
+  const whiteboardInstance = useActiveWhiteboardInstance();
+  const slideId = whiteboardInstance.getSlideIds()[0];
+  return whiteboardInstance.getSlide(slideId);
+}
+
 export function useSlideElementIds(): string[] {
   const slideInstance = useWhiteboardSlideInstance();
 
