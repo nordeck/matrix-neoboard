@@ -209,6 +209,7 @@
       "bringEveryoneToSlide": "Bring alle hierhin",
       "deleteSlide": "Löschen",
       "duplicateSlide": "Folie duplizieren",
+      "insertImport": "Import einfügen",
       "insertSlide": "Folie einfügen",
       "lockSlide": "Sperren",
       "title": "Folie {{index}}"

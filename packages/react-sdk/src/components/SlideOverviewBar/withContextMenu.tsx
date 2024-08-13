@@ -17,6 +17,7 @@
 import AddIcon from '@mui/icons-material/Add';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
+import InputIcon from '@mui/icons-material/Input';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import PeopleAltOutlinedIcon from '@mui/icons-material/PeopleAltOutlined';
 import {
@@ -105,6 +106,11 @@ export const withContextMenu = <P extends object>(
       handleClose();
     }, [handleClose, slideIndex, whiteboardInstance]);
 
+    const handleInsertImport = useCallback(() => {
+      alert('TODO: Import dialog');
+      handleClose();
+    }, [handleClose, slideIndex, whiteboardInstance]);
+
     const handleContextMenu = useCallback(
       (event: MouseEvent<HTMLButtonElement>) => {
         event.preventDefault();
@@ -179,6 +185,14 @@ export const withContextMenu = <P extends object>(
             </ListItemIcon>
             <ListItemText>
               {t('slideOverviewBar.contextMenu.insertSlide', 'Insert slide')}
+            </ListItemText>
+          </MenuItem>
+          <MenuItem onClick={handleInsertImport}>
+            <ListItemIcon sx={{ color: 'text.primary' }}>
+              <InputIcon />
+            </ListItemIcon>
+            <ListItemText>
+              {t('slideOverviewBar.contextMenu.insertImport', 'Import here')}
             </ListItemText>
           </MenuItem>
           <MenuItem divider onClick={handleClickBringEveryoneToSlide}>
