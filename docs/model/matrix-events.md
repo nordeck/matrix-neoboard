@@ -114,16 +114,17 @@ The `state_key` of the event is also referred to as _whiteboard id_.
 
 ### `net.nordeck.whiteboard.preview` (State Event)
 
-Holds a preview of the whiteboard's first slide, in SVG or JPEG format (to be settled).
+Holds a gziped, base64 encoded preview of the whiteboard's first slide in SVG format.
 This is useful for Matrix clients that wish to show a preview of the whiteboard's contents but
-as being an unencrypted state event, preview data can be made available to users that are not members
-of the room.
+because state events are not encrypted, preview data can be made available to users that are not members
+of the room. If the gziped, base64 encoded SVG data is larger than 34kb, then the preview content is removed
+and not updated again until if fits within the 34kb size limit.
 
 #### Content
 
-| Field     | Type     | Description                                                                  |
-| --------- | -------- | ---------------------------------------------------------------------------- |
-| `preview` | `string` | A svg+xml or base64 string that can be set as the source of an image object. |
+| Field     | Type     | Description                                                                                              |
+| --------- | -------- | -------------------------------------------------------------------------------------------------------- |
+| `preview` | `string` | A gziped, base64 encoded string that can be used by matrix clients to show a preview of the first slide. |
 
 #### Example
 
@@ -133,7 +134,7 @@ of the room.
   "sender": "@user-id",
   "state_key": "",
   "content": {
-    "preview": "data:image/png;base64,..."
+    "preview": "4sIAAAAAAAAA91WTW/bMA..."
   },
   "event_id": "$event-id",
   "room_id": "!room-id",

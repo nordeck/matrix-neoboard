@@ -97,18 +97,21 @@ export const documentPreviewApi = baseApi.injectEndpoints({
         const widgetApi = await (extra as ThunkExtraArgument).widgetApi;
 
         try {
-          // Based on https://spec.matrix.org/unstable/client-server-api/#size-limits and https://github.com/matrix-org/matrix-js-sdk/blob/7b10fa367df357b51c2e78e220d39e5e7967f9e3/src/crypto/OlmDevice.ts#L27-L29
-          // keeping 4kb for headers, trailers, and signatures.
           const maxSize = 34000;
+          // if preview data is too big, clear the preview content.
+          // IMO this is better than showing an outdated preview that
+          // doesn't correspond to actual contents
+          if (data.length > maxSize) {
+            data = '';
+          }
 
           const previewEvent =
             await widgetApi.sendStateEvent<DocumentPreviewEvent>(
               STATE_EVENT_DOCUMENT_PREVIEW,
               {
-                preview: data.slice(0, maxSize),
+                preview: data,
               },
             );
-
           return { data: { event: previewEvent } };
         } catch (e) {
           return {
