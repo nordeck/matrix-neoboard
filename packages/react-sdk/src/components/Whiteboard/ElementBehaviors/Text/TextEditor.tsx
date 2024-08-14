@@ -16,6 +16,7 @@
 
 import { styled } from '@mui/material';
 import {
+  ClipboardEvent,
   Dispatch,
   DispatchWithoutAction,
   MouseEvent,
@@ -188,6 +189,16 @@ export function TextEditor({
     }
   }, [textRef, content, onChange]);
 
+  const handlePaste = useCallback(
+    (event: ClipboardEvent) => {
+      if (isEditMode === false) {
+        // Prevent paste text into the field if not in edit mode
+        event.preventDefault();
+      }
+    },
+    [isEditMode],
+  );
+
   useLayoutEffect(() => {
     if (textRef.current && textRef.current.innerText !== content) {
       textRef.current.innerText = content;
@@ -238,6 +249,7 @@ export function TextEditor({
       onMouseDown={handleMouseEvents}
       onMouseMove={handleMouseEvents}
       onMouseUp={handleMouseEvents}
+      onPaste={handlePaste}
       ref={textRef}
       suppressContentEditableWarning
     />

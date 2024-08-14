@@ -90,6 +90,13 @@ export const TextElement = ({
   // If text editing is exited before the blur is received force a submit
   useUnmount(handleBlur);
 
+  // Edit mode on mount only for empty text fields
+  const editModeOnMount =
+    activeElement?.type === 'shape' &&
+    activeElement?.kind === 'rectangle' &&
+    activeElement.fillColor === 'transparent' &&
+    activeElement.text.trim() === '';
+
   return (
     <ForeignObjectNoInteraction x={x} y={y} height={height} width={width}>
       <TextEditor
@@ -98,11 +105,7 @@ export const TextElement = ({
         contentAlignment={textAlignment}
         contentBold={textBold}
         contentItalic={textItalic}
-        editModeOnMount={
-          activeElement?.type === 'shape' &&
-          activeElement?.kind === 'rectangle' &&
-          activeElement.fillColor === 'transparent'
-        }
+        editModeOnMount={editModeOnMount}
         editable={active}
         onBlur={handleBlur}
         onChange={handleTextChange}
