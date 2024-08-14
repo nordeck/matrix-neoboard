@@ -55,7 +55,7 @@ export const DraftShapeChild = ({
   const { isShowGrid } = useLayoutState();
   const [startCoords, setStartCoords] = useState<Point>();
   const [endCoords, setEndCoords] = useState<Point>();
-  const { activeColor } = useLayoutState();
+  const { activeColor, activeTool } = useLayoutState();
   const slideInstance = useWhiteboardSlideInstance();
   const { setActiveTool } = useLayoutState();
   const shapeSizes = useAppSelector((state) => selectShapeSizes(state));
@@ -90,6 +90,7 @@ export const DraftShapeChild = ({
           fillColor: fixedColor ?? activeColor,
           gridCellSize: isShowGrid ? gridCellSize : undefined,
           sameLength,
+          rounded: activeTool === 'rounded-rectangle' ? true : false,
         }),
       );
       setActiveTool('select');
