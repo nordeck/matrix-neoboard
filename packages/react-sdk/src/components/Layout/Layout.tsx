@@ -41,6 +41,7 @@ import { UndoRedoBar } from '../UndoRedoBar';
 import { WhiteboardHost } from '../Whiteboard';
 import { PageLoader } from '../common/PageLoader';
 import { SlidesProvider } from './SlidesProvider';
+import { ToolbarCanvasContainer } from './ToolbarCanvasContainer';
 import { ToolbarContainer } from './ToolbarContainer';
 import { useLayoutState } from './useLayoutState';
 
@@ -167,16 +168,18 @@ function ContentArea() {
       <WhiteboardHost />
 
       {(!isViewingPresentation || isViewingPresentationInEditMode) && (
-        <ToolbarContainer bottom={(theme) => theme.spacing(1)}>
-          <Box flex="1" />
+        <ToolbarCanvasContainer>
+          <ToolbarContainer bottom={(theme) => theme.spacing(1)}>
+            <Box flex="1" />
 
-          <ToolsBar />
-          <UndoRedoBar />
+            <ToolsBar />
+            <UndoRedoBar />
 
-          <Box display="flex" justifyContent="flex-end" flex="1">
-            <HelpCenterBar />
-          </Box>
-        </ToolbarContainer>
+            <Box display="flex" justifyContent="flex-end" flex="1">
+              <HelpCenterBar />
+            </Box>
+          </ToolbarContainer>
+        </ToolbarCanvasContainer>
       )}
     </>
   );
