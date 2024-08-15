@@ -31,7 +31,43 @@ export async function determineImageSize(
     const handleLoad = () => {
       image.removeEventListener('error', handleError);
       URL.revokeObjectURL(image.src);
-      resolve({ width: image.width, height: image.height });
+
+      let width = image.width;
+      let height = image.height;
+      // Ensure the if this is an SVG image the minimum shortest side is 400px
+      if (type === 'image/svg+xml' && width === 0 && height === 0) {
+        // The ratio cant be calculated if both dimensions are 0
+        // See alsl https://github.com/whatwg/html/issues/3510 on why it is important to actually render it on the DOM to move on
+        // If the image is not rendered on the DOM the image will not be loaded and the dimensions will be 0.
+
+        // Needed to calculate the aspect ratio
+        image.width = 1000;
+        // Position fixed so that the image doesn't affect layout while rendering
+        image.style.position = 'fixed';
+        // Make invisible so the image doesn't briefly appear on the screen
+        image.style.opacity = '0';
+
+        document.body.appendChild(image);
+        const aspectRatio = image.width / image.height;
+        image.removeAttribute('width');
+        image.style.removeProperty('position');
+        image.style.removeProperty('opacity');
+
+        const minSize = 400;
+        // Calculate the new dimensions based on the aspect ratio
+        if (aspectRatio > 1) {
+          width = minSize;
+          height = minSize / aspectRatio;
+        } else {
+          width = minSize * aspectRatio;
+          height = minSize;
+        }
+
+        // Remove the image from the DOM again to not clutter it
+        image.remove();
+      }
+
+      resolve({ width: width, height: height });
     };
     const handleError = () => {
       image.removeEventListener('load', handleLoad);
