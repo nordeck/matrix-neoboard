@@ -38,7 +38,7 @@ export function createWhiteboardPdfElementShape(
 }
 
 function createElementShapeRectangle(element: ShapeElement): Content {
-  const { strokeColor, strokeWidth, text } =
+  const { strokeColor, strokeWidth, text, rx } =
     getRenderRectangleProperties(element);
 
   const { position, width, height } = element;
@@ -50,6 +50,7 @@ function createElementShapeRectangle(element: ShapeElement): Content {
       y: position.y,
       w: width,
       h: height,
+      r: rx,
       color:
         element.fillColor !== 'transparent' ? element.fillColor : undefined,
       lineWidth: strokeWidth,
