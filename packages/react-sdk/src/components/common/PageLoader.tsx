@@ -32,7 +32,8 @@ export function PageLoader({ text }: PageLoaderProps) {
       height="100vh"
       justifyContent="center"
       p={2}
-      width="100vw"
+      width="100%"
+      position="fixed"
     >
       <CircularProgress aria-labelledby={text ? messageTitleId : undefined} />
       {text && (
