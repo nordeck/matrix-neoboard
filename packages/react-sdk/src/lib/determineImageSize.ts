@@ -34,7 +34,7 @@ export async function determineImageSize(
 
       let width = image.width;
       let height = image.height;
-      // Ensure the if this is an SVG image the minimum shortest side is 400px
+      // Ensure that if this is an SVG image without size the shortest side is 400px
       if (type === 'image/svg+xml' && width === 0 && height === 0) {
         // The ratio cant be calculated if both dimensions are 0
         // See also https://github.com/whatwg/html/issues/3510 on why it is important to actually render it on the DOM to move on
