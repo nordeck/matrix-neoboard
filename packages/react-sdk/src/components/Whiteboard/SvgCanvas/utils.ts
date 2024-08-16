@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import { Base64 } from 'js-base64';
-import pako from 'pako';
 import { Point } from '../../../state';
 
 export function calculateSvgCoords(position: Point, svg: SVGSVGElement) {
@@ -40,12 +38,17 @@ export function calculateScale(
   return Math.max(widthRatio, heightRatio);
 }
 
-export function svg2preview(html: HTMLElement): Promise<string> {
-  return new Promise((resolve) => {
-    // compress the SVG data
-    const compressed = pako.gzip(html.outerHTML);
-    // encode the compressed data as base64
-    const result = Base64.fromUint8Array(compressed);
-    resolve(result);
-  });
+export async function svg2preview(html: HTMLElement): Promise<string> {
+  const encoder = new TextEncoder();
+  const uint8Array = encoder.encode(html.outerHTML);
+
+  const compressedStream = new Response(
+    new Blob([uint8Array]).stream().pipeThrough(new CompressionStream('gzip')),
+  ).arrayBuffer();
+
+  const compressedUint8Array = new Uint8Array(await compressedStream);
+  const binaryString = String.fromCharCode(...compressedUint8Array);
+  const base64String = btoa(binaryString);
+
+  return base64String;
 }

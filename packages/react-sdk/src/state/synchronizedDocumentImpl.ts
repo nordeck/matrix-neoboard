@@ -161,22 +161,7 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
               this.logger.error('Could not store snapshot for', documentId, e);
             }
 
-            const previewsEnabled =
-              getEnvironment('REACT_APP_PREVIEWS', 'false') === 'true';
-            if (previewsEnabled) {
-              // we also take the opportunity to store a preview of the document
-              const parentElement =
-                window.document.querySelector('#document-preview');
-              const svgElement = parentElement?.querySelector('svg') as unknown;
-              try {
-                const documentPreview = await svg2preview(
-                  svgElement as HTMLElement,
-                );
-                await this.createDocumentPreview(documentId, documentPreview);
-              } catch (e) {
-                this.logger.error('Could not store preview for', documentId, e);
-              }
-            }
+            await this.createDocumentPreviewIfEnabled(documentId);
           },
           { leading: true, trailing: true },
         ),
@@ -193,6 +178,25 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
           documentStatistics.contentSizeInBytes;
         this.notifyStatistics();
       });
+  }
+
+  private async createDocumentPreviewIfEnabled(documentId: string) {
+    const previewsEnabled =
+      getEnvironment('REACT_APP_PREVIEWS', 'false') === 'true';
+
+    const d = window.document;
+    const el = d.querySelector<SVGElement>('#document-preview svg') as unknown;
+
+    // we also take the opportunity to store a preview of the document
+    if (previewsEnabled && el !== null) {
+      try {
+        const svg = el as HTMLElement;
+        const documentPreview = await svg2preview(svg);
+        await this.createDocumentPreview(documentId, documentPreview);
+      } catch (e) {
+        this.logger.error('Could not store preview for', documentId, e);
+      }
+    }
   }
 
   getDocument() {
@@ -217,6 +221,7 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
     documentId: string,
     data: Uint8Array,
   ): Promise<void> {
+    console.debug('saving snapshot');
     await this.store
       .dispatch(
         documentSnapshotApi.endpoints.createDocumentSnapshot.initiate({
@@ -225,12 +230,14 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
         }),
       )
       .unwrap();
+    console.debug('saved snapshot');
   }
 
   private async createDocumentPreview(
     documentId: string,
     data: string,
   ): Promise<void> {
+    console.debug('saving preview');
     await this.store
       .dispatch(
         documentPreviewApi.endpoints.createDocumentPreview.initiate({
@@ -239,6 +246,7 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
         }),
       )
       .unwrap();
+    console.debug('saved preview');
   }
 
   private observeSnapshots(

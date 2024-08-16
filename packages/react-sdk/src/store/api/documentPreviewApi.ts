@@ -97,7 +97,7 @@ export const documentPreviewApi = baseApi.injectEndpoints({
         const widgetApi = await (extra as ThunkExtraArgument).widgetApi;
 
         try {
-          const maxSize = 34000;
+          const maxSize = 60000;
           // if preview data is too big, clear the preview content.
           // IMO this is better than showing an outdated preview that
           // doesn't correspond to actual contents
