@@ -68,7 +68,12 @@ function ImageDisplay({
   const handleLoad = useCallback(() => {
     setLoading(false);
     setLoadError(false);
-  }, [setLoading, setLoadError]);
+
+    // This can happen directly when the image is loaded and saves some memory.
+    if (imageUri) {
+      URL.revokeObjectURL(imageUri);
+    }
+  }, [setLoading, setLoadError, imageUri]);
 
   const handleLoadError = useCallback(() => {
     setLoading(false);
@@ -77,34 +82,45 @@ function ImageDisplay({
 
   // This effect determines the image URI.
   useEffect(() => {
-    (async () => {
-      const httpUrl = convertMxcToHttpUrl(mxc, baseUrl);
+    // Used to not race the fetch in case of an svg. Without this we can race our request.
+    let abortController: AbortController | undefined;
 
-      if (httpUrl === null) {
-        // Clear the image URI if there is no HTTP URL.
-        setImageUri('');
-        return;
-      }
+    // Load the image URI.
+    const httpUrl = convertMxcToHttpUrl(mxc, baseUrl);
 
-      if (mimeType === 'image/svg+xml') {
-        // Special handling of SVG images, because the media repo response does not provide mime type information for it.
-        // Fetch it and set it from a Blob.
-        const response = await fetch(httpUrl);
-        const rawBlob = await response.blob();
-        const svgBlob = rawBlob.slice(0, rawBlob.size, mimeType);
-        setImageUri(URL.createObjectURL(svgBlob));
-        return;
-      }
+    if (httpUrl === null) {
+      // Clear the image URI if there is no HTTP URL.
+      setImageUri('');
+      return;
+    }
 
-      return setImageUri(httpUrl);
-    })();
+    if (mimeType === 'image/svg+xml') {
+      abortController = new AbortController();
+      // Special handling of SVG images, because the media repo response does not provide mime type information for it.
+      // Fetch it and set it from a Blob.
+      fetch(httpUrl, { signal: abortController.signal })
+        .then((response) => response.blob())
+        .then((rawBlob) => {
+          const svgBlob = rawBlob.slice(0, rawBlob.size, mimeType);
+          setImageUri(URL.createObjectURL(svgBlob));
+          return;
+        })
+        .catch((error) => {
+          console.error('Failed to fetch SVG image:', error);
+          setLoadError(true);
+        });
+      return;
+    }
 
+    setImageUri(httpUrl);
+
+    // On unmount revoke the object URL.
     return () => {
-      if (imageUri) {
-        URL.revokeObjectURL(imageUri);
+      if (abortController) {
+        abortController.abort();
       }
     };
-  }, [baseUrl, imageUri, mimeType, mxc]);
+  }, []);
 
   const renderedSkeleton = loading ? (
     <Skeleton
