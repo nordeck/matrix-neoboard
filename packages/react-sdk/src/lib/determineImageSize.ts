@@ -37,7 +37,7 @@ export async function determineImageSize(
       // Ensure the if this is an SVG image the minimum shortest side is 400px
       if (type === 'image/svg+xml' && width === 0 && height === 0) {
         // The ratio cant be calculated if both dimensions are 0
-        // See alsl https://github.com/whatwg/html/issues/3510 on why it is important to actually render it on the DOM to move on
+        // See also https://github.com/whatwg/html/issues/3510 on why it is important to actually render it on the DOM to move on
         // If the image is not rendered on the DOM the image will not be loaded and the dimensions will be 0.
 
         // Needed to calculate the aspect ratio
