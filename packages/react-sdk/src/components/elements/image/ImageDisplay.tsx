@@ -120,7 +120,7 @@ function ImageDisplay({
         abortController.abort();
       }
     };
-  }, []);
+  }, [setLoadError, setImageUri, baseUrl, mxc, mimeType]);
 
   const renderedSkeleton = loading ? (
     <Skeleton
