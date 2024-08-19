@@ -15,13 +15,7 @@
  */
 
 import { getLogger } from 'loglevel';
-import {
-  PropsWithChildren,
-  createContext,
-  useCallback,
-  useRef,
-  useState,
-} from 'react';
+import { PropsWithChildren, createContext, useCallback, useState } from 'react';
 import { FileRejection, useDropzone } from 'react-dropzone';
 import { isValidWhiteboardExportDocument } from '../../state';
 import { ImportWhiteboardDialog } from '../BoardBar/ImportWhiteboardDialog';
@@ -44,7 +38,6 @@ export function ImportDialogProvider({ children }: PropsWithChildren<{}>) {
   const [openImportDialog, setOpenImportDialog] = useState(false);
   const [importedWhiteboard, setImportedWhiteboard] =
     useState<ImportedWhiteboard>();
-  const inputRef = useRef<null | HTMLInputElement>(null);
 
   const onDrop = useCallback(
     ([file]: File[], rejectedFiles: FileRejection[]) => {
@@ -110,6 +103,7 @@ export function ImportDialogProvider({ children }: PropsWithChildren<{}>) {
   const {
     getInputProps,
     getRootProps,
+    inputRef,
     open: openFilePicker,
   } = useDropzone({
     onDrop,
@@ -128,18 +122,14 @@ export function ImportDialogProvider({ children }: PropsWithChildren<{}>) {
       }}
     >
       <div {...getRootProps()}>
-        <input
-          {...getInputProps()}
-          data-testid="import-file-picker"
-          ref={inputRef}
-        />
+        <input {...getInputProps()} data-testid="import-file-picker" />
         <ImportWhiteboardDialog
           open={openImportDialog}
           atSlideIndex={atSlideIndex}
           importedWhiteboard={importedWhiteboard}
           onClose={useCallback(() => {
-            setAtSlideIndex(undefined);
             setOpenImportDialog(false);
+            // setAtSlideIndex(undefined);
           }, [])}
           onRetry={openFilePicker}
         />
