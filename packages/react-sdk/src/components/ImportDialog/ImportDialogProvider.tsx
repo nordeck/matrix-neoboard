@@ -143,7 +143,7 @@ export function ImportDialogProvider({ children }: PropsWithChildren<{}>) {
         />
         <ImportWhiteboardDialog
           open={openImportDialog}
-          defaultAtSlideIndex={atSlideIndex}
+          atSlideIndex={atSlideIndex}
           importedWhiteboard={importedWhiteboard}
           onClose={useCallback(() => {
             setAtSlideIndex(undefined);
