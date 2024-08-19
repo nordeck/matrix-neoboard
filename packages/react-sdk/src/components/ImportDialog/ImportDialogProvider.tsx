@@ -30,13 +30,6 @@ import { ImportedWhiteboard } from '../BoardBar/types';
 export type ImportDialogProps = {};
 
 export type ImportDialogState = {
-  /**
-   * TODO
-   */
-  setAtSlideIndex: (index?: number) => void;
-  /**
-   * TODO
-   */
   showImportDialog: (atSlideIndex?: number) => void;
 };
 
@@ -131,7 +124,6 @@ export function ImportDialogProvider({ children }: PropsWithChildren<{}>) {
   return (
     <ImportDialogContext.Provider
       value={{
-        setAtSlideIndex,
         showImportDialog,
       }}
     >
