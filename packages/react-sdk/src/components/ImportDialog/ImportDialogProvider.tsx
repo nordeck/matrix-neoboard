@@ -129,6 +129,7 @@ export function ImportDialogProvider({ children }: PropsWithChildren<{}>) {
           importedWhiteboard={importedWhiteboard}
           onClose={useCallback(() => {
             setOpenImportDialog(false);
+            alert('close');
             // setAtSlideIndex(undefined);
           }, [])}
           onRetry={openFilePicker}
