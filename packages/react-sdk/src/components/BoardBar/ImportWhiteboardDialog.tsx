@@ -30,7 +30,7 @@ import {
   Tooltip,
 } from '@mui/material';
 import { unstable_useId as useId, visuallyHidden } from '@mui/utils';
-import { useCallback, useState } from 'react';
+import { ChangeEventHandler, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useActiveWhiteboardInstance } from '../../state';
 import { importWhiteboard } from '../../state/import';
@@ -70,6 +70,14 @@ export function ImportWhiteboardDialog({
       ? ''
       : (defaultAtSlideIndex + 1).toString(),
   );
+
+  useEffect(() => {
+    setAtSlideIndexString(
+      defaultAtSlideIndex === undefined
+        ? ''
+        : (defaultAtSlideIndex + 1).toString(),
+    );
+  }, [defaultAtSlideIndex]);
 
   const handleOnImport = useCallback(() => {
     if (importedWhiteboard?.isError === false) {
@@ -168,7 +176,10 @@ export function ImportWhiteboardDialog({
           fullWidth
           variant="standard"
           value={atSlideIndexString}
-          onChange={(e) => setAtSlideIndexString(e.currentTarget.value)}
+          onChange={useCallback<ChangeEventHandler<HTMLInputElement>>(
+            (e) => setAtSlideIndexString(e.currentTarget.value),
+            [],
+          )}
           inputProps={{ min: 1, step: 1 }}
         />
 

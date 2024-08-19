@@ -35,6 +35,7 @@ import {
   useSlideIsLocked,
 } from '../../state';
 import { MenuItemSwitch } from '../common/MenuItemSwitch';
+import { useImportDialog } from '../ImportDialog/useImportDialog';
 
 type ContextMenuState =
   | { slideId: string; position: PopoverPosition }
@@ -57,6 +58,7 @@ export const withContextMenu = <P extends object>(
   }: WithContextMenuProps) => {
     const { t } = useTranslation();
     const [state, setState] = useState<ContextMenuState>();
+    const importContext = useImportDialog();
     const whiteboardInstance = useActiveWhiteboardInstance();
     const slideIds = useActiveWhiteboardInstanceSlideIds();
     const isLocked = useSlideIsLocked(slideId);
@@ -107,9 +109,9 @@ export const withContextMenu = <P extends object>(
     }, [handleClose, slideIndex, whiteboardInstance]);
 
     const handleInsertImport = useCallback(() => {
-      alert('TODO: Import dialog');
+      importContext.showImportDialog(slideIndex);
       handleClose();
-    }, [handleClose, slideIndex, whiteboardInstance]);
+    }, [handleClose, importContext.showImportDialog, slideIndex]);
 
     const handleContextMenu = useCallback(
       (event: MouseEvent<HTMLButtonElement>) => {
