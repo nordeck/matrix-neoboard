@@ -15,6 +15,7 @@
  */
 
 module.exports = {
+  defaultNamespace: 'neoboard',
   locales: ['en', 'de'],
   output: 'src/locales/$LOCALE/$NAMESPACE.json',
   sort: true,
