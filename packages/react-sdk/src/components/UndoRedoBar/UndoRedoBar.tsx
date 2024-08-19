@@ -22,7 +22,7 @@ import { useActiveWhiteboardInstance, useUndoRedoState } from '../../state';
 import { Toolbar, ToolbarButton } from '../common/Toolbar';
 
 export function UndoRedoBar() {
-  const { t } = useTranslation();
+  const { t } = useTranslation('neoboard');
   const whiteboardInstance = useActiveWhiteboardInstance();
   const { canUndo, canRedo } = useUndoRedoState();
 

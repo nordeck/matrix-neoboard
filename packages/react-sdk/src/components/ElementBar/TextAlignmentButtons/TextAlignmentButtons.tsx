@@ -29,7 +29,7 @@ import { ToolbarRadio, ToolbarRadioGroup } from '../../common/Toolbar';
 import { calculateTextAlignmentUpdates } from './calculateTextAlignmentUpdates';
 
 export function TextAlignmentButtons() {
-  const { t } = useTranslation();
+  const { t } = useTranslation('neoboard');
   const { activeElementIds } = useActiveElements();
   const elements = useElements(activeElementIds);
   const slideInstance = useWhiteboardSlideInstance();

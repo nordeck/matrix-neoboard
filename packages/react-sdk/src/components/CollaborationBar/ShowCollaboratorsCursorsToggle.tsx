@@ -21,7 +21,7 @@ import { useLayoutState } from '../Layout';
 import { ToolbarToggle } from '../common/Toolbar';
 
 export function ShowCollaboratorsCursorsToggle() {
-  const { t } = useTranslation();
+  const { t } = useTranslation('neoboard');
   const { isShowCollaboratorsCursors, setShowCollaboratorsCursors } =
     useLayoutState();
   const title = isShowCollaboratorsCursors

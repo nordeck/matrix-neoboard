@@ -40,7 +40,7 @@ type InfoDialogProps = {
 };
 
 export function InfoDialog({ open, onClose }: InfoDialogProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation('neoboard');
   const [showRevision, setShowRevision] = useState(false);
 
   const version = getEnvironment('REACT_APP_VERSION', 'unset');

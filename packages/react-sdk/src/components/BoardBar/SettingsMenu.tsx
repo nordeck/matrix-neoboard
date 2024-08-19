@@ -35,7 +35,7 @@ import { ImportWhiteboardDialog } from './ImportWhiteboardDialog';
 import { ImportedWhiteboard } from './types';
 
 export function SettingsMenu() {
-  const { t } = useTranslation();
+  const { t } = useTranslation('neoboard');
   const {
     setDeveloperToolsVisible,
     isDeveloperToolsVisible,

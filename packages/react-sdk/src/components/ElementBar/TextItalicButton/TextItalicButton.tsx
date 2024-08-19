@@ -24,7 +24,7 @@ export function TextItalicButton() {
   const { activeElementIds } = useActiveElements();
   const activeElements = useElements(activeElementIds);
   const elements = Object.values(activeElements);
-  const { t } = useTranslation();
+  const { t } = useTranslation('neoboard');
 
   const { isItalic, toggleItalic } = useToggleItalic();
 

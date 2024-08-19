@@ -91,7 +91,7 @@ function ContextMenuOptions({
   const isLocked = useSlideIsLocked();
   const slideInstance = useWhiteboardSlideInstance();
   const elementIds = useSlideElementIds();
-  const { t } = useTranslation();
+  const { t } = useTranslation('neoboard');
   const menuTitle = t('elementContextMenu.title', 'Element');
   const [open, setOpen] = useState(true);
 

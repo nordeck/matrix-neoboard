@@ -30,7 +30,7 @@ import { useCustomKeyboardSensor } from './useCustomKeyboardSensor';
 import { useFixLiveRegionAfterModals } from './useFixLiveRegionAfterModals';
 
 export function SlidesDragDropContext({ children }: PropsWithChildren<{}>) {
-  const { t } = useTranslation();
+  const { t } = useTranslation('neoboard');
   const whiteboardInstance = useActiveWhiteboardInstance();
 
   useFixLiveRegionAfterModals();

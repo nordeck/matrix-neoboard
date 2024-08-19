@@ -56,7 +56,7 @@ export function SlideListItem({
   slideIndex,
   active = false,
 }: SlideListItemProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation('neoboard');
   const isLocked = useSlideIsLocked(slideId);
 
   const titleId = useId();

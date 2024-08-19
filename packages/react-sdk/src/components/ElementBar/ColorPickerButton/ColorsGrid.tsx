@@ -59,7 +59,7 @@ export function ColorsGrid({
   showTransparent,
 }: ColorsGridProps) {
   const ref = useRef<HTMLTableElement>(null);
-  const { t } = useTranslation();
+  const { t } = useTranslation('neoboard');
   const rowColumnCount = 11;
   const [activeFocus, setActiveFocus] = useState(activeColor);
 

@@ -25,7 +25,7 @@ import { HelpIcon } from '../icons/HelpIcon';
 import { InfoDialog } from './InfoDialog';
 
 export function HelpMenu() {
-  const { t } = useTranslation();
+  const { t } = useTranslation('neoboard');
   const helpCenterUrl = getEnvironment('REACT_APP_HELP_CENTER_URL');
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const { restartGuidedTour } = useGuidedTour();

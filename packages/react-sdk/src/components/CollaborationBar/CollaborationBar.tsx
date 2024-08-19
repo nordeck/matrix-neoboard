@@ -21,7 +21,7 @@ import { Collaborators } from './Collaborators';
 import { ShowCollaboratorsCursorsToggle } from './ShowCollaboratorsCursorsToggle';
 
 export function CollaborationBar() {
-  const { t } = useTranslation();
+  const { t } = useTranslation('neoboard');
   const { state: presentationState } = usePresentationMode();
   const isEditEnabled =
     presentationState.type === 'idle' || presentationState.isEditMode;

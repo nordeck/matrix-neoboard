@@ -64,7 +64,7 @@ i18n
     },
     supportedLngs: ['en', 'de'],
     nonExplicitSupportedLngs: true,
-    defaultNS: 'neoboard'
+    defaultNS: 'neoboard',
   });
 
 setLocale(i18n.language);

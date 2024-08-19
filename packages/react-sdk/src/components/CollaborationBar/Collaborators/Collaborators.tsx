@@ -41,7 +41,7 @@ import { ellipsis } from '../../common/ellipsis';
 import { orderMembersByState } from './orderMembersByState';
 
 export function Collaborators() {
-  const { t } = useTranslation();
+  const { t } = useTranslation('neoboard');
   const { state } = usePresentationMode();
   const ownUserId = useWidgetApi().widgetParameters.userId;
   const presenterUserId =

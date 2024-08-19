@@ -27,7 +27,7 @@ import { SlidesDragDropContext } from './SlidesDragDropContext';
 import { StrictModeDroppable } from './StrictModeDroppable';
 
 export function SlideList() {
-  const { t } = useTranslation();
+  const { t } = useTranslation('neoboard');
   const slideIds = useActiveWhiteboardInstanceSlideIds();
   const { activeSlideId } = useActiveSlide();
 

@@ -60,7 +60,7 @@ export function duplicate(
 }
 
 export function DuplicateActiveElementButton() {
-  const { t } = useTranslation();
+  const { t } = useTranslation('neoboard');
   const slideInstance = useWhiteboardSlideInstance();
   const { activeElementIds } = useActiveElements();
 

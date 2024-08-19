@@ -40,7 +40,7 @@ export function ToolbarAvatarMoreButton({
   count,
   ...props
 }: ToolbarAvatarMoreButtonProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation('neoboard');
 
   return (
     <StyledToolbarSubMenu {...props}>

@@ -32,7 +32,7 @@ export const ImagePlaceholder = ({
   elementId: string;
 }) => {
   const theme = useTheme();
-  const { t } = useTranslation();
+  const { t } = useTranslation('neoboard');
 
   return (
     <g data-testid={`element-${elementId}-error-container`}>
