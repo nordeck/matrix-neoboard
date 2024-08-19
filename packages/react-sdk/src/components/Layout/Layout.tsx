@@ -76,43 +76,43 @@ export function Layout({ height = '100vh' }: LayoutProps) {
 
   return (
     <SlidesProvider>
-      <ImportDialogProvider>
-        <GuidedTour disabled={isViewingPresentation} />
+      <ImageUploadProvider>
+        <ImportDialogProvider>
+          <GuidedTour disabled={isViewingPresentation} />
 
-        <Stack height={height} direction="row" bgcolor="background.paper">
-          <AnimatedSidebar
-            visible={isSlideOverviewVisible && !isViewingPresentation}
-            direction="right"
-          >
-            <SlideOverviewBar />
-          </AnimatedSidebar>
+          <Stack height={height} direction="row" bgcolor="background.paper">
+            <AnimatedSidebar
+              visible={isSlideOverviewVisible && !isViewingPresentation}
+              direction="right"
+            >
+              <SlideOverviewBar />
+            </AnimatedSidebar>
 
-          <Box
-            component="main"
-            flex={1}
-            display="flex"
-            position="relative"
-            onDragEnter={handleUploadDragEnter}
-          >
-            {slideIds.map((slideId) => (
-              <TabPanelStyled value={slideId} key={slideId}>
-                <SlideProvider slideId={slideId}>
-                  <ElementOverridesProvider>
-                    <ImageUploadProvider>
+            <Box
+              component="main"
+              flex={1}
+              display="flex"
+              position="relative"
+              onDragEnter={handleUploadDragEnter}
+            >
+              {slideIds.map((slideId) => (
+                <TabPanelStyled value={slideId} key={slideId}>
+                  <SlideProvider slideId={slideId}>
+                    <ElementOverridesProvider>
                       <ContentArea />
                       {uploadDragOverlay}
-                    </ImageUploadProvider>
-                  </ElementOverridesProvider>
-                </SlideProvider>
-              </TabPanelStyled>
-            ))}
-          </Box>
+                    </ElementOverridesProvider>
+                  </SlideProvider>
+                </TabPanelStyled>
+              ))}
+            </Box>
 
-          <AnimatedSidebar visible={isDeveloperToolsVisible} direction="left">
-            <DeveloperTools />
-          </AnimatedSidebar>
-        </Stack>
-      </ImportDialogProvider>
+            <AnimatedSidebar visible={isDeveloperToolsVisible} direction="left">
+              <DeveloperTools />
+            </AnimatedSidebar>
+          </Stack>
+        </ImportDialogProvider>
+      </ImageUploadProvider>
     </SlidesProvider>
   );
 }
