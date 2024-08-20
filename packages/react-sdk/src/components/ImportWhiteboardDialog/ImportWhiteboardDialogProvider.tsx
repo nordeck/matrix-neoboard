@@ -18,24 +18,27 @@ import { getLogger } from 'loglevel';
 import { PropsWithChildren, createContext, useCallback, useState } from 'react';
 import { FileRejection, useDropzone } from 'react-dropzone';
 import { isValidWhiteboardExportDocument } from '../../state';
-import { ImportWhiteboardDialog } from '../BoardBar/ImportWhiteboardDialog';
-import { ImportedWhiteboard } from '../BoardBar/types';
+import { ImportWhiteboardDialog } from './ImportWhiteboardDialog';
+import { ImportedWhiteboard } from './types';
 
-export type ImportDialogProps = {};
+export type ImportWhiteboardDialogProps = {};
 
-export type ImportDialogState = {
-  showImportDialog: (atSlideIndex?: number) => void;
+export type ImportWhiteboardDialogState = {
+  showImportWhiteboardDialog: (atSlideIndex?: number) => void;
 };
 
-export const ImportDialogContext = createContext<ImportDialogState | undefined>(
-  undefined,
-);
+export const ImportWhiteboardDialogContext = createContext<
+  ImportWhiteboardDialogState | undefined
+>(undefined);
 
-export function ImportDialogProvider({ children }: PropsWithChildren<{}>) {
+export function ImportWhiteboardDialogProvider({
+  children,
+}: PropsWithChildren<{}>) {
   const [atSlideIndex, setAtSlideIndex] = useState<number | undefined>(
     undefined,
   );
-  const [openImportDialog, setOpenImportDialog] = useState(false);
+  const [openImportWhiteboardDialog, setOpenImportWhiteboardDialog] =
+    useState(false);
   const [importedWhiteboard, setImportedWhiteboard] =
     useState<ImportedWhiteboard>();
 
@@ -46,7 +49,7 @@ export function ImportDialogProvider({ children }: PropsWithChildren<{}>) {
           name: rejectedFiles[0].file.name,
           isError: true,
         });
-        setOpenImportDialog(true);
+        setOpenImportWhiteboardDialog(true);
         return;
       }
 
@@ -77,7 +80,7 @@ export function ImportDialogProvider({ children }: PropsWithChildren<{}>) {
             });
           }
 
-          setOpenImportDialog(true);
+          setOpenImportWhiteboardDialog(true);
         } catch (ex) {
           const logger = getLogger('SettingsMenu');
           logger.error('Error while parsing the selected import file', ex);
@@ -86,7 +89,7 @@ export function ImportDialogProvider({ children }: PropsWithChildren<{}>) {
             name: file.name,
             isError: true,
           });
-          setOpenImportDialog(true);
+          setOpenImportWhiteboardDialog(true);
         }
       };
 
@@ -95,7 +98,7 @@ export function ImportDialogProvider({ children }: PropsWithChildren<{}>) {
     [],
   );
 
-  const showImportDialog = (atSlideIndex?: number) => {
+  const showImportWhiteboardDialog = (atSlideIndex?: number) => {
     setAtSlideIndex(atSlideIndex);
     inputRef.current?.click();
   };
@@ -116,25 +119,24 @@ export function ImportDialogProvider({ children }: PropsWithChildren<{}>) {
   });
 
   return (
-    <ImportDialogContext.Provider
+    <ImportWhiteboardDialogContext.Provider
       value={{
-        showImportDialog,
+        showImportWhiteboardDialog,
       }}
     >
-      <div {...getRootProps()}>
-        <input {...getInputProps()} data-testid="import-file-picker" />
-        <ImportWhiteboardDialog
-          open={openImportDialog}
-          atSlideIndex={atSlideIndex}
-          importedWhiteboard={importedWhiteboard}
-          onClose={useCallback(() => {
-            setAtSlideIndex(undefined);
-            setOpenImportDialog(false);
-          }, [])}
-          onRetry={openFilePicker}
-        />
-      </div>
+      <div {...getRootProps()}></div>
+      <input {...getInputProps()} data-testid="import-file-picker" />
+      <ImportWhiteboardDialog
+        open={openImportWhiteboardDialog}
+        atSlideIndex={atSlideIndex}
+        importedWhiteboard={importedWhiteboard}
+        onClose={useCallback(() => {
+          setAtSlideIndex(undefined);
+          setOpenImportWhiteboardDialog(false);
+        }, [])}
+        onRetry={openFilePicker}
+      />
       {children}
-    </ImportDialogContext.Provider>
+    </ImportWhiteboardDialogContext.Provider>
   );
 }

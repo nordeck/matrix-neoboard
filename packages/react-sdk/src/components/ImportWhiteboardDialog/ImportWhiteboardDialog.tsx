@@ -141,7 +141,7 @@ export function ImportWhiteboardDialog({
         </Button>
 
         {importedWhiteboard?.isError === false &&
-          atSlideIndex !== undefined && (
+          atSlideIndex === undefined && (
             <Alert severity="warning" role="status" sx={{ mt: 1 }}>
               <AlertTitle>
                 {t('boardBar.importWhiteboardDialog.successTitle', 'Caution')}

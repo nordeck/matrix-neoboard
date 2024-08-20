@@ -32,7 +32,7 @@ import { FullscreenModeBar } from '../FullscreenModeBar';
 import { GuidedTour } from '../GuidedTour';
 import { HelpCenterBar } from '../HelpCenterBar';
 import { ImageUploadProvider, useSlideImageDropUpload } from '../ImageUpload';
-import { ImportDialogProvider } from '../ImportDialog/ImportDialogProvider';
+import { ImportWhiteboardDialogProvider } from '../ImportWhiteboardDialog/ImportWhiteboardDialogProvider';
 import { PresentBar } from '../PresentBar';
 import { Shortcuts } from '../Shortcuts';
 import { SlideOverviewBar } from '../SlideOverviewBar';
@@ -77,7 +77,7 @@ export function Layout({ height = '100vh' }: LayoutProps) {
   return (
     <SlidesProvider>
       <ImageUploadProvider>
-        <ImportDialogProvider>
+        <ImportWhiteboardDialogProvider>
           <GuidedTour disabled={isViewingPresentation} />
 
           <Stack height={height} direction="row" bgcolor="background.paper">
@@ -111,7 +111,7 @@ export function Layout({ height = '100vh' }: LayoutProps) {
               <DeveloperTools />
             </AnimatedSidebar>
           </Stack>
-        </ImportDialogProvider>
+        </ImportWhiteboardDialogProvider>
       </ImageUploadProvider>
     </SlidesProvider>
   );

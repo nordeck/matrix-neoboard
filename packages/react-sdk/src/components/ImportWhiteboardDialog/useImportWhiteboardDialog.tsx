@@ -15,14 +15,17 @@
  */
 
 import { useContext } from 'react';
-import { ImportDialogContext, ImportDialogState } from './ImportDialogProvider';
+import {
+  ImportWhiteboardDialogContext,
+  ImportWhiteboardDialogState,
+} from './ImportWhiteboardDialogProvider';
 
-export function useImportDialog(): ImportDialogState {
-  const value = useContext(ImportDialogContext);
+export function useImportWhiteboardDialog(): ImportWhiteboardDialogState {
+  const value = useContext(ImportWhiteboardDialogContext);
 
   if (!value) {
     throw new Error(
-      'useImportDialog can only be used inside of <ImportDialogProvider>',
+      'useImportWhiteboardDialog can only be used inside of <ImportWhiteboardDialogProvider>',
     );
   }
 

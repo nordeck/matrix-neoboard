@@ -22,7 +22,7 @@ import { t } from 'i18next';
 import { MouseEvent, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { usePowerLevels } from '../../store/api/usePowerLevels';
-import { useImportDialog } from '../ImportDialog/useImportDialog';
+import { useImportWhiteboardDialog } from '../ImportWhiteboardDialog/useImportWhiteboardDialog';
 import { useLayoutState } from '../Layout';
 import { MenuItemSwitch } from '../common/MenuItemSwitch';
 import { ToolbarSubMenu } from '../common/Toolbar';
@@ -32,11 +32,11 @@ import { FileImportOutlineIcon } from '../icons/FileImportOutlineIcon';
 import { ExportWhiteboardDialog } from './ExportWhiteboardDialog';
 
 function ImportMenuItem({ onClose }: { onClose: () => void }) {
-  const importContext = useImportDialog();
+  const importContext = useImportWhiteboardDialog();
   return (
     <MenuItem
       onClick={useCallback(() => {
-        importContext.showImportDialog();
+        importContext.showImportWhiteboardDialog();
         onClose();
       }, [])}
     >
