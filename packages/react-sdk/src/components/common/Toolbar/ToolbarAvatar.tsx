@@ -16,8 +16,8 @@
 
 import { useWidgetApi } from '@matrix-widget-toolkit/react';
 import { SxProps, Theme } from '@mui/material';
-import { t } from 'i18next';
 import { PropsWithChildren } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ActiveWhiteboardMember } from '../../../state/useActiveWhiteboardMembers';
 import { useUserDetails } from '../../../store';
 import { CollaboratorAvatar } from '../CollaboratorAvatar';
@@ -37,6 +37,7 @@ export function ToolbarAvatar({
   sx,
   children,
 }: ToolbarAvatarProps) {
+  const { t } = useTranslation();
   const ownUserId = useWidgetApi().widgetParameters.userId;
 
   if (!ownUserId) {

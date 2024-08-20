@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 import { Toolbar } from '../common/Toolbar';
 import { ToggleFullscreenModeButton } from './ToggleFullscreenButton';
 
 export function FullscreenModeBar() {
+  const { t } = useTranslation();
   return (
     <Toolbar
       aria-label={t('fullscreenModeBar.title', 'Fullscreen mode')}
