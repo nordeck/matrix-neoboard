@@ -22,7 +22,7 @@ import { useLayoutState } from '../Layout';
 import { ToolbarButton } from '../common/Toolbar';
 
 export function ToggleFullscreenModeButton() {
-  const { t } = useTranslation();
+  const { t } = useTranslation('neoboard');
   const { isFullscreenMode: isFullscreen, setFullscreenMode: setFullscreen } =
     useLayoutState();
 

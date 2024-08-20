@@ -37,7 +37,7 @@ export function ToolbarAvatar({
   sx,
   children,
 }: ToolbarAvatarProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation('neoboard');
   const ownUserId = useWidgetApi().widgetParameters.userId;
 
   if (!ownUserId) {

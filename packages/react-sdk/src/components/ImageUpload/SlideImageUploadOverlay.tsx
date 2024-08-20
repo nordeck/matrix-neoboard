@@ -25,7 +25,7 @@ type SlideImageUploadOverlayProps = {
 
 export const SlideImageUploadOverlay: React.FC<SlideImageUploadOverlayProps> =
   function ({ onDragLeave }) {
-    const { t } = useTranslation();
+    const { t } = useTranslation('neoboard');
     const { getRootProps, getInputProps } = useSlideImageUpload({
       noClick: true,
     });

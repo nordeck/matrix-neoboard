@@ -19,7 +19,7 @@ import { Toolbar } from '../common/Toolbar';
 import { ToggleFullscreenModeButton } from './ToggleFullscreenButton';
 
 export function FullscreenModeBar() {
-  const { t } = useTranslation();
+  const { t } = useTranslation('neoboard');
   return (
     <Toolbar
       aria-label={t('fullscreenModeBar.title', 'Fullscreen mode')}
