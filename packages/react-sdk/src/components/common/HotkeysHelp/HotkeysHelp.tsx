@@ -21,7 +21,7 @@ import { isMacOS } from '../platform';
 import { formatKey, parseHotKeys, splitHotKeys } from './hotkeyUtils';
 
 export function HotkeyHelp({ keys }: { keys: string }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation('neoboard');
 
   return (
     <Typography component="kbd" variant="body2" letterSpacing="0.1em">

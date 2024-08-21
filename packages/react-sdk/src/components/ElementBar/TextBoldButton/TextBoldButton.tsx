@@ -21,7 +21,7 @@ import { useActiveElements, useElements } from '../../../state';
 import { ToolbarToggle } from '../../common/Toolbar';
 
 export function TextBoldButton() {
-  const { t } = useTranslation();
+  const { t } = useTranslation('neoboard');
   const { isBold, toggleBold } = useToggleBold();
 
   const { activeElementIds } = useActiveElements();

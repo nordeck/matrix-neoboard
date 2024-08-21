@@ -21,7 +21,7 @@ import { ToolbarToggle } from '../common/Toolbar';
 import { SidebarLeftIcon } from '../icons/SidebarLeftIcon';
 
 export function ShowSlideOverviewToggle() {
-  const { t } = useTranslation();
+  const { t } = useTranslation('neoboard');
   const { isSlideOverviewVisible, setSlideOverviewVisible } = useLayoutState();
 
   const title = isSlideOverviewVisible

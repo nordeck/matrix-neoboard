@@ -43,7 +43,7 @@ export function StyledJoyrideStep({
   tooltipProps,
   isLastStep,
 }: TooltipRenderProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation('neoboard');
   const titleId = useId();
   const descriptionId = useId();
 

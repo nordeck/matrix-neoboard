@@ -90,7 +90,7 @@ export const ImageUploadContext = createContext<ImageUploadState | undefined>(
 );
 
 export function ImageUploadProvider({ children }: PropsWithChildren<{}>) {
-  const { t } = useTranslation();
+  const { t } = useTranslation('neoboard');
   const { clearSnackbar, showSnackbar } = useSnackbar();
   const widgetApi = useWidgetApi();
   /** Holds all files that are to be uploaded */

@@ -22,7 +22,7 @@ import { calculateTextColorChangeUpdates } from './calculateTextColorChangeUpdat
 import { extractFirstTextColor } from './extractFirstTextColor';
 
 export function TextColorPicker() {
-  const { t } = useTranslation();
+  const { t } = useTranslation('neoboard');
   const { activeElementIds } = useActiveElements();
   const activeElements = useElements(activeElementIds);
   const color = extractFirstTextColor(Object.values(activeElements));

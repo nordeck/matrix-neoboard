@@ -30,7 +30,7 @@ import { usePowerLevels } from '../../store/api/usePowerLevels';
 import { Toolbar, ToolbarButton, ToolbarToggle } from '../common/Toolbar';
 
 export function PresentBar() {
-  const { t } = useTranslation();
+  const { t } = useTranslation('neoboard');
   const whiteboardInstance = useActiveWhiteboardInstance();
   const { activeSlideId, isFirstSlideActive, isLastSlideActive } =
     useActiveSlide();

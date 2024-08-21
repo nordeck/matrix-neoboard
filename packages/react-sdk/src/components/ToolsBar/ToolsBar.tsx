@@ -33,7 +33,7 @@ import { useSlideImageUpload } from '../ImageUpload';
 import { ActiveTool, useLayoutState } from '../Layout';
 
 export function ToolsBar() {
-  const { t } = useTranslation();
+  const { t } = useTranslation('neoboard');
   const isLocked = useSlideIsLocked();
   const { activeTool, setActiveTool } = useLayoutState();
 

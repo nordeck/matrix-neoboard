@@ -25,7 +25,7 @@ import { TextBoldButton } from './TextBoldButton';
 import { TextItalicButton } from './TextItalicButton';
 
 export function ElementBar() {
-  const { t } = useTranslation();
+  const { t } = useTranslation('neoboard');
   const toolbarTitle = t('elementBar.title', 'Element');
 
   return (

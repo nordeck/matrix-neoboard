@@ -36,7 +36,7 @@ export function ExportWhiteboardDialogDownloadPdf({
   onClick: () => void;
   onError?: Dispatch<string | undefined>;
 }>) {
-  const { t } = useTranslation();
+  const { t } = useTranslation('neoboard');
 
   const { data: roomNameStateEvent } = useGetRoomNameQuery();
   const roomName = roomNameStateEvent?.event?.content.name ?? 'NeoBoard';

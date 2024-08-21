@@ -15,8 +15,8 @@
  */
 
 import { Box, styled } from '@mui/material';
-import { t } from 'i18next';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSlideImageUpload } from './useSlideImageUpload';
 
 type SlideImageUploadOverlayProps = {
@@ -25,6 +25,7 @@ type SlideImageUploadOverlayProps = {
 
 export const SlideImageUploadOverlay: React.FC<SlideImageUploadOverlayProps> =
   function ({ onDragLeave }) {
+    const { t } = useTranslation('neoboard');
     const { getRootProps, getInputProps } = useSlideImageUpload({
       noClick: true,
     });
