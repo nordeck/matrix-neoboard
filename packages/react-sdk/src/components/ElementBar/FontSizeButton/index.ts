@@ -14,6 +14,4 @@
  * limitations under the License.
  */
 
-export { useFontSize } from './useFontSize';
-export { useToggleBold } from './useToggleBold';
-export { useToggleItalic } from './useToggleItalic';
+export { FontSizeButton } from './FontSizeButton';

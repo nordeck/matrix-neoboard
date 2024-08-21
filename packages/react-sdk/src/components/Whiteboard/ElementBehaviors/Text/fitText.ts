@@ -22,13 +22,18 @@ const maxSteps = 10;
 
 export function fitText(
   element: HTMLElement,
+  fontSize?: number,
   fontWeightBold = false,
   fontStyleItalic = false,
 ) {
   const width = element.clientWidth;
   const height = element.clientHeight;
 
-  const { fontSize, paddingTop, paddingHorizontal } = getTextSize(
+  const {
+    fontSize: actualSize,
+    paddingTop,
+    paddingHorizontal,
+  } = getTextSize(
     width,
     height,
     {
@@ -36,12 +41,13 @@ export function fitText(
       innerText: element.innerText,
     },
     {
+      fontSize,
       fontWeightBold,
       fontStyleItalic,
     },
   );
 
-  element.style.fontSize = `${fontSize}px`;
+  element.style.fontSize = `${actualSize}px`;
   element.style.padding = `${paddingTop}px ${paddingHorizontal}em 0`;
 }
 
@@ -86,6 +92,7 @@ export function getTextSize(
   content: { innerHTML?: string; innerText: string },
   opts: {
     disableLigatures?: boolean;
+    fontSize?: number;
     fontFamily?: string;
     fontWeightBold?: boolean;
     fontStyleItalic?: boolean;
@@ -100,7 +107,13 @@ export function getTextSize(
 
   const { textElement: element, wrapperElement } = getTemporaryElement();
 
-  wrapperElement.style.flexBasis = `${width}px`;
+  if (opts.fontSize === undefined) {
+    wrapperElement.style.flexBasis = `${width}px`;
+    wrapperElement.style.width = 'unset';
+  } else {
+    wrapperElement.style.width = `${width}px`;
+    wrapperElement.style.flexBasis = 'unset';
+  }
 
   element.style.lineHeight = '1.2';
   element.style.wordBreak = 'unset';
@@ -124,35 +137,38 @@ export function getTextSize(
   const paddingHorizontal = opts.fontStyleItalic ? 0.2 : 0;
   element.style.padding = `0 ${paddingHorizontal}em`;
 
-  // Do a binary search to find the best matching text size, in a few steps
-  let stepSize = maxFontSize - minFontSize;
-  let fontSize = minFontSize;
+  let fontSize: number;
+  if (opts.fontSize !== undefined) {
+    fontSize = opts.fontSize;
+  } else {
+    // Do a binary search to find the best matching text size, in a few steps
+    let stepSize = maxFontSize - minFontSize;
+    fontSize = minFontSize;
 
-  for (let i = 0; i < maxSteps; ++i) {
-    const lastFontSize = fontSize;
-    stepSize /= 2;
-    fontSize = clamp(fontSize + stepSize, minFontSize, maxFontSize);
+    for (let i = 0; i < maxSteps; ++i) {
+      const lastFontSize = fontSize;
+      stepSize /= 2;
+      fontSize = clamp(fontSize + stepSize, minFontSize, maxFontSize);
 
-    element.style.fontSize = `${Math.round(fontSize)}px`;
+      element.style.fontSize = `${Math.round(fontSize)}px`;
 
-    const { width: scrollWidth, height: scrollHeight } =
-      element.getBoundingClientRect();
+      const { width: scrollWidth, height: scrollHeight } =
+        element.getBoundingClientRect();
 
-    const fits = scrollWidth <= width && scrollHeight <= height;
+      const fits = scrollWidth <= width && scrollHeight <= height;
 
-    if (!fits) {
-      fontSize = lastFontSize;
+      if (!fits) {
+        fontSize = lastFontSize;
+      }
     }
-  }
 
-  fontSize = Math.round(fontSize);
+    fontSize = Math.round(fontSize);
+  }
 
   element.style.fontSize = `${fontSize}px`;
 
   // calculate the padding to center the text in the box
   const paddingTop = Math.max(0, (height - element.clientHeight) / 2);
-
-  element.innerText = '';
 
   return { fontSize, paddingTop, paddingHorizontal };
 }
