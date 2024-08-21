@@ -27,7 +27,7 @@ export function CopyableText({
   text: string;
   label: string;
 }): ReactElement {
-  const { t } = useTranslation();
+  const { t } = useTranslation('neoboard');
   const [hasCopied, setHasCopied] = useState(false);
 
   const handleOnClick = useCallback(() => {

@@ -24,7 +24,7 @@ export const SlideOverviewBar = forwardRef<
   HTMLDivElement,
   { style?: CSSProperties }
 >(({ style }, ref) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('neoboard');
 
   return (
     <Stack

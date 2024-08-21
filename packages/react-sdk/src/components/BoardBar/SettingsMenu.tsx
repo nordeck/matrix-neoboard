@@ -49,7 +49,7 @@ function ImportMenuItem({ onClose }: { onClose: () => void }) {
 }
 
 export function SettingsMenu() {
-  const { t } = useTranslation();
+  const { t } = useTranslation('neoboard');
   const {
     setDeveloperToolsVisible,
     isDeveloperToolsVisible,

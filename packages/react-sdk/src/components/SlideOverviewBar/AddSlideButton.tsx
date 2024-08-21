@@ -21,7 +21,7 @@ import { useTranslation } from 'react-i18next';
 import { useActiveWhiteboardInstance } from '../../state';
 
 export function AddSlideButton() {
-  const { t } = useTranslation();
+  const { t } = useTranslation('neoboard');
   const whiteboardInstance = useActiveWhiteboardInstance();
 
   const handleAddSlide = useCallback(() => {

@@ -16,12 +16,13 @@
 
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
 import FullscreenExitIcon from '@mui/icons-material/FullscreenExit';
-import { t } from 'i18next';
 import { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useLayoutState } from '../Layout';
 import { ToolbarButton } from '../common/Toolbar';
 
 export function ToggleFullscreenModeButton() {
+  const { t } = useTranslation('neoboard');
   const { isFullscreenMode: isFullscreen, setFullscreenMode: setFullscreen } =
     useLayoutState();
 

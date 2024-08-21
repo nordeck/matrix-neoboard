@@ -24,7 +24,7 @@ type GuidedTourProps = {
 };
 
 export function GuidedTour({ disabled }: GuidedTourProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation('neoboard');
   const theme = useTheme();
   const { setSlideOverviewVisible, isSlideOverviewVisible } = useLayoutState();
 

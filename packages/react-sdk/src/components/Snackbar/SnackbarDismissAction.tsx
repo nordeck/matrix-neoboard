@@ -20,7 +20,7 @@ import { useTranslation } from 'react-i18next';
 import { useSnackbar } from './useSnackbar';
 
 export function SnackbarDismissAction() {
-  const { t } = useTranslation();
+  const { t } = useTranslation('neoboard');
   const { clearSnackbar } = useSnackbar();
 
   return (

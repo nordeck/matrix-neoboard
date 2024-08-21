@@ -25,7 +25,7 @@ export type AppProps = {
 };
 
 export const App = ({ layoutProps }: AppProps) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('neoboard');
   const { value, loading } = useOwnedWhiteboard();
   const whiteboardManager = useWhiteboardManager();
   const ownUserId = useWidgetApi().widgetParameters.userId;

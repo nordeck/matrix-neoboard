@@ -20,7 +20,7 @@ import { SettingsMenu } from './SettingsMenu';
 import { ShowSlideOverviewToggle } from './ShowSlideOverviewToggle';
 
 export function BoardBar() {
-  const { t } = useTranslation();
+  const { t } = useTranslation('neoboard');
 
   const toolbarTitle = t('boardBar.title', 'Board');
 

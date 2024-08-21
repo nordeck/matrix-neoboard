@@ -21,7 +21,7 @@ import { useActiveElements, useWhiteboardSlideInstance } from '../../../state';
 import { ToolbarButton } from '../../common/Toolbar';
 
 export function DeleteActiveElementButton() {
-  const { t } = useTranslation();
+  const { t } = useTranslation('neoboard');
   const { activeElementIds } = useActiveElements();
   const slideInstance = useWhiteboardSlideInstance();
 

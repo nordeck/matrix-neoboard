@@ -49,7 +49,7 @@ export function ImportWhiteboardDialog({
   onClose: () => void;
   onRetry: () => void;
 }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation('neoboard');
   const whiteboardInstance = useActiveWhiteboardInstance();
   const { handleDrop } = useImageUpload();
 

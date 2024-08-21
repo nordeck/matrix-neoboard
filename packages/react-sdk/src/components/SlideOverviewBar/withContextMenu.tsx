@@ -56,7 +56,7 @@ export const withContextMenu = <P extends object>(
     innerRef,
     ...props
   }: WithContextMenuProps) => {
-    const { t } = useTranslation();
+    const { t } = useTranslation('neoboard');
     const [state, setState] = useState<ContextMenuState>();
     const importContext = useImportWhiteboardDialog();
     const whiteboardInstance = useActiveWhiteboardInstance();

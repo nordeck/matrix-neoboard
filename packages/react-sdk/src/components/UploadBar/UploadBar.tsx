@@ -20,7 +20,7 @@ import { useTranslation } from 'react-i18next';
 import { Toolbar, ToolbarButton } from '../common/Toolbar';
 
 export function UploadBar() {
-  const { t } = useTranslation();
+  const { t } = useTranslation('neoboard');
 
   const uploadBar = t('uploadBar.title', 'Upload');
   const title = t('uploadBar.upload', 'Upload');

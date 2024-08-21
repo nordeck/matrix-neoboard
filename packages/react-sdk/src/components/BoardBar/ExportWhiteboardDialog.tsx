@@ -77,7 +77,7 @@ function ExportWhiteboardDialogContent({
   descriptionId?: string;
   onClose: () => void;
 }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation('neoboard');
 
   const [error, setError] = useState<string>();
 

@@ -19,7 +19,7 @@ import { Toolbar } from '../common/Toolbar';
 import { HelpMenu } from './HelpMenu';
 
 export function HelpCenterBar() {
-  const { t } = useTranslation();
+  const { t } = useTranslation('neoboard');
 
   const helpCenterTitle = t('helpCenter.title', 'Help center');
 

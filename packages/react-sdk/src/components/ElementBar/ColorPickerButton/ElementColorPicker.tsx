@@ -27,7 +27,7 @@ import { extractFirstColor } from './extractFirstColor';
  * Color picker will only be displayed if at least an element with a color is selected, such as shapes and paths.
  */
 export function ElementColorPicker() {
-  const { t } = useTranslation();
+  const { t } = useTranslation('neoboard');
   const { activeElementIds } = useActiveElements();
   const activeElements = useElements(activeElementIds);
   const { setActiveColor } = useLayoutState();
