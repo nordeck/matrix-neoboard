@@ -15,7 +15,7 @@
  */
 
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
-import { red } from '@mui/material/colors';
+import { green, red } from '@mui/material/colors';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ComponentType, PropsWithChildren } from 'react';
@@ -23,10 +23,11 @@ import {
   WhiteboardTestingContextProvider,
   mockEllipseElement,
   mockLineElement,
+  mockRectangleElement,
   mockWhiteboardManager,
 } from '../../../lib/testUtils/documentTestUtils';
 import { WhiteboardManager, WhiteboardSlideInstance } from '../../../state';
-import { LayoutStateProvider } from '../../Layout';
+import { LayoutStateProvider, useLayoutState } from '../../Layout';
 import { Toolbar } from '../../common/Toolbar';
 import { TextColorPicker } from './TextColorPicker';
 
@@ -35,6 +36,8 @@ describe('TextColorPicker', () => {
   let whiteboardManager: jest.Mocked<WhiteboardManager>;
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
   let activeSlide: WhiteboardSlideInstance;
+  let activeTextColor: string | undefined;
+  let activeShapeTextColor: string | undefined;
 
   beforeEach(() => {
     widgetApi = mockWidgetApi();
@@ -50,11 +53,19 @@ describe('TextColorPicker', () => {
             ['element-1', mockLineElement()],
             [
               'element-2',
-              mockEllipseElement({ text: 'test', textColor: red[300] }),
+              mockRectangleElement({
+                fillColor: 'transparent',
+                text: 'test',
+                textColor: red[300],
+              }),
             ],
             [
               'element-3',
-              mockEllipseElement({ text: 'test', textColor: red[500] }),
+              mockRectangleElement({
+                fillColor: '#ff0000',
+                text: 'test',
+                textColor: red[500],
+              }),
             ],
           ],
         ],
@@ -63,8 +74,16 @@ describe('TextColorPicker', () => {
     const activeWhiteboard = whiteboardManager.getActiveWhiteboardInstance()!;
     activeSlide = activeWhiteboard.getSlide('slide-0');
 
+    function LayoutStateExtractor() {
+      const layoutState = useLayoutState();
+      activeTextColor = layoutState.activeTextColor;
+      activeShapeTextColor = layoutState.activeShapeTextColor;
+      return null;
+    }
+
     Wrapper = ({ children }) => (
       <LayoutStateProvider>
+        <LayoutStateExtractor />
         <WhiteboardTestingContextProvider
           whiteboardManager={whiteboardManager}
           widgetApi={widgetApi}
@@ -99,6 +118,42 @@ describe('TextColorPicker', () => {
       'element-2': '#4caf50',
       'element-3': '#4caf50',
     });
+  });
+
+  it('should set and update the active color for a text element', async () => {
+    activeSlide.setActiveElementIds(['element-2']);
+    render(<TextColorPicker />, { wrapper: Wrapper });
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Pick a text color' }),
+    );
+    const grid = await screen.findByRole('grid', { name: 'Colors' });
+    await userEvent.click(within(grid).getByRole('button', { name: 'Green' }));
+
+    expect(selectTextColors(activeSlide)).toEqual({
+      'element-0': undefined,
+      'element-1': undefined,
+      'element-2': green[500],
+      'element-3': red[500],
+    });
+    expect(activeTextColor).toBe(green[500]);
+  });
+
+  it('should set and update the active color for a shape element with a text', async () => {
+    activeSlide.setActiveElementIds(['element-3']);
+    render(<TextColorPicker />, { wrapper: Wrapper });
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Pick a text color' }),
+    );
+    const grid = await screen.findByRole('grid', { name: 'Colors' });
+    await userEvent.click(within(grid).getByRole('button', { name: 'Green' }));
+
+    expect(selectTextColors(activeSlide)).toEqual({
+      'element-0': undefined,
+      'element-1': undefined,
+      'element-2': red[300],
+      'element-3': green[500],
+    });
+    expect(activeShapeTextColor).toBe(green[500]);
   });
 
   it('should be hidden for elements without a text prop', () => {

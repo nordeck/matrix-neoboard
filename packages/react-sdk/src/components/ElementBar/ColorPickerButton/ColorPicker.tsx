@@ -28,7 +28,12 @@ import { ColorsGrid } from './ColorsGrid';
 
 export type ColorPickerProps = {
   color?: string;
-  setColor?: (color: string) => void;
+  shade: number;
+  /**
+   * @param color - color code
+   * @param shade - index of the color shade, if any
+   */
+  setColor?: (color: string, shade?: number) => void;
   /** The icon component to be used for the color picker in the element bar */
   Icon: ComponentType<{ color: string }>;
   /** Function that calculates the element updates to apply the color change */
@@ -40,6 +45,7 @@ export type ColorPickerProps = {
 
 export function ColorPicker({
   color,
+  shade,
   setColor,
   calculateUpdatesFn,
   Icon,
@@ -61,8 +67,8 @@ export function ColorPicker({
   }, []);
 
   const handleOnChange = useCallback(
-    (color: string) => {
-      setColor?.(color);
+    ({ color, shade }: { color: string; shade?: number }) => {
+      setColor?.(color, shade);
       const updates = calculateUpdatesFn(activeElements, color);
 
       if (updates.length) {
@@ -119,6 +125,7 @@ export function ColorPicker({
         <ColorsGrid
           id={gridId}
           activeColor={color}
+          activeShade={shade}
           onChange={handleOnChange}
           onClose={handleClose}
           showTransparent={showTransparent}

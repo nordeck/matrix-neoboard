@@ -18,6 +18,10 @@ export {
   calculateBoundingRectForElements,
   calculateCentredPosition,
   calculateFittedElementSize,
+  includesShapeWithText,
+  includesTextShape,
+  isShapeWithText,
+  isTextShape,
   isValidElement,
 } from './elements';
 export type {

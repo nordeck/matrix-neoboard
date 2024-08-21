@@ -22,6 +22,7 @@ import {
   useMemo,
   useState,
 } from 'react';
+import { useColorPalette } from '../../lib';
 import { Point } from '../../state';
 import { useFullscreenMode } from './useFullscreenMode';
 
@@ -43,12 +44,26 @@ type LayoutState = {
   isShowGrid: boolean;
   activeTool: ActiveTool;
   activeColor: string;
+  activeShade: number;
+  activeTextColor: string | undefined;
+  activeTextShade: number;
+  activeShapeColor: string;
+  activeShapeShade: number;
+  activeShapeTextColor: string | undefined;
+  activeShapeTextShade: number;
   setSlideOverviewVisible: (value: boolean) => void;
   setDeveloperToolsVisible: (value: boolean) => void;
   setShowCollaboratorsCursors: (value: boolean) => void;
   setShowGrid: (value: boolean) => void;
   setActiveTool: (tool: ActiveTool) => void;
   setActiveColor: (color: string) => void;
+  setActiveShade: (shade: number) => void;
+  setActiveTextColor: (color: string | undefined) => void;
+  setActiveTextShade: (shade: number) => void;
+  setActiveShapeColor: (color: string) => void;
+  setActiveShapeShade: (shade: number) => void;
+  setActiveShapeTextColor: (color: string | undefined) => void;
+  setActiveShapeTextShade: (shade: number) => void;
   /**
    * Whether the layout is displayed in fullscreen mode.
    */
@@ -75,6 +90,13 @@ type LayoutState = {
 const LayoutStateContext = createContext<LayoutState | undefined>(undefined);
 
 export function LayoutStateProvider({ children }: PropsWithChildren<{}>) {
+  const {
+    defaultShapeColor,
+    defaultShapeShade,
+    defaultTextColor,
+    defaultTextShade,
+  } = useColorPalette();
+
   const [isSlideOverviewVisible, setSlideOverviewVisible] =
     useState<boolean>(false);
   const [isDeveloperToolsVisible, setDeveloperToolsVisible] =
@@ -83,9 +105,19 @@ export function LayoutStateProvider({ children }: PropsWithChildren<{}>) {
     useState<boolean>(false);
   const [isShowGrid, setShowGrid] = useState<boolean>(true);
   const [activeTool, setActiveTool] = useState<ActiveTool>('select');
-  const [activeColor, setActiveColor] = useState<string>(grey[500]);
   const { isFullscreenMode, setFullscreenMode } = useFullscreenMode();
   const [dragSelectStartCoords, setDragSelectStartCoords] = useState<Point>();
+
+  const [activeColor, setActiveColor] = useState<string>(grey[500]);
+  const [activeShade, setActiveShade] = useState(3);
+  const [activeTextColor, setActiveTextColor] = useState(defaultTextColor);
+  const [activeTextShade, setActiveTextShade] = useState(defaultTextShade);
+  const [activeShapeColor, setActiveShapeColor] = useState(defaultShapeColor);
+  const [activeShapeShade, setActiveShapeShade] = useState(defaultShapeShade);
+  const [activeShapeTextColor, setActiveShapeTextColor] =
+    useState(defaultTextColor);
+  const [activeShapeTextShade, setActiveShapeTextShade] =
+    useState(defaultTextShade);
 
   const value = useMemo(
     () => ({
@@ -95,12 +127,26 @@ export function LayoutStateProvider({ children }: PropsWithChildren<{}>) {
       isShowGrid,
       activeTool,
       activeColor,
+      activeShade,
+      activeTextColor,
+      activeTextShade,
+      activeShapeColor,
+      activeShapeShade,
+      activeShapeTextColor,
+      activeShapeTextShade,
       setSlideOverviewVisible,
       setDeveloperToolsVisible,
       setShowCollaboratorsCursors,
       setShowGrid,
       setActiveTool,
       setActiveColor,
+      setActiveShade,
+      setActiveTextColor,
+      setActiveTextShade,
+      setActiveShapeColor,
+      setActiveShapeShade,
+      setActiveShapeTextColor,
+      setActiveShapeTextShade,
       isFullscreenMode,
       setFullscreenMode,
       dragSelectStartCoords,
@@ -108,6 +154,13 @@ export function LayoutStateProvider({ children }: PropsWithChildren<{}>) {
     }),
     [
       activeColor,
+      activeShade,
+      activeTextColor,
+      activeTextShade,
+      activeShapeColor,
+      activeShapeShade,
+      activeShapeTextColor,
+      activeShapeTextShade,
       activeTool,
       isDeveloperToolsVisible,
       isShowCollaboratorsCursors,

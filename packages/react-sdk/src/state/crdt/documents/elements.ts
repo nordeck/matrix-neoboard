@@ -240,3 +240,41 @@ export function calculateCentredPosition(
     y: Math.round((containerSize.height - element.height) / 2),
   };
 }
+
+/**
+ * @returns true, if the element is a shape without a background color, else false
+ */
+export function isTextShape(element: Element): boolean {
+  return (
+    element.type === 'shape' &&
+    // a text shape does not have a background color
+    (element.fillColor === '' || element.fillColor === 'transparent') &&
+    element.text.trim() !== ''
+  );
+}
+
+/**
+ * @returns true, if the element is a shape with a background color, else false
+ */
+export function isShapeWithText(element: Element): boolean {
+  return (
+    element.type === 'shape' &&
+    element.fillColor !== '' &&
+    element.fillColor !== 'transparent' &&
+    element.text.trim() !== ''
+  );
+}
+
+/**
+ * @returns true if elements contain at least one shape without a background color an a text, else false
+ */
+export function includesTextShape(elements: Element[]): boolean {
+  return elements.some(isTextShape);
+}
+
+/**
+ * @returns true if elements contain at least one shape with a background color and a text, else false
+ */
+export function includesShapeWithText(elements: Element[]): boolean {
+  return elements.some(isShapeWithText);
+}

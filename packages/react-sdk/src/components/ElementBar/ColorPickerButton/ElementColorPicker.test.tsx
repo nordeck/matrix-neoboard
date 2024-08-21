@@ -15,6 +15,7 @@
  */
 
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
+import { lighten, rgbToHex } from '@mui/material';
 import {
   blueGrey,
   common,
@@ -27,7 +28,7 @@ import {
   teal,
   yellow,
 } from '@mui/material/colors';
-import { act, render, screen, waitFor, within } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { axe } from 'jest-axe';
 import { ComponentType, PropsWithChildren } from 'react';
@@ -198,10 +199,7 @@ describe('<ElementColorPicker/>', () => {
     await userEvent.click(within(grid).getByRole('button', { name: 'Red' }));
 
     expect(activeColor).toEqual(red[500]);
-
-    await waitFor(() => {
-      expect(grid).not.toBeInTheDocument();
-    });
+    expect(screen.getByRole('grid', { name: 'Colors' })).toBeInTheDocument();
   });
 
   /**
@@ -226,7 +224,8 @@ describe('<ElementColorPicker/>', () => {
 
     expect(selectElementColors(activeSlide)).toEqual({
       'element-0': green[500],
-      'element-1': red[500],
+      // shapes are expected to have a lighter shade
+      'element-1': rgbToHex(lighten(red[500], 0.75)),
       'element-2': grey[500],
       'element-3': '#ffffff',
       'element-4': 'transparent',
@@ -255,10 +254,10 @@ describe('<ElementColorPicker/>', () => {
 
     expect(selectElementColors(activeSlide)).toEqual({
       'element-0': green[500],
-      'element-1': red[500],
-      'element-2': red[500],
+      'element-1': rgbToHex(lighten(red[500], 0.75)),
+      'element-2': rgbToHex(lighten(red[500], 0.75)),
       'element-3': '#ffffff',
-      'element-4': red[500],
+      'element-4': rgbToHex(lighten(red[500], 0.75)),
       'element-5': 'transparent',
     });
   });
@@ -273,15 +272,12 @@ describe('<ElementColorPicker/>', () => {
 
     await userEvent.keyboard('[ArrowDown]');
 
-    const grid = await screen.findByRole('grid', { name: 'Colors' });
+    await screen.findByRole('grid', { name: 'Colors' });
 
     await userEvent.keyboard('[ArrowRight][Enter]');
 
     expect(activeColor).toEqual(blueGrey[500]);
-
-    await waitFor(() => {
-      expect(grid).not.toBeInTheDocument();
-    });
+    expect(screen.getByRole('grid', { name: 'Colors' })).toBeInTheDocument();
   });
 
   /**
@@ -303,7 +299,7 @@ describe('<ElementColorPicker/>', () => {
   `(
     'should move focus from $fromColorName to $toColorName on $key',
     async ({ fromColor, fromColorName, key, toColorName, toColor }) => {
-      const element = mockEllipseElement({ fillColor: fromColor });
+      const element = mockLineElement({ strokeColor: fromColor });
       const elementId = activeSlide.addElement(element);
       activeSlide.setActiveElementIds([elementId]);
 
@@ -400,7 +396,7 @@ describe('<ElementColorPicker/>', () => {
     expect(activeColor).toEqual('#9e9e9e');
   });
 
-  it('should be hidden when image elements are selected', async () => {
+  it('should be hidden when only image elements are selected', async () => {
     const element = mockImageElement();
     const elementId = activeSlide.addElement(element);
     activeSlide.setActiveElementIds([elementId]);

@@ -20,6 +20,8 @@ export { findForegroundColor } from './findForegroundColor';
 export { isDefined } from './isDefined';
 export { setLocale } from './locale';
 export * from './matrix';
+export { findColor, useColorPalette } from './useColorPalette';
+export type { Color } from './useColorPalette';
 export { FontsLoadedContextProvider, useFontsLoaded } from './useFontsLoaded';
 export { useLatestValue } from './useLatestValue';
 export { useMeasure } from './useMeasure';
