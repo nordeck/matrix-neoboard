@@ -19,11 +19,10 @@ import { TabPanel } from '@mui/base';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { axe } from 'jest-axe';
-import { ComponentType, PropsWithChildren } from 'react';
-import { act } from 'react-dom/test-utils';
+import { act, ComponentType, PropsWithChildren } from 'react';
 import {
-  WhiteboardTestingContextProvider,
   mockWhiteboardManager,
+  WhiteboardTestingContextProvider,
 } from '../../lib/testUtils/documentTestUtils';
 import { WhiteboardManager } from '../../state';
 import { CommunicationChannel } from '../../state/communication';

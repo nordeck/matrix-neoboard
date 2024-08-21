@@ -15,7 +15,7 @@
  */
 
 import { renderHook } from '@testing-library/react';
-import { act } from 'react-dom/test-utils';
+import { act } from 'react';
 import { Subject } from 'rxjs';
 import { useLatestValue } from './useLatestValue';
 

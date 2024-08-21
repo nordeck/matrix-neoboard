@@ -16,13 +16,12 @@
 
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { renderHook } from '@testing-library/react';
-import { ComponentType, PropsWithChildren } from 'react';
-import { act } from 'react-dom/test-utils';
+import { act, ComponentType, PropsWithChildren } from 'react';
 import { Subject } from 'rxjs';
 import {
-  WhiteboardTestingContextProvider,
   mockPeerConnectionStatistics,
   mockWhiteboardManager,
+  WhiteboardTestingContextProvider,
 } from '../lib/testUtils/documentTestUtils';
 import { WhiteboardManager, WhiteboardStatistics } from './types';
 import { useActiveWhiteboardMembers } from './useActiveWhiteboardMembers';
