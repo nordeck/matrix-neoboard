@@ -33,7 +33,7 @@ type UseToggleItalicResult = {
   toggleItalic: () => void;
 };
 
-export function useToggleItalic() {
+export function useToggleItalic(): UseToggleItalicResult {
   const slideInstance = useWhiteboardSlideInstance();
   const { activeElementIds } = useActiveElements();
   const activeElements = useElements(activeElementIds);

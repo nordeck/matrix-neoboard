@@ -347,12 +347,14 @@ export function mockTextElement(shape: Partial<ShapeElement> = {}): Element {
  */
 export function mockFullscreenApi(): void {
   // Ignore TS and linter here for setting a mocked API
+  // eslint-disable-next-line
   // @ts-ignore
   // eslint-disable-next-line
   document.fullscreenElement = null;
 
   document.exitFullscreen = jest.fn(function () {
     // Ignore TS and linter here for setting a mocked API
+    // eslint-disable-next-line
     // @ts-ignore
     // eslint-disable-next-line
     document.fullscreenElement = null;
@@ -362,6 +364,7 @@ export function mockFullscreenApi(): void {
 
   document.documentElement.requestFullscreen = jest.fn(function () {
     // Ignore TS and linter here for setting a mocked API
+    // eslint-disable-next-line
     // @ts-ignore
     // eslint-disable-next-line
     document.fullscreenElement = {};
