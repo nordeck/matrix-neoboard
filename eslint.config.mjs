@@ -68,6 +68,18 @@ export default ts.config(
           varRegexps: { NAME: /.+/ },
         },
       ],
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: 'react-dom/test-utils',
+              importNames: ['act'],
+              message: 'Please import "act" from "react" instead',
+            },
+          ],
+        },
+      ],
       // Disable for the migration to prevent a lot of errors.
       // Should be revisisted
       '@typescript-eslint/ban-types': 'off',
