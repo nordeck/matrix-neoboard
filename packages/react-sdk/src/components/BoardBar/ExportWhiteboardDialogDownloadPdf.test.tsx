@@ -177,14 +177,14 @@ describe('<ExportWhiteboardDialogDownloadPdf />', () => {
     expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:url');
   });
 
-  it('should handle error while generating PDF', async () => {
+  it('should handle error while generating PDF', () => {
     jest
       .mocked(createWhiteboardPdf)
       .mockReturnValue(throwError(() => new Error('Failed')));
 
     const onError = jest.fn();
 
-    render(
+    const { unmount } = render(
       <ExportWhiteboardDialogDownloadPdf onClick={onClick} onError={onError}>
         Download
       </ExportWhiteboardDialogDownloadPdf>,
@@ -192,22 +192,26 @@ describe('<ExportWhiteboardDialogDownloadPdf />', () => {
     );
 
     expect(onError).toHaveBeenCalledWith('Failed');
+
+    // unmount to prevent updates after tests
+    unmount();
   });
 
-  it('should show loading state', async () => {
+  it('should show loading state', () => {
     jest.mocked(createWhiteboardPdf).mockReturnValue(NEVER);
 
-    render(
+    const { unmount } = render(
       <ExportWhiteboardDialogDownloadPdf onClick={onClick}>
         Download
       </ExportWhiteboardDialogDownloadPdf>,
       { wrapper: Wrapper },
     );
 
-    await act(async () => {
-      expect(
-        screen.getByRole('progressbar', { name: 'Download' }),
-      ).toBeInTheDocument();
-    });
+    expect(
+      screen.getByRole('progressbar', { name: 'Download' }),
+    ).toBeInTheDocument();
+
+    // unmount to prevent updates after tests
+    unmount();
   });
 });

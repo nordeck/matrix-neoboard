@@ -17,14 +17,13 @@
 
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { ComponentType, PropsWithChildren } from 'react';
-import { act } from 'react-dom/test-utils';
+import { act, ComponentType, PropsWithChildren } from 'react';
 import { WhiteboardHost } from '.';
 import {
-  WhiteboardTestingContextProvider,
   mockEllipseElement,
   mockTextElement,
   mockWhiteboardManager,
+  WhiteboardTestingContextProvider,
 } from '../../lib/testUtils/documentTestUtils';
 import {
   Point,
