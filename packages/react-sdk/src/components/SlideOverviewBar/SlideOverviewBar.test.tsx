@@ -26,6 +26,7 @@ import {
 } from '../../lib/testUtils/documentTestUtils';
 import { WhiteboardManager } from '../../state';
 import { CommunicationChannel } from '../../state/communication';
+import { ImageUploadProvider } from '../ImageUpload';
 import { LayoutStateProvider } from '../Layout';
 import { SlidesProvider } from '../Layout/SlidesProvider';
 import { WhiteboardHotkeysProvider } from '../WhiteboardHotkeysProvider';
@@ -55,12 +56,14 @@ describe('<SideOverviewBar/>', () => {
             widgetApi={widgetApi}
           >
             <SlidesProvider>
-              {children}
+              <ImageUploadProvider>
+                {children}
 
-              {/* Include tab panels to make accessibility test happy */}
-              <TabPanel value="slide-0" />
-              <TabPanel value="slide-1" />
-              <TabPanel value="slide-2" />
+                {/* Include tab panels to make accessibility test happy */}
+                <TabPanel value="slide-0" />
+                <TabPanel value="slide-1" />
+                <TabPanel value="slide-2" />
+              </ImageUploadProvider>
             </SlidesProvider>
           </WhiteboardTestingContextProvider>
         </WhiteboardHotkeysProvider>
