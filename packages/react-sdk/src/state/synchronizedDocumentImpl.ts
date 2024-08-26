@@ -221,7 +221,6 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
     documentId: string,
     data: Uint8Array,
   ): Promise<void> {
-    console.debug('saving snapshot');
     await this.store
       .dispatch(
         documentSnapshotApi.endpoints.createDocumentSnapshot.initiate({
@@ -230,14 +229,12 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
         }),
       )
       .unwrap();
-    console.debug('saved snapshot');
   }
 
   private async createDocumentPreview(
     documentId: string,
     data: string,
   ): Promise<void> {
-    console.debug('saving preview');
     await this.store
       .dispatch(
         documentPreviewApi.endpoints.createDocumentPreview.initiate({
@@ -246,7 +243,6 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
         }),
       )
       .unwrap();
-    console.debug('saved preview');
   }
 
   private observeSnapshots(
