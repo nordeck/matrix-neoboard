@@ -43,6 +43,7 @@ import { PageLoader } from '../common/PageLoader';
 import { SlidesProvider } from './SlidesProvider';
 import { ToolbarCanvasContainer } from './ToolbarCanvasContainer';
 import { ToolbarContainer } from './ToolbarContainer';
+import { useFullscreenMode } from './useFullscreenMode';
 import { useLayoutState } from './useLayoutState';
 
 const TabPanelStyled = styled(TabPanel)(() => ({
@@ -66,6 +67,7 @@ export function Layout({ height = '100vh' }: LayoutProps) {
   const slideIds = useActiveWhiteboardInstanceSlideIds();
   const { state: presentationState } = usePresentationMode();
   const isViewingPresentation = presentationState.type === 'presentation';
+  const { isFullscreenMode } = useFullscreenMode();
 
   const { handleUploadDragEnter, uploadDragOverlay } =
     useSlideImageDropUpload();
@@ -80,7 +82,11 @@ export function Layout({ height = '100vh' }: LayoutProps) {
         <ImportWhiteboardDialogProvider>
           <GuidedTour disabled={isViewingPresentation} />
 
-          <Stack height={height} direction="row" bgcolor="background.paper">
+          <Stack
+            height={!isFullscreenMode ? height : '100vh'}
+            direction="row"
+            bgcolor="background.paper"
+          >
             <AnimatedSidebar
               visible={isSlideOverviewVisible && !isViewingPresentation}
               direction="right"

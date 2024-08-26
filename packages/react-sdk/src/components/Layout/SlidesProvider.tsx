@@ -33,6 +33,7 @@ export function SlidesProvider({ children }: PropsWithChildren<{}>) {
 
   return (
     <Tabs
+      id="widget-root"
       orientation="vertical"
       value={activeSlideId}
       onChange={handleSelectSlide}
