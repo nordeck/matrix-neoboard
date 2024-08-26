@@ -39,8 +39,10 @@ export function useFullscreenMode(): UseFullScreenModeResult {
   );
 
   const setFullscreenMode = useCallback((value: boolean) => {
+    const container =
+      document.getElementById('widget-root') ?? document.documentElement;
     if (value && !document.fullscreenElement) {
-      return document.documentElement.requestFullscreen();
+      return container.requestFullscreen();
     }
 
     if (!value && document.fullscreenElement) {

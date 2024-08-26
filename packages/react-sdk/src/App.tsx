@@ -54,5 +54,9 @@ export const App = ({ layoutProps }: AppProps) => {
     );
   }
 
-  return <Layout {...layoutProps} />;
+  return (
+    <div id="widget-root">
+      <Layout {...layoutProps} />
+    </div>
+  );
 };
