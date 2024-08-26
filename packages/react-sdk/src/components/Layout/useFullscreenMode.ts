@@ -64,6 +64,21 @@ export function useFullscreenMode(): UseFullScreenModeResult {
     };
   }, [setFullscreenModeState]);
 
+  useEffect(() => {
+    function listener(e: KeyboardEvent) {
+      if (e.key === 'F11') {
+        e.preventDefault();
+        setFullscreenMode(!isFullscreenMode);
+      }
+    }
+
+    window.addEventListener('keydown', listener);
+
+    return () => {
+      window.removeEventListener('keydown', listener);
+    };
+  }, [setFullscreenMode, isFullscreenMode]);
+
   return {
     isFullscreenMode,
     setFullscreenMode,
