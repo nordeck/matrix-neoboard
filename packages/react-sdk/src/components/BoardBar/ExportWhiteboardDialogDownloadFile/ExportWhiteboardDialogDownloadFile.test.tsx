@@ -157,7 +157,7 @@ describe('<ExportWhiteboardDialogDownloadFile />', () => {
       { wrapper: Wrapper },
     );
 
-    userEvent.click(screen.getByRole('button', { name: 'Download' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Download' }));
 
     await waitFor(() => {
       expect(blobSpy).toHaveBeenCalledWith([
