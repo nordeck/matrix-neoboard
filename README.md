@@ -70,6 +70,29 @@ For a list of available options, see [Configuration](./docs/configuration.md).
 Follow the [instructions to run the widget locally](https://github.com/nordeck/matrix-widget-toolkit/tree/main/example-widget-mui#running-the-widget-locally).
 Visit the widget url follow the further instructions: `http(s)://localhost:3000/`
 
+### Running with a local version of the matrix-widget-toolkit
+
+If changes inside matrix-widget-toolkit are required or for debugging purposes,
+you can clone the repos next to each other and yarn link the packages:
+
+```
+ls
+matrix-neoboard
+matrix-widget-toolkit
+```
+
+Then yarn link the required matrix-widget-toolkit packages, for example:
+
+```
+cd matrix-widget-toolkit
+yarn install
+cd packages/api
+yarn link
+cd ../../../matrix-neoboard
+yarn link @matrix-widget-toolkit/api
+yarn install
+```
+
 ### Available Scripts
 
 In the project directory, you can run:
