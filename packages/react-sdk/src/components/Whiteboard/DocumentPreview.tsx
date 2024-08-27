@@ -25,17 +25,15 @@ export function DocumentPreview() {
   const elementIds = slideInstance.getElementIds();
 
   return (
-    <div id="document-preview">
-      <Box width={'0%'} visibility={'hidden'}>
-        <SvgCanvas
-          viewportHeight={whiteboardHeight}
-          viewportWidth={whiteboardWidth}
-        >
-          {elementIds.map((e) => {
-            return <ConnectedElement id={e} key={e} readOnly />;
-          })}
-        </SvgCanvas>
-      </Box>
-    </div>
+    <Box id="document-preview" width="0%" visibility="hidden">
+      <SvgCanvas
+        viewportHeight={whiteboardHeight}
+        viewportWidth={whiteboardWidth}
+      >
+        {elementIds.map((e) => {
+          return <ConnectedElement id={e} key={e} readOnly />;
+        })}
+      </SvgCanvas>
+    </Box>
   );
 }
