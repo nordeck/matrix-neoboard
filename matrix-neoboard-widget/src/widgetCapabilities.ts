@@ -71,6 +71,11 @@ export const widgetCapabilities = [
     '',
   ),
   WidgetEventCapability.forStateEvent(
+    EventDirection.Receive,
+    STATE_EVENT_DOCUMENT_PREVIEW,
+    '',
+  ),
+  WidgetEventCapability.forStateEvent(
     EventDirection.Send,
     STATE_EVENT_POWER_LEVELS,
     '',
