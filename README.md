@@ -73,7 +73,7 @@ Visit the widget url follow the further instructions: `http(s)://localhost:3000/
 ### Running with a local version of the matrix-widget-toolkit
 
 If changes inside matrix-widget-toolkit are required or for debugging purposes,
-you can clone the repos next to each other and yarn link the packages:
+you can clone the repos next to each other and link the packages with `yarn link`:
 
 ```
 ls
