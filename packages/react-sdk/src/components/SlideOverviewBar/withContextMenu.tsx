@@ -109,7 +109,7 @@ export const withContextMenu = <P extends object>(
     }, [handleClose, slideIndex, whiteboardInstance]);
 
     const handleInsertImport = useCallback(() => {
-      importContext.showImportWhiteboardDialog(slideIndex);
+      importContext.showImportWhiteboardDialog(slideIndex + 1);
       handleClose();
     }, [handleClose, importContext.showImportWhiteboardDialog, slideIndex]);
 
