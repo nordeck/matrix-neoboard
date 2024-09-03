@@ -112,10 +112,10 @@ Object.assign(global, {
 
 // @ts-expect-error This does not exist outside of polyfill which this is doing
 window.Promise.withResolvers = function () {
-  let resolve, reject;
-  const promise = new Promise((res, rej) => {
-    resolve = res;
-    reject = rej;
+  let res, rej;
+  const promise = new Promise((resolve, reject) => {
+    res = resolve;
+    rej = reject;
   });
-  return { promise, resolve, reject };
+  return { promise, res, rej };
 };
