@@ -185,8 +185,8 @@ describe('generateLoadWhiteboardFromExport', () => {
 
     const [slide0Element0] = getNormalizedElementIds(doc, slide0);
     const [slide1Element0] = getNormalizedElementIds(doc, slide1);
-    const [slide2Element0] = getNormalizedElementIds(doc, slide1);
-    const [slide3Element0] = getNormalizedElementIds(doc, slide1);
+    const [slide2Element0] = getNormalizedElementIds(doc, slide2);
+    const [slide3Element0] = getNormalizedElementIds(doc, slide3);
 
     expect(doc.toJSON()).toEqual({
       slides: {
@@ -200,22 +200,22 @@ describe('generateLoadWhiteboardFromExport', () => {
           elements: {
             [slide1Element0]: mockEllipseElement({ kind: 'ellipse' }),
           },
-          elementIds: [slide0Element0],
+          elementIds: [slide1Element0],
         },
         [slide2]: {
           elements: {
             [slide2Element0]: mockEllipseElement({ kind: 'circle' }),
           },
-          elementIds: [slide1Element0],
+          elementIds: [slide2Element0],
         },
         [slide3]: {
           elements: {
             [slide3Element0]: mockEllipseElement({ kind: 'circle' }),
           },
-          elementIds: [slide1Element0],
+          elementIds: [slide3Element0],
         },
       },
-      slideIds: [slide0, slide1, slide2],
+      slideIds: [slide0, slide1, slide2, slide3],
     });
   });
 });
