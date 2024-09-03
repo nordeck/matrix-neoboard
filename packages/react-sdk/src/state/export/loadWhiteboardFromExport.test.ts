@@ -33,9 +33,9 @@ describe('generateLoadWhiteboardFromExport', () => {
       version: 'net.nordeck.whiteboard@v1',
       whiteboard: {
         slides: [
-          { elements: [mockEllipseElement({ kind: 'ellipse' })] },
-          { elements: [mockCircleElement({ kind: 'circle' })] },
-          { elements: [mockTriangleElement({ kind: 'triangle' })] },
+          { elements: [mockEllipseElement()] },
+          { elements: [mockCircleElement()] },
+          { elements: [mockTriangleElement()] },
         ],
       },
     };
@@ -60,19 +60,19 @@ describe('generateLoadWhiteboardFromExport', () => {
       slides: {
         [slide0]: {
           elements: {
-            [slide0Element0]: mockEllipseElement({ kind: 'ellipse' }),
+            [slide0Element0]: mockEllipseElement(),
           },
           elementIds: [slide0Element0],
         },
         [slide1]: {
           elements: {
-            [slide1Element0]: mockCircleElement({ kind: 'circle' }),
+            [slide1Element0]: mockCircleElement(),
           },
           elementIds: [slide1Element0],
         },
         [slide2]: {
           elements: {
-            [slide2Element0]: mockTriangleElement({ kind: 'triangle' }),
+            [slide2Element0]: mockTriangleElement(),
           },
           elementIds: [slide2Element0],
         },
@@ -88,9 +88,9 @@ describe('generateLoadWhiteboardFromExport', () => {
         slides: [
           {
             elements: [
-              mockCircleElement({ kind: 'circle' }),
-              mockTriangleElement({ kind: 'triangle' }),
-              mockEllipseElement({ kind: 'ellipse' }),
+              mockCircleElement(),
+              mockTriangleElement(),
+              mockEllipseElement(),
             ],
           },
         ],
@@ -116,9 +116,9 @@ describe('generateLoadWhiteboardFromExport', () => {
       slides: {
         [slide0]: {
           elements: {
-            [slide0Element0]: mockCircleElement({ kind: 'circle' }),
-            [slide0Element1]: mockTriangleElement({ kind: 'triangle' }),
-            [slide0Element2]: mockEllipseElement({ kind: 'ellipse' }),
+            [slide0Element0]: mockCircleElement(),
+            [slide0Element1]: mockTriangleElement(),
+            [slide0Element2]: mockEllipseElement(),
           },
           elementIds: [slide0Element0, slide0Element1, slide0Element2],
         },
@@ -168,8 +168,8 @@ describe('generateLoadWhiteboardFromExport', () => {
       version: 'net.nordeck.whiteboard@v1',
       whiteboard: {
         slides: [
-          { elements: [mockEllipseElement({ kind: 'ellipse' })] },
-          { elements: [mockCircleElement({ kind: 'circle' })] },
+          { elements: [mockEllipseElement()] },
+          { elements: [mockCircleElement()] },
         ],
       },
     };
@@ -204,25 +204,25 @@ describe('generateLoadWhiteboardFromExport', () => {
       slides: {
         [slide0]: {
           elements: {
-            [slide0Element0]: mockEllipseElement({ kind: 'ellipse' }),
+            [slide0Element0]: mockEllipseElement(),
           },
           elementIds: [slide0Element0],
         },
         [slide1]: {
           elements: {
-            [slide1Element0]: mockEllipseElement({ kind: 'ellipse' }),
+            [slide1Element0]: mockEllipseElement(),
           },
           elementIds: [slide1Element0],
         },
         [slide2]: {
           elements: {
-            [slide2Element0]: mockEllipseElement({ kind: 'circle' }),
+            [slide2Element0]: mockCircleElement(),
           },
           elementIds: [slide2Element0],
         },
         [slide3]: {
           elements: {
-            [slide3Element0]: mockEllipseElement({ kind: 'circle' }),
+            [slide3Element0]: mockCircleElement(),
           },
           elementIds: [slide3Element0],
         },
