@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-module.exports = {
+export default {
   defaultNamespace: 'neoboard',
   locales: ['en', 'de'],
   output: 'src/locales/$LOCALE/$NAMESPACE.json',
