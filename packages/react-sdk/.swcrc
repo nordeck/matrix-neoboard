@@ -1,0 +1,22 @@
+{
+  "jsc": {
+    "externalHelpers": false,
+    // The output environment that the code will be compiled for.
+    // You can change this if you want to emit code for a different environment.
+    "target": "es5",
+    "parser": {
+      "syntax": "typescript",
+      "tsx": true,
+      "dynamicImport": true,
+      "importMeta": true
+    },
+    "transform": {
+      "react": {
+        "runtime": "automatic"
+      }
+    }
+  },
+  "module": {
+    "type": "commonjs"
+  }
+}

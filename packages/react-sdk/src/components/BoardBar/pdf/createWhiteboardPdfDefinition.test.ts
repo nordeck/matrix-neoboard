@@ -23,6 +23,13 @@ import {
 import { createWhiteboardPdfDefinition } from './createWhiteboardPdfDefinition';
 import * as font from './forceLoadFontFamily';
 
+jest.mock('./forceLoadFontFamily', () => {
+  return {
+    __esModule: true,
+    ...jest.requireActual('./forceLoadFontFamily'),
+  };
+});
+
 describe('createWhiteboardPdfDefinition', () => {
   beforeEach(() => {
     jest
