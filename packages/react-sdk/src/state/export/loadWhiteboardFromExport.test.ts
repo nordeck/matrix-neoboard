@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
-import { mockEllipseElement } from '../../lib/testUtils/documentTestUtils';
+import {
+  mockCircleElement,
+  mockEllipseElement,
+  mockTriangleElement,
+} from '../../lib/testUtils/documentTestUtils';
 import {
   createWhiteboardDocument,
   getNormalizedElementIds,
@@ -30,8 +34,8 @@ describe('generateLoadWhiteboardFromExport', () => {
       whiteboard: {
         slides: [
           { elements: [mockEllipseElement({ kind: 'ellipse' })] },
-          { elements: [mockEllipseElement({ kind: 'circle' })] },
-          { elements: [mockEllipseElement({ kind: 'triangle' })] },
+          { elements: [mockCircleElement({ kind: 'circle' })] },
+          { elements: [mockTriangleElement({ kind: 'triangle' })] },
         ],
       },
     };
@@ -62,13 +66,13 @@ describe('generateLoadWhiteboardFromExport', () => {
         },
         [slide1]: {
           elements: {
-            [slide1Element0]: mockEllipseElement({ kind: 'circle' }),
+            [slide1Element0]: mockCircleElement({ kind: 'circle' }),
           },
           elementIds: [slide1Element0],
         },
         [slide2]: {
           elements: {
-            [slide2Element0]: mockEllipseElement({ kind: 'triangle' }),
+            [slide2Element0]: mockTriangleElement({ kind: 'triangle' }),
           },
           elementIds: [slide2Element0],
         },
@@ -84,8 +88,8 @@ describe('generateLoadWhiteboardFromExport', () => {
         slides: [
           {
             elements: [
-              mockEllipseElement({ kind: 'circle' }),
-              mockEllipseElement({ kind: 'triangle' }),
+              mockCircleElement({ kind: 'circle' }),
+              mockTriangleElement({ kind: 'triangle' }),
               mockEllipseElement({ kind: 'ellipse' }),
             ],
           },
@@ -112,8 +116,8 @@ describe('generateLoadWhiteboardFromExport', () => {
       slides: {
         [slide0]: {
           elements: {
-            [slide0Element0]: mockEllipseElement({ kind: 'circle' }),
-            [slide0Element1]: mockEllipseElement({ kind: 'triangle' }),
+            [slide0Element0]: mockCircleElement({ kind: 'circle' }),
+            [slide0Element1]: mockTriangleElement({ kind: 'triangle' }),
             [slide0Element2]: mockEllipseElement({ kind: 'ellipse' }),
           },
           elementIds: [slide0Element0, slide0Element1, slide0Element2],
@@ -165,19 +169,27 @@ describe('generateLoadWhiteboardFromExport', () => {
       whiteboard: {
         slides: [
           { elements: [mockEllipseElement({ kind: 'ellipse' })] },
-          { elements: [mockEllipseElement({ kind: 'circle' })] },
+          { elements: [mockCircleElement({ kind: 'circle' })] },
         ],
       },
     };
 
     const document = createWhiteboardDocument();
 
-    const importWhiteboard = generateLoadWhiteboardFromExport(
+    // Replace the whiteboard to make the output predictable.
+    const importWhiteboard1 = generateLoadWhiteboardFromExport(
+      exportDocument,
+      '@user-id',
+    );
+    document.performChange(importWhiteboard1);
+
+    // Import it a second time, but this time insert it into the existing whiteboard.
+    const importWhiteboard2 = generateLoadWhiteboardFromExport(
       exportDocument,
       '@user-id',
       1,
     );
-    document.performChange(importWhiteboard);
+    document.performChange(importWhiteboard2);
 
     const doc = document.getData();
 
