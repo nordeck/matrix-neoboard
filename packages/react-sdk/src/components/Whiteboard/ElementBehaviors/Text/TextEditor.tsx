@@ -104,6 +104,7 @@ export type TextEditorProps = {
   onBlur: DispatchWithoutAction;
   width: number;
   height: number;
+  fontSize?: number;
   editModeOnMount: boolean;
 };
 
@@ -121,6 +122,7 @@ export function TextEditor({
   onBlur,
   width,
   height,
+  fontSize,
   editModeOnMount = false,
 }: TextEditorProps) {
   const textRef = useRef<HTMLDivElement>(null);
@@ -172,10 +174,10 @@ export function TextEditor({
     // as part of this keystroke.
     window.requestAnimationFrame(() => {
       if (textRef.current) {
-        fitText(textRef.current, contentBold, contentItalic);
+        fitText(textRef.current, fontSize, contentBold, contentItalic);
       }
     });
-  }, [contentBold, contentItalic, textRef]);
+  }, [fontSize, contentBold, contentItalic, textRef]);
 
   const handleKeyUp = useCallback(() => {
     if (textRef.current) {
@@ -219,11 +221,12 @@ export function TextEditor({
   useLayoutEffect(() => {
     // Every time content or the shape changes, re-calculate the perfect font size
     if (textRef.current) {
-      fitText(textRef.current, contentBold, contentItalic);
+      fitText(textRef.current, fontSize, contentBold, contentItalic);
     }
   }, [
     textRef,
     content,
+    fontSize,
     contentBold,
     contentItalic,
     // Width, height, and fontsLoaded are used to trigger calculating the size

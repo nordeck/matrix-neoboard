@@ -20,44 +20,41 @@ import {
   useElements,
   useWhiteboardSlideInstance,
 } from '../../state';
-import { calculateTextItalicUpdates } from './calculateTextItalicUpdates';
+import { calculateFontSizeUpdates } from './calculateFontSizeUpdates';
 
-type UseToggleItalicResult = {
-  /**
-   * True, if at least one active element has italic text.
-   */
-  isItalic: boolean;
-  /**
-   * Toggle bold text of active elements.
-   */
-  toggleItalic: () => void;
+type UseFontSizeResult = {
+  fontSize?: number;
+  setFontSize: (value?: number) => void;
 };
 
-export function useToggleItalic(): UseToggleItalicResult {
+export function useFontSize(): UseFontSizeResult {
   const slideInstance = useWhiteboardSlideInstance();
   const { activeElementIds } = useActiveElements();
   const activeElements = useElements(activeElementIds);
   const elements = Object.values(activeElements);
 
-  let isItalic = false;
+  let fontSize = undefined;
 
   for (const element of elements) {
-    if (element.type === 'shape' && element.textItalic !== undefined) {
-      isItalic = element.textItalic;
+    if (element.type === 'shape' && element.fontSize !== undefined) {
+      fontSize = element.fontSize;
       break;
     }
   }
 
-  const toggleItalic = useCallback(() => {
-    const updates = calculateTextItalicUpdates(activeElements, !isItalic);
+  const setFontSize = useCallback(
+    (value?: number) => {
+      const updates = calculateFontSizeUpdates(activeElements, value);
 
-    if (updates.length > 0) {
-      slideInstance.updateElements(updates);
-    }
-  }, [activeElements, isItalic, slideInstance]);
+      if (updates.length > 0) {
+        slideInstance.updateElements(updates);
+      }
+    },
+    [activeElements, slideInstance],
+  );
 
   return {
-    isItalic,
-    toggleItalic,
+    fontSize,
+    setFontSize,
   };
 }
