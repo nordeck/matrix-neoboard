@@ -14,8 +14,16 @@
  * limitations under the License.
  */
 
+import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useActiveElements, useElements } from '../../../state';
+import { findColor, useColorPalette } from '../../../lib';
+import {
+  includesShapeWithText,
+  includesTextShape,
+  useActiveElements,
+  useElements,
+} from '../../../state';
+import { useLayoutState } from '../../Layout';
 import { ColorPicker } from './ColorPicker';
 import { TextColorPickerIcon } from './TextColorPickerIcon';
 import { calculateTextColorChangeUpdates } from './calculateTextColorChangeUpdates';
@@ -23,14 +31,60 @@ import { extractFirstTextColor } from './extractFirstTextColor';
 
 export function TextColorPicker() {
   const { t } = useTranslation('neoboard');
+  const {
+    activeTextShade,
+    activeShapeTextShade,
+    setActiveTextColor,
+    setActiveTextShade,
+    setActiveShapeTextColor,
+    setActiveShapeTextShade,
+  } = useLayoutState();
+  const { colorPalette } = useColorPalette();
+
   const { activeElementIds } = useActiveElements();
-  const activeElements = useElements(activeElementIds);
-  const color = extractFirstTextColor(Object.values(activeElements));
+  const activeElementsObject = useElements(activeElementIds);
+  const activeElements = Object.values(activeElementsObject);
+
+  const hasText = includesTextShape(activeElements);
+  const hasTextShape = includesShapeWithText(activeElements);
+
+  const defaultShade = hasTextShape ? activeShapeTextShade : activeTextShade;
+
+  const color = extractFirstTextColor(activeElements);
+  const paletteColor =
+    color !== undefined ? findColor(color, colorPalette) : undefined;
+  const shade =
+    (color !== undefined && paletteColor !== undefined
+      ? paletteColor.shades?.indexOf(color)
+      : defaultShade) ?? defaultShade;
+
+  const handleChange = useCallback(
+    (color: string, shade?: number) => {
+      if (hasText) {
+        setActiveTextColor(color);
+
+        if (shade !== undefined) {
+          setActiveTextShade(shade);
+        }
+      }
+
+      if (hasTextShape) {
+        setActiveShapeTextColor(color);
+
+        if (shade !== undefined) {
+          setActiveShapeTextShade(shade);
+        }
+      }
+    },
+    [hasText, hasTextShape],
+  );
 
   return (
     <ColorPicker
       calculateUpdatesFn={calculateTextColorChangeUpdates}
       color={color}
+      shade={shade}
+      setColor={handleChange}
       Icon={TextColorPickerIcon}
       label={t('textColorPicker.title', 'Pick a text color')}
     />

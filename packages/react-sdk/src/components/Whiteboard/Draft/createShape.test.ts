@@ -23,6 +23,7 @@ describe('createShape', () => {
       startCoords: { x: 10, y: 20 },
       endCoords: { x: 30, y: 40 },
       fillColor: '#ffffff',
+      textColor: '#ff0000',
     });
 
     expect(result).toEqual({
@@ -33,6 +34,7 @@ describe('createShape', () => {
       kind: 'rectangle',
       text: '',
       fillColor: '#ffffff',
+      textColor: '#ff0000',
     });
   });
 

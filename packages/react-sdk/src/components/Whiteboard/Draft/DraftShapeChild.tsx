@@ -55,11 +55,22 @@ export const DraftShapeChild = ({
   const { isShowGrid } = useLayoutState();
   const [startCoords, setStartCoords] = useState<Point>();
   const [endCoords, setEndCoords] = useState<Point>();
-  const { activeColor, activeTool } = useLayoutState();
+  const {
+    activeColor,
+    activeTextColor,
+    activeShapeTextColor,
+    activeShapeColor,
+    activeTool,
+  } = useLayoutState();
   const slideInstance = useWhiteboardSlideInstance();
   const { setActiveTool } = useLayoutState();
   const shapeSizes = useAppSelector((state) => selectShapeSizes(state));
   const dispatch = useAppDispatch();
+
+  const fillColor = activeShapeColor;
+  // Text fields are identified by a transparent background color
+  const textColor =
+    fixedColor === 'transparent' ? activeTextColor : activeShapeTextColor;
 
   const updateShapeSize = useCallback(() => {
     if (startCoords === undefined || endCoords === undefined) {
@@ -87,10 +98,11 @@ export const DraftShapeChild = ({
           kind,
           startCoords,
           endCoords,
-          fillColor: fixedColor ?? activeColor,
+          fillColor: fixedColor || fillColor,
           gridCellSize: isShowGrid ? gridCellSize : undefined,
           sameLength,
           rounded: activeTool === 'rounded-rectangle' ? true : false,
+          textColor,
         }),
       );
       setActiveTool('select');
@@ -104,6 +116,7 @@ export const DraftShapeChild = ({
       setActiveTool,
       shapeSizes,
       slideInstance,
+      textColor,
     ],
   );
 
@@ -114,10 +127,11 @@ export const DraftShapeChild = ({
           kind,
           startCoords,
           endCoords,
-          fillColor: fixedColor || activeColor,
+          fillColor: fixedColor || fillColor,
           gridCellSize: isShowGrid ? gridCellSize : undefined,
           sameLength,
           rounded,
+          textColor,
         }),
       );
       setActiveTool('select');
@@ -137,6 +151,7 @@ export const DraftShapeChild = ({
     fixedColor,
     updateShapeSize,
     rounded,
+    textColor,
   ]);
 
   const handleMouseMove = useCallback(
@@ -159,10 +174,11 @@ export const DraftShapeChild = ({
             kind,
             startCoords,
             endCoords,
-            fillColor: fixedColor || activeColor,
+            fillColor: fixedColor || fillColor,
             gridCellSize: isShowGrid ? gridCellSize : undefined,
             sameLength,
             rounded,
+            textColor,
           })
         : undefined,
     [
@@ -174,6 +190,7 @@ export const DraftShapeChild = ({
       startCoords,
       fixedColor,
       rounded,
+      textColor,
     ],
   );
 
