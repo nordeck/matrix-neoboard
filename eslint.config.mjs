@@ -36,7 +36,6 @@ export default ts.config(
       '**/coverage/**',
       '**/craco.config.cjs',
       '**/jest.config.cjs',
-      '**/i18next-parser.config.cjs',
       '**/craco.config.js',
       '**/jest.config.js',
       '**/i18next-parser.config.js',
