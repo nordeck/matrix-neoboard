@@ -1,6 +1,6 @@
 // Create a jest config from our craco config.
 const { createJestConfig } = require('@craco/craco');
-const cracoConfig = require('./craco.config')({ env: 'test' });
+const cracoConfig = require('./craco.config.cjs')({ env: 'test' });
 
 module.exports = {
   // Use the craco.config file to get the defaults.
@@ -16,6 +16,15 @@ module.exports = {
     '@nordeck/matrix-neoboard-(.*)': '<rootDir>/../packages/$1/src/index.ts',
   },
   transformIgnorePatterns: [
-    '(?!(/node_modules/(lib0)/))(/node_modules/.+.(js|jsx|mjs|cjs|ts|tsx)$)',
+    '!(/node_modules/.+.(js|jsx|mjs|cjs|ts|tsx|css)$)',
+    '!(/src/.+.(js|jsx|mjs|cjs|ts|tsx|css)$)',
   ],
+  // Fix CSS imports
+  moduleNameMapper: {
+    '\\.(css|svg)$': 'identity-obj-proxy',
+  },
+  // Fix ESM modules
+  transform: {
+    '^.+\\.(js|jsx|mjs|cjs|ts|tsx|css)$': ['@swc/jest'],
+  },
 };
