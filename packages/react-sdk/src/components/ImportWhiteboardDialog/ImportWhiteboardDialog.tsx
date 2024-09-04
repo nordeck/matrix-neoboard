@@ -38,11 +38,13 @@ import { ImportedWhiteboard } from './types';
 
 export function ImportWhiteboardDialog({
   open,
+  atSlideIndex,
   importedWhiteboard,
   onClose,
   onRetry,
 }: {
   open: boolean;
+  atSlideIndex?: number;
   importedWhiteboard: ImportedWhiteboard | undefined;
   onClose: () => void;
   onRetry: () => void;
@@ -53,10 +55,21 @@ export function ImportWhiteboardDialog({
 
   const handleOnImport = useCallback(() => {
     if (importedWhiteboard?.isError === false) {
-      importWhiteboard(whiteboardInstance, importedWhiteboard.data, handleDrop);
+      importWhiteboard(
+        whiteboardInstance,
+        importedWhiteboard.data,
+        handleDrop,
+        atSlideIndex,
+      );
     }
     onClose();
-  }, [handleDrop, importedWhiteboard, onClose, whiteboardInstance]);
+  }, [
+    atSlideIndex,
+    handleDrop,
+    importedWhiteboard,
+    onClose,
+    whiteboardInstance,
+  ]);
 
   const selectFileButtonLabel = t(
     'boardBar.importWhiteboardDialog.selectFileLabel',
@@ -127,17 +140,19 @@ export function ImportWhiteboardDialog({
           </Box>
         </Button>
 
-        {importedWhiteboard?.isError === false ? (
-          <Alert severity="warning" role="status" sx={{ mt: 1 }}>
-            <AlertTitle>
-              {t('boardBar.importWhiteboardDialog.successTitle', 'Caution')}
-            </AlertTitle>
-            {t(
-              'boardBar.importWhiteboardDialog.successDescription',
-              'Your contents will be replaced. This operation is reversible by using “undo”.',
-            )}
-          </Alert>
-        ) : (
+        {importedWhiteboard?.isError === false &&
+          atSlideIndex === undefined && (
+            <Alert severity="warning" role="status" sx={{ mt: 1 }}>
+              <AlertTitle>
+                {t('boardBar.importWhiteboardDialog.successTitle', 'Caution')}
+              </AlertTitle>
+              {t(
+                'boardBar.importWhiteboardDialog.successDescription',
+                'Your contents will be replaced. This operation is reversible by using “undo”.',
+              )}
+            </Alert>
+          )}
+        {importedWhiteboard?.isError === true && (
           <Alert severity="error" role="status" sx={{ mt: 1 }}>
             <AlertTitle>
               {t('boardBar.importWhiteboardDialog.errorTitle', 'Error')}

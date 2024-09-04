@@ -17,6 +17,7 @@
 import AddIcon from '@mui/icons-material/Add';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
+import InputIcon from '@mui/icons-material/Input';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import PeopleAltOutlinedIcon from '@mui/icons-material/PeopleAltOutlined';
 import {
@@ -34,6 +35,7 @@ import {
   useSlideIsLocked,
 } from '../../state';
 import { MenuItemSwitch } from '../common/MenuItemSwitch';
+import { useImportWhiteboardDialog } from '../ImportWhiteboardDialog/useImportWhiteboardDialog';
 
 type ContextMenuState =
   | { slideId: string; position: PopoverPosition }
@@ -56,6 +58,7 @@ export const withContextMenu = <P extends object>(
   }: WithContextMenuProps) => {
     const { t } = useTranslation('neoboard');
     const [state, setState] = useState<ContextMenuState>();
+    const importContext = useImportWhiteboardDialog();
     const whiteboardInstance = useActiveWhiteboardInstance();
     const slideIds = useActiveWhiteboardInstanceSlideIds();
     const isLocked = useSlideIsLocked(slideId);
@@ -104,6 +107,11 @@ export const withContextMenu = <P extends object>(
       whiteboardInstance.setActiveSlideId(newSlideId);
       handleClose();
     }, [handleClose, slideIndex, whiteboardInstance]);
+
+    const handleInsertImport = useCallback(() => {
+      importContext.showImportWhiteboardDialog(slideIndex + 1);
+      handleClose();
+    }, [handleClose, importContext.showImportWhiteboardDialog, slideIndex]);
 
     const handleContextMenu = useCallback(
       (event: MouseEvent<HTMLButtonElement>) => {
@@ -179,6 +187,14 @@ export const withContextMenu = <P extends object>(
             </ListItemIcon>
             <ListItemText>
               {t('slideOverviewBar.contextMenu.insertSlide', 'Insert slide')}
+            </ListItemText>
+          </MenuItem>
+          <MenuItem onClick={handleInsertImport}>
+            <ListItemIcon sx={{ color: 'text.primary' }}>
+              <InputIcon />
+            </ListItemIcon>
+            <ListItemText>
+              {t('slideOverviewBar.contextMenu.insertImport', 'Import here')}
             </ListItemText>
           </MenuItem>
           <MenuItem divider onClick={handleClickBringEveryoneToSlide}>

@@ -112,8 +112,15 @@ export type WhiteboardInstance = {
    * @returns exported document
    */
   export(baseUrl: string): Promise<WhiteboardDocumentExport>;
-  /** Replace the whiteboard contents with the contents of the export file. */
-  import(whiteboardDocumentExport: WhiteboardDocumentExport): void;
+  /**
+   * Replace the whiteboard contents with the contents of the export file.
+   *
+   * @param atSlideIndex - If set, the contents will be inserted instead of replacing previous slides.
+   */
+  import(
+    whiteboardDocumentExport: WhiteboardDocumentExport,
+    atSlideIndex?: number,
+  ): void;
 
   /** Undo the latest change in the whiteboard. */
   undo(): void;

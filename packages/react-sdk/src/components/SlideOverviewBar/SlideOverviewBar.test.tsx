@@ -26,8 +26,11 @@ import {
 } from '../../lib/testUtils/documentTestUtils';
 import { WhiteboardManager } from '../../state';
 import { CommunicationChannel } from '../../state/communication';
+import { ImageUploadProvider } from '../ImageUpload';
+import { ImportWhiteboardDialogProvider } from '../ImportWhiteboardDialog/ImportWhiteboardDialogProvider';
 import { LayoutStateProvider } from '../Layout';
 import { SlidesProvider } from '../Layout/SlidesProvider';
+import { SnackbarProvider } from '../Snackbar';
 import { WhiteboardHotkeysProvider } from '../WhiteboardHotkeysProvider';
 import { SlideOverviewBar } from './SlideOverviewBar';
 
@@ -50,19 +53,27 @@ describe('<SideOverviewBar/>', () => {
     Wrapper = ({ children }) => (
       <LayoutStateProvider>
         <WhiteboardHotkeysProvider>
-          <WhiteboardTestingContextProvider
-            whiteboardManager={whiteboardManager}
-            widgetApi={widgetApi}
-          >
-            <SlidesProvider>
-              {children}
+          <SnackbarProvider>
+            {/* for ImageUploadProvider */}
+            <WhiteboardTestingContextProvider
+              whiteboardManager={whiteboardManager}
+              widgetApi={widgetApi}
+            >
+              <SlidesProvider>
+                <ImageUploadProvider>
+                  {/* for ImportWhiteboardDialogProvider */}
+                  <ImportWhiteboardDialogProvider>
+                    {children}
 
-              {/* Include tab panels to make accessibility test happy */}
-              <TabPanel value="slide-0" />
-              <TabPanel value="slide-1" />
-              <TabPanel value="slide-2" />
-            </SlidesProvider>
-          </WhiteboardTestingContextProvider>
+                    {/* Include tab panels to make accessibility test happy */}
+                    <TabPanel value="slide-0" />
+                    <TabPanel value="slide-1" />
+                    <TabPanel value="slide-2" />
+                  </ImportWhiteboardDialogProvider>
+                </ImageUploadProvider>
+              </SlidesProvider>
+            </WhiteboardTestingContextProvider>
+          </SnackbarProvider>
         </WhiteboardHotkeysProvider>
       </LayoutStateProvider>
     );

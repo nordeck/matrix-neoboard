@@ -26,6 +26,7 @@ import {
 import { mockPowerLevelsEvent } from '../../lib/testUtils/matrixTestUtils';
 import { WhiteboardDocumentExport, WhiteboardManager } from '../../state';
 import { ImageUploadProvider } from '../ImageUpload';
+import { ImportWhiteboardDialogProvider } from '../ImportWhiteboardDialog/ImportWhiteboardDialogProvider';
 import { LayoutStateProvider } from '../Layout/useLayoutState';
 import { SnackbarProvider } from '../Snackbar';
 import { BoardBar } from './BoardBar';
@@ -50,7 +51,9 @@ describe('<BoardBar/>', () => {
       >
         <SnackbarProvider>
           <ImageUploadProvider>
-            <LayoutStateProvider>{children}</LayoutStateProvider>
+            <ImportWhiteboardDialogProvider>
+              <LayoutStateProvider>{children}</LayoutStateProvider>
+            </ImportWhiteboardDialogProvider>
           </ImageUploadProvider>
         </SnackbarProvider>
       </WhiteboardTestingContextProvider>

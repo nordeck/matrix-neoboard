@@ -18,12 +18,11 @@ import BugReportOutlinedIcon from '@mui/icons-material/BugReportOutlined';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { ListItemIcon, ListItemText, Menu, MenuItem } from '@mui/material';
 import { unstable_useId as useId } from '@mui/utils';
-import { getLogger } from 'loglevel';
+import { t } from 'i18next';
 import { MouseEvent, useCallback, useState } from 'react';
-import { FileRejection, useDropzone } from 'react-dropzone';
 import { useTranslation } from 'react-i18next';
-import { isValidWhiteboardExportDocument } from '../../state';
 import { usePowerLevels } from '../../store/api/usePowerLevels';
+import { useImportWhiteboardDialog } from '../ImportWhiteboardDialog/useImportWhiteboardDialog';
 import { useLayoutState } from '../Layout';
 import { MenuItemSwitch } from '../common/MenuItemSwitch';
 import { ToolbarSubMenu } from '../common/Toolbar';
@@ -31,8 +30,23 @@ import { DotsGridIcon } from '../icons/DotsGridIcon';
 import { FileExportOutlineIcon } from '../icons/FileExportOutlineIcon';
 import { FileImportOutlineIcon } from '../icons/FileImportOutlineIcon';
 import { ExportWhiteboardDialog } from './ExportWhiteboardDialog';
-import { ImportWhiteboardDialog } from './ImportWhiteboardDialog';
-import { ImportedWhiteboard } from './types';
+
+function ImportMenuItem({ onClose }: { onClose: () => void }) {
+  const importContext = useImportWhiteboardDialog();
+  return (
+    <MenuItem
+      onClick={useCallback(() => {
+        importContext.showImportWhiteboardDialog();
+        onClose();
+      }, [])}
+    >
+      <ListItemIcon>
+        <FileImportOutlineIcon sx={{ color: 'text.primary' }} />
+      </ListItemIcon>
+      <ListItemText>{t('boardBar.menu.import', 'Import…')}</ListItemText>
+    </MenuItem>
+  );
+}
 
 export function SettingsMenu() {
   const { t } = useTranslation('neoboard');
@@ -47,10 +61,6 @@ export function SettingsMenu() {
   const open = Boolean(anchorEl);
 
   const [openExportDialog, setOpenExportDialog] = useState(false);
-
-  const [openImportDialog, setOpenImportDialog] = useState(false);
-  const [importedWhiteboard, setImportedWhiteboard] =
-    useState<ImportedWhiteboard>();
   const { canImportWhiteboard } = usePowerLevels();
 
   const handleClick = useCallback((event: MouseEvent<HTMLButtonElement>) => {
@@ -60,79 +70,6 @@ export function SettingsMenu() {
   const handleClose = useCallback(() => {
     setAnchorEl(null);
   }, []);
-
-  const onDrop = useCallback(
-    ([file]: File[], rejectedFiles: FileRejection[]) => {
-      if (file === undefined && rejectedFiles.length > 0) {
-        setImportedWhiteboard({
-          name: rejectedFiles[0].file.name,
-          isError: true,
-        });
-        setOpenImportDialog(true);
-        return;
-      }
-
-      const reader = new FileReader();
-
-      const logger = getLogger('SettingsMenu');
-
-      reader.onabort = () => logger.warn('file reading was aborted');
-      reader.onerror = () => logger.warn('file reading has failed');
-      reader.onload = () => {
-        if (typeof reader.result !== 'string') {
-          return;
-        }
-
-        try {
-          const jsonData = JSON.parse(reader.result);
-
-          if (isValidWhiteboardExportDocument(jsonData)) {
-            setImportedWhiteboard({
-              name: file.name,
-              isError: false,
-              data: jsonData,
-            });
-          } else {
-            setImportedWhiteboard({
-              name: file.name,
-              isError: true,
-            });
-          }
-
-          setOpenImportDialog(true);
-        } catch (ex) {
-          const logger = getLogger('SettingsMenu');
-          logger.error('Error while parsing the selected import file', ex);
-
-          setImportedWhiteboard({
-            name: file.name,
-            isError: true,
-          });
-          setOpenImportDialog(true);
-        }
-      };
-
-      reader.readAsText(file);
-    },
-    [],
-  );
-
-  const {
-    getInputProps,
-    getRootProps,
-    open: openFilePicker,
-  } = useDropzone({
-    onDrop,
-    maxFiles: 1,
-    accept: { 'application/octet-stream': ['.nwb'] },
-    noDrag: true,
-    multiple: false,
-    // the keyboard interactions are already provided by the MenuItems
-    noKeyboard: true,
-  });
-  const filePickerInput = (
-    <input {...getInputProps()} data-testid="import-file-picker" />
-  );
 
   const handleExportClick = useCallback(() => {
     setOpenExportDialog(true);
@@ -178,14 +115,6 @@ export function SettingsMenu() {
         <SettingsIcon />
       </ToolbarSubMenu>
 
-      {filePickerInput}
-
-      <ImportWhiteboardDialog
-        open={openImportDialog}
-        importedWhiteboard={importedWhiteboard}
-        onClose={() => setOpenImportDialog(false)}
-        onRetry={() => openFilePicker()}
-      />
       <ExportWhiteboardDialog
         open={openExportDialog}
         onClose={() => setOpenExportDialog(false)}
@@ -212,16 +141,7 @@ export function SettingsMenu() {
         }}
         id={menuId}
       >
-        {canImportWhiteboard && (
-          <MenuItem
-            {...getRootProps({ onClick: handleClose, role: 'menuitem' })}
-          >
-            <ListItemIcon>
-              <FileImportOutlineIcon sx={{ color: 'text.primary' }} />
-            </ListItemIcon>
-            <ListItemText>{t('boardBar.menu.import', 'Import…')}</ListItemText>
-          </MenuItem>
-        )}
+        {canImportWhiteboard && <ImportMenuItem onClose={handleClose} />}
         <MenuItem onClick={handleExportClick}>
           <ListItemIcon>
             <FileExportOutlineIcon sx={{ color: 'text.primary' }} />

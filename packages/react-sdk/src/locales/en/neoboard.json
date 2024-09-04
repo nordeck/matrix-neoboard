@@ -217,6 +217,7 @@
       "bringEveryoneToSlide": "Bring all here",
       "deleteSlide": "Delete",
       "duplicateSlide": "Duplicate slide",
+      "insertImport": "Import here",
       "insertSlide": "Insert slide",
       "lockSlide": "Lock",
       "title": "Slide {{index}}"

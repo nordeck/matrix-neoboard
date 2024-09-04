@@ -31,10 +31,11 @@ export async function importWhiteboard(
   whiteboard: WhiteboardInstance,
   data: WhiteboardDocumentExport,
   handleDrop: ImageUploadState['handleDrop'],
+  atSlideIndex?: number,
 ) {
   const mxcMap = await uploadImages(data, handleDrop);
   const importData = updateMxcs(data, mxcMap);
-  whiteboard.import(importData);
+  whiteboard.import(importData, atSlideIndex);
 }
 
 async function uploadImages(
