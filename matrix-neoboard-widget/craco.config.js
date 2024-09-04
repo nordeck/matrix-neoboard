@@ -33,12 +33,16 @@ module.exports = function ({ env }) {
 };
 
 /**
- * Craco plugin for using local packages from the same mono repository.
+ * Craco plugin for using local packages from the same mono repository and matrix-widget-toolkit.
  */
 function importLocalPackages() {
   const path = require('path');
   const { getLoader, loaderByName } = require('@craco/craco');
   const absolutePath = path.join(__dirname, '../packages');
+  const matrixWidgetToolkitPath = path.join(
+    __dirname,
+    '../../matrix-widget-toolkit',
+  );
 
   function overrideWebpackConfig({ webpackConfig, context }) {
     const { isFound, match } = getLoader(
@@ -50,7 +54,10 @@ function importLocalPackages() {
         ? match.loader.include
         : [match.loader.include];
 
-      match.loader.include = include.concat(absolutePath);
+      match.loader.include = include.concat(
+        absolutePath,
+        matrixWidgetToolkitPath,
+      );
     }
     return webpackConfig;
   }
