@@ -17,11 +17,15 @@
 import {
   mockEllipseElement,
   mockLineElement,
+  mockRectangleElement,
 } from '../../../lib/testUtils/documentTestUtils';
 import {
   calculateBoundingRectForElements,
   calculateCentredPosition,
   calculateFittedElementSize,
+  includesTextShape,
+  isShapeWithText,
+  isTextShape,
   isValidElement,
 } from './elements';
 
@@ -376,5 +380,89 @@ describe('calculateFittedElementSize', () => {
         { width: 100, height: 25 },
       ),
     ).toEqual({ width: 20, height: 25 });
+  });
+});
+
+it.each([
+  ['shape', '', '', false],
+  ['shape', '#ff0000', '', false],
+  ['shape', '', 'hello', false],
+  ['shape', 'transparent', 'hello', false],
+  ['shape', '#ff0000', 'hello', true],
+] as [string, string, string, boolean][])(
+  'isShapeWithText (kind %s, fillColor %s, text %s) should return %s',
+  (elementType, fillColor, text, expected) => {
+    const element =
+      elementType === 'shape'
+        ? mockRectangleElement({ fillColor, text })
+        : mockLineElement();
+    expect(isShapeWithText(element)).toBe(expected);
+  },
+);
+
+it.each([
+  ['shape', '', '', false],
+  ['shape', '#ff0000', '', false],
+  ['shape', 'transparent', '', false],
+  ['shape', '', 'hello', true],
+  ['shape', 'transparent', 'hello', true],
+  ['shape', '#ff0000', 'hello', false],
+] as [string, string, string, boolean][])(
+  'isTextShape (kind %s, fillColor %s, text %s) should return %s',
+  (elementType, fillColor, text, expected) => {
+    const element =
+      elementType === 'shape'
+        ? mockRectangleElement({ fillColor, text })
+        : mockLineElement();
+    expect(isTextShape(element)).toBe(expected);
+  },
+);
+
+describe('includesShapeWithText', () => {
+  it('should return false for an empty list', () => {
+    expect(includesTextShape([])).toBe(false);
+  });
+
+  it('should return false if there are only non-text elements', () => {
+    expect(
+      includesTextShape([
+        mockLineElement(),
+        mockRectangleElement({ fillColor: '#ff0000', text: 'hello' }),
+      ]),
+    ).toBe(false);
+  });
+
+  it('should return true if there is one text element', () => {
+    expect(
+      includesTextShape([
+        mockLineElement(),
+        mockRectangleElement({ fillColor: 'transparent', text: 'hello' }),
+      ]),
+    ).toBe(true);
+  });
+});
+
+describe('includesTextShape', () => {
+  it('should return false for an empty list', () => {
+    expect(includesTextShape([])).toBe(false);
+  });
+
+  it('should return false if there are only non-text shape elements', () => {
+    expect(
+      includesTextShape([
+        mockLineElement(),
+        mockRectangleElement({ fillColor: '#ff0000' }),
+      ]),
+    ).toBe(false);
+  });
+
+  it('should return true if there is one text shape element', () => {
+    expect(
+      includesTextShape([
+        mockLineElement(),
+        mockRectangleElement({ fillColor: '#ff0000' }),
+        mockRectangleElement({ fillColor: '#ff0000', text: 'hello' }),
+      ]),
+    ).toBe(false);
   });
 });

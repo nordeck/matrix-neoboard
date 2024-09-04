@@ -81,6 +81,14 @@
       "yellow": "Yellow"
     },
     "gridTitle": "Colors",
+    "shade": "Shade",
+    "shade_base": "base",
+    "shade_dark": "dark",
+    "shade_darker": "darker",
+    "shade_darkest": "darkest",
+    "shade_light": "light",
+    "shade_lighter": "lighter",
+    "shade_lightest": "lightest",
     "title": "Pick a color"
   },
   "copyableTextButton": {

@@ -81,6 +81,14 @@
       "yellow": "Gelb"
     },
     "gridTitle": "Farben",
+    "shade": "Farbton",
+    "shade_base": "Basisfarbe",
+    "shade_dark": "dunkel",
+    "shade_darker": "dunkler",
+    "shade_darkest": "am dunkelsten",
+    "shade_light": "hell",
+    "shade_lighter": "heller",
+    "shade_lightest": "am hellsten",
     "title": "Wähle eine Farbe"
   },
   "copyableTextButton": {

@@ -16,6 +16,7 @@
 
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import { findColor, useColorPalette } from '../../../lib';
 import { useActiveElements, useElements } from '../../../state';
 import { useLayoutState } from '../../Layout';
 import { ColorPicker } from './ColorPicker';
@@ -29,24 +30,66 @@ import { extractFirstColor } from './extractFirstColor';
 export function ElementColorPicker() {
   const { t } = useTranslation('neoboard');
   const { activeElementIds } = useActiveElements();
-  const activeElements = useElements(activeElementIds);
-  const { setActiveColor } = useLayoutState();
+  const activeElementsObject = useElements(activeElementIds);
+  const activeElements = Object.values(activeElementsObject);
+  const {
+    activeColor,
+    activeShade,
+    activeShapeColor,
+    activeShapeShade,
+    setActiveColor,
+    setActiveShade,
+    setActiveShapeColor,
+    setActiveShapeShade,
+  } = useLayoutState();
 
-  const color = extractFirstColor(Object.values(activeElements));
+  const hasShape = activeElements.some((e) => e.type === 'shape');
+  const hasOther = activeElements.some((e) => e.type !== 'shape');
+  const hasOnlyImages = activeElements.every((e) => e.type === 'image');
 
-  const setActiveColorIfNotTransparent = useCallback(
-    (color: string): void => {
+  const defaultColor = hasShape ? activeShapeColor : activeColor;
+  const defaultShade = hasShape ? activeShapeShade : activeShade;
+
+  const { colorPalette } = useColorPalette();
+  const color =
+    extractFirstColor(Object.values(activeElements)) ?? defaultColor;
+  const paletteColor = findColor(color, colorPalette);
+  const shade = paletteColor?.shades?.indexOf(color) ?? defaultShade;
+
+  const setActiveColorAndShade = useCallback(
+    (color: string, shade?: number): void => {
       if (color !== 'transparent') {
-        setActiveColor(color);
+        if (hasShape) {
+          setActiveShapeColor(color);
+        }
+
+        if (hasOther) {
+          setActiveColor(color);
+        }
+      }
+
+      if (shade !== undefined) {
+        if (hasShape) {
+          setActiveShapeShade(shade);
+        }
+
+        if (hasOther) {
+          setActiveShade(shade);
+        }
       }
     },
-    [setActiveColor],
+    [setActiveShapeColor, setActiveShapeShade],
   );
+
+  if (hasOnlyImages) {
+    return null;
+  }
 
   return (
     <ColorPicker
       color={color}
-      setColor={setActiveColorIfNotTransparent}
+      shade={shade}
+      setColor={setActiveColorAndShade}
       calculateUpdatesFn={calculateColorChangeUpdates}
       Icon={ColorPickerIcon}
       label={t('colorPicker.title', 'Pick a color')}
