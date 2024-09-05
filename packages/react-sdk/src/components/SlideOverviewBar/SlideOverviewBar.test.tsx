@@ -360,23 +360,17 @@ describe('<SideOverviewBar/>', () => {
 
     await userEvent.keyboard('M');
 
-    await waitForAnnouncement(
-      baseElement,
-      /You have lifted a slide\. It is in position 2 of 3 in the list\./,
-    );
+    await waitForAnnouncement(baseElement, /You have lifted a slide\./);
 
     await userEvent.keyboard('{ArrowUp}');
 
-    await waitForAnnouncement(
-      baseElement,
-      'You have moved the slide to position 1 of 3.',
-    );
+    await waitForAnnouncement(baseElement, 'You have moved the slide.');
 
     await userEvent.keyboard('M');
 
     await waitForAnnouncement(
       baseElement,
-      /You have dropped the slide\. It has moved from position 2 to 1\./,
+      /You have dropped the slide\. It has moved from one position to another\./,
     );
 
     expect(tab).toHaveAccessibleName('Slide 1');

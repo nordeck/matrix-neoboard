@@ -67,7 +67,7 @@ describe('<CollaborationBar>', () => {
         }),
       ).toBeInTheDocument();
       expect(
-        within(toolbar).getByRole('button', { name: '@user-id (You)' }),
+        within(toolbar).getByRole('button', { name: 'You' }),
       ).toBeInTheDocument();
     });
   });

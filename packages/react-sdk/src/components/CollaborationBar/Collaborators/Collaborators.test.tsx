@@ -138,7 +138,7 @@ describe('<Collaborators>', () => {
 
     const group = screen.getByRole('group', { name: 'Collaborators' });
     const ownAvatarButton = await within(group).findByRole('button', {
-      name: 'Alice (You)',
+      name: 'You',
     });
 
     // The "presentation" role is searched for here, as the image has an empty alt tag.
@@ -161,7 +161,7 @@ describe('<Collaborators>', () => {
     await act(async () => {
       expect(
         within(group).getByRole('button', {
-          name: '@user-alice is presenting',
+          name: 'Someone is presenting',
         }),
       ).toBeInTheDocument();
     });
@@ -192,7 +192,7 @@ describe('<Collaborators>', () => {
         within(group)
           .getAllByRole('button')
           .map((b) => b.getAttribute('aria-label')),
-      ).toEqual(['Alice (You)', 'Bob', 'Erin']);
+      ).toEqual(['You', 'Bob', 'Erin']);
     });
   });
 
@@ -204,7 +204,7 @@ describe('<Collaborators>', () => {
       name: 'One further collaborator',
     });
 
-    expect(moreButton).toHaveTextContent('+1');
+    expect(moreButton).toHaveTextContent('+');
 
     await userEvent.click(moreButton);
 
@@ -236,14 +236,14 @@ describe('<Collaborators>', () => {
 
     const group = screen.getByRole('group', { name: 'Collaborators' });
     const moreButton = within(group).getByRole('button', {
-      name: '2 further collaborators',
+      name: 'Further collaborators',
     });
 
-    expect(moreButton).toHaveTextContent('+2');
+    expect(moreButton).toHaveTextContent('+');
 
     await userEvent.click(moreButton);
 
-    const menu = screen.getByRole('menu', { name: '2 further collaborators' });
+    const menu = screen.getByRole('menu', { name: 'Further collaborators' });
 
     expect(
       within(menu).getByRole('menuitem', { name: 'Grace' }),

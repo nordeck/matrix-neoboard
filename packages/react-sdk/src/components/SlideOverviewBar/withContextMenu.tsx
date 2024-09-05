@@ -128,9 +128,10 @@ export const withContextMenu = <P extends object>(
       [slideId],
     );
 
-    const menuTitle = t('slideOverviewBar.contextMenu.title', 'Slide', {
-      index: slideIndex + 1,
-    });
+    const menuTitle =
+      t('slideOverviewBar.contextMenu.title', 'Slide', {
+        index: slideIndex + 1,
+      }) + ` ${slideIndex + 1}`;
     const open = Boolean(state);
     return (
       <>
