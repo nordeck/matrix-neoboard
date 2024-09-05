@@ -60,7 +60,7 @@
     "tsc": "tsc",
     "test": "jest --watch",
     "test:all": "jest --coverage --watchAll=false",
-    "depcheck": "depcheck --ignores=\"babel-plugin-transform-import-meta,@types/jest\" --ignore-dirs=build",
+    "depcheck": "depcheck --ignores=\"babel-plugin-transform-import-meta,@types/jest,@babel/plugin-proposal-private-property-in-object\" --ignore-dirs=build",
     "lint": "eslint .",
     "translate": "i18next \"src/**/*.{ts,tsx}\"",
     "prettier:check": "prettier --check .",
