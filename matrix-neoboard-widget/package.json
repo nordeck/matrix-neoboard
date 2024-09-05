@@ -7,7 +7,7 @@
   "private": true,
   "dependencies": {
     "@matrix-widget-toolkit/api": "^3.4.0",
-    "@matrix-widget-toolkit/mui": "^2.0.1",
+    "@matrix-widget-toolkit/mui": "^2.0.2",
     "@nordeck/matrix-neoboard-react-sdk": "0.1.1",
     "i18next": "^23.14.0",
     "i18next-browser-languagedetector": "^8.0.0",
@@ -25,6 +25,7 @@
     "fork-ts-checker-webpack-plugin": "^6.5.3"
   },
   "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@craco/craco": "^7.1.0",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.4.8",
@@ -36,7 +37,6 @@
     "@types/react-i18next": "^8.1.0",
     "@types/react-redux": "^7.1.33",
     "babel-plugin-transform-import-meta": "^2.2.1",
-    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "cross-env": "^7.0.3",
     "depcheck": "^1.4.7",
     "dotenv-cli": "^7.4.2",
