@@ -17,7 +17,7 @@
 import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { Link, ListItemText, Menu, MenuItem } from '@mui/material';
 import { unstable_useId as useId } from '@mui/utils';
-import { MouseEvent, useCallback, useState } from 'react';
+import { MouseEvent, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useGuidedTour } from '../GuidedTour';
 import { ToolbarSubMenu } from '../common/Toolbar';
@@ -85,21 +85,27 @@ export function HelpMenu() {
           horizontal: 'left',
         }}
         onClose={handleClose}
-        componentsProps={{
-          backdrop: {
-            // Make sure to close the context menu if the user clicks on the
-            // backdrop
-            onContextMenu: (e) => {
-              e.preventDefault();
-              handleClose();
+        componentsProps={useMemo(
+          () => ({
+            backdrop: {
+              // Make sure to close the context menu if the user clicks on the
+              // backdrop
+              onContextMenu: (e) => {
+                e.preventDefault();
+                handleClose();
+              },
             },
-          },
-        }}
-        MenuListProps={{
-          'aria-labelledby': buttonId,
-          dense: true,
-          sx: { minWidth: 212 },
-        }}
+          }),
+          [handleClose],
+        )}
+        MenuListProps={useMemo(
+          () => ({
+            'aria-labelledby': buttonId,
+            dense: true,
+            sx: { minWidth: 212 },
+          }),
+          [buttonId],
+        )}
         id={menuId}
       >
         {helpCenterUrl && (

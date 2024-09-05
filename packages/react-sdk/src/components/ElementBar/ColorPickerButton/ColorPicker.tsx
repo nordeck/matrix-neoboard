@@ -16,7 +16,13 @@
 
 import { Popover } from '@mui/material';
 import { unstable_useId as useId } from '@mui/utils';
-import { ComponentType, MouseEvent, useCallback, useState } from 'react';
+import {
+  ComponentType,
+  MouseEvent,
+  useCallback,
+  useMemo,
+  useState,
+} from 'react';
 import {
   useActiveElements,
   useElements,
@@ -111,16 +117,19 @@ export function ColorPicker({
           vertical: 'top',
           horizontal: 'center',
         }}
-        componentsProps={{
-          backdrop: {
-            // Make sure to close the context menu if the user clicks on the
-            // backdrop
-            onContextMenu: (e) => {
-              e.preventDefault();
-              handleClose();
+        componentsProps={useMemo(
+          () => ({
+            backdrop: {
+              // Make sure to close the context menu if the user clicks on the
+              // backdrop
+              onContextMenu: (e) => {
+                e.preventDefault();
+                handleClose();
+              },
             },
-          },
-        }}
+          }),
+          [handleClose],
+        )}
       >
         <ColorsGrid
           id={gridId}
