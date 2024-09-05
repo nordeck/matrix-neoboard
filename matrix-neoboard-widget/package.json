@@ -36,6 +36,7 @@
     "@types/react-i18next": "^8.1.0",
     "@types/react-redux": "^7.1.33",
     "babel-plugin-transform-import-meta": "^2.2.1",
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "cross-env": "^7.0.3",
     "depcheck": "^1.4.7",
     "dotenv-cli": "^7.4.2",
