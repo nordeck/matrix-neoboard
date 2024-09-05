@@ -6,7 +6,7 @@
   "version": "1.18.1",
   "private": true,
   "dependencies": {
-    "@matrix-widget-toolkit/api": "^3.3.2",
+    "@matrix-widget-toolkit/api": "^3.4.0",
     "@matrix-widget-toolkit/mui": "^2.0.1",
     "@nordeck/matrix-neoboard-react-sdk": "0.1.1",
     "i18next": "^23.14.0",
@@ -15,7 +15,7 @@
     "i18next-http-backend": "^2.6.0",
     "loglevel": "^1.9.1",
     "loglevel-plugin-prefix": "^0.8.4",
-    "matrix-widget-api": "^1.8.2",
+    "matrix-widget-api": "^1.9.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-i18next": "^15.0.1",
