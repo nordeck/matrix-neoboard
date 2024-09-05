@@ -40,10 +40,6 @@ jest.mock('../../lib', () => ({
 const slide0 = 'IN4h74suMiIAK4AVMAdl_';
 
 describe('convertWhiteboardToExportFormat', () => {
-  afterEach(() => {
-    fetchMock.mockReset();
-  });
-
   it('should return slides in the correct order', async () => {
     const document = createWhiteboardDocument();
 
@@ -97,15 +93,11 @@ describe('convertWhiteboardToExportFormat', () => {
       addElement0(doc);
     });
 
-    fetchMock.get(
-      'https://example.com/_matrix/media/v3/download/example.com/test1234',
-      'test image data',
-    );
-
     jest.mocked(convertBlobToBase64).mockImplementation(async (blob: Blob) => {
+      const text = await readBlobAsText(blob);
       // ensure that the response data is passed into the function
-      expect(await blob.text()).toEqual('test image data');
-      return btoa('encoded test image data');
+      expect(text).toEqual('image content');
+      return btoa('encoded image content');
     });
 
     expect(await exportWhiteboard(document.getData(), mockWidgetApi())).toEqual(
@@ -116,7 +108,7 @@ describe('convertWhiteboardToExportFormat', () => {
           files: [
             // expect the file with base64 encoded content
             {
-              data: btoa('encoded test image data'),
+              data: btoa('encoded image content'),
               mxc: 'mxc://example.com/test1234',
             },
           ],
@@ -137,16 +129,11 @@ describe('convertWhiteboardToExportFormat', () => {
       addElement1(doc);
     });
 
-    // expect only one download to happen
-    fetchMock.get(
-      'https://example.com/_matrix/media/v3/download/example.com/test1234',
-      'test image data',
-    );
-
     jest.mocked(convertBlobToBase64).mockImplementation(async (blob: Blob) => {
+      const text = await readBlobAsText(blob);
       // ensure that the response data is passed into the function
-      expect(await blob.text()).toEqual('test image data');
-      return btoa('encoded test image data');
+      expect(text).toEqual('image content');
+      return btoa('encoded image content');
     });
 
     expect(await exportWhiteboard(document.getData(), mockWidgetApi())).toEqual(
@@ -157,7 +144,7 @@ describe('convertWhiteboardToExportFormat', () => {
           files: [
             // expect one file in the exported data
             {
-              data: btoa('encoded test image data'),
+              data: btoa('encoded image content'),
               mxc: 'mxc://example.com/test1234',
             },
           ],
@@ -183,7 +170,7 @@ describe('convertWhiteboardToExportFormat', () => {
 
     // simulate 500 error for the first file
     fetchMock.get(
-      'https://example.com/_matrix/media/v3/download/example.com/test1234',
+      'https://example.com/_matrix/*/download/example.com/test1234',
       {
         status: 500,
       },
@@ -191,7 +178,7 @@ describe('convertWhiteboardToExportFormat', () => {
 
     // let the FileReader raise an error for the second file
     fetchMock.get(
-      'https://example.com/_matrix/media/v3/download/example.com/test5678',
+      'https://example.com/_matrix/*/download/example.com/test5678',
       'test image data',
     );
     jest.mocked(convertBlobToBase64).mockRejectedValue('test error');
@@ -278,3 +265,12 @@ describe('convertWhiteboardToExportFormat', () => {
     );
   });
 });
+
+const readBlobAsText = (blob: Blob): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => reject(reader.error);
+    reader.readAsText(blob);
+  });
+};

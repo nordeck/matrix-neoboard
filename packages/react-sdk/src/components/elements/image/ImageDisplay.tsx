@@ -94,6 +94,9 @@ function ImageDisplay({
 
         const blob = result.file.slice(0, result.file.size, mimeType);
         const downloadedFileDataUrl = URL.createObjectURL(blob);
+        if (downloadedFileDataUrl === '') {
+          throw new Error('Failed to create object URL');
+        }
         setImageUri(downloadedFileDataUrl);
       } catch (error) {
         console.log('Error downloading file:', error);
@@ -151,15 +154,16 @@ function ImageDisplay({
     downloadFile();
   }, [mxc, widgetApi]);
 
-  const renderedSkeleton = loading ? (
-    <Skeleton
-      data-testid={`element-${elementId}-skeleton`}
-      x={position.x}
-      y={position.y}
-      width={width}
-      height={height}
-    />
-  ) : null;
+  const renderedSkeleton =
+    loading && !loadError ? (
+      <Skeleton
+        data-testid={`element-${elementId}-skeleton`}
+        x={position.x}
+        y={position.y}
+        width={width}
+        height={height}
+      />
+    ) : null;
 
   const renderedPlaceholder = loadError ? (
     <ImagePlaceholder
