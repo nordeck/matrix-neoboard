@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { useWidgetApi } from '@matrix-widget-toolkit/react';
 import { styled } from '@mui/material';
 import React, { useCallback, useEffect, useState } from 'react';
 import { convertMxcToHttpUrl } from '../../../lib';
@@ -61,6 +62,7 @@ function ImageDisplay({
   activeElementIds = [],
   overrides = {},
 }: ImageDisplayProps) {
+  const widgetApi = useWidgetApi();
   const [loadError, setLoadError] = useState(false);
   const [loading, setLoading] = useState(true);
   const [imageUri, setImageUri] = useState<undefined | string>();
@@ -80,47 +82,74 @@ function ImageDisplay({
     setLoadError(true);
   }, [setLoading, setLoadError]);
 
-  // This effect determines the image URI.
   useEffect(() => {
-    // Used to not race the fetch in case of an svg. Without this we can race our request.
-    let abortController: AbortController | undefined;
+    const downloadFile = async () => {
+      try {
+        // Tries to use the Widget API to download the file, thus supporting authenticated media
+        const result = await widgetApi.downloadFile(mxc);
 
-    // Load the image URI.
-    const httpUrl = convertMxcToHttpUrl(mxc, baseUrl);
+        if (!(result.file instanceof Blob)) {
+          throw new Error('Got non Blob file response');
+        }
 
-    if (httpUrl === null) {
-      // Clear the image URI if there is no HTTP URL.
-      setImageUri('');
-      return;
-    }
-
-    if (mimeType === 'image/svg+xml') {
-      abortController = new AbortController();
-      // Special handling of SVG images, because the media repo response does not provide mime type information for it.
-      // Fetch it and set it from a Blob.
-      fetch(httpUrl, { signal: abortController.signal })
-        .then((response) => response.blob())
-        .then((rawBlob) => {
-          const svgBlob = rawBlob.slice(0, rawBlob.size, mimeType);
-          setImageUri(URL.createObjectURL(svgBlob));
-          return;
-        })
-        .catch((error) => {
-          console.error('Failed to fetch SVG image:', error);
-          setLoadError(true);
-        });
-      return;
-    }
-
-    setImageUri(httpUrl);
-
-    // On unmount revoke the object URL.
-    return () => {
-      if (abortController) {
-        abortController.abort();
+        const blob = result.file.slice(0, result.file.size, mimeType);
+        const downloadedFileDataUrl = URL.createObjectURL(blob);
+        setImageUri(downloadedFileDataUrl);
+      } catch (error) {
+        console.log('Error downloading file:', error);
+        handleDownloadError(error);
       }
     };
-  }, [setLoadError, setImageUri, baseUrl, mxc, mimeType]);
+
+    const handleDownloadError = async (error: unknown) => {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+
+      // No client Widget API support for downloading files, fallback to using the mxc URL
+      if (
+        errorMessage.includes(
+          'unsupported action: org.matrix.msc4039.download_file',
+        )
+      ) {
+        let abortController: AbortController | undefined;
+
+        const httpUrl = convertMxcToHttpUrl(mxc, baseUrl);
+
+        if (httpUrl === null) {
+          setImageUri('');
+          return;
+        }
+
+        if (mimeType === 'image/svg+xml') {
+          abortController = new AbortController();
+          try {
+            const response = await fetch(httpUrl, {
+              signal: abortController.signal,
+            });
+            const rawBlob = await response.blob();
+            const svgBlob = rawBlob.slice(0, rawBlob.size, mimeType);
+            setImageUri(URL.createObjectURL(svgBlob));
+          } catch (fetchError) {
+            console.error('Failed to fetch SVG image:', fetchError);
+            setLoadError(true);
+          }
+          return;
+        }
+
+        setImageUri(httpUrl);
+
+        return () => {
+          if (abortController) {
+            abortController.abort();
+          }
+        };
+      }
+
+      setLoadError(true);
+    };
+
+    downloadFile();
+  }, [mxc, widgetApi]);
 
   const renderedSkeleton = loading ? (
     <Skeleton

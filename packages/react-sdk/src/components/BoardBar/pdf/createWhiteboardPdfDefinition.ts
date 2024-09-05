@@ -15,6 +15,7 @@
  */
 
 import '@fontsource/noto-emoji/400.css';
+import { WidgetApi } from '@matrix-widget-toolkit/api';
 import { Content, TDocumentDefinitions } from 'pdfmake/interfaces';
 import { isDefined } from '../../../lib';
 import { WhiteboardInstance } from '../../../state';
@@ -26,16 +27,16 @@ export async function createWhiteboardPdfDefinition({
   whiteboardInstance,
   roomName,
   authorName,
-  baseUrl,
+  widgetApi,
 }: {
   whiteboardInstance: WhiteboardInstance;
   roomName: string;
   authorName: string;
-  baseUrl: string;
+  widgetApi: WidgetApi;
 }): Promise<TDocumentDefinitions> {
   // make sure the font is loaded so the text size calculations are correct
   await forceLoadFontFamily('Noto Emoji');
-  const whiteboardExport = await whiteboardInstance.export(baseUrl);
+  const whiteboardExport = await whiteboardInstance.export(widgetApi);
 
   return {
     pageMargins: 0,

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { WidgetApi } from '@matrix-widget-toolkit/api';
 import { from, fromEvent, map, Observable, switchMap, take, tap } from 'rxjs';
 import { WhiteboardInstance } from '../../../state';
 import { createWhiteboardPdfDefinition } from './createWhiteboardPdfDefinition';
@@ -22,7 +23,7 @@ export function createWhiteboardPdf(params: {
   whiteboardInstance: WhiteboardInstance;
   roomName: string;
   authorName: string;
-  baseUrl: string;
+  widgetApi: WidgetApi;
 }): Observable<Blob> {
   const contentObservable = from(createWhiteboardPdfDefinition(params));
 

@@ -399,10 +399,10 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
     return this.loadingSubject;
   }
 
-  async export(baseUrl: string): Promise<WhiteboardDocumentExport> {
+  async export(widgetApi: WidgetApi): Promise<WhiteboardDocumentExport> {
     return exportWhiteboard(
       this.synchronizedDocument.getDocument().getData(),
-      baseUrl,
+      widgetApi,
     );
   }
 

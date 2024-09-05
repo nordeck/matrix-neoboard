@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { WidgetApi } from '@matrix-widget-toolkit/api';
 import log from 'loglevel';
 import { convertBlobToBase64, convertMxcToHttpUrl, isDefined } from '../../lib';
 import {
@@ -43,9 +44,9 @@ import {
  */
 export async function exportWhiteboard(
   doc: SharedMap<WhiteboardDocument>,
-  baseUrl: string,
+  widgetApi: WidgetApi,
 ): Promise<WhiteboardDocumentExport> {
-  const files = await exportFiles(doc, baseUrl);
+  const files = await exportFiles(doc, widgetApi);
 
   return {
     version: 'net.nordeck.whiteboard@v1',
@@ -64,9 +65,9 @@ export async function exportWhiteboard(
 
 async function exportFiles(
   doc: SharedMap<WhiteboardDocument>,
-  baseUrl: string,
+  widgetApi: WidgetApi,
 ): Promise<WhiteboardFileExport[]> {
-  const fileExportPromises = downloadFiles(doc, baseUrl);
+  const fileExportPromises = downloadFiles(doc, widgetApi);
   // wait for all downloads to finish, independently of their result
   const fileExportPromiseResults = await Promise.allSettled(fileExportPromises);
   const files: WhiteboardFileExport[] = [];
@@ -90,7 +91,7 @@ async function exportFiles(
 
 function downloadFiles(
   doc: SharedMap<WhiteboardDocument>,
-  baseUrl: string,
+  widgetApi: WidgetApi,
 ): Promise<WhiteboardFileExport>[] {
   const promises: Promise<WhiteboardFileExport>[] = [];
   const handledMxcs: string[] = [];
@@ -108,7 +109,7 @@ function downloadFiles(
       }
 
       handledMxcs.push(element.get('mxc'));
-      promises.push(downloadFile(element, baseUrl));
+      promises.push(downloadFile(element, widgetApi));
     }
   }
 
@@ -123,17 +124,60 @@ function isImageElementSharedMap(
 
 async function downloadFile(
   element: SharedMap<ImageElement>,
-  baseUrl: string,
+  widgetApi: WidgetApi,
 ): Promise<WhiteboardFileExport> {
   const mxc = element.get('mxc');
-  const url = convertMxcToHttpUrl(mxc, baseUrl);
 
+  try {
+    return await downloadUsingWidgetApi(widgetApi, mxc);
+  } catch (error) {
+    console.log('Error downloading file:', error);
+
+    const errorMessage =
+      error instanceof Error ? error.message : 'Unknown error';
+    if (
+      errorMessage.includes(
+        'unsupported action: org.matrix.msc4039.download_file',
+      )
+    ) {
+      return await fallbackDownload(mxc, widgetApi.widgetParameters.baseUrl);
+    }
+
+    throw error;
+  }
+}
+
+async function downloadUsingWidgetApi(
+  widgetApi: WidgetApi,
+  mxc: string,
+): Promise<WhiteboardFileExport> {
+  const result = await widgetApi.downloadFile(mxc);
+
+  if (!(result.file instanceof Blob)) {
+    throw new Error('Got non Blob file response');
+  }
+
+  const data = await convertBlobToBase64(result.file);
+  return {
+    mxc,
+    data,
+  };
+}
+
+async function fallbackDownload(
+  mxc: string,
+  baseUrl: string | undefined,
+): Promise<WhiteboardFileExport> {
+  if (baseUrl === null) {
+    throw new Error(`Widget baseUrl parameter not set`);
+  }
+
+  const url = convertMxcToHttpUrl(mxc, baseUrl!);
   if (url === null) {
     throw new Error(`Failed to get URL for MXC URI, ${baseUrl}, ${mxc}`);
   }
 
   const response = await fetch(url);
-
   if (!response.ok) {
     throw new Error(
       `Error fetching image data, ${response.status}, ${response.body}`,

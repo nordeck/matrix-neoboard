@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import fetchMock from 'fetch-mock-jest';
 import { convertBlobToBase64 } from '../../lib';
 import {
@@ -75,18 +76,18 @@ describe('convertWhiteboardToExportFormat', () => {
       addElementToSlide2(doc);
     });
 
-    expect(
-      await exportWhiteboard(document.getData(), 'https://example.com'),
-    ).toEqual({
-      version: 'net.nordeck.whiteboard@v1',
-      whiteboard: {
-        slides: [
-          { elements: [mockEllipseElement({ kind: 'ellipse' })] },
-          { elements: [mockEllipseElement({ kind: 'circle' })] },
-          { elements: [mockEllipseElement({ kind: 'triangle' })] },
-        ],
+    expect(await exportWhiteboard(document.getData(), mockWidgetApi())).toEqual(
+      {
+        version: 'net.nordeck.whiteboard@v1',
+        whiteboard: {
+          slides: [
+            { elements: [mockEllipseElement({ kind: 'ellipse' })] },
+            { elements: [mockEllipseElement({ kind: 'circle' })] },
+            { elements: [mockEllipseElement({ kind: 'triangle' })] },
+          ],
+        },
       },
-    });
+    );
   });
 
   it('should export images', async () => {
@@ -107,21 +108,21 @@ describe('convertWhiteboardToExportFormat', () => {
       return btoa('encoded test image data');
     });
 
-    expect(
-      await exportWhiteboard(document.getData(), 'https://example.com'),
-    ).toEqual({
-      version: 'net.nordeck.whiteboard@v1',
-      whiteboard: {
-        slides: [{ elements: [mockImageElement()] }],
-        files: [
-          // expect the file with base64 encoded content
-          {
-            data: btoa('encoded test image data'),
-            mxc: 'mxc://example.com/test1234',
-          },
-        ],
+    expect(await exportWhiteboard(document.getData(), mockWidgetApi())).toEqual(
+      {
+        version: 'net.nordeck.whiteboard@v1',
+        whiteboard: {
+          slides: [{ elements: [mockImageElement()] }],
+          files: [
+            // expect the file with base64 encoded content
+            {
+              data: btoa('encoded test image data'),
+              mxc: 'mxc://example.com/test1234',
+            },
+          ],
+        },
       },
-    });
+    );
   });
 
   it('should deduplicate exported images', async () => {
@@ -148,21 +149,21 @@ describe('convertWhiteboardToExportFormat', () => {
       return btoa('encoded test image data');
     });
 
-    expect(
-      await exportWhiteboard(document.getData(), 'https://example.com'),
-    ).toEqual({
-      version: 'net.nordeck.whiteboard@v1',
-      whiteboard: {
-        slides: [{ elements: [mockImageElement(), mockImageElement()] }],
-        files: [
-          // expect one file in the exported data
-          {
-            data: btoa('encoded test image data'),
-            mxc: 'mxc://example.com/test1234',
-          },
-        ],
+    expect(await exportWhiteboard(document.getData(), mockWidgetApi())).toEqual(
+      {
+        version: 'net.nordeck.whiteboard@v1',
+        whiteboard: {
+          slides: [{ elements: [mockImageElement(), mockImageElement()] }],
+          files: [
+            // expect one file in the exported data
+            {
+              data: btoa('encoded test image data'),
+              mxc: 'mxc://example.com/test1234',
+            },
+          ],
+        },
       },
-    });
+    );
   });
 
   it('should skip image downloads with errors', async () => {
@@ -195,21 +196,21 @@ describe('convertWhiteboardToExportFormat', () => {
     );
     jest.mocked(convertBlobToBase64).mockRejectedValue('test error');
 
-    expect(
-      await exportWhiteboard(document.getData(), 'https://example.com'),
-    ).toEqual({
-      version: 'net.nordeck.whiteboard@v1',
-      whiteboard: {
-        slides: [
-          {
-            elements: [
-              mockImageElement(),
-              mockImageElement({ mxc: 'mxc://example.com/test5678' }),
-            ],
-          },
-        ],
+    expect(await exportWhiteboard(document.getData(), mockWidgetApi())).toEqual(
+      {
+        version: 'net.nordeck.whiteboard@v1',
+        whiteboard: {
+          slides: [
+            {
+              elements: [
+                mockImageElement(),
+                mockImageElement({ mxc: 'mxc://example.com/test5678' }),
+              ],
+            },
+          ],
+        },
       },
-    });
+    );
   });
 
   it('should return elements in the correct order', async () => {
@@ -238,22 +239,22 @@ describe('convertWhiteboardToExportFormat', () => {
       moveElement1ToFront(doc);
     });
 
-    expect(
-      await exportWhiteboard(document.getData(), 'https://example.com'),
-    ).toEqual({
-      version: 'net.nordeck.whiteboard@v1',
-      whiteboard: {
-        slides: [
-          {
-            elements: [
-              mockEllipseElement({ kind: 'circle' }),
-              mockEllipseElement({ kind: 'triangle' }),
-              mockEllipseElement({ kind: 'ellipse' }),
-            ],
-          },
-        ],
+    expect(await exportWhiteboard(document.getData(), mockWidgetApi())).toEqual(
+      {
+        version: 'net.nordeck.whiteboard@v1',
+        whiteboard: {
+          slides: [
+            {
+              elements: [
+                mockEllipseElement({ kind: 'circle' }),
+                mockEllipseElement({ kind: 'triangle' }),
+                mockEllipseElement({ kind: 'ellipse' }),
+              ],
+            },
+          ],
+        },
       },
-    });
+    );
   });
 
   it('should include the lock status of a slide', async () => {
@@ -267,13 +268,13 @@ describe('convertWhiteboardToExportFormat', () => {
       lockSlide1(doc);
     });
 
-    expect(
-      await exportWhiteboard(document.getData(), 'https://example.com'),
-    ).toEqual({
-      version: 'net.nordeck.whiteboard@v1',
-      whiteboard: {
-        slides: [{ elements: [] }, { elements: [], lock: {} }],
+    expect(await exportWhiteboard(document.getData(), mockWidgetApi())).toEqual(
+      {
+        version: 'net.nordeck.whiteboard@v1',
+        whiteboard: {
+          slides: [{ elements: [] }, { elements: [], lock: {} }],
+        },
       },
-    });
+    );
   });
 });

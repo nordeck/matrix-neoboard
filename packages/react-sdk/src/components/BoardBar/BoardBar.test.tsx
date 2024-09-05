@@ -242,7 +242,9 @@ describe('<BoardBar/>', () => {
     );
 
     expect(
-      await whiteboardManager.getActiveWhiteboardInstance()?.export(''),
+      await whiteboardManager
+        .getActiveWhiteboardInstance()
+        ?.export(mockWidgetApi()),
     ).toEqual(data);
 
     await waitFor(() => {
