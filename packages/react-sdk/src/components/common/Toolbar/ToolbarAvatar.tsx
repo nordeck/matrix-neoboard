@@ -52,24 +52,16 @@ export function ToolbarAvatar({
   let label = displayName;
 
   if (presenter && isOwnUser) {
-    label = t(
-      'toolbar.toolbarAvatar.labelPresenting',
-      '{{displayName}} (You) are presenting',
-      {
-        displayName,
-        context: 'you',
-      },
-    );
+    label = t('toolbar.toolbarAvatar.labelPresenting', 'You are presenting', {
+      displayName,
+      context: 'you',
+    });
   } else if (presenter) {
-    label = t(
-      'toolbar.toolbarAvatar.labelPresenter',
-      '{{displayName}} is presenting',
-      {
-        displayName,
-      },
-    );
+    label = t('toolbar.toolbarAvatar.labelPresenter', 'Someone is presenting', {
+      displayName,
+    });
   } else if (isOwnUser) {
-    label = t('toolbar.toolbarAvatar.label', '{{displayName}} (You)', {
+    label = t('toolbar.toolbarAvatar.label', 'You', {
       displayName,
       context: 'you',
     });

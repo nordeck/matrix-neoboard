@@ -73,8 +73,7 @@ export function ImportWhiteboardDialog({
 
   const selectFileButtonLabel = t(
     'boardBar.importWhiteboardDialog.selectFileLabel',
-    'Selected file: “{{fileName}}”. Click to select a different file.',
-    { fileName: importedWhiteboard?.name ?? '' },
+    'Click to select a different file.',
   );
 
   const dialogTitleId = useId();

@@ -80,7 +80,7 @@ export function Collaborators() {
 
   const menuTitle = t('collaborationBar.collaborators.menu.title', {
     defaultValue_one: 'One further collaborator',
-    defaultValue: '{{count}} further collaborators',
+    defaultValue: 'Further collaborators',
     count: furtherMembers.length,
   });
   const buttonId = useId();

@@ -55,7 +55,7 @@ export function ToolbarAvatarMoreButton({
         width={28}
         height={28}
       >
-        {t('toolbar.toolbarAvatar.more', '+{{furtherCount}}', {
+        {t('toolbar.toolbarAvatar.more', '+', {
           furtherCount: count,
         })}
       </Box>

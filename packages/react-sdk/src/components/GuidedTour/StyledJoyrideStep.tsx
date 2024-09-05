@@ -88,7 +88,7 @@ export function StyledJoyrideStep({
 
       <DialogActions>
         <Typography variant="body1" color="text.secondary" flex={1}>
-          {t('guidedTour.slideCount', '{{index}} of {{total}}', {
+          {t('guidedTour.slideCount', '', {
             index: index + 1,
             total: stepCount,
           })}

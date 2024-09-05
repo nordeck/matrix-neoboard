@@ -230,7 +230,7 @@ function showErrorSnackbars(
   if (errors.size.length > 0) {
     const message = t(
       'imageUpload.sizeError',
-      'The file {{fileNames}} cannot be uploaded due to its size. The upload is possible for a maximum of {{limit}} per file.',
+      'One file cannot be uploaded due to its size. The upload is possible for a maximum of {{limit}} per file.',
       {
         count: errors.size.length,
         fileNames: errors.size.join(', '),
@@ -252,7 +252,7 @@ function showErrorSnackbars(
   if (errors.resolution.length > 0) {
     const message = t(
       'imageUpload.resolutionError',
-      'The file {{fileNames}} cannot be uploaded due to its resolution. The upload is possible for a maximum of {{limit}} per file.',
+      'One file cannot be uploaded due to its resolution. The upload is possible for a maximum of {{limit}} per file.',
       {
         count: errors.size.length,
         fileNames: errors.resolution.join(', '),
@@ -274,7 +274,7 @@ function showErrorSnackbars(
   if (errors.other.length > 0) {
     const message = t(
       'imageUpload.otherError',
-      'The file {{fileNames}} cannot be uploaded.',
+      'One file cannot be uploaded.',
       {
         count: errors.other.length,
         fileNames: errors.other.join(', '),
