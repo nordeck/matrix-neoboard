@@ -21,6 +21,7 @@ import jest from 'eslint-plugin-jest';
 import notice from 'eslint-plugin-notice';
 import pluginPromise from 'eslint-plugin-promise';
 import react from 'eslint-plugin-react';
+import hooksPlugin from 'eslint-plugin-react-hooks';
 import testingLibrary from 'eslint-plugin-testing-library';
 import path from 'path';
 import ts from 'typescript-eslint';
@@ -102,7 +103,12 @@ export default ts.config(
   },
   {
     ...react.configs.flat.recommended,
+    plugins: {
+      ...react.configs.flat.recommended.plugins,
+      'react-hooks': hooksPlugin,
+    },
     rules: {
+      ...hooksPlugin.configs.recommended.rules,
       ...react.configs.flat.recommended.rules,
       'react/display-name': 'off',
       'react/no-unescaped-entities': 'off',
