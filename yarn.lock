@@ -2263,10 +2263,10 @@
     qs "^6.13.0"
     rxjs "^7.8.1"
 
-"@matrix-widget-toolkit/mui@^2.0.2":
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/@matrix-widget-toolkit/mui/-/mui-2.0.2.tgz#e187d09c7ea00cb43a6f990fd19e2c47b054bcf7"
-  integrity sha512-sWGFK/5IF2xtTsBejsqxHfr+AU39bSFFRdG3ldIyCvm1UHpBW+yETK/r1Jov/Ghxv8/68LOgMVOsZy36ubkawA==
+"@matrix-widget-toolkit/mui@^2.0.3":
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/@matrix-widget-toolkit/mui/-/mui-2.0.3.tgz#7c6e6c4d328ce6fc0fcb1e24bdfff33fde0d510a"
+  integrity sha512-07Z3G0pbvIw9UG6N08wRVQWgJP1+FA4i4dI4YP/7USRoVyodxR6NKlPCtld4WctFq/2jfpZalQ8SpwTrtMI0Aw==
   dependencies:
     "@emotion/cache" "^11.13.1"
     "@emotion/react" "^11.13.3"
