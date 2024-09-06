@@ -27,7 +27,7 @@ import {
   MenuItem,
   PopoverPosition,
 } from '@mui/material';
-import React, { MouseEvent, Ref, useCallback, useState } from 'react';
+import React, { MouseEvent, Ref, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   useActiveWhiteboardInstance,
@@ -142,21 +142,27 @@ export const withContextMenu = <P extends object>(
         />
 
         <Menu
-          componentsProps={{
-            backdrop: {
-              // Make sure to close the context menu if the user clicks on the
-              // backdrop
-              onContextMenu: (e) => {
-                e.preventDefault();
-                handleClose();
+          componentsProps={useMemo(
+            () => ({
+              backdrop: {
+                // Make sure to close the context menu if the user clicks on the
+                // backdrop
+                onContextMenu: (e) => {
+                  e.preventDefault();
+                  handleClose();
+                },
               },
-            },
-          }}
-          MenuListProps={{
-            'aria-label': menuTitle,
-            dense: true,
-            sx: { minWidth: '242px' },
-          }}
+            }),
+            [handleClose],
+          )}
+          MenuListProps={useMemo(
+            () => ({
+              'aria-label': menuTitle,
+              dense: true,
+              sx: { minWidth: '242px' },
+            }),
+            [menuTitle],
+          )}
           open={open}
           onClose={handleClose}
           anchorReference="anchorPosition"
