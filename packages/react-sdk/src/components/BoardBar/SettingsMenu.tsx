@@ -19,7 +19,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import { ListItemIcon, ListItemText, Menu, MenuItem } from '@mui/material';
 import { unstable_useId as useId } from '@mui/utils';
 import { t } from 'i18next';
-import { MouseEvent, useCallback, useState } from 'react';
+import { MouseEvent, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { usePowerLevels } from '../../store/api/usePowerLevels';
 import { useImportWhiteboardDialog } from '../ImportWhiteboardDialog/useImportWhiteboardDialog';
@@ -117,28 +117,34 @@ export function SettingsMenu() {
 
       <ExportWhiteboardDialog
         open={openExportDialog}
-        onClose={() => setOpenExportDialog(false)}
+        onClose={useCallback(() => setOpenExportDialog(false), [])}
       />
 
       <Menu
         anchorEl={anchorEl}
         open={open}
         onClose={handleClose}
-        componentsProps={{
-          backdrop: {
-            // Make sure to close the context menu if the user clicks on the
-            // backdrop
-            onContextMenu: (e) => {
-              e.preventDefault();
-              handleClose();
+        componentsProps={useMemo(
+          () => ({
+            backdrop: {
+              // Make sure to close the context menu if the user clicks on the
+              // backdrop
+              onContextMenu: (e) => {
+                e.preventDefault();
+                handleClose();
+              },
             },
-          },
-        }}
-        MenuListProps={{
-          'aria-labelledby': buttonId,
-          dense: true,
-          sx: { minWidth: '212px' },
-        }}
+          }),
+          [handleClose],
+        )}
+        MenuListProps={useMemo(
+          () => ({
+            'aria-labelledby': buttonId,
+            dense: true,
+            sx: { minWidth: '212px' },
+          }),
+          [buttonId],
+        )}
         id={menuId}
       >
         {canImportWhiteboard && <ImportMenuItem onClose={handleClose} />}
