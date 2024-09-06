@@ -87,6 +87,20 @@ export function ColorPicker({
   const buttonId = useId();
   const gridId = useId();
 
+  const componentsProps = useMemo(
+    () => ({
+      backdrop: {
+        // Make sure to close the context menu if the user clicks on the
+        // backdrop
+        onContextMenu: (e: MouseEvent) => {
+          e.preventDefault();
+          handleClose();
+        },
+      },
+    }),
+    [handleClose],
+  );
+
   if (color === undefined) {
     return null;
   }
@@ -117,19 +131,7 @@ export function ColorPicker({
           vertical: 'top',
           horizontal: 'center',
         }}
-        componentsProps={useMemo(
-          () => ({
-            backdrop: {
-              // Make sure to close the context menu if the user clicks on the
-              // backdrop
-              onContextMenu: (e) => {
-                e.preventDefault();
-                handleClose();
-              },
-            },
-          }),
-          [handleClose],
-        )}
+        componentsProps={componentsProps}
       >
         <ColorsGrid
           id={gridId}

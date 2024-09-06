@@ -6,8 +6,8 @@
   "version": "1.18.1",
   "private": true,
   "dependencies": {
-    "@matrix-widget-toolkit/api": "^3.3.2",
-    "@matrix-widget-toolkit/mui": "^2.0.1",
+    "@matrix-widget-toolkit/api": "^3.4.0",
+    "@matrix-widget-toolkit/mui": "^2.0.3",
     "@nordeck/matrix-neoboard-react-sdk": "0.1.1",
     "i18next": "^23.14.0",
     "i18next-browser-languagedetector": "^8.0.0",
@@ -15,7 +15,7 @@
     "i18next-http-backend": "^2.6.0",
     "loglevel": "^1.9.1",
     "loglevel-plugin-prefix": "^0.8.4",
-    "matrix-widget-api": "^1.8.2",
+    "matrix-widget-api": "^1.9.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-i18next": "^15.0.1",
@@ -25,6 +25,7 @@
     "fork-ts-checker-webpack-plugin": "^6.5.3"
   },
   "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@craco/craco": "^7.1.0",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.4.8",
@@ -59,7 +60,7 @@
     "tsc": "tsc",
     "test": "jest --watch",
     "test:all": "jest --coverage --watchAll=false",
-    "depcheck": "depcheck --ignores=\"babel-plugin-transform-import-meta,@types/jest\" --ignore-dirs=build",
+    "depcheck": "depcheck --ignores=\"babel-plugin-transform-import-meta,@types/jest,@babel/plugin-proposal-private-property-in-object\" --ignore-dirs=build",
     "lint": "eslint .",
     "translate": "i18next \"src/**/*.{ts,tsx}\"",
     "prettier:check": "prettier --check .",
