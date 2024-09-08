@@ -76,7 +76,14 @@ export function TextColorPicker() {
         }
       }
     },
-    [hasText, hasTextShape],
+    [
+      hasText,
+      hasTextShape,
+      setActiveTextColor,
+      setActiveTextShade,
+      setActiveShapeTextColor,
+      setActiveShapeTextShade,
+    ],
   );
 
   return (

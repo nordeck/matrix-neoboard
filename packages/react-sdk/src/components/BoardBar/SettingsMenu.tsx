@@ -38,7 +38,7 @@ function ImportMenuItem({ onClose }: { onClose: () => void }) {
       onClick={useCallback(() => {
         importContext.showImportWhiteboardDialog();
         onClose();
-      }, [])}
+      }, [importContext, onClose])}
     >
       <ListItemIcon>
         <FileImportOutlineIcon sx={{ color: 'text.primary' }} />

@@ -56,7 +56,6 @@ export const DraftShapeChild = ({
   const [startCoords, setStartCoords] = useState<Point>();
   const [endCoords, setEndCoords] = useState<Point>();
   const {
-    activeColor,
     activeTextColor,
     activeShapeTextColor,
     activeShapeColor,
@@ -108,7 +107,6 @@ export const DraftShapeChild = ({
       setActiveTool('select');
     },
     [
-      activeColor,
       fixedColor,
       isShowGrid,
       kind,
@@ -117,6 +115,8 @@ export const DraftShapeChild = ({
       shapeSizes,
       slideInstance,
       textColor,
+      activeTool,
+      fillColor,
     ],
   );
 
@@ -145,13 +145,13 @@ export const DraftShapeChild = ({
     endCoords,
     slideInstance,
     kind,
-    activeColor,
     isShowGrid,
     sameLength,
     fixedColor,
     updateShapeSize,
     rounded,
     textColor,
+    fillColor,
   ]);
 
   const handleMouseMove = useCallback(
@@ -183,7 +183,6 @@ export const DraftShapeChild = ({
         : undefined,
     [
       endCoords,
-      activeColor,
       isShowGrid,
       kind,
       sameLength,
@@ -191,6 +190,7 @@ export const DraftShapeChild = ({
       fixedColor,
       rounded,
       textColor,
+      fillColor,
     ],
   );
 
