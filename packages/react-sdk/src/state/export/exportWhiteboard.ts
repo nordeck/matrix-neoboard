@@ -16,7 +16,13 @@
 
 import { WidgetApi } from '@matrix-widget-toolkit/api';
 import log from 'loglevel';
-import { convertBlobToBase64, convertMxcToHttpUrl, isDefined } from '../../lib';
+import { IDownloadFileActionFromWidgetResponseData } from 'matrix-widget-api';
+import {
+  WidgetApiActionError,
+  convertBlobToBase64,
+  convertMxcToHttpUrl,
+  isDefined,
+} from '../../lib';
 import {
   Element,
   ImageElement,
@@ -131,19 +137,11 @@ async function downloadFile(
   try {
     return await downloadUsingWidgetApi(widgetApi, mxc);
   } catch (error) {
-    console.log('Error downloading file:', error);
-
-    const errorMessage =
-      error instanceof Error ? error.message : 'Unknown error';
-    if (
-      errorMessage.includes(
-        'unsupported action: org.matrix.msc4039.download_file',
-      )
-    ) {
+    if (error instanceof WidgetApiActionError) {
       return await fallbackDownload(mxc, widgetApi.widgetParameters.baseUrl);
+    } else {
+      throw error;
     }
-
-    throw error;
   }
 }
 
@@ -151,17 +149,12 @@ async function downloadUsingWidgetApi(
   widgetApi: WidgetApi,
   mxc: string,
 ): Promise<WhiteboardFileExport> {
-  const result = await widgetApi.downloadFile(mxc);
-
-  if (!(result.file instanceof Blob)) {
-    throw new Error('Got non Blob file response');
+  try {
+    const result = await widgetApi.downloadFile(mxc);
+    return processDownloadResult(result, mxc);
+  } catch {
+    throw new WidgetApiActionError('downloadFile not available');
   }
-
-  const data = await convertBlobToBase64(result.file);
-  return {
-    mxc,
-    data,
-  };
 }
 
 async function fallbackDownload(
@@ -185,7 +178,18 @@ async function fallbackDownload(
   }
 
   const blob = await response.blob();
-  const data = await convertBlobToBase64(blob);
+  return processDownloadResult({ file: blob }, mxc);
+}
+
+async function processDownloadResult(
+  result: IDownloadFileActionFromWidgetResponseData,
+  mxc: string,
+): Promise<WhiteboardFileExport> {
+  if (!(result.file instanceof Blob)) {
+    throw new Error('Got non Blob file response');
+  }
+
+  const data = await convertBlobToBase64(result.file);
   return {
     mxc,
     data,

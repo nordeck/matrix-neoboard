@@ -16,8 +16,9 @@
 
 import { useWidgetApi } from '@matrix-widget-toolkit/react';
 import { styled } from '@mui/material';
+import { IDownloadFileActionFromWidgetResponseData } from 'matrix-widget-api';
 import React, { useCallback, useEffect, useState } from 'react';
-import { convertMxcToHttpUrl } from '../../../lib';
+import { convertMxcToHttpUrl, WidgetApiActionError } from '../../../lib';
 import { ImageElement } from '../../../state';
 import {
   ElementContextMenu,
@@ -85,70 +86,83 @@ function ImageDisplay({
   useEffect(() => {
     const downloadFile = async () => {
       try {
-        // Tries to use the Widget API to download the file, thus supporting authenticated media
-        const result = await widgetApi.downloadFile(mxc);
-
-        if (!(result.file instanceof Blob)) {
-          throw new Error('Got non Blob file response');
-        }
-
-        const blob = result.file.slice(0, result.file.size, mimeType);
-        const downloadedFileDataUrl = URL.createObjectURL(blob);
-        if (downloadedFileDataUrl === '') {
-          throw new Error('Failed to create object URL');
-        }
+        const result = await tryDownloadFileWithWidgetApi(mxc);
+        const blob = getBlobFromResult(result, mimeType);
+        const downloadedFileDataUrl = createObjectUrlFromBlob(blob);
         setImageUri(downloadedFileDataUrl);
       } catch (error) {
-        console.log('Error downloading file:', error);
-        handleDownloadError(error);
+        handleDownloadError(error as Error);
       }
     };
 
-    const handleDownloadError = async (error: unknown) => {
-      const errorMessage =
-        error instanceof Error ? error.message : 'Unknown error';
+    const tryDownloadFileWithWidgetApi = async (mxc: string) => {
+      try {
+        const result = await widgetApi.downloadFile(mxc);
+        return result;
+      } catch {
+        throw new WidgetApiActionError('downloadFile not available');
+      }
+    };
 
-      // No client Widget API support for downloading files, fallback to using the mxc URL
-      if (
-        errorMessage.includes(
-          'unsupported action: org.matrix.msc4039.download_file',
-        )
-      ) {
-        let abortController: AbortController | undefined;
+    const getBlobFromResult = (
+      result: IDownloadFileActionFromWidgetResponseData,
+      mimeType: string,
+    ): Blob => {
+      if (!(result.file instanceof Blob)) {
+        throw new Error('Got non Blob file response');
+      }
+      return result.file.slice(0, result.file.size, mimeType);
+    };
 
-        const httpUrl = convertMxcToHttpUrl(mxc, baseUrl);
+    const createObjectUrlFromBlob = (blob: Blob): string => {
+      const url = URL.createObjectURL(blob);
+      if (url === '') {
+        throw new Error('Failed to create object URL');
+      }
+      return url;
+    };
 
-        if (httpUrl === null) {
-          setImageUri('');
-          return;
-        }
+    const handleDownloadError = (error: Error) => {
+      if (error instanceof WidgetApiActionError) {
+        tryFallbackDownload();
+      } else {
+        setLoadError(true);
+      }
+    };
 
-        if (mimeType === 'image/svg+xml') {
-          abortController = new AbortController();
-          try {
-            const response = await fetch(httpUrl, {
-              signal: abortController.signal,
-            });
-            const rawBlob = await response.blob();
-            const svgBlob = rawBlob.slice(0, rawBlob.size, mimeType);
-            setImageUri(URL.createObjectURL(svgBlob));
-          } catch (fetchError) {
-            console.error('Failed to fetch SVG image:', fetchError);
-            setLoadError(true);
-          }
-          return;
-        }
+    const tryFallbackDownload = async () => {
+      let abortController: AbortController | undefined;
 
-        setImageUri(httpUrl);
+      const httpUrl = convertMxcToHttpUrl(mxc, baseUrl);
 
-        return () => {
-          if (abortController) {
-            abortController.abort();
-          }
-        };
+      if (httpUrl === null) {
+        setImageUri('');
+        return;
       }
 
-      setLoadError(true);
+      if (mimeType === 'image/svg+xml') {
+        abortController = new AbortController();
+        try {
+          const response = await fetch(httpUrl, {
+            signal: abortController.signal,
+          });
+          const rawBlob = await response.blob();
+          const svgBlob = rawBlob.slice(0, rawBlob.size, mimeType);
+          setImageUri(URL.createObjectURL(svgBlob));
+        } catch (fetchError) {
+          console.error('Failed to fetch SVG image:', fetchError);
+          setLoadError(true);
+        }
+        return;
+      }
+
+      setImageUri(httpUrl);
+
+      return () => {
+        if (abortController) {
+          abortController.abort();
+        }
+      };
     };
 
     downloadFile();

@@ -346,14 +346,12 @@ export function mockTextElement(shape: Partial<ShapeElement> = {}): Element {
  * Both mocked functions dispatch a "fullscreenchange" event on document and return a resolved Promise.
  */
 export function mockFullscreenApi(): void {
-  // Ignore TS and linter here for setting a mocked API
-  // @ts-ignore
+  // @ts-expect-error Ignore TS and linter here for setting a mocked API
   // eslint-disable-next-line
   document.fullscreenElement = null;
 
   document.exitFullscreen = jest.fn(function () {
-    // Ignore TS and linter here for setting a mocked API
-    // @ts-ignore
+    // @ts-expect-error Ignore TS and linter here for setting a mocked API
     // eslint-disable-next-line
     document.fullscreenElement = null;
     document.dispatchEvent(new Event('fullscreenchange'));
@@ -361,8 +359,7 @@ export function mockFullscreenApi(): void {
   });
 
   document.documentElement.requestFullscreen = jest.fn(function () {
-    // Ignore TS and linter here for setting a mocked API
-    // @ts-ignore
+    // @ts-expect-error Ignore TS and linter here for setting a mocked API
     // eslint-disable-next-line
     document.fullscreenElement = {};
     document.dispatchEvent(new Event('fullscreenchange'));

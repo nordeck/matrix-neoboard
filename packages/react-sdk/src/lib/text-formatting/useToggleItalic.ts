@@ -22,17 +22,6 @@ import {
 } from '../../state';
 import { calculateTextItalicUpdates } from './calculateTextItalicUpdates';
 
-type UseToggleItalicResult = {
-  /**
-   * True, if at least one active element has italic text.
-   */
-  isItalic: boolean;
-  /**
-   * Toggle bold text of active elements.
-   */
-  toggleItalic: () => void;
-};
-
 export function useToggleItalic() {
   const slideInstance = useWhiteboardSlideInstance();
   const { activeElementIds } = useActiveElements();
