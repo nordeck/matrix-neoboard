@@ -20,6 +20,7 @@ import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { renderHook, waitFor } from '@testing-library/react';
 import { ComponentType, PropsWithChildren, useState } from 'react';
 import { Provider } from 'react-redux';
+import { afterEach, beforeEach, describe, expect, it, test } from 'vitest';
 import {
   mockDocumentCreate,
   mockPowerLevelsEvent,
@@ -88,7 +89,7 @@ describe('useOwnedWhiteboard', () => {
     const whiteboard = mockWhiteboard();
 
     let resolveWhiteboards: (events: StateEvent<unknown>[]) => void = () => {};
-    widgetApi.receiveStateEvents.mockImplementation((eventType) => {
+    widgetApi.receiveStateEvents.mockImplementation((eventType: string) => {
       if (eventType === 'm.room.power_levels') {
         return Promise.resolve([mockPowerLevelsEvent()]);
       } else if (eventType === 'net.nordeck.whiteboard') {
@@ -136,7 +137,7 @@ describe('useOwnedWhiteboard', () => {
   // eslint-disable-next-line
   it.skip('should reject when loading of whiteboards is slower and fails', async () => {
     let rejectWhiteboards: () => void = () => {};
-    widgetApi.receiveStateEvents.mockImplementation((eventType) => {
+    widgetApi.receiveStateEvents.mockImplementation((eventType: string) => {
       if (eventType === 'm.room.power_levels') {
         return Promise.resolve([mockPowerLevelsEvent()]);
       } else if (eventType === 'net.nordeck.whiteboard') {
@@ -355,7 +356,7 @@ describe('useOwnedWhiteboard', () => {
   // TODO: adjust this to the new error handling
   // https://github.com/testing-library/react-hooks-testing-library/blob/chore/migration-guide/MIGRATION_GUIDE.md#resulterror
   // eslint-disable-next-line
-  it.skip('should reject if whiteboard creation fails', async () => {
+  test.skip('should reject if whiteboard creation fails', async () => {
     widgetApi.mockSendStateEvent(mockPowerLevelsEvent());
 
     widgetApi.sendStateEvent.mockImplementation(() => {

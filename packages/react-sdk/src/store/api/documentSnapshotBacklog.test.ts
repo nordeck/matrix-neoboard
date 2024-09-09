@@ -17,6 +17,7 @@
 import { RoomEvent } from '@matrix-widget-toolkit/api';
 import { Base64 } from 'js-base64';
 import { isEqual } from 'lodash';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   mockDocumentChunk,
   mockDocumentSnapshot,
@@ -180,7 +181,7 @@ describe('DocumentSnapshotBacklog', () => {
   });
 
   it('should skip invalid snapshot with custom validator', () => {
-    const validator = jest.fn().mockImplementation((data: Uint8Array) => {
+    const validator = vi.fn().mockImplementation((data: Uint8Array) => {
       // snapshot2 is invalid
       if (isEqual(data, document2.store())) {
         return false;
@@ -326,7 +327,7 @@ describe('combineChunks', () => {
     // this uses Buffer.from in node.js environments and atob in tests.
     // atob will throw if the base64 is invalid, Buffer.from will accept it.
     // we manually inject an error here to be able to test it
-    jest.spyOn(Base64, 'toUint8Array').mockImplementation(() => {
+    vi.spyOn(Base64, 'toUint8Array').mockImplementation(() => {
       throw new Error('The string to be decoded is not correctly encoded.');
     });
 

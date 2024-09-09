@@ -17,6 +17,7 @@
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { ComponentType, PropsWithChildren } from 'react';
+import { Mocked, afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
   WhiteboardTestingContextProvider,
   mockWhiteboardManager,
@@ -30,7 +31,7 @@ let wrapper: ComponentType<PropsWithChildren<{}>>;
 
 afterEach(() => widgetApi.stop());
 
-let whiteboardManager: jest.Mocked<WhiteboardManager>;
+let whiteboardManager: Mocked<WhiteboardManager>;
 beforeEach(() => {
   ({ whiteboardManager } = mockWhiteboardManager());
   widgetApi = mockWidgetApi();

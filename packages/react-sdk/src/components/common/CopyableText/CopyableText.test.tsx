@@ -16,7 +16,8 @@
 
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { axe } from 'jest-axe';
+import axe from 'axe-core';
+import { describe, expect, it } from 'vitest';
 import { CopyableText } from './CopyableText';
 
 describe('<CopyableText/>', () => {
@@ -54,6 +55,6 @@ describe('<CopyableText/>', () => {
       <CopyableText label="Example" text="Hello World" />,
     );
 
-    expect(await axe(container)).toHaveNoViolations();
+    expect(await axe.run(container)).toHaveNoViolations();
   });
 });

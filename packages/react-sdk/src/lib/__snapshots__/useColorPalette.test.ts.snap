@@ -1,21 +1,21 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`useColorPalette should return the expected palette including transparent 1`] = `
-Object {
-  "current": Object {
-    "colorPalette": Array [
-      Object {
+exports[`useColorPalette > should return the expected palette including transparent 1`] = `
+{
+  "current": {
+    "colorPalette": [
+      {
         "color": "transparent",
         "label": "Transparent",
       },
-      Object {
+      {
         "color": "#fff",
         "label": "White",
       },
-      Object {
+      {
         "color": "#f44336",
         "label": "Red",
-        "shades": Array [
+        "shades": [
           "#fcd0cc",
           "#f9a19a",
           "#f67268",
@@ -25,10 +25,10 @@ Object {
           "#521612",
         ],
       },
-      Object {
+      {
         "color": "#e91e63",
         "label": "Pink",
-        "shades": Array [
+        "shades": [
           "#f9c6d8",
           "#f48eb1",
           "#ee568a",
@@ -38,10 +38,10 @@ Object {
           "#4f0a21",
         ],
       },
-      Object {
+      {
         "color": "#9c27b0",
         "label": "Purple",
-        "shades": Array [
+        "shades": [
           "#e6c9eb",
           "#cd93d7",
           "#b45dc3",
@@ -51,10 +51,10 @@ Object {
           "#350d3b",
         ],
       },
-      Object {
+      {
         "color": "#673ab7",
         "label": "Deep purple",
-        "shades": Array [
+        "shades": [
           "#d9cded",
           "#b39cdb",
           "#8d6bc9",
@@ -64,10 +64,10 @@ Object {
           "#23133e",
         ],
       },
-      Object {
+      {
         "color": "#3f51b5",
         "label": "Indigo",
-        "shades": Array [
+        "shades": [
           "#cfd3ec",
           "#9fa8da",
           "#6f7cc7",
@@ -77,10 +77,10 @@ Object {
           "#151b3d",
         ],
       },
-      Object {
+      {
         "color": "#2196f3",
         "label": "Blue",
-        "shades": Array [
+        "shades": [
           "#c7e4fc",
           "#90caf9",
           "#58b0f6",
@@ -90,10 +90,10 @@ Object {
           "#0b3252",
         ],
       },
-      Object {
+      {
         "color": "#03a9f4",
         "label": "Light blue",
-        "shades": Array [
+        "shades": [
           "#c0e9fc",
           "#81d4f9",
           "#42bef6",
@@ -103,10 +103,10 @@ Object {
           "#013952",
         ],
       },
-      Object {
+      {
         "color": "#00bcd4",
         "label": "Cyan",
-        "shades": Array [
+        "shades": [
           "#bfeef4",
           "#7fdde9",
           "#3fccde",
@@ -116,10 +116,10 @@ Object {
           "#003f48",
         ],
       },
-      Object {
+      {
         "color": "#009688",
         "label": "Teal",
-        "shades": Array [
+        "shades": [
           "#bfe4e1",
           "#7fcac3",
           "#3fb0a5",
@@ -129,10 +129,10 @@ Object {
           "#00322e",
         ],
       },
-      Object {
+      {
         "color": "#4caf50",
         "label": "Green",
-        "shades": Array [
+        "shades": [
           "#d2ebd3",
           "#a5d7a7",
           "#78c37b",
@@ -142,10 +142,10 @@ Object {
           "#193b1b",
         ],
       },
-      Object {
+      {
         "color": "#8bc34a",
         "label": "Light green",
-        "shades": Array [
+        "shades": [
           "#e2f0d1",
           "#c5e1a4",
           "#a8d277",
@@ -155,10 +155,10 @@ Object {
           "#2f4219",
         ],
       },
-      Object {
+      {
         "color": "#cddc39",
         "label": "Lime",
-        "shades": Array [
+        "shades": [
           "#f2f6cd",
           "#e6ed9c",
           "#d9e46a",
@@ -168,10 +168,10 @@ Object {
           "#454a13",
         ],
       },
-      Object {
+      {
         "color": "#ffeb3b",
         "label": "Yellow",
-        "shades": Array [
+        "shades": [
           "#ffface",
           "#fff59d",
           "#fff06c",
@@ -181,10 +181,10 @@ Object {
           "#564f14",
         ],
       },
-      Object {
+      {
         "color": "#ffc107",
         "label": "Amber",
-        "shades": Array [
+        "shades": [
           "#ffefc1",
           "#ffe083",
           "#ffd045",
@@ -194,10 +194,10 @@ Object {
           "#564102",
         ],
       },
-      Object {
+      {
         "color": "#ff9800",
         "label": "Orange",
-        "shades": Array [
+        "shades": [
           "#ffe5bf",
           "#ffcb7f",
           "#ffb13f",
@@ -207,10 +207,10 @@ Object {
           "#563300",
         ],
       },
-      Object {
+      {
         "color": "#ff5722",
         "label": "Deep orange",
-        "shades": Array [
+        "shades": [
           "#ffd5c7",
           "#ffab90",
           "#ff8159",
@@ -220,10 +220,10 @@ Object {
           "#561d0b",
         ],
       },
-      Object {
+      {
         "color": "#795548",
         "label": "Brown",
-        "shades": Array [
+        "shades": [
           "#ddd4d1",
           "#bcaaa3",
           "#9a7f75",
@@ -233,10 +233,10 @@ Object {
           "#291c18",
         ],
       },
-      Object {
+      {
         "color": "#9e9e9e",
         "label": "Grey",
-        "shades": Array [
+        "shades": [
           "#e6e6e6",
           "#cecece",
           "#b6b6b6",
@@ -246,10 +246,10 @@ Object {
           "#353535",
         ],
       },
-      Object {
+      {
         "color": "#607d8b",
         "label": "Blue grey",
-        "shades": Array [
+        "shades": [
           "#d7dee2",
           "#afbec5",
           "#879da8",
@@ -259,7 +259,7 @@ Object {
           "#202a2f",
         ],
       },
-      Object {
+      {
         "color": "#000",
         "label": "Black",
       },
@@ -270,10 +270,10 @@ Object {
     "defaultShapeShade": 0,
     "defaultTextColor": undefined,
     "defaultTextShade": 3,
-    "fallbackColor": Object {
+    "fallbackColor": {
       "color": "#9e9e9e",
       "label": "Grey",
-      "shades": Array [
+      "shades": [
         "#e6e6e6",
         "#cecece",
         "#b6b6b6",
@@ -287,18 +287,18 @@ Object {
 }
 `;
 
-exports[`useColorPalette should return the expected palette without transparent 1`] = `
-Object {
-  "current": Object {
-    "colorPalette": Array [
-      Object {
+exports[`useColorPalette > should return the expected palette without transparent 1`] = `
+{
+  "current": {
+    "colorPalette": [
+      {
         "color": "#fff",
         "label": "White",
       },
-      Object {
+      {
         "color": "#f44336",
         "label": "Red",
-        "shades": Array [
+        "shades": [
           "#fcd0cc",
           "#f9a19a",
           "#f67268",
@@ -308,10 +308,10 @@ Object {
           "#521612",
         ],
       },
-      Object {
+      {
         "color": "#e91e63",
         "label": "Pink",
-        "shades": Array [
+        "shades": [
           "#f9c6d8",
           "#f48eb1",
           "#ee568a",
@@ -321,10 +321,10 @@ Object {
           "#4f0a21",
         ],
       },
-      Object {
+      {
         "color": "#9c27b0",
         "label": "Purple",
-        "shades": Array [
+        "shades": [
           "#e6c9eb",
           "#cd93d7",
           "#b45dc3",
@@ -334,10 +334,10 @@ Object {
           "#350d3b",
         ],
       },
-      Object {
+      {
         "color": "#673ab7",
         "label": "Deep purple",
-        "shades": Array [
+        "shades": [
           "#d9cded",
           "#b39cdb",
           "#8d6bc9",
@@ -347,10 +347,10 @@ Object {
           "#23133e",
         ],
       },
-      Object {
+      {
         "color": "#3f51b5",
         "label": "Indigo",
-        "shades": Array [
+        "shades": [
           "#cfd3ec",
           "#9fa8da",
           "#6f7cc7",
@@ -360,10 +360,10 @@ Object {
           "#151b3d",
         ],
       },
-      Object {
+      {
         "color": "#2196f3",
         "label": "Blue",
-        "shades": Array [
+        "shades": [
           "#c7e4fc",
           "#90caf9",
           "#58b0f6",
@@ -373,10 +373,10 @@ Object {
           "#0b3252",
         ],
       },
-      Object {
+      {
         "color": "#03a9f4",
         "label": "Light blue",
-        "shades": Array [
+        "shades": [
           "#c0e9fc",
           "#81d4f9",
           "#42bef6",
@@ -386,10 +386,10 @@ Object {
           "#013952",
         ],
       },
-      Object {
+      {
         "color": "#00bcd4",
         "label": "Cyan",
-        "shades": Array [
+        "shades": [
           "#bfeef4",
           "#7fdde9",
           "#3fccde",
@@ -399,10 +399,10 @@ Object {
           "#003f48",
         ],
       },
-      Object {
+      {
         "color": "#009688",
         "label": "Teal",
-        "shades": Array [
+        "shades": [
           "#bfe4e1",
           "#7fcac3",
           "#3fb0a5",
@@ -412,10 +412,10 @@ Object {
           "#00322e",
         ],
       },
-      Object {
+      {
         "color": "#4caf50",
         "label": "Green",
-        "shades": Array [
+        "shades": [
           "#d2ebd3",
           "#a5d7a7",
           "#78c37b",
@@ -425,10 +425,10 @@ Object {
           "#193b1b",
         ],
       },
-      Object {
+      {
         "color": "#8bc34a",
         "label": "Light green",
-        "shades": Array [
+        "shades": [
           "#e2f0d1",
           "#c5e1a4",
           "#a8d277",
@@ -438,10 +438,10 @@ Object {
           "#2f4219",
         ],
       },
-      Object {
+      {
         "color": "#cddc39",
         "label": "Lime",
-        "shades": Array [
+        "shades": [
           "#f2f6cd",
           "#e6ed9c",
           "#d9e46a",
@@ -451,10 +451,10 @@ Object {
           "#454a13",
         ],
       },
-      Object {
+      {
         "color": "#ffeb3b",
         "label": "Yellow",
-        "shades": Array [
+        "shades": [
           "#ffface",
           "#fff59d",
           "#fff06c",
@@ -464,10 +464,10 @@ Object {
           "#564f14",
         ],
       },
-      Object {
+      {
         "color": "#ffc107",
         "label": "Amber",
-        "shades": Array [
+        "shades": [
           "#ffefc1",
           "#ffe083",
           "#ffd045",
@@ -477,10 +477,10 @@ Object {
           "#564102",
         ],
       },
-      Object {
+      {
         "color": "#ff9800",
         "label": "Orange",
-        "shades": Array [
+        "shades": [
           "#ffe5bf",
           "#ffcb7f",
           "#ffb13f",
@@ -490,10 +490,10 @@ Object {
           "#563300",
         ],
       },
-      Object {
+      {
         "color": "#ff5722",
         "label": "Deep orange",
-        "shades": Array [
+        "shades": [
           "#ffd5c7",
           "#ffab90",
           "#ff8159",
@@ -503,10 +503,10 @@ Object {
           "#561d0b",
         ],
       },
-      Object {
+      {
         "color": "#795548",
         "label": "Brown",
-        "shades": Array [
+        "shades": [
           "#ddd4d1",
           "#bcaaa3",
           "#9a7f75",
@@ -516,10 +516,10 @@ Object {
           "#291c18",
         ],
       },
-      Object {
+      {
         "color": "#9e9e9e",
         "label": "Grey",
-        "shades": Array [
+        "shades": [
           "#e6e6e6",
           "#cecece",
           "#b6b6b6",
@@ -529,10 +529,10 @@ Object {
           "#353535",
         ],
       },
-      Object {
+      {
         "color": "#607d8b",
         "label": "Blue grey",
-        "shades": Array [
+        "shades": [
           "#d7dee2",
           "#afbec5",
           "#879da8",
@@ -542,7 +542,7 @@ Object {
           "#202a2f",
         ],
       },
-      Object {
+      {
         "color": "#000",
         "label": "Black",
       },
@@ -553,10 +553,10 @@ Object {
     "defaultShapeShade": 0,
     "defaultTextColor": undefined,
     "defaultTextShade": 3,
-    "fallbackColor": Object {
+    "fallbackColor": {
       "color": "#9e9e9e",
       "label": "Grey",
-      "shades": Array [
+      "shades": [
         "#e6e6e6",
         "#cecece",
         "#b6b6b6",

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { LocalForageDocumentStorage } from './localForageDocumentStorage';
 
 describe('LocalForageDocumentStorage', () => {
@@ -26,7 +27,7 @@ describe('LocalForageDocumentStorage', () => {
   });
 
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it('should store a document', async () => {
@@ -40,11 +41,11 @@ describe('LocalForageDocumentStorage', () => {
   it('should not fail storing is not possible', async () => {
     const document = new Uint8Array([0, 0, 0, 0]);
 
-    jest
-      .spyOn(window.localStorage.__proto__, 'setItem')
-      .mockImplementation(() => {
+    vi.spyOn(window.localStorage.__proto__, 'setItem').mockImplementation(
+      () => {
         throw new Error();
-      });
+      },
+    );
 
     await storage.store('document', document);
 
@@ -66,11 +67,11 @@ describe('LocalForageDocumentStorage', () => {
   });
 
   it('should return undefined if reading from storage fails', async () => {
-    jest
-      .spyOn(window.localStorage.__proto__, 'getItem')
-      .mockImplementation(() => {
+    vi.spyOn(window.localStorage.__proto__, 'getItem').mockImplementation(
+      () => {
         throw new Error();
-      });
+      },
+    );
 
     await expect(storage.load('document0')).resolves.toEqual(undefined);
   });

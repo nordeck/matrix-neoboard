@@ -18,6 +18,15 @@ import { waitFor } from '@testing-library/react';
 import { last } from 'lodash';
 import { firstValueFrom, skip, Subject, take, toArray } from 'rxjs';
 import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  Mocked,
+  vi,
+} from 'vitest';
+import {
   mockEllipseElement,
   mockLineElement,
 } from '../lib/testUtils/documentTestUtils';
@@ -38,25 +47,27 @@ import { WhiteboardSlideInstanceImpl } from './whiteboardSlideInstanceImpl';
 
 const slide0 = 'IN4h74suMiIAK4AVMAdl_';
 
-afterEach(() => jest.useRealTimers());
+afterEach(() => {
+  vi.useRealTimers();
+});
 
 describe('WhiteboardSlideInstanceImpl', () => {
   const observeStatisticsSubject =
     new Subject<CommunicationChannelStatistics>();
   let messageChannel: Subject<Message>;
-  let communicationChannel: jest.Mocked<CommunicationChannel>;
+  let communicationChannel: Mocked<CommunicationChannel>;
   let document: Document<WhiteboardDocument>;
 
   beforeEach(async () => {
     messageChannel = new Subject<Message>();
     communicationChannel = {
-      broadcastMessage: jest.fn(),
-      observeMessages: jest.fn().mockReturnValue(messageChannel),
-      getStatistics: jest
+      broadcastMessage: vi.fn(),
+      observeMessages: vi.fn().mockReturnValue(messageChannel),
+      getStatistics: vi
         .fn()
         .mockReturnValue({ localSessionId: 'own', peerConnections: {} }),
-      observeStatistics: jest.fn().mockReturnValue(observeStatisticsSubject),
-      destroy: jest.fn(),
+      observeStatistics: vi.fn().mockReturnValue(observeStatisticsSubject),
+      destroy: vi.fn(),
     };
 
     document = createWhiteboardDocument();
@@ -148,12 +159,9 @@ describe('WhiteboardSlideInstanceImpl', () => {
       '@user-id',
     );
 
-    const setActiveElementIdSpy = jest.spyOn(
-      slideInstance,
-      'setActiveElementId',
-    );
+    const setActiveElementIdSpy = vi.spyOn(slideInstance, 'setActiveElementId');
 
-    const performChangeSpy = jest
+    const performChangeSpy = vi
       .spyOn(document, 'performChange')
       .mockImplementation((callback) => {
         const elementId = last(setActiveElementIdSpy.mock.calls)?.[0];
@@ -693,7 +701,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should observe cursor positions', async () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
 
     const slideInstance = new WhiteboardSlideInstanceImpl(
       communicationChannel,
@@ -726,7 +734,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       senderSessionId: 'session-id',
     });
 
-    jest.advanceTimersByTime(1000);
+    vi.advanceTimersByTime(1000);
 
     expect(await cursorPositions).toEqual([
       { '@user-id': { x: 1, y: 2 }, '@another-user-id': { x: 2, y: 1 } },
@@ -734,7 +742,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should combine cursor positions from different sessions of the same user', async () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
 
     const slideInstance = new WhiteboardSlideInstanceImpl(
       communicationChannel,
@@ -757,7 +765,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       senderSessionId: 'session-id',
     });
 
-    jest.advanceTimersByTime(1000);
+    vi.advanceTimersByTime(1000);
 
     messageChannel.next({
       type: 'net.nordeck.whiteboard.cursor_update',
@@ -769,7 +777,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       senderSessionId: 'another-session-id',
     });
 
-    jest.advanceTimersByTime(1000);
+    vi.advanceTimersByTime(1000);
 
     expect(await cursorPositions).toEqual([
       { '@user-id': { x: 1, y: 2 } },
@@ -778,7 +786,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should ignore cursor positions for other slides', async () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
 
     const slideInstance = new WhiteboardSlideInstanceImpl(
       communicationChannel,
@@ -801,7 +809,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       senderSessionId: 'session-id',
     });
 
-    jest.advanceTimersByTime(1000);
+    vi.advanceTimersByTime(1000);
 
     messageChannel.next({
       type: 'net.nordeck.whiteboard.cursor_update',
@@ -813,13 +821,13 @@ describe('WhiteboardSlideInstanceImpl', () => {
       senderSessionId: 'session-id',
     });
 
-    jest.advanceTimersByTime(1000);
+    vi.advanceTimersByTime(1000);
 
     expect(await cursorPositions).toEqual([{ '@user-id': { x: 1, y: 2 } }]);
   });
 
   it('should forget cursors after 5 seconds', async () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
 
     const slideInstance = new WhiteboardSlideInstanceImpl(
       communicationChannel,
@@ -845,10 +853,10 @@ describe('WhiteboardSlideInstanceImpl', () => {
       senderSessionId: 'session-id',
     });
 
-    jest.advanceTimersByTime(4999);
+    vi.advanceTimersByTime(4999);
     expect(await firstCursorPosition).toEqual({ '@user-id': { x: 1, y: 2 } });
 
-    jest.advanceTimersByTime(1);
+    vi.advanceTimersByTime(1);
     expect(await secondCursorPosition).toEqual({});
   });
 

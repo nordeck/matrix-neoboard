@@ -16,6 +16,7 @@
 
 import { act, renderHook } from '@testing-library/react';
 import { ComponentType, PropsWithChildren } from 'react';
+import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
 import {
   mockEllipseElement,
   mockLineElement,
@@ -35,7 +36,7 @@ import {
 } from './useWhiteboardSlideInstance';
 
 let Wrapper: ComponentType<PropsWithChildren<{}>>;
-let whiteboardManager: jest.Mocked<WhiteboardManager>;
+let whiteboardManager: Mocked<WhiteboardManager>;
 let activeWhiteboardInstance: WhiteboardInstance;
 
 beforeEach(() => {
@@ -53,7 +54,7 @@ beforeEach(() => {
 
 describe('<SlideProvider/>', () => {
   it('should provide SlideContext', () => {
-    jest.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     expect(() =>
       renderHook(() => useWhiteboardSlideInstance(), {
@@ -61,11 +62,11 @@ describe('<SlideProvider/>', () => {
       }),
     ).not.toThrow();
 
-    jest.mocked(console.error).mockRestore();
+    consoleSpy.mockRestore();
   });
 
   it('should provide ActiveElementProvider', () => {
-    jest.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     expect(() =>
       renderHook(() => useActiveElement(), {
@@ -73,13 +74,13 @@ describe('<SlideProvider/>', () => {
       }),
     ).not.toThrow();
 
-    jest.mocked(console.error).mockRestore();
+    consoleSpy.mockRestore();
   });
 });
 
 describe('useWhiteboardSlideInstance', () => {
   it('should return the selected slide', () => {
-    const getSlide = jest.spyOn(activeWhiteboardInstance, 'getSlide');
+    const getSlide = vi.spyOn(activeWhiteboardInstance, 'getSlide');
 
     const { result } = renderHook(() => useWhiteboardSlideInstance(), {
       wrapper: Wrapper,
@@ -90,7 +91,7 @@ describe('useWhiteboardSlideInstance', () => {
   });
 
   it('hook should throw without context', () => {
-    jest.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     expect(() => renderHook(() => useWhiteboardSlideInstance())).toThrow(
       Error(
@@ -98,7 +99,7 @@ describe('useWhiteboardSlideInstance', () => {
       ),
     );
 
-    jest.mocked(console.error).mockRestore();
+    consoleSpy.mockRestore();
   });
 });
 
@@ -156,7 +157,7 @@ describe('useElement(s)', () => {
   it('should return the element', () => {
     const whiteboardSlideInstance =
       activeWhiteboardInstance.getSlide('slide-0');
-    const getElement = jest.spyOn(whiteboardSlideInstance, 'getElement');
+    const getElement = vi.spyOn(whiteboardSlideInstance, 'getElement');
 
     const { result } = renderHook(() => useElement('element-0'), {
       wrapper: Wrapper,
@@ -169,7 +170,7 @@ describe('useElement(s)', () => {
   it('should return the elements', () => {
     const whiteboardSlideInstance =
       activeWhiteboardInstance.getSlide('slide-0');
-    const getElement = jest.spyOn(whiteboardSlideInstance, 'getElement');
+    const getElement = vi.spyOn(whiteboardSlideInstance, 'getElement');
 
     const elementIds = ['element-0'];
     const { result } = renderHook(() => useElements(elementIds), {
@@ -354,7 +355,7 @@ describe('useSlideIsLocked', () => {
   });
 
   it('hook should throw if slide does not exist', () => {
-    jest.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     expect(() =>
       renderHook(() => useSlideIsLocked('not-exists'), {
@@ -362,11 +363,11 @@ describe('useSlideIsLocked', () => {
       }),
     ).toThrow(Error('SlideId does not exist'));
 
-    jest.mocked(console.error).mockRestore();
+    consoleSpy.mockRestore();
   });
 
   it('hook should throw without context', () => {
-    jest.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     expect(() => renderHook(() => useSlideIsLocked())).toThrow(
       Error(
@@ -374,6 +375,6 @@ describe('useSlideIsLocked', () => {
       ),
     );
 
-    jest.mocked(console.error).mockRestore();
+    consoleSpy.mockRestore();
   });
 });

@@ -17,8 +17,17 @@
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { axe } from 'jest-axe';
+import axe from 'axe-core';
 import { ComponentType, PropsWithChildren } from 'react';
+import {
+  Mocked,
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
 import {
   WhiteboardTestingContextProvider,
   mockPeerConnectionStatistics,
@@ -33,11 +42,13 @@ let widgetApi: MockedWidgetApi;
 
 afterEach(() => widgetApi.stop());
 
-beforeEach(() => (widgetApi = mockWidgetApi()));
+beforeEach(() => {
+  widgetApi = mockWidgetApi();
+});
 
 describe('<Collaborators>', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
-  let whiteboardManager: jest.Mocked<WhiteboardManager>;
+  let whiteboardManager: Mocked<WhiteboardManager>;
   let statistics: WhiteboardStatistics;
   let setPresentationMode: (enable: boolean) => void;
 
@@ -119,9 +130,10 @@ describe('<Collaborators>', () => {
     const activeWhiteboardInstance =
       whiteboardManager.getActiveWhiteboardInstance()!;
 
-    jest
-      .spyOn(activeWhiteboardInstance, 'getWhiteboardStatistics')
-      .mockImplementation(() => statistics);
+    vi.spyOn(
+      activeWhiteboardInstance,
+      'getWhiteboardStatistics',
+    ).mockImplementation(() => statistics);
 
     Wrapper = ({ children }) => (
       <WhiteboardTestingContextProvider
@@ -171,7 +183,7 @@ describe('<Collaborators>', () => {
     const { container } = render(<Collaborators />, { wrapper: Wrapper });
 
     await act(async () => {
-      expect(await axe(container)).toHaveNoViolations();
+      expect(await axe.run(container)).toHaveNoViolations();
     });
   });
 

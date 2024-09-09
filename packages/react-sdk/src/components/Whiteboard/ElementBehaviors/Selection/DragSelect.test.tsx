@@ -17,6 +17,7 @@
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { ComponentType, PropsWithChildren } from 'react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   WhiteboardTestingContextProvider,
   mockEllipseElement,
@@ -26,11 +27,11 @@ import { Point, WhiteboardSlideInstance } from '../../../../state';
 import { LayoutStateProvider, useLayoutState } from '../../../Layout';
 import { WhiteboardHotkeysProvider } from '../../../WhiteboardHotkeysProvider';
 import { SvgCanvas } from '../../SvgCanvas';
-import { calculateSvgCoords } from '../../SvgCanvas/utils';
+import * as svgUtils from '../../SvgCanvas/utils';
 import { DragSelect } from './DragSelect';
 
 // Mock to avoid SVG native functions not available in the test context
-jest.mock('../../SvgCanvas/utils');
+vi.mock('../../SvgCanvas/utils');
 
 describe('<DragSelect/>', () => {
   let activeSlide: WhiteboardSlideInstance;
@@ -118,7 +119,7 @@ describe('<DragSelect/>', () => {
   it('should not render a selection if there is a mouse move but not start coordinates', () => {
     render(<DragSelect />, { wrapper: Wrapper });
 
-    jest.mocked(calculateSvgCoords).mockReturnValue({ x: 50, y: 50 });
+    vi.spyOn(svgUtils, 'calculateSvgCoords').mockReturnValue({ x: 50, y: 50 });
     fireEvent.mouseMove(screen.getByTestId('drag-select-layer'), {
       clientX: 50,
       clientY: 50,
@@ -134,7 +135,7 @@ describe('<DragSelect/>', () => {
     act(() => {
       setDragSelectStartCoords({ x: 0, y: 0 });
     });
-    jest.mocked(calculateSvgCoords).mockReturnValue({ x: 50, y: 50 });
+    vi.spyOn(svgUtils, 'calculateSvgCoords').mockReturnValue({ x: 50, y: 50 });
     fireEvent.mouseMove(screen.getByTestId('drag-select-layer'), {
       clientX: 50,
       clientY: 50,
@@ -150,7 +151,7 @@ describe('<DragSelect/>', () => {
     act(() => {
       setDragSelectStartCoords({ x: 60, y: 60 });
     });
-    jest.mocked(calculateSvgCoords).mockReturnValue({ x: 70, y: 70 });
+    vi.spyOn(svgUtils, 'calculateSvgCoords').mockReturnValue({ x: 70, y: 70 });
     fireEvent.mouseMove(screen.getByTestId('drag-select-layer'), {
       clientX: 70,
       clientY: 70,
@@ -159,7 +160,7 @@ describe('<DragSelect/>', () => {
     expect(activeSlide.getActiveElementIds()).toEqual(['element-1']);
 
     // Now extend the selection to the corner where element-0 is located
-    jest.mocked(calculateSvgCoords).mockReturnValue({ x: 0, y: 0 });
+    vi.spyOn(svgUtils, 'calculateSvgCoords').mockReturnValue({ x: 0, y: 0 });
     fireEvent.mouseMove(screen.getByTestId('drag-select-layer'), {
       clientX: 0,
       clientY: 0,

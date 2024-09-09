@@ -26,11 +26,9 @@
     "fork-ts-checker-webpack-plugin": "^6.5.3"
   },
   "devDependencies": {
-    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.2",
     "@testing-library/react": "^16.0.0",
-    "@types/jest": "^27.5.2",
     "@types/node": "^22.7.7",
     "@types/react": "^18.3.11",
     "@types/react-dom": "^18.3.1",
@@ -38,15 +36,16 @@
     "@types/react-redux": "^7.1.34",
     "@vitejs/plugin-basic-ssl": "^1.1.0",
     "@vitejs/plugin-react-swc": "^3.7.0",
-    "babel-plugin-transform-import-meta": "^2.2.1",
-    "cross-env": "^7.0.3",
+    "@vitest/coverage-v8": "^2.0.5",
     "depcheck": "^1.4.7",
     "dotenv-cli": "^7.4.2",
     "eslint": "^8.57.1",
     "i18next-parser": "^9.0.2",
+    "jsdom": "^25.0.1",
     "prettier": "^3.3.3",
     "typescript": "^5.6.3",
-    "vite": "^5.4.3"
+    "vite": "^5.4.3",
+    "vitest": "^2.1.0"
   },
   "engines": {
     "node": ">=20.0.0",
@@ -62,9 +61,8 @@
     "preview:https": "VITE_DEV_SSL=true vite preview",
     "build": "tsc && vite build",
     "tsc": "tsc",
-    "test": "jest --watch",
-    "test:all": "jest --coverage --watchAll=false",
-    "depcheck": "depcheck --ignores=\"babel-plugin-transform-import-meta,@types/jest,@babel/plugin-proposal-private-property-in-object\" --ignore-dirs=build",
+    "test": "echo \"Tests have to run from root project\"",
+    "depcheck": "depcheck --ignores=\"@vitest/coverage-v8\" --ignore-dirs=build",
     "lint": "eslint .",
     "translate": "i18next \"src/**/*.{ts,tsx}\"",
     "prettier:check": "prettier --check .",

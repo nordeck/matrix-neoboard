@@ -17,14 +17,17 @@
 import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { axe } from 'jest-axe';
+import axe from 'axe-core';
 import { ComponentType, PropsWithChildren } from 'react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { GuidedTourProvider, useGuidedTour } from '../GuidedTour';
 import { HelpCenterBar } from './HelpCenterBar';
 
-jest.mock('@matrix-widget-toolkit/mui', () => ({
-  ...jest.requireActual('@matrix-widget-toolkit/mui'),
-  getEnvironment: jest.fn(),
+vi.mock('@matrix-widget-toolkit/mui', async () => ({
+  ...(await vi.importActual<typeof import('@matrix-widget-toolkit/mui')>(
+    '@matrix-widget-toolkit/mui',
+  )),
+  getEnvironment: vi.fn(),
 }));
 
 function TestComponent() {
@@ -36,9 +39,9 @@ describe('<HelpCenterBar/>', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
 
   beforeEach(() => {
-    jest
-      .mocked(getEnvironment)
-      .mockImplementation((_, defaultValue) => defaultValue);
+    vi.mocked(getEnvironment).mockImplementation(
+      (_, defaultValue) => defaultValue,
+    );
 
     Wrapper = ({ children }) => (
       <GuidedTourProvider>
@@ -77,7 +80,7 @@ describe('<HelpCenterBar/>', () => {
   it('should have no accessibility violations', async () => {
     const { container } = render(<HelpCenterBar />, { wrapper: Wrapper });
 
-    expect(await axe(container)).toHaveNoViolations();
+    expect(await axe.run(container)).toHaveNoViolations();
   });
 
   it('should provide anchor for the guided tour', () => {
@@ -89,13 +92,11 @@ describe('<HelpCenterBar/>', () => {
   });
 
   it('should open the help center and close the menu', async () => {
-    jest
-      .mocked(getEnvironment)
-      .mockImplementation((name, defaultValue) =>
-        name === 'REACT_APP_HELP_CENTER_URL'
-          ? 'https://example.com'
-          : defaultValue,
-      );
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+      name === 'REACT_APP_HELP_CENTER_URL'
+        ? 'https://example.com'
+        : defaultValue,
+    );
     render(<HelpCenterBar />, { wrapper: Wrapper });
 
     const toolbar = screen.getByRole('toolbar', { name: 'Help center' });
@@ -146,13 +147,11 @@ describe('<HelpCenterBar/>', () => {
   });
 
   it('should only show the help center if the URL is configured', async () => {
-    jest
-      .mocked(getEnvironment)
-      .mockImplementation((name, defaultValue) =>
-        name === 'REACT_APP_HELP_CENTER_URL'
-          ? 'https://example.com'
-          : defaultValue,
-      );
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+      name === 'REACT_APP_HELP_CENTER_URL'
+        ? 'https://example.com'
+        : defaultValue,
+    );
 
     const { rerender } = render(<HelpCenterBar />, { wrapper: Wrapper });
 
@@ -164,9 +163,9 @@ describe('<HelpCenterBar/>', () => {
     });
 
     // rerender after disabling the config
-    jest
-      .mocked(getEnvironment)
-      .mockImplementation((_, defaultValue) => defaultValue);
+    vi.mocked(getEnvironment).mockImplementation(
+      (_, defaultValue) => defaultValue,
+    );
     rerender(<HelpCenterBar />);
 
     expect(helpCenter).not.toBeInTheDocument();

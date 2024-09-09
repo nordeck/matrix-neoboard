@@ -12,7 +12,6 @@
     "depcheck": "^1.4.7",
     "eslint": "^8.57.1",
     "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-jest": "^28.8.0",
     "eslint-plugin-notice": "^1.0.0",
     "eslint-plugin-promise": "^7.1.0",
     "eslint-plugin-react": "^7.37.1",
@@ -23,6 +22,8 @@
     "prettier": "^3.3.3",
     "prettier-plugin-organize-imports": "^4.1.0",
     "typescript-eslint": "^8.11.0",
+    "typescript": "^5.6.2",
+    "vitest": "^2.1.1",
     "yarn-deduplicate": "^6.0.2"
   },
   "resolutions": {
@@ -35,11 +36,12 @@
   },
   "scripts": {
     "docker:build": "yarn workspace @nordeck/matrix-neoboard-widget docker:build",
-    "start": "yarn workspace @nordeck/matrix-neoboard-widget start",
+    "dev:https": "yarn workspace @nordeck/matrix-neoboard-widget dev:https",
     "dev": "yarn workspace @nordeck/matrix-neoboard-widget dev",
     "build": "yarn workspaces run build",
-    "test": "yarn workspaces run test",
-    "test:all": "yarn workspaces run test:all",
+    "test": "vitest watch",
+    "test:all": "vitest run --coverage",
+    "test:update_snapshots": "vitest -u",
     "tsc": "yarn workspaces run tsc",
     "deduplicate": "yarn-deduplicate",
     "depcheck": "yarn depcheck:root && yarn workspaces run depcheck",
@@ -50,11 +52,6 @@
     "prettier:check": "prettier --check .",
     "prettier:write": "prettier --write .",
     "generate-disclaimer": "yarn workspaces run generate-disclaimer"
-  },
-  "jest": {
-    "transformIgnorePatterns": [
-      "(?!(/node_modules/(lib0)/))(/node_modules/.+.(js|jsx|mjs|cjs|ts|tsx)$)"
-    ]
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [

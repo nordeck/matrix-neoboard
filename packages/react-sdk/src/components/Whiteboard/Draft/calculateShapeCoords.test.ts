@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { describe, expect, it } from 'vitest';
 import { Point, ShapeKind } from '../../../state';
 import { ShapeSizesState } from '../../../store/shapeSizesSlide';
 import { calculateShapeCoords } from './calculateShapeCoords';

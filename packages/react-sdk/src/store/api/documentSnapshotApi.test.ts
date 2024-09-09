@@ -17,6 +17,7 @@
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { waitFor } from '@testing-library/react';
 import { isEqual, range } from 'lodash';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   mockDocumentCreate,
   mockDocumentSnapshot,
@@ -29,9 +30,13 @@ let widgetApi: MockedWidgetApi;
 
 afterEach(() => widgetApi.stop());
 
-beforeEach(() => (widgetApi = mockWidgetApi()));
+beforeEach(() => {
+  widgetApi = mockWidgetApi();
+});
 
-afterEach(() => jest.useRealTimers());
+afterEach(() => {
+  vi.useRealTimers();
+});
 
 describe('getDocumentSnapshot', () => {
   it('should return a document snapshot', async () => {
@@ -116,7 +121,7 @@ describe('getDocumentSnapshot', () => {
     widgetApi.mockSendRoomEvent(snapshotEvent);
     chunks.forEach(widgetApi.mockSendRoomEvent);
 
-    const validator = jest.fn().mockImplementation((data: Uint8Array) => {
+    const validator = vi.fn().mockImplementation((data: Uint8Array) => {
       // snapshot is invalid
       if (isEqual(data, document.store())) {
         return false;
@@ -402,14 +407,17 @@ describe('createDocumentSnapshot', () => {
 
   it('should accept failing chunks', async () => {
     widgetApi.sendRoomEvent
-      .mockImplementationOnce(async (type, content) => ({
-        type,
-        content,
-        event_id: '$snapshot-event-id',
-        origin_server_ts: 0,
-        room_id: '!room-id',
-        sender: '@user-id',
-      }))
+      .mockImplementationOnce(
+        // @ts-expect-error - ignore the type error
+        async (type: string, content: object) => ({
+          type,
+          content,
+          event_id: '$snapshot-event-id',
+          origin_server_ts: 0,
+          room_id: '!room-id',
+          sender: '@user-id',
+        }),
+      )
       .mockRejectedValueOnce(new Error('Timeout'));
 
     const store = createStore({ widgetApi });

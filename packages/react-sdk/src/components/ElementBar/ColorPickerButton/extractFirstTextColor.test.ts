@@ -15,6 +15,7 @@
  */
 
 import { red } from '@mui/material/colors';
+import { describe, expect, it } from 'vitest';
 import {
   mockEllipseElement,
   mockImageElement,

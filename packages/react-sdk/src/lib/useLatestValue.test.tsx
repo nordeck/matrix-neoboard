@@ -17,11 +17,12 @@
 import { renderHook } from '@testing-library/react';
 import { act } from 'react';
 import { Subject } from 'rxjs';
+import { describe, expect, it, vi } from 'vitest';
 import { useLatestValue } from './useLatestValue';
 
 describe('useLatestValue', () => {
   it('should return the initial value', () => {
-    const valueProvider = jest.fn().mockReturnValue(1);
+    const valueProvider = vi.fn().mockReturnValue(1);
 
     const { result } = renderHook(() => useLatestValue(valueProvider));
 
@@ -30,7 +31,7 @@ describe('useLatestValue', () => {
 
   it('should memoize the return value on rerender', () => {
     const value = { a: 1 };
-    const valueProvider = jest
+    const valueProvider = vi
       .fn()
       .mockReturnValueOnce(value)
       .mockReturnValueOnce({ a: 1 });
@@ -46,7 +47,7 @@ describe('useLatestValue', () => {
 
   it('should return new value after rerender', () => {
     const value = { a: 1 };
-    const valueProvider = jest
+    const valueProvider = vi
       .fn()
       .mockReturnValueOnce(1)
       .mockReturnValueOnce(value);
@@ -64,10 +65,7 @@ describe('useLatestValue', () => {
 
   it('should return new value after the observable emits', () => {
     const value = { a: 1 };
-    const valueProvider = jest
-      .fn()
-      .mockReturnValueOnce(1)
-      .mockReturnValue(value);
+    const valueProvider = vi.fn().mockReturnValueOnce(1).mockReturnValue(value);
 
     const renderSubject = new Subject<void>();
 
@@ -84,7 +82,7 @@ describe('useLatestValue', () => {
 
   it('should only rerender when a new value is available after the observable emits', () => {
     const value = { a: 1 };
-    const valueProvider = jest
+    const valueProvider = vi
       .fn()
       .mockReturnValueOnce(1)
       .mockReturnValueOnce(1)
