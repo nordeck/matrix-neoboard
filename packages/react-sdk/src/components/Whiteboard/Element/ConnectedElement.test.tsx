@@ -17,6 +17,7 @@
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { render, screen } from '@testing-library/react';
 import { ComponentType, PropsWithChildren } from 'react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   WhiteboardTestingContextProvider,
   mockImageElement,
@@ -34,9 +35,9 @@ describe('<ConnectedElement />', () => {
 
   beforeEach(() => {
     widgetApi = mockWidgetApi();
-    jest.spyOn(console, 'error');
+    vi.spyOn(console, 'error');
 
-    jest.mocked(URL.createObjectURL).mockReturnValue('http://...');
+    vi.mocked(URL.createObjectURL).mockReturnValue('http://...');
 
     const { whiteboardManager } = mockWhiteboardManager({
       slides: [['slide-0', [['element-0', mockImageElement()]]]],
@@ -63,7 +64,7 @@ describe('<ConnectedElement />', () => {
 
   afterEach(() => {
     widgetApi.stop();
-    jest.mocked(URL.createObjectURL).mockReset();
+    vi.mocked(URL.createObjectURL).mockReset();
   });
 
   it('should render an image element', async () => {
@@ -84,7 +85,7 @@ describe('<ConnectedElement />', () => {
   });
 
   it('should log and not render an image when there is no base URL', () => {
-    jest.mocked(console.error).mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementation(() => {});
 
     render(
       <ConnectedElement

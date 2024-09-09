@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { beforeEach, describe, expect, it, test } from 'vitest';
 import {
   mockEllipseElement,
   mockLineElement,
@@ -70,7 +71,7 @@ describe('calculateDragDimension', () => {
 });
 
 describe('calculateDragOrigin', () => {
-  it.each`
+  test.each`
     handlePosition   | expectedDragOriginX | expectedDragOriginY
     ${'top'}         | ${40}               | ${65}
     ${'topRight'}    | ${10}               | ${65}
@@ -111,7 +112,7 @@ describe('calculateDimensions', () => {
     };
   });
 
-  it.each`
+  test.each`
     handlePosition   | dragX | dragY | expectedX | expectedY | expectedWidth | expectedHeight
     ${'top'}         | ${25} | ${20} | ${15}     | ${20}     | ${20}         | ${50}
     ${'top'}         | ${25} | ${50} | ${15}     | ${50}     | ${20}         | ${20}
@@ -164,7 +165,7 @@ describe('calculateDimensions', () => {
     },
   );
 
-  it.each`
+  test.each`
     handlePosition   | dragX | dragY | expectedX | expectedY | expectedWidth | expectedHeight
     ${'top'}         | ${25} | ${20} | ${15}     | ${20}     | ${20}         | ${50}
     ${'top'}         | ${25} | ${50} | ${15}     | ${50}     | ${20}         | ${20}
@@ -218,7 +219,7 @@ describe('calculateDimensions', () => {
     },
   );
 
-  it.each`
+  test.each`
     handlePosition   | dragX  | dragY  | expectedX | expectedY | expectedWidth | expectedHeight
     ${'bottomRight'} | ${120} | ${40}  | ${15}     | ${30}     | ${85}         | ${10}
     ${'bottomRight'} | ${20}  | ${120} | ${15}     | ${30}     | ${5}          | ${80}
@@ -283,7 +284,7 @@ describe('calculateDimensions', () => {
     });
   });
 
-  it.each`
+  test.each`
     handlePosition   | dragX | dragY | expectedX | expectedY | expectedWidth | expectedHeight
     ${'top'}         | ${40} | ${20} | ${12.5}   | ${20}     | ${25}         | ${50}
     ${'top'}         | ${5}  | ${40} | ${17.5}   | ${40}     | ${15}         | ${30}
@@ -336,7 +337,7 @@ describe('calculateDimensions', () => {
     },
   );
 
-  it.each`
+  test.each`
     handlePosition   | dragX  | dragY  | expectedX | expectedY | expectedWidth | expectedHeight
     ${'topRight'}    | ${100} | ${100} | ${15}     | ${0}      | ${35}         | ${70}
     ${'topRight'}    | ${0}   | ${0}   | ${0}      | ${70}     | ${15}         | ${30}
@@ -385,7 +386,7 @@ describe('calculateDimensions', () => {
     },
   );
 
-  it.each`
+  test.each`
     handlePosition | dragX | dragY | expectedX | expectedY | expectedWidth | expectedHeight
     ${'top'}       | ${25} | ${20} | ${15}     | ${40}     | ${20}         | ${30}
     ${'top'}       | ${25} | ${50} | ${15}     | ${40}     | ${20}         | ${30}
@@ -470,7 +471,7 @@ describe('computeResizing', () => {
     ).toEqual([]);
   });
 
-  it.each`
+  test.each`
     name       | x      | y      | dragX  | dragY  | expectedX | expectedY
     ${'start'} | ${120} | ${160} | ${80}  | ${120} | ${80}     | ${120}
     ${'end'}   | ${240} | ${200} | ${280} | ${240} | ${120}    | ${160}
@@ -528,7 +529,7 @@ describe('computeResizing', () => {
     ).toEqual([]);
   });
 
-  it.each`
+  test.each`
     name             | dragX  | dragY  | expectedX | expectedY | expectedWidth | expectedHeight
     ${'top'}         | ${120} | ${80}  | ${120}    | ${80}     | ${40}         | ${80}
     ${'topRight'}    | ${200} | ${80}  | ${120}    | ${80}     | ${80}         | ${80}
@@ -579,7 +580,7 @@ describe('computeResizing', () => {
     },
   );
 
-  it.each`
+  test.each`
     name             | dragX  | dragY  | expectedEllipseX | expectedEllipseY | expectedEllipseWidth | expectedEllipseHeight | expectedLineX | expectedLineY | expectedLineWidth | expectedLineHeight
     ${'top'}         | ${120} | ${40}  | ${120}           | ${40}            | ${40}                | ${80}                 | ${120}        | ${120}        | ${120}            | ${80}
     ${'topRight'}    | ${360} | ${40}  | ${120}           | ${40}            | ${80}                | ${80}                 | ${120}        | ${120}        | ${240}            | ${80}

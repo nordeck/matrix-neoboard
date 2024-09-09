@@ -18,6 +18,7 @@ import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ComponentType, PropsWithChildren } from 'react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   WhiteboardTestingContextProvider,
   mockWhiteboardManager,
@@ -27,8 +28,8 @@ import { SnackbarProvider } from '../Snackbar';
 import { ImageUploadProvider } from './ImageUploadProvider';
 import { useSlideImageUpload } from './useSlideImageUpload';
 
-jest.mock('../../lib', () => ({
-  ...jest.requireActual('../../lib'),
+vi.mock('../../lib', async () => ({
+  ...(await vi.importActual<typeof import('../../lib')>('../../lib')),
   determineImageSize: () => {
     // Always return a static value here, because js-dom doesn't implement Image.
     return Promise.resolve({ width: 40, height: 20 });
@@ -52,7 +53,7 @@ describe('useSlideImageUpload', () => {
     });
     const whiteboard = whiteboardManager.getActiveWhiteboardInstance()!;
     slide = whiteboard.getSlide(whiteboard.getActiveSlideId()!);
-    jest.spyOn(console, 'error');
+    vi.spyOn(console, 'error');
 
     Wrapper = ({ children }) => {
       return (
@@ -70,7 +71,7 @@ describe('useSlideImageUpload', () => {
 
   afterEach(() => {
     widgetApi.stop();
-    jest.mocked(console.error).mockRestore();
+    vi.spyOn(console, 'error').mockRestore();
   });
 
   it('should add an uploaded image to the slide', async () => {
@@ -90,14 +91,14 @@ describe('useSlideImageUpload', () => {
   });
 
   it('should not explode if there is an upload error', async () => {
-    jest.mocked(console.error).mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementation(() => {});
     render(<TestFileInput />, { wrapper: Wrapper });
 
     const file = new File([], 'example.jpg', {
       type: 'image/jpeg',
     });
     const uploadError = new Error('upload error');
-    jest.mocked(file.arrayBuffer).mockImplementation(() => {
+    vi.spyOn(file, 'arrayBuffer').mockImplementation(() => {
       throw uploadError;
     });
     await userEvent.upload(screen.getByTestId('file-input'), file);

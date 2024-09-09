@@ -17,8 +17,17 @@
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { axe } from 'jest-axe';
+import axe from 'axe-core';
 import { ComponentType, PropsWithChildren } from 'react';
+import {
+  Mocked,
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
 import {
   WhiteboardTestingContextProvider,
   mockWhiteboardManager,
@@ -33,14 +42,21 @@ let widgetApi: MockedWidgetApi;
 
 afterEach(() => widgetApi.stop());
 
-beforeEach(() => (widgetApi = mockWidgetApi()));
+beforeEach(() => {
+  widgetApi = mockWidgetApi();
+});
 
 describe('<ImportWhiteboardDialog/>', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
-  let whiteboardManager: jest.Mocked<WhiteboardManager>;
-  const onClose = jest.fn();
-  const onRetry = jest.fn();
+  let whiteboardManager: Mocked<WhiteboardManager>;
+  const onClose = vi.fn();
+  const onRetry = vi.fn();
   let data: WhiteboardDocumentExport;
+
+  afterEach(() => {
+    onClose.mockReset();
+    onRetry.mockReset();
+  });
 
   beforeEach(() => {
     ({ whiteboardManager } = mockWhiteboardManager());
@@ -67,7 +83,7 @@ describe('<ImportWhiteboardDialog/>', () => {
       );
     };
 
-    jest.mocked(URL.createObjectURL).mockReturnValue('blob:url');
+    vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:url');
   });
 
   it('should render the success mode', async () => {
@@ -150,7 +166,7 @@ describe('<ImportWhiteboardDialog/>', () => {
     expect(screen.getByRole('button', { name: 'Import' })).toBeEnabled();
 
     // the popover is opened in a portal, so we check the baseElement, i.e. <body/>.
-    expect(await axe(baseElement)).toHaveNoViolations();
+    expect(await axe.run(baseElement)).toHaveNoViolations();
   });
 
   it('should have no accessibility violations in the error mode', async () => {
@@ -166,7 +182,7 @@ describe('<ImportWhiteboardDialog/>', () => {
 
     expect(screen.getByRole('button', { name: 'Import' })).toBeDisabled();
 
-    expect(await axe(baseElement)).toHaveNoViolations();
+    expect(await axe.run(baseElement)).toHaveNoViolations();
   });
 
   it('should close dialog on close', async () => {

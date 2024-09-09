@@ -16,6 +16,7 @@
 
 import { act, renderHook } from '@testing-library/react';
 import { ComponentType, PropsWithChildren } from 'react';
+import { beforeEach, describe, expect, it, Mocked } from 'vitest';
 import { mockWhiteboardManager } from '../lib/testUtils/documentTestUtils';
 import { WhiteboardManager } from './types';
 import { usePresentationMode } from './usePresentationMode';
@@ -23,7 +24,7 @@ import { WhiteboardManagerProvider } from './useWhiteboardManager';
 
 describe('usePresentationMode', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
-  let whiteboardManager: jest.Mocked<WhiteboardManager>;
+  let whiteboardManager: Mocked<WhiteboardManager>;
 
   beforeEach(() => {
     ({ whiteboardManager } = mockWhiteboardManager());

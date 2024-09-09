@@ -16,8 +16,9 @@
 
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import fetchMock from 'fetch-mock-jest';
 import { ComponentType, PropsWithChildren } from 'react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { FetchMock } from 'vitest-fetch-mock';
 import {
   WhiteboardTestingContextProvider,
   mockWhiteboardManager,
@@ -28,13 +29,13 @@ import { SlidesProvider } from '../../Layout/SlidesProvider';
 import { whiteboardHeight, whiteboardWidth } from '../../Whiteboard';
 import { SvgCanvas } from '../../Whiteboard/SvgCanvas';
 import ImageDisplay from './ImageDisplay';
+const fetch = global.fetch as FetchMock;
 
 describe('<ImageDisplay />', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
   let widgetApi: MockedWidgetApi;
 
   beforeEach(() => {
-    jest.useFakeTimers();
     widgetApi = mockWidgetApi();
     const { whiteboardManager } = mockWhiteboardManager();
     Wrapper = ({ children }) => (
@@ -55,18 +56,23 @@ describe('<ImageDisplay />', () => {
       </LayoutStateProvider>
     );
 
-    jest.mocked(URL.createObjectURL).mockReturnValue('http://...');
-    fetchMock.get(
-      'https://example.com/_matrix/*/download/example.com/test1234',
-      '',
-    );
+    vi.spyOn(URL, 'createObjectURL').mockReturnValue('http://...');
+    // @ts-expect-error mock doesnt want blob but we need blob. So we just do blob
+    fetch.mockResponse((req) => {
+      if (
+        req.url ===
+        'https://example.com/_matrix/media/v3/download/example.com/test1234'
+      ) {
+        return { status: 200, body: new Blob() };
+      }
+      return { status: 200, body: new Blob() };
+    });
   });
 
   afterEach(() => {
-    jest.useRealTimers();
     widgetApi.stop();
-    jest.mocked(URL.createObjectURL).mockReset();
-    fetchMock.mockReset();
+    vi.spyOn(URL, 'createObjectURL').mockReset();
+    fetch.resetMocks();
   });
 
   it.each([
@@ -136,7 +142,7 @@ describe('<ImageDisplay />', () => {
   });
 
   it('should render an error when an image is not available', async () => {
-    jest.mocked(URL.createObjectURL).mockReturnValue('');
+    vi.mocked(URL.createObjectURL).mockReturnValue('');
 
     render(
       <ImageDisplay
@@ -167,7 +173,7 @@ describe('<ImageDisplay />', () => {
     const imageElement = screen.queryByTestId('element-element-0-image');
     expect(imageElement).not.toBeInTheDocument();
 
-    jest.mocked(URL.createObjectURL).mockReset();
+    vi.mocked(URL.createObjectURL).mockReset();
   });
 
   it('should not have a context menu in read-only mode', () => {

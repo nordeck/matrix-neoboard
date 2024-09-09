@@ -19,7 +19,7 @@ import { Dispatch, MouseEvent, PropsWithChildren, useCallback } from 'react';
 import { Point } from '../../../state';
 import { useLayoutState } from '../../Layout';
 import { useSvgCanvasContext } from '../SvgCanvas';
-import editRoundedUrl from './editRounded.svg';
+import editRoundedUrl from './editRounded.svg?url';
 
 const NoInteraction = styled('g')({
   pointerEvents: 'none',

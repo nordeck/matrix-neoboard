@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { describe, expect, it } from 'vitest';
 import { Element } from '../../../state';
 import { calculateBoundingRectForElements } from '../../../state/crdt/documents/elements';
 import { duplicate } from './DuplicateActiveElementButton';

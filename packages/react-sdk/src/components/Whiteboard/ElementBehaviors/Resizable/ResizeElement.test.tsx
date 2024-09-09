@@ -16,9 +16,9 @@
 
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { mocked } from 'jest-mock';
 import { ComponentType, PropsWithChildren } from 'react';
 import { useStore } from 'react-redux';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   WhiteboardTestingContextProvider,
   mockImageElement,
@@ -33,18 +33,18 @@ import { ElementOverridesProvider } from '../../../ElementOverridesProvider';
 import { LayoutStateProvider } from '../../../Layout';
 import { SvgCanvas } from '../../SvgCanvas';
 import { ResizeElement } from './ResizeElement';
-import { computeResizing } from './utils';
+import * as utils from './utils';
 
-jest.mock('./utils', () => {
-  const original = jest.requireActual('./utils');
+vi.mock('./utils', async () => {
+  const original = await vi.importActual<typeof import('./utils')>('./utils');
   return {
     ...original,
-    computeResizing: jest.fn(),
+    computeResizing: vi.fn(),
   };
 });
 
 // mock useMeasure to return anything to get a scale
-jest.mock('../../SvgCanvas/useMeasure', () => {
+vi.mock('../../SvgCanvas/useMeasure', () => {
   return {
     useMeasure: () => [
       null,
@@ -138,14 +138,14 @@ describe('<ResizeElement />', () => {
     const resizeHandleBottomRight = screen.getByTestId(
       'resize-handle-bottomRight',
     );
-    mocked(computeResizing).mockReturnValue([
+    vi.spyOn(utils, 'computeResizing').mockReturnValue([
       {
         elementId: 'element-3',
         elementOverride: rectangleElement,
       },
     ]);
     fireEvent.mouseDown(resizeHandleBottomRight);
-    mocked(computeResizing).mockReturnValue([
+    vi.spyOn(utils, 'computeResizing').mockReturnValue([
       {
         elementId: 'element-3',
         elementOverride: {
@@ -180,14 +180,14 @@ describe('<ResizeElement />', () => {
     const resizeHandleBottomRight = screen.getByTestId(
       'resize-handle-bottomRight',
     );
-    mocked(computeResizing).mockReturnValue([
+    vi.spyOn(utils, 'computeResizing').mockReturnValue([
       {
         elementId: 'element-0',
         elementOverride: polylineElement,
       },
     ]);
     fireEvent.mouseDown(resizeHandleBottomRight);
-    mocked(computeResizing).mockReturnValue([
+    vi.spyOn(utils, 'computeResizing').mockReturnValue([
       {
         elementId: 'element-0',
         elementOverride: {
@@ -233,14 +233,14 @@ describe('<ResizeElement />', () => {
 
     // drag the end of a line from 0,0 to 50,50
     const resizeHandleBottomRight = screen.getByTestId('resize-handle-end');
-    mocked(computeResizing).mockReturnValue([
+    vi.spyOn(utils, 'computeResizing').mockReturnValue([
       {
         elementId: 'element-1',
         elementOverride: lineElement,
       },
     ]);
     fireEvent.mouseDown(resizeHandleBottomRight);
-    mocked(computeResizing).mockReturnValue([
+    vi.spyOn(utils, 'computeResizing').mockReturnValue([
       {
         elementId: 'element-1',
         elementOverride: {
@@ -282,14 +282,14 @@ describe('<ResizeElement />', () => {
     const resizeHandleBottomRight = screen.getByTestId(
       'resize-handle-bottomRight',
     );
-    mocked(computeResizing).mockReturnValue([
+    vi.spyOn(utils, 'computeResizing').mockReturnValue([
       {
         elementId: 'element-2',
         elementOverride: imageElement,
       },
     ]);
     fireEvent.mouseDown(resizeHandleBottomRight);
-    mocked(computeResizing).mockReturnValue([
+    vi.spyOn(utils, 'computeResizing').mockReturnValue([
       {
         elementId: 'element-2',
         elementOverride: {
@@ -319,7 +319,7 @@ describe('<ResizeElement />', () => {
     const resizeHandleBottomRight = screen.getByTestId(
       'resize-handle-bottomRight',
     );
-    mocked(computeResizing).mockReturnValue([
+    vi.spyOn(utils, 'computeResizing').mockReturnValue([
       {
         elementId: 'element-0',
         elementOverride: {
@@ -343,7 +343,7 @@ describe('<ResizeElement />', () => {
       },
     ]);
     fireEvent.mouseDown(resizeHandleBottomRight);
-    mocked(computeResizing).mockReturnValue([
+    vi.spyOn(utils, 'computeResizing').mockReturnValue([
       {
         elementId: 'element-0',
         elementOverride: {

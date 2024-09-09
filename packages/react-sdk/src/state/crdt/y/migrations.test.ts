@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { describe, expect, it } from 'vitest';
 import * as Y from 'yjs';
 import { applyMigrations, createMigrations } from './migrations';
 import { SharedMap } from './types';

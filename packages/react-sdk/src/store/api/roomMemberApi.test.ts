@@ -16,6 +16,7 @@
 
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { waitFor } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { mockRoomMember } from '../../lib/testUtils/matrixTestUtils';
 import { createStore } from '../store';
 import { roomMemberApi } from './roomMemberApi';

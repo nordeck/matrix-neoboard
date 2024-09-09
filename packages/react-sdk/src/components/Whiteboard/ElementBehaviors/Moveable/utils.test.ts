@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { beforeEach, describe, expect, it } from 'vitest';
 import { mockEllipseElement } from '../../../../lib/testUtils/documentTestUtils';
 import { Elements } from '../../../../state/types';
 import { calculateElementOverrideUpdates } from './utils';

@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-const i18NextParserConfig = {
-  defaultNamespace: 'neoboard',
-  locales: ['en', 'de'],
-  output: 'src/locales/$LOCALE/$NAMESPACE.json',
-  sort: true,
-  resetDefaultValueLocale: 'en',
-  lexers: {
-    tsx: [{ lexer: 'JsxLexer', transSupportBasicHtmlNodes: true }],
-  },
-};
+import 'vitest';
 
-export default i18NextParserConfig;
+interface AxeMatchers<R = unknown> {
+  toHaveNoViolations: () => R;
+}
+
+declare module 'vitest' {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  interface Assertion<T = any> extends AxeMatchers<T> {}
+  interface AsymmetricMatchersContaining extends AxeMatchers {}
+}
