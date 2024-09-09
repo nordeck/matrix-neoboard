@@ -5,6 +5,7 @@
   "license": "Apache-2.0",
   "version": "1.20.0",
   "private": true,
+  "type": "module",
   "dependencies": {
     "@matrix-widget-toolkit/api": "^3.4.0",
     "@matrix-widget-toolkit/mui": "^2.0.4",
@@ -26,7 +27,6 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
-    "@craco/craco": "^7.1.0",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.2",
     "@testing-library/react": "^16.0.0",
@@ -36,6 +36,8 @@
     "@types/react-dom": "^18.3.1",
     "@types/react-i18next": "^8.1.0",
     "@types/react-redux": "^7.1.34",
+    "@vitejs/plugin-basic-ssl": "^1.1.0",
+    "@vitejs/plugin-react-swc": "^3.7.0",
     "babel-plugin-transform-import-meta": "^2.2.1",
     "cross-env": "^7.0.3",
     "depcheck": "^1.4.7",
@@ -43,8 +45,8 @@
     "eslint": "^8.57.1",
     "i18next-parser": "^9.0.2",
     "prettier": "^3.3.3",
-    "react-scripts": "5.0.1",
-    "typescript": "^5.6.3"
+    "typescript": "^5.6.3",
+    "vite": "^5.4.3"
   },
   "engines": {
     "node": ">=20.0.0",
@@ -54,9 +56,11 @@
     "docker": "yarn run docker:build && yarn run docker:run",
     "docker:build": "docker build -t nordeck/matrix-neoboard-widget .",
     "docker:run": "dotenv -c -- docker run -it --rm -e REACT_APP_HOME_SERVER_URL -p 3000:8080 --name matrix-neoboard-widget nordeck/matrix-neoboard-widget",
-    "start": "cross-env HTTPS=true BROWSER=none craco start",
-    "dev": "cross-env BROWSER=none ESLINT_NO_DEV_ERRORS=true TSC_COMPILE_ON_ERROR=true WDS_SOCKET_PORT=0 craco start",
-    "build": "cross-env GENERATE_SOURCEMAP=false INLINE_RUNTIME_CHUNK=false craco build",
+    "dev": "vite",
+    "dev:https": "VITE_DEV_SSL=true vite",
+    "preview": "vite preview",
+    "preview:https": "VITE_DEV_SSL=true vite preview",
+    "build": "tsc && vite build",
     "tsc": "tsc",
     "test": "jest --watch",
     "test:all": "jest --coverage --watchAll=false",
