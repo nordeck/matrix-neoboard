@@ -15,7 +15,7 @@
  */
 
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
-import { act, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import fetchMock from 'fetch-mock-jest';
 import { ComponentType, PropsWithChildren } from 'react';
 import {
@@ -55,9 +55,9 @@ describe('<ImageDisplay />', () => {
       </LayoutStateProvider>
     );
 
-    jest.mocked(URL.createObjectURL).mockReturnValue('data:test');
+    jest.mocked(URL.createObjectURL).mockReturnValue('http://...');
     fetchMock.get(
-      'https://example.com/_matrix/media/v3/download/example.com/test1234',
+      'https://example.com/_matrix/*/download/example.com/test1234',
       '',
     );
   });
@@ -73,9 +73,10 @@ describe('<ImageDisplay />', () => {
     ['example.gif', 'image/gif'],
     ['example.jpeg', 'image/jpeg'],
     ['example.png', 'image/png'],
+    ['example.svg', 'image/svg+xml'],
   ] as [string, ImageMimeType][])(
     'should render %s without exploding',
-    (fileName, mimeType) => {
+    async (fileName, mimeType) => {
       render(
         <ImageDisplay
           elementId="element-0"
@@ -96,34 +97,10 @@ describe('<ImageDisplay />', () => {
       expect(
         screen.getByTestId('element-element-0-skeleton'),
       ).toBeInTheDocument();
-      expect(screen.getByTestId('element-element-0-image')).toBeInTheDocument();
+      const imageElement = await screen.findByTestId('element-element-0-image');
+      expect(imageElement).toBeInTheDocument();
     },
   );
-
-  it('should render example.svg without exploding', async () => {
-    render(
-      <ImageDisplay
-        elementId="element-0"
-        type="image"
-        fileName="example.svg"
-        mimeType="image/svg+xml"
-        baseUrl="https://example.com"
-        mxc="mxc://example.com/test1234"
-        width={200}
-        height={300}
-        position={{ x: 23, y: 42 }}
-        active={false}
-        readOnly={false}
-      />,
-      { wrapper: Wrapper },
-    );
-
-    expect(
-      screen.getByTestId('element-element-0-skeleton'),
-    ).toBeInTheDocument();
-    const imageElement = await screen.findByTestId('element-element-0-image');
-    expect(imageElement).toBeInTheDocument();
-  });
 
   it('should render a skeleton until an image is loaded', async () => {
     render(
@@ -147,18 +124,20 @@ describe('<ImageDisplay />', () => {
       screen.getByTestId('element-element-0-skeleton'),
     ).toBeInTheDocument();
 
-    act(() => {
-      screen
-        .getByTestId('element-element-0-image')
-        .dispatchEvent(new Event('load'));
-    });
+    const imageElement = await screen.findByTestId('element-element-0-image');
+    expect(imageElement).toBeInTheDocument();
+    fireEvent.load(imageElement);
 
-    expect(
-      screen.queryByTestId('element-element-0-skeleton'),
-    ).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(
+        screen.queryByTestId('element-element-0-skeleton'),
+      ).not.toBeInTheDocument();
+    });
   });
 
   it('should render an error when an image is not available', async () => {
+    jest.mocked(URL.createObjectURL).mockReturnValue('');
+
     render(
       <ImageDisplay
         elementId="element-0"
@@ -180,19 +159,15 @@ describe('<ImageDisplay />', () => {
       screen.getByTestId('element-element-0-skeleton'),
     ).toBeInTheDocument();
 
-    act(() => {
-      screen
-        .getByTestId('element-element-0-image')
-        .dispatchEvent(new Event('error'));
-    });
+    const errorContainer = await screen.findByTestId(
+      'element-element-0-error-container',
+    );
+    expect(errorContainer).toBeInTheDocument();
 
-    expect(
-      screen.getByTestId('element-element-0-error-container'),
-    ).toBeInTheDocument();
+    const imageElement = screen.queryByTestId('element-element-0-image');
+    expect(imageElement).not.toBeInTheDocument();
 
-    expect(
-      screen.queryByTestId('element-element-0-image'),
-    ).not.toBeInTheDocument();
+    jest.mocked(URL.createObjectURL).mockReset();
   });
 
   it('should not have a context menu in read-only mode', () => {

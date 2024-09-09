@@ -250,7 +250,9 @@ describe('<ImportWhiteboardDialog/>', () => {
     );
 
     expect(
-      await whiteboardManager.getActiveWhiteboardInstance()?.export(''),
+      await whiteboardManager
+        .getActiveWhiteboardInstance()
+        ?.export(mockWidgetApi()),
     ).toEqual(data);
 
     expect(onClose).toHaveBeenCalled();

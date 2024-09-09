@@ -36,6 +36,8 @@ describe('<ConnectedElement />', () => {
     widgetApi = mockWidgetApi();
     jest.spyOn(console, 'error');
 
+    jest.mocked(URL.createObjectURL).mockReturnValue('http://...');
+
     const { whiteboardManager } = mockWhiteboardManager({
       slides: [['slide-0', [['element-0', mockImageElement()]]]],
     });
@@ -61,9 +63,10 @@ describe('<ConnectedElement />', () => {
 
   afterEach(() => {
     widgetApi.stop();
+    jest.mocked(URL.createObjectURL).mockReset();
   });
 
-  it('should render an image element', () => {
+  it('should render an image element', async () => {
     // @ts-ignore ignore readonly prop for tests
     widgetApi.widgetParameters.baseUrl = 'https://example.com';
 
@@ -76,7 +79,8 @@ describe('<ConnectedElement />', () => {
       { wrapper: Wrapper },
     );
 
-    expect(screen.getByTestId('element-element-0-image')).toBeInTheDocument();
+    const imageElement = await screen.findByTestId('element-element-0-image');
+    expect(imageElement).toBeInTheDocument();
   });
 
   it('should log and not render an image when there is no base URL', () => {

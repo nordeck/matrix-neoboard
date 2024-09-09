@@ -155,7 +155,7 @@ describe('<ExportWhiteboardDialogDownloadPdf />', () => {
       expect(createWhiteboardPdf).toHaveBeenCalledWith({
         authorName: '@user-id',
         roomName: 'NeoBoard',
-        baseUrl: 'https://example.com',
+        widgetApi: widgetApi,
         whiteboardInstance: whiteboardManager.getActiveWhiteboardInstance(),
       });
     });

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import {
   mockEllipseElement,
   mockLineElement,
@@ -91,7 +92,7 @@ describe('createWhiteboardPdfDefinition', () => {
         whiteboardInstance,
         roomName: 'My Room',
         authorName: 'Alice',
-        baseUrl: 'https://example.com',
+        widgetApi: mockWidgetApi(),
       }),
     ).toMatchSnapshot();
   });
@@ -106,7 +107,7 @@ describe('createWhiteboardPdfDefinition', () => {
       whiteboardInstance,
       roomName: 'My Room',
       authorName: 'Alice',
-      baseUrl: 'https://example.com',
+      widgetApi: mockWidgetApi(),
     });
 
     expect(spy).toHaveBeenCalledWith('Noto Emoji');

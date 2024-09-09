@@ -102,13 +102,12 @@ function useGeneratePdf(
     const authorName = widgetApi.widgetParameters.userId
       ? getUserDisplayName(widgetApi.widgetParameters.userId)
       : '';
-    const baseUrl = widgetApi.widgetParameters.baseUrl ?? '';
 
     const subscription = createWhiteboardPdf({
       whiteboardInstance,
       roomName,
       authorName,
-      baseUrl,
+      widgetApi,
     }).subscribe({
       next: (blob) => {
         url = URL.createObjectURL(blob);

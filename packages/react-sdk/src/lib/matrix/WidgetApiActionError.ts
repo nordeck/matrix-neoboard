@@ -14,5 +14,10 @@
  * limitations under the License.
  */
 
-export { convertMxcToHttpUrl } from './convertMxcToHttpUrl';
-export { WidgetApiActionError } from './WidgetApiActionError';
+export class WidgetApiActionError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'WidgetApiActionError';
+    Object.setPrototypeOf(this, WidgetApiActionError.prototype);
+  }
+}

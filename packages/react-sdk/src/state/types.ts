@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { StateEvent } from '@matrix-widget-toolkit/api';
+import { StateEvent, WidgetApi } from '@matrix-widget-toolkit/api';
 import { Observable } from 'rxjs';
 import { Whiteboard } from '../model';
 import { CommunicationChannelStatistics } from './communication';
@@ -111,7 +111,7 @@ export type WhiteboardInstance = {
    * @param baseUrl - Homeserver base URL used to download images
    * @returns exported document
    */
-  export(baseUrl: string): Promise<WhiteboardDocumentExport>;
+  export(widgetApi: WidgetApi): Promise<WhiteboardDocumentExport>;
   /**
    * Replace the whiteboard contents with the contents of the export file.
    *

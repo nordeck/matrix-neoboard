@@ -55,9 +55,7 @@ function useWhiteboardDownload(onDownloadFinished: () => void) {
 
     setIsDownloading(true);
     const filename = `${roomName}.nwb`;
-    const whiteboardData = await whiteboard.export(
-      widgetApi.widgetParameters.baseUrl,
-    );
+    const whiteboardData = await whiteboard.export(widgetApi);
     downloadData(filename, whiteboardData);
     onDownloadFinished();
   }, [

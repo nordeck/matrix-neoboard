@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import fetchMock from 'fetch-mock-jest';
 import { convertBlobToBase64 } from '../../lib';
 import {
@@ -39,10 +40,6 @@ jest.mock('../../lib', () => ({
 const slide0 = 'IN4h74suMiIAK4AVMAdl_';
 
 describe('convertWhiteboardToExportFormat', () => {
-  afterEach(() => {
-    fetchMock.mockReset();
-  });
-
   it('should return slides in the correct order', async () => {
     const document = createWhiteboardDocument();
 
@@ -75,18 +72,18 @@ describe('convertWhiteboardToExportFormat', () => {
       addElementToSlide2(doc);
     });
 
-    expect(
-      await exportWhiteboard(document.getData(), 'https://example.com'),
-    ).toEqual({
-      version: 'net.nordeck.whiteboard@v1',
-      whiteboard: {
-        slides: [
-          { elements: [mockEllipseElement({ kind: 'ellipse' })] },
-          { elements: [mockEllipseElement({ kind: 'circle' })] },
-          { elements: [mockEllipseElement({ kind: 'triangle' })] },
-        ],
+    expect(await exportWhiteboard(document.getData(), mockWidgetApi())).toEqual(
+      {
+        version: 'net.nordeck.whiteboard@v1',
+        whiteboard: {
+          slides: [
+            { elements: [mockEllipseElement({ kind: 'ellipse' })] },
+            { elements: [mockEllipseElement({ kind: 'circle' })] },
+            { elements: [mockEllipseElement({ kind: 'triangle' })] },
+          ],
+        },
       },
-    });
+    );
   });
 
   it('should export images', async () => {
@@ -96,32 +93,28 @@ describe('convertWhiteboardToExportFormat', () => {
       addElement0(doc);
     });
 
-    fetchMock.get(
-      'https://example.com/_matrix/media/v3/download/example.com/test1234',
-      'test image data',
-    );
-
     jest.mocked(convertBlobToBase64).mockImplementation(async (blob: Blob) => {
+      const text = await readBlobAsText(blob);
       // ensure that the response data is passed into the function
-      expect(await blob.text()).toEqual('test image data');
-      return btoa('encoded test image data');
+      expect(text).toEqual('image content');
+      return btoa('encoded image content');
     });
 
-    expect(
-      await exportWhiteboard(document.getData(), 'https://example.com'),
-    ).toEqual({
-      version: 'net.nordeck.whiteboard@v1',
-      whiteboard: {
-        slides: [{ elements: [mockImageElement()] }],
-        files: [
-          // expect the file with base64 encoded content
-          {
-            data: btoa('encoded test image data'),
-            mxc: 'mxc://example.com/test1234',
-          },
-        ],
+    expect(await exportWhiteboard(document.getData(), mockWidgetApi())).toEqual(
+      {
+        version: 'net.nordeck.whiteboard@v1',
+        whiteboard: {
+          slides: [{ elements: [mockImageElement()] }],
+          files: [
+            // expect the file with base64 encoded content
+            {
+              data: btoa('encoded image content'),
+              mxc: 'mxc://example.com/test1234',
+            },
+          ],
+        },
       },
-    });
+    );
   });
 
   it('should deduplicate exported images', async () => {
@@ -136,33 +129,28 @@ describe('convertWhiteboardToExportFormat', () => {
       addElement1(doc);
     });
 
-    // expect only one download to happen
-    fetchMock.get(
-      'https://example.com/_matrix/media/v3/download/example.com/test1234',
-      'test image data',
-    );
-
     jest.mocked(convertBlobToBase64).mockImplementation(async (blob: Blob) => {
+      const text = await readBlobAsText(blob);
       // ensure that the response data is passed into the function
-      expect(await blob.text()).toEqual('test image data');
-      return btoa('encoded test image data');
+      expect(text).toEqual('image content');
+      return btoa('encoded image content');
     });
 
-    expect(
-      await exportWhiteboard(document.getData(), 'https://example.com'),
-    ).toEqual({
-      version: 'net.nordeck.whiteboard@v1',
-      whiteboard: {
-        slides: [{ elements: [mockImageElement(), mockImageElement()] }],
-        files: [
-          // expect one file in the exported data
-          {
-            data: btoa('encoded test image data'),
-            mxc: 'mxc://example.com/test1234',
-          },
-        ],
+    expect(await exportWhiteboard(document.getData(), mockWidgetApi())).toEqual(
+      {
+        version: 'net.nordeck.whiteboard@v1',
+        whiteboard: {
+          slides: [{ elements: [mockImageElement(), mockImageElement()] }],
+          files: [
+            // expect one file in the exported data
+            {
+              data: btoa('encoded image content'),
+              mxc: 'mxc://example.com/test1234',
+            },
+          ],
+        },
       },
-    });
+    );
   });
 
   it('should skip image downloads with errors', async () => {
@@ -182,7 +170,7 @@ describe('convertWhiteboardToExportFormat', () => {
 
     // simulate 500 error for the first file
     fetchMock.get(
-      'https://example.com/_matrix/media/v3/download/example.com/test1234',
+      'https://example.com/_matrix/*/download/example.com/test1234',
       {
         status: 500,
       },
@@ -190,26 +178,26 @@ describe('convertWhiteboardToExportFormat', () => {
 
     // let the FileReader raise an error for the second file
     fetchMock.get(
-      'https://example.com/_matrix/media/v3/download/example.com/test5678',
+      'https://example.com/_matrix/*/download/example.com/test5678',
       'test image data',
     );
     jest.mocked(convertBlobToBase64).mockRejectedValue('test error');
 
-    expect(
-      await exportWhiteboard(document.getData(), 'https://example.com'),
-    ).toEqual({
-      version: 'net.nordeck.whiteboard@v1',
-      whiteboard: {
-        slides: [
-          {
-            elements: [
-              mockImageElement(),
-              mockImageElement({ mxc: 'mxc://example.com/test5678' }),
-            ],
-          },
-        ],
+    expect(await exportWhiteboard(document.getData(), mockWidgetApi())).toEqual(
+      {
+        version: 'net.nordeck.whiteboard@v1',
+        whiteboard: {
+          slides: [
+            {
+              elements: [
+                mockImageElement(),
+                mockImageElement({ mxc: 'mxc://example.com/test5678' }),
+              ],
+            },
+          ],
+        },
       },
-    });
+    );
   });
 
   it('should return elements in the correct order', async () => {
@@ -238,22 +226,22 @@ describe('convertWhiteboardToExportFormat', () => {
       moveElement1ToFront(doc);
     });
 
-    expect(
-      await exportWhiteboard(document.getData(), 'https://example.com'),
-    ).toEqual({
-      version: 'net.nordeck.whiteboard@v1',
-      whiteboard: {
-        slides: [
-          {
-            elements: [
-              mockEllipseElement({ kind: 'circle' }),
-              mockEllipseElement({ kind: 'triangle' }),
-              mockEllipseElement({ kind: 'ellipse' }),
-            ],
-          },
-        ],
+    expect(await exportWhiteboard(document.getData(), mockWidgetApi())).toEqual(
+      {
+        version: 'net.nordeck.whiteboard@v1',
+        whiteboard: {
+          slides: [
+            {
+              elements: [
+                mockEllipseElement({ kind: 'circle' }),
+                mockEllipseElement({ kind: 'triangle' }),
+                mockEllipseElement({ kind: 'ellipse' }),
+              ],
+            },
+          ],
+        },
       },
-    });
+    );
   });
 
   it('should include the lock status of a slide', async () => {
@@ -267,13 +255,22 @@ describe('convertWhiteboardToExportFormat', () => {
       lockSlide1(doc);
     });
 
-    expect(
-      await exportWhiteboard(document.getData(), 'https://example.com'),
-    ).toEqual({
-      version: 'net.nordeck.whiteboard@v1',
-      whiteboard: {
-        slides: [{ elements: [] }, { elements: [], lock: {} }],
+    expect(await exportWhiteboard(document.getData(), mockWidgetApi())).toEqual(
+      {
+        version: 'net.nordeck.whiteboard@v1',
+        whiteboard: {
+          slides: [{ elements: [] }, { elements: [], lock: {} }],
+        },
       },
-    });
+    );
   });
 });
+
+const readBlobAsText = (blob: Blob): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => reject(reader.error);
+    reader.readAsText(blob);
+  });
+};
