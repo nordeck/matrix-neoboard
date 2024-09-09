@@ -12,7 +12,7 @@
   "dependencies": {
     "@fontsource/noto-emoji": "^5.0.20",
     "@matrix-widget-toolkit/api": "^3.4.0",
-    "@matrix-widget-toolkit/mui": "^2.0.3",
+    "@matrix-widget-toolkit/mui": "^2.0.4",
     "@matrix-widget-toolkit/react": "^2.0.1",
     "@mui/base": "^5.0.0-beta.40",
     "@mui/icons-material": "^6.0.2",
