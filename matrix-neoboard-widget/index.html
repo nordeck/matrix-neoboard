@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta
+      name="description"
+      content="A whiteboard widget for the Element messenger"
+    />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.json" />
+    <title>NeoBoard</title>
+
+    <!--#echo var="__INJECT_SCRIPT_TAG__" encoding="none"-->
+
+    <script nonce='<!--#echo var="cspNonce"-->'>
+      __webpack_nonce__ = '<!--#echo var="cspNonce"-->';
+      // Set global for compatibility reason.
+      // globalThis ?? window is required to make with work in  all environments (dev / prod).
+      global = globalThis ?? window;
+    </script>
+
+    <script nonce='<!--#echo var="cspNonce"-->' type="module">
+      // Copy environment variables to process.env for backward compatibility with CRA.
+      window.process = window.process ?? {};
+      window.process.env = import.meta.env;
+    </script>
+  </head>
+
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+    <script type="module" src="/src/index.tsx"></script>
+  </body>
+</html>
