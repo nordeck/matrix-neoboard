@@ -1,5 +1,40 @@
 # @nordeck/matrix-neoboard-widget
 
+## 1.19.0
+
+### Minor Changes
+
+- 1abafd9: Images can now be uploaded by dragging them to the board
+- 1cf17a2: Text bold/italic style can now be toggled with CTRL/META + b / CTRL/META + i
+- e249c05: Slides can be added at a specific position the a new slide context menu item „Insert slide“
+- d0f1463: Slides can now be navigated by arrow keys and space in presentaton mode
+- f73eff7: Shapes can now be placed with a click
+- bf8f313: New rounded rectangle tool
+
+### Patch Changes
+
+- d0535be: Use the Widget API for image downloads when available
+- a4905fa: Text no longer gets duplicated when pasting from the clipboard
+- 0b630c5: Guided tour does no longer skip step 2
+- da7fae3: Texts are now unselected, if unselecting an element
+- Updated dependencies [1abafd9]
+- Updated dependencies [1cf17a2]
+- Updated dependencies [97fc138]
+- Updated dependencies [d0535be]
+- Updated dependencies [e249c05]
+- Updated dependencies [d0f1463]
+- Updated dependencies [d25d9a0]
+- Updated dependencies [a4905fa]
+- Updated dependencies [f73eff7]
+- Updated dependencies [f86a6d4]
+- Updated dependencies [bf8f313]
+- Updated dependencies [0b630c5]
+- Updated dependencies [d1f60e7]
+- Updated dependencies [a1099f4]
+- Updated dependencies [da7fae3]
+- Updated dependencies [e784141]
+  - @nordeck/matrix-neoboard-react-sdk@0.2.0
+
 ## 1.18.1
 
 ### Patch Changes
