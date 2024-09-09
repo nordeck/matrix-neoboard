@@ -14,15 +14,5 @@
  * limitations under the License.
  */
 
-const i18NextParserConfig = {
-  defaultNamespace: 'neoboard',
-  locales: ['en', 'de'],
-  output: 'src/locales/$LOCALE/$NAMESPACE.json',
-  sort: true,
-  resetDefaultValueLocale: 'en',
-  lexers: {
-    tsx: [{ lexer: 'JsxLexer', transSupportBasicHtmlNodes: true }],
-  },
-};
-
-export default i18NextParserConfig;
+// These are all the packages using vitest.
+export default ['matrix-neoboard-widget', 'packages/*'];

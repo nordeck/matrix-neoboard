@@ -17,8 +17,9 @@
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { axe } from 'jest-axe';
+import axe from 'axe-core';
 import { ComponentType, PropsWithChildren } from 'react';
+import { Mocked, afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
   WhiteboardTestingContextProvider,
   mockWhiteboardManager,
@@ -31,10 +32,12 @@ let widgetApi: MockedWidgetApi;
 
 afterEach(() => widgetApi.stop());
 
-beforeEach(() => (widgetApi = mockWidgetApi()));
+beforeEach(() => {
+  widgetApi = mockWidgetApi();
+});
 
 describe('<UndoRedoBar/>', () => {
-  let whiteboardManager: jest.Mocked<WhiteboardManager>;
+  let whiteboardManager: Mocked<WhiteboardManager>;
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
 
   beforeEach(() => {
@@ -69,7 +72,7 @@ describe('<UndoRedoBar/>', () => {
   it('should have no accessibility violations', async () => {
     const { container } = render(<UndoRedoBar />, { wrapper: Wrapper });
 
-    expect(await axe(container)).toHaveNoViolations();
+    expect(await axe.run(container)).toHaveNoViolations();
   });
 
   it('should undo and redo the latest change', async () => {

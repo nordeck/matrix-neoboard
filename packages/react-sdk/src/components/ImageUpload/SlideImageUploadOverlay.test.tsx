@@ -19,6 +19,16 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ComponentType, PropsWithChildren } from 'react';
 import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  Mock,
+  MockInstance,
+  vi,
+} from 'vitest';
+import {
   mockWhiteboardManager,
   WhiteboardTestingContextProvider,
 } from '../../lib/testUtils/documentTestUtils';
@@ -27,8 +37,8 @@ import { ImageUploadProvider } from '../ImageUpload';
 import { SnackbarProvider } from '../Snackbar';
 import { SlideImageUploadOverlay } from './SlideImageUploadOverlay';
 
-jest.mock('../../lib', () => ({
-  ...jest.requireActual('../../lib'),
+vi.mock('../../lib', async () => ({
+  ...(await vi.importActual<typeof import('../../lib')>('../../lib')),
   determineImageSize: () => {
     // Always return a static value here, because js-dom doesn't implement Image.
     return Promise.resolve({ width: 40, height: 20 });
@@ -39,7 +49,8 @@ describe('SlideImageUploadOverlay', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
   let widgetApi: MockedWidgetApi;
   let slide: WhiteboardSlideInstance;
-  let handleDragLeave: jest.Mock;
+  let handleDragLeave: Mock;
+  let consoleSpy: MockInstance<typeof console.error>;
 
   beforeEach(() => {
     widgetApi = mockWidgetApi();
@@ -48,9 +59,9 @@ describe('SlideImageUploadOverlay', () => {
     });
     const whiteboard = whiteboardManager.getActiveWhiteboardInstance()!;
     slide = whiteboard.getSlide(whiteboard.getActiveSlideId()!);
-    jest.spyOn(console, 'error');
+    consoleSpy = vi.spyOn(console, 'error');
 
-    handleDragLeave = jest.fn();
+    handleDragLeave = vi.fn();
 
     Wrapper = () => {
       return (
@@ -70,7 +81,7 @@ describe('SlideImageUploadOverlay', () => {
 
   afterEach(() => {
     widgetApi.stop();
-    jest.mocked(console.error).mockRestore();
+    consoleSpy.mockRestore();
   });
 
   it('should upload a file on drop', async () => {

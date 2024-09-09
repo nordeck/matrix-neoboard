@@ -18,8 +18,9 @@ import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { TabPanel } from '@mui/base';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { axe } from 'jest-axe';
+import axe from 'axe-core';
 import { act, ComponentType, PropsWithChildren } from 'react';
+import { afterEach, beforeEach, describe, expect, it, Mocked } from 'vitest';
 import {
   mockWhiteboardManager,
   WhiteboardTestingContextProvider,
@@ -38,12 +39,14 @@ let widgetApi: MockedWidgetApi;
 
 afterEach(() => widgetApi.stop());
 
-beforeEach(() => (widgetApi = mockWidgetApi()));
+beforeEach(() => {
+  widgetApi = mockWidgetApi();
+});
 
 describe('<SideOverviewBar/>', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
-  let whiteboardManager: jest.Mocked<WhiteboardManager>;
-  let communicationChannel: jest.Mocked<CommunicationChannel>;
+  let whiteboardManager: Mocked<WhiteboardManager>;
+  let communicationChannel: Mocked<CommunicationChannel>;
 
   beforeEach(() => {
     ({ whiteboardManager, communicationChannel } = mockWhiteboardManager({
@@ -119,7 +122,7 @@ describe('<SideOverviewBar/>', () => {
     const { container } = render(<SlideOverviewBar />, { wrapper: Wrapper });
 
     await act(async () => {
-      expect(await axe(container)).toHaveNoViolations();
+      expect(await axe.run(container)).toHaveNoViolations();
     });
   });
 
@@ -130,7 +133,7 @@ describe('<SideOverviewBar/>', () => {
     await userEvent.pointer({ keys: '[MouseRight]', target: tab });
 
     expect(
-      await axe(baseElement, {
+      await axe.run(baseElement, {
         rules: {
           // the menu is opened in a portal, so we must check the baseElement,
           // i.e. <body/>. In that case we get false positive warning

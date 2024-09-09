@@ -18,6 +18,7 @@ import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { renderHook, waitFor } from '@testing-library/react';
 import { ComponentType, PropsWithChildren } from 'react';
 import { Provider } from 'react-redux';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { mockRoomMember } from '../../lib/testUtils/matrixTestUtils';
 import { createStore } from '../store';
 import { useUserDetails } from './useUserDetails';
@@ -26,7 +27,9 @@ let widgetApi: MockedWidgetApi;
 
 afterEach(() => widgetApi.stop());
 
-beforeEach(() => (widgetApi = mockWidgetApi()));
+beforeEach(() => {
+  widgetApi = mockWidgetApi();
+});
 
 describe('useUserDetails', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;

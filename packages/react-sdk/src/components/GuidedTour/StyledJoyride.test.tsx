@@ -16,8 +16,9 @@
 
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { axe } from 'jest-axe';
+import axe from 'axe-core';
 import { ComponentType, PropsWithChildren } from 'react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { GuidedTourProvider } from './GuidedTourProvider';
 import { StyledJoyride } from './StyledJoyride';
 
@@ -112,7 +113,7 @@ describe('<StyledJoyride/>', () => {
 
     // the popover is opened in a portal, so we check the baseElement, i.e. <body/>.
     expect(
-      await axe(baseElement, {
+      await axe.run(baseElement, {
         rules: {
           // the menu is opened in a portal, so we must check the baseElement,
           // i.e. <body/>. In that case we get false positive warning
@@ -290,8 +291,8 @@ describe('<StyledJoyride/>', () => {
   });
 
   it('should run an onEnter and onLeave action', async () => {
-    const onEnter = jest.fn();
-    const onLeave = jest.fn();
+    const onEnter = vi.fn();
+    const onLeave = vi.fn();
 
     render(
       <StyledJoyride

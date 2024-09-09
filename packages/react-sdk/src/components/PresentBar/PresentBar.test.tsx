@@ -17,9 +17,10 @@
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { axe } from 'jest-axe';
+import axe from 'axe-core';
 import { ComponentType, PropsWithChildren } from 'react';
 import { Subject } from 'rxjs';
+import { Mocked, afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
   WhiteboardTestingContextProvider,
   mockWhiteboardManager,
@@ -37,11 +38,13 @@ let widgetApi: MockedWidgetApi;
 
 afterEach(() => widgetApi.stop());
 
-beforeEach(() => (widgetApi = mockWidgetApi()));
+beforeEach(() => {
+  widgetApi = mockWidgetApi();
+});
 
 describe('<PresentBar/>', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
-  let whiteboardManager: jest.Mocked<WhiteboardManager>;
+  let whiteboardManager: Mocked<WhiteboardManager>;
   let messageSubject: Subject<Message>;
   let activeWhiteboardInstance: WhiteboardInstance;
   let setPresentationMode: (enable: boolean) => void;
@@ -96,7 +99,7 @@ describe('<PresentBar/>', () => {
         screen.getByRole('checkbox', { name: 'Start presentation' }),
       ).toBeInTheDocument();
 
-      expect(await axe(container)).toHaveNoViolations();
+      expect(await axe.run(container)).toHaveNoViolations();
     });
   });
 
@@ -106,7 +109,7 @@ describe('<PresentBar/>', () => {
     const { container } = render(<PresentBar />, { wrapper: Wrapper });
 
     await act(async () => {
-      expect(await axe(container)).toHaveNoViolations();
+      expect(await axe.run(container)).toHaveNoViolations();
     });
   });
 

@@ -16,6 +16,7 @@
 
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { waitFor } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { mockRoomName } from '../../lib/testUtils/matrixTestUtils';
 import { createStore } from '../store';
 import { roomNameApi } from './roomNameApi';
@@ -24,7 +25,9 @@ let widgetApi: MockedWidgetApi;
 
 afterEach(() => widgetApi.stop());
 
-beforeEach(() => (widgetApi = mockWidgetApi()));
+beforeEach(() => {
+  widgetApi = mockWidgetApi();
+});
 
 describe('getRoomName', () => {
   it('should return room name', async () => {

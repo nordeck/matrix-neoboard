@@ -17,6 +17,7 @@
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { render, screen } from '@testing-library/react';
 import { ComponentType, PropsWithChildren } from 'react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   WhiteboardTestingContextProvider,
   mockEllipseElement,
@@ -31,7 +32,7 @@ import { SvgCanvas } from '../../SvgCanvas';
 import { ElementBorder } from './ElementBorder';
 
 // mock useMeasure to return anything to get a scale
-jest.mock('../../SvgCanvas/useMeasure', () => {
+vi.mock('../../SvgCanvas/useMeasure', () => {
   return {
     useMeasure: () => [
       null,

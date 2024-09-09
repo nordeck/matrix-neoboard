@@ -17,7 +17,17 @@
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { waitFor } from '@testing-library/react';
 import { BehaviorSubject, NEVER, Subject, firstValueFrom, toArray } from 'rxjs';
+import {
+  Mocked,
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
 import { mockDocumentVisibilityState } from '../../lib/testUtils/domTestUtils';
+import * as connection from './connection';
 import {
   Message,
   PeerConnection,
@@ -28,18 +38,22 @@ import { Session, SessionManager } from './discovery';
 import { SignalingChannel } from './signaling';
 import { WebRtcCommunicationChannel } from './webRtcCommunicationChannel';
 
-jest.mock('./connection', () => ({
-  ...jest.requireActual('./connection'),
-  WebRtcPeerConnection: jest.fn(),
+vi.mock('./connection', async () => ({
+  ...(await vi.importActual<typeof import('./connection')>('./connection')),
+  WebRtcPeerConnection: vi.fn(),
 }));
 
 let widgetApi: MockedWidgetApi;
 
 afterEach(() => widgetApi.stop());
 
-beforeEach(() => (widgetApi = mockWidgetApi()));
+beforeEach(() => {
+  widgetApi = mockWidgetApi();
+});
 
-afterEach(() => jest.useRealTimers());
+afterEach(() => {
+  vi.useRealTimers();
+});
 
 describe('WebRtcCommunicationChannel', () => {
   const anotherSession = {
@@ -59,9 +73,9 @@ describe('WebRtcCommunicationChannel', () => {
     remoteSessionId: 'another-session-id',
     remoteUserId: '@another-user-id',
   };
-  let sessionManager: jest.Mocked<SessionManager>;
+  let sessionManager: Mocked<SessionManager>;
   let signalingChannel: SignalingChannel;
-  let peerConnection: jest.Mocked<PeerConnection>;
+  let peerConnection: Mocked<PeerConnection>;
   let channel: WebRtcCommunicationChannel;
   let joinedSubject: Subject<Session>;
   let leftSubject: Subject<Session>;
@@ -75,48 +89,48 @@ describe('WebRtcCommunicationChannel', () => {
     let currentSessionId: string | undefined;
 
     signalingChannel = {
-      destroy: jest.fn(),
-      observeSignaling: jest.fn().mockReturnValue(NEVER),
-      sendCandidates: jest.fn().mockImplementation(async () => {}),
-      sendDescription: jest.fn().mockImplementation(async () => {}),
+      destroy: vi.fn(),
+      observeSignaling: vi.fn().mockReturnValue(NEVER),
+      sendCandidates: vi.fn().mockImplementation(async () => {}),
+      sendDescription: vi.fn().mockImplementation(async () => {}),
     };
 
     joinedSubject = new Subject();
     leftSubject = new Subject();
     sessionManager = {
-      getSessionId: jest.fn(() => currentSessionId),
-      getSessions: jest.fn().mockReturnValue([]),
-      observeSessionJoined: jest.fn().mockReturnValue(joinedSubject),
-      observeSessionLeft: jest.fn().mockReturnValue(leftSubject),
-      join: jest.fn().mockImplementation(async () => {
+      getSessionId: vi.fn(() => currentSessionId),
+      getSessions: vi.fn().mockReturnValue([]),
+      observeSessionJoined: vi.fn().mockReturnValue(joinedSubject),
+      observeSessionLeft: vi.fn().mockReturnValue(leftSubject),
+      join: vi.fn().mockImplementation(async () => {
         const sessionId = 'session-id';
         currentSessionId = sessionId;
         return { sessionId };
       }),
-      leave: jest.fn().mockImplementation(async () => {
+      leave: vi.fn().mockImplementation(async () => {
         leftSubject.next(anotherSession);
         currentSessionId = undefined;
       }),
-      destroy: jest.fn(),
+      destroy: vi.fn(),
     };
 
     statisticsSubject = new Subject();
     messageSubject = new Subject();
     enableObserveVisibilityStateSubject = new BehaviorSubject(true);
     peerConnection = {
-      getRemoteSessionId: jest.fn().mockReturnValue('another-session-id'),
-      getConnectionId: jest.fn().mockReturnValue('connection-id'),
-      close: jest.fn(() => {
+      getRemoteSessionId: vi.fn().mockReturnValue('another-session-id'),
+      getConnectionId: vi.fn().mockReturnValue('connection-id'),
+      close: vi.fn(() => {
         statisticsSubject.complete();
         messageSubject.complete();
       }),
-      sendMessage: jest.fn(),
-      observeMessages: jest.fn().mockReturnValue(messageSubject),
-      observeStatistics: jest.fn().mockReturnValue(statisticsSubject),
+      sendMessage: vi.fn(),
+      observeMessages: vi.fn().mockReturnValue(messageSubject),
+      observeStatistics: vi.fn().mockReturnValue(statisticsSubject),
     };
-    jest
-      .mocked(WebRtcPeerConnection)
-      .mockReturnValue(peerConnection as unknown as WebRtcPeerConnection);
+    vi.mocked(WebRtcPeerConnection).mockReturnValue(
+      peerConnection as unknown as WebRtcPeerConnection,
+    );
 
     channel = new WebRtcCommunicationChannel(
       widgetApi,
@@ -130,9 +144,11 @@ describe('WebRtcCommunicationChannel', () => {
 
   afterEach(() => {
     channel.destroy();
+    vi.resetAllMocks();
   });
 
   it('should add peer connections for joined sessions', () => {
+    const spy = vi.spyOn(connection, 'WebRtcPeerConnection');
     expect(sessionManager.join).toHaveBeenCalledWith('whiteboard-id');
     expect(channel.getStatistics()).toMatchObject({
       localSessionId: 'session-id',
@@ -140,7 +156,7 @@ describe('WebRtcCommunicationChannel', () => {
 
     joinedSubject.next(anotherSession);
 
-    expect(jest.mocked(WebRtcPeerConnection)).toHaveBeenCalledWith(
+    expect(spy).toHaveBeenCalledWith(
       signalingChannel,
       anotherSession,
       'session-id',
@@ -168,16 +184,17 @@ describe('WebRtcCommunicationChannel', () => {
   });
 
   it('should disconnect while the browser is hidden', async () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
     joinedSubject.next(anotherSession);
 
     // Hide the tab
     mockDocumentVisibilityState('hidden');
 
-    jest.advanceTimersByTime(250);
+    vi.advanceTimersByTime(250);
     expect(sessionManager.leave).toHaveBeenCalled();
     expect(peerConnection.close).toHaveBeenCalled();
-    await waitFor(() => {
+
+    await vi.waitFor(() => {
       expect(sessionManager.getSessionId()).toBeUndefined();
     });
 
@@ -189,7 +206,7 @@ describe('WebRtcCommunicationChannel', () => {
   });
 
   it('should skip disconnect while the browser is hidden if disabled', async () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
     joinedSubject.next(anotherSession);
 
     enableObserveVisibilityStateSubject.next(false);
@@ -197,7 +214,7 @@ describe('WebRtcCommunicationChannel', () => {
     // Hide the tab
     mockDocumentVisibilityState('hidden');
 
-    jest.advanceTimersByTime(1250);
+    vi.advanceTimersByTime(1250);
     expect(sessionManager.leave).not.toHaveBeenCalled();
     expect(peerConnection.close).not.toHaveBeenCalled();
   });

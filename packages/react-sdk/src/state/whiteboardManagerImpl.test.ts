@@ -15,6 +15,7 @@
  */
 
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { mockWhiteboard } from '../lib/testUtils/matrixTestUtils';
 import { createStore } from '../store';
 import { WhiteboardInstanceImpl } from './whiteboardInstanceImpl';
@@ -24,7 +25,9 @@ let widgetApi: MockedWidgetApi;
 
 afterEach(() => widgetApi.stop());
 
-beforeEach(() => (widgetApi = mockWidgetApi()));
+beforeEach(() => {
+  widgetApi = mockWidgetApi();
+});
 
 const createTestWhiteboardManager = () => {
   const store = createStore({ widgetApi });
@@ -63,7 +66,7 @@ describe('WhiteboardManagerImpl', () => {
 
     whiteboardManager.selectActiveWhiteboardInstance(event0, '@user-id');
 
-    const destroySpy = jest.spyOn(
+    const destroySpy = vi.spyOn(
       whiteboardManager.getActiveWhiteboardInstance() as WhiteboardInstanceImpl,
       'destroy',
     );

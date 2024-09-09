@@ -18,20 +18,56 @@
 // allows you to do things like:
 // expect(element).toHaveTextContent(/react/i)
 // learn more: https://github.com/testing-library/jest-dom
-import '@testing-library/jest-dom';
-import fetchMock from 'fetch-mock';
-import { toHaveNoViolations } from 'jest-axe';
+import '@testing-library/jest-dom/vitest';
+import { cleanup } from '@testing-library/react';
+import { AxeResults } from 'axe-core';
 import log from 'loglevel';
 import { webcrypto } from 'node:crypto';
 import { TextDecoder, TextEncoder } from 'util';
+import { afterEach, expect, vi } from 'vitest';
+import createFetchMock from 'vitest-fetch-mock';
 import './i18n';
 import { setLocale } from './lib/locale';
 import './lib/testUtils/webRtcMock';
 
+// Prevent act warnings https://github.com/testing-library/react-testing-library/issues/1061
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(global as any).IS_REACT_ACT_ENVIRONMENT = true;
+
+// Add support for axe
+expect.extend({
+  toHaveNoViolations(results: AxeResults) {
+    const violations = results.violations ?? [];
+
+    return {
+      pass: violations.length === 0,
+      actual: violations,
+      message() {
+        if (violations.length === 0) {
+          return '';
+        }
+
+        return `Expected no accessibility violations but received some.
+
+${violations
+  .map(
+    (violation) => `[${violation.impact}] ${violation.id}
+${violation.description}
+${violation.helpUrl}
+`,
+  )
+  .join('\n')}
+`;
+      },
+    };
+  },
+});
+
 // Use a different configuration for i18next during tests
-jest.mock('./i18n', () => {
-  const i18n = jest.requireActual('i18next');
-  const { initReactI18next } = jest.requireActual('react-i18next');
+vi.mock('./i18n', async () => {
+  const i18n = await vi.importActual<typeof import('i18next')>('i18next');
+  const { initReactI18next } =
+    await vi.importActual<typeof import('react-i18next')>('react-i18next');
 
   i18n.use(initReactI18next).init({
     fallbackLng: 'en',
@@ -45,9 +81,6 @@ jest.mock('./i18n', () => {
 });
 
 log.setLevel('silent');
-
-// Add support for jest-axe
-expect.extend(toHaveNoViolations);
 
 // Provide a mock for the CSS Font Loading API
 Object.defineProperty(document, 'fonts', {
@@ -63,8 +96,8 @@ global.TextDecoder = TextDecoder as typeof global.TextDecoder;
 
 // Provide mocks for the object URL related
 // functions that are not provided by jsdom.
-window.URL.createObjectURL = jest.fn();
-window.URL.revokeObjectURL = jest.fn();
+window.URL.createObjectURL = vi.fn();
+window.URL.revokeObjectURL = vi.fn();
 
 // global.crypto is used by lib0 (introduced by yjs) that has no automatic
 // definition in jsdom
@@ -72,7 +105,7 @@ Object.defineProperty(global.globalThis, 'crypto', { value: webcrypto });
 
 // Provide a mock for the Clipboard API
 Object.defineProperty(navigator, 'clipboard', {
-  value: { writeText: jest.fn() },
+  value: { writeText: vi.fn() },
 });
 
 // Set up SVG mocks
@@ -98,14 +131,17 @@ SVGSVGElement.prototype.createSVGPoint = function () {
 // only mocking necessary props here
 // @ts-expect-error test setup
 SVGSVGElement.prototype.getScreenCTM = function () {
-  return { inverse: jest.fn() };
+  return { inverse: vi.fn() };
 };
 
 // Mock File APIs
 
-File.prototype.arrayBuffer = jest.fn();
+File.prototype.arrayBuffer = vi.fn();
 
 // Mock the fetch API
-Object.assign(global, {
-  fetch: fetchMock.sandbox(),
+const fetchMocker = createFetchMock(vi);
+fetchMocker.enableMocks();
+
+afterEach(() => {
+  cleanup();
 });

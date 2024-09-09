@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { describe, expect, it, vi } from 'vitest';
 import { fitText, getTemporaryElement } from './fitText';
 
 describe('fitText', () => {
@@ -171,18 +172,15 @@ function createContainerElement(
   clientHeightLookup: Record<string, number> = {},
 ): HTMLElement {
   const container = document.createElement('div');
-  jest.spyOn(container, 'clientWidth', 'get').mockReturnValue(width);
-  jest.spyOn(container, 'clientHeight', 'get').mockReturnValue(height);
+  vi.spyOn(container, 'clientWidth', 'get').mockReturnValue(width);
+  vi.spyOn(container, 'clientHeight', 'get').mockReturnValue(height);
 
   const { textElement: calculationContainer } = getTemporaryElement();
-  jest
-    .spyOn(calculationContainer, 'clientHeight', 'get')
-    .mockImplementation(
-      () => clientHeightLookup[calculationContainer.style.fontSize] ?? height,
-    );
-  jest
-    .spyOn(calculationContainer, 'getBoundingClientRect')
-    .mockImplementation(() => ({
+  vi.spyOn(calculationContainer, 'clientHeight', 'get').mockImplementation(
+    () => clientHeightLookup[calculationContainer.style.fontSize] ?? height,
+  );
+  vi.spyOn(calculationContainer, 'getBoundingClientRect').mockImplementation(
+    () => ({
       width: scrollLookup[calculationContainer.style.fontSize][0],
       height: scrollLookup[calculationContainer.style.fontSize][1],
       x: 0,
@@ -191,7 +189,8 @@ function createContainerElement(
       left: 0,
       right: 0,
       top: 0,
-      toJSON: jest.fn(),
-    }));
+      toJSON: vi.fn(),
+    }),
+  );
   return container;
 }

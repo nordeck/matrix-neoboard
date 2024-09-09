@@ -17,7 +17,6 @@
 import { fixupPluginRules } from '@eslint/compat';
 import js from '@eslint/js';
 import eslintConfigPrettier from 'eslint-config-prettier';
-import jest from 'eslint-plugin-jest';
 import notice from 'eslint-plugin-notice';
 import pluginPromise from 'eslint-plugin-promise';
 import react from 'eslint-plugin-react';
@@ -35,8 +34,6 @@ export default ts.config(
     ignores: [
       '**/build/**',
       '**/coverage/**',
-      '**/craco.config.js',
-      '**/jest.config.js',
       '**/i18next-parser.config.js',
       '**/*test.ts.snap',
       'scripts/prepack.js',
@@ -57,10 +54,8 @@ export default ts.config(
   {
     plugins: {
       notice,
-      jest,
     },
     rules: {
-      ...jest.configs['flat/recommended'].rules,
       'notice/notice': [
         'error',
         {

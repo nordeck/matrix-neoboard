@@ -30,8 +30,9 @@ import {
 } from '@mui/material/colors';
 import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { axe } from 'jest-axe';
+import axe from 'axe-core';
 import { ComponentType, PropsWithChildren } from 'react';
+import { Mocked, afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
   WhiteboardTestingContextProvider,
   mockEllipseElement,
@@ -49,10 +50,12 @@ let widgetApi: MockedWidgetApi;
 
 afterEach(() => widgetApi.stop());
 
-beforeEach(() => (widgetApi = mockWidgetApi()));
+beforeEach(() => {
+  widgetApi = mockWidgetApi();
+});
 
 describe('<ElementColorPicker/>', () => {
-  let whiteboardManager: jest.Mocked<WhiteboardManager>;
+  let whiteboardManager: Mocked<WhiteboardManager>;
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
   let activeColor: string;
   let setActiveColor: (color: string) => void;
@@ -161,7 +164,7 @@ describe('<ElementColorPicker/>', () => {
       screen.getByRole('button', { name: 'Pick a color' }),
     ).toBeInTheDocument();
 
-    expect(await axe(container)).toHaveNoViolations();
+    expect(await axe.run(container)).toHaveNoViolations();
   });
 
   it('should have no accessibility violations, when open', async () => {
@@ -178,7 +181,7 @@ describe('<ElementColorPicker/>', () => {
     ).toBeInTheDocument();
 
     expect(
-      await axe(baseElement, {
+      await axe.run(baseElement, {
         rules: {
           // the popover is opened in a portal, so we must check the baseElement,
           // i.e. <body/>. In that case we get false positive warning

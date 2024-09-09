@@ -15,6 +15,7 @@
  */
 
 import { firstValueFrom, map, take, toArray } from 'rxjs';
+import { describe, expect, it, vi } from 'vitest';
 import { createMigrations } from './migrations';
 import { SharedMap, YMap } from './types';
 import { YDocument } from './yDocument';
@@ -215,9 +216,9 @@ describe('YDocumentUndoManager', () => {
   });
 
   it('should cleanup the undo and redo stack after the document changes', async () => {
-    const checkUndoItem = jest.fn().mockReturnValue(true);
-    const checkRedoItem = jest.fn().mockReturnValue(true);
-    const keepUndoRedoItem = jest.fn();
+    const checkUndoItem = vi.fn().mockReturnValue(true);
+    const checkRedoItem = vi.fn().mockReturnValue(true);
+    const keepUndoRedoItem = vi.fn();
 
     function setupMock() {
       checkUndoItem.mockClear();
@@ -431,7 +432,7 @@ describe('YDocumentUndoManager', () => {
         doc.get('map').set('key-1', { text: 'first' });
       });
 
-      const keepUndoRedoItem = jest.fn().mockReturnValue(() => true);
+      const keepUndoRedoItem = vi.fn().mockReturnValue(() => true);
       const yDoc = YDocument.create<Example>(
         exampleMigrations,
         '0',

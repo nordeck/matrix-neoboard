@@ -15,10 +15,11 @@
  */
 
 type DocumentVisibilityState = Document['visibilityState'];
+import { vi } from 'vitest';
 
 export function mockDocumentVisibilityState(
   visibility: DocumentVisibilityState,
 ): void {
-  jest.spyOn(document, 'visibilityState', 'get').mockReturnValue(visibility);
+  vi.spyOn(document, 'visibilityState', 'get').mockReturnValue(visibility);
   document.dispatchEvent(new Event('visibilitychange'));
 }

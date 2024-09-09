@@ -16,6 +16,7 @@
 
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { waitFor } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { mockWhiteboard } from '../../lib/testUtils/matrixTestUtils';
 import { createStore } from '../store';
 import { whiteboardApi } from './whiteboardApi';
@@ -24,9 +25,13 @@ let widgetApi: MockedWidgetApi;
 
 afterEach(() => widgetApi.stop());
 
-beforeEach(() => (widgetApi = mockWidgetApi()));
+beforeEach(() => {
+  widgetApi = mockWidgetApi();
+});
 
-afterEach(() => jest.useRealTimers());
+afterEach(() => {
+  vi.useRealTimers();
+});
 
 describe('getWhiteboards', () => {
   it('should return whiteboards', async () => {

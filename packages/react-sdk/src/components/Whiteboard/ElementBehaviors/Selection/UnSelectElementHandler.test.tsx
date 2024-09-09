@@ -14,12 +14,20 @@
  * limitations under the License.
  */
 
-import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { mocked } from 'jest-mock';
 import { ComponentType, PropsWithChildren } from 'react';
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
 import {
   WhiteboardTestingContextProvider,
   mockEllipseElement,
@@ -30,11 +38,13 @@ import { LayoutStateProvider, useLayoutState } from '../../../Layout';
 import { SvgCanvas } from '../../SvgCanvas';
 import { UnSelectElementHandler } from './UnSelectElementHandler';
 
-jest.mock('@matrix-widget-toolkit/mui', () => {
-  const original = jest.requireActual('@matrix-widget-toolkit/mui');
+vi.mock('@matrix-widget-toolkit/mui', async () => {
+  const original = await vi.importActual<
+    typeof import('@matrix-widget-toolkit/mui')
+  >('@matrix-widget-toolkit/mui');
   return {
     ...original,
-    getEnvironment: jest.fn(),
+    getEnvironment: vi.fn(),
   };
 });
 
@@ -53,7 +63,6 @@ describe('<UnSelectElementHandler/>', () => {
   });
 
   beforeEach(() => {
-    mocked(getEnvironment).mockReturnValue('true');
     widgetApi = mockWidgetApi();
 
     const { whiteboardManager } = mockWhiteboardManager({

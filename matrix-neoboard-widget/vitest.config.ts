@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-const i18NextParserConfig = {
-  defaultNamespace: 'neoboard',
-  locales: ['en', 'de'],
-  output: 'src/locales/$LOCALE/$NAMESPACE.json',
-  sort: true,
-  resetDefaultValueLocale: 'en',
-  lexers: {
-    tsx: [{ lexer: 'JsxLexer', transSupportBasicHtmlNodes: true }],
-  },
-};
+/// <reference types="vitest" />
 
-export default i18NextParserConfig;
+import { defineConfig } from 'vite';
+
+export default defineConfig({
+  test: {
+    environment: 'jsdom',
+    setupFiles: ['./src/setupTests.ts'],
+    exclude: ['build', 'lib'],
+  },
+});

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   ImageUploadResult,
   ImageUploadState,
@@ -29,12 +30,12 @@ import { WhiteboardInstance } from '../types';
 import { importWhiteboard } from './importWhiteboard';
 
 describe('importWhiteboard', () => {
-  const handleDrop: ImageUploadState['handleDrop'] = jest.fn();
+  const handleDrop = vi.fn<ImageUploadState['handleDrop']>();
   let whiteboard: WhiteboardInstance;
 
   beforeEach(() => {
     // Implement handleDrop to return a result depending on the filename
-    jest.mocked(handleDrop).mockImplementation((files) => {
+    handleDrop.mockImplementation((files) => {
       const promises: Promise<ImageUploadResult>[] = [];
 
       for (const file of files) {
@@ -63,7 +64,7 @@ describe('importWhiteboard', () => {
   });
 
   afterEach(() => {
-    jest.mocked(handleDrop).mockReset();
+    handleDrop.mockReset();
   });
 
   it('should import a whiteboard without images', async () => {
