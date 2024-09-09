@@ -32,7 +32,6 @@ const __dirname = path.dirname(__filename);
 export default ts.config(
   {
     ignores: [
-      '**/lib/**',
       '**/build/**',
       '**/coverage/**',
       '**/craco.config.js',

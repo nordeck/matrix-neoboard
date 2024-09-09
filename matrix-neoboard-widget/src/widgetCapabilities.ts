@@ -113,4 +113,5 @@ export const widgetCapabilities = [
 
   MatrixCapabilities.MSC3846TurnServers,
   WidgetApiFromWidgetAction.MSC4039UploadFileAction,
+  WidgetApiFromWidgetAction.MSC4039DownloadFileAction,
 ];
