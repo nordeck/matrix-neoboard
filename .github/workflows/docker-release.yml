@@ -1,0 +1,90 @@
+# This pipeline runs for every new tag. It will pull the docker container for
+# the commit hash of the tag, and will publish it as `:<tag-name>` and `latest`.
+name: Docker Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      sha:
+        description: 'The commit SHA to release'
+        required: true
+      tag:
+        description: 'The tag to release'
+        required: true
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    env:
+      DOCKER_IMAGE: ghcr.io/nordeck/matrix-neoboard-widget
+    steps:
+      - name: Generate Docker metadata of the existing image
+        id: meta-existing-tag
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.DOCKER_IMAGE }}
+          tags: |
+            type=sha,prefix=,value=${{ inputs.sha }}
+
+      - name: Generate Docker metadata of the new image
+        id: meta-new-tags
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.DOCKER_IMAGE }}
+          labels: |
+            org.opencontainers.image.title=NeoBoard
+            org.opencontainers.image.description=A whiteboard widget for the Element messenger
+            org.opencontainers.image.vendor=Nordeck IT + Consulting GmbH
+          tags: |
+            type=match,pattern=@nordeck/matrix-neoboard-widget@(.+),group=1,value=${{ inputs.tag }}
+
+      - name: Generate Dockerfile
+        env:
+          SOURCE_IMAGE: ${{ fromJSON(steps.meta-existing-tag.outputs.json).tags[0] }}
+        run: |
+          cat <<EOF > Dockerfile
+          FROM $SOURCE_IMAGE
+          ARG REACT_APP_VERSION
+          ARG REACT_APP_REVISION
+          ENV REACT_APP_VERSION=\${REACT_APP_VERSION}
+          ENV REACT_APP_REVISION=\${REACT_APP_REVISION}
+          EOF
+
+      - name: Login to ghcr.io
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@4959ce089c160fddf62f7b42464195ba1a56d382 # @v3.6.0
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push
+        id: build_and_push
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          context: .
+          tags: ${{ steps.meta-new-tags.outputs.tags }}
+          labels: ${{ steps.meta-new-tags.outputs.labels }}
+          platforms: linux/amd64,linux/arm64,linux/s390x
+          sbom: true
+          provenance: true
+          build-args: |
+            REACT_APP_VERSION=${{ fromJSON(steps.meta-new-tags.outputs.json).labels['org.opencontainers.image.version'] }}
+            REACT_APP_REVISION=${{ fromJSON(steps.meta-new-tags.outputs.json).labels['org.opencontainers.image.revision'] }}
+
+      - name: Sign the images with GitHub OIDC Token
+        env:
+          DIGEST: ${{ steps.build_and_push.outputs.digest }}
+        run: cosign sign --yes "${DOCKER_IMAGE}@${DIGEST}"
