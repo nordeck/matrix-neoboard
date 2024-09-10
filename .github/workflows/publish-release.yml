@@ -3,6 +3,14 @@
 name: Release Package
 
 on:
+  workflow_dispatch:
+    inputs:
+      SHA:
+        description: 'The commit SHA to release'
+        required: true
+      TAG:
+        description: 'The tag to release'
+        required: true
   push:
     tags:
       - '@nordeck/matrix-neoboard-widget@*'
@@ -25,7 +33,7 @@ jobs:
         with:
           images: ${{ env.DOCKER_IMAGE }}
           tags: |
-            type=sha,prefix=
+            type=raw,value=${{ github.event.inputs.SHA || github.sha }}
 
       - name: Generate Docker metadata of the new image
         id: meta-new-tags
@@ -37,7 +45,7 @@ jobs:
             org.opencontainers.image.description=A whiteboard widget for the Element messenger
             org.opencontainers.image.vendor=Nordeck IT + Consulting GmbH
           tags: |
-            type=match,pattern=@nordeck/matrix-neoboard-widget@(.+),group=1
+            type=match,pattern=@nordeck/matrix-neoboard-widget@(.+),group=1,value=${{ github.event.inputs.TAG || github.tag }}
 
       - name: Generate Dockerfile
         env:
