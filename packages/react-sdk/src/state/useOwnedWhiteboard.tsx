@@ -15,11 +15,16 @@
  */
 
 import { StateEvent } from '@matrix-widget-toolkit/api';
+import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { useWidgetApi } from '@matrix-widget-toolkit/react';
 import { first } from 'lodash';
 import loglevel from 'loglevel';
 import { useAsync } from 'react-use';
-import { STATE_EVENT_WHITEBOARD_SESSIONS, Whiteboard } from '../model';
+import {
+  STATE_EVENT_DOCUMENT_PREVIEW,
+  STATE_EVENT_WHITEBOARD_SESSIONS,
+  Whiteboard,
+} from '../model';
 import { useAppDispatch } from '../store';
 import {
   selectAllWhiteboards,
@@ -52,6 +57,8 @@ export function useOwnedWhiteboard(): UseOwnedWhiteboardResponse {
   const [updateWhiteboard] = useUpdateWhiteboardMutation();
   const [patchPowerLevels] = usePatchPowerLevelsMutation();
   const { canInitializeWhiteboard } = usePowerLevels();
+  const previewsEnabled =
+    getEnvironment('REACT_APP_PREVIEWS', 'false') === 'true';
 
   const {
     data: whiteboardsState,
@@ -80,6 +87,9 @@ export function useOwnedWhiteboard(): UseOwnedWhiteboardResponse {
           changes: {
             events: {
               [STATE_EVENT_WHITEBOARD_SESSIONS]: 0,
+              ...(previewsEnabled && {
+                [STATE_EVENT_DOCUMENT_PREVIEW]: 0,
+              }),
             },
           },
         }).unwrap();

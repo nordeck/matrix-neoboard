@@ -86,11 +86,11 @@ export function Layout({ height = '100vh' }: LayoutProps) {
         <ImportWhiteboardDialogProvider>
           <GuidedTour disabled={isViewingPresentation} />
 
-      {previewsEnabled && (
-        <SlideProvider slideId={slideIds.at(0)!}>
-          <DocumentPreview />
-        </SlideProvider>
-      )}
+          {previewsEnabled && (
+            <SlideProvider slideId={slideIds.at(0)!}>
+              <DocumentPreview />
+            </SlideProvider>
+          )}
 
           <Stack
             height={!isFullscreenMode ? height : '100vh'}
