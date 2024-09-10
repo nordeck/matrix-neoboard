@@ -9,6 +9,7 @@
   "module": "./src/index.ts",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
+  "type": "module",
   "dependencies": {
     "@fontsource/noto-emoji": "^5.0.20",
     "@matrix-widget-toolkit/api": "^3.4.0",
@@ -74,7 +75,10 @@
     "prettier": "^3.3.3",
     "react-scripts": "5.0.1",
     "typescript": "^5.5.4",
-    "yarn-deduplicate": "^6.0.2"
+    "yarn-deduplicate": "^6.0.2",
+    "pdfjs-dist": "^4.6.82",
+    "@swc/jest": "^0.2.36",
+    "@swc/core": "^1.7.23"
   },
   "scripts": {
     "build": "tsc",

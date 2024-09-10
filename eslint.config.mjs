@@ -34,6 +34,8 @@ export default ts.config(
     ignores: [
       '**/build/**',
       '**/coverage/**',
+      '**/craco.config.cjs',
+      '**/jest.config.cjs',
       '**/craco.config.js',
       '**/jest.config.js',
       '**/i18next-parser.config.js',

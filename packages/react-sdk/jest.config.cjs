@@ -1,6 +1,7 @@
 // Create a jest config by extending the default craco config.
 const { createJestConfig } = require('@craco/craco');
-const cracoConfig = require('./craco.config')({ env: 'test' });
+const { transform } = require('lodash');
+const cracoConfig = require('./craco.config.cjs')({ env: 'test' });
 
 module.exports = {
   // As we don't have a craco config, we pass an empty one and
@@ -13,6 +14,15 @@ module.exports = {
   // the setup file exists is broken, so we just add it here.
   setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
   transformIgnorePatterns: [
-    '(?!(/node_modules/(lib0)/))(/node_modules/.+.(js|jsx|mjs|cjs|ts|tsx)$)',
+    '!(/node_modules/.+.(js|jsx|mjs|cjs|ts|tsx|css)$)',
+    '!(/src/.+.(js|jsx|mjs|cjs|ts|tsx|css)$)',
   ],
+  // Fix CSS imports
+  moduleNameMapper: {
+    '\\.(css|svg)$': 'identity-obj-proxy',
+  },
+  // Fix ESM modules
+  transform: {
+    '^.+\\.(js|jsx|mjs|cjs|ts|tsx|css)$': ['@swc/jest'],
+  },
 };

@@ -109,3 +109,13 @@ File.prototype.arrayBuffer = jest.fn();
 Object.assign(global, {
   fetch: fetchMock.sandbox(),
 });
+
+// @ts-expect-error This is a polyfill for pdfjs
+window.Promise.withResolvers = function () {
+  let res, rej;
+  const promise = new Promise((resolve, reject) => {
+    res = resolve;
+    rej = reject;
+  });
+  return { promise, resolve: res, reject: rej };
+};
