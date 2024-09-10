@@ -18,7 +18,6 @@ import BugReportOutlinedIcon from '@mui/icons-material/BugReportOutlined';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { ListItemIcon, ListItemText, Menu, MenuItem } from '@mui/material';
 import { unstable_useId as useId } from '@mui/utils';
-import { t } from 'i18next';
 import { MouseEvent, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { usePowerLevels } from '../../store/api/usePowerLevels';
@@ -32,6 +31,7 @@ import { FileImportOutlineIcon } from '../icons/FileImportOutlineIcon';
 import { ExportWhiteboardDialog } from './ExportWhiteboardDialog';
 
 function ImportMenuItem({ onClose }: { onClose: () => void }) {
+  const { t } = useTranslation('neoboard');
   const importContext = useImportWhiteboardDialog();
   return (
     <MenuItem

@@ -37,8 +37,8 @@ import {
   teal,
   yellow,
 } from '@mui/material/colors';
-import { t } from 'i18next';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 type Shades = [string, string, string, string, string, string, string];
 export type Color = {
@@ -61,6 +61,7 @@ type UseColorPaletteResult = {
 export const useColorPalette = (
   hasTransparent?: boolean,
 ): UseColorPaletteResult => {
+  const { t } = useTranslation('neoboard');
   const greyColor = {
     label: t('colorPicker.colors.grey', 'Grey'),
     color: grey[500],

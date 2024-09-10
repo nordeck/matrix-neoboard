@@ -15,8 +15,8 @@
  */
 
 import { Box, Divider, SxProps, useTheme } from '@mui/material';
-import { t } from 'i18next';
 import React, { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 type ShadePickerProps = {
   activeColor: string;
@@ -29,6 +29,7 @@ export const ShadePicker: React.FC<ShadePickerProps> = function ({
   onShadeSelect,
   shades,
 }) {
+  const { t } = useTranslation('neoboard');
   const theme = useTheme();
   const shadeLabels = useMemo(() => {
     return [
