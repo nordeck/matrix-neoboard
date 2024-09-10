@@ -22,7 +22,7 @@ import {
 } from 'pdfjs-dist';
 import { RenderParameters } from 'pdfjs-dist/types/src/display/api';
 
-// This is a weird odity of pdfjs. It requires the worker to be loaded from a URL.
+// This is a weird oddity of pdfjs. It requires the worker to be loaded from a URL.
 export async function initPDFJs() {
   if (!Object.prototype.hasOwnProperty.call(process.env, 'SSR')) {
     console.log('Loading pdf.worker.mjs in webpack');
@@ -56,8 +56,8 @@ export async function renderPDFToImages(
   desiredHeight: number = 1080,
 ): Promise<PDFImportResult[]> {
   const images = [];
-  for (let i = 0; i < pdf.numPages; i++) {
-    const page = await pdf.getPage(i + 1);
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i);
     const imageData = await renderPDFPageToImage(
       page,
       desiredWidth,
