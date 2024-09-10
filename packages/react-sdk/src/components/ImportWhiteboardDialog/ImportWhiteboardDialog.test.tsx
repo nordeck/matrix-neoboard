@@ -84,12 +84,12 @@ describe('<ImportWhiteboardDialog/>', () => {
     const dialog = screen.getByRole('dialog', {
       name: 'Import content',
       description:
-        'Selected file: “file.nwb”. Click to select a different file. Caution Your contents will be replaced. This operation is reversible by using “undo”.',
+        'Click to select a different file. Caution Your contents will be replaced. This operation is reversible by using “undo”.',
     });
 
     expect(
       within(dialog).getByRole('button', {
-        name: 'Selected file: “file.nwb”. Click to select a different file.',
+        name: 'Click to select a different file.',
       }),
     ).toBeInTheDocument();
     expect(
@@ -117,12 +117,12 @@ describe('<ImportWhiteboardDialog/>', () => {
     const dialog = screen.getByRole('dialog', {
       name: 'Import content',
       description:
-        "Selected file: “file.nwb”. Click to select a different file. Error Your file can't be loaded. Please try again by selecting a different file.",
+        "Click to select a different file. Error Your file can't be loaded. Please try again by selecting a different file.",
     });
 
     expect(
       within(dialog).getByRole('button', {
-        name: 'Selected file: “file.nwb”. Click to select a different file.',
+        name: 'Click to select a different file.',
       }),
     ).toBeInTheDocument();
     expect(
@@ -224,7 +224,7 @@ describe('<ImportWhiteboardDialog/>', () => {
 
     await userEvent.click(
       within(dialog).getByRole('button', {
-        name: 'Selected file: “file.nwb”. Click to select a different file.',
+        name: 'Click to select a different file.',
       }),
     );
 

@@ -24,7 +24,7 @@
       "errorDescription": "Your file can't be loaded. Please try again by selecting a different file.",
       "errorTitle": "Error",
       "selectFile": "Select file",
-      "selectFileLabel": "Selected file: “{{fileName}}”. Click to select a different file.",
+      "selectFileLabel": "Click to select a different file.",
       "success": {
         "cancel": "Cancel",
         "import": "Import"
@@ -47,7 +47,7 @@
     "collaborators": {
       "menu": {
         "title_one": "One further collaborator",
-        "title_other": "{{count}} further collaborators"
+        "title_other": "Further collaborators"
       },
       "title": "Collaborators"
     },
@@ -140,7 +140,7 @@
       "content": "<p>Using the settings, you can export the NeoBoard and the work done and import it again (e.g. in another room) or save it as a backup. You can also (de)activate the grid.</p>",
       "title": "Settings"
     },
-    "slideCount": "{{index}} of {{total}}",
+    "slideCount": "",
     "slideOverview": {
       "content": "<p>This is where you can find the slides of all participants. Click on the button to add a slide. With the right mouse button you can open the context menu and delete existing slides, lock them to prevent changes or bring all participants here. Hold down the left mouse button to change the order of the slides.</p>",
       "title": "Slide overview"
@@ -157,7 +157,7 @@
       "showLess": "Show less",
       "showMore": "Show more",
       "title": "About NeoBoard",
-      "version": "Version {{version}}"
+      "version": "Version"
     },
     "menu": {
       "about": "About NeoBoard",
@@ -193,12 +193,12 @@
     "fileIsUploaded_one": "The file is being uploaded…",
     "fileIsUploaded_other": "The files are being uploaded…",
     "loadError": "The file is not available.",
-    "otherError_one": "The file {{fileNames}} cannot be uploaded.",
-    "otherError_other": "The files {{fileNames}} could not be uploaded.",
-    "resolutionError_one": "The file {{fileNames}} cannot be uploaded due to its resolution. The upload is possible for a maximum of {{limit}} per file.",
-    "resolutionError_other": "The files {{fileNames}} cannot be uploaded due to their resolution. The upload is possible for a maximum of {{limit}} per file.",
-    "sizeError_one": "The file {{fileNames}} cannot be uploaded due to its size. The upload is possible for a maximum of {{limit}} per file.",
-    "sizeError_other": "The files {{fileNames}} cannot be uploaded due to their size. The upload is possible for a maximum of {{limit}} per file."
+    "otherError_one": "One file cannot be uploaded.",
+    "otherError_other": "Some files could not be uploaded.",
+    "resolutionError_one": "One file cannot be uploaded due to its resolution. Please reduce its resolution.",
+    "resolutionError_other": "Some files cannot be uploaded due to their resolution. Please reduce its resolution.",
+    "sizeError_one": "One file cannot be uploaded due to its size. Please reduce its file size.",
+    "sizeError_other": "Some files cannot be uploaded due to their size. Please reduce its file size."
   },
   "presentBar": {
     "disableEditing": "Disable editing",
@@ -220,15 +220,15 @@
       "insertImport": "Import here",
       "insertSlide": "Insert slide",
       "lockSlide": "Lock",
-      "title": "Slide {{index}}"
+      "title": "Slide"
     },
     "dragAndDrop": {
       "dragInstructions": "Press the M key to start a drag. When dragging you can use the arrow keys to move the item around and escape to cancel. Ensure your screen reader is in focus mode or forms mode.",
-      "dragStart": "You have lifted a slide. It is in position {{startPosition}} of {{totalCount}} in the list. Use the arrow keys to move, the M key to drop, and escape to cancel.",
-      "dropped": "You have dropped the slide. It has moved from position {{startPosition}} to {{destinationPosition}}.",
-      "droppedOnNoDropTarget": "The slide has been dropped while not over a location. The slide has returned to its starting position of {{startPosition}}.",
-      "movedPosition": "You have moved the slide to position {{position}} of {{totalCount}}.",
-      "movementCanceled": "Movement cancelled. The slide has returned to its starting position of {{startPosition}}.",
+      "dragStart": "You have lifted a slide. Use the arrow keys to move, the M key to drop, and escape to cancel.",
+      "dropped": "You have dropped the slide. It has moved from one position to another.",
+      "droppedOnNoDropTarget": "The slide has been dropped while not over a location. The slide has returned to its starting position.",
+      "movedPosition": "You have moved the slide.",
+      "movementCanceled": "Movement cancelled. The slide has returned to its starting position.",
       "notOverDropTarget": "You are currently not dragging over any droppable area."
     },
     "slideListTitle": "Slides",
@@ -245,10 +245,9 @@
   },
   "toolbar": {
     "toolbarAvatar": {
-      "label_you": "{{displayName}} (You)",
-      "labelPresenter": "{{displayName}} is presenting",
-      "labelPresenting_you": "{{displayName}} (You) are presenting",
-      "more": "+{{furtherCount}}"
+      "label_you": "You",
+      "labelPresenter": "Someone is presenting",
+      "labelPresenting_you": "You are presenting"
     }
   },
   "toolsBar": {

@@ -24,7 +24,7 @@
       "errorDescription": "Deine Datei kann nicht geladen werden, versuche es mit einer anderen Datei.",
       "errorTitle": "Fehler",
       "selectFile": "Datei auswählen",
-      "selectFileLabel": "Ausgewählte Datei: „{{fileName}}“. Klicke um eine andere Datei auszuwählen.",
+      "selectFileLabel": "Klicke um eine andere Datei auszuwählen.",
       "success": {
         "cancel": "Abbrechen",
         "import": "Importieren"
@@ -47,7 +47,7 @@
     "collaborators": {
       "menu": {
         "title_one": "Ein weiterer Mitwirkender",
-        "title_other": "{{count}} weitere Mitwirkende"
+        "title_other": "Weitere Mitwirkende"
       },
       "title": "Mitwirkende"
     },
@@ -140,7 +140,7 @@
       "content": "<p>Du kannst das NeoBoard und damit die geleistete Arbeit exportieren und (bspw. in einem anderen Raum) wieder importieren oder als Sicherungskopie ablegen. Außerdem kannst du das Raster (de-)aktivieren.</p>",
       "title": "Einstellungen"
     },
-    "slideCount": "{{index}} von {{total}}",
+    "slideCount": "",
     "slideOverview": {
       "content": "<p>Hier findest du die Folien aller Teilnehmer:innen. Klicke auf den Button, um eine Folie hinzuzufügen. Mit der rechten Maustaste öffnest du das Kontextmenü und kannst vorhandene Folien löschen, gegen Veränderungen schützen, indem du sie sperrst oder alle Teilnehmer:innen hierher holen. Mit gedrückter linker Maustaste kannst du die Reihenfolge der Folien verändern.</p>",
       "title": "Folienübersicht"
@@ -157,7 +157,7 @@
       "showLess": "Weniger anzeigen",
       "showMore": "Mehr anzeigen",
       "title": "Über NeoBoard",
-      "version": "Version {{version}}"
+      "version": "Version"
     },
     "menu": {
       "about": "Über NeoBoard",
@@ -193,12 +193,12 @@
     "fileIsUploaded_one": "Die Datei wird hochgeladen…",
     "fileIsUploaded_other": "Die Dateien werden hochgeladen…",
     "loadError": "Die Datei ist nicht verfügbar.",
-    "otherError_one": "Die Datei {{fileNames}} kann nicht hochgeladen werden.",
-    "otherError_other": "Die Dateien {{fileNames}} konnten nicht hochgeladen werden.",
-    "resolutionError_one": "Die Datei {{fileNames}} kann aufgrund ihrer Auflösung nicht hochgeladen werden. Der Upload ist mit maximal {{limit}} pro Datei möglich.",
-    "resolutionError_other": "Die Dateien {{fileNames}} können aufgrund ihrer Auflösung nicht hochgeladen werden. Der Upload ist mit maximal {{limit}} pro Datei möglich.",
-    "sizeError_one": "Die Datei {{fileNames}} kann aufgrund ihrer Größe nicht hochgeladen werden. Der Upload ist mit maximal {{limit}} pro Datei möglich.",
-    "sizeError_other": "Die Dateien {{fileNames}} können aufgrund ihrer Größe nicht hochgeladen werden. Der Upload ist mit maximal {{limit}} pro Datei möglich."
+    "otherError_one": "Eine Datei kann nicht hochgeladen werden.",
+    "otherError_other": "Mehrere Dateien konnten nicht hochgeladen werden.",
+    "resolutionError_one": "Eine Datei kann aufgrund ihrer Auflösung nicht hochgeladen werden. Bitte reduziere die Auflösung vorm Hochladen.",
+    "resolutionError_other": "Mehrere Dateien können aufgrund ihrer Auflösung nicht hochgeladen werden. Bitte reduziere die Auflösung vorm Hochladen.",
+    "sizeError_one": "Eine Datei kann aufgrund ihrer Größe nicht hochgeladen werden. Bitte reduziere die Dateigröße vorm Hochladen.",
+    "sizeError_other": "Mehrere Dateien können aufgrund ihrer Größe nicht hochgeladen werden. Bitte reduziere die Dateigröße vorm Hochladen."
   },
   "presentBar": {
     "disableEditing": "Bearbeitung sperren",
@@ -220,15 +220,15 @@
       "insertImport": "Import einfügen",
       "insertSlide": "Folie einfügen",
       "lockSlide": "Sperren",
-      "title": "Folie {{index}}"
+      "title": "Folie"
     },
     "dragAndDrop": {
       "dragInstructions": "Drücke die M-Taste um diese Folie zu verschieben. Während des Verschiebens, nutze die Pfeiltasten um den Eintrag zu verschieben und Escape um es abzubrechen. Stelle sicher das dein Screen Reader im Fokus oder Formular Modus ist.",
-      "dragStart": "Du hast eine Folie aufgehoben. Sie befindet sich an Position {{startPosition}} von {{totalCount}} in der Liste. Nutze die Pfeiltasten zum verschieben, die M-Taste zum Ablegen und Escape zum Abbrechen.",
-      "dropped": "Du hast die Folie abgelegt. Sie wurde von Position {{startPosition}} nach {{destinationPosition}} verschoben.",
-      "droppedOnNoDropTarget": "Du hast die Folie abgelegt während du nicht über einer gültigen Ablagestelle gewesen bist. Die Folie ist zu ihrer ursprünglichen Position {{startPosition}} zurückgekehrt.",
-      "movedPosition": "Du hast die Folie zu Position {{position}} von {{totalCount}} verschoben.",
-      "movementCanceled": "Verschieben abgebrochen. Die Folie ist zu ihrer ursprünglichen Position {{startPosition}} zurückgekehrt.",
+      "dragStart": "Du hast eine Folie aufgehoben. Nutze die Pfeiltasten zum verschieben, die M-Taste zum Ablegen und Escape zum Abbrechen.",
+      "dropped": "Du hast die Folie abgelegt. Sie wurde von einer Position zu einer anderen verschoben.",
+      "droppedOnNoDropTarget": "Du hast die Folie abgelegt während du nicht über einer gültigen Ablagestelle gewesen bist. Die Folie ist zu ihrer ursprünglichen Position zurückgekehrt.",
+      "movedPosition": "Du hast die Folie verschoben.",
+      "movementCanceled": "Verschieben abgebrochen. Die Folie ist zu ihrer ursprünglichen Position zurückgekehrt.",
       "notOverDropTarget": "Du befindest dich aktuell nicht über einer gültigen Ablagestelle."
     },
     "slideListTitle": "Folien",
@@ -245,10 +245,9 @@
   },
   "toolbar": {
     "toolbarAvatar": {
-      "label_you": "{{displayName}} (Du)",
-      "labelPresenter": "{{displayName}} präsentiert",
-      "labelPresenting_you": "{{displayName}} (Du) präsentiert",
-      "more": "+{{furtherCount}}"
+      "label_you": "Du",
+      "labelPresenter": "Jemand präsentiert",
+      "labelPresenting_you": "Du präsentierst"
     }
   },
   "toolsBar": {

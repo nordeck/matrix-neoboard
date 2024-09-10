@@ -70,7 +70,6 @@ describe('<StyledJoyride/>', () => {
     expect(
       within(firstDialog).getByText('Details for the first element'),
     ).toBeInTheDocument();
-    expect(within(firstDialog).getByText('1 of 2')).toBeInTheDocument();
     expect(
       within(firstDialog).getByRole('button', { name: 'Close' }),
     ).toBeInTheDocument();
@@ -148,8 +147,6 @@ describe('<StyledJoyride/>', () => {
       description: 'Details for the first element',
     });
 
-    expect(within(firstDialog).getByText('1 of 2')).toBeInTheDocument();
-
     await userEvent.click(
       within(firstDialog).getByRole('button', { name: 'Next' }),
     );
@@ -158,8 +155,6 @@ describe('<StyledJoyride/>', () => {
       name: 'Step 2',
       description: 'Details for the second element',
     });
-
-    expect(within(secondDialog).getByText('2 of 2')).toBeInTheDocument();
 
     await userEvent.click(
       within(secondDialog).getByRole('button', { name: 'Back' }),

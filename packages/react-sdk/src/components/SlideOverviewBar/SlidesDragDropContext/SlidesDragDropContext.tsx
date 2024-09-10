@@ -40,7 +40,7 @@ export function SlidesDragDropContext({ children }: PropsWithChildren<{}>) {
       announce(
         t(
           'slideOverviewBar.dragAndDrop.dragStart',
-          'You have lifted a slide. It is in position {{startPosition}} of {{totalCount}} in the list. Use the arrow keys to move, the M key to drop, and escape to cancel.',
+          'You have lifted a slide. Use the arrow keys to move, the M key to drop, and escape to cancel.',
           {
             startPosition: initial.source.index + 1,
             totalCount: whiteboardInstance.getSlideIds().length,
@@ -64,7 +64,7 @@ export function SlidesDragDropContext({ children }: PropsWithChildren<{}>) {
         announce(
           t(
             'slideOverviewBar.dragAndDrop.movedPosition',
-            `You have moved the slide to position {{position}} of {{totalCount}}.`,
+            `You have moved the slide.`,
             {
               position: update.destination.index + 1,
               totalCount: whiteboardInstance.getSlideIds().length,
@@ -86,7 +86,7 @@ export function SlidesDragDropContext({ children }: PropsWithChildren<{}>) {
         announce(
           t(
             'slideOverviewBar.dragAndDrop.movementCanceled',
-            'Movement cancelled. The slide has returned to its starting position of {{startPosition}}.',
+            'Movement cancelled. The slide has returned to its starting position.',
             {
               startPosition: result.source.index + 1,
             },
@@ -99,7 +99,7 @@ export function SlidesDragDropContext({ children }: PropsWithChildren<{}>) {
         announce(
           t(
             'slideOverviewBar.dragAndDrop.droppedOnNoDropTarget',
-            'The slide has been dropped while not over a location. The slide has returned to its starting position of {{startPosition}}.',
+            'The slide has been dropped while not over a location. The slide has returned to its starting position.',
             { startPosition: result.source.index + 1 },
           ),
         );
@@ -109,7 +109,7 @@ export function SlidesDragDropContext({ children }: PropsWithChildren<{}>) {
       announce(
         t(
           'slideOverviewBar.dragAndDrop.dropped',
-          'You have dropped the slide. It has moved from position {{startPosition}} to {{destinationPosition}}.',
+          'You have dropped the slide. It has moved from one position to another.',
           {
             startPosition: result.source.index + 1,
             destinationPosition: result.destination.index + 1,

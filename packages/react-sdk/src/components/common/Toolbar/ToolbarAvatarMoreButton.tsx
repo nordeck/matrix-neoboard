@@ -15,7 +15,6 @@
  */
 
 import { Box, styled } from '@mui/material';
-import { useTranslation } from 'react-i18next';
 import { ToolbarSubMenu, ToolbarSubMenuProps } from './ToolbarSubMenu';
 
 export type ToolbarAvatarMoreButtonProps = {
@@ -40,8 +39,6 @@ export function ToolbarAvatarMoreButton({
   count,
   ...props
 }: ToolbarAvatarMoreButtonProps) {
-  const { t } = useTranslation('neoboard');
-
   return (
     <StyledToolbarSubMenu {...props}>
       <Box
@@ -55,9 +52,7 @@ export function ToolbarAvatarMoreButton({
         width={28}
         height={28}
       >
-        {t('toolbar.toolbarAvatar.more', '+{{furtherCount}}', {
-          furtherCount: count,
-        })}
+        +{count}
       </Box>
     </StyledToolbarSubMenu>
   );

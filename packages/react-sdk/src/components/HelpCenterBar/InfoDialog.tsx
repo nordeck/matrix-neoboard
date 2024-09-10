@@ -81,10 +81,11 @@ export function InfoDialog({ open, onClose }: InfoDialogProps) {
           id={dialogDescriptionId}
           sx={{ wordBreak: 'break-all' }}
         >
-          {t('helpCenter.info.version', 'Version {{version}}', {
+          {t('helpCenter.info.version', 'Version', {
             version,
             revision,
-          })}
+          })}{' '}
+          {version}
         </DialogContentText>
         <Typography my={1} fontWeight="bold">
           <Link
