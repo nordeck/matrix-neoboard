@@ -247,8 +247,7 @@
     "toolbarAvatar": {
       "label_you": "Du",
       "labelPresenter": "Jemand präsentiert",
-      "labelPresenting_you": "Du präsentierst",
-      "more": "+"
+      "labelPresenting_you": "Du präsentierst"
     }
   },
   "toolsBar": {
