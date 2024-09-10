@@ -5,7 +5,7 @@ name: Release Package
 on:
   push:
     tags:
-      - '*'
+      - '@nordeck/matrix-neoboard-widget@*'
 
 jobs:
   build:
@@ -37,7 +37,7 @@ jobs:
             org.opencontainers.image.description=A whiteboard widget for the Element messenger
             org.opencontainers.image.vendor=Nordeck IT + Consulting GmbH
           tags: |
-            type=semver,pattern={{version}}
+            type=match,pattern=@nordeck/matrix-neoboard-widget@(.+),group=1
 
       - name: Generate Dockerfile
         env:
