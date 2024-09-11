@@ -51,6 +51,10 @@ Snapshot
 Snapshots are used to restore the whiteboard on load and could be used to restore a later version.
 Snapshots are stored as room events in Matrix rooms.
 
+Preview
+: A preview of the whiteboard's first slide.
+Previews can be used by other Matrix clients to show a preview of the whiteboard content before opening or loading it. Previews are stored as room state events.
+
 [WebRTC](https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API)
 : A framework for real-time peep-to-peer communication in browsers.
 

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { TabPanel } from '@mui/base';
 import { Box, Collapse, Slide, Stack, styled } from '@mui/material';
 import { ReactElement } from 'react';
@@ -39,6 +40,7 @@ import { SlideOverviewBar } from '../SlideOverviewBar';
 import { ToolsBar } from '../ToolsBar';
 import { UndoRedoBar } from '../UndoRedoBar';
 import { WhiteboardHost } from '../Whiteboard';
+import { DocumentPreview } from '../Whiteboard/DocumentPreview';
 import { PageLoader } from '../common/PageLoader';
 import { SlidesProvider } from './SlidesProvider';
 import { ToolbarCanvasContainer } from './ToolbarCanvasContainer';
@@ -62,6 +64,8 @@ export type LayoutProps = {
 };
 
 export function Layout({ height = '100vh' }: LayoutProps) {
+  const previewsEnabled =
+    getEnvironment('REACT_APP_PREVIEWS', 'false') === 'true';
   const { loading } = useIsWhiteboardLoading();
   const { isDeveloperToolsVisible, isSlideOverviewVisible } = useLayoutState();
   const slideIds = useActiveWhiteboardInstanceSlideIds();
@@ -81,6 +85,12 @@ export function Layout({ height = '100vh' }: LayoutProps) {
       <ImageUploadProvider>
         <ImportWhiteboardDialogProvider>
           <GuidedTour disabled={isViewingPresentation} />
+
+          {previewsEnabled && (
+            <SlideProvider slideId={slideIds.at(0)!}>
+              <DocumentPreview />
+            </SlideProvider>
+          )}
 
           <Stack
             height={!isFullscreenMode ? height : '100vh'}

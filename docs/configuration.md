@@ -14,6 +14,9 @@ REACT_APP_HOME_SERVER_URL=https://matrix-client.matrix.org
 # External link to the documentation that will be shown in the help menu if defined.
 REACT_APP_HELP_CENTER_URL="https://github.com/nordeck/matrix-neoboard"
 
+# optional - enables board previews state event usage (default: false)
+REACT_APP_PREVIEWS=true
+
 # optional - enable connection to React standalone devtools
 # Does only work in development mode.
 REACT_APP_DEVTOOLS=true
