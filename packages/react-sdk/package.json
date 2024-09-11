@@ -21,7 +21,7 @@
     "@mui/utils": "^6.0.2",
     "@reduxjs/toolkit": "^2.2.7",
     "emoji-regex": "^10.3.0",
-    "i18next": "^23.14.0",
+    "i18next": "^23.15.1",
     "joi": "^17.13.3",
     "js-base64": "^3.7.7",
     "localforage": "^1.10.0",
