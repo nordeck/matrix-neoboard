@@ -1,5 +1,12 @@
 # @nordeck/matrix-neoboard-react-sdk
 
+## 0.2.1
+
+### Patch Changes
+
+- b9b69f4: Update redux
+- 36ca78d: Fix i18n usage
+
 ## 0.2.0
 
 ### Minor Changes
