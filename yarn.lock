@@ -1857,10 +1857,10 @@
   resolved "https://registry.yarnpkg.com/@fontsource/inter/-/inter-5.0.20.tgz#968436ab21f05d3b3cb3191fa0958d91e37dde43"
   integrity sha512-rtw2F7xfM7rJmmnncXnR4ADr5wXsp4GyN1O1jmQJ1PMjAK+bm620/ZkQkeOYOkGoa09OksGinOeMA+Mkt6K9PQ==
 
-"@fontsource/noto-emoji@^5.0.20":
-  version "5.0.20"
-  resolved "https://registry.yarnpkg.com/@fontsource/noto-emoji/-/noto-emoji-5.0.20.tgz#fa1eeae45527a05582b7920851b1fe84186c4906"
-  integrity sha512-uQl5p1qU91ygiPRnNs5JKS6vt9o/yZg2D5IY5f/vFjE9QCxz7crYhMjQEUvc4FGGaFKMJ5i8FdGUzW3cCC4ULQ==
+"@fontsource/noto-emoji@^5.0.21":
+  version "5.0.21"
+  resolved "https://registry.yarnpkg.com/@fontsource/noto-emoji/-/noto-emoji-5.0.21.tgz#bb3d5b2787b6658dfd684440cc5a58da538765f2"
+  integrity sha512-iO1vF5hDpRTK5uIMpytWmzatrRv6SebVc0vliEv/vBiyFbaE0lGVU6HpGW4gstU3cJxkRosXgSqpscbEX6+9Vg==
 
 "@gilbarbara/deep-equal@^0.1.1":
   version "0.1.2"
