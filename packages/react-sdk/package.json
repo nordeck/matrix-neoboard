@@ -73,7 +73,7 @@
     "jest-mock": "^29.7.0",
     "prettier": "^3.3.3",
     "react-scripts": "5.0.1",
-    "typescript": "^5.5.4",
+    "typescript": "^5.6.2",
     "yarn-deduplicate": "^6.0.2"
   },
   "scripts": {
