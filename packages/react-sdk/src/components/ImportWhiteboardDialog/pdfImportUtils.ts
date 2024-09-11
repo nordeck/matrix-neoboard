@@ -30,7 +30,8 @@ export async function initPDFJs() {
     await import('pdfjs-dist/webpack');
   } else {
     console.log('Loading pdf.worker.mjs in vitejs');
-    // @ts-expect-error -- There are no types for this file
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore -- There are no types for this file and we are clashing 2 worlds
     const pdfJSWorker = await import('pdfjs-dist/build/pdf.worker.mjs?url');
     GlobalWorkerOptions.workerSrc = pdfJSWorker.default;
   }
