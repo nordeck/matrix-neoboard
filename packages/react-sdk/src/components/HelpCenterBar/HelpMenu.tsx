@@ -17,7 +17,7 @@
 import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { Link, ListItemText, Menu, MenuItem } from '@mui/material';
 import { unstable_useId as useId } from '@mui/utils';
-import { MouseEvent, useCallback, useMemo, useState } from 'react';
+import { PointerEvent, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useGuidedTour } from '../GuidedTour';
 import { ToolbarSubMenu } from '../common/Toolbar';
@@ -32,7 +32,7 @@ export function HelpMenu() {
 
   const open = Boolean(anchorEl);
 
-  const handleClick = useCallback((event: MouseEvent<HTMLButtonElement>) => {
+  const handleClick = useCallback((event: PointerEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
   }, []);
 

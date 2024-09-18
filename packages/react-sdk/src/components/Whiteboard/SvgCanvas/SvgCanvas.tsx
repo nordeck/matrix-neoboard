@@ -16,7 +16,8 @@
 
 import { Box, styled } from '@mui/material';
 import {
-  MouseEventHandler,
+  PointerEvent,
+  PointerEventHandler,
   PropsWithChildren,
   ReactNode,
   useCallback,
@@ -44,8 +45,8 @@ export type SvgCanvasProps = PropsWithChildren<{
   additionalChildren?: ReactNode;
   withOutline?: boolean;
 
-  onMouseDown?: MouseEventHandler<SVGSVGElement> | undefined;
-  onMouseMove?: (position: Point) => void | undefined;
+  onPointerDown?: PointerEventHandler<SVGSVGElement> | undefined;
+  onPointerMove?: (position: Point) => void | undefined;
 }>;
 
 export function SvgCanvas({
@@ -55,8 +56,8 @@ export function SvgCanvas({
   rounded,
   additionalChildren,
   withOutline,
-  onMouseDown,
-  onMouseMove,
+  onPointerDown,
+  onPointerMove,
 }: SvgCanvasProps) {
   const [sizeRef, { width, height }] = useMeasure<HTMLDivElement>();
   const svgRef = useRef<SVGSVGElement>(null);
@@ -96,41 +97,43 @@ export function SvgCanvas({
     >
       <Box
         ref={sizeRef}
-        sx={
-          withOutline
-            ? {
-                '&::after': {
-                  content: '""',
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  width,
-                  height,
-                  borderWidth: 2,
-                  borderStyle: 'solid',
-                  borderColor: 'primary.main',
-                  borderRadius: 1,
-                  pointerEvents: 'none',
-                },
-              }
-            : {}
-        }
+        sx={{
+          // Prevent panning and zooming on touch devices.
+          // This allows to drag whiteboard elements.
+          touchAction: 'pinch-zoom',
+          ...(withOutline && {
+            '&::after': {
+              content: '""',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width,
+              height,
+              borderWidth: 2,
+              borderStyle: 'solid',
+              borderColor: 'primary.main',
+              borderRadius: 1,
+              pointerEvents: 'none',
+            },
+          }),
+        }}
       >
         <SvgCanvasContext.Provider value={value}>
           <Canvas
             rounded={rounded}
-            onMouseDown={onMouseDown}
             ref={svgRef}
             viewBox={`0 0 ${viewportWidth} ${viewportHeight}`}
-            onMouseMove={(e) => {
+            onPointerDown={onPointerDown}
+            onPointerMove={useCallback((e: PointerEvent<SVGSVGElement>) => {
+              if (!onPointerMove) {
+                return;
+              }
               const position = calculateSvgCoordsFunc({
                 x: e.nativeEvent.clientX,
                 y: e.nativeEvent.clientY,
               });
-              if (onMouseMove) {
-                onMouseMove(position);
-              }
-            }}
+              onPointerMove(position);
+            }, [])}
             sx={{ aspectRatio }}
           >
             {children}

@@ -47,7 +47,7 @@ export const DraftLineChild = ({
   const slideInstance = useWhiteboardSlideInstance();
   const { setActiveTool } = useLayoutState();
 
-  const handleMouseUp = useCallback(() => {
+  const handlePointerUp = useCallback(() => {
     if (cursorPoints) {
       if (cursorPoints.length > 1) {
         slideInstance.addElement(
@@ -77,7 +77,7 @@ export const DraftLineChild = ({
     endMarker,
   ]);
 
-  const handleMouseMove = useCallback(
+  const handlePointerMove = useCallback(
     (point: Point) => {
       if (cursorPoints) {
         setCursorPoints((p) => (p ? [...p, point] : []));
@@ -86,7 +86,7 @@ export const DraftLineChild = ({
     [cursorPoints],
   );
 
-  const handleMouseDown = useCallback((point: Point) => {
+  const handlePointerDown = useCallback((point: Point) => {
     setCursorPoints([point]);
   }, []);
 
@@ -114,10 +114,10 @@ export const DraftLineChild = ({
 
   return (
     <DraftMouseHandler
-      onMouseDown={handleMouseDown}
-      onMouseLeave={handleMouseUp}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
+      onPointerDown={handlePointerDown}
+      onPointerLeave={handlePointerUp}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
     >
       {shape && (
         <Display {...shape} elementId="draft" readOnly active={false} />

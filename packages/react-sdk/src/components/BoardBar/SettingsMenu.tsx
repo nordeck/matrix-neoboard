@@ -18,7 +18,7 @@ import BugReportOutlinedIcon from '@mui/icons-material/BugReportOutlined';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { ListItemIcon, ListItemText, Menu, MenuItem } from '@mui/material';
 import { unstable_useId as useId } from '@mui/utils';
-import { MouseEvent, useCallback, useMemo, useState } from 'react';
+import { PointerEvent, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { usePowerLevels } from '../../store/api/usePowerLevels';
 import { useImportWhiteboardDialog } from '../ImportWhiteboardDialog/useImportWhiteboardDialog';
@@ -63,7 +63,7 @@ export function SettingsMenu() {
   const [openExportDialog, setOpenExportDialog] = useState(false);
   const { canImportWhiteboard } = usePowerLevels();
 
-  const handleClick = useCallback((event: MouseEvent<HTMLButtonElement>) => {
+  const handleClick = useCallback((event: PointerEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
   }, []);
 
