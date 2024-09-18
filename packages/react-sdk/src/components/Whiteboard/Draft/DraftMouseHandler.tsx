@@ -15,7 +15,7 @@
  */
 
 import { styled } from '@mui/material';
-import { Dispatch, MouseEvent, PropsWithChildren, useCallback } from 'react';
+import { Dispatch, PointerEvent, PropsWithChildren, useCallback } from 'react';
 import { Point } from '../../../state';
 import { useLayoutState } from '../../Layout';
 import { useSvgCanvasContext } from '../SvgCanvas';
@@ -27,18 +27,18 @@ const NoInteraction = styled('g')({
 
 export type DraftMouseHandlerProps = PropsWithChildren<{
   onClick?: Dispatch<Point>;
-  onMouseDown?: Dispatch<Point>;
-  onMouseLeave?: Dispatch<Point>;
-  onMouseMove?: Dispatch<Point>;
-  onMouseUp?: Dispatch<Point>;
+  onPointerDown?: Dispatch<Point>;
+  onPointerLeave?: Dispatch<Point>;
+  onPointerMove?: Dispatch<Point>;
+  onPointerUp?: Dispatch<Point>;
 }>;
 
 export function DraftMouseHandler({
   onClick,
-  onMouseUp,
-  onMouseLeave,
-  onMouseDown,
-  onMouseMove,
+  onPointerUp,
+  onPointerLeave,
+  onPointerDown,
+  onPointerMove,
   children,
 }: DraftMouseHandlerProps) {
   const { calculateSvgCoords } = useSvgCanvasContext();
@@ -49,7 +49,7 @@ export function DraftMouseHandler({
       : 'crosshair';
 
   const handleClick = useCallback(
-    (ev: MouseEvent<SVGRectElement>) => {
+    (ev: PointerEvent<SVGRectElement>) => {
       if (onClick) {
         const point = calculateSvgCoords({ x: ev.clientX, y: ev.clientY });
         onClick(point);
@@ -58,44 +58,44 @@ export function DraftMouseHandler({
     [calculateSvgCoords, onClick],
   );
 
-  const handleMouseUp = useCallback(
-    (ev: MouseEvent<SVGRectElement>) => {
-      if (onMouseUp) {
+  const handlePointerUp = useCallback(
+    (ev: PointerEvent<SVGRectElement>) => {
+      if (onPointerUp) {
         const point = calculateSvgCoords({ x: ev.clientX, y: ev.clientY });
-        onMouseUp(point);
+        onPointerUp(point);
       }
     },
-    [onMouseUp, calculateSvgCoords],
+    [onPointerUp, calculateSvgCoords],
   );
 
-  const handleMouseDown = useCallback(
-    (ev: MouseEvent<SVGRectElement>) => {
-      if (onMouseDown) {
+  const handlePointerDown = useCallback(
+    (ev: PointerEvent<SVGRectElement>) => {
+      if (onPointerDown) {
         const point = calculateSvgCoords({ x: ev.clientX, y: ev.clientY });
-        onMouseDown(point);
+        onPointerDown(point);
       }
     },
-    [onMouseDown, calculateSvgCoords],
+    [onPointerDown, calculateSvgCoords],
   );
 
-  const handleMouseMove = useCallback(
-    (ev: MouseEvent<SVGRectElement>) => {
-      if (onMouseMove) {
+  const handlePointerMove = useCallback(
+    (ev: PointerEvent<SVGRectElement>) => {
+      if (onPointerMove) {
         const point = calculateSvgCoords({ x: ev.clientX, y: ev.clientY });
-        onMouseMove(point);
+        onPointerMove(point);
       }
     },
-    [onMouseMove, calculateSvgCoords],
+    [onPointerMove, calculateSvgCoords],
   );
 
-  const handleMouseLeave = useCallback(
-    (ev: MouseEvent<SVGRectElement>) => {
-      if (onMouseLeave) {
+  const handlePointerLeave = useCallback(
+    (ev: PointerEvent<SVGRectElement>) => {
+      if (onPointerLeave) {
         const point = calculateSvgCoords({ x: ev.clientX, y: ev.clientY });
-        onMouseLeave(point);
+        onPointerLeave(point);
       }
     },
-    [onMouseLeave, calculateSvgCoords],
+    [onPointerLeave, calculateSvgCoords],
   );
 
   return (
@@ -106,10 +106,10 @@ export function DraftMouseHandler({
         fill="transparent"
         height="100%"
         onClick={handleClick}
-        onMouseDown={handleMouseDown}
-        onMouseLeave={handleMouseLeave}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
+        onPointerDown={handlePointerDown}
+        onPointerLeave={handlePointerLeave}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
         width="100%"
         cursor={shapeCursor}
       />
