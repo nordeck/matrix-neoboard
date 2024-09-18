@@ -57,9 +57,9 @@ export const AppContainer = ({
             <MuiWidgetApiProvider
               widgetApiPromise={widgetApiPromise}
               widgetRegistration={{
-                name: 'NeoBoard',
-                // "pad" suffix to get a custom icon
-                type: 'net.nordeck.whiteboard:pad',
+                name: 'NeoMap',
+                // "map" suffix to get a custom icon
+                type: 'net.nordeck.neomap:map',
               }}
             >
               <FontsLoadedContextProvider>
