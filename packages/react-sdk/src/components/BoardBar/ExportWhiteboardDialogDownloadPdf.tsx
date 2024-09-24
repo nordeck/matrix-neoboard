@@ -135,6 +135,7 @@ function useGeneratePdf(
     onError,
     roomName,
     whiteboardInstance,
+    widgetApi,
     widgetApi.widgetParameters.userId,
     widgetApi.widgetParameters.baseUrl,
   ]);

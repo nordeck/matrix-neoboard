@@ -166,7 +166,7 @@ function ImageDisplay({
     };
 
     downloadFile();
-  }, [mxc, widgetApi]);
+  }, [baseUrl, mimeType, mxc, widgetApi]);
 
   const renderedSkeleton =
     loading && !loadError ? (

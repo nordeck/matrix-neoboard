@@ -41,7 +41,7 @@ export const ShadePicker: React.FC<ShadePickerProps> = function ({
       t('colorPicker.shade_darker', 'darker'),
       t('colorPicker.shade_darkest', 'darkest'),
     ];
-  }, []);
+  }, [t]);
 
   const shadeElements = shades.map((shade, index) => {
     let extra: SxProps = {};

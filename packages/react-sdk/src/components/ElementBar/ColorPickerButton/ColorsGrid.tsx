@@ -74,7 +74,7 @@ export function ColorsGrid({
         shade: activeShade,
       });
     },
-    [activeColor],
+    [activeShade, onChange],
   );
 
   const handleSelectShade = useCallback(
@@ -84,7 +84,7 @@ export function ColorsGrid({
         shade: shadeIndex,
       });
     },
-    [activeColor],
+    [activeColor, activePaletteColor.shades, onChange],
   );
 
   return (
