@@ -111,7 +111,7 @@ export const withContextMenu = <P extends object>(
     const handleInsertImport = useCallback(() => {
       importContext.showImportWhiteboardDialog(slideIndex + 1);
       handleClose();
-    }, [handleClose, importContext.showImportWhiteboardDialog, slideIndex]);
+    }, [handleClose, slideIndex, importContext]);
 
     const handleContextMenu = useCallback(
       (event: MouseEvent<HTMLButtonElement>) => {

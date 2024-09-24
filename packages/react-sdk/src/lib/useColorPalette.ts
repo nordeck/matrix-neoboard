@@ -62,19 +62,20 @@ export const useColorPalette = (
   hasTransparent?: boolean,
 ): UseColorPaletteResult => {
   const { t } = useTranslation('neoboard');
-  const greyColor = {
-    label: t('colorPicker.colors.grey', 'Grey'),
-    color: grey[500],
-    shades: calculateShades(grey[500]),
-  };
-
-  const amberColor = {
-    label: t('colorPicker.colors.amber', 'Amber'),
-    color: amber[500],
-    shades: calculateShades(amber[500]),
-  };
 
   return useMemo(() => {
+    const greyColor = {
+      label: t('colorPicker.colors.grey', 'Grey'),
+      color: grey[500],
+      shades: calculateShades(grey[500]),
+    };
+
+    const amberColor = {
+      label: t('colorPicker.colors.amber', 'Amber'),
+      color: amber[500],
+      shades: calculateShades(amber[500]),
+    };
+
     const colorPalette = [
       ...(hasTransparent
         ? [
@@ -192,7 +193,7 @@ export const useColorPalette = (
       defaultTextColor: undefined,
       defaultTextShade: 3,
     };
-  }, [hasTransparent]);
+  }, [hasTransparent, t]);
 };
 
 function calculateShades(color: string): Shades {

@@ -78,7 +78,14 @@ export function ElementColorPicker() {
         }
       }
     },
-    [setActiveShapeColor, setActiveShapeShade],
+    [
+      setActiveShapeColor,
+      setActiveShapeShade,
+      setActiveColor,
+      setActiveShade,
+      hasShape,
+      hasOther,
+    ],
   );
 
   if (hasOnlyImages) {

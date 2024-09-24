@@ -274,7 +274,7 @@ export function useCustomKeyboardSensor(api: SensorAPI) {
         );
       },
     }),
-    // not including startPendingDrag as it is not defined initially
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- not including startPendingDrag as it is not defined initially
     [api],
   );
 

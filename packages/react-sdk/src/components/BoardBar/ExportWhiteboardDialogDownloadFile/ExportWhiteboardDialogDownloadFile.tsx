@@ -58,12 +58,7 @@ function useWhiteboardDownload(onDownloadFinished: () => void) {
     const whiteboardData = await whiteboard.export(widgetApi);
     downloadData(filename, whiteboardData);
     onDownloadFinished();
-  }, [
-    onDownloadFinished,
-    roomName,
-    whiteboard,
-    widgetApi.widgetParameters.baseUrl,
-  ]);
+  }, [onDownloadFinished, roomName, whiteboard, widgetApi]);
 
   return {
     handleDownloadClick,
