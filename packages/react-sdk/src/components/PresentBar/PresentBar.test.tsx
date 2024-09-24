@@ -30,6 +30,7 @@ import {
 } from '../../lib/testUtils/matrixTestUtils';
 import { WhiteboardInstance, WhiteboardManager } from '../../state';
 import { Message } from '../../state/communication';
+import { LayoutStateProvider } from '../Layout';
 import { PresentBar } from './PresentBar';
 
 let widgetApi: MockedWidgetApi;
@@ -61,12 +62,14 @@ describe('<PresentBar/>', () => {
     widgetApi.mockSendStateEvent(mockRoomMember());
 
     Wrapper = ({ children }) => (
-      <WhiteboardTestingContextProvider
-        whiteboardManager={whiteboardManager}
-        widgetApi={widgetApi}
-      >
-        {children}
-      </WhiteboardTestingContextProvider>
+      <LayoutStateProvider>
+        <WhiteboardTestingContextProvider
+          whiteboardManager={whiteboardManager}
+          widgetApi={widgetApi}
+        >
+          {children}
+        </WhiteboardTestingContextProvider>
+      </LayoutStateProvider>
     );
   });
 
