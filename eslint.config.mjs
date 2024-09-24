@@ -105,7 +105,7 @@ export default ts.config(
     ...react.configs.flat.recommended,
     plugins: {
       ...react.configs.flat.recommended.plugins,
-      'react-hooks': hooksPlugin,
+      'react-hooks': fixupPluginRules(hooksPlugin),
     },
     rules: {
       ...hooksPlugin.configs.recommended.rules,
