@@ -58,7 +58,7 @@ type LayoutState = {
    *
    * @param fullscreen - true to go fullscreen mode; false to go to non-fullscreen mode
    */
-  setFullscreenMode: (fullscreen: boolean) => void;
+  setFullscreenMode: (fullscreen: boolean) => Promise<void>;
   /**
    * Holds the Point where a drag-select action has been started.
    * undefined if there is no drag-select action.

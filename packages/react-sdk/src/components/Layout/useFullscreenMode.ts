@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-import { useCallback, useEffect, useState } from 'react';
+import loglevel from 'loglevel';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useHotkeys } from 'react-hotkeys-hook';
+import { HOTKEY_SCOPE_GLOBAL } from '../WhiteboardHotkeysProvider';
 
 type UseFullScreenModeResult = {
   /**
@@ -31,25 +34,46 @@ type UseFullScreenModeResult = {
 };
 
 /**
+ * This hook must only be used once in useLayoutState!!
+ * It relies on internal state, whether a full-screen request is currently running.
+ *
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Fullscreen_API}
  */
 export function useFullscreenMode(): UseFullScreenModeResult {
+  /**
+   * Whether there is already a full-screen request running.
+   */
+  const isFullscreenRequestRunning = useRef(false);
   const [isFullscreenMode, setFullscreenModeState] = useState(
     document.fullscreenElement !== null,
   );
 
-  const setFullscreenMode = useCallback((value: boolean) => {
+  const setFullscreenMode = useCallback(async (value: boolean) => {
+    if (isFullscreenRequestRunning.current) {
+      // There is already a full-screen request running. Do nothing.
+      return;
+    }
+
+    isFullscreenRequestRunning.current = true;
+
     if (value && !document.fullscreenElement) {
       const container =
         document.getElementById('widget-root') ?? document.documentElement;
-      return container.requestFullscreen();
+
+      try {
+        await container.requestFullscreen();
+      } catch (error) {
+        loglevel.error('Error while going full-screen', error);
+      }
+    } else if (!value && document.fullscreenElement) {
+      try {
+        await document.exitFullscreen();
+      } catch (error) {
+        loglevel.error('Error while leaving full-screen', error);
+      }
     }
 
-    if (!value && document.fullscreenElement) {
-      return document.exitFullscreen();
-    }
-
-    return Promise.resolve();
+    isFullscreenRequestRunning.current = false;
   }, []);
 
   useEffect(() => {
@@ -64,20 +88,17 @@ export function useFullscreenMode(): UseFullScreenModeResult {
     };
   }, [setFullscreenModeState]);
 
-  useEffect(() => {
-    function listener(e: KeyboardEvent) {
-      if (e.key === 'F11') {
-        e.preventDefault();
-        setFullscreenMode(!isFullscreenMode);
-      }
-    }
-
-    window.addEventListener('keydown', listener);
-
-    return () => {
-      window.removeEventListener('keydown', listener);
-    };
-  }, [setFullscreenMode, isFullscreenMode]);
+  useHotkeys(
+    'F11',
+    () => {
+      setFullscreenMode(!isFullscreenMode);
+    },
+    {
+      preventDefault: true,
+      scopes: HOTKEY_SCOPE_GLOBAL,
+    },
+    [setFullscreenMode],
+  );
 
   return {
     isFullscreenMode,
