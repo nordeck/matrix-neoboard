@@ -61,7 +61,7 @@ export function PresentBar() {
   const togglePresentationMode = useCallback(() => {
     const storedGridStatus = localStorage.getItem('showGridState');
     if (!isPresenting) {
-      localStorage.setItem('showGridState', isShowGrid ? 'true' : 'fasle');
+      localStorage.setItem('showGridState', isShowGrid ? 'true' : 'false');
       setShowGrid(false);
     } else {
       setShowGrid(storedGridStatus === 'true');
