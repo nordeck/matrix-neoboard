@@ -61,18 +61,12 @@ export function PresentBar() {
   const togglePresentationMode = useCallback(() => {
     const storedGridStatus = localStorage.getItem('showGridState');
     if (!isPresenting) {
-      if (isShowGrid) {
-        localStorage.setItem('showGridState', 'true');
-        setShowGrid(false);
-      }
-      togglePresentation();
+      localStorage.setItem('showGridState', isShowGrid ? 'true' : 'fasle');
+      setShowGrid(false);
     } else {
-      if (storedGridStatus === 'true') {
-        setShowGrid(true);
-        localStorage.removeItem('showGridState');
-      }
-      togglePresentation();
+      setShowGrid(storedGridStatus === 'true');
     }
+    togglePresentation();
   }, [isPresenting, isShowGrid, setShowGrid, togglePresentation]);
 
   const presentBarTitle = t('presentBar.title', 'Present');
