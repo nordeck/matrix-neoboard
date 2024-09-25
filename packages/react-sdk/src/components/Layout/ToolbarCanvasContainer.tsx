@@ -32,7 +32,7 @@ export const ToolbarCanvasContainer: React.FC<PropsWithChildren<{}>> =
           pointerEvents: 'none',
           position: 'absolute',
           top: 0,
-          width: '100%',
+          minWidth: '100%',
         }}
       >
         {children}
