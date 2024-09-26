@@ -102,7 +102,7 @@ In the project directory, you can run:
 - `yarn dev:https`: Start the widget for development with a self-signed HTTPS certificate.
 - `yarn build`: Build the production version of the widget.
 - `yarn preview`: Preview a production build of the widget.
-- `yarn preview`: Preview a production build of the widget with a self-signed HTTPS certificate.
+- `yarn preview:https`: Preview a production build of the widget with a self-signed HTTPS certificate.
 - `yarn test`: Watch all files for changes and run tests.
 - `yarn tsc`: Check TypeScript types for errors in the widget.
 - `yarn lint`: Run eslint on the widget.
