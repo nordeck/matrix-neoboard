@@ -69,7 +69,7 @@ For a list of available options, see [Configuration](./docs/configuration.md).
 ### Running the Widget Locally
 
 Follow the [instructions to run the widget locally](https://github.com/nordeck/matrix-widget-toolkit/tree/main/example-widget-mui#running-the-widget-locally).
-Visit the widget url follow the further instructions: `http(s)://localhost:3000/`
+Visit the widget url follow the further instructions: `http://localhost:5273/` or `https://localhost:5274/` .
 
 ### Running with a local version of the matrix-widget-toolkit
 
@@ -102,6 +102,7 @@ In the project directory, you can run:
 - `yarn dev:https`: Start the widget for development with a self-signed HTTPS certificate.
 - `yarn build`: Build the production version of the widget.
 - `yarn preview`: Preview a production build of the widget.
+- `yarn preview`: Preview a production build of the widget with a self-signed HTTPS certificate.
 - `yarn test`: Watch all files for changes and run tests.
 - `yarn tsc`: Check TypeScript types for errors in the widget.
 - `yarn lint`: Run eslint on the widget.
