@@ -24,9 +24,11 @@ import {
 } from 'vite';
 
 const plugins: [Plugin | PluginOption] = [react()];
+let port = 5273;
 
 if (process.env.VITE_DEV_SSL === 'true') {
   plugins.push(basicSsl());
+  port = 5274;
 }
 
 // https://vitejs.dev/config/
@@ -59,6 +61,12 @@ export default defineConfig({
         '../matrix-neoboard/node_modules/pdfmake/build/',
       ],
     },
+    port,
+    strictPort: true,
+  },
+  preview: {
+    port: port - 1000,
+    strictPort: true,
   },
   plugins,
   // Use the env prefix from CRA for backward compatibility.
