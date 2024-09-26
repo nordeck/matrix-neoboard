@@ -124,16 +124,19 @@ export function SvgCanvas({
             ref={svgRef}
             viewBox={`0 0 ${viewportWidth} ${viewportHeight}`}
             onPointerDown={onPointerDown}
-            onPointerMove={useCallback((e: PointerEvent<SVGSVGElement>) => {
-              if (!onPointerMove) {
-                return;
-              }
-              const position = calculateSvgCoordsFunc({
-                x: e.nativeEvent.clientX,
-                y: e.nativeEvent.clientY,
-              });
-              onPointerMove(position);
-            }, [])}
+            onPointerMove={useCallback(
+              (e: PointerEvent<SVGSVGElement>) => {
+                if (!onPointerMove) {
+                  return;
+                }
+                const position = calculateSvgCoordsFunc({
+                  x: e.nativeEvent.clientX,
+                  y: e.nativeEvent.clientY,
+                });
+                onPointerMove(position);
+              },
+              [calculateSvgCoordsFunc, onPointerMove],
+            )}
             sx={{ aspectRatio }}
           >
             {children}
