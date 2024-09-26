@@ -28,12 +28,14 @@ import {
 } from '../../state';
 import { usePowerLevels } from '../../store/api/usePowerLevels';
 import { Toolbar, ToolbarButton, ToolbarToggle } from '../common/Toolbar';
+import { useLayoutState } from '../Layout';
 
 export function PresentBar() {
   const { t } = useTranslation('neoboard');
   const whiteboardInstance = useActiveWhiteboardInstance();
   const { activeSlideId, isFirstSlideActive, isLastSlideActive } =
     useActiveSlide();
+  const { isShowGrid, setShowGrid } = useLayoutState();
   const { state, toggleEditMode, togglePresentation } = usePresentationMode();
   const { canStopPresentation } = usePowerLevels();
 
@@ -55,6 +57,17 @@ export function PresentBar() {
 
   const isPresenting = state.type === 'presenting';
   const isPresentingInEditMode = isPresenting && state.isEditMode;
+
+  const togglePresentationMode = useCallback(() => {
+    const storedGridStatus = localStorage.getItem('showGridState');
+    if (!isPresenting) {
+      localStorage.setItem('showGridState', isShowGrid ? 'true' : 'false');
+      setShowGrid(false);
+    } else {
+      setShowGrid(storedGridStatus === 'true');
+    }
+    togglePresentation();
+  }, [isPresenting, isShowGrid, setShowGrid, togglePresentation]);
 
   const presentBarTitle = t('presentBar.title', 'Present');
   const buttonTitle =
@@ -86,7 +99,7 @@ export function PresentBar() {
       {state.type === 'presentation' && canStopPresentation && (
         <ToolbarButton
           aria-label={endPresentationTitle}
-          onClick={togglePresentation}
+          onClick={togglePresentationMode}
           placement="bottom"
         >
           <CancelPresentationIcon color="error" />
@@ -96,7 +109,7 @@ export function PresentBar() {
         <ToolbarToggle
           inputProps={{ 'aria-label': buttonTitle }}
           checked={state.type === 'presenting'}
-          onClick={togglePresentation}
+          onClick={togglePresentationMode}
           icon={<PresentToAllIcon />}
           checkedIcon={<PresentToAllIcon />}
           placement={isPresenting ? 'left' : 'bottom'}
