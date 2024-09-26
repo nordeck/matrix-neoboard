@@ -42,7 +42,6 @@
     "build": "yarn workspaces run build",
     "test": "vitest",
     "test:all": "vitest run --coverage",
-    "test:update_snapshots": "vitest -u",
     "tsc": "yarn workspaces run tsc",
     "deduplicate": "yarn-deduplicate",
     "depcheck": "yarn depcheck:root && yarn workspaces run depcheck",
