@@ -22,6 +22,7 @@ import pluginPromise from 'eslint-plugin-promise';
 import react from 'eslint-plugin-react';
 import hooksPlugin from 'eslint-plugin-react-hooks';
 import testingLibrary from 'eslint-plugin-testing-library';
+import vitest from 'eslint-plugin-vitest';
 import path from 'path';
 import ts from 'typescript-eslint';
 import { fileURLToPath } from 'url';
@@ -123,9 +124,11 @@ export default ts.config(
       'testing-library': fixupPluginRules({
         rules: testingLibrary.rules,
       }),
+      vitest,
     },
     rules: {
       ...testingLibrary.configs['flat/react'].rules,
+      ...vitest.configs.recommended.rules,
       '@typescript-eslint/ban-ts-comment': 'off',
       '@typescript-eslint/no-empty-object-type': 'off',
       'react/display-name': 'off',

@@ -17,6 +17,7 @@
     "eslint-plugin-react": "^7.37.1",
     "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-plugin-testing-library": "^6.4.0",
+    "eslint-plugin-vitest": "^0.5.4",
     "husky": "^9.1.6",
     "lint-staged": "^15.2.8",
     "prettier": "^3.3.3",
@@ -36,8 +37,8 @@
   },
   "scripts": {
     "docker:build": "yarn workspace @nordeck/matrix-neoboard-widget docker:build",
-    "dev:https": "yarn workspace @nordeck/matrix-neoboard-widget dev:https",
     "dev": "yarn workspace @nordeck/matrix-neoboard-widget dev",
+    "dev:https": "yarn workspace @nordeck/matrix-neoboard-widget dev:https",
     "build": "yarn workspaces run build",
     "test": "vitest watch",
     "test:all": "vitest run --coverage",
