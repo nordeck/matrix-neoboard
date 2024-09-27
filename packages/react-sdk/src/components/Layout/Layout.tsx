@@ -44,6 +44,7 @@ import { SlidesProvider } from './SlidesProvider';
 import { ToolbarCanvasContainer } from './ToolbarCanvasContainer';
 import { ToolbarContainer } from './ToolbarContainer';
 import { useLayoutState } from './useLayoutState';
+import useWindowSize from './useWindowSize';
 
 const TabPanelStyled = styled(TabPanel)(() => ({
   display: 'flex',
@@ -146,6 +147,7 @@ function ContentArea() {
   const isViewingPresentationInEditMode =
     isViewingPresentation && presentationState.isEditMode;
   const { canStopPresentation } = usePowerLevels();
+  const { width } = useWindowSize();
 
   return (
     <>
@@ -178,10 +180,10 @@ function ContentArea() {
             <Box flex="1" />
 
             <ToolsBar />
-            <UndoRedoBar />
+            {width > 515 && <UndoRedoBar />}
 
             <Box display="flex" justifyContent="flex-end" flex="1">
-              <HelpCenterBar />
+              {width > 600 && <HelpCenterBar />}
             </Box>
           </ToolbarContainer>
         </ToolbarCanvasContainer>
