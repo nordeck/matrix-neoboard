@@ -144,7 +144,7 @@ describe('<ResizeElement />', () => {
         elementOverride: rectangleElement,
       },
     ]);
-    fireEvent.mouseDown(resizeHandleBottomRight);
+    fireEvent.pointerDown(resizeHandleBottomRight);
     mocked(computeResizing).mockReturnValue([
       {
         elementId: 'element-3',
@@ -155,8 +155,8 @@ describe('<ResizeElement />', () => {
         },
       },
     ]);
-    fireEvent.mouseMove(resizeHandleBottomRight);
-    fireEvent.mouseUp(resizeHandleBottomRight);
+    fireEvent.pointerMove(resizeHandleBottomRight);
+    fireEvent.pointerUp(resizeHandleBottomRight);
 
     const element = activeSlide.getElement('element-3');
     expect(element).toEqual({
@@ -186,7 +186,7 @@ describe('<ResizeElement />', () => {
         elementOverride: polylineElement,
       },
     ]);
-    fireEvent.mouseDown(resizeHandleBottomRight);
+    fireEvent.pointerDown(resizeHandleBottomRight);
     mocked(computeResizing).mockReturnValue([
       {
         elementId: 'element-0',
@@ -200,8 +200,8 @@ describe('<ResizeElement />', () => {
         },
       },
     ]);
-    fireEvent.mouseMove(resizeHandleBottomRight);
-    fireEvent.mouseUp(resizeHandleBottomRight);
+    fireEvent.pointerMove(resizeHandleBottomRight);
+    fireEvent.pointerUp(resizeHandleBottomRight);
 
     const element = activeSlide.getElement('element-0');
     expect(element).toEqual({
@@ -239,7 +239,7 @@ describe('<ResizeElement />', () => {
         elementOverride: lineElement,
       },
     ]);
-    fireEvent.mouseDown(resizeHandleBottomRight);
+    fireEvent.pointerDown(resizeHandleBottomRight);
     mocked(computeResizing).mockReturnValue([
       {
         elementId: 'element-1',
@@ -252,8 +252,8 @@ describe('<ResizeElement />', () => {
         },
       },
     ]);
-    fireEvent.mouseMove(resizeHandleBottomRight);
-    fireEvent.mouseUp(resizeHandleBottomRight);
+    fireEvent.pointerMove(resizeHandleBottomRight);
+    fireEvent.pointerUp(resizeHandleBottomRight);
 
     const element = activeSlide.getElement('element-1');
     expect(element).toEqual({
@@ -288,7 +288,7 @@ describe('<ResizeElement />', () => {
         elementOverride: imageElement,
       },
     ]);
-    fireEvent.mouseDown(resizeHandleBottomRight);
+    fireEvent.pointerDown(resizeHandleBottomRight);
     mocked(computeResizing).mockReturnValue([
       {
         elementId: 'element-2',
@@ -299,8 +299,8 @@ describe('<ResizeElement />', () => {
         },
       },
     ]);
-    fireEvent.mouseMove(resizeHandleBottomRight);
-    fireEvent.mouseUp(resizeHandleBottomRight);
+    fireEvent.pointerMove(resizeHandleBottomRight);
+    fireEvent.pointerUp(resizeHandleBottomRight);
 
     const element = activeSlide.getElement('element-2');
     expect(element).toEqual({
@@ -342,7 +342,7 @@ describe('<ResizeElement />', () => {
         },
       },
     ]);
-    fireEvent.mouseDown(resizeHandleBottomRight);
+    fireEvent.pointerDown(resizeHandleBottomRight);
     mocked(computeResizing).mockReturnValue([
       {
         elementId: 'element-0',
@@ -366,8 +366,8 @@ describe('<ResizeElement />', () => {
         },
       },
     ]);
-    fireEvent.mouseMove(resizeHandleBottomRight);
-    fireEvent.mouseUp(resizeHandleBottomRight);
+    fireEvent.pointerMove(resizeHandleBottomRight);
+    fireEvent.pointerUp(resizeHandleBottomRight);
 
     const elements = activeSlide.getElements(['element-0', 'element-1']);
     expect(elements).toEqual({
