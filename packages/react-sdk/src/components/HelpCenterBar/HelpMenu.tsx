@@ -29,7 +29,7 @@ export function HelpMenu() {
   const helpCenterUrl = getEnvironment('REACT_APP_HELP_CENTER_URL');
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const { restartGuidedTour } = useGuidedTour();
-  const emmbeded = getEnvironment('REACT_APP_EMMBADED') === 'true';
+  const embedded = getEnvironment('REACT_APP_EMBADDED') === 'true';
 
   const open = Boolean(anchorEl);
 
@@ -128,7 +128,7 @@ export function HelpMenu() {
           </ListItemText>
         </MenuItem>
 
-        {!emmbeded && (
+        {!embedded && (
           <MenuItem onClick={handleClickAbout}>
             <ListItemText>
               {t('helpCenter.menu.about', 'About NeoBoard')}
