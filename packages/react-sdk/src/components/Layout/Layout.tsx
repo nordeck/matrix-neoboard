@@ -17,6 +17,7 @@
 import { TabPanel } from '@mui/base';
 import { Box, Collapse, Slide, Stack, styled } from '@mui/material';
 import { ReactElement } from 'react';
+import { useMeasure } from '../../lib';
 import {
   SlideProvider,
   useActiveWhiteboardInstanceSlideIds,
@@ -44,7 +45,6 @@ import { SlidesProvider } from './SlidesProvider';
 import { ToolbarCanvasContainer } from './ToolbarCanvasContainer';
 import { ToolbarContainer } from './ToolbarContainer';
 import { useLayoutState } from './useLayoutState';
-import useWindowSize from './useWindowSize';
 
 const TabPanelStyled = styled(TabPanel)(() => ({
   display: 'flex',
@@ -147,7 +147,7 @@ function ContentArea() {
   const isViewingPresentationInEditMode =
     isViewingPresentation && presentationState.isEditMode;
   const { canStopPresentation } = usePowerLevels();
-  const { width } = useWindowSize();
+  const [sizeRef, { width: toolbarWidth }] = useMeasure<HTMLDivElement>();
 
   return (
     <>
@@ -175,15 +175,15 @@ function ContentArea() {
       <WhiteboardHost />
 
       {(!isViewingPresentation || isViewingPresentationInEditMode) && (
-        <ToolbarCanvasContainer>
+        <ToolbarCanvasContainer ref={sizeRef}>
           <ToolbarContainer bottom={(theme) => theme.spacing(1)}>
             <Box flex="1" />
 
             <ToolsBar />
-            {width > 515 && <UndoRedoBar />}
+            {toolbarWidth > 515 && <UndoRedoBar />}
 
             <Box display="flex" justifyContent="flex-end" flex="1">
-              {width > 600 && <HelpCenterBar />}
+              {toolbarWidth > 600 && <HelpCenterBar />}
             </Box>
           </ToolbarContainer>
         </ToolbarCanvasContainer>
