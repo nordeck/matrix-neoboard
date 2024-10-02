@@ -17,7 +17,7 @@
 import loglevel from 'loglevel';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-type UseFullScreenModeResult = {
+type UseFullscreenModeResult = {
   /**
    * Whether fullscreen mode is active.
    */
@@ -33,13 +33,13 @@ type UseFullScreenModeResult = {
 
 /**
  * This hook must only be used once in useLayoutState!!
- * It relies on internal state, whether a full-screen request is currently running.
+ * It relies on internal state, whether a fullscreen request is currently running.
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Fullscreen_API}
  */
-export function useFullscreenMode(): UseFullScreenModeResult {
+export function useFullscreenMode(): UseFullscreenModeResult {
   /**
-   * Whether there is already a full-screen request running.
+   * Whether there is already a fullscreen request running.
    */
   const isFullscreenRequestRunning = useRef(false);
   const [isFullscreenMode, setFullscreenModeState] = useState(
@@ -48,7 +48,7 @@ export function useFullscreenMode(): UseFullScreenModeResult {
 
   const setFullscreenMode = useCallback(async (value: boolean) => {
     if (isFullscreenRequestRunning.current) {
-      // There is already a full-screen request running. Do nothing.
+      // There is already a fullscreen request running. Do nothing.
       return;
     }
 
@@ -60,13 +60,13 @@ export function useFullscreenMode(): UseFullScreenModeResult {
       try {
         await container.requestFullscreen();
       } catch (error) {
-        loglevel.error('Error while going full-screen', error);
+        loglevel.error('Error while going fullscreen', error);
       }
     } else if (!value && document.fullscreenElement) {
       try {
         await document.exitFullscreen();
       } catch (error) {
-        loglevel.error('Error while leaving full-screen', error);
+        loglevel.error('Error while leaving fullscreen', error);
       }
     }
 
