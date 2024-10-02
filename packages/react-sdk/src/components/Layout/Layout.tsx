@@ -43,7 +43,6 @@ import { PageLoader } from '../common/PageLoader';
 import { SlidesProvider } from './SlidesProvider';
 import { ToolbarCanvasContainer } from './ToolbarCanvasContainer';
 import { ToolbarContainer } from './ToolbarContainer';
-import { useFullscreenMode } from './useFullscreenMode';
 import { useLayoutState } from './useLayoutState';
 
 const TabPanelStyled = styled(TabPanel)(() => ({
@@ -63,11 +62,11 @@ export type LayoutProps = {
 
 export function Layout({ height = '100vh' }: LayoutProps) {
   const { loading } = useIsWhiteboardLoading();
-  const { isDeveloperToolsVisible, isSlideOverviewVisible } = useLayoutState();
+  const { isDeveloperToolsVisible, isFullscreenMode, isSlideOverviewVisible } =
+    useLayoutState();
   const slideIds = useActiveWhiteboardInstanceSlideIds();
   const { state: presentationState } = usePresentationMode();
   const isViewingPresentation = presentationState.type === 'presentation';
-  const { isFullscreenMode } = useFullscreenMode();
 
   const { handleUploadDragEnter, uploadDragOverlay } =
     useSlideImageDropUpload();

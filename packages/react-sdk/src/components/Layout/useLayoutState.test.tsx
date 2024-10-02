@@ -148,19 +148,19 @@ describe('useLayoutState', () => {
       expect(result.current.isFullscreenMode).toBe(false);
     });
 
-    it('should toggle fullscreen mode', () => {
+    it('should toggle fullscreen mode', async () => {
       const { result } = renderHook(() => useLayoutState(), {
         wrapper: Wrapper,
       });
 
-      act(() => {
-        result.current.setFullscreenMode(true);
+      await act(async () => {
+        await result.current.setFullscreenMode(true);
       });
 
       expect(result.current.isFullscreenMode).toBe(true);
 
-      act(() => {
-        result.current.setFullscreenMode(false);
+      await act(async () => {
+        await result.current.setFullscreenMode(false);
       });
 
       expect(result.current.isFullscreenMode).toBe(false);
