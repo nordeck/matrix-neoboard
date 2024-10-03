@@ -1,5 +1,18 @@
 # @nordeck/matrix-neoboard-widget
 
+## 1.20.0
+
+### Minor Changes
+
+- 592713a: Deactivate grid in presentation mode
+
+### Patch Changes
+
+- 0e7c62d: Fix toolbar horizontal centering in Safari
+- Updated dependencies [22e1adf]
+- Updated dependencies [0e7c62d]
+  - @nordeck/matrix-neoboard-react-sdk@0.2.2
+
 ## 1.19.1
 
 ### Patch Changes
