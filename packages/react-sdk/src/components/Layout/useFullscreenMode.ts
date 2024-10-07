@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-import { useCallback, useEffect, useState } from 'react';
+import loglevel from 'loglevel';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
-type UseFullScreenModeResult = {
+type UseFullscreenModeResult = {
   /**
    * Whether fullscreen mode is active.
    */
@@ -31,25 +32,45 @@ type UseFullScreenModeResult = {
 };
 
 /**
+ * This hook must only be used once in useLayoutState!!
+ * It relies on internal state, whether a fullscreen request is currently running.
+ *
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Fullscreen_API}
  */
-export function useFullscreenMode(): UseFullScreenModeResult {
+export function useFullscreenMode(): UseFullscreenModeResult {
+  /**
+   * Whether there is already a fullscreen request running.
+   */
+  const isFullscreenRequestRunning = useRef(false);
   const [isFullscreenMode, setFullscreenModeState] = useState(
     document.fullscreenElement !== null,
   );
 
-  const setFullscreenMode = useCallback((value: boolean) => {
+  const setFullscreenMode = useCallback(async (value: boolean) => {
+    if (isFullscreenRequestRunning.current) {
+      // There is already a fullscreen request running. Do nothing.
+      return;
+    }
+
+    isFullscreenRequestRunning.current = true;
+
     if (value && !document.fullscreenElement) {
       const container =
         document.getElementById('widget-root') ?? document.documentElement;
-      return container.requestFullscreen();
+      try {
+        await container.requestFullscreen();
+      } catch (error) {
+        loglevel.error('Error while going fullscreen', error);
+      }
+    } else if (!value && document.fullscreenElement) {
+      try {
+        await document.exitFullscreen();
+      } catch (error) {
+        loglevel.error('Error while leaving fullscreen', error);
+      }
     }
 
-    if (!value && document.fullscreenElement) {
-      return document.exitFullscreen();
-    }
-
-    return Promise.resolve();
+    isFullscreenRequestRunning.current = false;
   }, []);
 
   useEffect(() => {

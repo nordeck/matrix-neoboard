@@ -1,5 +1,12 @@
 # @nordeck/matrix-neoboard-react-sdk
 
+## 0.2.2
+
+### Patch Changes
+
+- 22e1adf: Adjust visible bottom toolbars when board width is constrained
+- 0e7c62d: Fix toolbar horizontal centering in Safari
+
 ## 0.2.1
 
 ### Patch Changes

@@ -15,27 +15,30 @@
  */
 
 import { Box } from '@mui/material';
-import React, { PropsWithChildren } from 'react';
+import { PropsWithChildren, forwardRef } from 'react';
 import { whiteboardHeight, whiteboardWidth } from '../Whiteboard';
 
 /**
  * Absolute positioned container, with the same size as the canvas.
  */
-export const ToolbarCanvasContainer: React.FC<PropsWithChildren<{}>> =
-  function ({ children }) {
-    return (
-      <Box
-        sx={{
-          aspectRatio: whiteboardWidth / whiteboardHeight,
-          left: 0,
-          maxHeight: '100%',
-          pointerEvents: 'none',
-          position: 'absolute',
-          top: 0,
-          minWidth: '100%',
-        }}
-      >
-        {children}
-      </Box>
-    );
-  };
+export const ToolbarCanvasContainer = forwardRef<
+  HTMLDivElement,
+  PropsWithChildren<{}>
+>(function ToolbarCanvasContainer({ children }, ref) {
+  return (
+    <Box
+      ref={ref}
+      sx={{
+        aspectRatio: whiteboardWidth / whiteboardHeight,
+        left: 0,
+        maxHeight: '100%',
+        pointerEvents: 'none',
+        position: 'absolute',
+        top: 0,
+        minWidth: '100%',
+      }}
+    >
+      {children}
+    </Box>
+  );
+});
