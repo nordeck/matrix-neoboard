@@ -707,6 +707,94 @@ describe('SynchronizedDocumentImpl', () => {
     expect(await statistics).toEqual([]);
     expect(await loading).toEqual([]);
   });
+
+  describe('persist', () => {
+    it('should create a snapshot when there are changes', async () => {
+      const doc = createExampleDocument();
+      const store = createStore({ widgetApi });
+
+      const synchronizedDocument = new SynchronizedDocumentImpl(
+        doc,
+        store,
+        communicationChannel,
+        storage,
+        '$document-0',
+      );
+
+      const outstandingStatistics = firstValueFrom(
+        synchronizedDocument
+          .observeDocumentStatistics()
+          .pipe(take(2), toArray()),
+      );
+      const statistics = firstValueFrom(
+        synchronizedDocument.observeDocumentStatistics().pipe(skip(2)),
+      );
+
+      const isReady = firstValueFrom(
+        synchronizedDocument
+          .observeIsLoading()
+          .pipe(filter((loading) => !loading)),
+      );
+
+      doc.performChange((doc) => doc.set('num', 10));
+
+      synchronizedDocument.persist();
+
+      expect(await outstandingStatistics).toEqual([
+        {
+          contentSizeInBytes: 20,
+          documentSizeInBytes: expect.any(Number),
+          snapshotOutstanding: false,
+          snapshotsReceived: 0,
+          snapshotsSend: 0,
+        },
+        {
+          contentSizeInBytes: 20,
+          documentSizeInBytes: expect.any(Number),
+          snapshotOutstanding: true,
+          snapshotsReceived: 0,
+          snapshotsSend: 0,
+        },
+      ]);
+
+      await isReady;
+
+      await waitFor(() => {
+        expect(widgetApi.sendRoomEvent).toHaveBeenCalledTimes(2);
+      });
+
+      expect(await statistics).toEqual({
+        contentSizeInBytes: 20,
+        documentSizeInBytes: expect.any(Number),
+        snapshotOutstanding: false,
+        snapshotsReceived: 0,
+        snapshotsSend: 1,
+      });
+    });
+
+    it('should not create a snapshot when there are no changes', async () => {
+      const doc = createExampleDocument();
+      const store = createStore({ widgetApi });
+
+      const synchronizedDocument = new SynchronizedDocumentImpl(
+        doc,
+        store,
+        communicationChannel,
+        storage,
+        '$document-0',
+      );
+
+      await firstValueFrom(
+        synchronizedDocument
+          .observeIsLoading()
+          .pipe(filter((loading) => !loading)),
+      );
+
+      synchronizedDocument.persist();
+
+      expect(widgetApi.sendRoomEvent).not.toHaveBeenCalled();
+    });
+  });
 });
 
 type Example = {

@@ -66,7 +66,7 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
     private readonly store: StoreType,
     communicationChannel: CommunicationChannel,
     storage: DocumentStorage,
-    documentId: string,
+    private documentId: string,
     validation?: {
       snapshotValidator: DocumentSnapshotValidator;
       documentValidator: DocumentValidator<T>;
@@ -149,6 +149,11 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
         // deduplicate the requests in case the snapshot creation is slower than 5000ms
         throttle(
           async ({ doc }) => {
+            if (!this.statistics.snapshotOutstanding) {
+              // No outstanding snapshot, do nothing
+              return;
+            }
+
             this.statistics.snapshotsSend += 1;
             this.statistics.snapshotOutstanding = false;
             this.notifyStatistics();
@@ -192,6 +197,16 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
 
   observeIsLoading(): Observable<boolean> {
     return this.loadingSubject.pipe(distinctUntilChanged());
+  }
+
+  async persist() {
+    if (this.statistics.snapshotOutstanding) {
+      this.statistics.snapshotsSend += 1;
+      this.statistics.snapshotOutstanding = false;
+      this.notifyStatistics();
+
+      await this.createDocumentSnapshot(this.documentId, this.document.store());
+    }
   }
 
   private async createDocumentSnapshot(
