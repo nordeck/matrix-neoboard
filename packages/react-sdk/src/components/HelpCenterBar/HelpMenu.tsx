@@ -29,7 +29,7 @@ export function HelpMenu() {
   const helpCenterUrl = getEnvironment('REACT_APP_HELP_CENTER_URL');
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const { restartGuidedTour } = useGuidedTour();
-  const embedded = getEnvironment('REACT_APP_EMBADDED') === 'true';
+  const embedded = getEnvironment('REACT_APP_EMBEDDED') === 'true';
 
   const open = Boolean(anchorEl);
 
