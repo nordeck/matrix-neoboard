@@ -17,6 +17,9 @@ REACT_APP_HELP_CENTER_URL="https://github.com/nordeck/matrix-neoboard"
 # optional - enable connection to React standalone devtools
 # Does only work in development mode.
 REACT_APP_DEVTOOLS=true
+
+# Indicate if the widget is embedded in standalone mode
+REACT_APP_EMBEDDED=false
 ```
 
 ## Room power level
