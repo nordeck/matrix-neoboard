@@ -17,6 +17,7 @@
 import { TabPanel } from '@mui/base';
 import { Box, Collapse, Slide, Stack, styled } from '@mui/material';
 import { ReactElement } from 'react';
+import { useMeasure } from '../../lib';
 import {
   SlideProvider,
   useActiveWhiteboardInstanceSlideIds,
@@ -43,7 +44,6 @@ import { PageLoader } from '../common/PageLoader';
 import { SlidesProvider } from './SlidesProvider';
 import { ToolbarCanvasContainer } from './ToolbarCanvasContainer';
 import { ToolbarContainer } from './ToolbarContainer';
-import { useFullscreenMode } from './useFullscreenMode';
 import { useLayoutState } from './useLayoutState';
 
 const TabPanelStyled = styled(TabPanel)(() => ({
@@ -63,11 +63,11 @@ export type LayoutProps = {
 
 export function Layout({ height = '100vh' }: LayoutProps) {
   const { loading } = useIsWhiteboardLoading();
-  const { isDeveloperToolsVisible, isSlideOverviewVisible } = useLayoutState();
+  const { isDeveloperToolsVisible, isFullscreenMode, isSlideOverviewVisible } =
+    useLayoutState();
   const slideIds = useActiveWhiteboardInstanceSlideIds();
   const { state: presentationState } = usePresentationMode();
   const isViewingPresentation = presentationState.type === 'presentation';
-  const { isFullscreenMode } = useFullscreenMode();
 
   const { handleUploadDragEnter, uploadDragOverlay } =
     useSlideImageDropUpload();
@@ -147,6 +147,7 @@ function ContentArea() {
   const isViewingPresentationInEditMode =
     isViewingPresentation && presentationState.isEditMode;
   const { canStopPresentation } = usePowerLevels();
+  const [sizeRef, { width: toolbarWidth }] = useMeasure<HTMLDivElement>();
 
   return (
     <>
@@ -174,15 +175,15 @@ function ContentArea() {
       <WhiteboardHost />
 
       {(!isViewingPresentation || isViewingPresentationInEditMode) && (
-        <ToolbarCanvasContainer>
+        <ToolbarCanvasContainer ref={sizeRef}>
           <ToolbarContainer bottom={(theme) => theme.spacing(1)}>
             <Box flex="1" />
 
             <ToolsBar />
-            <UndoRedoBar />
+            {toolbarWidth > 515 && <UndoRedoBar />}
 
             <Box display="flex" justifyContent="flex-end" flex="1">
-              <HelpCenterBar />
+              {toolbarWidth > 600 && <HelpCenterBar />}
             </Box>
           </ToolbarContainer>
         </ToolbarCanvasContainer>
