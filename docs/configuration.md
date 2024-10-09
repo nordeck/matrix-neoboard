@@ -18,7 +18,7 @@ REACT_APP_HELP_CENTER_URL="https://github.com/nordeck/matrix-neoboard"
 # Does only work in development mode.
 REACT_APP_DEVTOOLS=true
 
-# Indicate if the widget is embedded in standalone mode
+# Indicate if the widget is embedded in standalone mode to hide the about button
 REACT_APP_EMBEDDED=false
 ```
 
