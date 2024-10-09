@@ -585,6 +585,8 @@ describe('SynchronizedDocumentImpl', () => {
       expect(widgetApi.sendRoomEvent).toHaveBeenCalledTimes(2);
     });
 
+    expectSnapshot();
+
     expect(await statistics).toEqual({
       contentSizeInBytes: 20,
       documentSizeInBytes: expect.any(Number),
@@ -652,6 +654,8 @@ describe('SynchronizedDocumentImpl', () => {
     await waitFor(() => {
       expect(widgetApi.sendRoomEvent).toHaveBeenCalledTimes(2);
     });
+
+    expectSnapshot();
 
     doc.performChange((doc) => doc.set('num', 11));
     jest.advanceTimersByTime(5000);
@@ -759,9 +763,7 @@ describe('SynchronizedDocumentImpl', () => {
 
       await isReady;
 
-      await waitFor(() => {
-        expect(widgetApi.sendRoomEvent).toHaveBeenCalledTimes(2);
-      });
+      expectSnapshot();
 
       expect(await statistics).toEqual({
         contentSizeInBytes: 20,
@@ -843,4 +845,18 @@ function isValidExampleDocumentSnapshot(data: Uint8Array): boolean {
   }
 
   return isValidExampleDocument(document);
+}
+
+function expectSnapshot() {
+  expect(widgetApi.sendRoomEvent).toHaveBeenNthCalledWith(
+    1,
+    'net.nordeck.whiteboard.document.snapshot',
+    expect.any(Object),
+  );
+
+  expect(widgetApi.sendRoomEvent).toHaveBeenNthCalledWith(
+    2,
+    'net.nordeck.whiteboard.document.chunk',
+    expect.any(Object),
+  );
 }
