@@ -97,6 +97,8 @@ describe('presentationManager', () => {
       removeSlide: jest.fn(),
       setActiveSlideId: jest.fn(),
       undo: jest.fn(),
+      destroy: jest.fn(),
+      persist: jest.fn(),
     };
 
     enableObserveVisibilityStateSubject = new Subject<boolean>();

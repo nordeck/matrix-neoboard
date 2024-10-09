@@ -30,6 +30,7 @@ describe('useWhiteboardManager', () => {
     whiteboardManager = {
       getActiveWhiteboardInstance: jest.fn(),
       selectActiveWhiteboardInstance: jest.fn(),
+      clear: jest.fn(),
     };
 
     Wrapper = ({ children }) => {

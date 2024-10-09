@@ -125,6 +125,7 @@ export function mockWhiteboardManager(
     observeDocumentStatistics: () => NEVER,
     observeIsLoading: () => of(false),
     destroy: () => {},
+    persist: () => Promise.resolve(),
   };
 
   const whiteboardInstance = new WhiteboardInstanceImpl(
@@ -137,6 +138,7 @@ export function mockWhiteboardManager(
   const whiteboardManager: jest.Mocked<WhiteboardManager> = {
     getActiveWhiteboardInstance: jest.fn().mockReturnValue(whiteboardInstance),
     selectActiveWhiteboardInstance: jest.fn(),
+    clear: jest.fn(),
   };
 
   return {
