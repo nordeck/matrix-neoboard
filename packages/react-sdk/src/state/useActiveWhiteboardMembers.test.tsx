@@ -19,6 +19,15 @@ import { renderHook } from '@testing-library/react';
 import { act, ComponentType, PropsWithChildren } from 'react';
 import { Subject } from 'rxjs';
 import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  Mocked,
+  vi,
+} from 'vitest';
+import {
   mockPeerConnectionStatistics,
   mockWhiteboardManager,
   WhiteboardTestingContextProvider,
@@ -30,11 +39,13 @@ let widgetApi: MockedWidgetApi;
 
 afterEach(() => widgetApi.stop());
 
-beforeEach(() => (widgetApi = mockWidgetApi()));
+beforeEach(() => {
+  widgetApi = mockWidgetApi();
+});
 
 describe('useActiveWhiteboardMembers', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
-  let whiteboardManager: jest.Mocked<WhiteboardManager>;
+  let whiteboardManager: Mocked<WhiteboardManager>;
 
   beforeEach(() => {
     ({ whiteboardManager } = mockWhiteboardManager());
@@ -68,9 +79,10 @@ describe('useActiveWhiteboardMembers', () => {
 
     const activeWhiteboardInstance =
       whiteboardManager.getActiveWhiteboardInstance()!;
-    jest
-      .spyOn(activeWhiteboardInstance, 'getWhiteboardStatistics')
-      .mockReturnValue(statistics);
+    vi.spyOn(
+      activeWhiteboardInstance,
+      'getWhiteboardStatistics',
+    ).mockReturnValue(statistics);
 
     const { result } = renderHook(() => useActiveWhiteboardMembers(), {
       wrapper: Wrapper,
@@ -104,9 +116,10 @@ describe('useActiveWhiteboardMembers', () => {
 
     const activeWhiteboardInstance =
       whiteboardManager.getActiveWhiteboardInstance()!;
-    jest
-      .spyOn(activeWhiteboardInstance, 'getWhiteboardStatistics')
-      .mockReturnValue(statistics);
+    vi.spyOn(
+      activeWhiteboardInstance,
+      'getWhiteboardStatistics',
+    ).mockReturnValue(statistics);
 
     const { result } = renderHook(() => useActiveWhiteboardMembers(), {
       wrapper: Wrapper,
@@ -139,12 +152,14 @@ describe('useActiveWhiteboardMembers', () => {
 
     const activeWhiteboardInstance =
       whiteboardManager.getActiveWhiteboardInstance()!;
-    jest
-      .spyOn(activeWhiteboardInstance, 'getWhiteboardStatistics')
-      .mockImplementation(() => statistics);
-    jest
-      .spyOn(activeWhiteboardInstance, 'observeWhiteboardStatistics')
-      .mockReturnValue(statisticsSubject);
+    vi.spyOn(
+      activeWhiteboardInstance,
+      'getWhiteboardStatistics',
+    ).mockImplementation(() => statistics);
+    vi.spyOn(
+      activeWhiteboardInstance,
+      'observeWhiteboardStatistics',
+    ).mockReturnValue(statisticsSubject);
 
     const { result } = renderHook(() => useActiveWhiteboardMembers(), {
       wrapper: Wrapper,

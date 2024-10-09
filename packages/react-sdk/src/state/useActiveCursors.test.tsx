@@ -19,6 +19,15 @@ import { renderHook } from '@testing-library/react';
 import { act, ComponentType, PropsWithChildren } from 'react';
 import { Subject } from 'rxjs';
 import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  Mocked,
+  vi,
+} from 'vitest';
+import {
   mockWhiteboardManager,
   WhiteboardTestingContextProvider,
 } from '../lib/testUtils/documentTestUtils';
@@ -30,11 +39,13 @@ let widgetApi: MockedWidgetApi;
 
 afterEach(() => widgetApi.stop());
 
-beforeEach(() => (widgetApi = mockWidgetApi()));
+beforeEach(() => {
+  widgetApi = mockWidgetApi();
+});
 
 describe('useActiveCursors', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
-  let whiteboardManager: jest.Mocked<WhiteboardManager>;
+  let whiteboardManager: Mocked<WhiteboardManager>;
 
   beforeEach(() => {
     ({ whiteboardManager } = mockWhiteboardManager());
@@ -65,9 +76,9 @@ describe('useActiveCursors', () => {
       .getSlide('slide-0');
 
     const cursorPositionSubject = new Subject<Record<string, Point>>();
-    jest
-      .spyOn(slide, 'observeCursorPositions')
-      .mockReturnValue(cursorPositionSubject);
+    vi.spyOn(slide, 'observeCursorPositions').mockReturnValue(
+      cursorPositionSubject,
+    );
 
     const { result } = renderHook(() => useActiveCursors(), {
       wrapper: Wrapper,

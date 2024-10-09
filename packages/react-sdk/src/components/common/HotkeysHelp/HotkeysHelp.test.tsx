@@ -15,6 +15,7 @@
  */
 
 import { render } from '@testing-library/react';
+import { describe, expect, it } from 'vitest';
 import { HotkeyHelp, HotkeysHelp } from './HotkeysHelp';
 
 describe('<HotkeysHelp>', () => {

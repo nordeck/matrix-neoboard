@@ -17,6 +17,15 @@
 import { waitFor } from '@testing-library/react';
 import { bufferTime, firstValueFrom, Subject, take, toArray } from 'rxjs';
 import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  Mocked,
+  vi,
+} from 'vitest';
+import {
   mockRtcDataChannel,
   MockRtcDataChannel,
   mockRtcPeerConnection,
@@ -30,7 +39,7 @@ describe('WebRtcPeerConnection', () => {
   const impoliteSessionId = 'session-b';
   let rtcPeerConnection: MockRtcPeerConnection;
   let rtcDataChannel: MockRtcDataChannel;
-  let signalingChannel: jest.Mocked<SignalingChannel>;
+  let signalingChannel: Mocked<SignalingChannel>;
   let signalingSubject: Subject<{
     description?: RTCSessionDescription | undefined;
     candidates?: (RTCIceCandidate | null)[] | undefined;
@@ -39,27 +48,28 @@ describe('WebRtcPeerConnection', () => {
   beforeEach(() => {
     signalingSubject = new Subject();
     signalingChannel = {
-      destroy: jest.fn(),
-      observeSignaling: jest.fn().mockReturnValue(signalingSubject),
-      sendCandidates: jest.fn(),
-      sendDescription: jest.fn(),
+      destroy: vi.fn(),
+      observeSignaling: vi.fn().mockReturnValue(signalingSubject),
+      sendCandidates: vi.fn(),
+      sendDescription: vi.fn(),
     };
 
     rtcPeerConnection = mockRtcPeerConnection();
     rtcDataChannel = mockRtcDataChannel('0');
     rtcPeerConnection.createDataChannel.mockReturnValue(rtcDataChannel);
 
-    jest.spyOn(window, 'RTCPeerConnection').mockReturnValue(rtcPeerConnection);
+    vi.spyOn(window, 'RTCPeerConnection').mockReturnValue(rtcPeerConnection);
   });
 
   it('should pass fallback stun server to WebRTC on creation', () => {
+    const spy = vi.spyOn(window, 'RTCPeerConnection');
     const connection = new WebRtcPeerConnection(
       signalingChannel,
       { sessionId: politeSessionId, userId: '@other-user' },
       impoliteSessionId,
     );
 
-    expect(jest.spyOn(window, 'RTCPeerConnection')).toHaveBeenCalledWith({
+    expect(spy).toHaveBeenCalledWith({
       iceServers: [
         {
           urls: ['stun:turn.matrix.org'],
@@ -71,6 +81,7 @@ describe('WebRtcPeerConnection', () => {
   });
 
   it('should pass turn servers to WebRTC on creation', () => {
+    const spy = vi.spyOn(window, 'RTCPeerConnection');
     const turnServer = {
       urls: ['turn:turn.example.com'],
       credential: 'credential',
@@ -83,7 +94,7 @@ describe('WebRtcPeerConnection', () => {
       { turnServer },
     );
 
-    expect(jest.spyOn(window, 'RTCPeerConnection')).toHaveBeenCalledWith({
+    expect(spy).toHaveBeenCalledWith({
       iceServers: [turnServer],
     });
 
@@ -124,6 +135,7 @@ describe('WebRtcPeerConnection', () => {
 
     afterEach(() => {
       connection.close();
+      vi.resetAllMocks();
     });
 
     it('should create data channel', () => {

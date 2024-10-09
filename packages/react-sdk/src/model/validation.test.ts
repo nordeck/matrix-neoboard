@@ -16,6 +16,7 @@
 
 import { RoomEvent } from '@matrix-widget-toolkit/api';
 import Joi from 'joi';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { isValidEvent } from './validation';
 
 const exampleSchema = Joi.object({

@@ -18,6 +18,7 @@ import { Snackbar } from '@mui/material';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ComponentType, PropsWithChildren } from 'react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SnackbarDismissAction } from './SnackbarDismissAction';
 import { SnackbarProvider, SnackbarState } from './SnackbarProvider';
 import { useSnackbar } from './useSnackbar';
@@ -29,7 +30,7 @@ describe('<SnackbarDismissAction />', () => {
   beforeEach(() => {
     function SnackbarStateExtractor() {
       snackbarState = useSnackbar();
-      jest.spyOn(snackbarState, 'clearSnackbar');
+      vi.spyOn(snackbarState, 'clearSnackbar');
       return null;
     }
     Wrapper = ({ children }: PropsWithChildren<{}>) => (

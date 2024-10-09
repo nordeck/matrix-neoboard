@@ -17,12 +17,12 @@
 import { fixupPluginRules } from '@eslint/compat';
 import js from '@eslint/js';
 import eslintConfigPrettier from 'eslint-config-prettier';
-import jest from 'eslint-plugin-jest';
 import notice from 'eslint-plugin-notice';
 import pluginPromise from 'eslint-plugin-promise';
 import react from 'eslint-plugin-react';
 import hooksPlugin from 'eslint-plugin-react-hooks';
 import testingLibrary from 'eslint-plugin-testing-library';
+import vitest from 'eslint-plugin-vitest';
 import path from 'path';
 import ts from 'typescript-eslint';
 import { fileURLToPath } from 'url';
@@ -35,8 +35,6 @@ export default ts.config(
     ignores: [
       '**/build/**',
       '**/coverage/**',
-      '**/craco.config.js',
-      '**/jest.config.js',
       '**/i18next-parser.config.js',
       '**/*test.ts.snap',
       'scripts/prepack.js',
@@ -57,10 +55,8 @@ export default ts.config(
   {
     plugins: {
       notice,
-      jest,
     },
     rules: {
-      ...jest.configs['flat/recommended'].rules,
       'notice/notice': [
         'error',
         {
@@ -128,9 +124,11 @@ export default ts.config(
       'testing-library': fixupPluginRules({
         rules: testingLibrary.rules,
       }),
+      vitest,
     },
     rules: {
       ...testingLibrary.configs['flat/react'].rules,
+      ...vitest.configs.recommended.rules,
       '@typescript-eslint/ban-ts-comment': 'off',
       '@typescript-eslint/no-empty-object-type': 'off',
       'react/display-name': 'off',

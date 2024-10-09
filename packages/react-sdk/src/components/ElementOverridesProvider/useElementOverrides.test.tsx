@@ -16,6 +16,7 @@
 
 import { act, renderHook } from '@testing-library/react';
 import { ComponentType, PropsWithChildren, useContext } from 'react';
+import { beforeEach, describe, expect, it } from 'vitest';
 import {
   mockEllipseElement,
   mockLineElement,

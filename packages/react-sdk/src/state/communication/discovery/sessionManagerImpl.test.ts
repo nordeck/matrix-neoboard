@@ -15,8 +15,8 @@
  */
 
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
-import { waitFor } from '@testing-library/react';
 import { firstValueFrom, take, toArray } from 'rxjs';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { mockWhiteboardSessions } from '../../../lib/testUtils/matrixTestUtils';
 import { WhiteboardSession } from '../../../model';
 import { SessionManagerImpl } from './sessionManagerImpl';
@@ -27,7 +27,7 @@ describe('SessionManagerImpl', () => {
   let sessionManager: SessionManagerImpl;
 
   afterEach(() => {
-    jest.useRealTimers();
+    vi.useRealTimers();
 
     widgetApi.stop();
   });
@@ -35,9 +35,9 @@ describe('SessionManagerImpl', () => {
   beforeEach(() => {
     widgetApi = mockWidgetApi();
 
-    jest
-      .spyOn(Date, 'now')
-      .mockImplementation(() => +new Date('2023-02-01T10:11:12.345Z'));
+    vi.spyOn(Date, 'now').mockImplementation(
+      () => +new Date('2023-02-01T10:11:12.345Z'),
+    );
 
     sessionManager = new SessionManagerImpl(widgetApi, sessionTimeout, 100);
   });
@@ -154,17 +154,17 @@ describe('SessionManagerImpl', () => {
   });
 
   it('should update own session if it is about to timeout', async () => {
-    jest.spyOn(Date, 'now').mockRestore();
-    jest.useFakeTimers();
-    jest.setSystemTime(new Date('2023-02-01T10:11:12.345Z'));
+    vi.spyOn(Date, 'now').mockRestore();
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2023-02-01T10:11:12.345Z'));
 
     const { sessionId } = await sessionManager.join('whiteboard-id');
 
     expect(widgetApi.sendStateEvent).toHaveBeenCalledTimes(1);
 
-    jest.advanceTimersByTime(sessionTimeout * 0.8);
+    vi.advanceTimersByTime(sessionTimeout * 0.8);
 
-    await waitFor(() =>
+    await vi.waitFor(() =>
       expect(widgetApi.sendStateEvent).toHaveBeenCalledTimes(2),
     );
 
@@ -270,9 +270,9 @@ describe('SessionManagerImpl', () => {
       sessionManager.observeSessionLeft().pipe(take(1), toArray()),
     );
 
-    jest
-      .spyOn(Date, 'now')
-      .mockImplementation(() => +new Date('2050-01-12T12:00:00.000Z'));
+    vi.spyOn(Date, 'now').mockImplementation(
+      () => +new Date('2050-01-12T12:00:00.000Z'),
+    );
 
     await expect(leftPromise).resolves.toEqual([
       { sessionId: 'session-id', userId: '@another-user' },
@@ -306,9 +306,9 @@ describe('SessionManagerImpl', () => {
       }),
     );
 
-    jest
-      .spyOn(Date, 'now')
-      .mockImplementation(() => +new Date('2050-01-12T12:00:00.000Z'));
+    vi.spyOn(Date, 'now').mockImplementation(
+      () => +new Date('2050-01-12T12:00:00.000Z'),
+    );
 
     await expect(leftPromise).resolves.toEqual([
       { sessionId: 'session-id', userId: '@expiring-user' },

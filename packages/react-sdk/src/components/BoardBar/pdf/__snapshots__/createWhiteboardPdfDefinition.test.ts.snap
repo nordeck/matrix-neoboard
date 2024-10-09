@@ -1,20 +1,20 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`createWhiteboardPdfDefinition should generate a pdf header and table 1`] = `
-Object {
-  "content": Array [
-    Object {
+exports[`createWhiteboardPdfDefinition > should generate a pdf header and table 1`] = `
+{
+  "content": [
+    {
       "pageBreak": undefined,
-      "stack": Array [
-        Array [
-          Array [
-            Object {
-              "absolutePosition": Object {
+      "stack": [
+        [
+          [
+            {
+              "absolutePosition": {
                 "x": 0,
                 "y": 0,
               },
-              "canvas": Array [
-                Object {
+              "canvas": [
+                {
                   "color": "#ffffff",
                   "h": 100,
                   "lineColor": "#ffffff",
@@ -29,46 +29,46 @@ Object {
               ],
               "unbreakable": true,
             },
-            Object {
-              "absolutePosition": Object {
+            {
+              "absolutePosition": {
                 "x": 10,
                 "y": 51,
               },
               "layout": "noBorders",
-              "table": Object {
-                "body": Array [
-                  Array [
-                    Object {
+              "table": {
+                "body": [
+                  [
+                    {
                       "alignment": "center",
                       "color": "#000",
                       "font": "Inter",
                       "fontSize": 10,
                       "lineHeight": 1,
                       "margin": 0,
-                      "text": Array [
+                      "text": [
                         "Rectangle",
                       ],
                     },
                   ],
                 ],
-                "heights": Array [
+                "heights": [
                   40,
                 ],
-                "widths": Array [
+                "widths": [
                   30,
                 ],
               },
               "unbreakable": true,
             },
           ],
-          Array [
-            Object {
-              "absolutePosition": Object {
+          [
+            {
+              "absolutePosition": {
                 "x": 0,
                 "y": 0,
               },
-              "canvas": Array [
-                Object {
+              "canvas": [
+                {
                   "color": undefined,
                   "h": 100,
                   "lineColor": undefined,
@@ -83,46 +83,46 @@ Object {
               ],
               "unbreakable": true,
             },
-            Object {
-              "absolutePosition": Object {
+            {
+              "absolutePosition": {
                 "x": 10,
                 "y": 51,
               },
               "layout": "noBorders",
-              "table": Object {
-                "body": Array [
-                  Array [
-                    Object {
+              "table": {
+                "body": [
+                  [
+                    {
                       "alignment": "center",
                       "color": "#000",
                       "font": "Inter",
                       "fontSize": 10,
                       "lineHeight": 1,
                       "margin": 0,
-                      "text": Array [
+                      "text": [
                         "Rectangle Text",
                       ],
                     },
                   ],
                 ],
-                "heights": Array [
+                "heights": [
                   40,
                 ],
-                "widths": Array [
+                "widths": [
                   30,
                 ],
               },
               "unbreakable": true,
             },
           ],
-          Array [
-            Object {
-              "absolutePosition": Object {
+          [
+            {
+              "absolutePosition": {
                 "x": 0,
                 "y": 0,
               },
-              "canvas": Array [
-                Object {
+              "canvas": [
+                {
                   "color": "#ffffff",
                   "lineColor": "#ffffff",
                   "lineWidth": 2,
@@ -135,25 +135,25 @@ Object {
               ],
               "unbreakable": true,
             },
-            Object {
-              "absolutePosition": Object {
+            {
+              "absolutePosition": {
                 "x": 7.322330470336311,
                 "y": 51.14466094067262,
               },
               "layout": "noBorders",
-              "table": Object {
-                "body": Array [
-                  Array [
-                    Object {
+              "table": {
+                "body": [
+                  [
+                    {
                       "alignment": "right",
                       "color": "#000",
                       "font": "Inter",
                       "fontSize": 10,
                       "lineHeight": 1,
                       "margin": 0,
-                      "text": Array [
+                      "text": [
                         "Circle ",
-                        Object {
+                        {
                           "style": "emoji",
                           "text": "✅",
                         },
@@ -161,24 +161,24 @@ Object {
                     },
                   ],
                 ],
-                "heights": Array [
+                "heights": [
                   35.210678118654755,
                 ],
-                "widths": Array [
+                "widths": [
                   35.35533905932738,
                 ],
               },
               "unbreakable": true,
             },
           ],
-          Array [
-            Object {
-              "absolutePosition": Object {
+          [
+            {
+              "absolutePosition": {
                 "x": 0,
                 "y": 0,
               },
-              "canvas": Array [
-                Object {
+              "canvas": [
+                {
                   "color": "#ffffff",
                   "lineColor": "#ffffff",
                   "lineWidth": 2,
@@ -191,60 +191,60 @@ Object {
               ],
               "unbreakable": true,
             },
-            Object {
-              "absolutePosition": Object {
+            {
+              "absolutePosition": {
                 "x": 7.322330470336311,
                 "y": 51.14466094067262,
               },
               "layout": "noBorders",
-              "table": Object {
-                "body": Array [
-                  Array [
-                    Object {
+              "table": {
+                "body": [
+                  [
+                    {
                       "alignment": "center",
                       "color": "#000",
                       "font": "Inter",
                       "fontSize": 10,
                       "lineHeight": 1,
                       "margin": 0,
-                      "text": Array [
+                      "text": [
                         "Ellipse",
                       ],
                     },
                   ],
                 ],
-                "heights": Array [
+                "heights": [
                   35.210678118654755,
                 ],
-                "widths": Array [
+                "widths": [
                   35.35533905932738,
                 ],
               },
               "unbreakable": true,
             },
           ],
-          Array [
-            Object {
-              "absolutePosition": Object {
+          [
+            {
+              "absolutePosition": {
                 "x": 0,
                 "y": 0,
               },
-              "canvas": Array [
-                Object {
+              "canvas": [
+                {
                   "closePath": true,
                   "color": "#ffffff",
                   "lineColor": "#ffffff",
                   "lineWidth": 2,
-                  "points": Array [
-                    Object {
+                  "points": [
+                    {
                       "x": 0,
                       "y": 101,
                     },
-                    Object {
+                    {
                       "x": 25,
                       "y": 1,
                     },
-                    Object {
+                    {
                       "x": 50,
                       "y": 101,
                     },
@@ -254,25 +254,25 @@ Object {
               ],
               "unbreakable": true,
             },
-            Object {
-              "absolutePosition": Object {
+            {
+              "absolutePosition": {
                 "x": 8.333333333333332,
                 "y": 79.16666666666666,
               },
               "layout": "noBorders",
-              "table": Object {
-                "body": Array [
-                  Array [
-                    Object {
+              "table": {
+                "body": [
+                  [
+                    {
                       "alignment": "center",
                       "color": "#000",
                       "font": "Inter",
                       "fontSize": 10,
                       "lineHeight": 1,
                       "margin": 0,
-                      "text": Array [
+                      "text": [
                         "Triangle ",
-                        Object {
+                        {
                           "style": "emoji",
                           "text": "👍",
                         },
@@ -280,10 +280,10 @@ Object {
                     },
                   ],
                 ],
-                "heights": Array [
+                "heights": [
                   11.833333333333343,
                 ],
-                "widths": Array [
+                "widths": [
                   33.333333333333336,
                 ],
               },
@@ -293,17 +293,17 @@ Object {
         ],
       ],
     },
-    Object {
+    {
       "pageBreak": "before",
-      "stack": Array [
-        Array [
-          Object {
-            "absolutePosition": Object {
+      "stack": [
+        [
+          {
+            "absolutePosition": {
               "x": 0,
               "y": 0,
             },
-            "canvas": Array [
-              Object {
+            "canvas": [
+              {
                 "lineColor": "#ffffff",
                 "lineWidth": 4,
                 "type": "line",
@@ -315,21 +315,21 @@ Object {
             ],
             "unbreakable": true,
           },
-          Object {
-            "absolutePosition": Object {
+          {
+            "absolutePosition": {
               "x": 0,
               "y": 0,
             },
-            "canvas": Array [
-              Object {
+            "canvas": [
+              {
                 "lineColor": "#ffffff",
                 "lineWidth": 4,
-                "points": Array [
-                  Object {
+                "points": [
+                  {
                     "x": 0,
                     "y": 2,
                   },
-                  Object {
+                  {
                     "x": 2,
                     "y": 4,
                   },
@@ -343,17 +343,17 @@ Object {
       ],
     },
   ],
-  "info": Object {
+  "info": {
     "author": "Alice",
     "title": "My Room",
   },
   "pageMargins": 0,
-  "pageSize": Object {
+  "pageSize": {
     "height": 1080,
     "width": 1920,
   },
-  "styles": Object {
-    "emoji": Object {
+  "styles": {
+    "emoji": {
       "font": "Noto Emoji",
     },
   },

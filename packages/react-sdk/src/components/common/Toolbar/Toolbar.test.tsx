@@ -16,7 +16,8 @@
 
 import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { axe } from 'jest-axe';
+import axe from 'axe-core';
+import { describe, expect, it, vi } from 'vitest';
 import { Toolbar } from './Toolbar';
 import { ToolbarButton } from './ToolbarButton';
 import { ToolbarRadio } from './ToolbarRadio';
@@ -74,7 +75,7 @@ describe('Toolbar', () => {
       </Toolbar>,
     );
 
-    expect(await axe(container)).toHaveNoViolations();
+    expect(await axe.run(container)).toHaveNoViolations();
   });
 
   it('should make the first toolbar item focusable', async () => {
@@ -381,7 +382,7 @@ describe('Toolbar', () => {
 
   it.each(['[SPACE]', '[ENTER]'])(
     'should select the radio item on %p',
-    async (key) => {
+    async (key: string) => {
       render(
         <Toolbar aria-label="Toolbar">
           <ToolbarToggle inputProps={{ 'aria-label': 'A' }} />
@@ -454,7 +455,7 @@ describe('Toolbar', () => {
   });
 
   it('should open the submenu when using the arrow down key', async () => {
-    const onClick = jest.fn();
+    const onClick = vi.fn();
     render(
       <Toolbar aria-label="Toolbar">
         <ToolbarSubMenu onClick={onClick}>A</ToolbarSubMenu>

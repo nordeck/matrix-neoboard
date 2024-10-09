@@ -15,6 +15,7 @@
  */
 
 import { firstValueFrom, Subject, take, toArray } from 'rxjs';
+import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
 import { mockLineElement } from '../lib/testUtils/documentTestUtils';
 import { mockWhiteboard } from '../lib/testUtils/matrixTestUtils';
 import {
@@ -45,12 +46,10 @@ const slide0 = 'IN4h74suMiIAK4AVMAdl_';
 describe('WhiteboardInstanceImpl', () => {
   let observeCommunicationStatisticsSubject: Subject<CommunicationChannelStatistics>;
   let observeIsLoadingSubject: Subject<boolean>;
-  let communicationChannel: jest.Mocked<CommunicationChannel>;
+  let communicationChannel: Mocked<CommunicationChannel>;
   let messageSubject: Subject<Message>;
   let observeDocumentStatisticsSubject: Subject<DocumentStatistics>;
-  let synchronizedDocument: jest.Mocked<
-    SynchronizedDocument<WhiteboardDocument>
-  >;
+  let synchronizedDocument: Mocked<SynchronizedDocument<WhiteboardDocument>>;
   let document: Document<WhiteboardDocument>;
 
   beforeEach(async () => {
@@ -61,26 +60,26 @@ describe('WhiteboardInstanceImpl', () => {
     messageSubject = new Subject<Message>();
 
     communicationChannel = {
-      broadcastMessage: jest.fn(),
-      observeMessages: jest.fn().mockReturnValue(messageSubject),
-      getStatistics: jest
+      broadcastMessage: vi.fn(),
+      observeMessages: vi.fn().mockReturnValue(messageSubject),
+      getStatistics: vi
         .fn()
         .mockReturnValue({ localSessionId: 'own', peerConnections: {} }),
-      observeStatistics: jest
+      observeStatistics: vi
         .fn()
         .mockReturnValue(observeCommunicationStatisticsSubject),
-      destroy: jest.fn(),
+      destroy: vi.fn(),
     };
 
     document = createWhiteboardDocument();
 
     synchronizedDocument = {
-      getDocument: jest.fn().mockReturnValue(document),
-      destroy: jest.fn(),
-      observeDocumentStatistics: jest
+      getDocument: vi.fn().mockReturnValue(document),
+      destroy: vi.fn(),
+      observeDocumentStatistics: vi
         .fn()
         .mockReturnValue(observeDocumentStatisticsSubject),
-      observeIsLoading: jest.fn().mockReturnValue(observeIsLoadingSubject),
+      observeIsLoading: vi.fn().mockReturnValue(observeIsLoadingSubject),
     };
   });
 
@@ -132,7 +131,7 @@ describe('WhiteboardInstanceImpl', () => {
       '@user-id',
     );
 
-    const destroySlideSpy = jest.spyOn(
+    const destroySlideSpy = vi.spyOn(
       whiteboardInstance.getSlide(slide0) as WhiteboardSlideInstanceImpl,
       'destroy',
     );
@@ -363,7 +362,7 @@ describe('WhiteboardInstanceImpl', () => {
 
     expect(whiteboardInstance.getSlideIds()).toEqual([slide0, slide1, slide2]);
 
-    const destroySlideSpy = jest.spyOn(
+    const destroySlideSpy = vi.spyOn(
       whiteboardInstance.getSlide(slide1) as WhiteboardSlideInstanceImpl,
       'destroy',
     );
@@ -624,7 +623,7 @@ describe('WhiteboardInstanceImpl', () => {
     const activeSlideId = firstValueFrom(
       whiteboardInstance.observeActiveSlideId().pipe(toArray()),
     );
-    const destroySlideSpy = jest.spyOn(
+    const destroySlideSpy = vi.spyOn(
       whiteboardInstance.getSlide(slide0) as WhiteboardSlideInstanceImpl,
       'destroy',
     );

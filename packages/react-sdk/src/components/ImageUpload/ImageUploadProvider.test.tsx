@@ -21,12 +21,13 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { IUploadFileActionFromWidgetResponseData } from 'matrix-widget-api';
 import { act, ComponentType, PropsWithChildren } from 'react';
 import { ErrorCode, FileRejection } from 'react-dropzone';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { SnackbarContext } from '../Snackbar/SnackbarProvider';
 import { ImageUploadProvider } from './ImageUploadProvider';
 import { useImageUpload } from './useImageUpload';
 
-jest.mock('../../lib', () => ({
-  ...jest.requireActual('../../lib'),
+vi.mock('../../lib', async () => ({
+  ...(await vi.importActual<typeof import('../../lib')>('../../lib')),
   determineImageSize: () => {
     // Always return a static value here, because js-dom doesn't implement Image.
     return Promise.resolve({ width: 40, height: 20 });
@@ -41,9 +42,9 @@ describe('<ImageUploadProvider />', () => {
 
   beforeEach(() => {
     widgetApi = mockWidgetApi();
-    showSnackbar = jest.fn();
-    clearSnackbar = jest.fn();
-    jest.spyOn(console, 'error');
+    showSnackbar = vi.fn();
+    clearSnackbar = vi.fn();
+    vi.spyOn(console, 'error');
 
     Wrapper = ({ children }) => {
       return (
@@ -60,7 +61,7 @@ describe('<ImageUploadProvider />', () => {
 
   afterEach(() => {
     widgetApi.stop();
-    jest.mocked(console.error).mockRestore();
+    vi.spyOn(console, 'error').mockRestore();
   });
 
   it('should upload an image', async () => {
@@ -97,7 +98,7 @@ describe('<ImageUploadProvider />', () => {
   });
 
   it('should catch read file errors', async () => {
-    jest.mocked(console.error).mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementation(() => {});
     const { result } = renderHook(useImageUpload, {
       wrapper: Wrapper,
     });
@@ -106,7 +107,7 @@ describe('<ImageUploadProvider />', () => {
       type: 'image/jpeg',
     });
     const readFileError = new Error('error reading file');
-    jest.mocked(file.arrayBuffer).mockRejectedValue(readFileError);
+    vi.spyOn(file, 'arrayBuffer').mockRejectedValue(readFileError);
 
     let results;
     await act(async () => {
@@ -126,7 +127,7 @@ describe('<ImageUploadProvider />', () => {
   });
 
   it('should catch upload file errors', async () => {
-    jest.mocked(console.error).mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementation(() => {});
     const { result } = renderHook(useImageUpload, {
       wrapper: Wrapper,
     });
@@ -242,7 +243,7 @@ describe('<ImageUploadProvider />', () => {
   });
 
   it('should show a snackbar for images that failed for other reasons', async () => {
-    jest.mocked(console.error).mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementation(() => {});
     const { result } = renderHook(useImageUpload, {
       wrapper: Wrapper,
     });
@@ -251,7 +252,7 @@ describe('<ImageUploadProvider />', () => {
       type: 'image/jpeg',
     });
     const readFileError = new Error('error reading file');
-    jest.mocked(file.arrayBuffer).mockRejectedValue(readFileError);
+    vi.spyOn(file, 'arrayBuffer').mockRejectedValue(readFileError);
     await act(async () => {
       await result.current.handleDrop([file], []);
     });
