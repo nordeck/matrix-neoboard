@@ -615,6 +615,7 @@ describe('SynchronizedDocumentImpl', () => {
     const emitResponse = new Subject<void>();
 
     widgetApi.sendRoomEvent.mockImplementation(
+      // @ts-expect-error - ignore the type error
       async (type: string, content: object) => {
         if (type === 'net.nordeck.whiteboard.document.snapshot') {
           return widgetApi.mockSendRoomEvent({
