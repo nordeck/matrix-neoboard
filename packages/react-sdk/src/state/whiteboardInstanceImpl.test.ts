@@ -81,6 +81,7 @@ describe('WhiteboardInstanceImpl', () => {
         .fn()
         .mockReturnValue(observeDocumentStatisticsSubject),
       observeIsLoading: jest.fn().mockReturnValue(observeIsLoadingSubject),
+      persist: jest.fn(),
     };
   });
 

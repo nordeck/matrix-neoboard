@@ -452,6 +452,10 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
     this.communicationChannel.destroy();
   }
 
+  async persist() {
+    await this.synchronizedDocument.persist();
+  }
+
   clearUndoManager(): void {
     this.synchronizedDocument.getDocument().getUndoManager().clear();
   }

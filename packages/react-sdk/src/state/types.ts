@@ -36,6 +36,8 @@ export type WhiteboardManager = {
   ): void;
   /** Get the active whiteboard instance */
   getActiveWhiteboardInstance(): WhiteboardInstance | undefined;
+  /** Clean up the current whiteboard. */
+  clear(): void;
 };
 
 export type DocumentSyncStatistics = DocumentStatistics & {
@@ -134,6 +136,15 @@ export type WhiteboardInstance = {
 
   /** Clear the undo manager */
   clearUndoManager(): void;
+
+  /**
+   * Destroy the whiteboard. For example clear listeners.
+   * The whiteboard should no longer be used after the call.
+   */
+  destroy(): void;
+
+  /** Persist the whiteboard state. */
+  persist(): Promise<void>;
 };
 
 export type ElementUpdate = {
@@ -245,6 +256,8 @@ export type SynchronizedDocument<T extends Record<string, unknown>> = {
   observeIsLoading(): Observable<boolean>;
   /** Destroy the document to cleanup all open connections. */
   destroy(): void;
+  /** Persist the document immediately. */
+  persist(): Promise<void>;
 };
 
 export type PresentationState =
