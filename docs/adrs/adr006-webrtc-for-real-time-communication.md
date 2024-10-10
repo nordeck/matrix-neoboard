@@ -30,7 +30,7 @@ The requirements for the communication layer are:
 <!-- This section describes our response to these forces. It is stated in full
 sentences, with active voice. "We will ..." -->
 
-We will use [WebRTC][webrtc] to setup peer-to-peer connections between whiteboard participants as a full mesh.
+We will use [WebRTC][webrtc] to set up peer-to-peer connections between whiteboard participants as a full mesh.
 Our design is similar to [MSC 3401][msc3401] that describes the basis for Element Call, however our solution is a bit simplified as our requirements differ.
 
 ```
@@ -98,7 +98,7 @@ The whiteboard widget has to take care to remove old sessions that are expired w
 
 Every whiteboard participant queries and monitors the `net.nordeck.whiteboard.sessions` state events to discover active sessions.
 
-To setup a full mesh, the whiteboard creates a peer-to-peer connection to each of these sessions (except it's own session, but including other sessions of the own user).
+To set up a full mesh, the whiteboard creates a peer-to-peer connection to each of these sessions (except its own session, however, including other sessions of the current user).
 
 As there is no reliable way to remove inactive sessions, the list of active sessions might contain false-positives.
 The whiteboard widget still has to try a connection attempt and ignore all failed attempts.
@@ -114,7 +114,7 @@ Instead, it's left as a challenge for the implementer of the application.
 [MSC 2746][msc2746] already describes a signaling process for WebRTC utilized in group calls.
 However, our requirements differ a bit as we don't require the call semantic.
 But we still follow the same pattern and use [_to device messages_][todevicemessages] to exchange signaling messages between two sessions.
-A _to device messages_ of type `net.nordeck.whiteboard.connection_signaling` is used to exchange ICE candidates and session descriptions.
+A _to device messages_ of type `net.nordeck.whiteboard.connection_signaling` is used to exchange Interactive Connectivity Establishment (ICE) candidates and session descriptions.
 The exact message content, order, and flow are not further described, but rely on the behavior of WebRTC.
 
 ```json

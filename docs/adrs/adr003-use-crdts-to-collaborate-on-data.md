@@ -85,7 +85,7 @@ Storing the data in a CRDT makes operations independent from Matrix, which has t
 Note that the power level authorization system of Matrix protocol is not effective once end-to-end encryption is used, as the home server is not able to introspect the event types send by clients.
 With CRDTs we have no central authority to govern operations on the shared CRDT state, all operations are performed in the distributed system.
 Features like locked elements of slides can therefore only be implemented as visual features.
-Clients, for example ones that are modified, can not be prevented from performing these operations.
+Clients, for example ones that are modified, cannot be prevented from performing these operations.
 This requires trust between all peers that take part in editing the state.
 However, membership of the Matrix rooms is an authorization system that is still in place.
 
