@@ -58,7 +58,7 @@ export const AppContainer = ({
               widgetApiPromise={widgetApiPromise}
               widgetRegistration={{
                 name: 'NeoBoard',
-                // "map" suffix to get a custom icon
+                // "pad" suffix to get a custom icon
                 type: 'net.nordeck.whiteboard:pad',
               }}
             >
