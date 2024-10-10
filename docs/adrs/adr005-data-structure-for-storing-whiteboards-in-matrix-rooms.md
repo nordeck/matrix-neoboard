@@ -15,7 +15,7 @@ social, and project local. These forces are probably in tension, and should be
 called out as such. The language in this section is value-neutral. It is simply
 describing facts. -->
 
-As described in [ADR002][adr002], the architecture of the whiteboard is multi layered.
+As described in [ADR002][adr002], the architecture of the whiteboard is multi-layered.
 One layer is the persistent storage layer, which is used to store the whiteboard into the room for long-term storage.
 The requirements for the persistent layer are:
 
@@ -34,14 +34,14 @@ Main decisions:
 
 1. We use room events to store all data because they support end-to-end encryption and allow us to have individually addressable snapshots (in contrast to state event history).
 2. We use [“Event Relationships”][msc2674-relationships] to efficiently and reliably access all relevant room events.
-3. We support chunking to be able to support whiteboards that exceed the [size limit of 64kb][matrix-size-limits] of a single matrix event.
+3. We support chunking to be able to support whiteboards that exceed the [size limit of 64kb][matrix-size-limits] of a single Matrix event.
 
 ### Chunking
 
 Matrix events have a maximum size of [64kb][matrix-size-limits], including any metadata that is added during federation (like headers, trailers, or signatures).
 End-to-encryption encodes the complete event with base64 and further reduces the [available payload][matrix-size-limits-encrypted].
-We will split the input stream into 34kb blocks and encode the data using base64 (~33% overhead; 34kb payload -> ~45kb string -> ~60kb encrypted + ~4kb for the matrix overhead < 64kb max event size).
-This leaves us a safety margin of around 4kb for any additional overhead that is added by the matrix protocol.
+We will split the input stream into 34kb blocks and encode the data using base64 (~33% overhead; 34kb payload -> ~45kb string -> ~60kb encrypted + ~4kb for the Matrix overhead < 64kb max event size).
+This leaves us a safety margin of around 4kb for any additional overhead that is added by the Matrix protocol.
 
 ### Room events
 
