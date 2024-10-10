@@ -26,26 +26,26 @@ afterEach(() => widgetApi.stop());
 
 beforeEach(() => (widgetApi = mockWidgetApi()));
 
+const createTestWhiteboardManager = () => {
+  const store = createStore({ widgetApi });
+  return createWhiteboardManager(store, Promise.resolve(widgetApi));
+};
+
 describe('WhiteboardManagerImpl', () => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   it('should return undefined whiteboard instance', () => {
-    const store = createStore({ widgetApi });
-    const whiteboardManager = createWhiteboardManager(
-      store,
-      Promise.resolve(widgetApi),
-    );
+    const whiteboardManager = createTestWhiteboardManager();
 
     expect(whiteboardManager.getActiveWhiteboardInstance()).toBeUndefined();
   });
 
   it('should create whiteboard instance', () => {
-    const store = createStore({ widgetApi });
-    const whiteboardManager = createWhiteboardManager(
-      store,
-      Promise.resolve(widgetApi),
-    );
+    const whiteboardManager = createTestWhiteboardManager();
 
     const event = widgetApi.mockSendStateEvent(mockWhiteboard());
-
     whiteboardManager.selectActiveWhiteboardInstance(event, '@user-id');
 
     expect(whiteboardManager.getActiveWhiteboardInstance()).toBeInstanceOf(
@@ -54,11 +54,7 @@ describe('WhiteboardManagerImpl', () => {
   });
 
   it('should destroy a whiteboard when selecting a new one', () => {
-    const store = createStore({ widgetApi });
-    const whiteboardManager = createWhiteboardManager(
-      store,
-      Promise.resolve(widgetApi),
-    );
+    const whiteboardManager = createTestWhiteboardManager();
 
     const event0 = widgetApi.mockSendStateEvent(mockWhiteboard());
     const event1 = widgetApi.mockSendStateEvent(
@@ -79,5 +75,40 @@ describe('WhiteboardManagerImpl', () => {
     whiteboardManager.selectActiveWhiteboardInstance(event1, '@user-id');
 
     expect(destroySpy).toHaveBeenCalled();
+  });
+
+  describe('clear', () => {
+    it('should destroy and clear the whiteboard', () => {
+      const whiteboardManager = createTestWhiteboardManager();
+
+      // Hook into WhiteboardInstanceImpl.create to add a spy for destroy().
+      const originalCreate = WhiteboardInstanceImpl.create.bind(
+        WhiteboardInstanceImpl,
+      );
+      const createSpy = jest.spyOn(WhiteboardInstanceImpl, 'create');
+      createSpy.mockImplementation(
+        (...args: Parameters<typeof originalCreate>) => {
+          const whiteboard = originalCreate(...args);
+          jest.spyOn(whiteboard, 'destroy');
+          return whiteboard;
+        },
+      );
+
+      const whiteboardEvent = widgetApi.mockSendStateEvent(mockWhiteboard());
+      whiteboardManager.selectActiveWhiteboardInstance(
+        whiteboardEvent,
+        '@user:example.com',
+      );
+
+      const whiteboard = whiteboardManager.getActiveWhiteboardInstance();
+
+      expect(whiteboard).toBeDefined();
+
+      whiteboardManager.clear();
+
+      expect(whiteboard!.destroy).toHaveBeenCalled();
+
+      expect(whiteboardManager.getActiveWhiteboardInstance()).toBeUndefined();
+    });
   });
 });

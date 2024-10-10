@@ -56,6 +56,11 @@ export class WhiteboardManagerImpl implements WhiteboardManager {
   getActiveWhiteboardInstance(): WhiteboardInstance | undefined {
     return this.activeWhiteboard;
   }
+
+  clear() {
+    this.activeWhiteboard?.destroy();
+    this.activeWhiteboard = undefined;
+  }
 }
 
 export function createWhiteboardManager(
