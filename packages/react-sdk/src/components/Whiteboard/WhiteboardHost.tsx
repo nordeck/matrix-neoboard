@@ -76,7 +76,7 @@ const WhiteboardHost = ({
       <SvgCanvas
         viewportHeight={whiteboardHeight}
         viewportWidth={whiteboardWidth}
-        onMouseMove={(position) => {
+        onPointerMove={(position) => {
           slideInstance.publishCursorPosition(position);
         }}
         additionalChildren={

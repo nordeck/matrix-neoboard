@@ -104,7 +104,7 @@ describe('<UnSelectElementHandler/>', () => {
   it('should set the drag select start coordinates on mouse down', async () => {
     render(<UnSelectElementHandler />, { wrapper: Wrapper });
 
-    fireEvent.mouseDown(screen.getByTestId('unselect-element-layer'));
+    fireEvent.pointerDown(screen.getByTestId('unselect-element-layer'));
 
     expect(dragSelectStartCoords).toEqual({ x: 23, y: 42 });
   });

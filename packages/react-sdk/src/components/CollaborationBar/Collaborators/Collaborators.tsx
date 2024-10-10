@@ -23,7 +23,7 @@ import {
   MenuItemProps,
 } from '@mui/material';
 import { unstable_useId as useId } from '@mui/utils';
-import { MouseEvent, useCallback, useMemo, useState } from 'react';
+import { PointerEvent, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActiveWhiteboardMember,
@@ -68,7 +68,7 @@ export function Collaborators() {
   const open = Boolean(anchorEl);
 
   const handleMoreButtonClick = useCallback(
-    (event: MouseEvent<HTMLButtonElement>) => {
+    (event: PointerEvent<HTMLButtonElement>) => {
       setAnchorEl(event.currentTarget);
     },
     [],

@@ -22,7 +22,7 @@ import {
   Switch,
 } from '@mui/material';
 import { unstable_useId as useId } from '@mui/utils';
-import { KeyboardEvent, MouseEvent, ReactNode, useCallback } from 'react';
+import { KeyboardEvent, PointerEvent, ReactNode, useCallback } from 'react';
 
 export type MenuItemSwitchProps = {
   checked: boolean;
@@ -58,11 +58,14 @@ export function MenuItemSwitch({
     onClick();
   }, [onChange, onClick, checked]);
 
-  const handleSwitchClick = useCallback((e: MouseEvent<HTMLButtonElement>) => {
-    // Don't forward the click to the menu item, otherwise the menu would
-    // close
-    e.stopPropagation();
-  }, []);
+  const handleSwitchClick = useCallback(
+    (e: PointerEvent<HTMLButtonElement>) => {
+      // Don't forward the click to the menu item, otherwise the menu would
+      // close
+      e.stopPropagation();
+    },
+    [],
+  );
 
   const handleSwitchChange = useCallback(
     (_: unknown, value: boolean) => {
