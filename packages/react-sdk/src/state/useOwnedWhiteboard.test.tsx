@@ -25,6 +25,10 @@ import {
   mockPowerLevelsEvent,
   mockWhiteboard,
 } from '../lib/testUtils/matrixTestUtils';
+import {
+  ROOM_EVENT_DOCUMENT_CHUNK,
+  ROOM_EVENT_DOCUMENT_SNAPSHOT,
+} from '../model';
 import { createStore } from '../store';
 import { useOwnedWhiteboard } from './useOwnedWhiteboard';
 
@@ -167,7 +171,7 @@ describe('useOwnedWhiteboard', () => {
     // expect(result.error).toEqual(new Error('could not load whiteboards'));
   });
 
-  it('should create a new whiteboard', async () => {
+  it('should create a new document, snapshot and whiteboard', async () => {
     widgetApi.mockSendStateEvent(mockPowerLevelsEvent());
 
     const { result } = renderHook(() => useOwnedWhiteboard(), {
@@ -189,6 +193,32 @@ describe('useOwnedWhiteboard', () => {
     expect(widgetApi.sendRoomEvent).toHaveBeenCalledWith(
       'net.nordeck.whiteboard.document.create',
       {},
+    );
+
+    // Expect a snapshot with a chunk
+    expect(widgetApi.sendRoomEvent).toHaveBeenCalledWith(
+      ROOM_EVENT_DOCUMENT_SNAPSHOT,
+      {
+        chunkCount: 1,
+        'm.relates_to': {
+          // $event-2 is the ID of the document event
+          event_id: '$event-2',
+          rel_type: 'm.reference',
+        },
+      },
+    );
+    expect(widgetApi.sendRoomEvent).toHaveBeenCalledWith(
+      ROOM_EVENT_DOCUMENT_CHUNK,
+      {
+        documentId: '$event-2',
+        sequenceNumber: 0,
+        'm.relates_to': {
+          // $event-3 is the ID of the snapshot event
+          event_id: '$event-3',
+          rel_type: 'm.reference',
+        },
+        data: expect.any(String),
+      },
     );
 
     const documentId = await widgetApi.sendRoomEvent.mock.results[0].value.then(
