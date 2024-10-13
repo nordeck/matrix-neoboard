@@ -40,7 +40,7 @@
     "dev": "yarn workspace @nordeck/matrix-neoboard-widget dev",
     "dev:https": "yarn workspace @nordeck/matrix-neoboard-widget dev:https",
     "build": "yarn workspaces run build",
-    "test": "vitest watch",
+    "test": "vitest",
     "test:all": "vitest run --coverage",
     "test:update_snapshots": "vitest -u",
     "tsc": "yarn workspaces run tsc",
