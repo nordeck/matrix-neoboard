@@ -150,7 +150,7 @@ In the following ADRs, the architecture is further refined and specified:
 
 - [ADR003: Use CRDTs to collaborate on data](./adr003-use-crdts-to-collaborate-on-data.md)
 - [ADR004: Using Yjs as a CRDT implementation](./adr004-using-yjs-as-a-crdt-implementation.md)
-- [ADR005: Data structure for storing whiteboards in matrix rooms](./adr005-data-structure-for-storing-whiteboards-in-matrix-rooms.md)
+- [ADR005: Data structure for storing whiteboards in Matrix rooms](./adr005-data-structure-for-storing-whiteboards-in-matrix-rooms.md)
 - [ADR006: WebRTC for real-time communication](./adr006-webrtc-for-real-time-communication.md)
 - [ADR007: Local storage for offline capabilities](./adr007-local-storage-for-offline-capabilities.md)
 

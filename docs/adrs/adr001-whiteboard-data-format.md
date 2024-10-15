@@ -14,9 +14,9 @@ This section describes the forces at play, including technological, political, s
 
 The whiteboard widget with the collaboration features needs a reliable data source to show a consistent image to every participant.
 There are limitations on the data quality that the Widget API provides.
-It is based on the Client's (ex: Element) local timeline, which provides all available state events (ex: slides), but might only provide a limited window of room events (ex: elements) of the complete room timeline.
-This leads to the situation where the widget can't be sure whether all elements that are available on the homeserver are also made available by the Widget API.
-[“Event Relationships”][msc2674-relationships] and [“Serverside aggregations of message relationships”][msc2675-relation-server-aggregation] are features of the Client-Server API that allows us to relate events to each other and retrieve a collection of related events from the server.
+It is based on the client's (ex: Element) local timeline, which provides all available state events (ex: slides), but might only provide a limited window of room events (ex: elements) of the complete room timeline.
+This leads to the situation where the widget can't be sure whether all elements available on the homeserver are also available via the Widget API.
+[“Event Relationships”][msc2674-relationships] and [“Serverside aggregations of message relationships”][msc2675-relation-server-aggregation] are features of the Client-Server API which allow us to relate events to each other and retrieve a collection of related events from the server.
 [MSC3869][msc3869-widget-api-relations] brings this feature to the Widget API and enables us to provide a reliable and deterministic way to load elements in the widget.
 
 We want to be able to use `readEventRelations` of [MSC3869][msc3869-widget-api-relations] instead of `receiveRoomEvents` to read the elements.
@@ -214,7 +214,7 @@ When the slide event could not be loaded, the respective slide should be disable
 These errors can happen when:
 
 1. The history visibility of the whiteboard is configured so that users can't see events before they joined.
-2. The Client can't decrypt some events of a slide.
+2. The client can't decrypt some events of a slide.
 
 In the future, we could implement a repair feature where a moderator could rewrite all events of a slide to the room.
 This could resolve **1.** and potentially also **2.** if the keys are missing due to not receiving old keys in the room invitation.
