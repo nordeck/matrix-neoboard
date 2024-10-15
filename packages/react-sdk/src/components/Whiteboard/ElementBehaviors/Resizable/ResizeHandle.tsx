@@ -213,7 +213,7 @@ export function ResizeHandle(props: ResizeHandleProps) {
     [onDragStop, dispatchDragEvent],
   );
 
-  const handleMouseDown = useCallback((ev: MouseEvent) => {
+  const handlePointerDown = useCallback((ev: MouseEvent) => {
     // Avoid passing mouse events down into the moveable element
     ev.stopPropagation();
   }, []);
@@ -225,7 +225,7 @@ export function ResizeHandle(props: ResizeHandleProps) {
       enableUserSelectHack={false}
       nodeRef={nodeRef as unknown as RefObject<HTMLElement>}
       onDrag={handleDrag}
-      onMouseDown={handleMouseDown}
+      onMouseDown={handlePointerDown}
       onStart={handleStart}
       onStop={handleStop}
       scale={scale}

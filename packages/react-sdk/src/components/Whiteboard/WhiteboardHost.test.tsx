@@ -166,15 +166,15 @@ describe('<WhiteboardHost/>', () => {
 
     // move 150px on x and 250px on y axis
     const border = screen.getByTestId('element-0-border-top');
-    fireEvent.mouseDown(border, {
+    fireEvent.pointerDown(border, {
       clientX: 150,
       clientY: 150,
     });
-    fireEvent.mouseMove(border, {
+    fireEvent.pointerMove(border, {
       clientX: 300,
       clientY: 400,
     });
-    fireEvent.mouseUp(border);
+    fireEvent.pointerUp(border);
 
     expect(activeSlide.getElement('element-0')?.position).toEqual({
       x: 160,

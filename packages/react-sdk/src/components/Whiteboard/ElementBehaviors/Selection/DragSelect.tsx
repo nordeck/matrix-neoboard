@@ -15,7 +15,7 @@
  */
 
 import { styled, useTheme } from '@mui/material';
-import { MouseEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import { PointerEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Point,
   ShapeElement,
@@ -101,12 +101,12 @@ export function DragSelect() {
     }
   }, [shape, slideInstance]);
 
-  const handleMouseUp = useCallback(() => {
+  const handlePointerUp = useCallback(() => {
     setDragSelectStartCoords();
   }, [setDragSelectStartCoords]);
 
-  const handleMouseMove = useCallback(
-    (event: MouseEvent<SVGRectElement>) => {
+  const handlePointerMove = useCallback(
+    (event: PointerEvent<SVGRectElement>) => {
       const point = calculateSvgCoords({ x: event.clientX, y: event.clientY });
       setEndCoords(point);
     },
@@ -129,8 +129,8 @@ export function DragSelect() {
       <rect
         fill="transparent"
         height="100%"
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
         width="100%"
         data-testid="drag-select-layer"
       />
