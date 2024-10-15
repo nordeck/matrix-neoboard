@@ -22,6 +22,7 @@ import { useAsync } from 'react-use';
 import { STATE_EVENT_WHITEBOARD_SESSIONS, Whiteboard } from '../model';
 import { useAppDispatch } from '../store';
 import {
+  documentSnapshotApi,
   selectAllWhiteboards,
   selectWhiteboardById,
   useCreateDocumentMutation,
@@ -30,6 +31,7 @@ import {
   useUpdateWhiteboardMutation,
 } from '../store/api';
 import { usePowerLevels } from '../store/api/usePowerLevels';
+import { createWhiteboardDocument } from './crdt';
 
 type UseOwnedWhiteboardResponse =
   | { loading: true; value?: undefined }
@@ -88,6 +90,17 @@ export function useOwnedWhiteboard(): UseOwnedWhiteboardResponse {
       }
 
       const documentId = (await createDocument().unwrap()).event.event_id;
+
+      // Create initial empty snapshot, so that there is always a snapshot.
+      // This is done to reduce "cannot find snapshot" messages when creating new boards.
+      const document = createWhiteboardDocument();
+      await dispatch(
+        documentSnapshotApi.endpoints.createDocumentSnapshot.initiate({
+          documentId,
+          data: document.store(),
+        }),
+      ).unwrap();
+
       const result = await updateWhiteboard({
         whiteboardId: widgetApi.widgetId,
         content: {
