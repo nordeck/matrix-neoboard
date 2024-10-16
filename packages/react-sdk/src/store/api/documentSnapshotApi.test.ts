@@ -407,17 +407,14 @@ describe('createDocumentSnapshot', () => {
 
   it('should accept failing chunks', async () => {
     widgetApi.sendRoomEvent
-      .mockImplementationOnce(
-        // @ts-expect-error - ignore the type error
-        async (type: string, content: object) => ({
-          type,
-          content,
-          event_id: '$snapshot-event-id',
-          origin_server_ts: 0,
-          room_id: '!room-id',
-          sender: '@user-id',
-        }),
-      )
+      .mockImplementationOnce(async <T>(type: string, content: T) => ({
+        type,
+        content,
+        event_id: '$snapshot-event-id',
+        origin_server_ts: 0,
+        room_id: '!room-id',
+        sender: '@user-id',
+      }))
       .mockRejectedValueOnce(new Error('Timeout'));
 
     const store = createStore({ widgetApi });
