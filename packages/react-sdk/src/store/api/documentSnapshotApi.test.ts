@@ -416,7 +416,8 @@ describe('createDocumentSnapshot', () => {
           origin_server_ts: 0,
           room_id: '!room-id',
           sender: '@user-id',
-        }))
+        }),
+      )
       .mockRejectedValueOnce(new Error('Timeout'));
 
     const store = createStore({ widgetApi });
