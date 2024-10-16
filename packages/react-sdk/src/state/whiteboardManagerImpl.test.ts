@@ -36,7 +36,7 @@ const createTestWhiteboardManager = () => {
 
 describe('WhiteboardManagerImpl', () => {
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it('should return undefined whiteboard instance', () => {
@@ -88,11 +88,11 @@ describe('WhiteboardManagerImpl', () => {
       const originalCreate = WhiteboardInstanceImpl.create.bind(
         WhiteboardInstanceImpl,
       );
-      const createSpy = jest.spyOn(WhiteboardInstanceImpl, 'create');
+      const createSpy = vi.spyOn(WhiteboardInstanceImpl, 'create');
       createSpy.mockImplementation(
         (...args: Parameters<typeof originalCreate>) => {
           const whiteboard = originalCreate(...args);
-          jest.spyOn(whiteboard, 'destroy');
+          vi.spyOn(whiteboard, 'destroy');
           return whiteboard;
         },
       );
