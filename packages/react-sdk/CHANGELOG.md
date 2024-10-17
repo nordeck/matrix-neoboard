@@ -1,5 +1,15 @@
 # @nordeck/matrix-neoboard-react-sdk
 
+## 0.3.0
+
+### Minor Changes
+
+- 9eed0b8: New API functions: WhiteboardManager.clear, WhiteboardInstance.persist and WhiteboardInstance.destroy
+
+### Patch Changes
+
+- db08392: A snapshot is sent when a new document is created
+
 ## 0.2.2
 
 ### Patch Changes
