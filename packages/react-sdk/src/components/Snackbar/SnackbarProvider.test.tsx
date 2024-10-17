@@ -16,6 +16,7 @@
 
 import { act, renderHook } from '@testing-library/react';
 import { ComponentType, PropsWithChildren } from 'react';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { SnackbarProvider } from './SnackbarProvider';
 import { useSnackbar } from './useSnackbar';
 

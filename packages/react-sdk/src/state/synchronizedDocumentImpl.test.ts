@@ -27,6 +27,15 @@ import {
   take,
   toArray,
 } from 'rxjs';
+import {
+  Mocked,
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
 import * as Y from 'yjs';
 import {
   mockDocumentCreate,
@@ -44,27 +53,31 @@ let widgetApi: MockedWidgetApi;
 
 afterEach(() => widgetApi.stop());
 
-beforeEach(() => (widgetApi = mockWidgetApi()));
+beforeEach(() => {
+  widgetApi = mockWidgetApi();
+});
 
-afterEach(() => jest.useRealTimers());
+afterEach(() => {
+  vi.useRealTimers();
+});
 
 describe('SynchronizedDocumentImpl', () => {
-  let communicationChannel: jest.Mocked<CommunicationChannel>;
-  let storage: jest.Mocked<DocumentStorage>;
+  let communicationChannel: Mocked<CommunicationChannel>;
+  let storage: Mocked<DocumentStorage>;
   let messageChannel: Subject<Message>;
 
   beforeEach(async () => {
     messageChannel = new Subject<Message>();
     communicationChannel = {
-      broadcastMessage: jest.fn(),
-      observeMessages: jest.fn().mockReturnValue(messageChannel),
-      getStatistics: jest.fn(),
-      observeStatistics: jest.fn().mockReturnValue(NEVER),
-      destroy: jest.fn(),
+      broadcastMessage: vi.fn(),
+      observeMessages: vi.fn().mockReturnValue(messageChannel),
+      getStatistics: vi.fn(),
+      observeStatistics: vi.fn().mockReturnValue(NEVER),
+      destroy: vi.fn(),
     };
     storage = {
-      load: jest.fn().mockResolvedValue(undefined),
-      store: jest.fn().mockResolvedValue(undefined),
+      load: vi.fn().mockResolvedValue(undefined),
+      store: vi.fn().mockResolvedValue(undefined),
     };
 
     widgetApi.mockSendStateEvent(mockWhiteboard());
@@ -532,7 +545,7 @@ describe('SynchronizedDocumentImpl', () => {
   });
 
   it('should persist a snapshot in the room', async () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
 
     const doc = createExampleDocument();
     const store = createStore({ widgetApi });
@@ -579,9 +592,9 @@ describe('SynchronizedDocumentImpl', () => {
 
     await isReady;
 
-    jest.advanceTimersByTime(5000);
+    vi.advanceTimersByTime(5000);
 
-    await waitFor(() => {
+    await vi.waitFor(() => {
       expect(widgetApi.sendRoomEvent).toHaveBeenCalledTimes(2);
     });
 
@@ -597,38 +610,40 @@ describe('SynchronizedDocumentImpl', () => {
   });
 
   it('should skip persist calls if the snapshot creation is slower than the emit interval', async () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
 
     const emitResponse = new Subject<void>();
 
-    widgetApi.sendRoomEvent.mockImplementation(async (type, content) => {
-      if (type === 'net.nordeck.whiteboard.document.snapshot') {
-        return widgetApi.mockSendRoomEvent({
-          type,
-          content,
-          event_id: '$snapshot-event-id',
-          origin_server_ts: 0,
-          room_id: '!room-id',
-          sender: '@user-id',
-        });
-      }
+    widgetApi.sendRoomEvent.mockImplementation(
+      async <T>(type: string, content: T) => {
+        if (type === 'net.nordeck.whiteboard.document.snapshot') {
+          return widgetApi.mockSendRoomEvent({
+            type,
+            content,
+            event_id: '$snapshot-event-id',
+            origin_server_ts: 0,
+            room_id: '!room-id',
+            sender: '@user-id',
+          });
+        }
 
-      if (type === 'net.nordeck.whiteboard.document.chunk') {
-        // wait until the subject is completed
-        await lastValueFrom(emitResponse, { defaultValue: 0 });
+        if (type === 'net.nordeck.whiteboard.document.chunk') {
+          // wait until the subject is completed
+          await lastValueFrom(emitResponse, { defaultValue: 0 });
 
-        return widgetApi.mockSendRoomEvent({
-          type,
-          content,
-          event_id: '$chunk-event-id',
-          origin_server_ts: 0,
-          room_id: '!room-id',
-          sender: '@user-id',
-        });
-      }
+          return widgetApi.mockSendRoomEvent({
+            type,
+            content,
+            event_id: '$chunk-event-id',
+            origin_server_ts: 0,
+            room_id: '!room-id',
+            sender: '@user-id',
+          });
+        }
 
-      throw new Error('Unexpected event type');
-    });
+        throw new Error('Unexpected event type');
+      },
+    );
 
     const doc = createExampleDocument();
     const store = createStore({ widgetApi });
@@ -649,18 +664,18 @@ describe('SynchronizedDocumentImpl', () => {
     await isReady;
 
     doc.performChange((doc) => doc.set('num', 10));
-    jest.advanceTimersByTime(5000);
+    vi.advanceTimersByTime(5000);
 
-    await waitFor(() => {
+    await vi.waitFor(() => {
       expect(widgetApi.sendRoomEvent).toHaveBeenCalledTimes(2);
     });
 
     expectSnapshot();
 
     doc.performChange((doc) => doc.set('num', 11));
-    jest.advanceTimersByTime(5000);
+    vi.advanceTimersByTime(5000);
     doc.performChange((doc) => doc.set('num', 12));
-    jest.advanceTimersByTime(5000);
+    vi.advanceTimersByTime(5000);
 
     emitResponse.complete();
 

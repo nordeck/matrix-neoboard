@@ -14,11 +14,15 @@
  * limitations under the License.
  */
 
+// Prevent act warnings https://github.com/testing-library/react-testing-library/issues/1061
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(global as any).IS_REACT_ACT_ENVIRONMENT = true;
+
 // jest-dom adds custom jest matchers for asserting on DOM nodes.
 // allows you to do things like:
 // expect(element).toHaveTextContent(/react/i)
 // learn more: https://github.com/testing-library/jest-dom
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 
 // global.crypto is used by lib0 (introduced by yjs) that has no automatic
 // definition in jsdom

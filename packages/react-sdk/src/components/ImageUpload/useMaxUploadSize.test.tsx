@@ -18,15 +18,25 @@ import { WidgetApiMockProvider } from '@matrix-widget-toolkit/react';
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { renderHook, waitFor } from '@testing-library/react';
 import { ComponentType, PropsWithChildren } from 'react';
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  MockInstance,
+  vi,
+} from 'vitest';
 import { fallbackMaxUploadSize, useMaxUploadSize } from './useMaxUploadSize';
 
 describe('useMaxUploadSize', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
   let widgetApi: MockedWidgetApi;
+  let consoleSpy: MockInstance<typeof console.error>;
 
   beforeEach(() => {
     widgetApi = mockWidgetApi();
-    jest.spyOn(console, 'error');
+    consoleSpy = vi.spyOn(console, 'error');
 
     Wrapper = ({ children }) => (
       <WidgetApiMockProvider value={widgetApi}>
@@ -37,7 +47,7 @@ describe('useMaxUploadSize', () => {
 
   afterEach(() => {
     widgetApi.stop();
-    jest.mocked(console.error).mockRestore();
+    consoleSpy.mockRestore();
   });
 
   it('should provide the fallback size before loading', () => {
@@ -59,7 +69,7 @@ describe('useMaxUploadSize', () => {
   });
 
   it('should provide the fallback value if loading the value fails', async () => {
-    jest.mocked(console.error).mockImplementation(() => {});
+    consoleSpy.mockImplementation(() => {});
     const apiError = new Error('api error');
     widgetApi.getMediaConfig.mockImplementation(() => {
       throw apiError;

@@ -16,6 +16,7 @@
 
 import { waitFor } from '@testing-library/react';
 import { firstValueFrom, Observable, Subject, takeUntil } from 'rxjs';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { mockDocumentVisibilityState } from '../../lib/testUtils/domTestUtils';
 import {
   DocumentVisibilityState,

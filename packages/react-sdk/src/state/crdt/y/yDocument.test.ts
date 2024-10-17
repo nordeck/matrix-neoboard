@@ -15,6 +15,7 @@
  */
 
 import { firstValueFrom, map, take, toArray } from 'rxjs';
+import { describe, expect, it } from 'vitest';
 import * as Y from 'yjs';
 import { createMigrations } from './migrations';
 import { SharedMap, YText } from './types';

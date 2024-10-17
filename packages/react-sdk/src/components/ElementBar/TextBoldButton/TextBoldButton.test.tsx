@@ -17,8 +17,9 @@
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { axe } from 'jest-axe';
+import axe from 'axe-core';
 import { ComponentType, PropsWithChildren } from 'react';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
   WhiteboardTestingContextProvider,
   mockCircleElement,
@@ -35,7 +36,9 @@ let widgetApi: MockedWidgetApi;
 
 afterEach(() => widgetApi.stop());
 
-beforeEach(() => (widgetApi = mockWidgetApi()));
+beforeEach(() => {
+  widgetApi = mockWidgetApi();
+});
 
 describe('<TextBoldButton />', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
@@ -76,7 +79,7 @@ describe('<TextBoldButton />', () => {
 
   it('should have no accessibility violations', async () => {
     const { container } = render(<TextBoldButton />, { wrapper: Wrapper });
-    expect(await axe(container)).toHaveNoViolations();
+    expect(await axe.run(container)).toHaveNoViolations();
   });
 
   it('should reflect the bold text state of the first element', () => {

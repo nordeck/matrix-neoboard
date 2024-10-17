@@ -18,23 +18,26 @@ import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { MenuList } from '@mui/material';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { axe } from 'jest-axe';
+import axe from 'axe-core';
 import { ComponentType, PropsWithChildren } from 'react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { InfoDialog } from './InfoDialog';
 
-jest.mock('@matrix-widget-toolkit/mui', () => ({
-  ...jest.requireActual('@matrix-widget-toolkit/mui'),
-  getEnvironment: jest.fn(),
+vi.mock('@matrix-widget-toolkit/mui', async () => ({
+  ...(await vi.importActual<typeof import('@matrix-widget-toolkit/mui')>(
+    '@matrix-widget-toolkit/mui',
+  )),
+  getEnvironment: vi.fn(),
 }));
 
 describe('<InfoDialog/>', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
-  const onClose = jest.fn();
+  const onClose = vi.fn();
 
   beforeEach(() => {
-    jest
-      .mocked(getEnvironment)
-      .mockImplementation((_, defaultValue) => defaultValue);
+    vi.mocked(getEnvironment).mockImplementation(
+      (_, defaultValue) => defaultValue,
+    );
 
     Wrapper = ({ children }) => <MenuList>{children}</MenuList>;
   });
@@ -61,20 +64,22 @@ describe('<InfoDialog/>', () => {
       wrapper: Wrapper,
     });
 
-    expect(await axe(container)).toHaveNoViolations();
+    expect(await axe.run(container)).toHaveNoViolations();
   });
 
   it('should show the configured version and revision', async () => {
-    jest.mocked(getEnvironment).mockImplementation((name, defaultValue) => {
-      switch (name) {
-        case 'REACT_APP_VERSION':
-          return '1.0.0';
-        case 'REACT_APP_REVISION':
-          return '8070e9546f2f13732cd8db0bd29b4b61d9abc70e';
-        default:
-          return defaultValue;
-      }
-    });
+    vi.mocked(getEnvironment).mockImplementation(
+      (name: string, defaultValue: string) => {
+        switch (name) {
+          case 'REACT_APP_VERSION':
+            return '1.0.0';
+          case 'REACT_APP_REVISION':
+            return '8070e9546f2f13732cd8db0bd29b4b61d9abc70e';
+          default:
+            return defaultValue;
+        }
+      },
+    );
 
     render(<InfoDialog open onClose={onClose} />, { wrapper: Wrapper });
 

@@ -15,6 +15,7 @@
  */
 
 import { t } from 'i18next';
+import { describe, expect, it, vi } from 'vitest';
 import { formatKey, parseHotKeys, splitHotKeys } from './hotkeyUtils';
 
 describe('splitHotKeys', () => {
@@ -66,7 +67,7 @@ describe('formatKey', () => {
     ${'backspace'} | ${'⌫'}
     ${'delete'}    | ${'⌦'}
   `('should format $key key as $output on Mac', ({ key, output }) => {
-    jest.spyOn(window.navigator, 'userAgent', 'get').mockReturnValue('Mac OS');
+    vi.spyOn(window.navigator, 'userAgent', 'get').mockReturnValue('Mac OS');
 
     expect(formatKey(key, t)).toBe(output);
   });

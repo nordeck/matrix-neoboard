@@ -17,6 +17,7 @@
 import { act, renderHook } from '@testing-library/react';
 import { ComponentType, PropsWithChildren } from 'react';
 import { Subject, of } from 'rxjs';
+import { Mocked, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   mockPeerConnectionStatistics,
   mockWhiteboardManager,
@@ -37,7 +38,7 @@ import {
 import { WhiteboardManagerProvider } from './useWhiteboardManager';
 
 let Wrapper: ComponentType<PropsWithChildren<{}>>;
-let whiteboardManager: jest.Mocked<WhiteboardManager>;
+let whiteboardManager: Mocked<WhiteboardManager>;
 let activeWhiteboardInstance: WhiteboardInstance;
 
 beforeEach(() => {
@@ -64,7 +65,7 @@ describe('useActiveWhiteboardInstance', () => {
 
   it('hook should throw if no active whiteboard instance is available', () => {
     whiteboardManager.getActiveWhiteboardInstance.mockReturnValue(undefined);
-    jest.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     expect(() =>
       renderHook(() => useActiveWhiteboardInstance(), {
@@ -72,7 +73,7 @@ describe('useActiveWhiteboardInstance', () => {
       }),
     ).toThrow(Error('No active whiteboard instance'));
 
-    jest.mocked(console.error).mockRestore();
+    consoleSpy.mockRestore();
   });
 });
 
@@ -100,7 +101,7 @@ describe('useActiveWhiteboardInstanceSlideIds', () => {
 
   it('hook should throw if no active whiteboard instance is available', () => {
     whiteboardManager.getActiveWhiteboardInstance.mockReturnValue(undefined);
-    jest.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     expect(() =>
       renderHook(() => useActiveWhiteboardInstance(), {
@@ -108,7 +109,7 @@ describe('useActiveWhiteboardInstanceSlideIds', () => {
       }),
     ).toThrow(Error('No active whiteboard instance'));
 
-    jest.mocked(console.error).mockRestore();
+    consoleSpy.mockRestore();
   });
 });
 
@@ -132,13 +133,14 @@ describe('useActiveWhiteboardInstanceStatistics', () => {
   it('should update if the statistics change', () => {
     const statisticsSubject = new Subject<WhiteboardStatistics>();
 
-    const getWhiteboardStatisticsSpy = jest.spyOn(
+    const getWhiteboardStatisticsSpy = vi.spyOn(
       activeWhiteboardInstance,
       'getWhiteboardStatistics',
     );
-    jest
-      .spyOn(activeWhiteboardInstance, 'observeWhiteboardStatistics')
-      .mockReturnValue(statisticsSubject);
+    vi.spyOn(
+      activeWhiteboardInstance,
+      'observeWhiteboardStatistics',
+    ).mockReturnValue(statisticsSubject);
 
     const { result } = renderHook(
       () => useActiveWhiteboardInstanceStatistics(),
@@ -183,7 +185,7 @@ describe('useActiveWhiteboardInstanceStatistics', () => {
 
   it('hook should throw if no active whiteboard instance is available', () => {
     whiteboardManager.getActiveWhiteboardInstance.mockReturnValue(undefined);
-    jest.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     expect(() =>
       renderHook(() => useActiveWhiteboardInstance(), {
@@ -191,7 +193,7 @@ describe('useActiveWhiteboardInstanceStatistics', () => {
       }),
     ).toThrow(Error('No active whiteboard instance'));
 
-    jest.mocked(console.error).mockRestore();
+    consoleSpy.mockRestore();
   });
 });
 
@@ -290,10 +292,10 @@ describe('useActiveSlide', () => {
 
 describe('useIsWhiteboardLoading', () => {
   it('should return the loading state of the active whiteboard instance', () => {
-    jest.spyOn(activeWhiteboardInstance, 'isLoading').mockReturnValue(true);
-    jest
-      .spyOn(activeWhiteboardInstance, 'observeIsLoading')
-      .mockReturnValue(of(true));
+    vi.spyOn(activeWhiteboardInstance, 'isLoading').mockReturnValue(true);
+    vi.spyOn(activeWhiteboardInstance, 'observeIsLoading').mockReturnValue(
+      of(true),
+    );
 
     const { result } = renderHook(() => useIsWhiteboardLoading(), {
       wrapper: Wrapper,
@@ -307,10 +309,10 @@ describe('useIsWhiteboardLoading', () => {
   it('should update if the loading state changes', () => {
     const loadingSubject = new Subject<boolean>();
 
-    jest.spyOn(activeWhiteboardInstance, 'isLoading').mockReturnValue(true);
-    jest
-      .spyOn(activeWhiteboardInstance, 'observeIsLoading')
-      .mockReturnValue(loadingSubject);
+    vi.spyOn(activeWhiteboardInstance, 'isLoading').mockReturnValue(true);
+    vi.spyOn(activeWhiteboardInstance, 'observeIsLoading').mockReturnValue(
+      loadingSubject,
+    );
 
     const { result } = renderHook(() => useIsWhiteboardLoading(), {
       wrapper: Wrapper,
@@ -321,7 +323,7 @@ describe('useIsWhiteboardLoading', () => {
     });
 
     act(() => {
-      jest.spyOn(activeWhiteboardInstance, 'isLoading').mockReturnValue(false);
+      vi.spyOn(activeWhiteboardInstance, 'isLoading').mockReturnValue(false);
       loadingSubject.next(false);
     });
 
@@ -331,9 +333,9 @@ describe('useIsWhiteboardLoading', () => {
 
 describe('useUndoRedoState', () => {
   it('should return the undo redo state of the active whiteboard instance', () => {
-    jest
-      .spyOn(activeWhiteboardInstance, 'observeUndoRedoState')
-      .mockReturnValue(of({ canUndo: true, canRedo: false }));
+    vi.spyOn(activeWhiteboardInstance, 'observeUndoRedoState').mockReturnValue(
+      of({ canUndo: true, canRedo: false }),
+    );
 
     const { result } = renderHook(() => useUndoRedoState(), {
       wrapper: Wrapper,
@@ -348,9 +350,9 @@ describe('useUndoRedoState', () => {
       canRedo: false;
     }>();
 
-    jest
-      .spyOn(activeWhiteboardInstance, 'observeUndoRedoState')
-      .mockReturnValue(UndoRedoStateSubject);
+    vi.spyOn(activeWhiteboardInstance, 'observeUndoRedoState').mockReturnValue(
+      UndoRedoStateSubject,
+    );
 
     const { result } = renderHook(() => useUndoRedoState(), {
       wrapper: Wrapper,

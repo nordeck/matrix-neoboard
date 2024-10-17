@@ -15,6 +15,7 @@
  */
 
 import EventEmitter from 'events';
+import { Mocked, vi } from 'vitest';
 import { Description } from '../../model';
 
 export type RTCIceCandidateInit = ReturnType<RTCIceCandidate['toJSON']>;
@@ -62,7 +63,7 @@ export class MockRTCSessionDescription implements RTCSessionDescription {
   }
 }
 
-export type MockRtcDataChannel = jest.Mocked<RTCDataChannel> & {
+export type MockRtcDataChannel = Mocked<RTCDataChannel> & {
   readyState: string;
 
   emitMessage: (data: string) => void;
@@ -90,20 +91,21 @@ export function mockRtcDataChannel(label: string): MockRtcDataChannel {
     ordered: false,
     protocol: '',
     readyState: 'open',
-    close: jest.fn(),
-    send: jest.fn(),
-    addEventListener: jest.fn((n, l) => {
+    close: vi.fn(),
+    send: vi.fn(),
+    addEventListener: vi.fn((n, l) => {
       // We don't want to match the types here, just cast it:
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       emitter.addListener(n, l as any);
     }),
-    removeEventListener: jest.fn((n, l) => {
+    removeEventListener: vi.fn((n, l) => {
       // We don't want to match the types here, just cast it:
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       emitter.removeListener(n, l as any);
     }),
-    dispatchEvent: jest.fn(),
-  } as jest.Mocked<RTCDataChannel>;
+    dispatchEvent: vi.fn(),
+    // The types of send are too awkward to mock, so we just cast it to unknown.
+  } as unknown as Mocked<RTCDataChannel>;
 
   const emitMessage = (data: string) => {
     emitter.emit('message', { data });
@@ -122,7 +124,7 @@ export type RTCIceConnectionState = RTCPeerConnection['iceConnectionState'];
 
 type Writeable<T> = { -readonly [P in keyof T]: T[P] };
 
-export type MockRtcPeerConnection = jest.Mocked<RTCPeerConnection> & {
+export type MockRtcPeerConnection = Mocked<RTCPeerConnection> & {
   emitIceCandidate(candidate: RTCIceCandidate | null): void;
   emitDataChannel(channel: RTCDataChannel): void;
   emitNegotiationNeeded(): void;
@@ -156,35 +158,36 @@ export function mockRtcPeerConnection(): MockRtcPeerConnection {
     remoteDescription: null,
     sctp: null,
     signalingState: 'stable',
-    addIceCandidate: jest.fn(),
-    addTrack: jest.fn(),
-    addTransceiver: jest.fn(),
-    close: jest.fn(),
-    createAnswer: jest.fn(),
-    createDataChannel: jest.fn(),
-    createOffer: jest.fn(),
-    getConfiguration: jest.fn(),
-    getReceivers: jest.fn(),
-    getSenders: jest.fn(),
-    getStats: jest.fn(async () => new Map()),
-    getTransceivers: jest.fn(),
-    removeTrack: jest.fn(),
-    restartIce: jest.fn(),
-    setConfiguration: jest.fn(),
-    setLocalDescription: jest.fn(),
-    setRemoteDescription: jest.fn(),
-    addEventListener: jest.fn((n, l) => {
+    addIceCandidate: vi.fn(),
+    addTrack: vi.fn(),
+    addTransceiver: vi.fn(),
+    close: vi.fn(),
+    createAnswer: vi.fn(),
+    createDataChannel: vi.fn(),
+    createOffer: vi.fn(),
+    getConfiguration: vi.fn(),
+    getReceivers: vi.fn(),
+    getSenders: vi.fn(),
+    getStats: vi.fn(async () => new Map()),
+    getTransceivers: vi.fn(),
+    removeTrack: vi.fn(),
+    restartIce: vi.fn(),
+    setConfiguration: vi.fn(),
+    setLocalDescription: vi.fn(),
+    setRemoteDescription: vi.fn(),
+    addEventListener: vi.fn((n, l) => {
       // We don't want to match the types here, just cast it:
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       emitter.addListener(n, l as any);
     }),
-    removeEventListener: jest.fn((n, l) => {
+    removeEventListener: vi.fn((n, l) => {
       // We don't want to match the types here, just cast it:
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       emitter.removeListener(n, l as any);
     }),
-    dispatchEvent: jest.fn(),
-  } as jest.Mocked<Writeable<RTCPeerConnection>>;
+    dispatchEvent: vi.fn(),
+    // The types are too complex for the mock to easily understand this, so we just cast it to unknown.
+  } as unknown as Mocked<Writeable<RTCPeerConnection>>;
 
   peerConnection.addIceCandidate.mockResolvedValue();
 

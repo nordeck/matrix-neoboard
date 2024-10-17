@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { beforeEach, describe, expect, it } from 'vitest';
 import {
   mockEllipseElement,
   mockLineElement,

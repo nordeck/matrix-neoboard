@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { describe, expect, it } from 'vitest';
 import { mockRectangleElement } from '../../../lib/testUtils/documentTestUtils';
 import { getRenderProperties } from './getRenderProperties';
 

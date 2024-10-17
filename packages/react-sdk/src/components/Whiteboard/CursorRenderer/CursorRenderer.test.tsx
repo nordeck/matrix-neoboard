@@ -18,6 +18,7 @@ import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { render, screen } from '@testing-library/react';
 import { ComponentType, PropsWithChildren } from 'react';
 import { Subject } from 'rxjs';
+import { Mocked, afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
   WhiteboardTestingContextProvider,
   mockWhiteboardManager,
@@ -32,11 +33,13 @@ let widgetApi: MockedWidgetApi;
 
 afterEach(() => widgetApi.stop());
 
-beforeEach(() => (widgetApi = mockWidgetApi()));
+beforeEach(() => {
+  widgetApi = mockWidgetApi();
+});
 
 describe('<CursorRenderer>', () => {
   let messageSubject: Subject<Message>;
-  let whiteboardManager: jest.Mocked<WhiteboardManager>;
+  let whiteboardManager: Mocked<WhiteboardManager>;
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
 
   beforeEach(() => {

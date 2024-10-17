@@ -16,6 +16,7 @@
 
 import { renderHook } from '@testing-library/react';
 import { ComponentType, PropsWithChildren } from 'react';
+import { Mocked, beforeEach, describe, expect, it, vi } from 'vitest';
 import { WhiteboardManager } from './types';
 import {
   WhiteboardManagerProvider,
@@ -24,13 +25,13 @@ import {
 
 describe('useWhiteboardManager', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
-  let whiteboardManager: jest.Mocked<WhiteboardManager>;
+  let whiteboardManager: Mocked<WhiteboardManager>;
 
   beforeEach(() => {
     whiteboardManager = {
-      getActiveWhiteboardInstance: jest.fn(),
-      selectActiveWhiteboardInstance: jest.fn(),
-      clear: jest.fn(),
+      getActiveWhiteboardInstance: vi.fn(),
+      selectActiveWhiteboardInstance: vi.fn(),
+      clear: vi.fn(),
     };
 
     Wrapper = ({ children }) => {
@@ -51,7 +52,7 @@ describe('useWhiteboardManager', () => {
   });
 
   it('hook should throw without context', () => {
-    jest.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     expect(() => renderHook(() => useWhiteboardManager())).toThrow(
       Error(
@@ -59,6 +60,6 @@ describe('useWhiteboardManager', () => {
       ),
     );
 
-    jest.mocked(console.error).mockRestore();
+    consoleSpy.mockRestore();
   });
 });
