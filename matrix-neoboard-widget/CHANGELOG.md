@@ -1,5 +1,18 @@
 # @nordeck/matrix-neoboard-widget
 
+## 1.21.0
+
+### Minor Changes
+
+- 5535a20: Hide about menu item if the widget is embedded
+
+### Patch Changes
+
+- 79ea35f: Add Border to the color picker icon
+- Updated dependencies [db08392]
+- Updated dependencies [9eed0b8]
+  - @nordeck/matrix-neoboard-react-sdk@0.3.0
+
 ## 1.20.0
 
 ### Minor Changes
