@@ -190,6 +190,14 @@ function getDraggingBindings(
       eventName: 'touchstart',
       fn: cancel,
     },
+    {
+      eventName: 'pointerdown',
+      fn: cancel,
+    },
+    {
+      eventName: 'pointerup',
+      fn: cancel,
+    },
     // resizing the browser kills a drag
     {
       eventName: 'resize',

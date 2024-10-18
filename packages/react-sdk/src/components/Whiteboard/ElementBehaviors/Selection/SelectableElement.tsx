@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { MouseEvent, PropsWithChildren } from 'react';
+import { PointerEvent, PropsWithChildren } from 'react';
 import { useWhiteboardSlideInstance } from '../../../../state';
 import { useLayoutState } from '../../../Layout';
 import { WithSelectionProps } from './types';
@@ -29,7 +29,7 @@ export function SelectableElement({
   const { activeTool } = useLayoutState();
   const isInSelectionMode = activeTool === 'select';
 
-  function handleMouseDown(event: MouseEvent) {
+  function handlePointerDown(event: PointerEvent) {
     if (isInSelectionMode) {
       event.stopPropagation();
 
@@ -45,5 +45,5 @@ export function SelectableElement({
     }
   }
 
-  return <g onMouseDown={handleMouseDown}>{children}</g>;
+  return <g onPointerDown={handlePointerDown}>{children}</g>;
 }

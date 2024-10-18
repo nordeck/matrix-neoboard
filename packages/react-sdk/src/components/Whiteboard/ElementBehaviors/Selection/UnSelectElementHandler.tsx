@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { MouseEvent, useCallback } from 'react';
+import { PointerEvent, useCallback } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import {
   useActiveElement,
@@ -36,8 +36,8 @@ export function UnSelectElementHandler() {
     }
   }, [activeElementId, slideInstance]);
 
-  const handleMouseDown = useCallback(
-    (event: MouseEvent<SVGRectElement>) => {
+  const handlePointerDown = useCallback(
+    (event: PointerEvent<SVGRectElement>) => {
       const point = calculateSvgCoords({
         x: event.clientX,
         y: event.clientY,
@@ -72,7 +72,7 @@ export function UnSelectElementHandler() {
     <rect
       fill="transparent"
       height="100%"
-      onMouseDown={handleMouseDown}
+      onPointerDown={handlePointerDown}
       width="100%"
       data-testid="unselect-element-layer"
     />

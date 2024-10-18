@@ -19,7 +19,7 @@ import {
   ClipboardEvent,
   Dispatch,
   DispatchWithoutAction,
-  MouseEvent,
+  MouseEventHandler,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -135,8 +135,8 @@ export function TextEditor({
     }
   }, [editable, isEditMode, onBlur]);
 
-  const handleDoubleClick = useCallback(
-    (event: MouseEvent) => {
+  const handleDoubleClick: MouseEventHandler = useCallback(
+    (event) => {
       if (editable || isEditMode) {
         event.stopPropagation();
       }
@@ -156,8 +156,8 @@ export function TextEditor({
     }
   }, [textRef]);
 
-  const handleMouseEvents = useCallback(
-    (event: MouseEvent) => {
+  const handlePointerEvents: MouseEventHandler = useCallback(
+    (event) => {
       if (isEditMode) {
         event.stopPropagation();
       } else {
@@ -241,14 +241,14 @@ export function TextEditor({
       textBold={contentBold}
       textItalic={contentItalic}
       onBlur={onBlur}
-      onClick={handleMouseEvents}
+      onClick={handlePointerEvents}
       onDoubleClick={handleDoubleClick}
       onFocus={handleFocus}
       onKeyDownCapture={handleKeyDown}
       onKeyUpCapture={handleKeyUp}
-      onMouseDown={handleMouseEvents}
-      onMouseMove={handleMouseEvents}
-      onMouseUp={handleMouseEvents}
+      onPointerDown={handlePointerEvents}
+      onPointerMove={handlePointerEvents}
+      onPointerUp={handlePointerEvents}
       onPaste={handlePaste}
       ref={textRef}
       suppressContentEditableWarning
