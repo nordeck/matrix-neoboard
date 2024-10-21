@@ -23,5 +23,15 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/setupTests.ts'],
     exclude: ['build', 'lib'],
+    server: {
+      deps: {
+        inline: [
+          '@matrix-widget-toolkit/api',
+          '@matrix-widget-toolkit/react',
+          '@matrix-widget-toolkit/mui',
+          '@nordeck/matrix-neoboard-react-sdk',
+        ],
+      },
+    },
   },
 });

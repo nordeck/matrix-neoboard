@@ -26,7 +26,12 @@ export default defineConfig({
     exclude: ['build', 'lib'],
     server: {
       deps: {
-        inline: ['@matrix-widget-toolkit/testing'],
+        inline: [
+          '@matrix-widget-toolkit/testing',
+          '@matrix-widget-toolkit/api',
+          '@matrix-widget-toolkit/react',
+          '@matrix-widget-toolkit/mui',
+        ],
       },
     },
   },
