@@ -54,14 +54,14 @@ export function ToolsBar() {
         value: 'select',
       },
       {
-        label: t('toolsBar.rectangleTool', 'Rectangle'),
-        icon: <SquareIcon />,
-        value: 'rectangle',
-      },
-      {
         label: t('toolsBar.roundedRectangleTool', 'Rounded rectangle'),
         icon: <RoundedSquareIcon />,
         value: 'rounded-rectangle',
+      },
+      {
+        label: t('toolsBar.rectangleTool', 'Rectangle'),
+        icon: <SquareIcon />,
+        value: 'rectangle',
       },
       {
         label: t('toolsBar.ellipseTool', 'Ellipse'),
