@@ -24,5 +24,10 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/setupTests.ts'],
     exclude: ['build', 'lib'],
+    server: {
+      deps: {
+        inline: ['@matrix-widget-toolkit/testing'],
+      },
+    },
   },
 });
