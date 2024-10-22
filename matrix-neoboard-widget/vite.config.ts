@@ -56,9 +56,10 @@ export default defineConfig({
     fs: {
       allow: [
         searchForWorkspaceRoot(process.cwd()),
-        '../matrix-neoboard/packages/react-sdk/src/components/BoardBar/pdf/',
-        '../matrix-neoboard/node_modules/@fontsource/',
-        '../matrix-neoboard/node_modules/pdfmake/build/',
+        '../packages/react-sdk/src/components/BoardBar/pdf/',
+        '../node_modules/@fontsource/',
+        '../../matrix-widget-toolkit/node_modules/@fontsource/',
+        '../node_modules/pdfmake/build/',
       ],
     },
     port,
