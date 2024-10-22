@@ -81,7 +81,7 @@ describe('<ImportWhiteboardDialog/>', () => {
       );
     };
 
-    vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:url');
+    vi.mocked(URL.createObjectURL).mockReturnValue('blob:url');
   });
 
   it('should render the success mode', async () => {

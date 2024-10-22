@@ -80,7 +80,7 @@ describe('<ExportWhiteboardDialogDownloadFile />', () => {
       );
     };
 
-    vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:url');
+    vi.mocked(URL.createObjectURL).mockReturnValue('blob:url');
   });
 
   afterEach(() => {

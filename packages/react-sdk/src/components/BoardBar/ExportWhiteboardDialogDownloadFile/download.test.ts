@@ -57,8 +57,8 @@ describe('download', () => {
     vi.spyOn(document.body, 'appendChild').mockRestore();
 
     // mocked in setupTests - but reset here to not interfere with any other test
-    vi.spyOn(URL, 'createObjectURL').mockReset();
-    vi.spyOn(URL, 'revokeObjectURL').mockReset();
+    vi.mocked(URL.createObjectURL).mockReset();
+    vi.mocked(URL.revokeObjectURL).mockReset();
   });
 
   it('should start a download', () => {
@@ -78,7 +78,7 @@ describe('download', () => {
         'blob:https://example.com/example.txt',
       );
 
-      const spy = vi.spyOn(URL, 'createObjectURL');
+      const spy = vi.mocked(URL.createObjectURL);
       downloadData('example.json', { test: 23 });
       const blob = spy.mock.calls?.[0][0] as Blob;
       await expect(blob.text()).resolves.toEqual('{"test":23}');

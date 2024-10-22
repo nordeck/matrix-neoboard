@@ -76,10 +76,8 @@ describe('<ExportWhiteboardDialog/>', () => {
       );
     };
 
-    vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:url');
-    vi.spyOn(pdf, 'createWhiteboardPdf').mockReturnValue(
-      of(new Blob(['value'])),
-    );
+    vi.mocked(URL.createObjectURL).mockReturnValue('blob:url');
+    vi.mocked(pdf.createWhiteboardPdf).mockReturnValue(of(new Blob(['value'])));
   });
 
   it('should render without exploding', async () => {

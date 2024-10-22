@@ -66,7 +66,7 @@ describe('<ImageDisplay />', () => {
     );
 
     createObjectURLSpy = vi
-      .spyOn(URL, 'createObjectURL')
+      .mocked(URL.createObjectURL)
       .mockReturnValue('http://...');
     // @ts-expect-error mock doesnt want blob but we need blob. So we just do blob
     fetch.mockResponse((req) => {
