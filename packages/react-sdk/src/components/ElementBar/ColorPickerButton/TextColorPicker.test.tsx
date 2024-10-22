@@ -19,6 +19,7 @@ import { green, red } from '@mui/material/colors';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ComponentType, PropsWithChildren } from 'react';
+import { Mocked, afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
   WhiteboardTestingContextProvider,
   mockEllipseElement,
@@ -33,7 +34,7 @@ import { TextColorPicker } from './TextColorPicker';
 
 describe('TextColorPicker', () => {
   let widgetApi: MockedWidgetApi;
-  let whiteboardManager: jest.Mocked<WhiteboardManager>;
+  let whiteboardManager: Mocked<WhiteboardManager>;
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
   let activeSlide: WhiteboardSlideInstance;
   let activeTextColor: string | undefined;

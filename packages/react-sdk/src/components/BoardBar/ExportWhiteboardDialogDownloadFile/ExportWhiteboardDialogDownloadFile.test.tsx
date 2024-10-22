@@ -17,8 +17,17 @@
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { axe } from 'jest-axe';
+import axe from 'axe-core';
 import { ComponentType, PropsWithChildren } from 'react';
+import {
+  Mocked,
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
 import {
   WhiteboardTestingContextProvider,
   mockWhiteboardManager,
@@ -41,18 +50,18 @@ beforeEach(() => {
 
 describe('<ExportWhiteboardDialogDownloadFile />', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
-  let whiteboardManager: jest.Mocked<WhiteboardManager>;
-  const onClick = jest.fn();
+  let whiteboardManager: Mocked<WhiteboardManager>;
+  const onClick = vi.fn();
   let downloadElement: HTMLAnchorElement;
 
   beforeEach(() => {
     const createElement = document.createElement.bind(document);
-    jest.spyOn(document, 'createElement').mockImplementation((tag) => {
+    vi.spyOn(document, 'createElement').mockImplementation((tag) => {
       const element = createElement(tag);
 
       if (element instanceof HTMLAnchorElement) {
         downloadElement = element;
-        jest.spyOn(element, 'setAttribute');
+        vi.spyOn(element, 'setAttribute');
       }
 
       return element;
@@ -71,11 +80,11 @@ describe('<ExportWhiteboardDialogDownloadFile />', () => {
       );
     };
 
-    jest.mocked(URL.createObjectURL).mockReturnValue('blob:url');
+    vi.mocked(URL.createObjectURL).mockReturnValue('blob:url');
   });
 
   afterEach(() => {
-    jest.mocked(document.createElement).mockRestore();
+    vi.mocked(document.createElement).mockRestore();
   });
 
   it('should render without exploding', async () => {
@@ -86,7 +95,7 @@ describe('<ExportWhiteboardDialogDownloadFile />', () => {
       { wrapper: Wrapper },
     );
 
-    await act(() => {
+    act(() => {
       expect(
         screen.getByRole('button', { name: 'Download' }),
       ).toBeInTheDocument();
@@ -106,7 +115,7 @@ describe('<ExportWhiteboardDialogDownloadFile />', () => {
     ).toBeInTheDocument();
 
     await act(async () => {
-      expect(await axe(container)).toHaveNoViolations();
+      expect(await axe.run(container)).toHaveNoViolations();
     });
   });
 
@@ -141,13 +150,13 @@ describe('<ExportWhiteboardDialogDownloadFile />', () => {
   });
 
   it('should download the correct whiteboard content', async () => {
-    const blobSpy = jest.spyOn(global, 'Blob').mockReturnValue({
+    const blobSpy = vi.spyOn(global, 'Blob').mockReturnValue({
       size: 0,
       type: '',
-      arrayBuffer: jest.fn(),
-      slice: jest.fn(),
-      stream: jest.fn(),
-      text: jest.fn(),
+      arrayBuffer: vi.fn(),
+      slice: vi.fn(),
+      stream: vi.fn(),
+      text: vi.fn(),
     } as unknown as Blob);
 
     render(

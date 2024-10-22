@@ -16,6 +16,7 @@
 
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { waitFor } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { mockPowerLevelsEvent } from '../../lib/testUtils/matrixTestUtils';
 import { createStore } from '../store';
 import { powerLevelsApi } from './powerLevelsApi';
@@ -24,7 +25,9 @@ let widgetApi: MockedWidgetApi;
 
 afterEach(() => widgetApi.stop());
 
-beforeEach(() => (widgetApi = mockWidgetApi()));
+beforeEach(() => {
+  widgetApi = mockWidgetApi();
+});
 
 describe('getPowerLevels', () => {
   it('should return no power levels if state event is missing', async () => {

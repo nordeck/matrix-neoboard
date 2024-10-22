@@ -18,17 +18,20 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { Menu } from '@mui/material';
 import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { axe } from 'jest-axe';
+import axe from 'axe-core';
 import { ComponentType, PropsWithChildren } from 'react';
+import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 import { MenuItemSwitch } from './MenuItemSwitch';
 
 describe('<MenuItemSwitch>', () => {
-  const onChange = jest.fn();
-  const onClick = jest.fn();
-
+  let onChange: Mock<() => void>;
+  let onClick: Mock<() => void>;
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
 
   beforeEach(() => {
+    onChange = vi.fn();
+    onClick = vi.fn();
+
     Wrapper = ({ children }) => (
       <Menu
         open
@@ -77,7 +80,7 @@ describe('<MenuItemSwitch>', () => {
 
     await act(async () => {
       expect(
-        await axe(baseElement, {
+        await axe.run(baseElement, {
           rules: {
             // the menu is opened in a portal, so we must check the baseElement,
             // i.e. <body/>. In that case we get false positive warning

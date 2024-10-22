@@ -15,6 +15,7 @@
  */
 
 import { BehaviorSubject, firstValueFrom, Subject, take, toArray } from 'rxjs';
+import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
 import { mockPeerConnectionStatistics } from '../lib/testUtils/documentTestUtils';
 import {
   CommunicationChannel,
@@ -28,9 +29,9 @@ describe('presentationManager', () => {
   let communicationStatistics: CommunicationChannelStatistics;
   let observeCommunicationStatisticsSubject: Subject<CommunicationChannelStatistics>;
   let observeActiveSlideIdSubject: BehaviorSubject<string | undefined>;
-  let communicationChannel: jest.Mocked<CommunicationChannel>;
+  let communicationChannel: Mocked<CommunicationChannel>;
   let messageSubject: Subject<Message>;
-  let whiteboardInstance: jest.Mocked<WhiteboardInstance>;
+  let whiteboardInstance: Mocked<WhiteboardInstance>;
   let enableObserveVisibilityStateSubject: Subject<boolean>;
   let presentationManager: PresentationManagerImpl;
 
@@ -58,47 +59,46 @@ describe('presentationManager', () => {
     );
 
     communicationChannel = {
-      broadcastMessage: jest.fn(),
-      observeMessages: jest.fn().mockReturnValue(messageSubject),
-      getStatistics: jest
-        .fn()
-        .mockImplementation(() => communicationStatistics),
-      observeStatistics: jest
+      broadcastMessage: vi.fn(),
+      observeMessages: vi.fn().mockReturnValue(messageSubject),
+      getStatistics: vi.fn().mockImplementation(() => communicationStatistics),
+      observeStatistics: vi
         .fn()
         .mockReturnValue(observeCommunicationStatisticsSubject),
-      destroy: jest.fn(),
+      destroy: vi.fn(),
     };
 
     whiteboardInstance = {
-      addSlide: jest.fn(),
-      clearUndoManager: jest.fn(),
-      duplicateSlide: jest.fn(),
-      export: jest.fn(),
-      focusOn: jest.fn(),
-      getActiveSlideId: jest
+      addSlide: vi.fn(),
+      clearUndoManager: vi.fn(),
+      duplicateSlide: vi.fn(),
+      export: vi.fn(),
+      focusOn: vi.fn(),
+      getActiveSlideId: vi
         .fn()
         .mockImplementation(() => observeActiveSlideIdSubject.value),
-      getPresentationManager: jest.fn(),
-      getSlide: jest.fn(),
-      getSlideIds: jest.fn(),
-      getWhiteboardId: jest.fn(),
-      getWhiteboardStatistics: jest.fn(),
-      import: jest.fn(),
-      isLoading: jest.fn(),
-      moveSlide: jest.fn(),
-      observeActiveSlideId: jest
+      getPresentationManager: vi.fn(),
+      getSlide: vi.fn(),
+      getSlideIds: vi.fn(),
+      getWhiteboardId: vi.fn(),
+      getWhiteboardStatistics: vi.fn(),
+      import: vi.fn(),
+      isLoading: vi.fn(),
+      moveSlide: vi.fn(),
+      observeActiveSlideId: vi
         .fn()
         .mockReturnValue(observeActiveSlideIdSubject),
-      observeIsLoading: jest.fn(),
-      observeSlideIds: jest.fn(),
-      observeUndoRedoState: jest.fn(),
-      observeWhiteboardStatistics: jest.fn(),
-      redo: jest.fn(),
-      removeSlide: jest.fn(),
-      setActiveSlideId: jest.fn(),
-      undo: jest.fn(),
-      destroy: jest.fn(),
-      persist: jest.fn(),
+
+      observeIsLoading: vi.fn(),
+      observeSlideIds: vi.fn(),
+      observeUndoRedoState: vi.fn(),
+      observeWhiteboardStatistics: vi.fn(),
+      redo: vi.fn(),
+      removeSlide: vi.fn(),
+      setActiveSlideId: vi.fn(),
+      undo: vi.fn(),
+      destroy: vi.fn(),
+      persist: vi.fn(),
     };
 
     enableObserveVisibilityStateSubject = new Subject<boolean>();

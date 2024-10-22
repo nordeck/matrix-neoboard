@@ -18,6 +18,15 @@ import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { fireEvent, render } from '@testing-library/react';
 import { ComponentType, PropsWithChildren } from 'react';
 import {
+  Mocked,
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
+import {
   WhiteboardTestingContextProvider,
   mockEllipseElement,
   mockLineElement,
@@ -35,11 +44,13 @@ let widgetApi: MockedWidgetApi;
 
 afterEach(() => widgetApi.stop());
 
-beforeEach(() => (widgetApi = mockWidgetApi()));
+beforeEach(() => {
+  widgetApi = mockWidgetApi();
+});
 
 describe('<CopyAndPasteShortcuts>', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
-  let whiteboardManager: jest.Mocked<WhiteboardManager>;
+  let whiteboardManager: Mocked<WhiteboardManager>;
   let activeWhiteboardInstance: WhiteboardInstance;
   let setPresentationMode: (enable: boolean) => void;
 
@@ -262,10 +273,10 @@ type Writeable<T> = { -readonly [P in keyof T]: T[P] };
 function fireClipboardEvent(
   eventType: 'copy' | 'cut' | 'paste',
   data: Record<string, string> = {},
-): Partial<jest.Mocked<DataTransfer>> {
+): Partial<Mocked<DataTransfer>> {
   const clipboardData = {
-    getData: jest.fn((type) => data[type]),
-    setData: jest.fn(),
+    getData: vi.fn((type) => data[type]),
+    setData: vi.fn(),
   };
   const event = new Event(eventType) as Writeable<ClipboardEvent>;
   event.clipboardData = clipboardData as unknown as DataTransfer;

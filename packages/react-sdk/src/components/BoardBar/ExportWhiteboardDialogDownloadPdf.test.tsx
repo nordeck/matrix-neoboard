@@ -17,9 +17,18 @@
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { axe } from 'jest-axe';
+import axe from 'axe-core';
 import { ComponentType, PropsWithChildren } from 'react';
 import { NEVER, of, throwError } from 'rxjs';
+import {
+  Mocked,
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
 import {
   WhiteboardTestingContextProvider,
   mockWhiteboardManager,
@@ -27,10 +36,16 @@ import {
 import { mockRoomName } from '../../lib/testUtils/matrixTestUtils';
 import { WhiteboardManager } from '../../state';
 import { ExportWhiteboardDialogDownloadPdf } from './ExportWhiteboardDialogDownloadPdf';
-import { createWhiteboardPdf } from './pdf';
+import * as pdf from './pdf';
 
 // The pdf library doesn't work in test, so we mock pdf generation completely
-jest.mock('./pdf', () => ({ createWhiteboardPdf: jest.fn() }));
+vi.mock('./pdf', async () => {
+  const pdfLib = await vi.importActual<typeof import('./pdf')>('./pdf');
+  return {
+    ...pdfLib,
+    createWhiteboardPdf: vi.fn(),
+  };
+});
 
 let widgetApi: MockedWidgetApi;
 
@@ -44,8 +59,8 @@ beforeEach(() => {
 
 describe('<ExportWhiteboardDialogDownloadPdf />', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
-  let whiteboardManager: jest.Mocked<WhiteboardManager>;
-  const onClick = jest.fn();
+  let whiteboardManager: Mocked<WhiteboardManager>;
+  const onClick = vi.fn();
 
   beforeEach(() => {
     ({ whiteboardManager } = mockWhiteboardManager());
@@ -61,8 +76,12 @@ describe('<ExportWhiteboardDialogDownloadPdf />', () => {
       );
     };
 
-    jest.mocked(URL.createObjectURL).mockReturnValue('blob:url');
-    jest.mocked(createWhiteboardPdf).mockReturnValue(of(new Blob(['value'])));
+    vi.mocked(URL.createObjectURL).mockReturnValue('blob:url');
+    vi.mocked(pdf.createWhiteboardPdf).mockReturnValue(of(new Blob(['value'])));
+  });
+
+  afterEach(() => {
+    vi.mocked(pdf.createWhiteboardPdf).mockRestore();
   });
 
   it('should render without exploding', async () => {
@@ -93,7 +112,7 @@ describe('<ExportWhiteboardDialogDownloadPdf />', () => {
       await screen.findByRole('link', { name: 'Download' }),
     ).toBeInTheDocument();
 
-    expect(await axe(container)).toHaveNoViolations();
+    expect(await axe.run(container)).toHaveNoViolations();
   });
 
   it('should emit onClick on download', async () => {
@@ -151,8 +170,8 @@ describe('<ExportWhiteboardDialogDownloadPdf />', () => {
     );
 
     await act(async () => {
-      expect(createWhiteboardPdf).toHaveBeenCalledTimes(1);
-      expect(createWhiteboardPdf).toHaveBeenCalledWith({
+      expect(pdf.createWhiteboardPdf).toHaveBeenCalledTimes(1);
+      expect(pdf.createWhiteboardPdf).toHaveBeenCalledWith({
         authorName: '@user-id',
         roomName: 'NeoBoard',
         widgetApi: widgetApi,
@@ -178,11 +197,11 @@ describe('<ExportWhiteboardDialogDownloadPdf />', () => {
   });
 
   it('should handle error while generating PDF', () => {
-    jest
-      .mocked(createWhiteboardPdf)
-      .mockReturnValue(throwError(() => new Error('Failed')));
+    vi.mocked(pdf.createWhiteboardPdf).mockReturnValue(
+      throwError(() => new Error('Failed')),
+    );
 
-    const onError = jest.fn();
+    const onError = vi.fn();
 
     const { unmount } = render(
       <ExportWhiteboardDialogDownloadPdf onClick={onClick} onError={onError}>
@@ -198,7 +217,7 @@ describe('<ExportWhiteboardDialogDownloadPdf />', () => {
   });
 
   it('should show loading state', () => {
-    jest.mocked(createWhiteboardPdf).mockReturnValue(NEVER);
+    vi.mocked(pdf.createWhiteboardPdf).mockReturnValue(NEVER);
 
     const { unmount } = render(
       <ExportWhiteboardDialogDownloadPdf onClick={onClick}>

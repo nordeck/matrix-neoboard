@@ -28,7 +28,9 @@ import { Toolbar } from '../../common/Toolbar';
 import { TextFormattingShortcuts } from './TextFormattingShortcuts';
 
 import userEvent from '@testing-library/user-event';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { WhiteboardHotkeysProvider } from '../../WhiteboardHotkeysProvider';
+
 describe('<TextFormattingShortcuts />', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
   let slide: WhiteboardSlideInstance;

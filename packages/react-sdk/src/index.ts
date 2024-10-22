@@ -23,7 +23,6 @@ export { DraggableStyles } from './components/Whiteboard/ElementBehaviors/Moveab
 export * from './components/WhiteboardHotkeysProvider';
 export * from './i18n';
 export * from './lib';
-export * from './lib/testUtils/documentTestUtils';
 export * from './model';
 export * from './state';
 export * from './store';

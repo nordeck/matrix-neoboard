@@ -15,8 +15,9 @@
  */
 
 import { mockWidgetApi } from '@matrix-widget-toolkit/testing';
-import fetchMock from 'fetch-mock-jest';
-import { convertBlobToBase64 } from '../../lib';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import type { FetchMock } from 'vitest-fetch-mock';
+import * as lib from '../../lib';
 import {
   mockEllipseElement,
   mockImageElement,
@@ -31,15 +32,21 @@ import {
 } from '../crdt';
 import { exportWhiteboard } from './exportWhiteboard';
 
+const fetch = global.fetch as FetchMock;
+
 // mock convertBlobToBase64 because testing with FileReader is painful
-jest.mock('../../lib', () => ({
-  ...jest.requireActual('../../lib'),
-  convertBlobToBase64: jest.fn(),
+vi.mock('../../lib', async () => ({
+  ...(await vi.importActual<typeof import('../../lib')>('../../lib')),
+  convertBlobToBase64: vi.fn(),
 }));
 
 const slide0 = 'IN4h74suMiIAK4AVMAdl_';
 
 describe('convertWhiteboardToExportFormat', () => {
+  afterEach(() => {
+    fetch.mockReset();
+  });
+
   it('should return slides in the correct order', async () => {
     const document = createWhiteboardDocument();
 
@@ -93,11 +100,23 @@ describe('convertWhiteboardToExportFormat', () => {
       addElement0(doc);
     });
 
-    jest.mocked(convertBlobToBase64).mockImplementation(async (blob: Blob) => {
-      const text = await readBlobAsText(blob);
-      // ensure that the response data is passed into the function
-      expect(text).toEqual('image content');
-      return btoa('encoded image content');
+    vi.mocked(lib.convertBlobToBase64).mockImplementation(
+      async (blob: Blob) => {
+        const text = await readBlobAsText(blob);
+        // ensure that the response data is passed into the function
+        expect(text).toEqual('image content');
+        return btoa('encoded image content');
+      },
+    );
+
+    fetch.mockResponse((req) => {
+      if (
+        req.url ===
+        'https://example.com/_matrix/media/v3/download/example.com/test1234'
+      ) {
+        return 'test image data';
+      }
+      return '';
     });
 
     expect(await exportWhiteboard(document.getData(), mockWidgetApi())).toEqual(
@@ -129,13 +148,25 @@ describe('convertWhiteboardToExportFormat', () => {
       addElement1(doc);
     });
 
-    jest.mocked(convertBlobToBase64).mockImplementation(async (blob: Blob) => {
-      const text = await readBlobAsText(blob);
-      // ensure that the response data is passed into the function
-      expect(text).toEqual('image content');
-      return btoa('encoded image content');
+    // expect only one download to happen
+    fetch.mockResponse((req) => {
+      if (
+        req.url ===
+        'https://example.com/_matrix/media/v3/download/example.com/test1234'
+      ) {
+        return 'test image data';
+      }
+      return '';
     });
 
+    vi.mocked(lib.convertBlobToBase64).mockImplementation(
+      async (blob: Blob) => {
+        const text = await readBlobAsText(blob);
+        // ensure that the response data is passed into the function
+        expect(text).toEqual('image content');
+        return btoa('encoded image content');
+      },
+    );
     expect(await exportWhiteboard(document.getData(), mockWidgetApi())).toEqual(
       {
         version: 'net.nordeck.whiteboard@v1',
@@ -168,20 +199,27 @@ describe('convertWhiteboardToExportFormat', () => {
       addElement1(doc);
     });
 
-    // simulate 500 error for the first file
-    fetchMock.get(
-      'https://example.com/_matrix/*/download/example.com/test1234',
-      {
-        status: 500,
-      },
-    );
-
-    // let the FileReader raise an error for the second file
-    fetchMock.get(
-      'https://example.com/_matrix/*/download/example.com/test5678',
-      'test image data',
-    );
-    jest.mocked(convertBlobToBase64).mockRejectedValue('test error');
+    fetch.mockResponse((req) => {
+      // simulate 500 error for the first file
+      if (
+        req.url.includes('https://example.com/_matrix/media/') &&
+        req.url.includes('/download/example.com/test1234')
+      ) {
+        return {
+          status: 500,
+          body: '{}',
+        };
+      }
+      // let the FileReader raise an error for the second file
+      if (
+        req.url.includes('https://example.com/_matrix/media/') &&
+        req.url.includes('/download/example.com/test5678')
+      ) {
+        return 'test image data';
+      }
+      return '';
+    });
+    vi.spyOn(lib, 'convertBlobToBase64').mockRejectedValue('test error');
 
     expect(await exportWhiteboard(document.getData(), mockWidgetApi())).toEqual(
       {

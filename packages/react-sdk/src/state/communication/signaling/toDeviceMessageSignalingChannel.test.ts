@@ -16,6 +16,7 @@
 
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { firstValueFrom, toArray } from 'rxjs';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
   mockConnectionSignalingCandidates,
   mockConnectionSignalingDescription,

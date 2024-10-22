@@ -15,6 +15,7 @@
  */
 
 import { renderHook } from '@testing-library/react';
+import { describe, expect, it } from 'vitest';
 import { mockLineElement } from '../../../lib/testUtils/documentTestUtils';
 import { useEndMarker } from './useEndMarker';
 

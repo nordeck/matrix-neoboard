@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-module.exports = {
+const i18NextParserConfig = {
   defaultNamespace: 'neoboard',
   locales: ['en', 'de'],
   output: 'src/locales/$LOCALE/$NAMESPACE.json',
@@ -24,3 +24,5 @@ module.exports = {
     tsx: [{ lexer: 'JsxLexer', transSupportBasicHtmlNodes: true }],
   },
 };
+
+export default i18NextParserConfig;

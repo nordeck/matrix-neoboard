@@ -19,16 +19,25 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ComponentType, PropsWithChildren } from 'react';
 import {
-  WhiteboardTestingContextProvider,
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  MockInstance,
+  vi,
+} from 'vitest';
+import {
   mockWhiteboardManager,
+  WhiteboardTestingContextProvider,
 } from '../../lib/testUtils/documentTestUtils';
 import { WhiteboardSlideInstance } from '../../state';
 import { SnackbarProvider } from '../Snackbar';
 import { ImageUploadProvider } from './ImageUploadProvider';
 import { useSlideImageUpload } from './useSlideImageUpload';
 
-jest.mock('../../lib', () => ({
-  ...jest.requireActual('../../lib'),
+vi.mock('../../lib', async () => ({
+  ...(await vi.importActual<typeof import('../../lib')>('../../lib')),
   determineImageSize: () => {
     // Always return a static value here, because js-dom doesn't implement Image.
     return Promise.resolve({ width: 40, height: 20 });
@@ -44,6 +53,7 @@ describe('useSlideImageUpload', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
   let widgetApi: MockedWidgetApi;
   let slide: WhiteboardSlideInstance;
+  let consoleSpy: MockInstance<typeof console.error>;
 
   beforeEach(() => {
     widgetApi = mockWidgetApi();
@@ -52,7 +62,7 @@ describe('useSlideImageUpload', () => {
     });
     const whiteboard = whiteboardManager.getActiveWhiteboardInstance()!;
     slide = whiteboard.getSlide(whiteboard.getActiveSlideId()!);
-    jest.spyOn(console, 'error');
+    consoleSpy = vi.spyOn(console, 'error');
 
     Wrapper = ({ children }) => {
       return (
@@ -70,7 +80,7 @@ describe('useSlideImageUpload', () => {
 
   afterEach(() => {
     widgetApi.stop();
-    jest.mocked(console.error).mockRestore();
+    consoleSpy.mockRestore();
   });
 
   it('should add an uploaded image to the slide', async () => {
@@ -90,16 +100,18 @@ describe('useSlideImageUpload', () => {
   });
 
   it('should not explode if there is an upload error', async () => {
-    jest.mocked(console.error).mockImplementation(() => {});
+    consoleSpy.mockImplementation(() => {});
     render(<TestFileInput />, { wrapper: Wrapper });
 
     const file = new File([], 'example.jpg', {
       type: 'image/jpeg',
     });
     const uploadError = new Error('upload error');
-    jest.mocked(file.arrayBuffer).mockImplementation(() => {
-      throw uploadError;
-    });
+    const arrayBufferMock = vi
+      .mocked(file.arrayBuffer)
+      .mockImplementation(() => {
+        throw uploadError;
+      });
     await userEvent.upload(screen.getByTestId('file-input'), file);
 
     expect(console.error).toHaveBeenCalledWith(
@@ -107,5 +119,7 @@ describe('useSlideImageUpload', () => {
       uploadError,
     );
     expect(slide.getElementIds().length).toBe(0);
+
+    arrayBufferMock.mockRestore();
   });
 });

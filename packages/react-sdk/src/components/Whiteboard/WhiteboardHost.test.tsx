@@ -18,6 +18,7 @@
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { act, ComponentType, PropsWithChildren } from 'react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { WhiteboardHost } from '.';
 import {
   mockEllipseElement,
@@ -34,8 +35,11 @@ import { ElementOverridesProvider } from '../ElementOverridesProvider';
 import { LayoutStateProvider, useLayoutState } from '../Layout';
 import { WhiteboardHotkeysProvider } from '../WhiteboardHotkeysProvider';
 
-jest.mock('./SvgCanvas/utils', () => {
-  const original = jest.requireActual('./SvgCanvas/utils');
+vi.mock('./SvgCanvas/utils', async () => {
+  const original =
+    await vi.importActual<typeof import('./SvgCanvas/utils')>(
+      './SvgCanvas/utils',
+    );
   return {
     ...original,
     calculateScale: () => 1,

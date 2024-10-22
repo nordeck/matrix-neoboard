@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { describe, expect, it, vi } from 'vitest';
 import { isMacOS } from './platform';
 
 describe('isMacOS', () => {
@@ -22,7 +23,7 @@ describe('isMacOS', () => {
     'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36',
     'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/110.0',
   ])('should detect Mac OS from %p', (userAgent) => {
-    jest.spyOn(window.navigator, 'userAgent', 'get').mockReturnValue(userAgent);
+    vi.spyOn(window.navigator, 'userAgent', 'get').mockReturnValue(userAgent);
 
     expect(isMacOS()).toBe(true);
   });
@@ -31,7 +32,7 @@ describe('isMacOS', () => {
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36',
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:110.0) Gecko/20100101 Firefox/110.0',
   ])('should not detect Mac OS from %p', (userAgent) => {
-    jest.spyOn(window.navigator, 'userAgent', 'get').mockReturnValue(userAgent);
+    vi.spyOn(window.navigator, 'userAgent', 'get').mockReturnValue(userAgent);
 
     expect(isMacOS()).toBe(false);
   });

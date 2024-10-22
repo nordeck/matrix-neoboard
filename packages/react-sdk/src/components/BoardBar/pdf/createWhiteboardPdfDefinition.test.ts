@@ -15,6 +15,7 @@
  */
 
 import { mockWidgetApi } from '@matrix-widget-toolkit/testing';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   mockEllipseElement,
   mockLineElement,
@@ -25,9 +26,8 @@ import * as font from './forceLoadFontFamily';
 
 describe('createWhiteboardPdfDefinition', () => {
   beforeEach(() => {
-    jest
-      .spyOn(Element.prototype, 'getBoundingClientRect')
-      .mockImplementation(() => ({
+    vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(
+      () => ({
         width: 100,
         height: 100,
         x: 0,
@@ -36,8 +36,9 @@ describe('createWhiteboardPdfDefinition', () => {
         left: 0,
         right: 0,
         top: 0,
-        toJSON: jest.fn(),
-      }));
+        toJSON: vi.fn(),
+      }),
+    );
   });
 
   it('should generate a pdf header and table', async () => {
@@ -98,7 +99,7 @@ describe('createWhiteboardPdfDefinition', () => {
   });
 
   it('should load "Noto Emoji"', async () => {
-    const spy = jest.spyOn(font, 'forceLoadFontFamily');
+    const spy = vi.spyOn(font, 'forceLoadFontFamily');
 
     const { whiteboardManager } = mockWhiteboardManager();
     const whiteboardInstance = whiteboardManager.getActiveWhiteboardInstance()!;

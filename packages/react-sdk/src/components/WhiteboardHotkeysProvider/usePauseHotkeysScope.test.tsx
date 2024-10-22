@@ -17,6 +17,7 @@
 import { render, screen } from '@testing-library/react';
 import { ComponentType, PropsWithChildren } from 'react';
 import { useHotkeysContext } from 'react-hotkeys-hook';
+import { beforeEach, describe, expect, it } from 'vitest';
 import {
   HOTKEY_SCOPE_GLOBAL,
   HOTKEY_SCOPE_WHITEBOARD,

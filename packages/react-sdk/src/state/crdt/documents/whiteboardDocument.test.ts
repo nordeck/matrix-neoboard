@@ -15,6 +15,7 @@
  */
 
 import Joi from 'joi';
+import { describe, expect, it } from 'vitest';
 import * as Y from 'yjs';
 import { mockLineElement } from '../../../lib/testUtils/documentTestUtils';
 import { ChangeFn, Document } from '../types';
@@ -221,7 +222,7 @@ describe('isValidWhiteboardDocument', () => {
     { slideIds: null },
     { slideIds: 111 },
     { slideIds: new YText() },
-  ])('should reject event with patch %j', (patch: object) => {
+  ])('should reject event with patch %j', async (patch: object) => {
     const document = createWhiteboardDocument();
 
     document.performChange(generateAddSlide()[0]);
@@ -231,8 +232,23 @@ describe('isValidWhiteboardDocument', () => {
         (doc as YMap<unknown>).set(key, value);
       });
     });
+    // Handler for the yjs throws
+    const error = await new Promise<Error | null>((resolve) => {
+      process.once('uncaughtException', (err: Error) => {
+        resolve(err);
+      });
+      expect(isValidWhiteboardDocument(document)).toBe(false);
 
-    expect(isValidWhiteboardDocument(document)).toBe(false);
+      // The YArray case wont return an error so we need to resolve it manually
+      // @ts-expect-error - We have unclear types here
+      if (patch.slides instanceof YArray) {
+        resolve(null);
+      }
+    });
+    // @ts-expect-error - We have unclear types here
+    if (!(patch.slides instanceof YArray)) {
+      expect(error).toBeInstanceOf(Error);
+    }
   });
 });
 

@@ -17,6 +17,7 @@
 import { red } from '@mui/material/colors';
 import { renderHook } from '@testing-library/react';
 import { act, ComponentType, PropsWithChildren } from 'react';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { mockFullscreenApi } from '../../lib/testUtils/documentTestUtils';
 import { LayoutStateProvider, useLayoutState } from './useLayoutState';
 

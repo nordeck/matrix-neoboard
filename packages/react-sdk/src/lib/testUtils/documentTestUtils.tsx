@@ -20,6 +20,7 @@ import { range } from 'lodash';
 import { Fragment, PropsWithChildren, useState } from 'react';
 import { Provider } from 'react-redux';
 import { NEVER, Subject, of } from 'rxjs';
+import { Mocked, vi } from 'vitest';
 import {
   Element,
   ImageElement,
@@ -57,8 +58,8 @@ type MockWhiteboardOptions =
 export function mockWhiteboardManager(
   opts: MockWhiteboardOptions = { slideCount: 1 },
 ): {
-  whiteboardManager: jest.Mocked<WhiteboardManager>;
-  communicationChannel: jest.Mocked<CommunicationChannel>;
+  whiteboardManager: Mocked<WhiteboardManager>;
+  communicationChannel: Mocked<CommunicationChannel>;
   messageSubject: Subject<Message>;
   setPresentationMode: (enable: boolean, enableEdit?: boolean) => void;
 } {
@@ -101,15 +102,15 @@ export function mockWhiteboardManager(
 
   const messageSubject = new Subject<Message>();
   const communicationChannel = {
-    broadcastMessage: jest.fn(),
-    observeMessages: jest.fn(() => messageSubject),
-    getStatistics: jest.fn(() => ({
+    broadcastMessage: vi.fn(),
+    observeMessages: vi.fn(() => messageSubject),
+    getStatistics: vi.fn(() => ({
       localSessionId: 'own',
       peerConnections: {
         'peer-0': mockPeerConnectionStatistics('@user-alice', 'connected'),
       },
     })),
-    observeStatistics: jest.fn(() =>
+    observeStatistics: vi.fn(() =>
       of({
         localSessionId: 'own',
         peerConnections: {
@@ -117,7 +118,7 @@ export function mockWhiteboardManager(
         },
       }),
     ),
-    destroy: jest.fn(),
+    destroy: vi.fn(),
   };
 
   const synchronizedDocument = {
@@ -135,10 +136,10 @@ export function mockWhiteboardManager(
     '@user-id',
   );
 
-  const whiteboardManager: jest.Mocked<WhiteboardManager> = {
-    getActiveWhiteboardInstance: jest.fn().mockReturnValue(whiteboardInstance),
-    selectActiveWhiteboardInstance: jest.fn(),
-    clear: jest.fn(),
+  const whiteboardManager: Mocked<WhiteboardManager> = {
+    getActiveWhiteboardInstance: vi.fn().mockReturnValue(whiteboardInstance),
+    selectActiveWhiteboardInstance: vi.fn(),
+    clear: vi.fn(),
   };
 
   return {
@@ -352,7 +353,7 @@ export function mockFullscreenApi(): void {
   // eslint-disable-next-line
   document.fullscreenElement = null;
 
-  document.exitFullscreen = jest.fn(function () {
+  document.exitFullscreen = vi.fn(function () {
     // @ts-expect-error Ignore TS and linter here for setting a mocked API
     // eslint-disable-next-line
     document.fullscreenElement = null;
@@ -360,7 +361,7 @@ export function mockFullscreenApi(): void {
     return Promise.resolve();
   });
 
-  document.documentElement.requestFullscreen = jest.fn(function () {
+  document.documentElement.requestFullscreen = vi.fn(function () {
     // @ts-expect-error Ignore TS and linter here for setting a mocked API
     // eslint-disable-next-line
     document.fullscreenElement = {};

@@ -16,6 +16,7 @@
 
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { ComponentType, PropsWithChildren } from 'react';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { FontsLoadedContextProvider, useFontsLoaded } from './useFontsLoaded';
 
 describe('useFontsLoaded', () => {

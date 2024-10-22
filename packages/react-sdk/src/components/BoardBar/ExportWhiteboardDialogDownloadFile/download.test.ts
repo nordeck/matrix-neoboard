@@ -15,6 +15,7 @@
  */
 
 import { Blob as BlobPolyfill } from 'node:buffer';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { download, downloadData } from './download';
 
 describe('download', () => {
@@ -30,20 +31,21 @@ describe('download', () => {
 
     const createElement = document.createElement.bind(document);
 
-    jest.spyOn(document, 'createElement').mockImplementation((tag) => {
+    vi.spyOn(document, 'createElement').mockImplementation((tag) => {
       const element = createElement(tag);
 
       if (element instanceof HTMLAnchorElement) {
-        jest.spyOn(element, 'click');
-        jest.spyOn(element, 'remove');
-        jest.spyOn(element, 'setAttribute');
+        // This is used below in the expect statements.
+        vi.spyOn(element, 'click');
+        vi.spyOn(element, 'remove');
+        vi.spyOn(element, 'setAttribute');
         anchorElement = element;
       }
 
       return element;
     });
 
-    jest.spyOn(document.body, 'appendChild');
+    vi.spyOn(document.body, 'appendChild');
   });
 
   afterEach(() => {
@@ -51,12 +53,12 @@ describe('download', () => {
       Blob: OriginalBlob,
     });
 
-    jest.mocked(document.createElement).mockRestore();
-    jest.mocked(document.body.appendChild).mockRestore();
+    vi.mocked(document.createElement).mockRestore();
+    vi.mocked(document.body.appendChild).mockRestore();
 
     // mocked in setupTests - but reset here to not interfere with any other test
-    jest.mocked(URL.createObjectURL).mockReset();
-    jest.mocked(URL.revokeObjectURL).mockReset();
+    vi.mocked(URL.createObjectURL).mockReset();
+    vi.mocked(URL.revokeObjectURL).mockReset();
   });
 
   it('should start a download', () => {
@@ -72,13 +74,13 @@ describe('download', () => {
 
   describe('downloadData', () => {
     it('should start a JSON download', async () => {
-      jest
-        .mocked(URL.createObjectURL)
-        .mockReturnValue('blob:https://example.com/example.txt');
+      vi.mocked(URL.createObjectURL).mockReturnValue(
+        'blob:https://example.com/example.txt',
+      );
 
+      const spy = vi.mocked(URL.createObjectURL);
       downloadData('example.json', { test: 23 });
-
-      const blob = jest.mocked(URL.createObjectURL).mock.calls?.[0][0] as Blob;
+      const blob = spy.mock.calls?.[0][0] as Blob;
       await expect(blob.text()).resolves.toEqual('{"test":23}');
       expect(anchorElement.href).toEqual(
         'blob:https://example.com/example.txt',

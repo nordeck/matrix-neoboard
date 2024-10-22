@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
+import { describe, expect, it, vi } from 'vitest';
 import { forceLoadFontFamily } from './forceLoadFontFamily';
 
 describe('forceLoadFontFamily', () => {
   it('should wait until the fonts were loaded', async () => {
-    const loadMyFont = jest.fn().mockResolvedValue(undefined);
-    const loadOtherFont = jest.fn();
+    const loadMyFont = vi.fn().mockResolvedValue(undefined);
+    const loadOtherFont = vi.fn();
 
     Object.defineProperty(document, 'fonts', {
       value: {

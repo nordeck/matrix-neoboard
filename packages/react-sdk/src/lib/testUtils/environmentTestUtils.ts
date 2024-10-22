@@ -15,14 +15,17 @@
  */
 
 import { getEnvironment } from '@matrix-widget-toolkit/mui';
+import { vi } from 'vitest';
 
-jest.mock('@matrix-widget-toolkit/mui', () => ({
-  ...jest.requireActual('@matrix-widget-toolkit/mui'),
-  getEnvironment: jest.fn((_, defaultValue) => defaultValue),
+vi.mock('@matrix-widget-toolkit/mui', async () => ({
+  ...(await vi.importActual<typeof import('@matrix-widget-toolkit/mui')>(
+    '@matrix-widget-toolkit/mui',
+  )),
+  getEnvironment: vi.fn((_, defaultValue) => defaultValue),
 }));
 
 export function mockEnvironment(vars: Record<string, string>): void {
-  jest
-    .mocked(getEnvironment)
-    .mockImplementation((name, defaultValue) => vars[name] ?? defaultValue);
+  vi.mocked(getEnvironment).mockImplementation(
+    (name, defaultValue) => vars[name] ?? defaultValue,
+  );
 }

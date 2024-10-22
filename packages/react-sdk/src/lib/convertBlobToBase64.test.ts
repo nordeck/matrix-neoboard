@@ -14,21 +14,29 @@
  * limitations under the License.
  */
 
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  MockInstance,
+  vi,
+} from 'vitest';
 import { convertBlobToBase64 } from './convertBlobToBase64';
 
 describe('convertBlobToBase64', () => {
   let fileReader: FileReader;
-
+  let readAsDataURLSpy: MockInstance<typeof FileReader.prototype.readAsDataURL>;
   beforeEach(() => {
     fileReader = new FileReader();
-    jest.spyOn(fileReader, 'readAsDataURL');
-    jest.spyOn(global, 'FileReader').mockImplementation(() => {
+    readAsDataURLSpy = vi.spyOn(fileReader, 'readAsDataURL');
+    vi.spyOn(global, 'FileReader').mockImplementation(() => {
       return fileReader;
     });
   });
-
   afterEach(() => {
-    jest.mocked(FileReader).mockRestore();
+    vi.restoreAllMocks();
   });
 
   it('should convert a blob to base64', async () => {
@@ -38,7 +46,7 @@ describe('convertBlobToBase64', () => {
   });
 
   it('should handle non-string results', async () => {
-    jest.mocked(fileReader.readAsDataURL).mockImplementation(() => {
+    readAsDataURLSpy.mockImplementation(() => {
       // do not set the result and emit "loadend" to run into the non-string result case
       fileReader.dispatchEvent(new Event('loadend'));
     });

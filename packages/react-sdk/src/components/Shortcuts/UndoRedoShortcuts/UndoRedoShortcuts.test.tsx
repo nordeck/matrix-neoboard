@@ -19,6 +19,15 @@ import { act, render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ComponentType, PropsWithChildren } from 'react';
 import {
+  Mocked,
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
+import {
   WhiteboardTestingContextProvider,
   mockWhiteboardManager,
 } from '../../../lib/testUtils/documentTestUtils';
@@ -34,11 +43,13 @@ let widgetApi: MockedWidgetApi;
 
 afterEach(() => widgetApi.stop());
 
-beforeEach(() => (widgetApi = mockWidgetApi()));
+beforeEach(() => {
+  widgetApi = mockWidgetApi();
+});
 
 describe('<UndoRedoShortcuts>', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
-  let whiteboardManager: jest.Mocked<WhiteboardManager>;
+  let whiteboardManager: Mocked<WhiteboardManager>;
   let setPresentationMode: (enable: boolean) => void;
 
   beforeEach(() => {
@@ -58,7 +69,7 @@ describe('<UndoRedoShortcuts>', () => {
 
   afterEach(() => {
     // restore the mock on window.navigator.userAgent
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it('should undo with ctrl+z', async () => {
@@ -80,9 +91,9 @@ describe('<UndoRedoShortcuts>', () => {
   });
 
   it('should undo with meta+z on mac os', async () => {
-    jest
-      .spyOn(window.navigator, 'userAgent', 'get')
-      .mockReturnValue('Mac OS (jsdom)');
+    vi.spyOn(window.navigator, 'userAgent', 'get').mockReturnValue(
+      'Mac OS (jsdom)',
+    );
 
     render(<UndoRedoShortcuts />, { wrapper: Wrapper });
 
@@ -167,9 +178,9 @@ describe('<UndoRedoShortcuts>', () => {
   );
 
   it('should redo with meta+shift+z on mac os', async () => {
-    jest
-      .spyOn(window.navigator, 'userAgent', 'get')
-      .mockReturnValue('Mac OS (jsdom)');
+    vi.spyOn(window.navigator, 'userAgent', 'get').mockReturnValue(
+      'Mac OS (jsdom)',
+    );
 
     render(<UndoRedoShortcuts />, { wrapper: Wrapper });
 

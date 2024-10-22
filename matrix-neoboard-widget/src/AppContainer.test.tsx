@@ -15,11 +15,10 @@
  */
 
 import { WidgetApiImpl } from '@matrix-widget-toolkit/api';
-import {
-  createStore,
-  mockWhiteboardManager,
-} from '@nordeck/matrix-neoboard-react-sdk';
+import { createStore } from '@nordeck/matrix-neoboard-react-sdk';
+import { mockWhiteboardManager } from '@nordeck/matrix-neoboard-react-sdk/src/lib/testUtils';
 import { render, screen } from '@testing-library/react';
+import { describe, expect, it } from 'vitest';
 import { AppContainer } from './AppContainer';
 
 describe('AppContainer', () => {

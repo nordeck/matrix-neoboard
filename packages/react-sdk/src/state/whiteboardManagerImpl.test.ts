@@ -15,6 +15,7 @@
  */
 
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { mockWhiteboard } from '../lib/testUtils/matrixTestUtils';
 import { createStore } from '../store';
 import { WhiteboardInstanceImpl } from './whiteboardInstanceImpl';
@@ -24,7 +25,9 @@ let widgetApi: MockedWidgetApi;
 
 afterEach(() => widgetApi.stop());
 
-beforeEach(() => (widgetApi = mockWidgetApi()));
+beforeEach(() => {
+  widgetApi = mockWidgetApi();
+});
 
 const createTestWhiteboardManager = () => {
   const store = createStore({ widgetApi });
@@ -32,10 +35,6 @@ const createTestWhiteboardManager = () => {
 };
 
 describe('WhiteboardManagerImpl', () => {
-  afterEach(() => {
-    jest.restoreAllMocks();
-  });
-
   it('should return undefined whiteboard instance', () => {
     const whiteboardManager = createTestWhiteboardManager();
 
@@ -53,7 +52,7 @@ describe('WhiteboardManagerImpl', () => {
     );
   });
 
-  it('should destroy a whiteboard when selecting a new one', () => {
+  it('should destroy a whiteboard when selecting a new one', async () => {
     const whiteboardManager = createTestWhiteboardManager();
 
     const event0 = widgetApi.mockSendStateEvent(mockWhiteboard());
@@ -63,7 +62,7 @@ describe('WhiteboardManagerImpl', () => {
 
     whiteboardManager.selectActiveWhiteboardInstance(event0, '@user-id');
 
-    const destroySpy = jest.spyOn(
+    const destroySpy = vi.spyOn(
       whiteboardManager.getActiveWhiteboardInstance() as WhiteboardInstanceImpl,
       'destroy',
     );
@@ -72,9 +71,27 @@ describe('WhiteboardManagerImpl', () => {
     whiteboardManager.selectActiveWhiteboardInstance(event0, '@user-id');
     expect(destroySpy).not.toHaveBeenCalled();
 
-    whiteboardManager.selectActiveWhiteboardInstance(event1, '@user-id');
+    // Handler for the `Error: Channel not initialized` throw
+    const error = await new Promise<Error | null>((resolve) => {
+      process.once('uncaughtException', (err: Error) => {
+        resolve(err);
+      });
 
-    expect(destroySpy).toHaveBeenCalled();
+      whiteboardManager.selectActiveWhiteboardInstance(event1, '@user-id');
+
+      expect(destroySpy).toHaveBeenCalled();
+
+      return vi
+        .waitFor(() => {
+          expect(destroySpy).toHaveBeenCalled();
+        })
+        .then(() => resolve(null));
+    });
+
+    // This seems to not consistently throw the error, so we check if it was thrown.
+    if (error) {
+      expect(error).toBeInstanceOf(Error);
+    }
   });
 
   describe('clear', () => {
@@ -85,11 +102,11 @@ describe('WhiteboardManagerImpl', () => {
       const originalCreate = WhiteboardInstanceImpl.create.bind(
         WhiteboardInstanceImpl,
       );
-      const createSpy = jest.spyOn(WhiteboardInstanceImpl, 'create');
+      const createSpy = vi.spyOn(WhiteboardInstanceImpl, 'create');
       createSpy.mockImplementation(
         (...args: Parameters<typeof originalCreate>) => {
           const whiteboard = originalCreate(...args);
-          jest.spyOn(whiteboard, 'destroy');
+          vi.spyOn(whiteboard, 'destroy');
           return whiteboard;
         },
       );

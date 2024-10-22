@@ -17,9 +17,18 @@
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { axe } from 'jest-axe';
+import axe from 'axe-core';
 import { ComponentType, PropsWithChildren } from 'react';
 import { of, throwError } from 'rxjs';
+import {
+  Mocked,
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
 import {
   WhiteboardTestingContextProvider,
   mockWhiteboardManager,
@@ -27,10 +36,16 @@ import {
 import { WhiteboardManager } from '../../state';
 import { LayoutStateProvider } from '../Layout';
 import { ExportWhiteboardDialog } from './ExportWhiteboardDialog';
-import { createWhiteboardPdf } from './pdf';
+import * as pdf from './pdf';
 
 // The pdf library doesn't work in test, so we mock pdf generation completely
-jest.mock('./pdf', () => ({ createWhiteboardPdf: jest.fn() }));
+vi.mock('./pdf', async () => {
+  const pdfLib = await vi.importActual<typeof import('./pdf')>('./pdf');
+  return {
+    ...pdfLib,
+    createWhiteboardPdf: vi.fn(),
+  };
+});
 
 let widgetApi: MockedWidgetApi;
 
@@ -44,8 +59,8 @@ beforeEach(() => {
 
 describe('<ExportWhiteboardDialog/>', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
-  let whiteboardManager: jest.Mocked<WhiteboardManager>;
-  const onClose = jest.fn();
+  let whiteboardManager: Mocked<WhiteboardManager>;
+  const onClose = vi.fn();
 
   beforeEach(() => {
     ({ whiteboardManager } = mockWhiteboardManager());
@@ -61,8 +76,8 @@ describe('<ExportWhiteboardDialog/>', () => {
       );
     };
 
-    jest.mocked(URL.createObjectURL).mockReturnValue('blob:url');
-    jest.mocked(createWhiteboardPdf).mockReturnValue(of(new Blob(['value'])));
+    vi.mocked(URL.createObjectURL).mockReturnValue('blob:url');
+    vi.mocked(pdf.createWhiteboardPdf).mockReturnValue(of(new Blob(['value'])));
   });
 
   it('should render without exploding', async () => {
@@ -102,7 +117,7 @@ describe('<ExportWhiteboardDialog/>', () => {
 
     // the popover is opened in a portal, so we check the baseElement, i.e. <body/>.
     await act(async () => {
-      expect(await axe(baseElement)).toHaveNoViolations();
+      expect(await axe.run(baseElement)).toHaveNoViolations();
     });
   });
 
@@ -170,9 +185,9 @@ describe('<ExportWhiteboardDialog/>', () => {
   });
 
   it('should handle error while generating PDF', async () => {
-    jest
-      .mocked(createWhiteboardPdf)
-      .mockReturnValue(throwError(() => new Error('Failed')));
+    vi.mocked(pdf.createWhiteboardPdf).mockReturnValue(
+      throwError(() => new Error('Failed')),
+    );
 
     render(<ExportWhiteboardDialog open onClose={onClose} />, {
       wrapper: Wrapper,

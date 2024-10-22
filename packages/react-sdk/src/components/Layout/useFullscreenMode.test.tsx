@@ -16,6 +16,7 @@
 
 import { act, renderHook } from '@testing-library/react';
 import { ComponentType, PropsWithChildren } from 'react';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { mockFullscreenApi } from '../../lib/testUtils/documentTestUtils';
 import { useFullscreenMode } from './useFullscreenMode';
 

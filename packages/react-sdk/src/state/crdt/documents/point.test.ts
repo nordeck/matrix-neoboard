@@ -15,6 +15,7 @@
  */
 
 import Joi from 'joi';
+import { describe, expect, it } from 'vitest';
 import { calculateBoundingRectForPoints, pointSchema } from './point';
 
 describe('pointSchema', () => {
