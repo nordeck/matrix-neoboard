@@ -81,8 +81,11 @@ describe('WhiteboardManagerImpl', () => {
 
       expect(destroySpy).toHaveBeenCalled();
 
-      // After 250ms, the error should have been thrown. If not we resolve with null.
-      setTimeout(() => resolve(null), 250);
+      return vi
+        .waitFor(() => {
+          expect(destroySpy).toHaveBeenCalled();
+        })
+        .then(() => resolve(null));
     });
 
     // This seems to not consistently throw the error, so we check if it was thrown.
