@@ -84,7 +84,7 @@ describe('<ExportWhiteboardDialogDownloadFile />', () => {
   });
 
   afterEach(() => {
-    vi.spyOn(document, 'createElement').mockRestore();
+    vi.mocked(document.createElement).mockRestore();
   });
 
   it('should render without exploding', async () => {

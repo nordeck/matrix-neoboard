@@ -107,9 +107,11 @@ describe('useSlideImageUpload', () => {
       type: 'image/jpeg',
     });
     const uploadError = new Error('upload error');
-    vi.spyOn(file, 'arrayBuffer').mockImplementation(() => {
-      throw uploadError;
-    });
+    const arrayBufferMock = vi
+      .mocked(file.arrayBuffer)
+      .mockImplementation(() => {
+        throw uploadError;
+      });
     await userEvent.upload(screen.getByTestId('file-input'), file);
 
     expect(console.error).toHaveBeenCalledWith(
@@ -117,5 +119,7 @@ describe('useSlideImageUpload', () => {
       uploadError,
     );
     expect(slide.getElementIds().length).toBe(0);
+
+    arrayBufferMock.mockRestore();
   });
 });

@@ -185,7 +185,7 @@ describe('<ExportWhiteboardDialog/>', () => {
   });
 
   it('should handle error while generating PDF', async () => {
-    vi.spyOn(pdf, 'createWhiteboardPdf').mockReturnValue(
+    vi.mocked(pdf.createWhiteboardPdf).mockReturnValue(
       throwError(() => new Error('Failed')),
     );
 

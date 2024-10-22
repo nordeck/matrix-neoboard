@@ -116,7 +116,9 @@ describe('<ImageUploadProvider />', () => {
       type: 'image/jpeg',
     });
     const readFileError = new Error('error reading file');
-    vi.spyOn(file, 'arrayBuffer').mockRejectedValue(readFileError);
+    const arrayBufferMock = vi
+      .mocked(file.arrayBuffer)
+      .mockRejectedValue(readFileError);
 
     let results;
     await act(async () => {
@@ -133,6 +135,8 @@ describe('<ImageUploadProvider />', () => {
         reason: readFileError,
       },
     ]);
+
+    arrayBufferMock.mockRestore();
   });
 
   it('should catch upload file errors', async () => {
@@ -261,7 +265,9 @@ describe('<ImageUploadProvider />', () => {
       type: 'image/jpeg',
     });
     const readFileError = new Error('error reading file');
-    vi.spyOn(file, 'arrayBuffer').mockRejectedValue(readFileError);
+    const arrayBufferMock = vi
+      .mocked(file.arrayBuffer)
+      .mockRejectedValue(readFileError);
     await act(async () => {
       await result.current.handleDrop([file], []);
     });
@@ -276,6 +282,8 @@ describe('<ImageUploadProvider />', () => {
         autoHideDuration: 10000,
       }),
     );
+
+    arrayBufferMock.mockRestore();
   });
 
   describe('maxUploadSizeBytes', () => {

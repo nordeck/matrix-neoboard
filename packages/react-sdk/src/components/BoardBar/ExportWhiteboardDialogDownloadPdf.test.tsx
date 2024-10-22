@@ -77,9 +77,11 @@ describe('<ExportWhiteboardDialogDownloadPdf />', () => {
     };
 
     vi.mocked(URL.createObjectURL).mockReturnValue('blob:url');
-    vi.spyOn(pdf, 'createWhiteboardPdf').mockReturnValue(
-      of(new Blob(['value'])),
-    );
+    vi.mocked(pdf.createWhiteboardPdf).mockReturnValue(of(new Blob(['value'])));
+  });
+
+  afterEach(() => {
+    vi.mocked(pdf.createWhiteboardPdf).mockRestore();
   });
 
   it('should render without exploding', async () => {
@@ -195,7 +197,7 @@ describe('<ExportWhiteboardDialogDownloadPdf />', () => {
   });
 
   it('should handle error while generating PDF', () => {
-    vi.spyOn(pdf, 'createWhiteboardPdf').mockReturnValue(
+    vi.mocked(pdf.createWhiteboardPdf).mockReturnValue(
       throwError(() => new Error('Failed')),
     );
 
@@ -215,7 +217,7 @@ describe('<ExportWhiteboardDialogDownloadPdf />', () => {
   });
 
   it('should show loading state', () => {
-    vi.spyOn(pdf, 'createWhiteboardPdf').mockReturnValue(NEVER);
+    vi.mocked(pdf.createWhiteboardPdf).mockReturnValue(NEVER);
 
     const { unmount } = render(
       <ExportWhiteboardDialogDownloadPdf onClick={onClick}>

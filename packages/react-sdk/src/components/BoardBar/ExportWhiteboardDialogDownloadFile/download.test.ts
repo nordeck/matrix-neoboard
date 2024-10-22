@@ -53,8 +53,8 @@ describe('download', () => {
       Blob: OriginalBlob,
     });
 
-    vi.spyOn(document, 'createElement').mockRestore();
-    vi.spyOn(document.body, 'appendChild').mockRestore();
+    vi.mocked(document.createElement).mockRestore();
+    vi.mocked(document.body.appendChild).mockRestore();
 
     // mocked in setupTests - but reset here to not interfere with any other test
     vi.mocked(URL.createObjectURL).mockReset();

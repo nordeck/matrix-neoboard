@@ -100,7 +100,7 @@ describe('convertWhiteboardToExportFormat', () => {
       addElement0(doc);
     });
 
-    vi.spyOn(lib, 'convertBlobToBase64').mockImplementation(
+    vi.mocked(lib.convertBlobToBase64).mockImplementation(
       async (blob: Blob) => {
         const text = await readBlobAsText(blob);
         // ensure that the response data is passed into the function
@@ -159,7 +159,7 @@ describe('convertWhiteboardToExportFormat', () => {
       return '';
     });
 
-    vi.spyOn(lib, 'convertBlobToBase64').mockImplementation(
+    vi.mocked(lib.convertBlobToBase64).mockImplementation(
       async (blob: Blob) => {
         const text = await readBlobAsText(blob);
         // ensure that the response data is passed into the function

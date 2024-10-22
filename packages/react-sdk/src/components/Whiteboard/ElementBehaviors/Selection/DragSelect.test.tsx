@@ -119,7 +119,7 @@ describe('<DragSelect/>', () => {
   it('should not render a selection if there is a mouse move but not start coordinates', () => {
     render(<DragSelect />, { wrapper: Wrapper });
 
-    vi.spyOn(svgUtils, 'calculateSvgCoords').mockReturnValue({ x: 50, y: 50 });
+    vi.mocked(svgUtils.calculateSvgCoords).mockReturnValue({ x: 50, y: 50 });
     fireEvent.mouseMove(screen.getByTestId('drag-select-layer'), {
       clientX: 50,
       clientY: 50,
@@ -135,7 +135,7 @@ describe('<DragSelect/>', () => {
     act(() => {
       setDragSelectStartCoords({ x: 0, y: 0 });
     });
-    vi.spyOn(svgUtils, 'calculateSvgCoords').mockReturnValue({ x: 50, y: 50 });
+    vi.mocked(svgUtils.calculateSvgCoords).mockReturnValue({ x: 50, y: 50 });
     fireEvent.mouseMove(screen.getByTestId('drag-select-layer'), {
       clientX: 50,
       clientY: 50,
@@ -151,7 +151,7 @@ describe('<DragSelect/>', () => {
     act(() => {
       setDragSelectStartCoords({ x: 60, y: 60 });
     });
-    vi.spyOn(svgUtils, 'calculateSvgCoords').mockReturnValue({ x: 70, y: 70 });
+    vi.mocked(svgUtils.calculateSvgCoords).mockReturnValue({ x: 70, y: 70 });
     fireEvent.mouseMove(screen.getByTestId('drag-select-layer'), {
       clientX: 70,
       clientY: 70,
@@ -160,7 +160,7 @@ describe('<DragSelect/>', () => {
     expect(activeSlide.getActiveElementIds()).toEqual(['element-1']);
 
     // Now extend the selection to the corner where element-0 is located
-    vi.spyOn(svgUtils, 'calculateSvgCoords').mockReturnValue({ x: 0, y: 0 });
+    vi.mocked(svgUtils.calculateSvgCoords).mockReturnValue({ x: 0, y: 0 });
     fireEvent.mouseMove(screen.getByTestId('drag-select-layer'), {
       clientX: 0,
       clientY: 0,
