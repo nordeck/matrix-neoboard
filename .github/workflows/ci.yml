@@ -19,6 +19,8 @@ jobs:
         with:
           repository: nordeck/matrix-widget-toolkit
           path: matrix-widget-toolkit
+          # FIXME: THIS IS NOT MEANT TO LAND ON MAIN!
+          ref: 'nic/fix/NEO-800'
 
       - uses: actions/checkout@v4
         with:
