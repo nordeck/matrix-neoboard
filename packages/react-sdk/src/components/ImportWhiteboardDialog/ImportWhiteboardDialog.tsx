@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import { WidgetApi } from '@matrix-widget-toolkit/api';
 import { useWidgetApi } from '@matrix-widget-toolkit/react';
 import CloseIcon from '@mui/icons-material/Close';
 import {
@@ -105,7 +104,7 @@ export function ImportWhiteboardDialog({
       const file = importedData?.file;
       if (file) {
         if (file.type === 'application/pdf') {
-          readPDF(file, widgetApi)
+          readPDF(file)
             .then((data) => {
               setWhiteboardData(data);
               setLoading(false);
@@ -309,10 +308,7 @@ function readNWB(file: File): Promise<{
   });
 }
 
-async function readPDF(
-  file: File,
-  widgetApi: WidgetApi,
-): Promise<WhiteboardDocumentExport> {
+async function readPDF(file: File): Promise<WhiteboardDocumentExport> {
   await initPDFJs();
 
   const logger = getLogger('SettingsMenu');
@@ -329,8 +325,6 @@ async function readPDF(
 
   const imageData = [];
   for (const image of images) {
-    const resp = await widgetApi.uploadFile(image.data);
-
     const base64 = btoa(
       new Uint8Array(image.data).reduce(
         (data, byte) => data + String.fromCharCode(byte),
@@ -339,7 +333,6 @@ async function readPDF(
     );
 
     imageData.push({
-      mxc: resp.content_uri,
       width: image.width,
       height: image.height,
       size: image.size,
@@ -356,7 +349,7 @@ async function readPDF(
         elements: [
           {
             type: 'image',
-            mxc: data.mxc,
+            mxc: 'placeholder' + i,
             width: data.width,
             height: data.height,
             fileName: `${file.name}_${i}`,
@@ -368,8 +361,8 @@ async function readPDF(
           } as ImageElement,
         ],
       })),
-      files: imageData.map((data) => ({
-        mxc: data.mxc,
+      files: imageData.map((data, i) => ({
+        mxc: 'placeholder' + i,
         data: data.base64,
       })),
     },
