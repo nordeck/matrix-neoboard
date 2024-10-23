@@ -24,16 +24,8 @@ import { RenderParameters } from 'pdfjs-dist/types/src/display/api';
 
 // This is a weird oddity of pdfjs. It requires the worker to be loaded from a URL.
 export async function initPDFJs() {
-  if (!Object.prototype.hasOwnProperty.call(process.env, 'SSR')) {
-    console.log('Loading pdf.worker.mjs in webpack');
-    // @ts-expect-error -- There are no types for this file
-    await import('pdfjs-dist/webpack');
-  } else {
-    console.log('Loading pdf.worker.mjs in vitejs');
-    // @ts-expect-error -- There are no types for this file
-    const pdfJSWorker = await import('pdfjs-dist/build/pdf.worker.mjs?url');
-    GlobalWorkerOptions.workerSrc = pdfJSWorker.default;
-  }
+  const pdfJSWorker = await import('pdfjs-dist/build/pdf.worker.mjs?url');
+  GlobalWorkerOptions.workerSrc = pdfJSWorker.default;
 }
 
 export interface PDFImportResult {
