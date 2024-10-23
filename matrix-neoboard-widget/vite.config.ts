@@ -47,9 +47,10 @@ export default defineConfig({
     dedupe: [
       'react',
       'react-dom',
-      '@matrix-widget-toolkit/react',
+      'react-use',
       'react-redux',
       '@mui/material',
+      '@matrix-widget-toolkit/react',
     ],
   },
   server: {
