@@ -28,3 +28,13 @@ import '@testing-library/jest-dom/vitest';
 // definition in jsdom
 import { webcrypto } from 'node:crypto';
 Object.defineProperty(global.globalThis, 'crypto', { value: webcrypto });
+
+// @ts-expect-error This is a polyfill for pdfjs
+window.Promise.withResolvers = function () {
+  let res, rej;
+  const promise = new Promise((resolve, reject) => {
+    res = resolve;
+    rej = reject;
+  });
+  return { promise, resolve: res, reject: rej };
+};
