@@ -19,6 +19,17 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig({
+  resolve: {
+    dedupe: [
+      'react',
+      'react-dom',
+      'react-use',
+      'react-redux',
+      '@mui/material',
+      // Needed as both projects run in the same context and otherwise might cause issues sometimes
+      '@nordeck/matrix-neoboard-widget',
+    ],
+  },
   test: {
     // Happy-Dom has no support for the blob: scheme. So we need to use jsdom
     environment: 'jsdom',
