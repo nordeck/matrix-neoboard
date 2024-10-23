@@ -216,7 +216,7 @@ describe('<BoardBar/>', () => {
     const filePickerInput = screen.getByTestId('import-file-picker');
     expect(filePickerInput).toHaveAttribute(
       'accept',
-      'application/octet-stream,.nwb',
+      'application/octet-stream,.nwb,application/pdf,.pdf',
     );
     expect(filePickerInput).not.toHaveAttribute('multiple');
 
