@@ -78,8 +78,8 @@ async function renderPDFPageToImage(
     scaledViewport = page.getViewport({ scale: scale });
   }
 
-  // Support HiDPI-screens.
-  const outputScale = window.devicePixelRatio || 1;
+  // Ensure consistent scaling
+  const outputScale = 1;
 
   const canvas = new OffscreenCanvas(
     Math.floor(scaledViewport.width * outputScale),
