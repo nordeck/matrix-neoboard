@@ -120,7 +120,7 @@ export function ImportWhiteboardDialog({
           readNWB(file)
             .then((data) => {
               if (data.isError) {
-                console.log('Error while reading nwb file', error);
+                console.log('Error while reading nwb file');
                 setError(true);
                 setLoading(false);
                 return;
@@ -149,7 +149,7 @@ export function ImportWhiteboardDialog({
     setLoading(true);
     setError(false);
     onRetry();
-  }, [setLoading]);
+  }, [setLoading, onRetry]);
 
   const selectFileButtonLabel = t(
     'boardBar.importWhiteboardDialog.selectFileLabel',
