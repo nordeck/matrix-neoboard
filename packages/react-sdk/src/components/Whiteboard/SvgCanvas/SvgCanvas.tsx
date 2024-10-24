@@ -29,7 +29,7 @@ import { useMeasure } from './useMeasure';
 import { calculateScale, calculateSvgCoords } from './utils';
 
 const Canvas = styled('svg', {
-  shouldForwardProp: (p) => p !== 'rounded',
+  shouldForwardProp: (p) => p !== 'rounded' && p !== 'sx',
 })<{ rounded?: boolean }>(({ theme, rounded }) => ({
   background: theme.palette.common.white,
   margin: 'auto',
