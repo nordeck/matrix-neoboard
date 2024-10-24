@@ -33,7 +33,7 @@ There are several reasons for which such a storage is desired:
 
 The Web platform provides multiple storage APIs:
 
-- **[Local Storage][mdn-localstorage]**: Most commonly available API, providing a simple key-value storage.
+- **[localStorage][mdn-localstorage]**: Most commonly available API, providing a simple key-value storage.
 - **[IndexedDB][mdn-indexeddb]**: A simple key-value based database, with support for indices.
 - **WebSQL**: A now deprecated API with the goal to provide a SQL compatible database.
 - **[CacheStorage][mdn-cachestorage]**: A API for controlling the browser cache in combination with service workers.
@@ -44,13 +44,13 @@ The Web platform provides multiple storage APIs:
 sentences, with active voice. "We will ..." -->
 
 We will use an offline storage to improve performance, protect from data loss and handle connectivity issues.
-We prefer storing data in IndexedDB as it has support for binary data (like `Uint8Array`), however due to the higher availability of Local Storage we should support both.
-As Local Storage and IndexedDB don't automatically evict old unused data, we will use a least recently used (LRU) storage policy with a fixed size.
+We prefer storing data in IndexedDB as it has support for binary data (like `Uint8Array`), however due to the higher availability of localStorage we should support both.
+As localStorage and IndexedDB don't automatically evict old unused data, we will use a least recently used (LRU) storage policy with a fixed size.
 This avoids that we run into the size quota of the storage.
 
 ## Consequences
 
-To avoid dealing with the complexity of IndexedDB and the complexity to handle both Local Storage and IndexedDB, we can use a common wrapper like [LocalForage][localforage].
+To avoid dealing with the complexity of IndexedDB and the complexity to handle both localStorage and IndexedDB, we can use a common wrapper like [LocalForage][localforage].
 
 <!-- This section describes the resulting context, after applying the decision.
 All consequences should be listed here, not just the "positive" ones. A particular
