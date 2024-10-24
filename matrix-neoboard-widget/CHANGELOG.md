@@ -1,5 +1,33 @@
 # @nordeck/matrix-neoboard-widget
 
+## 2.0.0
+
+### Major Changes
+
+- d1aa5b7: Migrate neoboard to vitejs + vitest
+
+  We replaced react-scripts with vitejs and jest with vitest. This change should not affect the functionality of the widget,
+  but it allows us to update dependencies and modernize the build process. It also improves the ability to react to security issues in the future.
+
+  However there are changes to the tooling. This will only affect you if you are building the widget yourself and do not use the provided build script.
+  This means that you will need to update your build script to use vitejs instead of react-scripts. Additionally, if you had custom changes to the configurations you will have to update them to the vitejs equivalent.
+
+  Finally, the package is now an ECMAScript module (ESM). This means that you might have to update your imports if you consumed the package directly.
+
+### Minor Changes
+
+- 5535a20: Hide about menu item if the widget is embedded
+
+### Patch Changes
+
+- 79ea35f: Add Border to the color picker icon
+- a4e9a8b: Change rounded corner rectangle element position in the toolbar.
+- Updated dependencies [db08392]
+- Updated dependencies [9eed0b8]
+- Updated dependencies [d1aa5b7]
+- Updated dependencies [a4e9a8b]
+  - @nordeck/matrix-neoboard-react-sdk@1.0.0
+
 ## 1.20.0
 
 ### Minor Changes
