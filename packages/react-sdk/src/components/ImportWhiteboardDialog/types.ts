@@ -20,7 +20,9 @@ export type ImportedWhiteboard =
   | {
       name: string;
       isError: false;
-      data: WhiteboardDocumentExport;
+      // Optional fields due to tests/legacy code.
+      file?: File;
+      data?: WhiteboardDocumentExport;
     }
   | {
       name: string;
