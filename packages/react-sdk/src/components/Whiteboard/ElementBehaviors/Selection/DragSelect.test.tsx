@@ -128,7 +128,7 @@ describe('<DragSelect/>', () => {
     expect(screen.queryByTestId('drag-selection')).not.toBeInTheDocument();
   });
 
-  it('should render a selection if there is a ponter move and start coordinates', () => {
+  it('should render a selection if there is a pointer move and start coordinates', () => {
     render(<DragSelect />, { wrapper: Wrapper });
 
     // draw a selection from top left to 50,50
