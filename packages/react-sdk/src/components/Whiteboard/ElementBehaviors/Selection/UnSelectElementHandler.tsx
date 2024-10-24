@@ -38,15 +38,17 @@ export function UnSelectElementHandler() {
 
   const handleMouseDown = useCallback(
     (event: MouseEvent<SVGRectElement>) => {
-      const point = calculateSvgCoords({
-        x: event.clientX,
-        y: event.clientY,
-      });
-      setDragSelectStartCoords(point);
+      if (event.button === 0) {
+        const point = calculateSvgCoords({
+          x: event.clientX,
+          y: event.clientY,
+        });
+        setDragSelectStartCoords(point);
 
-      if (activeElementId) {
-        slideInstance.setActiveElementId(undefined);
-        window.getSelection()?.empty();
+        if (activeElementId) {
+          slideInstance.setActiveElementId(undefined);
+          window.getSelection()?.empty();
+        }
       }
     },
     [
