@@ -24,9 +24,11 @@ import {
   useRef,
 } from 'react';
 import { Point } from '../../../state';
+import { selectCanvas } from '../../../store/canvasSlice';
+import { useAppSelector } from '../../../store/reduxToolkitHooks';
 import { SvgCanvasContext, SvgCanvasContextType } from './context';
 import { useMeasure } from './useMeasure';
-import { calculateScale, calculateSvgCoords } from './utils';
+import { calculateSvgCoords } from './utils';
 
 const Canvas = styled('svg', {
   shouldForwardProp: (p) => p !== 'rounded' && p !== 'sx',
@@ -43,6 +45,7 @@ export type SvgCanvasProps = PropsWithChildren<{
   rounded?: boolean;
   additionalChildren?: ReactNode;
   withOutline?: boolean;
+  preview?: boolean;
 
   onMouseDown?: MouseEventHandler<SVGSVGElement> | undefined;
   onMouseMove?: (position: Point) => void | undefined;
@@ -57,6 +60,7 @@ export function SvgCanvas({
   withOutline,
   onMouseDown,
   onMouseMove,
+  preview,
 }: SvgCanvasProps) {
   const [sizeRef, { width, height }] = useMeasure<HTMLDivElement>();
   const svgRef = useRef<SVGSVGElement>(null);
@@ -77,7 +81,7 @@ export function SvgCanvas({
       height,
       viewportWidth,
       viewportHeight,
-      scale: calculateScale(width, height, viewportWidth, viewportHeight),
+      scale: 1,
       calculateSvgCoords: calculateSvgCoordsFunc,
     }),
     [calculateSvgCoordsFunc, height, viewportHeight, viewportWidth, width],
@@ -97,14 +101,21 @@ export function SvgCanvas({
   );
 
   const aspectRatio = `${viewportWidth} / ${viewportHeight}`;
+  const { scale, translate } = useAppSelector((state) => selectCanvas(state));
+
+  const boxSx = preview
+    ? {}
+    : {
+        width: '1920px',
+      };
 
   return (
     <Box
       sx={{
         flex: 1,
-        maxWidth: '100%',
         aspectRatio,
         position: 'relative',
+        ...boxSx,
       }}
     >
       <Box
@@ -112,6 +123,7 @@ export function SvgCanvas({
         sx={
           withOutline
             ? {
+                overflow: 'hidden',
                 '&::after': {
                   content: '""',
                   position: 'absolute',
@@ -126,7 +138,9 @@ export function SvgCanvas({
                   pointerEvents: 'none',
                 },
               }
-            : {}
+            : {
+                overflow: 'hidden',
+              }
         }
       >
         <SvgCanvasContext.Provider value={value}>
@@ -137,6 +151,11 @@ export function SvgCanvas({
             viewBox={`0 0 ${viewportWidth} ${viewportHeight}`}
             onMouseDown={onMouseDown}
             onMouseMove={handleMouseMove}
+            transform={
+              !preview
+                ? `translate(${translate.x}, ${translate.y}) scale(${scale})`
+                : ''
+            }
           >
             {children}
           </Canvas>
