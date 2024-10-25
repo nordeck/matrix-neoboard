@@ -88,6 +88,8 @@ const WhiteboardHost = ({
       alignContent="space-around"
       position="relative"
       data-guided-tour-target="canvas"
+      width="calc(100vw - 50px)"
+      overflow="hidden"
     >
       <SvgCanvas
         viewportHeight={whiteboardHeight}
