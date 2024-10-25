@@ -19,6 +19,8 @@ import { clamp } from 'lodash';
 import { PropsWithChildren } from 'react';
 import { useSlideIsLocked } from '../../../../state';
 import { calculateBoundingRectForElements } from '../../../../state/crdt/documents/elements';
+import { selectCanvas } from '../../../../store/canvasSlice';
+import { useAppSelector } from '../../../../store/reduxToolkitHooks';
 import { useElementOverrides } from '../../../ElementOverridesProvider';
 import { useMeasure, useSvgCanvasContext } from '../../SvgCanvas';
 
@@ -30,11 +32,10 @@ export function ElementBarWrapper({
   const elements = Object.values(useElementOverrides(elementIds));
   const [sizeRef, { width: elementBarWidth, height: elementBarHeight }] =
     useMeasure<HTMLDivElement>();
-  const {
-    scale,
-    width: canvasWidth,
-    height: canvasHeight,
-  } = useSvgCanvasContext();
+  const { width: canvasWidth, height: canvasHeight } = useSvgCanvasContext();
+  const { scale: canvasScale, translate } = useAppSelector((state) =>
+    selectCanvas(state),
+  );
 
   if (
     // no elements selected
@@ -52,12 +53,20 @@ export function ElementBarWrapper({
     height,
   } = calculateBoundingRectForElements(elements);
 
+  console.log(
+    `MiW x ${x}, offsetY ${y}, width ${width}, height ${height}, canvas Scale ${canvasScale}, translate.x ${translate.x}, translate.y ${translate.y}`,
+  );
+  console.log(
+    `MiW translate(${translate.x}, ${translate.y}) scale(${canvasScale})`,
+  );
+
   const offset = 10;
+  const scale = canvasScale;
 
   function calculateTopPosition() {
-    const position = y * scale;
+    const position = y * canvasScale + translate.y;
     const positionAbove = position - elementBarHeight - offset;
-    const positionBelow = position + height * scale + offset;
+    const positionBelow = position + height * offset;
     const positionInElement = position + offset;
 
     if (positionAbove >= 0) {
@@ -70,7 +79,8 @@ export function ElementBarWrapper({
   }
 
   function calculateLeftPosition() {
-    const position = (x + width / 2) * scale - elementBarWidth / 2;
+    const position =
+      (x + width / 2) * scale - elementBarWidth / 2 + translate.x;
     return clamp(position, 0, canvasWidth - elementBarWidth);
   }
 

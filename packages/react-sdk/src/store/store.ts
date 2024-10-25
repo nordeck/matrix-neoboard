@@ -17,6 +17,7 @@
 import { WidgetApi } from '@matrix-widget-toolkit/api';
 import { autoBatchEnhancer, configureStore } from '@reduxjs/toolkit';
 import { baseApi } from './api/baseApi';
+import { canvasReducer } from './canvasSlice';
 import { connectionInfoReducer } from './connectionInfoSlice';
 import { loggerMiddleware } from './loggerMiddleware';
 import { shapeSizesReducer } from './shapeSizesSlide';
@@ -31,6 +32,7 @@ export function createStore({
       [baseApi.reducerPath]: baseApi.reducer,
       connectionInfoReducer,
       shapeSizesReducer,
+      canvasReducer,
     },
     middleware: (getDefaultMiddleware) => {
       return getDefaultMiddleware({
