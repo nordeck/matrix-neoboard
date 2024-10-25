@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
-import { MouseEvent, useCallback } from 'react';
+import { Point } from 'pdfmake/interfaces';
+import { MouseEvent, WheelEvent, useCallback, useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import {
   useActiveElement,
   useWhiteboardSlideInstance,
 } from '../../../../state';
+import { updateScale, updateTranslation } from '../../../../store/canvasSlice';
+import { useAppDispatch } from '../../../../store/reduxToolkitHooks';
 import { useLayoutState } from '../../../Layout';
 import { HOTKEY_SCOPE_WHITEBOARD } from '../../../WhiteboardHotkeysProvider';
 import { useSvgCanvasContext } from '../../SvgCanvas';
@@ -29,6 +32,8 @@ export function UnSelectElementHandler() {
   const slideInstance = useWhiteboardSlideInstance();
   const { setDragSelectStartCoords } = useLayoutState();
   const { calculateSvgCoords } = useSvgCanvasContext();
+  const [previousPanCoordinates, setPreviousPanCoordinates] = useState<Point>();
+  const dispatch = useAppDispatch();
 
   const unselectElement = useCallback(() => {
     if (activeElementId) {
@@ -49,6 +54,10 @@ export function UnSelectElementHandler() {
           slideInstance.setActiveElementId(undefined);
           window.getSelection()?.empty();
         }
+      } else if (event.button === 1) {
+        event.preventDefault();
+        event.stopPropagation();
+        setPreviousPanCoordinates({ x: event.clientX, y: event.clientY });
       }
     },
     [
@@ -56,7 +65,48 @@ export function UnSelectElementHandler() {
       slideInstance,
       calculateSvgCoords,
       setDragSelectStartCoords,
+      setPreviousPanCoordinates,
     ],
+  );
+
+  const handleMouseMove = useCallback(
+    (event: MouseEvent<SVGRectElement>) => {
+      if (previousPanCoordinates === undefined) {
+        return;
+      }
+
+      dispatch(
+        updateTranslation({
+          x: event.clientX - previousPanCoordinates.x,
+          y: event.clientY - previousPanCoordinates.y,
+        }),
+      );
+
+      setPreviousPanCoordinates({ x: event.clientX, y: event.clientY });
+    },
+    [dispatch, previousPanCoordinates, setPreviousPanCoordinates],
+  );
+
+  const handleMouseUp = useCallback(
+    (event: MouseEvent<SVGRectElement>) => {
+      if (event.button === 1) {
+        event.preventDefault();
+        event.stopPropagation();
+        setPreviousPanCoordinates(undefined);
+      }
+    },
+    [setPreviousPanCoordinates],
+  );
+
+  const handleWheel = useCallback(
+    (event: WheelEvent) => {
+      if (event.deltaY === 0) {
+        return;
+      }
+
+      dispatch(updateScale(event.deltaY < 0 ? 0.1 : -0.1));
+    },
+    [dispatch],
   );
 
   useHotkeys(
@@ -75,6 +125,9 @@ export function UnSelectElementHandler() {
       fill="transparent"
       height="100%"
       onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onWheel={handleWheel}
       width="100%"
       data-testid="unselect-element-layer"
     />

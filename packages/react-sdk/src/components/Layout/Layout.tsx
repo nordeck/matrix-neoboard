@@ -86,6 +86,8 @@ export function Layout({ height = '100vh' }: LayoutProps) {
             height={!isFullscreenMode ? height : '100vh'}
             direction="row"
             bgcolor="background.paper"
+            zIndex="100"
+            position="absolute"
           >
             <AnimatedSidebar
               visible={isSlideOverviewVisible && !isViewingPresentation}
@@ -176,7 +178,10 @@ function ContentArea() {
 
       {(!isViewingPresentation || isViewingPresentationInEditMode) && (
         <ToolbarCanvasContainer ref={sizeRef}>
-          <ToolbarContainer bottom={(theme) => theme.spacing(1)}>
+          <ToolbarContainer
+            position="fixed"
+            bottom={(theme) => theme.spacing(5)}
+          >
             <Box flex="1" />
 
             <ToolsBar />

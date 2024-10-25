@@ -16,6 +16,8 @@
 
 import { useTheme } from '@mui/material';
 import { calculateBoundingRectForElements } from '../../../../state';
+import { selectCanvas } from '../../../../store/canvasSlice';
+import { useAppSelector } from '../../../../store/reduxToolkitHooks';
 import { useElementOverrides } from '../../../ElementOverridesProvider';
 import { useLayoutState } from '../../../Layout';
 import { getRenderProperties } from '../../../elements/line/getRenderProperties';
@@ -61,6 +63,7 @@ export function ElementBorder({ elementIds, padding = 1 }: ElementBorderProps) {
   const { activeTool } = useLayoutState();
   const isInSelectionMode = activeTool === 'select';
   const { scale } = useSvgCanvasContext();
+  const { scale: canvasScale } = useAppSelector((state) => selectCanvas(state));
 
   const elements = Object.values(useElementOverrides(elementIds));
   const {
@@ -70,8 +73,8 @@ export function ElementBorder({ elementIds, padding = 1 }: ElementBorderProps) {
     height,
   } = calculateBoundingRectForElements(elements);
 
-  const scaledPadding = padding / scale;
-  const selectionBorderWidth = 2 / scale;
+  const scaledPadding = padding / scale / canvasScale;
+  const selectionBorderWidth = 2 / scale / canvasScale;
   const selectionX = x - (selectionBorderWidth / 2 + scaledPadding);
   const selectionY = y - (selectionBorderWidth / 2 + scaledPadding);
   const selectionWidth = width + 2 * (selectionBorderWidth / 2 + scaledPadding);
