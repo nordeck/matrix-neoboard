@@ -29,7 +29,7 @@ import { useMeasure } from './useMeasure';
 import { calculateScale, calculateSvgCoords } from './utils';
 
 const Canvas = styled('svg', {
-  shouldForwardProp: (p) => p !== 'rounded',
+  shouldForwardProp: (p) => p !== 'rounded' && p !== 'sx',
 })<{ rounded?: boolean }>(({ theme, rounded }) => ({
   background: theme.palette.common.white,
   margin: 'auto',
@@ -83,6 +83,19 @@ export function SvgCanvas({
     [calculateSvgCoordsFunc, height, viewportHeight, viewportWidth, width],
   );
 
+  const handleMouseMove: MouseEventHandler<SVGSVGElement> = useCallback(
+    (e) => {
+      const position = calculateSvgCoordsFunc({
+        x: e.nativeEvent.clientX,
+        y: e.nativeEvent.clientY,
+      });
+      if (onMouseMove) {
+        onMouseMove(position);
+      }
+    },
+    [calculateSvgCoordsFunc, onMouseMove],
+  );
+
   const aspectRatio = `${viewportWidth} / ${viewportHeight}`;
 
   return (
@@ -118,20 +131,12 @@ export function SvgCanvas({
       >
         <SvgCanvasContext.Provider value={value}>
           <Canvas
-            rounded={rounded}
-            onMouseDown={onMouseDown}
             ref={svgRef}
-            viewBox={`0 0 ${viewportWidth} ${viewportHeight}`}
-            onMouseMove={(e) => {
-              const position = calculateSvgCoordsFunc({
-                x: e.nativeEvent.clientX,
-                y: e.nativeEvent.clientY,
-              });
-              if (onMouseMove) {
-                onMouseMove(position);
-              }
-            }}
+            rounded={rounded}
             sx={{ aspectRatio }}
+            viewBox={`0 0 ${viewportWidth} ${viewportHeight}`}
+            onMouseDown={onMouseDown}
+            onMouseMove={handleMouseMove}
           >
             {children}
           </Canvas>

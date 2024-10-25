@@ -15,7 +15,9 @@
  */
 
 import { Box } from '@mui/material';
+import { useCallback } from 'react';
 import {
+  type Point,
   useActiveElements,
   useIsWhiteboardLoading,
   usePresentationMode,
@@ -76,9 +78,6 @@ const WhiteboardHost = ({
       <SvgCanvas
         viewportHeight={whiteboardHeight}
         viewportWidth={whiteboardWidth}
-        onMouseMove={(position) => {
-          slideInstance.publishCursorPosition(position);
-        }}
         additionalChildren={
           dragSelectStartCoords === undefined &&
           !readOnly &&
@@ -90,6 +89,12 @@ const WhiteboardHost = ({
         }
         rounded
         withOutline={withOutline}
+        onMouseMove={useCallback(
+          (position: Point) => {
+            slideInstance.publishCursorPosition(position);
+          },
+          [slideInstance],
+        )}
       >
         {!hideDotGrid && <DotGrid />}
         {!readOnly && <UnSelectElementHandler />}

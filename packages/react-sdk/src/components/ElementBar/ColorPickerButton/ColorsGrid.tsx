@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-import { IconButton } from '@mui/material';
+import { IconButton, styled } from '@mui/material';
 import { chunk } from 'lodash';
 import {
   Dispatch,
   DispatchWithoutAction,
+  KeyboardEventHandler,
   useCallback,
   useRef,
   useState,
@@ -27,6 +28,145 @@ import { useTranslation } from 'react-i18next';
 import { Color, findColor, useColorPalette } from '../../../lib';
 import { ColorPickerIcon } from './ColorPickerIcon';
 import { ShadePicker } from './ShadePicker';
+
+const ZeroPaddingTd = styled('td')({
+  padding: 0,
+});
+
+interface ColorTDProps {
+  activeFocus: string;
+  activePaletteColor: Color;
+  arrayColorPalette: Color[][];
+  color: Color;
+  colorPalette: Color[];
+  colorRow: Color[];
+  indexColumn: number;
+  indexRow: number;
+  rowColumnCount: number;
+  onChangeElementsFocus: (index: number) => void;
+  onSelectBaseColor: (color: Color) => void;
+}
+
+function ColorTD({
+  activeFocus,
+  activePaletteColor,
+  arrayColorPalette,
+  color,
+  colorPalette,
+  colorRow,
+  indexColumn,
+  indexRow,
+  rowColumnCount,
+  onChangeElementsFocus,
+  onSelectBaseColor,
+}: ColorTDProps) {
+  const handleKeyDown: KeyboardEventHandler = useCallback(
+    (e) => {
+      if (e.key === 'Enter') {
+        onSelectBaseColor(color);
+        e.preventDefault();
+      }
+
+      if (e.key === 'ArrowLeft') {
+        e.stopPropagation();
+
+        const previousIndex = rowColumnCount * indexRow + (indexColumn - 1);
+        onChangeElementsFocus(previousIndex);
+      }
+
+      if (e.key === 'ArrowRight') {
+        e.stopPropagation();
+
+        const nextIndex = rowColumnCount * indexRow + (indexColumn + 1);
+        onChangeElementsFocus(nextIndex);
+      }
+
+      if (e.key === 'ArrowUp') {
+        const upIndex = rowColumnCount * (indexRow - 1) + indexColumn;
+        onChangeElementsFocus(upIndex);
+        e.preventDefault();
+      }
+
+      if (e.key === 'ArrowDown') {
+        const downIndex = rowColumnCount * (indexRow + 1) + indexColumn;
+        onChangeElementsFocus(downIndex);
+        e.preventDefault();
+      }
+
+      if (e.key === 'Home') {
+        const firstRowIndex = rowColumnCount * indexRow;
+        onChangeElementsFocus(firstRowIndex);
+        e.preventDefault();
+        e.stopPropagation();
+      }
+
+      if (e.ctrlKey && e.key === 'Home') {
+        onChangeElementsFocus(0);
+        e.preventDefault();
+        e.stopPropagation();
+      }
+
+      if (e.key === 'End') {
+        const lastRowIndex = rowColumnCount * indexRow + (colorRow.length - 1);
+        onChangeElementsFocus(lastRowIndex);
+        e.preventDefault();
+        e.stopPropagation();
+      }
+
+      if (e.ctrlKey && e.key === 'End') {
+        onChangeElementsFocus(colorPalette.length - 1);
+        e.preventDefault();
+        e.stopPropagation();
+      }
+
+      if (e.key === 'PageUp') {
+        onChangeElementsFocus(indexColumn);
+        e.preventDefault();
+        e.stopPropagation();
+      }
+
+      if (e.key === 'PageDown') {
+        const elementIndexLast =
+          rowColumnCount * (arrayColorPalette.length - 1) + indexColumn;
+        onChangeElementsFocus(elementIndexLast);
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    },
+    [
+      arrayColorPalette,
+      color,
+      colorPalette,
+      colorRow,
+      indexColumn,
+      indexRow,
+      rowColumnCount,
+      onChangeElementsFocus,
+      onSelectBaseColor,
+    ],
+  );
+
+  return (
+    <ZeroPaddingTd>
+      <IconButton
+        aria-label={color.label}
+        autoFocus={activePaletteColor.color === color.color}
+        sx={{ p: 0 }}
+        tabIndex={activeFocus === color.color ? 0 : -1}
+        onClick={useCallback(
+          () => onSelectBaseColor(color),
+          [color, onSelectBaseColor],
+        )}
+        onKeyDown={handleKeyDown}
+      >
+        <ColorPickerIcon
+          active={activePaletteColor.color === color.color}
+          color={color.color}
+        />
+      </IconButton>
+    </ZeroPaddingTd>
+  );
+}
 
 export interface ColorsGridProps {
   id?: string;
@@ -59,13 +199,18 @@ export function ColorsGrid({
   const colorPickerTitle = t('colorPicker.gridTitle', 'Colors');
   const rowColumnCount = 11;
 
-  const changeElementsFocus = (elementIndex: number) => {
-    const element = ref.current?.querySelectorAll('button').item(elementIndex);
-    if (element) {
-      element.focus();
-      setActiveFocus(colorPalette[elementIndex].color);
-    }
-  };
+  const handleChangeElementsFocus = useCallback(
+    (elementIndex: number) => {
+      const element = ref.current
+        ?.querySelectorAll('button')
+        .item(elementIndex);
+      if (element) {
+        element.focus();
+        setActiveFocus(colorPalette[elementIndex].color);
+      }
+    },
+    [colorPalette],
+  );
 
   const handleSelectBaseColor = useCallback(
     (color: Color) => {
@@ -95,98 +240,20 @@ export function ColorsGrid({
             (colorRow, indexRow, arrayColorPalette) => (
               <tr key={indexRow}>
                 {colorRow.map((color, indexColumn) => (
-                  <td key={color.color} style={{ padding: 0 }}>
-                    <IconButton
-                      sx={{ p: 0 }}
-                      aria-label={color.label}
-                      tabIndex={activeFocus === color.color ? 0 : -1}
-                      onClick={() => handleSelectBaseColor(color)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          handleSelectBaseColor(color);
-                          e.preventDefault();
-                        }
-
-                        if (e.key === 'ArrowLeft') {
-                          e.stopPropagation();
-
-                          const previousIndex =
-                            rowColumnCount * indexRow + (indexColumn - 1);
-                          changeElementsFocus(previousIndex);
-                        }
-
-                        if (e.key === 'ArrowRight') {
-                          e.stopPropagation();
-
-                          const nextIndex =
-                            rowColumnCount * indexRow + (indexColumn + 1);
-                          changeElementsFocus(nextIndex);
-                        }
-
-                        if (e.key === 'ArrowUp') {
-                          const upIndex =
-                            rowColumnCount * (indexRow - 1) + indexColumn;
-                          changeElementsFocus(upIndex);
-                          e.preventDefault();
-                        }
-
-                        if (e.key === 'ArrowDown') {
-                          const downIndex =
-                            rowColumnCount * (indexRow + 1) + indexColumn;
-                          changeElementsFocus(downIndex);
-                          e.preventDefault();
-                        }
-
-                        if (e.key === 'Home') {
-                          const firstRowIndex = rowColumnCount * indexRow;
-                          changeElementsFocus(firstRowIndex);
-                          e.preventDefault();
-                          e.stopPropagation();
-                        }
-
-                        if (e.ctrlKey && e.key === 'Home') {
-                          changeElementsFocus(0);
-                          e.preventDefault();
-                          e.stopPropagation();
-                        }
-
-                        if (e.key === 'End') {
-                          const lastRowIndex =
-                            rowColumnCount * indexRow + (colorRow.length - 1);
-                          changeElementsFocus(lastRowIndex);
-                          e.preventDefault();
-                          e.stopPropagation();
-                        }
-
-                        if (e.ctrlKey && e.key === 'End') {
-                          changeElementsFocus(colorPalette.length - 1);
-                          e.preventDefault();
-                          e.stopPropagation();
-                        }
-
-                        if (e.key === 'PageUp') {
-                          changeElementsFocus(indexColumn);
-                          e.preventDefault();
-                          e.stopPropagation();
-                        }
-
-                        if (e.key === 'PageDown') {
-                          const elementIndexLast =
-                            rowColumnCount * (arrayColorPalette.length - 1) +
-                            indexColumn;
-                          changeElementsFocus(elementIndexLast);
-                          e.preventDefault();
-                          e.stopPropagation();
-                        }
-                      }}
-                      autoFocus={activePaletteColor.color === color.color}
-                    >
-                      <ColorPickerIcon
-                        color={color.color}
-                        active={activePaletteColor.color === color.color}
-                      />
-                    </IconButton>
-                  </td>
+                  <ColorTD
+                    key={color.color}
+                    activeFocus={activeFocus}
+                    activePaletteColor={activePaletteColor}
+                    arrayColorPalette={arrayColorPalette}
+                    color={color}
+                    colorPalette={colorPalette}
+                    colorRow={colorRow}
+                    indexColumn={indexColumn}
+                    indexRow={indexRow}
+                    rowColumnCount={rowColumnCount}
+                    onSelectBaseColor={handleSelectBaseColor}
+                    onChangeElementsFocus={handleChangeElementsFocus}
+                  />
                 ))}
               </tr>
             ),
@@ -196,8 +263,8 @@ export function ColorsGrid({
       {activePaletteColor.shades !== undefined ? (
         <ShadePicker
           activeColor={activeColor}
-          onShadeSelect={handleSelectShade}
           shades={activePaletteColor.shades}
+          onShadeSelect={handleSelectShade}
         />
       ) : null}
     </>
