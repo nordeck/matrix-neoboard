@@ -33,8 +33,8 @@ export function ElementBarWrapper({
   const [sizeRef, { width: elementBarWidth, height: elementBarHeight }] =
     useMeasure<HTMLDivElement>();
   const { width: canvasWidth, height: canvasHeight } = useSvgCanvasContext();
-  const { scale: canvasScale, translate } = useAppSelector((state) =>
-    selectCanvas(state),
+  const { scale: canvasScale, translate: canvasTranslate } = useAppSelector(
+    (state) => selectCanvas(state),
   );
 
   if (
@@ -47,27 +47,26 @@ export function ElementBarWrapper({
   }
 
   const {
-    offsetX: x,
-    offsetY: y,
-    width,
-    height,
+    offsetX: elementX,
+    offsetY: elementY,
+    width: elementWidth,
+    height: elementHeight,
   } = calculateBoundingRectForElements(elements);
 
   console.log(
-    `MiW x ${x}, offsetY ${y}, width ${width}, height ${height}, canvas Scale ${canvasScale}, translate.x ${translate.x}, translate.y ${translate.y}`,
+    `MiW elementX ${elementX}, elementY ${elementY}, elementWidth ${elementWidth}, elementHeight ${elementHeight}`,
   );
   console.log(
-    `MiW translate(${translate.x}, ${translate.y}) scale(${canvasScale})`,
+    `MiW canvasTranslate(${canvasTranslate.x}, ${canvasTranslate.y}) canvasScale(${canvasScale})`,
   );
 
   const offset = 10;
-  const scale = canvasScale;
 
   function calculateTopPosition() {
-    const position = y * canvasScale + translate.y;
-    const positionAbove = position - elementBarHeight - offset;
-    const positionBelow = position + height * offset;
-    const positionInElement = position + offset;
+    const elementTopPosition = elementY * canvasScale + canvasTranslate.y;
+    const positionAbove = elementTopPosition - elementBarHeight - offset;
+    const positionBelow = elementTopPosition + elementHeight * offset;
+    const positionInElement = elementTopPosition + offset;
 
     if (positionAbove >= 0) {
       return positionAbove;
@@ -80,7 +79,9 @@ export function ElementBarWrapper({
 
   function calculateLeftPosition() {
     const position =
-      (x + width / 2) * scale - elementBarWidth / 2 + translate.x;
+      (elementX + elementWidth / 2) * canvasScale -
+      elementBarWidth / 2 +
+      canvasTranslate.x;
     return clamp(position, 0, canvasWidth - elementBarWidth);
   }
 
