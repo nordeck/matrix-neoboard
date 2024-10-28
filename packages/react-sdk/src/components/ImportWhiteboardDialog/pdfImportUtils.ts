@@ -79,7 +79,7 @@ async function renderPDFPageToImage(
   }
 
   // Ensure consistent scaling
-  const outputScale = 1;
+  const outputScale: number = 2;
 
   const canvas = new OffscreenCanvas(
     Math.floor(scaledViewport.width * outputScale),
