@@ -53,20 +53,29 @@ export function ElementBarWrapper({
     height: elementHeight,
   } = calculateBoundingRectForElements(elements);
 
+  const browserHscaling = canvasWidth / 1920;
+  const browserVscaling = canvasHeight / 1080;
+
   console.log(
     `MiW elementX ${elementX}, elementY ${elementY}, elementWidth ${elementWidth}, elementHeight ${elementHeight}`,
   );
   console.log(
     `MiW canvasTranslate(${canvasTranslate.x}, ${canvasTranslate.y}) canvasScale(${canvasScale})`,
   );
+  console.log(
+    `MiW canvasWidth ${canvasWidth} (${browserHscaling}), canvasHeight ${canvasHeight} (${browserVscaling})`,
+  );
 
   const offset = 10;
 
   function calculateTopPosition() {
-    const elementTopPosition = elementY * canvasScale + canvasTranslate.y;
+    const elementTopPosition =
+      (elementY * canvasScale + canvasTranslate.y) * browserVscaling;
     const positionAbove = elementTopPosition - elementBarHeight - offset;
     const positionBelow =
-      elementTopPosition + elementHeight * canvasScale + offset;
+      elementTopPosition +
+      elementHeight * canvasScale * browserVscaling +
+      offset;
     const positionInElement = elementTopPosition + offset;
 
     if (positionAbove >= 0) {
@@ -79,10 +88,11 @@ export function ElementBarWrapper({
   }
 
   function calculateLeftPosition() {
+    const elementCenterPosition = elementX + elementWidth / 2;
     const position =
-      (elementX + elementWidth / 2) * canvasScale -
-      elementBarWidth / 2 +
-      canvasTranslate.x;
+      (elementCenterPosition * canvasScale + canvasTranslate.x) *
+        browserHscaling -
+      elementBarWidth / 2;
     return clamp(position, 0, canvasWidth - elementBarWidth);
   }
 
