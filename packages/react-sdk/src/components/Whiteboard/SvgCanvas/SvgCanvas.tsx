@@ -28,7 +28,7 @@ import { selectCanvas } from '../../../store/canvasSlice';
 import { useAppSelector } from '../../../store/reduxToolkitHooks';
 import { SvgCanvasContext, SvgCanvasContextType } from './context';
 import { useMeasure } from './useMeasure';
-import { calculateSvgCoords } from './utils';
+import { calculateScale, calculateSvgCoords } from './utils';
 
 const Canvas = styled('svg', {
   shouldForwardProp: (p) => p !== 'rounded' && p !== 'sx',
@@ -81,7 +81,7 @@ export function SvgCanvas({
       height,
       viewportWidth,
       viewportHeight,
-      scale: 1,
+      scale: calculateScale(width, height, viewportWidth, viewportHeight),
       calculateSvgCoords: calculateSvgCoordsFunc,
     }),
     [calculateSvgCoordsFunc, height, viewportHeight, viewportWidth, width],
@@ -106,7 +106,7 @@ export function SvgCanvas({
   const boxSx = preview
     ? {}
     : {
-        width: '1920px',
+        maxWidth: '100%',
       };
 
   return (
