@@ -65,7 +65,8 @@ export function ElementBarWrapper({
   function calculateTopPosition() {
     const elementTopPosition = elementY * canvasScale + canvasTranslate.y;
     const positionAbove = elementTopPosition - elementBarHeight - offset;
-    const positionBelow = elementTopPosition + elementHeight * offset;
+    const positionBelow =
+      elementTopPosition + elementHeight * canvasScale + offset;
     const positionInElement = elementTopPosition + offset;
 
     if (positionAbove >= 0) {
