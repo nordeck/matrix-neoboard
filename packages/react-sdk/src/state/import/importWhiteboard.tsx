@@ -62,6 +62,12 @@ async function uploadImages(
     if (result.status === 'fulfilled') {
       mxcMap.set(file.mxc, result.value.mxc);
     } else {
+      console.warn(
+        'Failed to upload image',
+        file,
+        result.reason,
+        result.status,
+      );
       // In case of an error, set to an empty string, that is an invalid MXC URI
       mxcMap.set(file.mxc, '');
     }

@@ -96,6 +96,7 @@ export function ImportWhiteboardDialogProvider({
         atSlideIndex={atSlideIndex}
         importedData={importedData}
         onClose={useCallback(() => {
+          setImportedData(undefined);
           setAtSlideIndex(undefined);
           setOpenImportWhiteboardDialog(false);
         }, [])}

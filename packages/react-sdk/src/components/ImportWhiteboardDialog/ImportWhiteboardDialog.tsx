@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import { useWidgetApi } from '@matrix-widget-toolkit/react';
 import CloseIcon from '@mui/icons-material/Close';
 import {
   Alert,
@@ -31,20 +30,30 @@ import {
   Tooltip,
 } from '@mui/material';
 import { unstable_useId as useId, visuallyHidden } from '@mui/utils';
-import { getLogger } from 'loglevel';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  ImageElement,
-  isValidWhiteboardExportDocument,
   useActiveWhiteboardInstance,
   WhiteboardDocumentExport,
 } from '../../state';
 import { importWhiteboard } from '../../state/import';
 import { useImageUpload } from '../ImageUpload';
-import { initPDFJs, loadPDF, renderPDFToImages } from './pdfImportUtils';
+import { readNWB, readPDF } from './fileHandlers';
 import { ImportedWhiteboard } from './types';
 
+/**
+ * ImportWhiteboardDialog component is responsible for handling the import of whiteboard data.
+ * It provides a dialog interface for users to select and import whiteboard files.
+ *
+ * @param {Object} props - The properties object.
+ * @param {boolean} props.open - Determines if the dialog is open.
+ * @param {number} [props.atSlideIndex] - Optional index of the slide where the whiteboard data should be imported.
+ * @param {ImportedWhiteboard | undefined} props.importedData - The data of the imported whiteboard.
+ * @param {() => void} props.onClose - Callback function to handle the closing of the dialog.
+ * @param {() => void} props.onRetry - Callback function to handle retrying the import process.
+ *
+ * @returns {JSX.Element} The ImportWhiteboardDialog component.
+ */
 export function ImportWhiteboardDialog({
   open,
   atSlideIndex,
@@ -65,7 +74,6 @@ export function ImportWhiteboardDialog({
     useState<WhiteboardDocumentExport | null>(null);
   const [error, setError] = useState<boolean>(importedData?.isError ?? false);
   const [loading, setLoading] = useState(true);
-  const widgetApi = useWidgetApi();
 
   // Handle error from upload
   useEffect(() => {
@@ -76,15 +84,29 @@ export function ImportWhiteboardDialog({
   }, [importedData, setError, setLoading]);
 
   const handleOnImport = useCallback(() => {
+    console.log('handleOnImport', error, whiteboardData);
     if (error === false && whiteboardData) {
+      setLoading(true);
       importWhiteboard(
         whiteboardInstance,
         whiteboardData,
         handleDrop,
         atSlideIndex,
-      );
+      )
+        .then(() => {
+          setWhiteboardData(null);
+          onClose();
+          setLoading(false);
+          return;
+        })
+        .catch((error) => {
+          console.error('Error while importing whiteboard', error);
+          setError(true);
+          setLoading(false);
+        });
+    } else {
+      onClose();
     }
-    onClose();
   }, [
     handleDrop,
     whiteboardData,
@@ -142,7 +164,7 @@ export function ImportWhiteboardDialog({
     } else {
       setLoading(false);
     }
-  }, [importedData, setWhiteboardData, widgetApi, setLoading, setError]);
+  }, [importedData, setWhiteboardData, setLoading, setError]);
 
   const retry = useCallback(() => {
     setLoading(true);
@@ -259,113 +281,4 @@ export function ImportWhiteboardDialog({
       </DialogActions>
     </Dialog>
   );
-}
-
-function readNWB(file: File): Promise<{
-  name: string;
-  isError: boolean;
-  data?: WhiteboardDocumentExport;
-}> {
-  const reader = new FileReader();
-
-  const logger = getLogger('SettingsMenu');
-
-  return new Promise((resolve) => {
-    reader.onabort = () => logger.warn('file reading was aborted');
-    reader.onerror = () => logger.warn('file reading has failed');
-    reader.onload = () => {
-      if (typeof reader.result !== 'string') {
-        return;
-      }
-
-      try {
-        const jsonData = JSON.parse(reader.result);
-
-        if (isValidWhiteboardExportDocument(jsonData)) {
-          resolve({
-            name: file.name,
-            isError: false,
-            data: jsonData,
-          });
-        } else {
-          resolve({
-            name: file.name,
-            isError: true,
-          });
-        }
-      } catch (ex) {
-        const logger = getLogger('SettingsMenu');
-        logger.error('Error while parsing the selected import file', ex);
-
-        resolve({
-          name: file.name,
-          isError: true,
-        });
-      }
-    };
-
-    reader.readAsText(file);
-  });
-}
-
-async function readPDF(file: File): Promise<WhiteboardDocumentExport> {
-  await initPDFJs();
-
-  const logger = getLogger('SettingsMenu');
-  logger.debug('Reading PDF file', file.name);
-
-  const pdf = await loadPDF(await file.arrayBuffer());
-  logger.debug('PDF loaded', pdf.numPages);
-
-  logger.debug('Rendering PDF to images');
-  const images = await renderPDFToImages(pdf);
-
-  logger.debug('PDF rendered to images', images.length);
-  logger.debug('Uploading images to the server');
-
-  const imageData = [];
-  for (const image of images) {
-    const base64 = btoa(
-      new Uint8Array(image.data).reduce(
-        (data, byte) => data + String.fromCharCode(byte),
-        '',
-      ),
-    );
-
-    imageData.push({
-      width: image.width,
-      height: image.height,
-      size: image.size,
-      mimeType: image.mimeType,
-      base64: base64,
-    });
-  }
-
-  const whiteboardData: WhiteboardDocumentExport = {
-    version: 'net.nordeck.whiteboard@v1',
-    whiteboard: {
-      // Each image is a slide
-      slides: imageData.map((data, i) => ({
-        elements: [
-          {
-            type: 'image',
-            mxc: 'placeholder' + i,
-            width: data.width,
-            height: data.height,
-            fileName: `${file.name}_${i}`,
-            mimeType: data.mimeType,
-            position: {
-              x: (1920 - data.width) / 2,
-              y: (1080 - data.height) / 2,
-            },
-          } as ImageElement,
-        ],
-      })),
-      files: imageData.map((data, i) => ({
-        mxc: 'placeholder' + i,
-        data: data.base64,
-      })),
-    },
-  };
-  return whiteboardData;
 }

@@ -20,14 +20,37 @@ import {
   PDFDocumentProxy,
   PDFPageProxy,
 } from 'pdfjs-dist';
+import * as pdfJSWorker from 'pdfjs-dist/build/pdf.worker.mjs?url';
 import { RenderParameters } from 'pdfjs-dist/types/src/display/api';
+import { whiteboardHeight, whiteboardWidth } from '../Whiteboard/constants';
 
-// This is a weird oddity of pdfjs. It requires the worker to be loaded from a URL.
+/**
+ * Initializes the PDF.js library by dynamically importing the PDF.js worker script.
+ *
+ * This function imports the worker script from 'pdfjs-dist/build/pdf.worker.mjs' and sets it as the worker source
+ * for PDF.js using the `GlobalWorkerOptions.workerSrc` property.
+ *
+ * This is a weird oddity of pdfjs. It requires the worker to be loaded from a URL.
+ *
+ * @async
+ * @function
+ * @returns {Promise<void>} A promise that resolves when the worker script has been successfully imported and set.
+ */
 export async function initPDFJs() {
-  const pdfJSWorker = await import('pdfjs-dist/build/pdf.worker.mjs?url');
   GlobalWorkerOptions.workerSrc = pdfJSWorker.default;
 }
 
+/**
+ * Represents the result of importing a PDF.
+ *
+ * @interface PDFImportResult
+ *
+ * @property {ArrayBuffer} data - The binary data of the imported PDF.
+ * @property {string} mimeType - The MIME type of the imported PDF.
+ * @property {number} size - The size of the imported PDF in bytes.
+ * @property {number} width - The width of the imported PDF in pixels.
+ * @property {number} height - The height of the imported PDF in pixels.
+ */
 export interface PDFImportResult {
   data: ArrayBuffer;
   mimeType: string;
@@ -36,16 +59,30 @@ export interface PDFImportResult {
   height: number;
 }
 
+/**
+ * Loads a PDF document from an ArrayBuffer.
+ *
+ * @param file - The ArrayBuffer containing the PDF file data.
+ * @returns A promise that resolves to a PDFDocumentProxy object representing the loaded PDF document.
+ */
 export async function loadPDF(file: ArrayBuffer): Promise<PDFDocumentProxy> {
   const pdfLoadingTask = await getDocument(file);
   const pdf = await pdfLoadingTask.promise;
   return pdf;
 }
 
+/**
+ * Renders each page of a PDF document to an image.
+ *
+ * @param pdf - The PDF document to render.
+ * @param desiredWidth - The desired width of the output images. Defaults to `whiteboardWidth`.
+ * @param desiredHeight - The desired height of the output images. Defaults to `whiteboardHeight`.
+ * @returns A promise that resolves to an array of `PDFImportResult` objects, each representing an image of a PDF page.
+ */
 export async function renderPDFToImages(
   pdf: PDFDocumentProxy,
-  desiredWidth: number = 1920,
-  desiredHeight: number = 1080,
+  desiredWidth: number = whiteboardWidth,
+  desiredHeight: number = whiteboardHeight,
 ): Promise<PDFImportResult[]> {
   const images = [];
   for (let i = 1; i <= pdf.numPages; i++) {
@@ -60,10 +97,18 @@ export async function renderPDFToImages(
   return images;
 }
 
+/**
+ * Renders a PDF page to an image.
+ *
+ * @param {PDFPageProxy} page - The PDF page to render.
+ * @param {number} [desiredWidth=whiteboardWidth] - The desired width of the output image.
+ * @param {number} [desiredHeight=whiteboardHeight] - The desired height of the output image.
+ * @returns {Promise<PDFImportResult>} A promise that resolves to a PDFImportResult containing the image data and metadata.
+ */
 async function renderPDFPageToImage(
   page: PDFPageProxy,
-  desiredWidth: number = 1920,
-  desiredHeight: number = 1080,
+  desiredWidth: number = whiteboardWidth,
+  desiredHeight: number = whiteboardHeight,
 ): Promise<PDFImportResult> {
   const viewport = page.getViewport({ scale: 1 });
   let scale = desiredWidth / viewport.width;
@@ -110,6 +155,12 @@ async function renderPDFPageToImage(
   };
 }
 
+/**
+ * Converts an OffscreenCanvas to a Blob.
+ *
+ * @param canvas - The OffscreenCanvas to be converted.
+ * @returns A promise that resolves to a Blob representing the image data of the canvas.
+ */
 async function convertCanvasToImage(canvas: OffscreenCanvas): Promise<Blob> {
   return await canvas.convertToBlob();
 }
