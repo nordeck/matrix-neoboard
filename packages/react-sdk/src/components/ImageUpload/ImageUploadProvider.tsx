@@ -72,6 +72,7 @@ export type ImageUploadState = {
   handleDrop: (
     files: File[],
     rejectedFiles: FileRejection[],
+    overrideFile?: string,
   ) => Promise<PromiseSettledResult<ImageUploadResult>[]>;
   /**
    * Maximum upload size allowed by the server in bytes.
@@ -155,7 +156,11 @@ export function ImageUploadProvider({ children }: PropsWithChildren<{}>) {
   );
 
   const handleDrop = useCallback(
-    async (files: File[], rejectedFiles: FileRejection[]) => {
+    async (
+      files: File[],
+      rejectedFiles: FileRejection[],
+      overrideFile?: string,
+    ) => {
       rejectedFiles.forEach(handleRejectedFile);
 
       if (files.length > 0) {
@@ -185,6 +190,7 @@ export function ImageUploadProvider({ children }: PropsWithChildren<{}>) {
               uploadErrors.current,
               t,
               maxUploadSizeBytes,
+              overrideFile,
             );
             uploadErrors.current = { size: [], resolution: [], other: [] };
           }
@@ -226,14 +232,15 @@ function showErrorSnackbars(
   errors: UploadErrors,
   t: TFunction,
   maxUploadSizeBytes: number,
+  overrideFile?: string,
 ): void {
   if (errors.size.length > 0) {
     const message = t(
       'imageUpload.sizeError',
       'The file {{fileNames}} cannot be uploaded due to its size. The upload is possible for a maximum of {{limit}} per file.',
       {
-        count: errors.size.length,
-        fileNames: errors.size.join(', '),
+        count: !overrideFile ? errors.size.length : 1,
+        fileNames: !overrideFile ? errors.size.join(', ') : overrideFile,
         limit:
           (maxUploadSizeBytes / 1048576).toLocaleString(undefined, {
             maximumFractionDigits: 2,
@@ -254,8 +261,8 @@ function showErrorSnackbars(
       'imageUpload.resolutionError',
       'The file {{fileNames}} cannot be uploaded due to its resolution. The upload is possible for a maximum of {{limit}} per file.',
       {
-        count: errors.size.length,
-        fileNames: errors.resolution.join(', '),
+        count: !overrideFile ? errors.resolution.length : 1,
+        fileNames: !overrideFile ? errors.resolution.join(', ') : overrideFile,
         limit:
           (maxResolutionPixels / 1_000_000).toLocaleString(undefined, {
             maximumFractionDigits: 2,
@@ -276,8 +283,8 @@ function showErrorSnackbars(
       'imageUpload.otherError',
       'The file {{fileNames}} cannot be uploaded.',
       {
-        count: errors.other.length,
-        fileNames: errors.other.join(', '),
+        count: !overrideFile ? errors.other.length : 1,
+        fileNames: !overrideFile ? errors.other.join(', ') : overrideFile,
       },
     );
 

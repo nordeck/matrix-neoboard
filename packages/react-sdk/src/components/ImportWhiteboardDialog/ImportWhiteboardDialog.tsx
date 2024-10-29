@@ -83,17 +83,33 @@ export function ImportWhiteboardDialog({
     }
   }, [importedData, setError, setLoading]);
 
+  const handleClose = useCallback(() => {
+    setWhiteboardData(null);
+    setLoading(false);
+    setError(false);
+    onClose();
+  }, [setWhiteboardData, setLoading, setError, onClose]);
+
   const handleOnImport = useCallback(() => {
-    console.log('handleOnImport', error, whiteboardData);
-    if (error === false && whiteboardData) {
+    if (error === false && whiteboardData && importedData?.isError === false) {
       setLoading(true);
       importWhiteboard(
         whiteboardInstance,
         whiteboardData,
         handleDrop,
         atSlideIndex,
+        importedData?.file?.type === 'application/pdf'
+          ? importedData.name
+          : undefined,
       )
-        .then(() => {
+        .then((errors) => {
+          if (errors.size > 0) {
+            console.error('Error while importing whiteboard', errors);
+            setError(true);
+            setLoading(false);
+            return;
+          }
+
           setWhiteboardData(null);
           onClose();
           setLoading(false);
@@ -114,10 +130,17 @@ export function ImportWhiteboardDialog({
     whiteboardInstance,
     error,
     atSlideIndex,
+    importedData,
   ]);
 
   useEffect(() => {
-    if (importedData?.isError === false) {
+    // We cant do a decission without importedData so we just wait.
+    if (!importedData) {
+      return;
+    }
+
+    // We got importated data and its not an error so we move on.
+    if (importedData && importedData?.isError === false) {
       if (importedData.data) {
         setWhiteboardData(importedData.data);
         setLoading(false);
@@ -126,6 +149,7 @@ export function ImportWhiteboardDialog({
       const file = importedData?.file;
       if (file) {
         if (file.type === 'application/pdf') {
+          setLoading(true);
           readPDF(file)
             .then((data) => {
               setWhiteboardData(data);
@@ -138,6 +162,7 @@ export function ImportWhiteboardDialog({
               setLoading(false);
             });
         } else {
+          setLoading(true);
           readNWB(file)
             .then((data) => {
               if (data.isError) {
@@ -161,7 +186,10 @@ export function ImportWhiteboardDialog({
         setError(true);
         setLoading(false);
       }
+
+      // We got an error so we set the error state and stop loading.
     } else {
+      setError(true);
       setLoading(false);
     }
   }, [importedData, setWhiteboardData, setLoading, setError]);
@@ -186,7 +214,7 @@ export function ImportWhiteboardDialog({
       aria-labelledby={dialogTitleId}
       aria-describedby={dialogDescriptionId}
       open={open}
-      onClose={onClose}
+      onClose={handleClose}
       fullWidth
       maxWidth="sm"
     >
@@ -264,11 +292,19 @@ export function ImportWhiteboardDialog({
           </Alert>
         )}
 
-        {loading && <CircularProgress />}
+        {loading && (
+          <CircularProgress
+            sx={{
+              display: 'block',
+              margin: 'auto',
+              mt: 1,
+            }}
+          />
+        )}
       </DialogContent>
 
       <DialogActions>
-        <Button autoFocus onClick={onClose} variant="outlined">
+        <Button autoFocus onClick={handleClose} variant="outlined">
           {t('boardBar.importWhiteboardDialog.success.cancel', 'Cancel')}
         </Button>
         <Button

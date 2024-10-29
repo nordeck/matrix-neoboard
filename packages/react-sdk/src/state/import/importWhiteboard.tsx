@@ -26,30 +26,56 @@ import { WhiteboardInstance } from '../types';
  * Images will be uploaded to the Matrix content repo.
  * If there is an error or image data is not found,
  * then image elements with an empty MXC URI are added to the board.
+ *
+ * @throws {Error} If a file is missing.
+ * @param whiteboard - The whiteboard instance to import the data into.
+ * @param data - The whiteboard document export containing the whiteboard data.
+ * @param handleDrop - A function to do the actual upload process.
+ * @param atSlideIndex - Optional index of the slide where the whiteboard data should be imported.
+ *
+ * @returns A map of MXC URIs that failed to upload.
  */
 export async function importWhiteboard(
   whiteboard: WhiteboardInstance,
   data: WhiteboardDocumentExport,
   handleDrop: ImageUploadState['handleDrop'],
   atSlideIndex?: number,
-) {
-  const mxcMap = await uploadImages(data, handleDrop);
+  overrideFile?: string,
+): Promise<Map<string, Error>> {
+  const [mxcMap, errors] = await uploadImages(data, handleDrop, overrideFile);
+  if (errors.size > 0) {
+    log.warn('Failed to upload images', errors);
+    return errors;
+  }
   const importData = updateMxcs(data, mxcMap);
   whiteboard.import(importData, atSlideIndex);
+  return errors;
 }
 
+/**
+ * Uploads images from a whiteboard document export and maps their MXC URIs.
+ *
+ * @param data - The whiteboard document export containing image elements and files.
+ * @param handleDrop - A function to do the actual upload process.
+ * @returns A promise that resolves to a map where the keys are the original MXC URIs and the values are the new MXC URIs.
+ *
+ * @throws Will throw an error if a matching file is not found during the upload process.
+ */
 async function uploadImages(
   data: WhiteboardDocumentExport,
   handleDrop: ImageUploadState['handleDrop'],
-): Promise<Map<string, string>> {
+  overrideFile?: string,
+): Promise<[Map<string, string>, Map<string, Error>]> {
   const imageElements = extractImageElements(data);
   const files = mapToFiles(imageElements, data.whiteboard.files);
   const results = await handleDrop(
     files.map((f) => f.file),
     [],
+    overrideFile,
   );
 
   const mxcMap = new Map<string, string>();
+  const errors = new Map<string, Error>();
 
   results.forEach((result, index) => {
     const file = files[index];
@@ -68,12 +94,16 @@ async function uploadImages(
         result.reason,
         result.status,
       );
+      errors.set(
+        file.mxc,
+        new Error('Failed to upload image', { cause: result.reason }),
+      );
       // In case of an error, set to an empty string, that is an invalid MXC URI
       mxcMap.set(file.mxc, '');
     }
   });
 
-  return mxcMap;
+  return [mxcMap, errors];
 }
 
 /**

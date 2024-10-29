@@ -50,13 +50,13 @@ expect.extend({
         return `Expected no accessibility violations but received some.
 
 ${violations
-            .map(
-              (violation) => `[${violation.impact}] ${violation.id}
+  .map(
+    (violation) => `[${violation.impact}] ${violation.id}
 ${violation.description}
 ${violation.helpUrl}
 `,
-            )
-            .join('\n')}
+  )
+  .join('\n')}
 `;
       },
     };
