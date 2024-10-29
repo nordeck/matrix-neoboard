@@ -5131,10 +5131,10 @@ pathval@^2.0.0:
   resolved "https://registry.yarnpkg.com/pathval/-/pathval-2.0.0.tgz#7e2550b422601d4f6b8e26f1301bc8f15a741a25"
   integrity sha512-vE7JKRyES09KiunauX7nd2Q9/L7lhok4smP9RZTDeD4MVs72Dp2qNFVz39Nz5a0FVEW0BJR6C0DYrq6unoziZA==
 
-pdfmake@^0.2.13:
-  version "0.2.13"
-  resolved "https://registry.yarnpkg.com/pdfmake/-/pdfmake-0.2.13.tgz#ea43fe9f0c8de1e5ec7b08486d6f4f8bbb8619e4"
-  integrity sha512-qeVE9Bzjm0oPCitH4/HYM/XCGTwoeOAOVAXPnV3s0kpPvTLkTF/bAF4jzorjkaIhXGQhzYk6Xclt0hMDYLY93w==
+pdfmake@^0.2.14:
+  version "0.2.14"
+  resolved "https://registry.yarnpkg.com/pdfmake/-/pdfmake-0.2.14.tgz#a257a393b54917218add829bff8e490be21e8077"
+  integrity sha512-x9gXFAY37/CAC/WaZB/683E4Pi0cVW/RMTTNxMpe4I2kRsKv8AE3Pz6+n7iTfn+84/GtSg99BjZkYh7oGFCKmg==
   dependencies:
     "@foliojs-fork/linebreak" "^1.1.1"
     "@foliojs-fork/pdfkit" "^0.14.0"
