@@ -30,6 +30,8 @@ import { webcrypto } from 'node:crypto';
 Object.defineProperty(global.globalThis, 'crypto', { value: webcrypto });
 
 // @ts-expect-error This is a polyfill for pdfjs
+// This exists since nodejs only supports this from node 22 onwards and the DOM from jsdom does not provide this either yet.
+// See also https://github.com/mozilla/pdf.js/issues/18006 and https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/withResolvers
 window.Promise.withResolvers = function () {
   let res, rej;
   const promise = new Promise((resolve, reject) => {
