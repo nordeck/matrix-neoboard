@@ -91,6 +91,20 @@
     "shade_lightest": "lightest",
     "title": "Pick a color"
   },
+  "connectionState": {
+    "dialog": {
+      "confirm": "OK",
+      "text": {
+        "common": "NeoBoard cannot save your data at the moment due to a connection problem. This message will disappear as soon as it has been saved again. To be on the safe side, you can download a copy of the board using the export function.",
+        "no_internet_connection": "NeoBoard cannot save your data at the moment. Check your internet connection. This message will disappear as soon as the data has been saved again. To be on the safe side, you can download a copy of the board using the export function."
+      },
+      "title": "Your changes are not saved"
+    },
+    "snackbar": {
+      "action": "learn more",
+      "message": "Changes not saved"
+    }
+  },
   "copyableTextButton": {
     "copy-to-clipboard": "Copy to clipboard"
   },

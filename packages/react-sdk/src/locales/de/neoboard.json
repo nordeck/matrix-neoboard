@@ -91,6 +91,20 @@
     "shade_lightest": "am hellsten",
     "title": "Wähle eine Farbe"
   },
+  "connectionState": {
+    "dialog": {
+      "confirm": "OK",
+      "text": {
+        "common": "NeoBoard kann deine Daten wegen eines Verbindungsproblems im Moment nicht speichern. Diese Meldung wird ausgeblendet, sobald wieder gespeichert wurde. Um sicherzugehen, kannst du eine Kopie des Boards über die Exportfunktion herunterladen.",
+        "no_internet_connection": "NeoBoard kann deine Daten im Moment nicht speichern. Überprüfe deine Internetverbindung. Diese Meldung wird ausgeblendet, sobald wieder gespeichert wurde. Um sicherzugehen, kannst du eine Kopie des Boards über die Exportfunktion herunterladen."
+      },
+      "title": "Deine Änderungen sind nicht gespeichert"
+    },
+    "snackbar": {
+      "action": "mehr Info",
+      "message": "Änderungen nicht gespeichert"
+    }
+  },
   "copyableTextButton": {
     "copy-to-clipboard": "In die Zwischenablage kopieren"
   },

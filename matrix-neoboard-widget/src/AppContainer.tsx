@@ -21,6 +21,8 @@ import {
 } from '@matrix-widget-toolkit/mui';
 import {
   App,
+  ConnectionStateDialog,
+  ConnectionStateProvider,
   DraggableStyles,
   FontsLoadedContextProvider,
   GuidedTourProvider,
@@ -68,7 +70,10 @@ export const AppContainer = ({
                     <GuidedTourProvider>
                       <SnackbarProvider>
                         <Snackbar />
-                        <App />
+                        <ConnectionStateProvider>
+                          <ConnectionStateDialog />
+                          <App />
+                        </ConnectionStateProvider>
                       </SnackbarProvider>
                     </GuidedTourProvider>
                   </WhiteboardHotkeysProvider>

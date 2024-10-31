@@ -14,16 +14,20 @@
  * limitations under the License.
  */
 
-export * from './App';
-export * from './components/common/PageLoader';
-export * from './components/connection-state';
-export * from './components/GuidedTour';
-export * from './components/Layout';
-export * from './components/Snackbar';
-export { DraggableStyles } from './components/Whiteboard/ElementBehaviors/Moveable';
-export * from './components/WhiteboardHotkeysProvider';
-export * from './i18n';
-export * from './lib';
-export * from './model';
-export * from './state';
-export * from './store';
+import { useContext } from 'react';
+import {
+  ConnectionStateContext,
+  ConnectionStateState,
+} from './ConnectionStateProvider';
+
+export function useConnectionState(): ConnectionStateState {
+  const value = useContext(ConnectionStateContext);
+
+  if (!value) {
+    throw new Error(
+      'useConnectionState can only be used inside of <ConnectionStateProvider>',
+    );
+  }
+
+  return value;
+}
