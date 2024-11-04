@@ -89,7 +89,7 @@ describe('<ImportWhiteboardDialog/>', () => {
       <ImportWhiteboardDialog
         open
         onClose={onClose}
-        importedWhiteboard={{ name: 'file.nwb', isError: false, data }}
+        importedData={{ name: 'file.nwb', isError: false, data }}
         onRetry={onRetry}
       />,
       { wrapper: Wrapper },
@@ -122,7 +122,7 @@ describe('<ImportWhiteboardDialog/>', () => {
       <ImportWhiteboardDialog
         open
         onClose={onClose}
-        importedWhiteboard={{ name: 'file.nwb', isError: true }}
+        importedData={{ name: 'file.nwb', isError: true }}
         onRetry={onRetry}
       />,
       { wrapper: Wrapper },
@@ -154,7 +154,7 @@ describe('<ImportWhiteboardDialog/>', () => {
     const { baseElement } = render(
       <ImportWhiteboardDialog
         open
-        importedWhiteboard={{ name: 'file.nwb', isError: false, data }}
+        importedData={{ name: 'file.nwb', isError: false, data }}
         onClose={onClose}
         onRetry={onRetry}
       />,
@@ -171,7 +171,7 @@ describe('<ImportWhiteboardDialog/>', () => {
     const { baseElement } = render(
       <ImportWhiteboardDialog
         open
-        importedWhiteboard={{ name: 'file.nwb', isError: true }}
+        importedData={{ name: 'file.nwb', isError: true }}
         onClose={onClose}
         onRetry={onRetry}
       />,
@@ -187,7 +187,7 @@ describe('<ImportWhiteboardDialog/>', () => {
     render(
       <ImportWhiteboardDialog
         open
-        importedWhiteboard={{ name: 'file.nwb', isError: false, data }}
+        importedData={{ name: 'file.nwb', isError: false, data }}
         onClose={onClose}
         onRetry={onRetry}
       />,
@@ -207,7 +207,7 @@ describe('<ImportWhiteboardDialog/>', () => {
     render(
       <ImportWhiteboardDialog
         open
-        importedWhiteboard={{ name: 'file.nwb', isError: false, data }}
+        importedData={{ name: 'file.nwb', isError: false, data }}
         onClose={onClose}
         onRetry={onRetry}
       />,
@@ -227,7 +227,7 @@ describe('<ImportWhiteboardDialog/>', () => {
     render(
       <ImportWhiteboardDialog
         open
-        importedWhiteboard={{ name: 'file.nwb', isError: false, data }}
+        importedData={{ name: 'file.nwb', isError: false, data }}
         onClose={onClose}
         onRetry={onRetry}
       />,
@@ -250,7 +250,7 @@ describe('<ImportWhiteboardDialog/>', () => {
     render(
       <ImportWhiteboardDialog
         open
-        importedWhiteboard={{ name: 'file.nwb', isError: false, data }}
+        importedData={{ name: 'file.nwb', isError: false, data }}
         onClose={onClose}
         onRetry={onRetry}
       />,

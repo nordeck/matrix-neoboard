@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-import { getLogger } from 'loglevel';
 import { PropsWithChildren, createContext, useCallback, useState } from 'react';
 import { FileRejection, useDropzone } from 'react-dropzone';
-import { isValidWhiteboardExportDocument } from '../../state';
 import { ImportWhiteboardDialog } from './ImportWhiteboardDialog';
 import { ImportedWhiteboard } from './types';
 
@@ -39,13 +37,12 @@ export function ImportWhiteboardDialogProvider({
   );
   const [openImportWhiteboardDialog, setOpenImportWhiteboardDialog] =
     useState(false);
-  const [importedWhiteboard, setImportedWhiteboard] =
-    useState<ImportedWhiteboard>();
+  const [importedData, setImportedData] = useState<ImportedWhiteboard>();
 
   const onDrop = useCallback(
     ([file]: File[], rejectedFiles: FileRejection[]) => {
       if (file === undefined && rejectedFiles.length > 0) {
-        setImportedWhiteboard({
+        setImportedData({
           name: rejectedFiles[0].file.name,
           isError: true,
         });
@@ -53,49 +50,14 @@ export function ImportWhiteboardDialogProvider({
         return;
       }
 
-      const reader = new FileReader();
-
-      const logger = getLogger('SettingsMenu');
-
-      reader.onabort = () => logger.warn('file reading was aborted');
-      reader.onerror = () => logger.warn('file reading has failed');
-      reader.onload = () => {
-        if (typeof reader.result !== 'string') {
-          return;
-        }
-
-        try {
-          const jsonData = JSON.parse(reader.result);
-
-          if (isValidWhiteboardExportDocument(jsonData)) {
-            setImportedWhiteboard({
-              name: file.name,
-              isError: false,
-              data: jsonData,
-            });
-          } else {
-            setImportedWhiteboard({
-              name: file.name,
-              isError: true,
-            });
-          }
-
-          setOpenImportWhiteboardDialog(true);
-        } catch (ex) {
-          const logger = getLogger('SettingsMenu');
-          logger.error('Error while parsing the selected import file', ex);
-
-          setImportedWhiteboard({
-            name: file.name,
-            isError: true,
-          });
-          setOpenImportWhiteboardDialog(true);
-        }
-      };
-
-      reader.readAsText(file);
+      setImportedData({
+        name: file.name,
+        isError: false,
+        file: file,
+      });
+      setOpenImportWhiteboardDialog(true);
     },
-    [],
+    [setOpenImportWhiteboardDialog, setImportedData],
   );
 
   const showImportWhiteboardDialog = (atSlideIndex?: number) => {
@@ -111,7 +73,10 @@ export function ImportWhiteboardDialogProvider({
   } = useDropzone({
     onDrop,
     maxFiles: 1,
-    accept: { 'application/octet-stream': ['.nwb'] },
+    accept: {
+      'application/octet-stream': ['.nwb'],
+      'application/pdf': ['.pdf'],
+    },
     noDrag: true,
     multiple: false,
     // the keyboard interactions are already provided by the MenuItems
@@ -129,8 +94,9 @@ export function ImportWhiteboardDialogProvider({
       <ImportWhiteboardDialog
         open={openImportWhiteboardDialog}
         atSlideIndex={atSlideIndex}
-        importedWhiteboard={importedWhiteboard}
+        importedData={importedData}
         onClose={useCallback(() => {
+          setImportedData(undefined);
           setAtSlideIndex(undefined);
           setOpenImportWhiteboardDialog(false);
         }, [])}
