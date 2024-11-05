@@ -19,6 +19,16 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig({
+  resolve: {
+    dedupe: [
+      'react',
+      'react-dom',
+      'react-i18next',
+      'react-use',
+      'react-redux',
+      '@mui/material',
+    ],
+  },
   test: {
     environment: 'jsdom',
     setupFiles: ['./src/setupTests.ts'],

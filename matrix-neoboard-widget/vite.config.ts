@@ -47,6 +47,7 @@ export default defineConfig({
     dedupe: [
       'react',
       'react-dom',
+      'react-i18next',
       'react-use',
       'react-redux',
       '@mui/material',
