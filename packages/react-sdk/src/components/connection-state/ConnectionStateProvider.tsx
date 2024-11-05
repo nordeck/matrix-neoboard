@@ -45,6 +45,10 @@ export const ConnectionStateProvider: React.FC<PropsWithChildren> = function ({
   const theme = useTheme();
   const { t } = useTranslation();
   const { clearSnackbar, showSnackbar, snackbarProps } = useSnackbar();
+  /**
+   * Basic connection monitoring. Works if there is any network connection and is highly browser dependant.
+   * Read more about it {@link https://developer.mozilla.org/en-US/docs/Web/API/Navigator/onLine|here}.
+   */
   const networkState = useNetworkState();
   const [connectionStateDialogOpen, setConnectionStateDialogOpen] =
     useState(false);
