@@ -15,7 +15,7 @@
  */
 
 import { StateEvent, WidgetApi } from '@matrix-widget-toolkit/api';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { Whiteboard } from '../model';
 import { CommunicationChannelStatistics } from './communication';
 import {
@@ -36,6 +36,8 @@ export type WhiteboardManager = {
   ): void;
   /** Get the active whiteboard instance */
   getActiveWhiteboardInstance(): WhiteboardInstance | undefined;
+  /** Get an observable subject for the active whiteboard */
+  getActiveWhiteboardSubject(): ObservableBehaviorSubject<WhiteboardInstance  |undefined>;
   /** Clean up the current whiteboard. */
   clear(): void;
 };
@@ -302,3 +304,11 @@ export function isWhiteboardUndoManagerContext(
 
   return false;
 }
+
+/**
+ * BehaviorSubject type that only exposes functions for subscribers.
+ */
+export type ObservableBehaviorSubject<T> = Pick<
+  BehaviorSubject<T>,
+  'subscribe' | 'getValue' | 'pipe'
+>;

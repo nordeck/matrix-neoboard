@@ -28,6 +28,8 @@ prefix.apply(log, {
   },
 });
 
+log.setLevel('debug')
+
 // Add global error handlers to redirect log messages into the prefixed format.
 // This makes it easier to notice errors, even if you filter the console for the
 // prefix only.

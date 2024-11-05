@@ -16,16 +16,31 @@
 
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { Box, Button, useTheme } from '@mui/material';
+import { getLogger } from 'loglevel';
 import React, {
   createContext,
   PropsWithChildren,
   useCallback,
   useEffect,
+  useMemo,
+  useRef,
   useState,
 } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNetworkState } from 'react-use';
 import { useSnackbar } from '../../components/Snackbar';
+import { useWhiteboardManager } from '../../state';
+import { useDistinctObserveBehaviorSubject } from '../../state/useDistinctObserveBehaviorSubject';
+import { useAppDispatch } from '../../store';
+import {
+  selectConnectionInfo,
+  setSnapshotSuccessful,
+} from '../../store/connectionInfoSlice';
+import { useAppSelector } from '../../store/reduxToolkitHooks';
+
+const logger = getLogger('ConnectionStateProvider');
+
+const RETRY_INTERVAL = 10_000;
 
 type ConnectionState = 'online' | 'no_internet_connection';
 
@@ -43,6 +58,11 @@ export const ConnectionStateProvider: React.FC<PropsWithChildren> = function ({
   children,
 }) {
   const theme = useTheme();
+  const whiteboard = useDistinctObserveBehaviorSubject(
+    useWhiteboardManager().getActiveWhiteboardSubject(),
+  );
+  const dispatch = useAppDispatch();
+  const pendingSendSnapshot = useRef(false);
   const { t } = useTranslation();
   const { clearSnackbar, showSnackbar, snackbarProps } = useSnackbar();
   /**
@@ -52,6 +72,7 @@ export const ConnectionStateProvider: React.FC<PropsWithChildren> = function ({
   const networkState = useNetworkState();
   const [connectionStateDialogOpen, setConnectionStateDialogOpen] =
     useState(false);
+  const connectionInfo = useAppSelector(selectConnectionInfo);
   const connectionState: ConnectionState = networkState.online
     ? 'online'
     : 'no_internet_connection';
@@ -61,12 +82,12 @@ export const ConnectionStateProvider: React.FC<PropsWithChildren> = function ({
   }, [setConnectionStateDialogOpen]);
 
   /**
-   * Monitor the connection state.
-   * Display a snackbar on connection errors.
+   * Monitor send snapshot state.
+   * Display a snackbar on errors.
    */
   useEffect(() => {
-    if (connectionState === 'online') {
-      // Online - no connection state snackbar and no dialog
+    if (connectionInfo.snapshotFailed === false) {
+      // No send snapshot error - no connection state snackbar and no dialog
       clearSnackbar();
       setConnectionStateDialogOpen(false);
       return;
@@ -78,42 +99,40 @@ export const ConnectionStateProvider: React.FC<PropsWithChildren> = function ({
       return;
     }
 
-    if (connectionState === 'no_internet_connection') {
-      const changesNotSavedMessage = t(
-        'connectionState.snackbar.message',
-        'Changes not saved',
-      );
+    const changesNotSavedMessage = t(
+      'connectionState.snackbar.message',
+      'Changes not saved',
+    );
 
-      if (snackbarProps?.key === changesNotSavedMessage) {
-        // Do not replace the message with itself
-        return;
-      }
-
-      showSnackbar({
-        key: changesNotSavedMessage,
-        priority: true,
-        message: (
-          <Box
-            sx={{
-              alignItems: 'center',
-              display: 'flex',
-              gap: theme.spacing(2),
-            }}
-          >
-            <WarningAmberIcon color="warning" />
-            {changesNotSavedMessage}
-          </Box>
-        ),
-        action: (
-          <Button size="small" onClick={handleLearnMoreClick}>
-            {t('connectionState.snackbar.action', 'learn more')}
-          </Button>
-        ),
-      });
+    if (snackbarProps?.key === changesNotSavedMessage) {
+      // Do not replace the message with itself
       return;
     }
+
+    showSnackbar({
+      key: changesNotSavedMessage,
+      priority: true,
+      message: (
+        <Box
+          sx={{
+            alignItems: 'center',
+            display: 'flex',
+            gap: theme.spacing(2),
+          }}
+        >
+          <WarningAmberIcon color="warning" />
+          {changesNotSavedMessage}
+        </Box>
+      ),
+      action: (
+        <Button size="small" onClick={handleLearnMoreClick}>
+          {t('connectionState.snackbar.action', 'learn more')}
+        </Button>
+      ),
+    });
   }, [
     clearSnackbar,
+    connectionInfo.snapshotFailed,
     connectionState,
     connectionStateDialogOpen,
     handleLearnMoreClick,
@@ -123,6 +142,80 @@ export const ConnectionStateProvider: React.FC<PropsWithChildren> = function ({
     t,
     theme,
   ]);
+
+  // Determine whether to retry snapshots.
+  const shouldRetrySendSnapshot = useMemo(() => {
+    if (whiteboard === undefined) {
+      // There is no whiteboard, reset snapshot state and return
+      logger.debug('Retry snapshot: No retry, because there is no whiteboard');
+      return false;
+    }
+
+    if (connectionInfo.snapshotFailed === false) {
+      // Do not retry, if there is no error
+      logger.debug(
+        'Retry snapshot: No retry, because there is no failed snapshot',
+      );
+      return false;
+    }
+
+    if (connectionState !== 'online') {
+      // Do not retry, if we know there is a connection error
+      logger.debug(
+        'Retry snapshot: No retry, because there is no online connection',
+      );
+      return false;
+    }
+
+    logger.debug('Retry snapshot: Should retry');
+    return true;
+  }, [connectionInfo.snapshotFailed, connectionState, whiteboard]);
+
+  // Actually retry to send the snapshot
+  useEffect(() => {
+    if (shouldRetrySendSnapshot === false) {
+      // Snapshots should not be retried
+      return;
+    }
+
+    if (whiteboard === undefined) {
+      // Do not retry, if there is no whiteboard
+      return;
+    }
+
+    const retrySendSnapshot = async () => {
+      console.log('MiW retry send snapshot');
+
+      if (pendingSendSnapshot.current === true) {
+        // Do not retry, if a snapshot is pending
+        return;
+      }
+
+      pendingSendSnapshot.current = true;
+
+      try {
+        await whiteboard.persist();
+        dispatch(setSnapshotSuccessful());
+      } finally {
+        pendingSendSnapshot.current = false;
+      }
+    };
+
+    let intervalId: ReturnType<typeof setInterval>;
+
+    retrySendSnapshot()
+      .then(() => {
+        intervalId = setInterval(retrySendSnapshot, RETRY_INTERVAL);
+        return;
+      })
+      .catch((error) => {
+        logger.warn('Retry send snapshot error, should not happen', error);
+      });
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [dispatch, shouldRetrySendSnapshot, whiteboard]);
 
   const handleCloseConnectionStateDialog = useCallback(() => {
     setConnectionStateDialogOpen(false);

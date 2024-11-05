@@ -15,6 +15,11 @@
  */
 
 export * from './api';
+export {
+  connectionInfoReducer,
+  setSnapshotFailed,
+  setSnapshotSuccessful,
+} from './connectionInfoSlice';
 export { useAppDispatch } from './reduxToolkitHooks';
 export { shapeSizesReducer } from './shapeSizesSlide';
 export { createStore } from './store';

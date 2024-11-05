@@ -19,6 +19,7 @@ import { autoBatchEnhancer, configureStore } from '@reduxjs/toolkit';
 import { baseApi } from './api/baseApi';
 import { loggerMiddleware } from './loggerMiddleware';
 import { shapeSizesReducer } from './shapeSizesSlide';
+import { connectionInfoReducer } from './connectionInfoSlice';
 
 export function createStore({
   widgetApi,
@@ -28,6 +29,7 @@ export function createStore({
   const store = configureStore({
     reducer: {
       [baseApi.reducerPath]: baseApi.reducer,
+      connectionInfoReducer,
       shapeSizesReducer,
     },
     middleware: (getDefaultMiddleware) => {
