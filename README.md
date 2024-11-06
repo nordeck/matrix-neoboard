@@ -141,10 +141,18 @@ docker run --rm -e REACT_APP_HOME_SERVER_URL=https://matrix-client.matrix.org -p
 
 We also provide a [HELM chart](./charts/).
 
-> Important:
-> The collaboration features require you to configure TURN servers in your Homeserver.
-> It can work without them, but there is a high chance that it won't!
-> The official matrix.org homeserver will work; see for example how to configure them for [Synapse](https://matrix-org.github.io/synapse/latest/turn-howto.html).
+### Important notes
+
+**TURN server**
+
+The collaboration features require you to configure TURN servers in your Homeserver.
+It can work without them, but there is a high chance that it won't!
+The official matrix.org homeserver will work; see for example how to configure them for [Synapse](https://matrix-org.github.io/synapse/latest/turn-howto.html).
+
+**Rate limiting settings**
+
+For a good NeoBoard experience we highly recommend to tweak the rate limiting settings as described in the [configuration](./docs/configuration.md#rate-limiting-settings).
+Otherwise users may get stuck in a state, where they need to confirm to re-send messages before NeoBoard resume to work normally after it ran into rate limiting.
 
 ## Verify the Container Images
 
