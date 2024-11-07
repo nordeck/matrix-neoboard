@@ -7,8 +7,8 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@matrix-widget-toolkit/api": "link:../../matrix-widget-toolkit/packages/api",
-    "@matrix-widget-toolkit/mui": "link:../../matrix-widget-toolkit/packages/mui",
+    "@matrix-widget-toolkit/api": "^3.4.2",
+    "@matrix-widget-toolkit/mui": "^2.0.6",
     "@nordeck/matrix-neoboard-react-sdk": "0.2.2",
     "i18next": "^23.15.2",
     "i18next-browser-languagedetector": "^8.0.0",

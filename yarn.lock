@@ -930,28 +930,58 @@
     tar "^6.1.11"
 
 "@matrix-widget-toolkit/api@^3.4.2":
-  version "0.0.0"
-  uid ""
+  version "3.4.2"
+  resolved "https://registry.yarnpkg.com/@matrix-widget-toolkit/api/-/api-3.4.2.tgz#ce42a841c8cb51d8c6a61016e9fdff3703a734b9"
+  integrity sha512-zATxVBtlxsEN1VeIp4NGNpy/SdHPdKXaN+NbVMYG1CU3PryVENngCWjr5038fMpem2ZpLtyjxyUSvPlRKT8kbw==
+  dependencies:
+    matrix-widget-api "^1.9.0"
+    qs "^6.13.0"
+    rxjs "^7.8.1"
 
-"@matrix-widget-toolkit/api@link:../matrix-widget-toolkit/packages/api":
-  version "0.0.0"
-  uid ""
-
-"@matrix-widget-toolkit/mui@link:../matrix-widget-toolkit/packages/mui":
-  version "0.0.0"
-  uid ""
+"@matrix-widget-toolkit/mui@^2.0.6":
+  version "2.0.6"
+  resolved "https://registry.yarnpkg.com/@matrix-widget-toolkit/mui/-/mui-2.0.6.tgz#ef6fe6644f1021d9a21ee5204f45ba45a3dbe205"
+  integrity sha512-NKkiBytqm2na1COPwd8rw0QILtq2BohbwnFH62ieDPm4ithiAnMLIrL/LklRRQfLzyTb/I10nN/V2PNWgm6byA==
+  dependencies:
+    "@emotion/cache" "^11.13.1"
+    "@emotion/react" "^11.13.3"
+    "@emotion/styled" "^11.13.0"
+    "@fontsource/inter" "^5.1.0"
+    "@matrix-widget-toolkit/api" "^3.4.2"
+    "@matrix-widget-toolkit/react" "^2.0.3"
+    "@mui/icons-material" "^6.1.4"
+    "@mui/material" "^6.1.4"
+    "@mui/utils" "^6.0.2"
+    i18next "^23.16.0"
+    i18next-browser-languagedetector "^8.0.0"
+    i18next-resources-to-backend "^1.2.1"
+    lodash-es "^4.17.21"
+    matrix-widget-api "^1.9.0"
+    react "^18.2.0"
+    react-i18next "^15.0.3"
+    react-use "^17.5.1"
 
 "@matrix-widget-toolkit/react@^2.0.3":
-  version "0.0.0"
-  uid ""
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/@matrix-widget-toolkit/react/-/react-2.0.3.tgz#148cf31c4571e7f5dc0eabf176d7432fde54b577"
+  integrity sha512-YoWurD8To9HyX19EEi026+O3O/nOqyu95qUoKxvPLNv8IINrStdGrp6yBHqiQ4jKh7oKgdAXO4AsqZwauAaLaw==
+  dependencies:
+    "@matrix-widget-toolkit/api" "^3.4.2"
+    matrix-widget-api "^1.9.0"
+    react "^18.2.0"
+    react-error-boundary "^3.1.4"
+    react-use "^17.5.1"
 
-"@matrix-widget-toolkit/react@link:../matrix-widget-toolkit/packages/react":
-  version "0.0.0"
-  uid ""
-
-"@matrix-widget-toolkit/testing@link:../matrix-widget-toolkit/packages/testing":
-  version "0.0.0"
-  uid ""
+"@matrix-widget-toolkit/testing@^3.0.1":
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/@matrix-widget-toolkit/testing/-/testing-3.0.1.tgz#b0eaad61470b304a79f4ed6a44eebf517eb33ea9"
+  integrity sha512-DTTouK2mZd6lWO4vJNNdkP2WYhVTXuAvTYF+0WayzffFrHHQHdm2mIoFUrBXY+0786X5ERbtYTOdb5Hy3x54lw==
+  dependencies:
+    "@matrix-widget-toolkit/api" "^3.4.2"
+    lodash-es "^4.17.21"
+    matrix-widget-api "^1.9.0"
+    rxjs "^7.8.1"
+    vitest "^2.1.3"
 
 "@mui/base@5.0.0-beta.58", "@mui/base@^5.0.0-beta.58":
   version "5.0.0-beta.58"
@@ -5615,7 +5645,7 @@ react-use@^17.5.1:
     ts-easing "^0.2.0"
     tslib "^2.1.0"
 
-react@^18.3.1:
+react@^18.2.0, react@^18.3.1:
   version "18.3.1"
   resolved "https://registry.yarnpkg.com/react/-/react-18.3.1.tgz#49ab892009c53933625bd16b2533fc754cab2891"
   integrity sha512-wS+hAgJShR0KhEvPJArfuPVN1+Hz1t0Y6n5jLrGQbkb4urgPE/0Rve+1kMB1v/oWgHgm4WIcV+i7F2pTVj+2iQ==
