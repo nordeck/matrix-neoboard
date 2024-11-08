@@ -40,7 +40,7 @@ User will need to wait for the moderator to join and initialize the room and whi
 For a good NeoBoard experience rate limiting settings need to be tweaked.
 
 NeoBoard sends one snapshot every 5 seconds, if the board changed. One snapshot may consist of multiple chunk events.
-If you upload images, there is one media upload per image. Uploads also happen when importing a NeoBoard.
+If you added images to the board, there is one media upload per image. Uploads also happen when importing a NeoBoard.
 
 Because of that we recommend at least the following settings (using Synapse as an example):
 
@@ -60,4 +60,4 @@ The calculation base for these settings is:
 
 You can find more information about where to set the rate limiting settings [in the Synapse configuration manual](https://element-hq.github.io/synapse/latest/usage/configuration/config_documentation.html#ratelimiting).
 
-Loosening the rate limiting settings also means people are allowed to send more messages to a room or upload more media files within a short time.
+Loosening the rate limiting settings also means people are allowed to send more messages to a room or upload more media files within a short time outside of NeoBoard, so these settings should be adjusted with care.
