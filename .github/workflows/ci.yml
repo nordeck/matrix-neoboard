@@ -17,14 +17,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          repository: nordeck/matrix-widget-toolkit
-          path: matrix-widget-toolkit
-          # FIXME: THIS IS NOT MEANT TO LAND ON MAIN!
-          ref: 'nic/fix/NEO-800'
-
-      - uses: actions/checkout@v4
-        with:
-          path: matrix-neoboard
           # required for changesets
           fetch-depth: '0'
           # don't persist the credentials so the changesets action doesn't use the
@@ -36,48 +28,33 @@ jobs:
         with:
           node-version: '20'
           cache: 'yarn'
-          cache-dependency-path: |
-            matrix-widget-toolkit/yarn.lock
-            matrix-neoboard/yarn.lock
-
-      - name: yarn install matrix-widget-toolkit
-        working-directory: ./matrix-widget-toolkit/
-        run: yarn install --frozen-lockfile
 
       - name: yarn install
-        working-directory: ./matrix-neoboard/
         run: yarn install --frozen-lockfile
 
       - name: prettier:check
-        working-directory: ./matrix-neoboard/
         run: yarn prettier:check
 
       - name: depcheck
-        working-directory: ./matrix-neoboard/
         run: yarn depcheck
 
       - name: Check Linting Rules
-        working-directory: ./matrix-neoboard/
         run: yarn lint
 
       - name: type checking and declarations
-        working-directory: ./matrix-neoboard/
         run: yarn tsc
 
       - name: Check Translations
-        working-directory: ./matrix-neoboard/
         run: yarn translate --fail-on-update
 
       - name: test
-        working-directory: ./matrix-neoboard/
         run: yarn run test:all
 
       - name: build
-        working-directory: ./matrix-neoboard/
         run: yarn build
 
       - name: generate disclaimer
-        working-directory: ./matrix-neoboard/matrix-neoboard-widget/
+        working-directory: ./matrix-neoboard-widget/
         run: yarn generate-disclaimer
 
       - name: Login to ghcr.io
@@ -108,7 +85,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' || github.event_name == 'pull_request' && secrets.GH_APP_OS_APP_ID != '' }}
-          context: ./matrix-neoboard/matrix-neoboard-widget/
+          context: ./matrix-neoboard-widget/
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           platforms: linux/amd64,linux/arm64,linux/s390x
