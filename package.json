@@ -5,6 +5,7 @@
     "matrix-neoboard-widget",
     "packages/*"
   ],
+  "type": "module",
   "devDependencies": {
     "@changesets/cli": "^2.27.9",
     "@eslint/compat": "^1.2.2",

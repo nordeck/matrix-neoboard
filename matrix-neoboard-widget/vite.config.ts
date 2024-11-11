@@ -16,12 +16,7 @@
 
 import basicSsl from '@vitejs/plugin-basic-ssl';
 import react from '@vitejs/plugin-react-swc';
-import {
-  Plugin,
-  PluginOption,
-  defineConfig,
-  searchForWorkspaceRoot,
-} from 'vite';
+import { Plugin, PluginOption, defineConfig } from 'vite';
 
 const plugins: [Plugin | PluginOption] = [react()];
 let port = 5273;
@@ -47,19 +42,16 @@ export default defineConfig({
     dedupe: [
       'react',
       'react-dom',
-      '@matrix-widget-toolkit/react',
+      'react-i18next',
+      'react-use',
       'react-redux',
       '@mui/material',
+      '@matrix-widget-toolkit/react',
     ],
   },
   server: {
     fs: {
-      allow: [
-        searchForWorkspaceRoot(process.cwd()),
-        '../matrix-neoboard/packages/react-sdk/src/components/BoardBar/pdf/',
-        '../matrix-neoboard/node_modules/@fontsource/',
-        '../matrix-neoboard/node_modules/pdfmake/build/',
-      ],
+      strict: false,
     },
     port,
     strictPort: true,
