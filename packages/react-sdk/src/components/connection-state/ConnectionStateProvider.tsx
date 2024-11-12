@@ -66,7 +66,7 @@ export const ConnectionStateProvider: React.FC<PropsWithChildren> = function ({
   const { t } = useTranslation();
   const { clearSnackbar, showSnackbar, snackbarProps } = useSnackbar();
   /**
-   * Basic connection monitoring. Works if there is any network connection and is highly browser dependant.
+   * Basic connection monitoring. Works if there is any network connection and is highly browser-dependent.
    * Read more about it {@link https://developer.mozilla.org/en-US/docs/Web/API/Navigator/onLine|here}.
    */
   const networkState = useNetworkState();
