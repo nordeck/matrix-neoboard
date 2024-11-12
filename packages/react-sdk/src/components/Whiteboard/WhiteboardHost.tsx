@@ -63,25 +63,7 @@ const WhiteboardHost = ({
     useLayoutState();
   const { activeElementIds } = useActiveElements();
   const overrides = useElementOverrides(activeElementIds);
-  /*
-  const { data: roomMembers } = useGetRoomMembersQuery();
-  const whiteboardInstance = useActiveWhiteboardInstance();
 
-  useEffect(() => {
-    const members = roomMembers?.entities;
-    if (members) {
-      const invitesOrJoins = Object.values(members).filter((member) => {
-        return member.content.membership == 'invite' || member.content.membership == 'join';
-      });
-      const lastInviteOrJoin = invitesOrJoins.sort((a, b) => {
-        return b.origin_server_ts - a.origin_server_ts;
-      });
-      console.log("MGCM: lastInviteOrJoin:", lastInviteOrJoin[0]);
-
-      whiteboardInstance.persistIfNecessary(lastInviteOrJoin[0].origin_server_ts);
-    }
-  }, [roomMembers, whiteboardInstance]);
-  */
   return (
     <Box
       flex={1}

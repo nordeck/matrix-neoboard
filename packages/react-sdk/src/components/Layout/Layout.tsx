@@ -29,6 +29,7 @@ import { BoardBar } from '../BoardBar';
 import { CollaborationBar } from '../CollaborationBar';
 import { DeveloperTools } from '../DeveloperTools/DeveloperTools';
 import { ElementOverridesProvider } from '../ElementOverridesProvider';
+import { FallbackSnapshotProvider } from '../FallbackSnapshotProvider';
 import { FullscreenModeBar } from '../FullscreenModeBar';
 import { GuidedTour } from '../GuidedTour';
 import { HelpCenterBar } from '../HelpCenterBar';
@@ -77,49 +78,54 @@ export function Layout({ height = '100vh' }: LayoutProps) {
   }
 
   return (
-    <SlidesProvider>
-      <ImageUploadProvider>
-        <ImportWhiteboardDialogProvider>
-          <GuidedTour disabled={isViewingPresentation} />
+    <FallbackSnapshotProvider>
+      <SlidesProvider>
+        <ImageUploadProvider>
+          <ImportWhiteboardDialogProvider>
+            <GuidedTour disabled={isViewingPresentation} />
 
-          <Stack
-            height={!isFullscreenMode ? height : '100vh'}
-            direction="row"
-            bgcolor="background.paper"
-          >
-            <AnimatedSidebar
-              visible={isSlideOverviewVisible && !isViewingPresentation}
-              direction="right"
+            <Stack
+              height={!isFullscreenMode ? height : '100vh'}
+              direction="row"
+              bgcolor="background.paper"
             >
-              <SlideOverviewBar />
-            </AnimatedSidebar>
+              <AnimatedSidebar
+                visible={isSlideOverviewVisible && !isViewingPresentation}
+                direction="right"
+              >
+                <SlideOverviewBar />
+              </AnimatedSidebar>
 
-            <Box
-              component="main"
-              flex={1}
-              display="flex"
-              position="relative"
-              onDragEnter={handleUploadDragEnter}
-            >
-              {slideIds.map((slideId) => (
-                <TabPanelStyled value={slideId} key={slideId}>
-                  <SlideProvider slideId={slideId}>
-                    <ElementOverridesProvider>
-                      <ContentArea />
-                      {uploadDragOverlay}
-                    </ElementOverridesProvider>
-                  </SlideProvider>
-                </TabPanelStyled>
-              ))}
-            </Box>
+              <Box
+                component="main"
+                flex={1}
+                display="flex"
+                position="relative"
+                onDragEnter={handleUploadDragEnter}
+              >
+                {slideIds.map((slideId) => (
+                  <TabPanelStyled value={slideId} key={slideId}>
+                    <SlideProvider slideId={slideId}>
+                      <ElementOverridesProvider>
+                        <ContentArea />
+                        {uploadDragOverlay}
+                      </ElementOverridesProvider>
+                    </SlideProvider>
+                  </TabPanelStyled>
+                ))}
+              </Box>
 
-            <AnimatedSidebar visible={isDeveloperToolsVisible} direction="left">
-              <DeveloperTools />
-            </AnimatedSidebar>
-          </Stack>
-        </ImportWhiteboardDialogProvider>
-      </ImageUploadProvider>
-    </SlidesProvider>
+              <AnimatedSidebar
+                visible={isDeveloperToolsVisible}
+                direction="left"
+              >
+                <DeveloperTools />
+              </AnimatedSidebar>
+            </Stack>
+          </ImportWhiteboardDialogProvider>
+        </ImageUploadProvider>
+      </SlidesProvider>
+    </FallbackSnapshotProvider>
   );
 }
 

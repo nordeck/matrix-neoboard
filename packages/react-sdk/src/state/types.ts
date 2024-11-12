@@ -148,10 +148,10 @@ export type WhiteboardInstance = {
   destroy(): void;
 
   /** Persist the whiteboard state. */
-  persist(): Promise<void>;
+  persist(force: boolean): Promise<void>;
 
-  /** Persist under special conditions */
-  persistIfNecessary(timestamp: number): void;
+  /** Persist if existing snapshot is older than */
+  persistIfOlderThan(timestamp: number): void;
 };
 
 export type ElementUpdate = {
@@ -264,7 +264,7 @@ export type SynchronizedDocument<T extends Record<string, unknown>> = {
   /** Destroy the document to cleanup all open connections. */
   destroy(): void;
   /** Persist the document immediately. */
-  persist(): Promise<void>;
+  persist(force: boolean): Promise<void>;
   /** Get the latest document snapshot, if available */
   getLatestDocumentSnapshot(): RoomEvent<DocumentSnapshot> | undefined;
 };

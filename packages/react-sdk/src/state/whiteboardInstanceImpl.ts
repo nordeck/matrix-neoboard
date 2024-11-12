@@ -452,16 +452,14 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
     this.communicationChannel.destroy();
   }
 
-  async persist() {
-    await this.synchronizedDocument.persist();
+  async persist(force = false) {
+    await this.synchronizedDocument.persist(force);
   }
 
-  async persistIfNecessary(timestamp: number) {
+  async persistIfOlderThan(timestamp: number) {
     const snapshot = this.synchronizedDocument.getLatestDocumentSnapshot();
-    console.log('MGCM: snapshot:', snapshot);
     if (snapshot && snapshot.origin_server_ts < timestamp) {
-      console.log('MGCM: !!persisting!!');
-      await this.persist();
+      await this.persist(true);
     }
   }
 

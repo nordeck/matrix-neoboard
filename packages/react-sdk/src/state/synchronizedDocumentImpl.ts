@@ -199,8 +199,8 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
     return this.loadingSubject.pipe(distinctUntilChanged());
   }
 
-  private async persistDocument(doc: Document<T>) {
-    if (!this.statistics.snapshotOutstanding) {
+  private async persistDocument(doc: Document<T>, force = false) {
+    if (!this.statistics.snapshotOutstanding && !force) {
       // No outstanding snapshot, do nothing
       return;
     }
@@ -219,8 +219,8 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
     }
   }
 
-  async persist() {
-    await this.persistDocument(this.document);
+  async persist(force = false) {
+    await this.persistDocument(this.document, force);
   }
 
   getLatestDocumentSnapshot(): RoomEvent<DocumentSnapshot> | undefined {
@@ -229,7 +229,7 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
 
     const result = documentSnapshotApi.endpoints.getDocumentSnapshot.select({
       documentId,
-      validator: undefined,
+      validator: () => true,
     })(state);
 
     if (!result.isLoading) {
