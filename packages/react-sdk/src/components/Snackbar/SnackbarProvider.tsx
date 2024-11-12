@@ -101,6 +101,10 @@ export function SnackbarProvider({ children }: PropsWithChildren<{}>) {
           flexWrap: 'nowrap',
         },
       },
+      ClickAwayListenerProps: {
+        // Deactivate dismiss the snack bar by clicking anywhere
+        onClickAway: () => {},
+      },
     };
   }, [
     extraSnackbarProps,
