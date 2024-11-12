@@ -82,8 +82,7 @@ export const ConnectionStateProvider: React.FC<PropsWithChildren> = function ({
   }, [setConnectionStateDialogOpen]);
 
   /**
-   * Monitor send snapshot state.
-   * Display a snackbar on errors.
+   * Monitor send snapshot state. Display a snackbar on errors.
    */
   useEffect(() => {
     if (connectionInfo.snapshotFailed === false) {
@@ -171,7 +170,7 @@ export const ConnectionStateProvider: React.FC<PropsWithChildren> = function ({
     return true;
   }, [connectionInfo.snapshotFailed, connectionState, whiteboard]);
 
-  // Actually retry to send the snapshot
+  // Actually retry to send the snapshot.
   useEffect(() => {
     if (shouldRetrySendSnapshot === false) {
       // Snapshots should not be retried
@@ -184,8 +183,6 @@ export const ConnectionStateProvider: React.FC<PropsWithChildren> = function ({
     }
 
     const retrySendSnapshot = async () => {
-      console.log('MiW retry send snapshot');
-
       if (pendingSendSnapshot.current === true) {
         // Do not retry, if a snapshot is pending
         return;
@@ -196,6 +193,9 @@ export const ConnectionStateProvider: React.FC<PropsWithChildren> = function ({
       try {
         await whiteboard.persist();
         dispatch(setSnapshotSuccessful());
+        return true;
+      } catch {
+        return false;
       } finally {
         pendingSendSnapshot.current = false;
       }
@@ -204,12 +204,16 @@ export const ConnectionStateProvider: React.FC<PropsWithChildren> = function ({
     let intervalId: ReturnType<typeof setInterval>;
 
     retrySendSnapshot()
-      .then(() => {
-        intervalId = setInterval(retrySendSnapshot, RETRY_INTERVAL);
+      .then((result) => {
+        if (result === false) {
+          // Retry failed, set up retry interval
+          intervalId = setInterval(retrySendSnapshot, RETRY_INTERVAL);
+        }
+
         return;
       })
-      .catch((error) => {
-        logger.warn('Retry send snapshot error, should not happen', error);
+      .catch(() => {
+        // Ignore
       });
 
     return () => {

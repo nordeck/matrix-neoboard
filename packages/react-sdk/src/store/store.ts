@@ -17,9 +17,9 @@
 import { WidgetApi } from '@matrix-widget-toolkit/api';
 import { autoBatchEnhancer, configureStore } from '@reduxjs/toolkit';
 import { baseApi } from './api/baseApi';
+import { connectionInfoReducer } from './connectionInfoSlice';
 import { loggerMiddleware } from './loggerMiddleware';
 import { shapeSizesReducer } from './shapeSizesSlide';
-import { connectionInfoReducer } from './connectionInfoSlice';
 
 export function createStore({
   widgetApi,

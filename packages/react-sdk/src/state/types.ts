@@ -37,7 +37,9 @@ export type WhiteboardManager = {
   /** Get the active whiteboard instance */
   getActiveWhiteboardInstance(): WhiteboardInstance | undefined;
   /** Get an observable subject for the active whiteboard */
-  getActiveWhiteboardSubject(): ObservableBehaviorSubject<WhiteboardInstance  |undefined>;
+  getActiveWhiteboardSubject(): ObservableBehaviorSubject<
+    WhiteboardInstance | undefined
+  >;
   /** Clean up the current whiteboard. */
   clear(): void;
 };
