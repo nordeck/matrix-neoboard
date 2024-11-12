@@ -99,6 +99,7 @@ describe('presentationManager', () => {
       undo: vi.fn(),
       destroy: vi.fn(),
       persist: vi.fn(),
+      persistIfNecessary: vi.fn(),
     };
 
     enableObserveVisibilityStateSubject = new Subject<boolean>();

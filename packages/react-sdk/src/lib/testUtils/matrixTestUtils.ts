@@ -28,6 +28,8 @@ import {
   DocumentChunk,
   DocumentCreate,
   DocumentSnapshot,
+  RoomEncryptionEvent,
+  RoomHistoryVisibilityEvent,
   RoomNameEvent,
   Whiteboard,
   WhiteboardSession,
@@ -93,6 +95,58 @@ export function mockPowerLevelsEvent({
     origin_server_ts: 0,
     event_id: '$event-id-0',
     room_id: '!room-id',
+  };
+}
+
+/**
+ * Create a matrix room encryption event with known test data.
+ *
+ * @remarks Only use for tests
+ */
+export function mockRoomEncryption({
+  room_id = '!room-id',
+  content = {},
+}: {
+  room_id?: string;
+  content?: Partial<RoomEncryptionEvent>;
+} = {}): StateEvent<RoomEncryptionEvent> {
+  return {
+    type: 'm.room.encryption',
+    sender: '',
+    content: {
+      algorithm: 'm.megolm.v1.aes-sha2',
+      ...content,
+    },
+    state_key: room_id,
+    origin_server_ts: 0,
+    event_id: '$event-id-0',
+    room_id,
+  };
+}
+
+/**
+ * Create a matrix room history visibility event with known test data.
+ *
+ * @remarks Only use for tests
+ */
+export function mockRoomHistoryVisibility({
+  room_id = '!room-id',
+  content = {},
+}: {
+  room_id?: string;
+  content?: Partial<RoomHistoryVisibilityEvent>;
+} = {}): StateEvent<RoomHistoryVisibilityEvent> {
+  return {
+    type: 'm.room.history_visibility',
+    sender: '',
+    content: {
+      history_visibility: 'shared',
+      ...content,
+    },
+    state_key: room_id,
+    origin_server_ts: 0,
+    event_id: '$event-id-0',
+    room_id,
   };
 }
 

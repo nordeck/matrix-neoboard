@@ -130,6 +130,7 @@ export function mockWhiteboardManager(
     observeIsLoading: () => of(false),
     destroy: () => {},
     persist: vi.fn().mockResolvedValue(undefined),
+    getLatestDocumentSnapshot: () => undefined,
   };
 
   const whiteboardInstance = new WhiteboardInstanceImpl(

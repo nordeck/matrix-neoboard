@@ -456,6 +456,15 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
     await this.synchronizedDocument.persist();
   }
 
+  async persistIfNecessary(timestamp: number) {
+    const snapshot = this.synchronizedDocument.getLatestDocumentSnapshot();
+    console.log('MGCM: snapshot:', snapshot);
+    if (snapshot && snapshot.origin_server_ts < timestamp) {
+      console.log('MGCM: !!persisting!!');
+      await this.persist();
+    }
+  }
+
   clearUndoManager(): void {
     this.synchronizedDocument.getDocument().getUndoManager().clear();
   }

@@ -35,6 +35,16 @@ export {
   isValidDocumentSnapshotRoomEvent,
 } from './documentSnapshot';
 export type { DocumentSnapshot } from './documentSnapshot';
+export {
+  STATE_EVENT_ROOM_ENCRYPTION,
+  isValidRoomEncryptionEvent,
+} from './roomEncryptionEvent';
+export type { RoomEncryptionEvent } from './roomEncryptionEvent';
+export {
+  STATE_EVENT_ROOM_HISTORY_VISIBILITY,
+  isValidRoomHistoryVisibilityEvent,
+} from './roomHistoryVisibilityEvent';
+export type { RoomHistoryVisibilityEvent } from './roomHistoryVisibilityEvent';
 export { STATE_EVENT_ROOM_NAME, isValidRoomNameEvent } from './roomNameEvent';
 export type { RoomNameEvent } from './roomNameEvent';
 export {

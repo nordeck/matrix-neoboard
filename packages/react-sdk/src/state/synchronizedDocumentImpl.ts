@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { RoomEvent } from '@matrix-widget-toolkit/api';
 import { Base64 } from 'js-base64';
 import { clone } from 'lodash';
 import { getLogger } from 'loglevel';
@@ -34,6 +35,7 @@ import {
   throttleTime,
 } from 'rxjs';
 import { isDefined } from '../lib';
+import { DocumentSnapshot } from '../model';
 import {
   documentSnapshotApi,
   setSnapshotFailed,
@@ -219,6 +221,24 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
 
   async persist() {
     await this.persistDocument(this.document);
+  }
+
+  getLatestDocumentSnapshot(): RoomEvent<DocumentSnapshot> | undefined {
+    const state = this.store.getState();
+    const documentId = this.documentId;
+
+    const result = documentSnapshotApi.endpoints.getDocumentSnapshot.select({
+      documentId,
+      validator: undefined,
+    })(state);
+
+    if (!result.isLoading) {
+      const snapshotData = result.data;
+
+      if (snapshotData) {
+        return snapshotData.event;
+      }
+    }
   }
 
   private async createDocumentSnapshot(

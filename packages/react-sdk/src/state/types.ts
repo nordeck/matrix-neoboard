@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import { StateEvent, WidgetApi } from '@matrix-widget-toolkit/api';
+import { RoomEvent, StateEvent, WidgetApi } from '@matrix-widget-toolkit/api';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { Whiteboard } from '../model';
+import { DocumentSnapshot, Whiteboard } from '../model';
 import { CommunicationChannelStatistics } from './communication';
 import {
   Document,
@@ -149,6 +149,9 @@ export type WhiteboardInstance = {
 
   /** Persist the whiteboard state. */
   persist(): Promise<void>;
+
+  /** Persist under special conditions */
+  persistIfNecessary(timestamp: number): void;
 };
 
 export type ElementUpdate = {
@@ -262,6 +265,8 @@ export type SynchronizedDocument<T extends Record<string, unknown>> = {
   destroy(): void;
   /** Persist the document immediately. */
   persist(): Promise<void>;
+  /** Get the latest document snapshot, if available */
+  getLatestDocumentSnapshot(): RoomEvent<DocumentSnapshot> | undefined;
 };
 
 export type PresentationState =
