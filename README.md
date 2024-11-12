@@ -70,7 +70,8 @@ The minimal Element version to use this widget is `1.11.8`.
 
 After checkout, run `yarn install` to download the required dependencies
 
-> **Warning** Do not use `npm install` when working with this package.
+> [!WARNING]
+> Do not use `npm install` when working with this package.
 
 ### Configuration
 
