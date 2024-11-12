@@ -30,7 +30,6 @@ import {
 import { mockWhiteboardManager } from '../../lib/testUtils';
 import {
   WhiteboardDocument,
-  WhiteboardInstance,
   WhiteboardManager,
   WhiteboardManagerProvider,
 } from '../../state';
@@ -44,7 +43,6 @@ describe('<ConnectionStateProvider />', () => {
   let widgetApi: MockedWidgetApi;
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
   let whiteboardManager: Mocked<WhiteboardManager>;
-  let activeWhiteboardInstance: WhiteboardInstance;
   let synchronizedDocument: SynchronizedDocument<WhiteboardDocument>;
   let store: StoreType;
 
@@ -52,7 +50,6 @@ describe('<ConnectionStateProvider />', () => {
     store = createStore({ widgetApi });
     widgetApi = mockWidgetApi();
     ({ synchronizedDocument, whiteboardManager } = mockWhiteboardManager());
-    activeWhiteboardInstance = whiteboardManager.getActiveWhiteboardInstance()!;
     Wrapper = ({ children }: PropsWithChildren<{}>) => (
       <Provider store={store}>
         <WhiteboardManagerProvider whiteboardManager={whiteboardManager}>
