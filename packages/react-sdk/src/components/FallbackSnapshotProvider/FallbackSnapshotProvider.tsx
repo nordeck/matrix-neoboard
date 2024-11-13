@@ -18,6 +18,7 @@ import {
   RoomMemberStateEventContent,
   StateEvent,
 } from '@matrix-widget-toolkit/api';
+import { useWidgetApi } from '@matrix-widget-toolkit/react';
 import { PropsWithChildren, useEffect } from 'react';
 import { useActiveWhiteboardInstance } from '../../state';
 import {
@@ -31,6 +32,7 @@ export function FallbackSnapshotProvider({ children }: PropsWithChildren<{}>) {
   const { data: roomMembers } = useGetRoomMembersQuery();
   const { data: roomEncryption } = useGetRoomEncryptionQuery();
   const { data: roomHistoryVisibility } = useGetRoomHistoryVisibilityQuery();
+  const ownUserId = useWidgetApi().widgetParameters.userId;
 
   useEffect(() => {
     const isRoomEncrypted =
@@ -77,21 +79,38 @@ export function FallbackSnapshotProvider({ children }: PropsWithChildren<{}>) {
         ) {
           // get the invite instead
           const joinEventObject = Object(lastInviteOrJoin);
-          const prevEventWasJoin =
+          const prevEventWasInvite =
             joinEventObject['unsigned'].prev_content?.membership == 'invite';
-          if (prevEventWasJoin) {
-            const _ = joinEventObject['unsigned']?.replaces_state;
+          if (prevEventWasInvite) {
+            const _inviteEventId = joinEventObject['unsigned']?.replaces_state;
             // TODO: we now need to get the timestamp of the invite event and use that instead
             // but the Widget API doesn't have a way to get an event by event ID
+            // and the `readRoomEvents` is filtering out events with state_key set
           }
         }
 
-        whiteboardInstance.persistIfOlderThan(
-          lastInviteOrJoin.origin_server_ts,
-        );
+        let immediate = false;
+        if (
+          lastInviteOrJoin.sender == ownUserId &&
+          lastInviteOrJoin.content.membership == 'invite'
+        ) {
+          // if the sender is the current user, try to persist immediatly
+          immediate = true;
+        }
+
+        whiteboardInstance.persist({
+          timestamp: lastInviteOrJoin.origin_server_ts,
+          immediate: immediate,
+        });
       }
     }
-  }, [roomMembers, whiteboardInstance, roomEncryption, roomHistoryVisibility]);
+  }, [
+    roomMembers,
+    whiteboardInstance,
+    roomEncryption,
+    roomHistoryVisibility,
+    ownUserId,
+  ]);
 
   return <>{children}</>;
 }

@@ -32,6 +32,10 @@ import {
   mockWhiteboardManager,
   WhiteboardTestingContextProvider,
 } from '../../lib/testUtils';
+import {
+  mockRoomEncryption,
+  mockRoomHistoryVisibility,
+} from '../../lib/testUtils/matrixTestUtils';
 import * as state from '../../state';
 import {
   useGetRoomEncryptionQuery,
@@ -40,47 +44,46 @@ import {
 } from '../../store';
 import { FallbackSnapshotProvider } from './FallbackSnapshotProvider';
 
-const mockRoomMembers = {
+const mockRoomMembersOtherUser = {
   entities: {
-    alice: { content: { membership: 'join' }, origin_server_ts: 1000 },
-    bob: { content: { membership: 'invite' }, origin_server_ts: 2000 },
-  },
-};
-
-const mockEncryptedRoomState = {
-  event: {
-    content: {
-      algorithm: 'm.megolm.v1.aes-sha2',
+    alice: {
+      content: { membership: 'join' },
+      origin_server_ts: 1000,
+      sender: '@other-id',
+    },
+    bob: {
+      content: { membership: 'invite' },
+      origin_server_ts: 2000,
+      sender: '@other-id',
     },
   },
 };
 
-const mockRoomHistoryVisibilityJoined = {
-  event: {
-    content: {
-      history_visibility: 'joined',
+const mockRoomMembersOwnUser = {
+  entities: {
+    alice: {
+      content: { membership: 'join' },
+      origin_server_ts: 1000,
+      sender: '@user-id',
+    },
+    bob: {
+      content: { membership: 'invite' },
+      origin_server_ts: 2000,
+      sender: '@user-id',
     },
   },
 };
 
-const mockRoomHistoryVisibilityInvited = {
-  event: {
-    content: {
-      history_visibility: 'invited',
-    },
-  },
-};
-
-const mockRoomHistoryVisibilityShared = {
-  event: {
-    content: {
-      history_visibility: 'shared',
-    },
-  },
-};
+const mockRoomHistoryVisibilityInvited = mockRoomHistoryVisibility({
+  content: { history_visibility: 'invited' },
+});
+const mockRoomHistoryVisibilityJoined = mockRoomHistoryVisibility({
+  content: { history_visibility: 'joined' },
+});
+const mockRoomHistoryVisibilityShared = mockRoomHistoryVisibility();
 
 const mockWhiteboardInstance = {
-  persistIfOlderThan: vi.fn(),
+  persist: vi.fn(),
 };
 
 let widgetApi: MockedWidgetApi;
@@ -117,7 +120,9 @@ describe('<FallbackSnapshotProvider />', () => {
     (state.useActiveWhiteboardInstance as Mock).mockReturnValue(
       mockWhiteboardInstance,
     );
-    (useGetRoomMembersQuery as Mock).mockReturnValue({ data: mockRoomMembers });
+    (useGetRoomMembersQuery as Mock).mockReturnValue({
+      data: mockRoomMembersOtherUser,
+    });
 
     Wrapper = ({ children }: PropsWithChildren<{}>) => {
       return (
@@ -134,30 +139,30 @@ describe('<FallbackSnapshotProvider />', () => {
   it('should not persist snapshot if room is unencrypted and history is shared', () => {
     (useGetRoomEncryptionQuery as Mock).mockReturnValue({ data: undefined });
     (useGetRoomHistoryVisibilityQuery as Mock).mockReturnValue({
-      data: mockRoomHistoryVisibilityShared,
+      data: { event: mockRoomHistoryVisibilityShared },
     });
 
     render(<Wrapper />);
 
-    expect(mockWhiteboardInstance.persistIfOlderThan).not.toHaveBeenCalled();
+    expect(mockWhiteboardInstance.persist).not.toHaveBeenCalled();
   });
 
   it('should persist snapshot if the room is encrypted', () => {
     (useGetRoomEncryptionQuery as Mock).mockReturnValue({
-      data: mockEncryptedRoomState,
+      data: { event: mockRoomEncryption() },
     });
     (useGetRoomHistoryVisibilityQuery as Mock).mockReturnValue({
-      data: mockRoomHistoryVisibilityShared,
+      data: { event: mockRoomHistoryVisibilityShared },
     });
 
     render(<Wrapper />);
 
-    expect(mockWhiteboardInstance.persistIfOlderThan).toHaveBeenCalled();
+    expect(mockWhiteboardInstance.persist).toHaveBeenCalled();
   });
 
   it.each([
     ['unencrypted', undefined],
-    ['encrypted', mockEncryptedRoomState],
+    ['encrypted', { event: mockRoomEncryption() }],
   ])(
     'should persist snapshot if the last event is a join and history visibility is invited (%s room)',
     (_, encryptionState) => {
@@ -165,20 +170,21 @@ describe('<FallbackSnapshotProvider />', () => {
         data: encryptionState,
       });
       (useGetRoomHistoryVisibilityQuery as Mock).mockReturnValue({
-        data: mockRoomHistoryVisibilityInvited,
+        data: { event: mockRoomHistoryVisibilityInvited },
       });
 
       render(<Wrapper />);
 
-      expect(mockWhiteboardInstance.persistIfOlderThan).toHaveBeenCalledWith(
-        2000,
-      );
+      expect(mockWhiteboardInstance.persist).toHaveBeenCalledWith({
+        timestamp: 2000,
+        immediate: false,
+      });
     },
   );
 
   it.each([
     ['unencrypted', undefined],
-    ['encrypted', mockEncryptedRoomState],
+    ['encrypted', { event: mockRoomEncryption() }],
   ])(
     'should persist snapshot if the last event is a join and history visibility is joined (%s room)',
     (_, encryptionState) => {
@@ -186,14 +192,40 @@ describe('<FallbackSnapshotProvider />', () => {
         data: encryptionState,
       });
       (useGetRoomHistoryVisibilityQuery as Mock).mockReturnValue({
-        data: mockRoomHistoryVisibilityJoined,
+        data: { event: mockRoomHistoryVisibilityJoined },
       });
 
       render(<Wrapper />);
 
-      expect(mockWhiteboardInstance.persistIfOlderThan).toHaveBeenCalledWith(
-        1000,
-      );
+      expect(mockWhiteboardInstance.persist).toHaveBeenCalledWith({
+        timestamp: 1000,
+        immediate: false,
+      });
+    },
+  );
+
+  it.each([
+    ['unencrypted', undefined],
+    ['encrypted', { event: mockRoomEncryption() }],
+  ])(
+    'should persist snapshot immediatly if the last event is an invite and inviter is the current user',
+    (_, encryptionState) => {
+      (useGetRoomMembersQuery as Mock).mockReturnValue({
+        data: mockRoomMembersOwnUser,
+      });
+      (useGetRoomEncryptionQuery as Mock).mockReturnValue({
+        data: encryptionState,
+      });
+      (useGetRoomHistoryVisibilityQuery as Mock).mockReturnValue({
+        data: { event: mockRoomHistoryVisibilityInvited },
+      });
+
+      render(<Wrapper />);
+
+      expect(mockWhiteboardInstance.persist).toHaveBeenCalledWith({
+        timestamp: 2000,
+        immediate: true,
+      });
     },
   );
 });

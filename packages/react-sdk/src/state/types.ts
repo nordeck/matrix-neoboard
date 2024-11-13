@@ -55,6 +55,11 @@ export type WhiteboardStatistics = {
   communicationChannel: CommunicationChannelStatistics;
 };
 
+export type PersistOptions = {
+  timestamp?: number;
+  immediate?: boolean;
+};
+
 /** An instance of a whiteboard that can be used to read and manipulate it. */
 export type WhiteboardInstance = {
   /** Returns the id of the whiteboard. */
@@ -148,10 +153,7 @@ export type WhiteboardInstance = {
   destroy(): void;
 
   /** Persist the whiteboard state. */
-  persist(force: boolean): Promise<void>;
-
-  /** Persist if existing snapshot is older than */
-  persistIfOlderThan(timestamp: number): void;
+  persist(options: PersistOptions): Promise<void>;
 };
 
 export type ElementUpdate = {
