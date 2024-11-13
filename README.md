@@ -3,7 +3,7 @@
 ![Build](https://github.com/nordeck/matrix-neoboard/workflows/CI/badge.svg)
 [![Matrix](https://img.shields.io/matrix/nordeck%3Amatrix.org)](https://matrix.to/#/#nordeck:matrix.org)
 
-A collaborative whiteboard widget for Element, based on Matrix.
+A collaborative whiteboard widget for Element, based on [Matrix](https://matrix.org).
 Use it to collaborate in real-time with your peers, by keeping full control of your data and keep it secure with end-to-end encryption.
 
 <table>
@@ -30,7 +30,18 @@ Use it to collaborate in real-time with your peers, by keeping full control of y
 
 All data is stored in the Matrix rooms. Learn more about the architecture in the [Model](./docs/model) or the [Architecture Decision Records](./docs/adrs).
 
-## Demo
+## Usage
+
+NeoBoard is a Matrix widget, which can be added to a chat room to extend the client feature set with a whiteboard.
+Currently, [Element Web](https://app.element.io), version `1.11.8` or later, is the only known client that supports widgets.
+
+> [!NOTE]
+> Beyond that, NeoBoard supports real time collaboration between users sharing the same chat room, and therefore requires working WebRTC connections between all participants. Most servers including Matrix.org support this, but you can read more about it [here](#important-notes).
+
+> [!IMPORTANT]
+> NeoBoard stores its data in Matrix rooms. Depending on the amount of content on your whiteboard, it needs to send multiple hidden messages to save it. The amount of messages is larger than many servers allow. We therefore currently recommend you use NeoBoard with your own server and a [tweaked configuration](./docs/configuration.md#rate-limiting-settings).
+
+### Demo
 
 [Click here](https://nordeck.github.io/matrix-neoboard) and follow the instructions to see it in action and experience it yourself.
 You need at least Moderator permissions (power level >50) in the room so it might be a good idea to test it in a new Matrix room at first.
@@ -40,7 +51,7 @@ See the [Deployment](#deployment) section on how you can host the widget on your
 
 > 💡 Import the [NeoBoard quick start pack](./docs/NeoBoard%20QuickStart%20Pack.nwb) for some demo content to get started right away.
 
-## Getting Started
+## Development
 
 Development on the widget happens at [GitHub](https://github.com/nordeck/matrix-neoboard).
 
@@ -55,11 +66,12 @@ You need to install Node.js (`>= 20.0.0`, prefer using an LTS version) and run
 `yarn` to work on this package.
 The minimal Element version to use this widget is `1.11.8`.
 
-### Installation
+### Dependencies
 
 After checkout, run `yarn install` to download the required dependencies
 
-> **Warning** Do not use `npm install` when working with this package.
+> [!WARNING]
+> Do not use `npm install` when working with this package.
 
 ### Configuration
 
@@ -141,10 +153,19 @@ docker run --rm -e REACT_APP_HOME_SERVER_URL=https://matrix-client.matrix.org -p
 
 We also provide a [HELM chart](./charts/).
 
-> Important:
-> The collaboration features require you to configure TURN servers in your Homeserver.
-> It can work without them, but there is a high chance that it won't!
-> The official matrix.org homeserver will work; see for example how to configure them for [Synapse](https://matrix-org.github.io/synapse/latest/turn-howto.html).
+### Important notes
+
+**TURN server**
+
+The real time collaboration features require you to configure TURN servers in your Homeserver.
+While it might appear like NeoBoard still works without them, it will be missing some features and other features might start behaving unexpectedly.
+Running in an environment without TURN is currently not supported.
+The official matrix.org homeserver will work; see for example how to configure them for [Synapse](https://matrix-org.github.io/synapse/latest/turn-howto.html).
+
+**Rate limiting settings**
+
+For a good NeoBoard experience we highly recommend to tweak the rate limiting settings as described in the [configuration](./docs/configuration.md#rate-limiting-settings).
+Otherwise users may get stuck in a state where they need to confirm to re-send messages before NeoBoard resumes to work normally after it ran into rate limiting.
 
 ## Verify the Container Images
 
