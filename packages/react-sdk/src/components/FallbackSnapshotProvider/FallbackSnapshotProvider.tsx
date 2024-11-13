@@ -18,17 +18,17 @@ import {
   RoomMemberStateEventContent,
   StateEvent,
 } from '@matrix-widget-toolkit/api';
-import { useEffect } from 'react';
+import { PropsWithChildren, useEffect } from 'react';
 import { useActiveWhiteboardInstance } from '../../state';
-import { useGetRoomMembersQuery } from '../../store';
-import { useGetRoomEncryptionQuery } from '../../store/api/roomEncryptionApi';
-import { useGetRoomHistoryVisibilityQuery } from '../../store/api/roomHistoryVisibilityApi';
-
-import { PropsWithChildren } from 'react';
+import {
+  useGetRoomEncryptionQuery,
+  useGetRoomHistoryVisibilityQuery,
+  useGetRoomMembersQuery,
+} from '../../store/api';
 
 export function FallbackSnapshotProvider({ children }: PropsWithChildren<{}>) {
-  const { data: roomMembers } = useGetRoomMembersQuery();
   const whiteboardInstance = useActiveWhiteboardInstance();
+  const { data: roomMembers } = useGetRoomMembersQuery();
   const { data: roomEncryption } = useGetRoomEncryptionQuery();
   const { data: roomHistoryVisibility } = useGetRoomHistoryVisibilityQuery();
 
@@ -37,11 +37,14 @@ export function FallbackSnapshotProvider({ children }: PropsWithChildren<{}>) {
       (roomEncryption && roomEncryption.event?.content?.algorithm) !==
       undefined;
     const roomHistoryVisibilityValue =
+      roomHistoryVisibility &&
       roomHistoryVisibility?.event?.content?.history_visibility;
     const isRoomHistoryVisibilityShared =
-      roomHistoryVisibility && roomHistoryVisibilityValue === 'shared';
+      roomHistoryVisibilityValue && roomHistoryVisibilityValue === 'shared';
     const sendFallbackSnapshot =
-      isRoomEncrypted || !isRoomHistoryVisibilityShared;
+      isRoomEncrypted ||
+      (!isRoomHistoryVisibilityShared &&
+        roomHistoryVisibilityValue !== undefined);
 
     if (sendFallbackSnapshot) {
       let membershipFilter = (
@@ -79,7 +82,7 @@ export function FallbackSnapshotProvider({ children }: PropsWithChildren<{}>) {
           if (prevEventWasJoin) {
             const _ = joinEventObject['unsigned']?.replaces_state;
             // TODO: we now need to get the timestamp of the invite event and use that instead
-            // but the Widget API doesn't have a way to get the state event history
+            // but the Widget API doesn't have a way to get an event by event ID
           }
         }
 
@@ -90,5 +93,5 @@ export function FallbackSnapshotProvider({ children }: PropsWithChildren<{}>) {
     }
   }, [roomMembers, whiteboardInstance, roomEncryption, roomHistoryVisibility]);
 
-  return <div id="whatever">{children}</div>;
+  return <>{children}</>;
 }

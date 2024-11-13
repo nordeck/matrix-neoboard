@@ -25,6 +25,14 @@ export {
   usePatchPowerLevelsMutation,
 } from './powerLevelsApi';
 export {
+  roomEncryptionApi,
+  useGetRoomEncryptionQuery,
+} from './roomEncryptionApi';
+export {
+  roomHistoryVisibilityApi,
+  useGetRoomHistoryVisibilityQuery,
+} from './roomHistoryVisibilityApi';
+export {
   roomMemberApi,
   selectRoomMember,
   selectRoomMembers,
