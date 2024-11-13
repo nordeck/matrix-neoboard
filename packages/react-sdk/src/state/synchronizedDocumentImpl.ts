@@ -34,7 +34,12 @@ import {
   throttleTime,
 } from 'rxjs';
 import { isDefined } from '../lib';
-import { documentSnapshotApi, StoreType } from '../store';
+import {
+  documentSnapshotApi,
+  setSnapshotFailed,
+  setSnapshotSuccessful,
+  StoreType,
+} from '../store';
 import { DocumentSnapshotValidator } from '../store/api/documentSnapshotBacklog';
 import {
   CommunicationChannel,
@@ -151,8 +156,10 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
           async ({ doc }) => {
             try {
               await this.persistDocument(doc);
+              this.store.dispatch(setSnapshotSuccessful());
             } catch (e) {
               this.logger.error('Could not store snapshot for', documentId, e);
+              this.store.dispatch(setSnapshotFailed());
             }
           },
           { leading: true, trailing: true },
@@ -200,7 +207,14 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
     this.statistics.snapshotOutstanding = false;
     this.notifyStatistics();
 
-    await this.createDocumentSnapshot(this.documentId, doc.store());
+    try {
+      await this.createDocumentSnapshot(this.documentId, doc.store());
+    } catch (error) {
+      // Snapshot failed, so there is still one outstanding
+      this.statistics.snapshotOutstanding = true;
+      this.notifyStatistics();
+      throw error;
+    }
   }
 
   async persist() {

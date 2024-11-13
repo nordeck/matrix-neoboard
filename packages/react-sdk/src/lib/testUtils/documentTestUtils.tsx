@@ -19,7 +19,7 @@ import { WidgetApiMockProvider } from '@matrix-widget-toolkit/react';
 import { range } from 'lodash';
 import { Fragment, PropsWithChildren, useState } from 'react';
 import { Provider } from 'react-redux';
-import { NEVER, Subject, of } from 'rxjs';
+import { BehaviorSubject, NEVER, Subject, of } from 'rxjs';
 import { Mocked, vi } from 'vitest';
 import {
   Element,
@@ -28,6 +28,7 @@ import {
   ShapeElement,
   Slide,
   SlideProvider,
+  WhiteboardDocument,
   WhiteboardManager,
   WhiteboardManagerProvider,
   createWhiteboardDocument,
@@ -39,6 +40,7 @@ import {
   PeerConnectionStatistics,
 } from '../../state/communication';
 import { SharedMap, YArray, YMap } from '../../state/crdt/y';
+import { SynchronizedDocument } from '../../state/types';
 import { WhiteboardInstanceImpl } from '../../state/whiteboardInstanceImpl';
 import { createStore } from '../../store';
 import { mockWhiteboard } from './matrixTestUtils';
@@ -62,6 +64,7 @@ export function mockWhiteboardManager(
   communicationChannel: Mocked<CommunicationChannel>;
   messageSubject: Subject<Message>;
   setPresentationMode: (enable: boolean, enableEdit?: boolean) => void;
+  synchronizedDocument: SynchronizedDocument<WhiteboardDocument>;
 } {
   const document = createWhiteboardDocument();
 
@@ -126,7 +129,7 @@ export function mockWhiteboardManager(
     observeDocumentStatistics: () => NEVER,
     observeIsLoading: () => of(false),
     destroy: () => {},
-    persist: () => Promise.resolve(),
+    persist: vi.fn().mockResolvedValue(undefined),
   };
 
   const whiteboardInstance = new WhiteboardInstanceImpl(
@@ -136,8 +139,12 @@ export function mockWhiteboardManager(
     '@user-id',
   );
 
+  const activeWhiteboardSubject = new BehaviorSubject(whiteboardInstance);
   const whiteboardManager: Mocked<WhiteboardManager> = {
     getActiveWhiteboardInstance: vi.fn().mockReturnValue(whiteboardInstance),
+    getActiveWhiteboardSubject: vi
+      .fn()
+      .mockReturnValue(activeWhiteboardSubject),
     selectActiveWhiteboardInstance: vi.fn(),
     clear: vi.fn(),
   };
@@ -146,6 +153,7 @@ export function mockWhiteboardManager(
     whiteboardManager,
     communicationChannel,
     messageSubject,
+    synchronizedDocument,
     setPresentationMode: (enable, enableEdit) => {
       messageSubject.next({
         senderUserId: '@user-alice',

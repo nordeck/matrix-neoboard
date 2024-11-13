@@ -16,6 +16,7 @@
 
 export * from './App';
 export * from './components/common/PageLoader';
+export * from './components/connection-state';
 export * from './components/GuidedTour';
 export * from './components/Layout';
 export * from './components/Snackbar';

@@ -25,7 +25,14 @@ import {
 
 export type SnackbarProps = MuiSnackbarProps &
   Required<Pick<MuiSnackbarProps, 'key'>> &
-  Required<Pick<MuiSnackbarProps, 'message'>>;
+  Required<Pick<MuiSnackbarProps, 'message'>> & {
+    /**
+     * Whether this is a priority snackbar.
+     * Can only be replaced by another priority snackbar.
+     * Other non-priority snackbars won't replace it unless clearSnackbar was called.
+     */
+    priority?: boolean;
+  };
 
 export type SnackbarState = {
   /**
@@ -64,9 +71,17 @@ export function SnackbarProvider({ children }: PropsWithChildren<{}>) {
 
   const showSnackbar = useCallback(
     (snackbarProps: SnackbarProps) => {
+      if (
+        extraSnackbarProps?.priority === true &&
+        snackbarProps.priority === false
+      ) {
+        // Do not replace a priority snackbar with non-priority one.
+        return;
+      }
+
       setExtraSnackbarProps(snackbarProps);
     },
-    [setExtraSnackbarProps],
+    [extraSnackbarProps?.priority, setExtraSnackbarProps],
   );
 
   const snackbarProps: MuiSnackbarProps | undefined = useMemo(() => {
@@ -85,6 +100,10 @@ export function SnackbarProvider({ children }: PropsWithChildren<{}>) {
           color: theme.palette.text.primary,
           flexWrap: 'nowrap',
         },
+      },
+      ClickAwayListenerProps: {
+        // Deactivate dismiss the snack bar by clicking anywhere
+        onClickAway: () => {},
       },
     };
   }, [

@@ -31,6 +31,7 @@ describe('useWhiteboardManager', () => {
     whiteboardManager = {
       getActiveWhiteboardInstance: vi.fn(),
       selectActiveWhiteboardInstance: vi.fn(),
+      getActiveWhiteboardSubject: vi.fn(),
       clear: vi.fn(),
     };
 

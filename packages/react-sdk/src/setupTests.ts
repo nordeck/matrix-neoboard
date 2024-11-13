@@ -142,6 +142,9 @@ File.prototype.arrayBuffer = vi.fn();
 const fetchMocker = createFetchMock(vi);
 fetchMocker.enableMocks();
 
+// Mock the onLine prop
+Object.defineProperty(navigator, 'onLine', { value: true, writable: true });
+
 afterEach(() => {
   cleanup();
 });

@@ -15,6 +15,7 @@
  */
 
 import { StateEvent, WidgetApi } from '@matrix-widget-toolkit/api';
+import { BehaviorSubject } from 'rxjs';
 import { Whiteboard } from '../model';
 import { StoreType } from '../store';
 import {
@@ -23,11 +24,17 @@ import {
   SignalingChannel,
   ToDeviceMessageSignalingChannel,
 } from './communication';
-import { WhiteboardInstance, WhiteboardManager } from './types';
+import {
+  ObservableBehaviorSubject,
+  WhiteboardInstance,
+  WhiteboardManager,
+} from './types';
 import { WhiteboardInstanceImpl } from './whiteboardInstanceImpl';
 
 export class WhiteboardManagerImpl implements WhiteboardManager {
-  private activeWhiteboard: WhiteboardInstanceImpl | undefined = undefined;
+  private activeWhiteboardSubject = new BehaviorSubject<
+    WhiteboardInstance | undefined
+  >(undefined);
 
   constructor(
     private readonly store: StoreType,
@@ -40,26 +47,37 @@ export class WhiteboardManagerImpl implements WhiteboardManager {
     whiteboardEvent: StateEvent<Whiteboard>,
     userId: string,
   ) {
-    if (this.activeWhiteboard?.getWhiteboardId() !== whiteboardEvent.event_id) {
-      this.activeWhiteboard?.destroy();
-      this.activeWhiteboard = WhiteboardInstanceImpl.create(
-        this.store,
-        this.widgetApiPromise,
-        this.sessionManager,
-        this.signalingChannel,
-        whiteboardEvent,
-        userId,
+    if (
+      this.activeWhiteboardSubject.value?.getWhiteboardId() !==
+      whiteboardEvent.event_id
+    ) {
+      this.activeWhiteboardSubject.value?.destroy();
+      this.activeWhiteboardSubject.next(
+        WhiteboardInstanceImpl.create(
+          this.store,
+          this.widgetApiPromise,
+          this.sessionManager,
+          this.signalingChannel,
+          whiteboardEvent,
+          userId,
+        ),
       );
     }
   }
 
+  public getActiveWhiteboardSubject(): ObservableBehaviorSubject<
+    WhiteboardInstance | undefined
+  > {
+    return this.activeWhiteboardSubject;
+  }
+
   getActiveWhiteboardInstance(): WhiteboardInstance | undefined {
-    return this.activeWhiteboard;
+    return this.activeWhiteboardSubject.value;
   }
 
   clear() {
-    this.activeWhiteboard?.destroy();
-    this.activeWhiteboard = undefined;
+    this.activeWhiteboardSubject.value?.destroy();
+    this.activeWhiteboardSubject.next(undefined);
   }
 }
 
