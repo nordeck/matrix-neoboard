@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
+import { WidgetApi } from '@matrix-widget-toolkit/api';
 import { useWidgetApi } from '@matrix-widget-toolkit/react';
 import { styled } from '@mui/material';
 import { IDownloadFileActionFromWidgetResponseData } from 'matrix-widget-api';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback } from 'react';
+import useSWR from 'swr';
 import { getSVGUnsafe } from '../../../imageUtils';
 import { convertMxcToHttpUrl, WidgetApiActionError } from '../../../lib';
 import { ImageElement } from '../../../state';
@@ -27,8 +29,83 @@ import {
   SelectableElement,
   WithExtendedSelectionProps,
 } from '../../Whiteboard';
-import { ImagePlaceholder } from './ImagePlaceholder';
-import { Skeleton } from './Skeleton';
+
+const downloadFile = async ({
+  widgetApi,
+  baseUrl,
+  mxc,
+}: {
+  widgetApi: WidgetApi;
+  baseUrl: string;
+  mxc: string;
+}) => {
+  try {
+    const result = await tryDownloadFileWithWidgetApi(widgetApi, mxc);
+    const blob = await getBlobFromResult(result);
+    const downloadedFileDataUrl = createObjectUrlFromBlob(blob);
+    return downloadedFileDataUrl;
+  } catch (error) {
+    handleDownloadError(error as Error, mxc, baseUrl);
+  }
+};
+
+const tryDownloadFileWithWidgetApi = async (
+  widgetApi: WidgetApi,
+  mxc: string,
+) => {
+  try {
+    const result = await widgetApi.downloadFile(mxc);
+    return result;
+  } catch {
+    throw new WidgetApiActionError('downloadFile not available');
+  }
+};
+
+const getBlobFromResult = async (
+  result: IDownloadFileActionFromWidgetResponseData,
+): Promise<Blob> => {
+  if (!(result.file instanceof Blob)) {
+    throw new Error('Got non Blob file response');
+  }
+  // Check if the blob is an SVG
+  // The try catch is because of the blob to text conversion
+  try {
+    const stringFromBlob = await result.file.text();
+
+    // Check if the string is an SVG
+    // We use this call as a condition here. If it works we know it's an SVG. If it throws an error we know it's not an SVG
+    getSVGUnsafe(stringFromBlob);
+    return result.file.slice(0, result.file.size, 'image/svg+xml');
+  } catch {
+    // If it fails, return the blob as is
+    return result.file.slice(0, result.file.size);
+  }
+};
+
+const createObjectUrlFromBlob = (blob: Blob): string => {
+  const url = URL.createObjectURL(blob);
+  if (url === '') {
+    throw new Error('Failed to create object URL');
+  }
+  return url;
+};
+
+const handleDownloadError = (error: Error, mxc: string, baseUrl: string) => {
+  if (error instanceof WidgetApiActionError) {
+    tryFallbackDownload(mxc, baseUrl);
+  } else {
+    throw error;
+  }
+};
+
+const tryFallbackDownload = async (mxc: string, baseUrl: string) => {
+  const httpUrl = convertMxcToHttpUrl(mxc, baseUrl);
+
+  if (httpUrl === null) {
+    return '';
+  }
+  return httpUrl;
+};
 
 type ImageDisplayProps = Omit<ImageElement, 'kind'> &
   WithExtendedSelectionProps & {
@@ -38,13 +115,12 @@ type ImageDisplayProps = Omit<ImageElement, 'kind'> &
     baseUrl: string;
   };
 
-const Image = styled('image', {
-  shouldForwardProp: (p) => p !== 'loading',
-})<{ loading: boolean }>(({ loading }) => ({
+const Image = styled(
+  'image',
+  {},
+)<{}>(() => ({
   userSelect: 'none',
   WebkitUserSelect: 'none',
-  // prevention of partial rendering if the image has not yet been fully loaded
-  visibility: loading ? 'hidden' : 'visible',
 }));
 
 /**
@@ -64,125 +140,19 @@ function ImageDisplay({
   overrides = {},
 }: ImageDisplayProps) {
   const widgetApi = useWidgetApi();
-  const [loadError, setLoadError] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [imageUri, setImageUri] = useState<undefined | string>();
+  const { data: imageUri } = useSWR({ widgetApi, baseUrl, mxc }, downloadFile, {
+    suspense: true,
+  });
 
   const handleLoad = useCallback(() => {
-    setLoading(false);
-    setLoadError(false);
-  }, [setLoading, setLoadError]);
-
-  const handleLoadError = useCallback(() => {
-    setLoading(false);
-    setLoadError(true);
-  }, [setLoading, setLoadError]);
-
-  // Cleanup effect to revoke the object URL when the component is unmounted or `imageUri` changes.
-  // This prevents memory leaks by releasing the memory associated with the object URL.
-  useEffect(() => {
-    return () => {
-      if (imageUri) {
-        URL.revokeObjectURL(imageUri);
-      }
-    };
+    // This can happen directly when the image is loaded and saves some memory.
+    if (imageUri) {
+      URL.revokeObjectURL(imageUri);
+    }
   }, [imageUri]);
 
-  useEffect(() => {
-    const downloadFile = async () => {
-      try {
-        const result = await tryDownloadFileWithWidgetApi(mxc);
-        const blob = await getBlobFromResult(result);
-        const downloadedFileDataUrl = createObjectUrlFromBlob(blob);
-        setImageUri(downloadedFileDataUrl);
-      } catch (error) {
-        handleDownloadError(error as Error);
-      }
-    };
-
-    const tryDownloadFileWithWidgetApi = async (mxc: string) => {
-      try {
-        const result = await widgetApi.downloadFile(mxc);
-        return result;
-      } catch {
-        throw new WidgetApiActionError('downloadFile not available');
-      }
-    };
-
-    const getBlobFromResult = async (
-      result: IDownloadFileActionFromWidgetResponseData,
-    ): Promise<Blob> => {
-      if (!(result.file instanceof Blob)) {
-        throw new Error('Got non Blob file response');
-      }
-      // Check if the blob is an SVG
-      // The try catch is because of the blob to text conversion
-      try {
-        const stringFromBlob = await result.file.text();
-
-        // Check if the string is an SVG
-        // We use this call as a condition here. If it works we know it's an SVG. If it throws an error we know it's not an SVG
-        getSVGUnsafe(stringFromBlob);
-        return result.file.slice(0, result.file.size, 'image/svg+xml');
-      } catch {
-        // If it fails, return the blob as is
-        return result.file.slice(0, result.file.size);
-      }
-    };
-
-    const createObjectUrlFromBlob = (blob: Blob): string => {
-      const url = URL.createObjectURL(blob);
-      if (url === '') {
-        throw new Error('Failed to create object URL');
-      }
-      return url;
-    };
-
-    const handleDownloadError = (error: Error) => {
-      if (error instanceof WidgetApiActionError) {
-        tryFallbackDownload();
-      } else {
-        setLoadError(true);
-      }
-    };
-
-    const tryFallbackDownload = async () => {
-      const httpUrl = convertMxcToHttpUrl(mxc, baseUrl);
-
-      if (httpUrl === null) {
-        setImageUri('');
-        return;
-      }
-      setImageUri(httpUrl);
-
-      return;
-    };
-
-    downloadFile();
-  }, [baseUrl, mxc, widgetApi]);
-
-  const renderedSkeleton =
-    loading && !loadError ? (
-      <Skeleton
-        data-testid={`element-${elementId}-skeleton`}
-        x={position.x}
-        y={position.y}
-        width={width}
-        height={height}
-      />
-    ) : null;
-
-  const renderedPlaceholder = loadError ? (
-    <ImagePlaceholder
-      position={position}
-      width={width}
-      height={height}
-      elementId={elementId}
-    />
-  ) : null;
-
   const renderedChild =
-    imageUri !== undefined && !loadError ? (
+    imageUri !== undefined ? (
       <Image
         data-testid={`element-${elementId}-image`}
         href={imageUri}
@@ -192,17 +162,11 @@ function ImageDisplay({
         height={height}
         preserveAspectRatio="none"
         onLoad={handleLoad}
-        onError={handleLoadError}
-        loading={loading}
       />
     ) : null;
 
   if (readOnly) {
-    return (
-      <>
-        {renderedSkeleton} {renderedChild} {renderedPlaceholder}
-      </>
-    );
+    return <>{renderedChild}</>;
   }
 
   return (
@@ -214,9 +178,7 @@ function ImageDisplay({
       >
         <MoveableElement elementId={elementId} overrides={overrides}>
           <ElementContextMenu activeElementIds={activeElementIds}>
-            {renderedSkeleton}
             {renderedChild}
-            {renderedPlaceholder}
           </ElementContextMenu>
         </MoveableElement>
       </SelectableElement>

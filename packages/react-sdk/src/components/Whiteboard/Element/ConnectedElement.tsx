@@ -15,10 +15,14 @@
  */
 
 import { useWidgetApi } from '@matrix-widget-toolkit/react';
+import { Suspense } from 'react';
+import { ErrorBoundary } from 'react-error-boundary';
 import { Elements } from '../../../state/types';
 import { useElementOverride } from '../../ElementOverridesProvider';
 import EllipseDisplay from '../../elements/ellipse/Display';
 import ImageDisplay from '../../elements/image/ImageDisplay';
+import { ImagePlaceholder } from '../../elements/image/ImagePlaceholder';
+import { Skeleton } from '../../elements/image/Skeleton';
 import LineDisplay from '../../elements/line/Display';
 import PolylineDisplay from '../../elements/polyline/Display';
 import RectangleDisplay from '../../elements/rectangle/Display';
@@ -92,11 +96,34 @@ export const ConnectedElement = ({
       }
 
       return (
-        <ImageDisplay
-          baseUrl={widgetApi.widgetParameters.baseUrl}
-          {...element}
-          {...otherProps}
-        />
+        <Suspense
+          fallback={
+            <Skeleton
+              data-testid={`element-${otherProps.elementId}-skeleton`}
+              x={element.position.x}
+              y={element.position.y}
+              width={element.width}
+              height={element.height}
+            />
+          }
+        >
+          <ErrorBoundary
+            fallback={
+              <ImagePlaceholder
+                position={element.position}
+                width={element.width}
+                height={element.height}
+                elementId={otherProps.elementId}
+              />
+            }
+          >
+            <ImageDisplay
+              baseUrl={widgetApi.widgetParameters.baseUrl}
+              {...element}
+              {...otherProps}
+            />
+          </ErrorBoundary>
+        </Suspense>
       );
     }
   }
