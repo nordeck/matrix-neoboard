@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
+import { WidgetApi } from '@matrix-widget-toolkit/api';
 import { useWidgetApi } from '@matrix-widget-toolkit/react';
 import { styled } from '@mui/material';
 import { IDownloadFileActionFromWidgetResponseData } from 'matrix-widget-api';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback } from 'react';
+import useSWR from 'swr';
 import { convertMxcToHttpUrl, WidgetApiActionError } from '../../../lib';
 import { ImageElement } from '../../../state';
 import {
@@ -26,8 +28,100 @@ import {
   SelectableElement,
   WithExtendedSelectionProps,
 } from '../../Whiteboard';
-import { ImagePlaceholder } from './ImagePlaceholder';
-import { Skeleton } from './Skeleton';
+
+const downloadFile = async ({
+  widgetApi,
+  baseUrl,
+  mxc,
+  mimeType,
+}: {
+  widgetApi: WidgetApi;
+  baseUrl: string;
+  mxc: string;
+  mimeType: string;
+}) => {
+  try {
+    const result = await tryDownloadFileWithWidgetApi(widgetApi, mxc);
+    const blob = getBlobFromResult(result, mimeType);
+    const downloadedFileDataUrl = createObjectUrlFromBlob(blob);
+    return downloadedFileDataUrl;
+  } catch (error) {
+    handleDownloadError(error as Error, mxc, baseUrl, mimeType);
+  }
+};
+
+const tryDownloadFileWithWidgetApi = async (
+  widgetApi: WidgetApi,
+  mxc: string,
+) => {
+  try {
+    const result = await widgetApi.downloadFile(mxc);
+    return result;
+  } catch {
+    throw new WidgetApiActionError('downloadFile not available');
+  }
+};
+
+const getBlobFromResult = (
+  result: IDownloadFileActionFromWidgetResponseData,
+  mimeType: string,
+): Blob => {
+  if (!(result.file instanceof Blob)) {
+    throw new Error('Got non Blob file response');
+  }
+  return result.file.slice(0, result.file.size, mimeType);
+};
+
+const createObjectUrlFromBlob = (blob: Blob): string => {
+  const url = URL.createObjectURL(blob);
+  if (url === '') {
+    throw new Error('Failed to create object URL');
+  }
+  return url;
+};
+
+const handleDownloadError = (
+  error: Error,
+  mxc: string,
+  baseUrl: string,
+  mimeType: string,
+) => {
+  if (error instanceof WidgetApiActionError) {
+    tryFallbackDownload(mxc, baseUrl, mimeType);
+  } else {
+    throw error;
+  }
+};
+
+const tryFallbackDownload = async (
+  mxc: string,
+  baseUrl: string,
+  mimeType: string,
+) => {
+  let abortController: AbortController | undefined;
+
+  const httpUrl = convertMxcToHttpUrl(mxc, baseUrl);
+
+  if (httpUrl === null) {
+    return '';
+  }
+
+  if (mimeType === 'image/svg+xml') {
+    abortController = new AbortController();
+    try {
+      const response = await fetch(httpUrl, {
+        signal: abortController.signal,
+      });
+      const rawBlob = await response.blob();
+      const svgBlob = rawBlob.slice(0, rawBlob.size, mimeType);
+      return URL.createObjectURL(svgBlob);
+    } catch (fetchError) {
+      console.error('Failed to fetch SVG image:', fetchError);
+      throw new Error('Failed to fetch SVG image');
+    }
+  }
+  return httpUrl;
+};
 
 type ImageDisplayProps = Omit<ImageElement, 'kind'> &
   WithExtendedSelectionProps & {
@@ -37,13 +131,12 @@ type ImageDisplayProps = Omit<ImageElement, 'kind'> &
     baseUrl: string;
   };
 
-const Image = styled('image', {
-  shouldForwardProp: (p) => p !== 'loading',
-})<{ loading: boolean }>(({ loading }) => ({
+const Image = styled(
+  'image',
+  {},
+)<{}>(() => ({
   userSelect: 'none',
   WebkitUserSelect: 'none',
-  // prevention of partial rendering if the image has not yet been fully loaded
-  visibility: loading ? 'hidden' : 'visible',
 }));
 
 /**
@@ -64,132 +157,21 @@ function ImageDisplay({
   overrides = {},
 }: ImageDisplayProps) {
   const widgetApi = useWidgetApi();
-  const [loadError, setLoadError] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [imageUri, setImageUri] = useState<undefined | string>();
+  const { data: imageUri } = useSWR(
+    { widgetApi, baseUrl, mxc, mimeType },
+    downloadFile,
+    { suspense: true },
+  );
 
   const handleLoad = useCallback(() => {
-    setLoading(false);
-    setLoadError(false);
-
     // This can happen directly when the image is loaded and saves some memory.
     if (imageUri) {
       URL.revokeObjectURL(imageUri);
     }
-  }, [setLoading, setLoadError, imageUri]);
-
-  const handleLoadError = useCallback(() => {
-    setLoading(false);
-    setLoadError(true);
-  }, [setLoading, setLoadError]);
-
-  useEffect(() => {
-    const downloadFile = async () => {
-      try {
-        const result = await tryDownloadFileWithWidgetApi(mxc);
-        const blob = getBlobFromResult(result, mimeType);
-        const downloadedFileDataUrl = createObjectUrlFromBlob(blob);
-        setImageUri(downloadedFileDataUrl);
-      } catch (error) {
-        handleDownloadError(error as Error);
-      }
-    };
-
-    const tryDownloadFileWithWidgetApi = async (mxc: string) => {
-      try {
-        const result = await widgetApi.downloadFile(mxc);
-        return result;
-      } catch {
-        throw new WidgetApiActionError('downloadFile not available');
-      }
-    };
-
-    const getBlobFromResult = (
-      result: IDownloadFileActionFromWidgetResponseData,
-      mimeType: string,
-    ): Blob => {
-      if (!(result.file instanceof Blob)) {
-        throw new Error('Got non Blob file response');
-      }
-      return result.file.slice(0, result.file.size, mimeType);
-    };
-
-    const createObjectUrlFromBlob = (blob: Blob): string => {
-      const url = URL.createObjectURL(blob);
-      if (url === '') {
-        throw new Error('Failed to create object URL');
-      }
-      return url;
-    };
-
-    const handleDownloadError = (error: Error) => {
-      if (error instanceof WidgetApiActionError) {
-        tryFallbackDownload();
-      } else {
-        setLoadError(true);
-      }
-    };
-
-    const tryFallbackDownload = async () => {
-      let abortController: AbortController | undefined;
-
-      const httpUrl = convertMxcToHttpUrl(mxc, baseUrl);
-
-      if (httpUrl === null) {
-        setImageUri('');
-        return;
-      }
-
-      if (mimeType === 'image/svg+xml') {
-        abortController = new AbortController();
-        try {
-          const response = await fetch(httpUrl, {
-            signal: abortController.signal,
-          });
-          const rawBlob = await response.blob();
-          const svgBlob = rawBlob.slice(0, rawBlob.size, mimeType);
-          setImageUri(URL.createObjectURL(svgBlob));
-        } catch (fetchError) {
-          console.error('Failed to fetch SVG image:', fetchError);
-          setLoadError(true);
-        }
-        return;
-      }
-
-      setImageUri(httpUrl);
-
-      return () => {
-        if (abortController) {
-          abortController.abort();
-        }
-      };
-    };
-
-    downloadFile();
-  }, [baseUrl, mimeType, mxc, widgetApi]);
-
-  const renderedSkeleton =
-    loading && !loadError ? (
-      <Skeleton
-        data-testid={`element-${elementId}-skeleton`}
-        x={position.x}
-        y={position.y}
-        width={width}
-        height={height}
-      />
-    ) : null;
-
-  const renderedPlaceholder = loadError ? (
-    <ImagePlaceholder
-      position={position}
-      width={width}
-      height={height}
-      elementId={elementId}
-    />
-  ) : null;
+  }, [imageUri]);
 
   const renderedChild =
-    imageUri !== undefined && !loadError ? (
+    imageUri !== undefined ? (
       <Image
         data-testid={`element-${elementId}-image`}
         href={imageUri}
@@ -199,17 +181,11 @@ function ImageDisplay({
         height={height}
         preserveAspectRatio="none"
         onLoad={handleLoad}
-        onError={handleLoadError}
-        loading={loading}
       />
     ) : null;
 
   if (readOnly) {
-    return (
-      <>
-        {renderedSkeleton} {renderedChild} {renderedPlaceholder}
-      </>
-    );
+    return <>{renderedChild}</>;
   }
 
   return (
@@ -221,9 +197,7 @@ function ImageDisplay({
       >
         <MoveableElement elementId={elementId} overrides={overrides}>
           <ElementContextMenu activeElementIds={activeElementIds}>
-            {renderedSkeleton}
             {renderedChild}
-            {renderedPlaceholder}
           </ElementContextMenu>
         </MoveableElement>
       </SelectableElement>
