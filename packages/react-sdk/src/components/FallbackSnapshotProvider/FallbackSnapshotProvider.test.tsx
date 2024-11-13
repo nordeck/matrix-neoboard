@@ -208,7 +208,7 @@ describe('<FallbackSnapshotProvider />', () => {
     ['unencrypted', undefined],
     ['encrypted', { event: mockRoomEncryption() }],
   ])(
-    'should persist snapshot immediatly if the last event is an invite and inviter is the current user',
+    'should persist snapshot immediatly if the last event is an invite and inviter is the current user (%s room)',
     (_, encryptionState) => {
       (useGetRoomMembersQuery as Mock).mockReturnValue({
         data: mockRoomMembersOwnUser,

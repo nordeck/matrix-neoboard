@@ -20,6 +20,7 @@ import {
 } from '@matrix-widget-toolkit/api';
 import { useWidgetApi } from '@matrix-widget-toolkit/react';
 import { PropsWithChildren, useEffect } from 'react';
+import { RoomEncryptionEvent, RoomHistoryVisibilityEvent } from '../../model';
 import { useActiveWhiteboardInstance } from '../../state';
 import {
   useGetRoomEncryptionQuery,
@@ -35,37 +36,23 @@ export function FallbackSnapshotProvider({ children }: PropsWithChildren<{}>) {
   const ownUserId = useWidgetApi().widgetParameters.userId;
 
   useEffect(() => {
-    const isRoomEncrypted =
-      (roomEncryption && roomEncryption.event?.content?.algorithm) !==
-      undefined;
-    const roomHistoryVisibilityValue =
-      roomHistoryVisibility &&
-      roomHistoryVisibility?.event?.content?.history_visibility;
-    const isRoomHistoryVisibilityShared =
-      roomHistoryVisibilityValue && roomHistoryVisibilityValue === 'shared';
-    const sendFallbackSnapshot =
-      isRoomEncrypted ||
-      (!isRoomHistoryVisibilityShared &&
-        roomHistoryVisibilityValue !== undefined);
+    const isRoomEncrypted = checkIfRoomEncrypted(roomEncryption);
+    const roomHistoryVisibilityValue = getRoomHistoryVisibilityValue(
+      roomHistoryVisibility,
+    );
+    const isRoomHistoryVisibilityShared = checkIfRoomHistoryVisibilityShared(
+      roomHistoryVisibilityValue,
+    );
+    const sendFallbackSnapshot = shouldSendFallbackSnapshot(
+      isRoomEncrypted,
+      isRoomHistoryVisibilityShared,
+      roomHistoryVisibilityValue,
+    );
 
     if (sendFallbackSnapshot) {
-      let membershipFilter = (
-        member: StateEvent<RoomMemberStateEventContent>,
-      ) => {
-        return (
-          member.content.membership == 'invite' ||
-          member.content.membership == 'join'
-        );
-      };
-      if (roomHistoryVisibilityValue == 'joined') {
-        membershipFilter = (
-          member: StateEvent<RoomMemberStateEventContent>,
-        ) => {
-          return member.content.membership == 'join';
-        };
-      }
-
+      const membershipFilter = getMembershipFilter(roomHistoryVisibilityValue);
       const members = roomMembers?.entities;
+
       if (members) {
         const invitesOrJoins = Object.values(members).filter(membershipFilter);
         const sortedInvitesOrJoins = invitesOrJoins.sort((a, b) => {
@@ -74,33 +61,18 @@ export function FallbackSnapshotProvider({ children }: PropsWithChildren<{}>) {
         const lastInviteOrJoin = sortedInvitesOrJoins[0];
 
         if (
-          lastInviteOrJoin.content.membership == 'join' &&
-          roomHistoryVisibilityValue == 'invited'
+          shouldUseInviteTimestamp(lastInviteOrJoin, roomHistoryVisibilityValue)
         ) {
-          // get the invite instead
-          const joinEventObject = Object(lastInviteOrJoin);
-          const prevEventWasInvite =
-            joinEventObject['unsigned'].prev_content?.membership == 'invite';
-          if (prevEventWasInvite) {
-            const _inviteEventId = joinEventObject['unsigned']?.replaces_state;
-            // TODO: we now need to get the timestamp of the invite event and use that instead
-            // but the Widget API doesn't have a way to get an event by event ID
-            // and the `readRoomEvents` is filtering out events with state_key set
-          }
+          // TODO: Implement logic to get the timestamp of the invite event.
+          // There is currently no way to get an event by id or
+          // fetch an older state event from the room timeline using the Widget API
         }
 
-        let immediate = false;
-        if (
-          lastInviteOrJoin.sender == ownUserId &&
-          lastInviteOrJoin.content.membership == 'invite'
-        ) {
-          // if the sender is the current user, try to persist immediatly
-          immediate = true;
-        }
+        const immediate = shouldPersistImmediately(lastInviteOrJoin, ownUserId);
 
         whiteboardInstance.persist({
           timestamp: lastInviteOrJoin.origin_server_ts,
-          immediate: immediate,
+          immediate,
         });
       }
     }
@@ -113,4 +85,70 @@ export function FallbackSnapshotProvider({ children }: PropsWithChildren<{}>) {
   ]);
 
   return <>{children}</>;
+}
+
+function checkIfRoomEncrypted(roomEncryption?: {
+  event: StateEvent<RoomEncryptionEvent> | undefined;
+}): boolean {
+  return (
+    (roomEncryption && roomEncryption.event?.content?.algorithm) !== undefined
+  );
+}
+
+function getRoomHistoryVisibilityValue(roomHistoryVisibility?: {
+  event: StateEvent<RoomHistoryVisibilityEvent> | undefined;
+}): string | undefined {
+  return roomHistoryVisibility?.event?.content?.history_visibility;
+}
+
+function checkIfRoomHistoryVisibilityShared(
+  roomHistoryVisibilityValue: string | undefined,
+): boolean {
+  return roomHistoryVisibilityValue === 'shared';
+}
+
+function shouldSendFallbackSnapshot(
+  isRoomEncrypted: boolean,
+  isRoomHistoryVisibilityShared: boolean,
+  roomHistoryVisibilityValue: string | undefined,
+): boolean {
+  return (
+    isRoomEncrypted ||
+    (!isRoomHistoryVisibilityShared && roomHistoryVisibilityValue !== undefined)
+  );
+}
+
+function getMembershipFilter(
+  roomHistoryVisibilityValue: string | undefined,
+): (member: StateEvent<RoomMemberStateEventContent>) => boolean {
+  if (roomHistoryVisibilityValue === 'joined') {
+    return (member) => member.content.membership === 'join';
+  }
+  return (member) =>
+    member.content.membership === 'invite' ||
+    member.content.membership === 'join';
+}
+
+function shouldUseInviteTimestamp(
+  lastInviteOrJoin: StateEvent<RoomMemberStateEventContent>,
+  roomHistoryVisibilityValue: string | undefined,
+) {
+  if (
+    lastInviteOrJoin.content.membership === 'join' &&
+    roomHistoryVisibilityValue === 'invited'
+  ) {
+    const joinEventObject = Object(lastInviteOrJoin);
+    return joinEventObject['unsigned'].prev_content?.membership === 'invite';
+  }
+  return false;
+}
+
+function shouldPersistImmediately(
+  lastInviteOrJoin: StateEvent<RoomMemberStateEventContent>,
+  ownUserId: string | undefined,
+) {
+  return (
+    lastInviteOrJoin.sender === ownUserId &&
+    lastInviteOrJoin.content.membership === 'invite'
+  );
 }

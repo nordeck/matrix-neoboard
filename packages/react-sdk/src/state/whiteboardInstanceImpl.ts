@@ -453,8 +453,8 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
     this.communicationChannel.destroy();
   }
 
-  async persist(options: PersistOptions): Promise<void> {
-    if (options.timestamp !== undefined && options.immediate !== undefined) {
+  async persist(options?: PersistOptions): Promise<void> {
+    if (options !== undefined) {
       const snapshot = this.synchronizedDocument.getLatestDocumentSnapshot();
       if (snapshot && snapshot.origin_server_ts < options.timestamp) {
         if (options.immediate) {

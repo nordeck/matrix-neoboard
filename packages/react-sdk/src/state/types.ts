@@ -56,8 +56,8 @@ export type WhiteboardStatistics = {
 };
 
 export type PersistOptions = {
-  timestamp?: number;
-  immediate?: boolean;
+  timestamp: number;
+  immediate: boolean;
 };
 
 /** An instance of a whiteboard that can be used to read and manipulate it. */
@@ -153,7 +153,7 @@ export type WhiteboardInstance = {
   destroy(): void;
 
   /** Persist the whiteboard state. */
-  persist(options: PersistOptions): Promise<void>;
+  persist(options?: PersistOptions): Promise<void>;
 };
 
 export type ElementUpdate = {
