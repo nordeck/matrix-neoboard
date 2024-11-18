@@ -27,7 +27,7 @@ import { useTranslation } from 'react-i18next';
 import { useConnectionState } from './useConnectionState';
 
 export const ConnectionStateDialog: React.FC = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('neoboard');
   const {
     connectionState,
     connectionStateDialogOpen,

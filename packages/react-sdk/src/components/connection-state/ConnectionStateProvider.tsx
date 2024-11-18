@@ -63,7 +63,7 @@ export const ConnectionStateProvider: React.FC<PropsWithChildren> = function ({
   );
   const dispatch = useAppDispatch();
   const pendingSendSnapshot = useRef(false);
-  const { t } = useTranslation();
+  const { t } = useTranslation('neoboard');
   const { clearSnackbar, showSnackbar, snackbarProps } = useSnackbar();
   /**
    * Basic connection monitoring. Works if there is any network connection and is highly browser-dependent.
