@@ -163,8 +163,6 @@ function ImageDisplay({
     { suspense: true },
   );
 
-  console.log('render');
-
   const handleLoad = useCallback(() => {
     // This can happen directly when the image is loaded and saves some memory.
     if (imageUri) {
