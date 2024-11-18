@@ -18,8 +18,8 @@ import { WidgetApi } from '@matrix-widget-toolkit/api';
 import { useWidgetApi } from '@matrix-widget-toolkit/react';
 import { styled } from '@mui/material';
 import { IDownloadFileActionFromWidgetResponseData } from 'matrix-widget-api';
-import React, { useCallback } from 'react';
-import useSWR from 'swr';
+import { useCallback } from 'react';
+import useSWRImmutable from 'swr/immutable';
 import { convertMxcToHttpUrl, WidgetApiActionError } from '../../../lib';
 import { ImageElement } from '../../../state';
 import {
@@ -157,11 +157,13 @@ function ImageDisplay({
   overrides = {},
 }: ImageDisplayProps) {
   const widgetApi = useWidgetApi();
-  const { data: imageUri } = useSWR(
+  const { data: imageUri } = useSWRImmutable(
     { widgetApi, baseUrl, mxc, mimeType },
     downloadFile,
     { suspense: true },
   );
+
+  console.log('render');
 
   const handleLoad = useCallback(() => {
     // This can happen directly when the image is loaded and saves some memory.
@@ -205,4 +207,4 @@ function ImageDisplay({
   );
 }
 
-export default React.memo(ImageDisplay);
+export default ImageDisplay;
