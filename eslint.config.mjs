@@ -78,6 +78,21 @@ export default ts.config(
           ],
         },
       ],
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector:
+            "CallExpression[callee.name='useTranslation'][arguments.0.value!='neoboard']",
+          message:
+            'useTranslation() must be invoked with the "neoboard" namespace arg: useTranslation("neoboard")',
+        },
+        {
+          selector:
+            "JSXElement[openingElement.name.name='Trans']:not(:has(JSXAttribute[name.name='ns'][value.value!='neobaord']))",
+          message:
+            '<Trans> must be used with the "neoboard" "ns" prop: <Trans … ns="neoboard" … >',
+        },
+      ],
       // Disable for the migration to prevent a lot of errors.
       // Should be revisisted
       '@typescript-eslint/ban-types': 'off',
