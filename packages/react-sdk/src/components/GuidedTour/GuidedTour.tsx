@@ -36,7 +36,7 @@ export function GuidedTour({ disabled }: GuidedTourProps) {
           target: 'body',
           title: t('guidedTour.introduction.title', 'Welcome'),
           content: (
-            <Trans i18nKey="guidedTour.introduction.content">
+            <Trans i18nKey="guidedTour.introduction.content" ns="neoboard">
               <p>
                 Welcome to the NeoBoard. In this introduction, you'll get tips
                 on how to use the NeoBoard so you can start designing in no
@@ -51,7 +51,7 @@ export function GuidedTour({ disabled }: GuidedTourProps) {
           target: '[data-guided-tour-target="slide-overview"]',
           title: t('guidedTour.slideOverview.title', 'Slide overview'),
           content: (
-            <Trans i18nKey="guidedTour.slideOverview.content">
+            <Trans i18nKey="guidedTour.slideOverview.content" ns="neoboard">
               <p>
                 This is where you can find the slides of all participants. Click
                 on the button to add a slide. With the right mouse button you
@@ -78,7 +78,7 @@ export function GuidedTour({ disabled }: GuidedTourProps) {
           target: '[data-guided-tour-target="settings"]',
           title: t('guidedTour.settings.title', 'Settings'),
           content: (
-            <Trans i18nKey="guidedTour.settings.content">
+            <Trans i18nKey="guidedTour.settings.content" ns="neoboard">
               <p>
                 Using the settings, you can export the NeoBoard and the work
                 done and import it again (e.g. in another room) or save it as a
@@ -92,7 +92,7 @@ export function GuidedTour({ disabled }: GuidedTourProps) {
           target: '[data-guided-tour-target="toolsbar"]',
           title: t('guidedTour.toolsbar.title', 'Tools'),
           content: (
-            <Trans i18nKey="guidedTour.toolsbar.content">
+            <Trans i18nKey="guidedTour.toolsbar.content" ns="neoboard">
               <p>
                 The toolbar contains all the tools and objects available for
                 designing your slide. Select an object and move the mouse
@@ -109,7 +109,7 @@ export function GuidedTour({ disabled }: GuidedTourProps) {
           target: '[data-guided-tour-target="collaborationbar"]',
           title: t('guidedTour.collaborationBar.title', 'Collaboration'),
           content: (
-            <Trans i18nKey="guidedTour.collaborationBar.content">
+            <Trans i18nKey="guidedTour.collaborationBar.content" ns="neoboard">
               <p>
                 To see who is currently active on the NeoBoard, just look here.
                 You will see all participants who are currently online or have
@@ -126,7 +126,7 @@ export function GuidedTour({ disabled }: GuidedTourProps) {
           target: '[data-guided-tour-target="helpcenterbar"]',
           title: t('guidedTour.helpCenter.title', 'Help center'),
           content: (
-            <Trans i18nKey="guidedTour.helpCenter.content">
+            <Trans i18nKey="guidedTour.helpCenter.content" ns="neoboard">
               <p>
                 The help center offers easy access to the user guide and an
                 overview of all keyboard shortcuts. You can also restart this
