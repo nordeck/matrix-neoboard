@@ -18,6 +18,7 @@ export { baseApi } from './baseApi';
 export {
   documentSnapshotApi,
   useCreateDocumentMutation,
+  useGetDocumentSnapshotQuery,
 } from './documentSnapshotApi';
 export {
   powerLevelsApi,

@@ -15,20 +15,105 @@
  */
 
 import { useWidgetApi } from '@matrix-widget-toolkit/react';
+import { getLogger } from 'loglevel';
+import { useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Layout, LayoutProps } from './components/Layout';
 import { PageLoader } from './components/common/PageLoader';
-import { useOwnedWhiteboard, useWhiteboardManager } from './state';
+import {
+  isValidWhiteboardDocumentSnapshot,
+  useActiveWhiteboardInstance,
+  useOwnedWhiteboard,
+  useWhiteboardManager,
+} from './state';
+import {
+  cancelableSnapshotTimer,
+  usePersistOnJoinOrInvite,
+} from './state/usePersistOnJoinOrInvite';
+import { useGetDocumentSnapshotQuery } from './store/api';
 
 export type AppProps = {
   layoutProps?: LayoutProps;
 };
 
+const logger = getLogger('App');
+
 export const App = ({ layoutProps }: AppProps) => {
   const { t } = useTranslation('neoboard');
   const { value, loading } = useOwnedWhiteboard();
   const whiteboardManager = useWhiteboardManager();
-  const ownUserId = useWidgetApi().widgetParameters.userId;
+  const whiteboardInstance = useActiveWhiteboardInstance();
+  const widgetApi = useWidgetApi();
+  const ownUserId = widgetApi.widgetParameters.userId;
+  const { limitedHistoryVisibility, delayedPersist, lastMembershipEventTs } =
+    usePersistOnJoinOrInvite();
+  const { data: latestSnapshot } = useGetDocumentSnapshotQuery({
+    documentId: whiteboardInstance.getDocumentId(),
+    validator: isValidWhiteboardDocumentSnapshot,
+  });
+
+  const handlePersist = useCallback(() => {
+    if (latestSnapshot !== undefined && lastMembershipEventTs !== undefined) {
+      if (latestSnapshot.event.origin_server_ts < lastMembershipEventTs) {
+        logger.debug('Saving snapshot due to membership updates');
+        whiteboardInstance.persist(true);
+      }
+    }
+  }, [latestSnapshot, lastMembershipEventTs, whiteboardInstance]);
+
+  useEffect(() => {
+    // We don't need to do anything if we're not in a room with limited history visibility
+    // or the whiteboard is still loading
+    if (!limitedHistoryVisibility || whiteboardInstance.isLoading()) {
+      return;
+    }
+
+    // We're in a room with limited history visibility, so we check
+    // if a snapshot is required after recent membership changes (invites+joins)
+    if (latestSnapshot !== undefined && lastMembershipEventTs !== undefined) {
+      // Is the snapshot outdated when compared to the last membership event?
+      if (latestSnapshot.event.origin_server_ts < lastMembershipEventTs) {
+        // We don't delay persisting if the membership event was sent by the current user
+        if (!delayedPersist) {
+          logger.debug(
+            'Saving snapshot immediately due to current user sending the membership event',
+          );
+
+          whiteboardInstance.persist(true);
+        } else {
+          // Start a cancelable timer to persist the snapshot after a random delay
+          // If other clients run this earlier and send a snapshot, we don't need to persist
+          const delay = Math.floor(Math.random() * 20) + 10;
+          const timer = cancelableSnapshotTimer(handlePersist, delay * 1000);
+          logger.debug(
+            'Will try to save a snapshot in ',
+            delay,
+            's due to membership updates',
+          );
+
+          // cancel the timer if the component unmounts or the dependencies change
+          return () => {
+            logger.debug('Canceled delayed snapshot persistence timer');
+            timer.cancel();
+          };
+        }
+      } else {
+        logger.debug(
+          'We have a fresh snapshot after membership updates, no need to persist',
+        );
+      }
+    }
+    return;
+  }, [
+    delayedPersist,
+    handlePersist,
+    lastMembershipEventTs,
+    latestSnapshot,
+    limitedHistoryVisibility,
+    loading,
+    whiteboardInstance,
+    widgetApi,
+  ]);
 
   if (!ownUserId) {
     throw new Error('Unknown user id');

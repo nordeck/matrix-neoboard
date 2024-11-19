@@ -15,7 +15,7 @@
  */
 
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
-import { render } from '@testing-library/react';
+import { renderHook } from '@testing-library/react';
 import { ComponentType, PropsWithChildren } from 'react';
 import {
   afterEach,
@@ -28,21 +28,21 @@ import {
   Mocked,
   vi,
 } from 'vitest';
+import { App } from '../App';
 import {
   mockWhiteboardManager,
   WhiteboardTestingContextProvider,
-} from '../../lib/testUtils';
+} from '../lib/testUtils';
 import {
   mockRoomEncryption,
   mockRoomHistoryVisibility,
-} from '../../lib/testUtils/matrixTestUtils';
-import * as state from '../../state';
+} from '../lib/testUtils/matrixTestUtils';
+import * as state from '../state';
+import * as storeApi from '../store/api';
 import {
-  useGetRoomEncryptionQuery,
-  useGetRoomHistoryVisibilityQuery,
-  useGetRoomMembersQuery,
-} from '../../store';
-import { FallbackSnapshotProvider } from './FallbackSnapshotProvider';
+  cancelableSnapshotTimer,
+  usePersistOnJoinOrInvite,
+} from './usePersistOnJoinOrInvite';
 
 const mockRoomMembersOtherUser = {
   entities: {
@@ -74,6 +74,14 @@ const mockRoomMembersOwnUser = {
   },
 };
 
+const mockLatestDocumentSnapshot = {
+  event: { origin_server_ts: 100 },
+};
+
+const mockRecentDocumentSnapshot = {
+  event: { origin_server_ts: 3000 },
+};
+
 const mockRoomHistoryVisibilityInvited = mockRoomHistoryVisibility({
   content: { history_visibility: 'invited' },
 });
@@ -84,27 +92,42 @@ const mockRoomHistoryVisibilityShared = mockRoomHistoryVisibility();
 
 const mockWhiteboardInstance = {
   persist: vi.fn(),
+  isLoading: () => false,
+  getDocumentId: () => '$document-0',
 };
 
 let widgetApi: MockedWidgetApi;
 afterEach(() => widgetApi.stop());
 beforeEach(() => (widgetApi = mockWidgetApi()));
 
-describe('<FallbackSnapshotProvider />', () => {
+describe('usePersistOnJoinOrInvite', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
   let whiteboardManager: Mocked<state.WhiteboardManager>;
 
   beforeAll(() => {
-    vi.mock('../../store/api', () => {
+    vi.mock('./usePersistOnJoinOrInvite', async () => {
+      const usePersistOnJoinOrInvite = await vi.importActual<
+        typeof import('./usePersistOnJoinOrInvite')
+      >('./usePersistOnJoinOrInvite');
       return {
+        ...usePersistOnJoinOrInvite,
+        cancelableSnapshotTimer: vi.fn(() => ({ cancel: vi.fn() })),
+      };
+    });
+    vi.mock('../store/api', async () => {
+      const storeApi =
+        await vi.importActual<typeof import('../store/api')>('../store/api');
+      return {
+        ...storeApi,
+        useGetDocumentSnapshotQuery: vi.fn(),
         useGetRoomMembersQuery: vi.fn(),
         useGetRoomEncryptionQuery: vi.fn(),
         useGetRoomHistoryVisibilityQuery: vi.fn(),
       };
     });
-    vi.mock('../../state', async () => {
+    vi.mock('../state', async () => {
       const state =
-        await vi.importActual<typeof import('../../state')>('../../state');
+        await vi.importActual<typeof import('../state')>('../state');
       return {
         ...state,
         useActiveWhiteboardInstance: vi.fn(),
@@ -120,44 +143,71 @@ describe('<FallbackSnapshotProvider />', () => {
     (state.useActiveWhiteboardInstance as Mock).mockReturnValue(
       mockWhiteboardInstance,
     );
-    (useGetRoomMembersQuery as Mock).mockReturnValue({
+    (storeApi.useGetRoomMembersQuery as Mock).mockReturnValue({
       data: mockRoomMembersOtherUser,
     });
+    (storeApi.useGetDocumentSnapshotQuery as Mock).mockReturnValue({
+      data: mockLatestDocumentSnapshot,
+    });
 
-    Wrapper = ({ children }: PropsWithChildren<{}>) => {
-      return (
-        <WhiteboardTestingContextProvider
-          whiteboardManager={whiteboardManager}
-          widgetApi={widgetApi}
-        >
-          <FallbackSnapshotProvider>{children}</FallbackSnapshotProvider>
-        </WhiteboardTestingContextProvider>
-      );
-    };
+    ({ whiteboardManager } = mockWhiteboardManager());
+
+    Wrapper = () => (
+      <WhiteboardTestingContextProvider
+        whiteboardManager={whiteboardManager}
+        widgetApi={widgetApi}
+      >
+        <App />
+      </WhiteboardTestingContextProvider>
+    );
   });
 
   it('should not persist snapshot if room is unencrypted and history is shared', () => {
-    (useGetRoomEncryptionQuery as Mock).mockReturnValue({ data: undefined });
-    (useGetRoomHistoryVisibilityQuery as Mock).mockReturnValue({
+    (storeApi.useGetRoomEncryptionQuery as Mock).mockReturnValue({
+      data: undefined,
+    });
+    (storeApi.useGetRoomHistoryVisibilityQuery as Mock).mockReturnValue({
       data: { event: mockRoomHistoryVisibilityShared },
     });
 
-    render(<Wrapper />);
+    const { result: _result } = renderHook(usePersistOnJoinOrInvite, {
+      wrapper: Wrapper,
+    });
+
+    expect(mockWhiteboardInstance.persist).not.toHaveBeenCalled();
+  });
+
+  it('should not persist snapshot if the snapshot is more recent than the last membership event', () => {
+    (storeApi.useGetRoomEncryptionQuery as Mock).mockReturnValue({
+      data: { event: mockRoomEncryption() },
+    });
+    (storeApi.useGetRoomHistoryVisibilityQuery as Mock).mockReturnValue({
+      data: { event: mockRoomHistoryVisibilityInvited },
+    });
+    (storeApi.useGetDocumentSnapshotQuery as Mock).mockReturnValue({
+      data: mockRecentDocumentSnapshot,
+    });
+
+    const { result: _result } = renderHook(usePersistOnJoinOrInvite, {
+      wrapper: Wrapper,
+    });
 
     expect(mockWhiteboardInstance.persist).not.toHaveBeenCalled();
   });
 
   it('should persist snapshot if the room is encrypted', () => {
-    (useGetRoomEncryptionQuery as Mock).mockReturnValue({
+    (storeApi.useGetRoomEncryptionQuery as Mock).mockReturnValue({
       data: { event: mockRoomEncryption() },
     });
-    (useGetRoomHistoryVisibilityQuery as Mock).mockReturnValue({
+    (storeApi.useGetRoomHistoryVisibilityQuery as Mock).mockReturnValue({
       data: { event: mockRoomHistoryVisibilityShared },
     });
 
-    render(<Wrapper />);
+    const { result: _result } = renderHook(usePersistOnJoinOrInvite, {
+      wrapper: Wrapper,
+    });
 
-    expect(mockWhiteboardInstance.persist).toHaveBeenCalled();
+    expect(cancelableSnapshotTimer).toHaveBeenCalled();
   });
 
   it.each([
@@ -166,19 +216,18 @@ describe('<FallbackSnapshotProvider />', () => {
   ])(
     'should persist snapshot if the last event is a join and history visibility is invited (%s room)',
     (_, encryptionState) => {
-      (useGetRoomEncryptionQuery as Mock).mockReturnValue({
+      (storeApi.useGetRoomEncryptionQuery as Mock).mockReturnValue({
         data: encryptionState,
       });
-      (useGetRoomHistoryVisibilityQuery as Mock).mockReturnValue({
+      (storeApi.useGetRoomHistoryVisibilityQuery as Mock).mockReturnValue({
         data: { event: mockRoomHistoryVisibilityInvited },
       });
 
-      render(<Wrapper />);
-
-      expect(mockWhiteboardInstance.persist).toHaveBeenCalledWith({
-        timestamp: 2000,
-        immediate: false,
+      const { result: _result } = renderHook(usePersistOnJoinOrInvite, {
+        wrapper: Wrapper,
       });
+
+      expect(cancelableSnapshotTimer).toHaveBeenCalled();
     },
   );
 
@@ -188,19 +237,18 @@ describe('<FallbackSnapshotProvider />', () => {
   ])(
     'should persist snapshot if the last event is a join and history visibility is joined (%s room)',
     (_, encryptionState) => {
-      (useGetRoomEncryptionQuery as Mock).mockReturnValue({
+      (storeApi.useGetRoomEncryptionQuery as Mock).mockReturnValue({
         data: encryptionState,
       });
-      (useGetRoomHistoryVisibilityQuery as Mock).mockReturnValue({
+      (storeApi.useGetRoomHistoryVisibilityQuery as Mock).mockReturnValue({
         data: { event: mockRoomHistoryVisibilityJoined },
       });
 
-      render(<Wrapper />);
-
-      expect(mockWhiteboardInstance.persist).toHaveBeenCalledWith({
-        timestamp: 1000,
-        immediate: false,
+      const { result: _result } = renderHook(usePersistOnJoinOrInvite, {
+        wrapper: Wrapper,
       });
+
+      expect(cancelableSnapshotTimer).toHaveBeenCalled();
     },
   );
 
@@ -210,22 +258,21 @@ describe('<FallbackSnapshotProvider />', () => {
   ])(
     'should persist snapshot immediatly if the last event is an invite and inviter is the current user (%s room)',
     (_, encryptionState) => {
-      (useGetRoomMembersQuery as Mock).mockReturnValue({
+      (storeApi.useGetRoomMembersQuery as Mock).mockReturnValue({
         data: mockRoomMembersOwnUser,
       });
-      (useGetRoomEncryptionQuery as Mock).mockReturnValue({
+      (storeApi.useGetRoomEncryptionQuery as Mock).mockReturnValue({
         data: encryptionState,
       });
-      (useGetRoomHistoryVisibilityQuery as Mock).mockReturnValue({
+      (storeApi.useGetRoomHistoryVisibilityQuery as Mock).mockReturnValue({
         data: { event: mockRoomHistoryVisibilityInvited },
       });
 
-      render(<Wrapper />);
-
-      expect(mockWhiteboardInstance.persist).toHaveBeenCalledWith({
-        timestamp: 2000,
-        immediate: true,
+      const { result: _result } = renderHook(usePersistOnJoinOrInvite, {
+        wrapper: Wrapper,
       });
+
+      expect(mockWhiteboardInstance.persist).toHaveBeenCalled();
     },
   );
 });

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import { RoomEvent } from '@matrix-widget-toolkit/api';
 import { Base64 } from 'js-base64';
 import { clone } from 'lodash';
 import { getLogger } from 'loglevel';
@@ -35,7 +34,6 @@ import {
   throttleTime,
 } from 'rxjs';
 import { isDefined } from '../lib';
-import { DocumentSnapshot } from '../model';
 import {
   documentSnapshotApi,
   setSnapshotFailed,
@@ -200,8 +198,8 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
   }
 
   private async persistDocument(doc: Document<T>, force = false) {
+    // If there is no outstanding snapshot and we are not forcing to persist, we can skip this
     if (!this.statistics.snapshotOutstanding && !force) {
-      // No outstanding snapshot, do nothing
       return;
     }
 
@@ -221,24 +219,6 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
 
   async persist(force = false) {
     await this.persistDocument(this.document, force);
-  }
-
-  getLatestDocumentSnapshot(): RoomEvent<DocumentSnapshot> | undefined {
-    const state = this.store.getState();
-    const documentId = this.documentId;
-
-    const result = documentSnapshotApi.endpoints.getDocumentSnapshot.select({
-      documentId,
-      validator: () => true,
-    })(state);
-
-    if (!result.isLoading) {
-      const snapshotData = result.data;
-
-      if (snapshotData) {
-        return snapshotData.event;
-      }
-    }
   }
 
   private async createDocumentSnapshot(

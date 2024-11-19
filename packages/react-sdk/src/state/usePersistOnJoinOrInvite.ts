@@ -19,72 +19,91 @@ import {
   StateEvent,
 } from '@matrix-widget-toolkit/api';
 import { useWidgetApi } from '@matrix-widget-toolkit/react';
-import { PropsWithChildren, useEffect } from 'react';
-import { RoomEncryptionEvent, RoomHistoryVisibilityEvent } from '../../model';
-import { useActiveWhiteboardInstance } from '../../state';
+import { RoomEncryptionEvent, RoomHistoryVisibilityEvent } from '../model';
+import { useActiveWhiteboardInstance } from '../state';
 import {
   useGetRoomEncryptionQuery,
   useGetRoomHistoryVisibilityQuery,
   useGetRoomMembersQuery,
-} from '../../store/api';
+} from '../store/api';
 
-export function FallbackSnapshotProvider({ children }: PropsWithChildren<{}>) {
+type PersistOnJoinOrInviteResult = {
+  limitedHistoryVisibility: boolean;
+  delayedPersist: boolean;
+  lastMembershipEventTs?: number;
+};
+
+export function usePersistOnJoinOrInvite(): PersistOnJoinOrInviteResult {
   const whiteboardInstance = useActiveWhiteboardInstance();
   const { data: roomMembers } = useGetRoomMembersQuery();
   const { data: roomEncryption } = useGetRoomEncryptionQuery();
   const { data: roomHistoryVisibility } = useGetRoomHistoryVisibilityQuery();
-  const ownUserId = useWidgetApi().widgetParameters.userId;
+  const widgetApi = useWidgetApi();
+  const ownUserId = widgetApi.widgetParameters.userId;
 
-  useEffect(() => {
-    const isRoomEncrypted = checkIfRoomEncrypted(roomEncryption);
-    const roomHistoryVisibilityValue = getRoomHistoryVisibilityValue(
-      roomHistoryVisibility,
-    );
-    const isRoomHistoryVisibilityShared = checkIfRoomHistoryVisibilityShared(
-      roomHistoryVisibilityValue,
-    );
-    const sendFallbackSnapshot = shouldSendFallbackSnapshot(
-      isRoomEncrypted,
-      isRoomHistoryVisibilityShared,
-      roomHistoryVisibilityValue,
-    );
+  if (whiteboardInstance.isLoading()) {
+    return {
+      limitedHistoryVisibility: false,
+      delayedPersist: false,
+    };
+  }
 
-    if (sendFallbackSnapshot) {
-      const membershipFilter = getMembershipFilter(roomHistoryVisibilityValue);
-      const members = roomMembers?.entities;
-
-      if (members) {
-        const invitesOrJoins = Object.values(members).filter(membershipFilter);
-        const sortedInvitesOrJoins = invitesOrJoins.sort((a, b) => {
-          return b.origin_server_ts - a.origin_server_ts;
-        });
-        const lastInviteOrJoin = sortedInvitesOrJoins[0];
-
-        if (
-          shouldUseInviteTimestamp(lastInviteOrJoin, roomHistoryVisibilityValue)
-        ) {
-          // TODO: Implement logic to get the timestamp of the invite event.
-          // There is currently no way to get an event by id or
-          // fetch an older state event from the room timeline using the Widget API
-        }
-
-        const immediate = shouldPersistImmediately(lastInviteOrJoin, ownUserId);
-
-        whiteboardInstance.persist({
-          timestamp: lastInviteOrJoin.origin_server_ts,
-          immediate,
-        });
-      }
-    }
-  }, [
-    roomMembers,
-    whiteboardInstance,
-    roomEncryption,
+  const isRoomEncrypted = checkIfRoomEncrypted(roomEncryption);
+  const roomHistoryVisibilityValue = getRoomHistoryVisibilityValue(
     roomHistoryVisibility,
-    ownUserId,
-  ]);
+  );
+  const limitedHistoryVisibility = roomHasLimitedHistoryVisibility(
+    isRoomEncrypted,
+    roomHistoryVisibilityValue,
+  );
 
-  return <>{children}</>;
+  let delayedPersist = true;
+  let lastMembershipEventTs: number | undefined = undefined;
+
+  if (limitedHistoryVisibility) {
+    const membershipFilter = getMembershipFilter(roomHistoryVisibilityValue);
+    const members = roomMembers?.entities;
+
+    if (members) {
+      const invitesOrJoins = Object.values(members).filter(membershipFilter);
+      const sortedInvitesOrJoins = invitesOrJoins.sort((a, b) => {
+        return b.origin_server_ts - a.origin_server_ts;
+      });
+      const lastInviteOrJoin = sortedInvitesOrJoins[0];
+
+      if (shouldUseInvite(lastInviteOrJoin, roomHistoryVisibilityValue)) {
+        // TODO: Implement logic to get the timestamp of the invite event.
+        // There is currently no way to get an event by id or
+        // fetch an older state event from the room timeline using the Widget API
+        // lastInviteOrJoin = getInviteEvent(lastInviteOrJoin);
+      }
+
+      delayedPersist = !shouldPersistImmediately(lastInviteOrJoin, ownUserId);
+      lastMembershipEventTs = lastInviteOrJoin.origin_server_ts;
+    }
+  }
+
+  return {
+    limitedHistoryVisibility,
+    delayedPersist,
+    lastMembershipEventTs,
+  };
+}
+
+export function cancelableSnapshotTimer(
+  callback: () => void,
+  delay: number,
+): { cancel: () => void } {
+  let timerId: NodeJS.Timeout | null = setTimeout(callback, delay);
+
+  return {
+    cancel: () => {
+      if (timerId) {
+        clearTimeout(timerId);
+        timerId = null;
+      }
+    },
+  };
 }
 
 function checkIfRoomEncrypted(roomEncryption?: {
@@ -101,20 +120,14 @@ function getRoomHistoryVisibilityValue(roomHistoryVisibility?: {
   return roomHistoryVisibility?.event?.content?.history_visibility;
 }
 
-function checkIfRoomHistoryVisibilityShared(
-  roomHistoryVisibilityValue: string | undefined,
-): boolean {
-  return roomHistoryVisibilityValue === 'shared';
-}
-
-function shouldSendFallbackSnapshot(
+function roomHasLimitedHistoryVisibility(
   isRoomEncrypted: boolean,
-  isRoomHistoryVisibilityShared: boolean,
   roomHistoryVisibilityValue: string | undefined,
 ): boolean {
   return (
     isRoomEncrypted ||
-    (!isRoomHistoryVisibilityShared && roomHistoryVisibilityValue !== undefined)
+    (roomHistoryVisibilityValue !== undefined &&
+      roomHistoryVisibilityValue !== 'shared')
   );
 }
 
@@ -129,7 +142,7 @@ function getMembershipFilter(
     member.content.membership === 'join';
 }
 
-function shouldUseInviteTimestamp(
+function shouldUseInvite(
   lastInviteOrJoin: StateEvent<RoomMemberStateEventContent>,
   roomHistoryVisibilityValue: string | undefined,
 ) {

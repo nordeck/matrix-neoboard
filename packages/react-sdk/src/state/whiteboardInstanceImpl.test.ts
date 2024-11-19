@@ -81,7 +81,6 @@ describe('WhiteboardInstanceImpl', () => {
         .mockReturnValue(observeDocumentStatisticsSubject),
       observeIsLoading: vi.fn().mockReturnValue(observeIsLoadingSubject),
       persist: vi.fn(),
-      getLatestDocumentSnapshot: vi.fn(),
     };
   });
 

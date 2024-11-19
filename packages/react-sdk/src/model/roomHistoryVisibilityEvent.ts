@@ -29,7 +29,9 @@ const roomHistoryVisibilityEventSchema = Joi.object<
   RoomHistoryVisibilityEvent,
   true
 >({
-  history_visibility: Joi.string().required(),
+  history_visibility: Joi.string()
+    .required()
+    .valid('invited', 'joined', 'shared', 'world_readable'),
 }).unknown();
 
 export function isValidRoomHistoryVisibilityEvent(

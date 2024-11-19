@@ -15,7 +15,7 @@
  */
 
 import { StateEvent, WidgetApi } from '@matrix-widget-toolkit/api';
-import { cloneDeep, debounce, isEqual } from 'lodash';
+import { cloneDeep, isEqual } from 'lodash';
 import {
   BehaviorSubject,
   Observable,
@@ -60,7 +60,6 @@ import { PresentationManagerImpl } from './presentationManagerImpl';
 import { LocalForageDocumentStorage } from './storage';
 import { SynchronizedDocumentImpl } from './synchronizedDocumentImpl';
 import {
-  PersistOptions,
   PresentationManager,
   SynchronizedDocument,
   WhiteboardInstance,
@@ -388,6 +387,10 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
     }
   }
 
+  getDocumentId(): string {
+    return this.whiteboardEvent.content.documentId;
+  }
+
   getWhiteboardId(): string {
     return this.whiteboardEvent.event_id;
   }
@@ -453,23 +456,8 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
     this.communicationChannel.destroy();
   }
 
-  async persist(options?: PersistOptions): Promise<void> {
-    if (options !== undefined) {
-      const snapshot = this.synchronizedDocument.getLatestDocumentSnapshot();
-      if (snapshot && snapshot.origin_server_ts < options.timestamp) {
-        if (options.immediate) {
-          await this.synchronizedDocument.persist(true);
-        } else {
-          const delay = Math.floor(Math.random() * 20) + 10;
-          debounce(
-            () => this.synchronizedDocument.persist(true),
-            delay * 1000,
-          )();
-        }
-      }
-    } else {
-      await this.synchronizedDocument.persist(false);
-    }
+  async persist(force: boolean = false): Promise<void> {
+    await this.synchronizedDocument.persist(force);
   }
 
   clearUndoManager(): void {

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import { RoomEvent, StateEvent, WidgetApi } from '@matrix-widget-toolkit/api';
+import { StateEvent, WidgetApi } from '@matrix-widget-toolkit/api';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { DocumentSnapshot, Whiteboard } from '../model';
+import { Whiteboard } from '../model';
 import { CommunicationChannelStatistics } from './communication';
 import {
   Document,
@@ -55,13 +55,10 @@ export type WhiteboardStatistics = {
   communicationChannel: CommunicationChannelStatistics;
 };
 
-export type PersistOptions = {
-  timestamp: number;
-  immediate: boolean;
-};
-
 /** An instance of a whiteboard that can be used to read and manipulate it. */
 export type WhiteboardInstance = {
+  /** Returns the id of the document */
+  getDocumentId(): string;
   /** Returns the id of the whiteboard. */
   getWhiteboardId(): string;
   /**
@@ -153,7 +150,7 @@ export type WhiteboardInstance = {
   destroy(): void;
 
   /** Persist the whiteboard state. */
-  persist(options?: PersistOptions): Promise<void>;
+  persist(force?: boolean): Promise<void>;
 };
 
 export type ElementUpdate = {
@@ -267,8 +264,6 @@ export type SynchronizedDocument<T extends Record<string, unknown>> = {
   destroy(): void;
   /** Persist the document immediately. */
   persist(force: boolean): Promise<void>;
-  /** Get the latest document snapshot, if available */
-  getLatestDocumentSnapshot(): RoomEvent<DocumentSnapshot> | undefined;
 };
 
 export type PresentationState =
