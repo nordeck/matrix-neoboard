@@ -24,7 +24,7 @@ import { Dispatch, PropsWithChildren, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useActiveWhiteboardInstance } from '../../state';
 import { useGetRoomNameQuery, useUserDetails } from '../../store';
-import { createWhiteboardPdf } from './pdf';
+import { createWhiteboardPdf } from './pdfv2';
 
 export function ExportWhiteboardDialogDownloadPdf({
   children,

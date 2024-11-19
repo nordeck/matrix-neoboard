@@ -3,7 +3,8 @@
   "compilerOptions": {
     "rootDir": ".",
     "noEmit": true,
-    "types": ["vitest-fetch-mock"]
+    "types": ["vitest-fetch-mock"],
+    "lib": ["dom", "dom.iterable", "esnext", "webworker"]
   },
   "include": ["src"]
 }

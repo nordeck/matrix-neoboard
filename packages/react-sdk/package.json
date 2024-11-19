@@ -23,6 +23,7 @@
     "@mui/lab": "^6.0.0-beta.10",
     "@mui/material": "^6.1.2",
     "@mui/utils": "^6.0.2",
+    "@react-pdf/renderer": "^4.1.4",
     "@reduxjs/toolkit": "^2.2.7",
     "emoji-regex": "^10.3.0",
     "joi": "^17.13.3",
