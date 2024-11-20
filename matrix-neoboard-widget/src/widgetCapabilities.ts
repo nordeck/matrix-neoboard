@@ -23,6 +23,7 @@ import {
   ROOM_EVENT_DOCUMENT_CHUNK,
   ROOM_EVENT_DOCUMENT_CREATE,
   ROOM_EVENT_DOCUMENT_SNAPSHOT,
+  STATE_EVENT_DOCUMENT_PREVIEW,
   STATE_EVENT_ROOM_NAME,
   STATE_EVENT_WHITEBOARD,
   STATE_EVENT_WHITEBOARD_SESSIONS,
@@ -38,6 +39,7 @@ import {
 const { userId } = extractWidgetParameters();
 
 export const widgetCapabilities = [
+  // Room Events
   WidgetEventCapability.forRoomEvent(
     EventDirection.Send,
     ROOM_EVENT_DOCUMENT_CREATE,
@@ -62,7 +64,17 @@ export const widgetCapabilities = [
     EventDirection.Receive,
     ROOM_EVENT_DOCUMENT_CHUNK,
   ),
-
+  // State Events
+  WidgetEventCapability.forStateEvent(
+    EventDirection.Send,
+    STATE_EVENT_DOCUMENT_PREVIEW,
+    '',
+  ),
+  WidgetEventCapability.forStateEvent(
+    EventDirection.Receive,
+    STATE_EVENT_DOCUMENT_PREVIEW,
+    '',
+  ),
   WidgetEventCapability.forStateEvent(
     EventDirection.Send,
     STATE_EVENT_POWER_LEVELS,
@@ -73,7 +85,6 @@ export const widgetCapabilities = [
     STATE_EVENT_POWER_LEVELS,
     '',
   ),
-
   WidgetEventCapability.forStateEvent(
     EventDirection.Receive,
     STATE_EVENT_ROOM_MEMBER,
@@ -101,7 +112,7 @@ export const widgetCapabilities = [
     EventDirection.Receive,
     STATE_EVENT_ROOM_NAME,
   ),
-
+  // To Device Events
   WidgetEventCapability.forToDeviceEvent(
     EventDirection.Send,
     TO_DEVICE_MESSAGE_CONNECTION_SIGNALING,
@@ -110,7 +121,7 @@ export const widgetCapabilities = [
     EventDirection.Receive,
     TO_DEVICE_MESSAGE_CONNECTION_SIGNALING,
   ),
-
+  // Others
   MatrixCapabilities.MSC3846TurnServers,
   WidgetApiFromWidgetAction.MSC4039UploadFileAction,
   WidgetApiFromWidgetAction.MSC4039DownloadFileAction,
