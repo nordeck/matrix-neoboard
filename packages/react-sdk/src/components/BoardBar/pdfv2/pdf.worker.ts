@@ -14,24 +14,31 @@
  * limitations under the License.
  */
 
-import './workerShim';
+import { renderPDF } from './pdf.local';
+
+if (import.meta.hot) {
+  self.window = self;
+  // @ts-expect-error - HMR workaround for https://github.com/vitejs/vite/issues/5396
+  const RefreshRuntime = await import('/@react-refresh');
+  RefreshRuntime.injectIntoGlobalHook(self);
+  // @ts-expect-error - HMR workaround for https://github.com/vitejs/vite/issues/5396
+  self.$RefreshReg$ = () => { };
+  // @ts-expect-error - HMR workaround for https://github.com/vitejs/vite/issues/5396
+  self.$RefreshSig$ = () => type => type;
+  // @ts-expect-error - HMR workaround for https://github.com/vitejs/vite/issues/5396
+  window.__vite_plugin_react_preamble_installed__ = true
+}
 
 // A Web Worker that generates the PDF in the background
 self.onmessage = async (e: MessageEvent) => {
+  console.log('Worker received message', e);
   const data = e.data;
-  console.log(WorkerGlobalScope);
 
   try {
-    const { renderPDF } = await import('./pdf.local');
     const renderedPDF = await renderPDF(data);
-    console.log('renderedPDF', renderedPDF);
-    //const url = URL.createObjectURL(renderedPDF);
-    //console.log('url', url);
-    //self.postMessage(url);
+    self.postMessage(renderedPDF);
   } catch (error) {
-    console.error(error);
+    console.error('Error rendering PDF', error);
     throw error;
   }
 };
-
-export {};

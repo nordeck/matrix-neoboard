@@ -14,9 +14,13 @@
  * limitations under the License.
  */
 
-import { Document, Page } from '@react-pdf/renderer';
+import { Document, Page, Svg } from '@react-pdf/renderer';
 import { WhiteboardDocumentExport } from '../../../state/export/whiteboardDocumentExport';
 import { PDFElementImage } from './elements/PDFElementImage';
+import { whiteboardHeight, whiteboardWidth } from '../../Whiteboard/constants';
+import PDFElementShape from './elements/PDFElementShape';
+import { Fragment } from 'react';
+
 
 export type PDFProps = {
   exportData: WhiteboardDocumentExport;
@@ -30,25 +34,27 @@ export const PDFComponent = ({ exportData }: PDFProps) => {
     <Document>
       {slides.map((slide, i) => {
         const elements = slide.elements;
+        const svgEleemnts = elements.filter((element) => element.type !== 'image');
+        const imageElements = elements.filter((element) => element.type === 'image');
 
         return (
-          <Page key={i}>
-            {elements.map((element, j) => {
-              const type = element.type;
-              return (
-                <div key={j}>
-                  {type === 'image' && (
-                    <PDFElementImage element={element} files={files} />
-                  )}
-                  {/*{type === 'shape' && (
-                    <ShapeElement element={element} />
-                  )}
-                  {type === 'path' && (
-                    <PathElement element={element} />
-                  )}*/}
-                </div>
-              );
-            })}
+          <Page key={i} size={[whiteboardWidth, whiteboardHeight]}>
+            {/* Needed for the elements to render properly */}
+            <Svg viewBox={`0 0 ${whiteboardWidth} ${whiteboardHeight}`}>
+              {svgEleemnts.map((element, j) => {
+                const type = element.type;
+                return (
+                  <Fragment key={j}>
+                    {type === 'shape' && (
+                      <PDFElementShape element={element} />
+                    )}
+                  </Fragment>
+                );
+              })}
+            </Svg>
+            {imageElements.map((element, j) => (
+              <PDFElementImage key={j} element={element} files={files} />
+            ))}
           </Page>
         );
       })}

@@ -14,13 +14,18 @@
  * limitations under the License.
  */
 
-import { createElement } from 'react';
 import { WhiteboardDocumentExport } from '../../../state/export/whiteboardDocumentExport';
 
 const renderPDF = async (exportData: WhiteboardDocumentExport) => {
-  const { pdf } = await import('@react-pdf/renderer');
+  const { pdf, Font } = await import('@react-pdf/renderer');
   const { PDFComponent } = await import('./getPDFComponent');
+  const { createElement } = await import('react');
 
+  Font.registerEmojiSource({
+    format: 'png',
+    // TODO: Replace with something we serve ourselves
+    url: 'https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/',
+  });
   // @ts-expect-error -- Unclear types for now
   return pdf(createElement(PDFComponent, { exportData })).toBlob();
 };

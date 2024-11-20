@@ -27,9 +27,8 @@ export function PDFElementImage({
 }) {
   const file = files?.find((f) => f.mxc === element.mxc);
   if (file) {
-    // Convert the file.data base64 string to a URL object using a Blob
-    const blob = new Blob([file.data], { type: element.mimeType });
-    const url = URL.createObjectURL(blob);
+    // Convert the file.data base64 string
+    const url = `data:${element.mimeType};base64,${file.data}`;
 
     return (
       <Image
