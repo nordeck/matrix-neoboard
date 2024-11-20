@@ -19,6 +19,7 @@ import { Fragment } from 'react';
 import { WhiteboardDocumentExport } from '../../../state/export/whiteboardDocumentExport';
 import { whiteboardHeight, whiteboardWidth } from '../../Whiteboard/constants';
 import { PDFElementImage } from './elements/PDFElementImage';
+import { PDFElementPath } from './elements/PDFElementPath';
 import PDFElementShape from './elements/PDFElementShape';
 
 export type PDFProps = {
@@ -49,6 +50,7 @@ export const PDFComponent = ({ exportData }: PDFProps) => {
                 return (
                   <Fragment key={j}>
                     {type === 'shape' && <PDFElementShape element={element} />}
+                    {type === 'path' && <PDFElementPath element={element} />}
                   </Fragment>
                 );
               })}

@@ -18,6 +18,26 @@ import { Image } from '@react-pdf/renderer';
 import { ImageElement } from '../../../../state';
 import { WhiteboardFileExport } from '../../../../state/export/whiteboardDocumentExport';
 
+const signatures = {
+  JVBERi0: 'application/pdf',
+  R0lGODdh: 'image/gif',
+  R0lGODlh: 'image/gif',
+  iVBORw0KGgo: 'image/png',
+  '/9j/': 'image/jpg',
+} as const;
+
+function detectMimeType(b64: string): string | undefined {
+  for (const s in signatures) {
+    if (b64.indexOf(s) === 0) {
+      const mimeKey = Object.keys(signatures).find((v) => v === s);
+      if (!mimeKey) {
+        return undefined;
+      }
+      return signatures[mimeKey as keyof typeof signatures];
+    }
+  }
+}
+
 export function PDFElementImage({
   element,
   files,
@@ -27,8 +47,10 @@ export function PDFElementImage({
 }) {
   const file = files?.find((f) => f.mxc === element.mxc);
   if (file) {
+    // Tripple check mimetype
+    const mimeType = detectMimeType(file.data);
     // Convert the file.data base64 string
-    const url = `data:${element.mimeType};base64,${file.data}`;
+    const url = `data:${mimeType};base64,${file.data}`;
 
     return (
       <Image

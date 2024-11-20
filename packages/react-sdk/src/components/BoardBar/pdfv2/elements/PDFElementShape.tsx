@@ -29,13 +29,6 @@ export default function PDFElementShape({
       const { strokeColor, strokeWidth } =
         getRenderRectangleProperties(element);
 
-      const { fontSize, textWidth } = getTextSize(
-        element.width,
-        element.height,
-        { innerText: element.text },
-        { disableLigatures: true },
-      );
-
       return (
         <Rect
           x={element.position.x}
@@ -50,20 +43,7 @@ export default function PDFElementShape({
           rx={element.borderRadius}
           ry={element.borderRadius}
         >
-          {element.text && (
-            <Text
-              x={element.position.x + element.width / 2 - textWidth / 2}
-              y={element.position.y + element.height / 2 + fontSize / 2}
-              fill={element.textColor}
-              style={{
-                fontSize: fontSize,
-                fontWeight: element.textBold ? 'bold' : 'normal',
-                fontStyle: element.textItalic ? 'italic' : 'normal',
-              }}
-            >
-              {element.text}
-            </Text>
-          )}
+          {element.text && <MultiLineText element={element} />}
         </Rect>
       );
     }
@@ -84,7 +64,9 @@ export default function PDFElementShape({
               : element.strokeColor
           }
           strokeWidth={element.strokeWidth}
-        />
+        >
+          {element.text && <MultiLineText element={element} />}
+        </Ellipse>
       );
     case 'triangle':
       return (
@@ -99,10 +81,67 @@ export default function PDFElementShape({
               : element.strokeColor
           }
           strokeWidth={element.strokeWidth}
-        />
+        >
+          {element.text && <MultiLineText element={element} />}
+        </Polygon>
       );
 
     default:
       return null;
   }
+}
+
+function MultiLineText({ element }: { element: ShapeElement }) {
+  const fontFamily = 'Inter';
+
+  const { fontSize, spaceWidth, paddingTop } = getTextSize(
+    element.width,
+    element.height,
+    { innerText: element.text },
+    {
+      disableLigatures: true,
+      fontFamily: fontFamily,
+      fontWeightBold: element.textBold,
+      fontStyleItalic: element.textItalic,
+    },
+  );
+
+  let lines = element.text.split('\n');
+
+  // Remove empty lines
+  lines = lines.filter((line) => line.trim() !== '');
+
+  return (
+    <>
+      {lines.map((line, index) => {
+        // Get prepending spaces to then calculate the x offset
+        const spaces = line.search(/\S/);
+        const x = spaces ? spaces * spaceWidth : 0;
+        console.log('x', x);
+
+        return (
+          <Text
+            key={index}
+            x={element.position.x}
+            y={
+              element.position.y +
+              element.height / 2 -
+              paddingTop / 4 +
+              index * fontSize
+            }
+            fill={element.textColor}
+            style={{
+              fontFamily: fontFamily,
+              fontSize: fontSize,
+              fontWeight: element.textBold ? 'bold' : 'normal',
+              fontStyle: element.textItalic ? 'italic' : 'normal',
+              marginLeft: `${2 * x}px`,
+            }}
+          >
+            {line}
+          </Text>
+        );
+      })}
+    </>
+  );
 }

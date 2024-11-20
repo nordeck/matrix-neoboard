@@ -20,12 +20,28 @@ const renderPDF = async (exportData: WhiteboardDocumentExport) => {
   const { pdf, Font } = await import('@react-pdf/renderer');
   const { PDFComponent } = await import('./getPDFComponent');
   const { createElement } = await import('react');
+  const { default: interFont } = await import('./fonts/Inter-Regular.ttf');
+  const { default: interBoldFont } = await import('./fonts/Inter-Bold.ttf');
+  const { default: interItalicFont } = await import('./fonts/Inter-Italic.ttf');
+  const { default: interBoldItalicFont } = await import(
+    './fonts/Inter-BoldItalic.ttf'
+  );
 
   Font.registerEmojiSource({
     format: 'png',
     // TODO: Replace with something we serve ourselves
     url: 'https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/',
   });
+  Font.register({
+    family: 'Inter',
+    fonts: [
+      { src: interFont },
+      { src: interBoldFont, fontWeight: 'bold' },
+      { src: interItalicFont, fontStyle: 'italic' },
+      { src: interBoldItalicFont, fontWeight: 'bold', fontStyle: 'italic' },
+    ],
+  });
+
   // @ts-expect-error -- Unclear types for now
   return pdf(createElement(PDFComponent, { exportData })).toBlob();
 };

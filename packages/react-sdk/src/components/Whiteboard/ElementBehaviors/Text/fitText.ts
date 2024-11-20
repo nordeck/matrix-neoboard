@@ -54,10 +54,12 @@ export function getTextSize(
   paddingTop: number;
   paddingHorizontal: number;
   textWidth: number;
+  textHeight: number;
+  spaceWidth: number;
 } {
   width = Math.round(width);
   height = Math.round(height);
-  const canvas = new OffscreenCanvas(1, 1);
+  const canvas = new OffscreenCanvas(width, height);
   const context = canvas.getContext('2d');
 
   if (!context) {
@@ -65,7 +67,7 @@ export function getTextSize(
   }
 
   const fontFamily = opts.fontFamily || 'sans-serif';
-  const minFontSize = 1;
+  const minFontSize = 10;
   const maxFontSize = 800;
   let fontSize = minFontSize;
   const maxSteps = 10;
@@ -81,7 +83,7 @@ export function getTextSize(
       Math.min(fontSize + stepSize, maxFontSize),
     );
 
-    const { width: textWidth, height: textHeight } = measureText(
+    const { width: textWidth, height: textHeight } = measureTextWithNewlines(
       context,
       content.innerText,
       fontSize,
@@ -99,10 +101,18 @@ export function getTextSize(
 
   fontSize = Math.round(fontSize);
 
-  const paddingTop = height / 2 - fontSize / 2;
-  const { width: textWidth } = measureText(
+  const { width: textWidth, height: textHeight } = measureTextWithNewlines(
     context,
     content.innerText,
+    fontSize,
+    fontFamily,
+  );
+  const paddingTop = (height - textHeight) / 4;
+
+  // Measure the width of a space
+  const { width: spaceWidth } = measureTextWithNewlines(
+    context,
+    '\u00A0',
     fontSize,
     fontFamily,
   );
@@ -112,17 +122,32 @@ export function getTextSize(
     paddingTop,
     paddingHorizontal,
     textWidth,
+    textHeight,
+    spaceWidth,
   };
 }
-function measureText(
+
+function measureTextWithNewlines(
   context: OffscreenCanvasRenderingContext2D,
   text: string,
   fontSize: number,
   fontFamily: string,
 ): { width: number; height: number } {
+  const lines = text.split('\n');
+  let maxWidth = 0;
+  let totalHeight = 0;
+
   context.font = `${fontSize}px ${fontFamily}`;
-  const metrics = context.measureText(text);
-  const textHeight =
-    metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
-  return { width: metrics.width, height: textHeight };
+
+  lines.forEach((line) => {
+    const metrics = context.measureText(line);
+    const lineHeight =
+      metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
+    if (metrics.width > maxWidth) {
+      maxWidth = metrics.width;
+    }
+    totalHeight += lineHeight;
+  });
+
+  return { width: maxWidth, height: totalHeight };
 }

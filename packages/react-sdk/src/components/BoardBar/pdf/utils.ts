@@ -41,7 +41,6 @@ export function image(element: ImageElement, base64content: string): Content {
 }
 
 function preprocessSvg(element: ImageElement, svg: string): string {
-  console.log(element);
   if (element.mimeType !== 'image/svg+xml') {
     return svg;
   }
@@ -50,18 +49,15 @@ function preprocessSvg(element: ImageElement, svg: string): string {
   const svgString = atob(svg);
 
   // We lied in the past about the mimetype, so we need to check if the svg is actually an svg and otherwise return the original string
-  if (!svgString.startsWith('<svg')) {
+  if (!svgString.includes('<svg')) {
     element.mimeType = svgString.includes('PNG') ? 'image/png' : 'image/jpeg';
     return svg;
   }
-
-  console.log(svgString);
 
   // Parse the svg string
   const parser = new DOMParser();
   const doc = parser.parseFromString(svgString, 'image/svg+xml');
   const svgElement = doc.documentElement;
-  console.log(svgElement);
 
   // Check if a size is set and if not set it to the size from the viewbox
   if (!svgElement.getAttribute('width') || !svgElement.getAttribute('height')) {
@@ -74,7 +70,6 @@ function preprocessSvg(element: ImageElement, svg: string): string {
       svgElement.setAttribute('height', element.height.toString());
     }
   }
-  console.log(svgElement);
 
   // Convert the svg element to a string
   const serializer = new XMLSerializer();
