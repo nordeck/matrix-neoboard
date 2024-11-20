@@ -94,7 +94,7 @@ export default function PDFElementShape({
 function MultiLineText({ element }: { element: ShapeElement }) {
   const fontFamily = 'Inter';
 
-  const { fontSize, spaceWidth, paddingTop } = getTextSize(
+  const { fontSize, spaceWidth, textHeight, paddingTop } = getTextSize(
     element.width,
     element.height,
     { innerText: element.text },
@@ -106,10 +106,7 @@ function MultiLineText({ element }: { element: ShapeElement }) {
     },
   );
 
-  let lines = element.text.split('\n');
-
-  // Remove empty lines
-  lines = lines.filter((line) => line.trim() !== '');
+  const lines = element.text.split('\n');
 
   return (
     <>
@@ -117,7 +114,24 @@ function MultiLineText({ element }: { element: ShapeElement }) {
         // Get prepending spaces to then calculate the x offset
         const spaces = line.search(/\S/);
         const x = spaces ? spaces * spaceWidth : 0;
-        console.log('x', x);
+
+        if (line.trim() === '') {
+          return null;
+        }
+
+        // Calculate the extra free lines before this text by counting the empty lines before the current index until the first non-empty line
+        // Since there might be more space between the previous line with text we also need to calculate the offset of any text before this line and add it's space to the current one
+        const freeLinesBefore = lines
+          .slice(0, index)
+          .reverse()
+          .reduce((acc, line) => (line.trim() === '' ? acc + 1 : acc), 0);
+
+        // Calculate the y offset
+        let yOffSet = index * fontSize + freeLinesBefore * fontSize;
+
+        if (index === 0) {
+          yOffSet = 0;
+        }
 
         return (
           <Text
@@ -125,9 +139,9 @@ function MultiLineText({ element }: { element: ShapeElement }) {
             x={element.position.x}
             y={
               element.position.y +
-              element.height / 2 -
-              paddingTop / 4 +
-              index * fontSize
+              textHeight / lines.length +
+              yOffSet +
+              paddingTop
             }
             fill={element.textColor}
             style={{
@@ -136,6 +150,7 @@ function MultiLineText({ element }: { element: ShapeElement }) {
               fontWeight: element.textBold ? 'bold' : 'normal',
               fontStyle: element.textItalic ? 'italic' : 'normal',
               marginLeft: `${2 * x}px`,
+              color: element.textColor,
             }}
           >
             {line}
