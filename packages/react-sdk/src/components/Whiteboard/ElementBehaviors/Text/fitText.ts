@@ -69,7 +69,10 @@ export function getTextSize(
     canvas.width = width;
     canvas.height = height;
   }
-  const context = canvas.getContext('2d');
+  const context = canvas.getContext('2d') as
+    | CanvasRenderingContext2D
+    | OffscreenCanvasRenderingContext2D
+    | null;
 
   if (!context) {
     throw new Error('2D context not available');
