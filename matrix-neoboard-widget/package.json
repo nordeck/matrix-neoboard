@@ -23,7 +23,8 @@
     "react-redux": "^9.1.2"
   },
   "resolutions": {
-    "fork-ts-checker-webpack-plugin": "^6.5.3"
+    "fork-ts-checker-webpack-plugin": "^6.5.3",
+    "@vitejs/plugin-react-swc": "git+https://github.com/vitejs/vite-plugin-react-swc.git"
   },
   "devDependencies": {
     "@testing-library/dom": "^10.4.0",
