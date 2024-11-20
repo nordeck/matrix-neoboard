@@ -111,13 +111,13 @@ function MultiLineText({ element }: { element: ShapeElement }) {
   return (
     <>
       {lines.map((line, index) => {
-        // Get prepending spaces to then calculate the x offset
-        const spaces = line.search(/\S/);
-        const x = spaces ? spaces * spaceWidth : 0;
-
         if (line.trim() === '') {
           return null;
         }
+
+        // Get prepending spaces to then calculate the x offset
+        const spaces = line.search(/\S/);
+        const x = spaces ? spaces * spaceWidth : 0;
 
         // Calculate the extra free lines before this text by counting the empty lines before the current index until the first non-empty line
         // Since there might be more space between the previous line with text we also need to calculate the offset of any text before this line and add it's space to the current one
@@ -136,12 +136,13 @@ function MultiLineText({ element }: { element: ShapeElement }) {
         return (
           <Text
             key={index}
-            x={element.position.x}
+            x={element.position.x + x}
             y={
               element.position.y +
               textHeight / lines.length +
               yOffSet +
-              paddingTop
+              paddingTop +
+              10
             }
             fill={element.textColor}
             style={{
