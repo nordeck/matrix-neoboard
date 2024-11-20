@@ -59,7 +59,16 @@ export function getTextSize(
 } {
   width = Math.round(width);
   height = Math.round(height);
-  const canvas = new OffscreenCanvas(width, height);
+  let canvas;
+
+  // Check if OffscreenCanvas is available in the current environment (also check it for webworkers!)
+  if (typeof OffscreenCanvas !== 'undefined') {
+    canvas = new OffscreenCanvas(width, height);
+  } else {
+    canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+  }
   const context = canvas.getContext('2d');
 
   if (!context) {
@@ -128,7 +137,7 @@ export function getTextSize(
 }
 
 function measureTextWithNewlines(
-  context: OffscreenCanvasRenderingContext2D,
+  context: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D,
   text: string,
   fontSize: number,
   fontFamily: string,
