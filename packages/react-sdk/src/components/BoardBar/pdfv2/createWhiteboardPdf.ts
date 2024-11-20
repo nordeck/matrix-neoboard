@@ -27,7 +27,8 @@ export function createWhiteboardPdf(params: {
 }): Observable<Blob> {
   const whiteboardExport = params.whiteboardInstance.export(params.widgetApi);
 
-  if (window.Worker) {
+  // Use local mode for tests
+  if (window.Worker && import.meta.env.MODE !== 'test') {
     const worker = new Worker(new URL('./pdf.worker.ts', import.meta.url), {
       type: 'module',
     });

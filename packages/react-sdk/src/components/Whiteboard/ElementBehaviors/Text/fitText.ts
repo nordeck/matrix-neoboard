@@ -145,6 +145,9 @@ function measureTextWithNewlines(
   fontSize: number,
   fontFamily: string,
 ): { width: number; height: number } {
+  if (!text) {
+    return { width: 0, height: 0 };
+  }
   const lines = text.split('\n');
   let maxWidth = 0;
   let totalHeight = 0;
