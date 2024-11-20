@@ -41,7 +41,7 @@ export function image(element: ImageElement, base64content: string): Content {
 }
 
 function preprocessSvg(element: ImageElement, svg: string): string {
-  console.log(element)
+  console.log(element);
   if (element.mimeType !== 'image/svg+xml') {
     return svg;
   }
@@ -55,13 +55,13 @@ function preprocessSvg(element: ImageElement, svg: string): string {
     return svg;
   }
 
-  console.log(svgString)
+  console.log(svgString);
 
   // Parse the svg string
   const parser = new DOMParser();
   const doc = parser.parseFromString(svgString, 'image/svg+xml');
   const svgElement = doc.documentElement;
-  console.log(svgElement)
+  console.log(svgElement);
 
   // Check if a size is set and if not set it to the size from the viewbox
   if (!svgElement.getAttribute('width') || !svgElement.getAttribute('height')) {
@@ -74,12 +74,11 @@ function preprocessSvg(element: ImageElement, svg: string): string {
       svgElement.setAttribute('height', element.height.toString());
     }
   }
-  console.log(svgElement)
+  console.log(svgElement);
 
   // Convert the svg element to a string
   const serializer = new XMLSerializer();
   const svgStringProcessed = serializer.serializeToString(svgElement);
-
 
   // Convert the svg string to base64
   return btoa(svgStringProcessed);

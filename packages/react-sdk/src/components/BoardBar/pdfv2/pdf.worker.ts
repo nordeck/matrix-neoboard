@@ -22,11 +22,11 @@ if (import.meta.hot) {
   const RefreshRuntime = await import('/@react-refresh');
   RefreshRuntime.injectIntoGlobalHook(self);
   // @ts-expect-error - HMR workaround for https://github.com/vitejs/vite/issues/5396
-  self.$RefreshReg$ = () => { };
+  self.$RefreshReg$ = () => {};
   // @ts-expect-error - HMR workaround for https://github.com/vitejs/vite/issues/5396
-  self.$RefreshSig$ = () => type => type;
+  self.$RefreshSig$ = () => (type) => type;
   // @ts-expect-error - HMR workaround for https://github.com/vitejs/vite/issues/5396
-  window.__vite_plugin_react_preamble_installed__ = true
+  window.__vite_plugin_react_preamble_installed__ = true;
 }
 
 // A Web Worker that generates the PDF in the background

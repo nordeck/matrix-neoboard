@@ -15,12 +15,11 @@
  */
 
 import { Document, Page, Svg } from '@react-pdf/renderer';
-import { WhiteboardDocumentExport } from '../../../state/export/whiteboardDocumentExport';
-import { PDFElementImage } from './elements/PDFElementImage';
-import { whiteboardHeight, whiteboardWidth } from '../../Whiteboard/constants';
-import PDFElementShape from './elements/PDFElementShape';
 import { Fragment } from 'react';
-
+import { WhiteboardDocumentExport } from '../../../state/export/whiteboardDocumentExport';
+import { whiteboardHeight, whiteboardWidth } from '../../Whiteboard/constants';
+import { PDFElementImage } from './elements/PDFElementImage';
+import PDFElementShape from './elements/PDFElementShape';
 
 export type PDFProps = {
   exportData: WhiteboardDocumentExport;
@@ -34,8 +33,12 @@ export const PDFComponent = ({ exportData }: PDFProps) => {
     <Document>
       {slides.map((slide, i) => {
         const elements = slide.elements;
-        const svgEleemnts = elements.filter((element) => element.type !== 'image');
-        const imageElements = elements.filter((element) => element.type === 'image');
+        const svgEleemnts = elements.filter(
+          (element) => element.type !== 'image',
+        );
+        const imageElements = elements.filter(
+          (element) => element.type === 'image',
+        );
 
         return (
           <Page key={i} size={[whiteboardWidth, whiteboardHeight]}>
@@ -45,9 +48,7 @@ export const PDFComponent = ({ exportData }: PDFProps) => {
                 const type = element.type;
                 return (
                   <Fragment key={j}>
-                    {type === 'shape' && (
-                      <PDFElementShape element={element} />
-                    )}
+                    {type === 'shape' && <PDFElementShape element={element} />}
                   </Fragment>
                 );
               })}

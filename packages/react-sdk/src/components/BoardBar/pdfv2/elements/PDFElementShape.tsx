@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-import { Ellipse, Polygon, Rect, Text } from "@react-pdf/renderer";
-import { ShapeElement } from "../../../../state";
-import { getTextSize } from "../../../Whiteboard/ElementBehaviors/Text/fitText";
+import { Ellipse, Polygon, Rect, Text } from '@react-pdf/renderer';
+import { ShapeElement } from '../../../../state';
+import { getTextSize } from '../../../Whiteboard/ElementBehaviors/Text/fitText';
 import { getRenderProperties as getRenderRectangleProperties } from '../../../elements/rectangle/getRenderProperties';
-
 
 export default function PDFElementShape({
   element,
@@ -26,8 +25,9 @@ export default function PDFElementShape({
   element: ShapeElement;
 }) {
   switch (element.kind) {
-    case "rectangle": {
-      const { strokeColor, strokeWidth } = getRenderRectangleProperties(element);
+    case 'rectangle': {
+      const { strokeColor, strokeWidth } =
+        getRenderRectangleProperties(element);
 
       const { fontSize, textWidth } = getTextSize(
         element.width,
@@ -42,8 +42,10 @@ export default function PDFElementShape({
           y={element.position.y}
           width={element.width}
           height={element.height}
-          fill={element.fillColor === "transparent" ? undefined : element.fillColor}
-          stroke={strokeColor === "transparent" ? undefined : strokeColor}
+          fill={
+            element.fillColor === 'transparent' ? undefined : element.fillColor
+          }
+          stroke={strokeColor === 'transparent' ? undefined : strokeColor}
           strokeWidth={strokeWidth}
           rx={element.borderRadius}
           ry={element.borderRadius}
@@ -55,38 +57,50 @@ export default function PDFElementShape({
               fill={element.textColor}
               style={{
                 fontSize: fontSize,
-                fontWeight: element.textBold ? "bold" : "normal",
-                fontStyle: element.textItalic ? "italic" : "normal",
+                fontWeight: element.textBold ? 'bold' : 'normal',
+                fontStyle: element.textItalic ? 'italic' : 'normal',
               }}
             >
               {element.text}
             </Text>
           )}
-        </Rect >
+        </Rect>
       );
     }
-    case "ellipse":
-    case "circle":
+    case 'ellipse':
+    case 'circle':
       return (
         <Ellipse
           cx={element.position.x + element.width / 2}
           cy={element.position.y + element.height / 2}
           rx={element.width / 2}
           ry={element.height / 2}
-          fill={element.fillColor === "transparent" ? undefined : element.fillColor}
-          stroke={element.strokeColor === "transparent" ? undefined : element.strokeColor}
+          fill={
+            element.fillColor === 'transparent' ? undefined : element.fillColor
+          }
+          stroke={
+            element.strokeColor === 'transparent'
+              ? undefined
+              : element.strokeColor
+          }
           strokeWidth={element.strokeWidth}
         />
       );
-    case "triangle":
+    case 'triangle':
       return (
         <Polygon
           points={`${element.position.x},${element.position.y + element.height} ${element.position.x + element.width},${element.position.y + element.height} ${element.position.x + element.width / 2},${element.position.y}`}
-          fill={element.fillColor === "transparent" ? undefined : element.fillColor}
-          stroke={element.strokeColor === "transparent" ? undefined : element.strokeColor}
+          fill={
+            element.fillColor === 'transparent' ? undefined : element.fillColor
+          }
+          stroke={
+            element.strokeColor === 'transparent'
+              ? undefined
+              : element.strokeColor
+          }
           strokeWidth={element.strokeWidth}
         />
-      )
+      );
 
     default:
       return null;

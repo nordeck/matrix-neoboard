@@ -76,11 +76,21 @@ export function getTextSize(
   for (let i = 0; i < maxSteps; ++i) {
     const lastFontSize = fontSize;
     stepSize /= 2;
-    fontSize = Math.max(minFontSize, Math.min(fontSize + stepSize, maxFontSize));
+    fontSize = Math.max(
+      minFontSize,
+      Math.min(fontSize + stepSize, maxFontSize),
+    );
 
-    const { width: textWidth, height: textHeight } = measureText(context, content.innerText, fontSize, fontFamily);
+    const { width: textWidth, height: textHeight } = measureText(
+      context,
+      content.innerText,
+      fontSize,
+      fontFamily,
+    );
 
-    const fits = textWidth <= (width - (paddingHorizontal * 2) - safetyMargin) && textHeight <= (height / 2 - safetyMargin);
+    const fits =
+      textWidth <= width - paddingHorizontal * 2 - safetyMargin &&
+      textHeight <= height / 2 - safetyMargin;
 
     if (!fits) {
       fontSize = lastFontSize;
@@ -90,7 +100,12 @@ export function getTextSize(
   fontSize = Math.round(fontSize);
 
   const paddingTop = height / 2 - fontSize / 2;
-  const { width: textWidth } = measureText(context, content.innerText, fontSize, fontFamily);
+  const { width: textWidth } = measureText(
+    context,
+    content.innerText,
+    fontSize,
+    fontFamily,
+  );
 
   return {
     fontSize,
@@ -99,9 +114,15 @@ export function getTextSize(
     textWidth,
   };
 }
-function measureText(context: OffscreenCanvasRenderingContext2D, text: string, fontSize: number, fontFamily: string): { width: number, height: number } {
+function measureText(
+  context: OffscreenCanvasRenderingContext2D,
+  text: string,
+  fontSize: number,
+  fontFamily: string,
+): { width: number; height: number } {
   context.font = `${fontSize}px ${fontFamily}`;
   const metrics = context.measureText(text);
-  const textHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
+  const textHeight =
+    metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
   return { width: metrics.width, height: textHeight };
 }

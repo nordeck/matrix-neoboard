@@ -34,7 +34,7 @@ export function createWhiteboardPdf(params: {
     worker.onmessageerror = (e) => {
       console.error('Worker error', e);
       worker.terminate();
-    }
+    };
 
     // Post the whiteboard instance to the worker and then return the blob that the worker sends back to us when it's done.
     // We must return an observable that emits the blob and then completes.
@@ -54,14 +54,16 @@ export function createWhiteboardPdf(params: {
 
         if (import.meta.hot) {
           // Delay the post message to the worker to ensure the worker is ready to receive it.
-          new Promise(resolve => setTimeout(resolve, 2000)).then(() => {
-            console.log('Posting message to worker');
-            worker.postMessage(exportData);
-            return;
-          }).catch((e) => {
-            console.error('Error posting message to worker', e);
-            worker.terminate();
-          });
+          new Promise((resolve) => setTimeout(resolve, 2000))
+            .then(() => {
+              console.log('Posting message to worker');
+              worker.postMessage(exportData);
+              return;
+            })
+            .catch((e) => {
+              console.error('Error posting message to worker', e);
+              worker.terminate();
+            });
         } else {
           // Note that we cant directly return the stream as it needs to be Observable<Blob> and not Observable<MessageEvent<Blob>
           console.log('Posting message to worker');
@@ -82,23 +84,29 @@ export function createWhiteboardPdf(params: {
     // Async import pdf.local.ts and thn call renderPDF with the whiteboard export data which is a promise too.
     return from(import('./pdf.local')).pipe(
       switchMap(({ renderPDF }) =>
-        from(whiteboardExport).pipe(switchMap((exportData) => {
-          // Convert all images which are not png or jpeg to png
-          exportData = convertAllImagesToPNG(exportData);
-          return renderPDF(exportData);
-        })),
+        from(whiteboardExport).pipe(
+          switchMap((exportData) => {
+            // Convert all images which are not png or jpeg to png
+            exportData = convertAllImagesToPNG(exportData);
+            return renderPDF(exportData);
+          }),
+        ),
       ),
       take(1),
     );
   }
 }
 
-function convertAllImagesToPNG(exportData: WhiteboardDocumentExport): WhiteboardDocumentExport {
+function convertAllImagesToPNG(
+  exportData: WhiteboardDocumentExport,
+): WhiteboardDocumentExport {
   // Convert all images which are not png or jpeg to png
   exportData.whiteboard.slides.forEach((slide) => {
     slide.elements.forEach((element) => {
       if (element.type === 'image' && element.mimeType !== 'image/png') {
-        const file = exportData.whiteboard.files?.find((f) => f.mxc === element.mxc);
+        const file = exportData.whiteboard.files?.find(
+          (f) => f.mxc === element.mxc,
+        );
         if (file) {
           const data = conv2png(element, file.data);
           file.data = data;
