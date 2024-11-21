@@ -135,13 +135,13 @@ function ExportWhiteboardDialogContent({
             <MenuItem value="pdf">
               {t(
                 'boardBar.exportWhiteboardDialog.fileFormat.pdf',
-                'PDF-File (.pdf)',
+                'PDF file (.pdf)',
               )}
             </MenuItem>
             <MenuItem value="nwb">
               {t(
                 'boardBar.exportWhiteboardDialog.fileFormat.nwb',
-                'NeoBoard-File (.nwb)',
+                'NeoBoard file (.nwb)',
               )}
             </MenuItem>
           </Select>
