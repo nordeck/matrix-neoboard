@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { Base64 } from 'js-base64';
 import { clone } from 'lodash';
 import { getLogger } from 'loglevel';
@@ -33,8 +34,10 @@ import {
   throttle,
   throttleTime,
 } from 'rxjs';
+import { svg2preview } from '../components/Whiteboard/SvgCanvas/utils';
 import { isDefined } from '../lib';
 import {
+  documentPreviewApi,
   documentSnapshotApi,
   setSnapshotFailed,
   setSnapshotSuccessful,
@@ -161,6 +164,8 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
               this.logger.error('Could not store snapshot for', documentId, e);
               this.store.dispatch(setSnapshotFailed());
             }
+
+            await this.createDocumentPreviewIfEnabled(documentId);
           },
           { leading: true, trailing: true },
         ),
@@ -177,6 +182,25 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
           documentStatistics.contentSizeInBytes;
         this.notifyStatistics();
       });
+  }
+
+  private async createDocumentPreviewIfEnabled(documentId: string) {
+    const previewsEnabled =
+      getEnvironment('REACT_APP_PREVIEWS', 'false') === 'true';
+
+    const d = window.document;
+    const el = d.querySelector<SVGElement>('#document-preview svg') as unknown;
+
+    // we also take the opportunity to store a preview of the document
+    if (previewsEnabled && el !== null) {
+      try {
+        const svg = el as HTMLElement;
+        const documentPreview = await svg2preview(svg);
+        await this.createDocumentPreview(documentId, documentPreview);
+      } catch (e) {
+        this.logger.error('Could not store preview for', documentId, e);
+      }
+    }
   }
 
   getDocument() {
@@ -228,6 +252,20 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
     await this.store
       .dispatch(
         documentSnapshotApi.endpoints.createDocumentSnapshot.initiate({
+          documentId,
+          data,
+        }),
+      )
+      .unwrap();
+  }
+
+  private async createDocumentPreview(
+    documentId: string,
+    data: string,
+  ): Promise<void> {
+    await this.store
+      .dispatch(
+        documentPreviewApi.endpoints.createDocumentPreview.initiate({
           documentId,
           data,
         }),

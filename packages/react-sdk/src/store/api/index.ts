@@ -16,6 +16,10 @@
 
 export { baseApi } from './baseApi';
 export {
+  documentPreviewApi,
+  useGetDocumentPreviewQuery,
+} from './documentPreviewApi';
+export {
   documentSnapshotApi,
   useCreateDocumentMutation,
 } from './documentSnapshotApi';
