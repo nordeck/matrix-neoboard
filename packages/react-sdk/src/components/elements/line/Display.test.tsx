@@ -16,8 +16,16 @@
 
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { render, screen } from '@testing-library/react';
-import { ComponentType, PropsWithChildren } from 'react';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { ComponentType, PropsWithChildren, useId } from 'react';
+import {
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
 import {
   WhiteboardTestingContextProvider,
   mockLineElement,
@@ -27,11 +35,22 @@ import { LayoutStateProvider } from '../../Layout';
 import { SvgCanvas } from '../../Whiteboard/SvgCanvas';
 import Display from './Display';
 
+vi.mock('react', async (importActual) => ({
+  ...(await importActual()),
+  useId: vi.fn(),
+}));
+
 describe('<Display />', () => {
+  let reactUseId = 1;
   let widgetApi: MockedWidgetApi;
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
 
+  beforeAll(() => {
+    vi.mocked(useId).mockImplementation(() => `id-${reactUseId++}`);
+  });
+
   beforeEach(() => {
+    reactUseId = 1;
     widgetApi = mockWidgetApi();
 
     const { whiteboardManager } = mockWhiteboardManager();
@@ -56,7 +75,7 @@ describe('<Display />', () => {
     widgetApi.stop();
   });
 
-  it('should render without exploding', () => {
+  it('should render as expected', () => {
     const element = mockLineElement();
     render(
       <Display
@@ -72,12 +91,24 @@ describe('<Display />', () => {
       },
     );
 
-    expect(
-      screen.queryByTestId('element-0-end-marker'),
-    ).not.toBeInTheDocument();
+    expect(screen.getByTestId('element-element-0')).toMatchInlineSnapshot(`
+      <g
+        data-testid="element-element-0"
+      >
+        <line
+          fill="none"
+          stroke="#ffffff"
+          stroke-width="4"
+          x1="0"
+          x2="2"
+          y1="2"
+          y2="4"
+        />
+      </g>
+    `);
   });
 
-  it('should render an end marker', () => {
+  it('should render with an end marker as epxected', () => {
     const element = mockLineElement({ endMarker: 'arrow-head-line' });
     render(
       <Display
@@ -93,6 +124,37 @@ describe('<Display />', () => {
       },
     );
 
-    expect(screen.getByTestId('element-0-end-marker')).toBeInTheDocument();
+    expect(screen.getByTestId('element-element-0')).toMatchInlineSnapshot(`
+      <g
+        data-testid="element-element-0"
+      >
+        <marker
+          data-testid="end-marker-id-1"
+          fill="none"
+          id="end-marker-id-1"
+          markerHeight="7"
+          markerWidth="3.5"
+          orient="auto"
+          refX="3.5"
+          refY="3.5"
+          viewBox="0 0 3.5 7"
+        >
+          <path
+            d="M0 0 L3.5 3.5 M3.5 3.5 L0 7"
+            stroke="#ffffff"
+          />
+        </marker>
+        <line
+          fill="none"
+          marker-end="url(#end-marker-id-1)"
+          stroke="#ffffff"
+          stroke-width="4"
+          x1="0"
+          x2="2"
+          y1="2"
+          y2="4"
+        />
+      </g>
+    `);
   });
 });
