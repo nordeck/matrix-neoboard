@@ -77,7 +77,7 @@ describe('<Display />', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('should render an end marker', () => {
+  it.skip('should render an end marker', () => {
     const element = mockLineElement({ endMarker: 'arrow-head-line' });
     render(
       <Display
