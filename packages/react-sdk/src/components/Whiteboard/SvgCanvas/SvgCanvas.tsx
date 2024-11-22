@@ -137,6 +137,7 @@ export function SvgCanvas({
             viewBox={`0 0 ${viewportWidth} ${viewportHeight}`}
             onMouseDown={onMouseDown}
             onMouseMove={handleMouseMove}
+            xmlns="http://www.w3.org/2000/svg"
           >
             {children}
           </Canvas>

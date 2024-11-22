@@ -37,3 +37,18 @@ export function calculateScale(
   const heightRatio = height / viewportHeight;
   return Math.max(widthRatio, heightRatio);
 }
+
+export async function svg2preview(html: HTMLElement): Promise<string> {
+  const encoder = new TextEncoder();
+  const uint8Array = encoder.encode(html.outerHTML);
+
+  const compressedStream = new Response(
+    new Blob([uint8Array]).stream().pipeThrough(new CompressionStream('gzip')),
+  ).arrayBuffer();
+
+  const compressedUint8Array = new Uint8Array(await compressedStream);
+  const binaryString = String.fromCharCode(...compressedUint8Array);
+  const base64String = btoa(binaryString);
+
+  return base64String;
+}

@@ -7,6 +7,12 @@ The Matrix protocol is used as the base communication and storage layer for the 
 The whiteboard state is stored using the following events in a Matrix room:
 
 ```
+┌────────────────────────────────┐
+│                                │
+│ net.nordeck.whiteboard.preview │
+│                                │
+└────────────────────────────────┘
+
 ┌────────────────────────────────┐                  ┌─────────────────────────────────┐
 │                                │                  │                                 │
 │ net.nordeck.whiteboard         │◄─────────────────┤ net.nordeck.whiteboard.sessions │
@@ -99,6 +105,36 @@ The `state_key` of the event is also referred to as _whiteboard id_.
   "state_key": "<whiteboard-id>",
   "content": {
     "documentId": "$H1-nssrxUGbrMdKSDJcACCpmc4PrClb2WDSOrGUv6bs"
+  },
+  "event_id": "$event-id",
+  "room_id": "!room-id",
+  "origin_server_ts": 1665134498391
+}
+```
+
+### `net.nordeck.whiteboard.preview` (State Event)
+
+Holds a gzipped, base64 encoded preview of the whiteboard's first slide in SVG format.
+This is useful for Matrix clients that wish to show a preview of the whiteboard's contents but
+because state events are not encrypted, preview data can be made available to users that are not members
+of the room. If the gzipped, base64 encoded SVG exceeds the size that an event can hold,
+then the preview content is removed and not updated again until if fits within the size limit.
+
+#### Content
+
+| Field     | Type     | Description                                                                                               |
+| --------- | -------- | --------------------------------------------------------------------------------------------------------- |
+| `preview` | `string` | A gzipped, base64 encoded string that can be used by matrix clients to show a preview of the first slide. |
+
+#### Example
+
+```json
+{
+  "type": "net.nordeck.whiteboard.preview",
+  "sender": "@user-id",
+  "state_key": "",
+  "content": {
+    "preview": "4sIAAAAAAAAA91WTW/bMA..."
   },
   "event_id": "$event-id",
   "room_id": "!room-id",

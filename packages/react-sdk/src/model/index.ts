@@ -31,6 +31,11 @@ export type { DocumentChunk } from './documentChunk';
 export { ROOM_EVENT_DOCUMENT_CREATE } from './documentCreate';
 export type { DocumentCreate } from './documentCreate';
 export {
+  STATE_EVENT_DOCUMENT_PREVIEW,
+  isValidDocumentPreviewEvent,
+} from './documentPreview';
+export type { DocumentPreviewEvent } from './documentPreview';
+export {
   ROOM_EVENT_DOCUMENT_SNAPSHOT,
   isValidDocumentSnapshotRoomEvent,
 } from './documentSnapshot';

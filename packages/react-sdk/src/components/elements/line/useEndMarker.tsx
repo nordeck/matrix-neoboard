@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { ReactElement } from 'react';
+import { ReactElement, useId } from 'react';
 import { PathElement } from '../../../state';
 import { ArrowHeadLineEndMarker } from './ArrowHeadLineEndMarker';
 
@@ -47,7 +47,8 @@ export function useEndMarker(
   elementId: string,
   element: PathElement,
 ): UseEndMarkerResult {
-  const endMarkerId = `${elementId}-end-marker`;
+  const randomId = useId();
+  const endMarkerId = `${elementId}-${randomId}-end-marker`;
 
   if (element.endMarker === 'arrow-head-line') {
     return {
