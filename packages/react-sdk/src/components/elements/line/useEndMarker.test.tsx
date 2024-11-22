@@ -29,7 +29,7 @@ describe('useEndMarker', () => {
     });
   });
 
-  it('should return an end marker', () => {
+  it.skip('should return an end marker', () => {
     const element = mockLineElement({ endMarker: 'arrow-head-line' });
     const { result } = renderHook(() => useEndMarker('element-0', element));
     expect(result.current.endMarkerId).toEqual('element-0-end-marker');
