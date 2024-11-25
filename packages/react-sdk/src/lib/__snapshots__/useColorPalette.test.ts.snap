@@ -5,10 +5,6 @@ exports[`useColorPalette > should return the expected palette including transpar
   "current": {
     "colorPalette": [
       {
-        "color": "transparent",
-        "label": "Transparent",
-      },
-      {
         "color": "#fff",
         "label": "White",
       },
@@ -262,6 +258,10 @@ exports[`useColorPalette > should return the expected palette including transpar
       {
         "color": "#000",
         "label": "Black",
+      },
+      {
+        "color": "transparent",
+        "label": "Transparent",
       },
     ],
     "defaultColor": "#9e9e9e",
