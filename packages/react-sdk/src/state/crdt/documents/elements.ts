@@ -104,23 +104,6 @@ export type ImageMimeType =
   | 'image/png'
   | 'image/svg+xml';
 
-/**
- * Signatures to detect the mimetype.
- *
- * These are the base64 signatures for the files we support.
- * This is NOT a bullet proof way to detect the mimetype.
- * However we do not have a way to do this via browser APIs.
- *
- * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
- */
-export const ImageSignatures = {
-  JVBERi0: 'application/pdf',
-  R0lGODdh: 'image/gif',
-  R0lGODlh: 'image/gif',
-  iVBORw0KGgo: 'image/png',
-  '/9j/': 'image/jpg',
-} as const;
-
 export type ImageElement = ElementBase & {
   type: 'image';
   width: number;
