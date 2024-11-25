@@ -77,14 +77,6 @@ export const useColorPalette = (
     };
 
     const colorPalette = [
-      ...(hasTransparent
-        ? [
-            {
-              label: t('colorPicker.colors.transparent', 'Transparent'),
-              color: 'transparent',
-            },
-          ]
-        : []),
       {
         label: t('colorPicker.colors.white', 'White'),
         color: common.white,
@@ -180,6 +172,14 @@ export const useColorPalette = (
         label: t('colorPicker.colors.black', 'Black'),
         color: common.black,
       },
+      ...(hasTransparent
+        ? [
+            {
+              label: t('colorPicker.colors.transparent', 'Transparent'),
+              color: 'transparent',
+            },
+          ]
+        : []),
     ];
 
     return {

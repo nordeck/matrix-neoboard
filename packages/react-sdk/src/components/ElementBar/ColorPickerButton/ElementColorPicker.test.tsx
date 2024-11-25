@@ -25,7 +25,6 @@ import {
   lightGreen,
   pink,
   red,
-  teal,
   yellow,
 } from '@mui/material/colors';
 import { act, render, screen, within } from '@testing-library/react';
@@ -123,7 +122,6 @@ describe('<ElementColorPicker/>', () => {
         .getAllByRole('button')
         .map((e) => [e.getAttribute('aria-label'), e.getAttribute('tabindex')]),
     ).toEqual([
-      ['Transparent', '-1'],
       ['White', '-1'],
       ['Red', '-1'],
       ['Pink', '-1'],
@@ -134,6 +132,7 @@ describe('<ElementColorPicker/>', () => {
       ['Light blue', '-1'],
       ['Cyan', '-1'],
       ['Teal', '-1'],
+      ['Green', '-1'],
     ]);
 
     expect(
@@ -141,7 +140,6 @@ describe('<ElementColorPicker/>', () => {
         .getAllByRole('button')
         .map((e) => [e.getAttribute('aria-label'), e.getAttribute('tabindex')]),
     ).toEqual([
-      ['Green', '-1'],
       ['Light green', '-1'],
       ['Lime', '-1'],
       ['Yellow', '-1'],
@@ -152,6 +150,7 @@ describe('<ElementColorPicker/>', () => {
       ['Grey', '0'],
       ['Blue grey', '-1'],
       ['Black', '-1'],
+      ['Transparent', '-1'],
     ]);
   });
 
@@ -293,10 +292,10 @@ describe('<ElementColorPicker/>', () => {
     ${green[500]}      | ${'Green'}       | ${'[ArrowRight]'}               | ${'Light green'} | ${lightGreen[500]}
     ${yellow[500]}     | ${'Yellow'}      | ${'[ArrowUp]'}                  | ${'Pink'}        | ${pink[500]}
     ${lightBlue[500]}  | ${'Light blue'}  | ${'[ArrowDown]'}                | ${'Grey'}        | ${grey[500]}
-    ${grey[500]}       | ${'Grey'}        | ${'[Home]'}                     | ${'Green'}       | ${green[500]}
-    ${grey[500]}       | ${'Grey'}        | ${'{Control>}{Home}{/Control}'} | ${'Transparent'} | ${grey[500]}
-    ${lightBlue[500]}  | ${'Light blue'}  | ${'[End]'}                      | ${'Teal'}        | ${teal[500]}
-    ${lightBlue[500]}  | ${'Light blue'}  | ${'{Control>}{End}{/Control}'}  | ${'Black'}       | ${common.black}
+    ${grey[500]}       | ${'Grey'}        | ${'[Home]'}                     | ${'Light green'} | ${lightGreen[500]}
+    ${grey[500]}       | ${'Grey'}        | ${'{Control>}{Home}{/Control}'} | ${'White'}       | ${common.white}
+    ${lightBlue[500]}  | ${'Light blue'}  | ${'[End]'}                      | ${'Green'}       | ${green[500]}
+    ${lightBlue[500]}  | ${'Light blue'}  | ${'{Control>}{End}{/Control}'}  | ${'Transparent'} | ${lightBlue[500]}
     ${yellow[500]}     | ${'Yellow'}      | ${'[PageUp]'}                   | ${'Pink'}        | ${pink[500]}
     ${lightBlue[500]}  | ${'Light blue'}  | ${'[PageDown]'}                 | ${'Grey'}        | ${grey[500]}
   `(
@@ -339,7 +338,26 @@ describe('<ElementColorPicker/>', () => {
   );
 
   it('should not move focus to left if the focus is on the first element', async () => {
-    activeSlide.setActiveElementIds(['element-4']);
+    const element = mockEllipseElement({ fillColor: common.white });
+    const elementId = activeSlide.addElement(element);
+    activeSlide.setActiveElementIds([elementId]);
+
+    render(<ElementColorPicker />, { wrapper: Wrapper });
+
+    await userEvent.click(screen.getByRole('button', { name: 'Pick a color' }));
+    const grid = await screen.findByRole('grid', { name: 'Colors' });
+
+    expect(within(grid).getByRole('button', { name: 'White' })).toHaveFocus();
+
+    await userEvent.keyboard('[ArrowLeft]');
+
+    expect(screen.getByRole('button', { name: 'White' })).toHaveFocus();
+  });
+
+  it('should not move focus to right if the focus is on the last element', async () => {
+    const element = mockEllipseElement({ fillColor: 'transparent' });
+    const elementId = activeSlide.addElement(element);
+    activeSlide.setActiveElementIds([elementId]);
 
     render(<ElementColorPicker />, { wrapper: Wrapper });
 
@@ -350,26 +368,9 @@ describe('<ElementColorPicker/>', () => {
       within(grid).getByRole('button', { name: 'Transparent' }),
     ).toHaveFocus();
 
-    await userEvent.keyboard('[ArrowLeft]');
-
-    expect(screen.getByRole('button', { name: 'Transparent' })).toHaveFocus();
-  });
-
-  it('should not move focus to right if the focus is on the last element', async () => {
-    const element = mockEllipseElement({ fillColor: common.black });
-    const elementId = activeSlide.addElement(element);
-    activeSlide.setActiveElementIds([elementId]);
-
-    render(<ElementColorPicker />, { wrapper: Wrapper });
-
-    await userEvent.click(screen.getByRole('button', { name: 'Pick a color' }));
-    const grid = await screen.findByRole('grid', { name: 'Colors' });
-
-    expect(within(grid).getByRole('button', { name: 'Black' })).toHaveFocus();
-
     await userEvent.keyboard('[ArrowRight]');
 
-    expect(screen.getByRole('button', { name: 'Black' })).toHaveFocus();
+    expect(screen.getByRole('button', { name: 'Transparent' })).toHaveFocus();
   });
 
   it('should not be hidden when selected color is transparent', async () => {
