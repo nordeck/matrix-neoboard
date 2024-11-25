@@ -165,7 +165,10 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
               this.store.dispatch(setSnapshotFailed());
             }
 
-            await this.createDocumentPreviewIfEnabled(documentId);
+            // Do not wait for the preview
+            this.createDocumentPreviewIfEnabled(documentId).catch((e) => {
+              console.error('Error creating preview', e);
+            });
           },
           { leading: true, trailing: true },
         ),
