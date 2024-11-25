@@ -106,6 +106,5 @@ function addImageToSlide(
     ...fittedSize,
     mxc: uploadResult.mxc,
     fileName: uploadResult.fileName,
-    mimeType: uploadResult.mimeType,
   });
 }

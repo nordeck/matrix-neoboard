@@ -41,26 +41,27 @@ export async function createWhiteboardPdfDefinition({
   return {
     pageMargins: 0,
     pageSize: { width: whiteboardWidth, height: whiteboardHeight },
-    content: whiteboardInstance
-      .getSlideIds()
-      .map<Content | undefined>((slideId, idx) => {
-        const slide = whiteboardInstance.getSlide(slideId);
+    content: (
+      await Promise.all(
+        whiteboardInstance.getSlideIds().map(async (slideId, idx) => {
+          const slide = whiteboardInstance.getSlide(slideId);
 
-        if (slide) {
-          return {
-            stack: [
-              createWhiteboardPdfContentSlide(
-                slide,
-                whiteboardExport.whiteboard.files,
-              ),
-            ],
-            pageBreak: idx > 0 ? 'before' : undefined,
-          };
-        }
+          if (slide) {
+            return {
+              stack: [
+                await createWhiteboardPdfContentSlide(
+                  slide,
+                  whiteboardExport.whiteboard.files,
+                ),
+              ],
+              pageBreak: idx > 0 ? 'before' : undefined,
+            } as Content;
+          }
 
-        return undefined;
-      })
-      .filter(isDefined),
+          return undefined;
+        }),
+      )
+    ).filter(isDefined),
     version: '1.5',
     styles: {
       emoji: {

@@ -21,30 +21,32 @@ import { createWhiteboardPdfElementImage } from './createWhiteboardPdfElementIma
 import { createWhiteboardPdfElementPath } from './createWhiteboardPdfElementPath';
 import { createWhiteboardPdfElementShape } from './createWhiteboardPdfElementShape';
 
-export function createWhiteboardPdfContentSlide(
+export async function createWhiteboardPdfContentSlide(
   slideInstance: WhiteboardSlideInstance,
   files?: Array<WhiteboardFileExport>,
-): Content {
-  return slideInstance.getElementIds().map((elementId) => {
-    const element = slideInstance.getElement(elementId);
+): Promise<Content> {
+  return await Promise.all(
+    slideInstance.getElementIds().map(async (elementId) => {
+      const element = slideInstance.getElement(elementId);
 
-    switch (element?.type) {
-      case 'shape':
-        return createWhiteboardPdfElementShape(element);
+      switch (element?.type) {
+        case 'shape':
+          return createWhiteboardPdfElementShape(element);
 
-      case 'path':
-        return createWhiteboardPdfElementPath(element);
+        case 'path':
+          return createWhiteboardPdfElementPath(element);
 
-      case 'image':
-        if (!files) {
-          console.error('No files provided for image element', element);
+        case 'image':
+          if (!files) {
+            console.error('No files provided for image element', element);
+            return [];
+          }
+          return await createWhiteboardPdfElementImage(element, files!);
+
+        default:
+          console.error('Unknown element type', element);
           return [];
-        }
-        return createWhiteboardPdfElementImage(element, files!);
-
-      default:
-        console.error('Unknown element type', element);
-        return [];
-    }
-  });
+      }
+    }),
+  );
 }

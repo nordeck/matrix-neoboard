@@ -31,7 +31,15 @@ export function canvas(element: CanvasElement): Content {
 }
 
 export function image(element: ImageElement, base64content: string): Content {
-  const dataURL = 'data:' + element.mimeType + ';base64,' + base64content;
+  // Cheap way to detect image type
+  const decoded = atob(base64content).trim();
+  let mimeType = 'image/png';
+  // Note: JFIF is the magic string in JPEG files.
+  if (decoded.includes('JFIF')) {
+    mimeType = 'image/jpeg';
+  }
+
+  const dataURL = 'data:' + mimeType + ';base64,' + base64content;
   return {
     image: dataURL,
     width: element.width,
@@ -40,70 +48,71 @@ export function image(element: ImageElement, base64content: string): Content {
   };
 }
 
-/**
- * This ensures that the svg is meeting the following conditions:
- *
- * - The width and height are set (required for the canvas to work)
- * - The svg is actually an svg
- *   - If the svg is not an svg we return the original string
- *   - If the svg is detected to be a png or jpeg we return the original string but set the mimetype accordingly
- *
- * @param element The element that is being processed
- * @param svg The base64 encoded svg string
- * @returns The base64 encoded svg string after the preprocessing
- */
-function preprocessSvg(element: ImageElement, svg: string): string {
-  if (element.mimeType !== 'image/svg+xml') {
-    return svg;
-  }
+function base64ToBlob(element: ImageElement, base64: string): Blob {
+  const decoded = atob(base64);
 
-  // Convert the svg base64 to the actual svg
-  const svgString = atob(svg);
+  const fileToImage = (decoded: string) => {
+    const byteNumbers = new Uint8Array(decoded.length);
 
-  // We lied in the past about the mimetype, so we need to check if the svg is actually an svg and otherwise return the original string
-  if (!svgString.includes('<svg')) {
-    element.mimeType = svgString.includes('PNG') ? 'image/png' : 'image/jpeg';
-    return svg;
-  }
-
-  // Parse the svg string
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(svgString, 'image/svg+xml');
-  const svgElement = doc.documentElement;
-
-  // Check if a size is set and if not set it to the size from the viewbox
-  if (!svgElement.getAttribute('width') || !svgElement.getAttribute('height')) {
-    const viewBox = svgElement.getAttribute('viewBox')?.split(' ');
-    if (viewBox) {
-      svgElement.setAttribute('width', viewBox[2]);
-      svgElement.setAttribute('height', viewBox[3]);
-    } else {
-      svgElement.setAttribute('width', element.width.toString());
-      svgElement.setAttribute('height', element.height.toString());
+    for (let i = 0; i < decoded.length; i++) {
+      byteNumbers[i] = decoded.charCodeAt(i);
     }
+    return new Blob([byteNumbers]);
+  };
+
+  // Check if we can parse it as an svg using DOMParser
+  try {
+    const parser = new DOMParser();
+    const svgDom = parser.parseFromString(decoded, 'image/svg+xml');
+
+    // Check if it's a valid svg
+    if (svgDom.documentElement.tagName !== 'svg') {
+      return fileToImage(decoded);
+    }
+
+    // Add xmlns attribute if it's missing
+    if (!svgDom.documentElement.getAttribute('xmlns')) {
+      svgDom.documentElement.setAttribute(
+        'xmlns',
+        'http://www.w3.org/2000/svg',
+      );
+    }
+
+    // Add width and height in case they are missing
+    if (!svgDom.documentElement.getAttribute('width')) {
+      svgDom.documentElement.setAttribute('width', element.width.toString());
+    }
+    if (!svgDom.documentElement.getAttribute('height')) {
+      svgDom.documentElement.setAttribute('height', element.height.toString());
+    }
+
+    // Convert to a blob
+    const svgString = new XMLSerializer().serializeToString(svgDom);
+    return new Blob([svgString], { type: 'image/svg+xml' });
+  } catch {
+    return fileToImage(decoded);
   }
-
-  // Convert the svg element to a string
-  const serializer = new XMLSerializer();
-  const svgStringProcessed = serializer.serializeToString(svgElement);
-
-  // Convert the svg string to base64
-  return btoa(svgStringProcessed);
 }
 
-export function conv2png(element: ImageElement, base64content: string): string {
-  // If we have a svg image we need to preprocess it for the canvas to work
-  if (element.mimeType === 'image/svg+xml') {
-    base64content = preprocessSvg(element, base64content);
-  }
+function saveLoadImage(url: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.addEventListener('load', () => resolve(img));
 
-  // If we now end up with a png or jpeg image we can return it early
-  if (element.mimeType === 'image/png' || element.mimeType === 'image/jpeg') {
-    return base64content;
-  }
+    img.addEventListener('error', (err) => reject(err));
 
-  const img = new Image();
-  img.src = 'data:' + element.mimeType + ';base64,' + base64content;
+    img.src = url;
+  });
+}
+
+export async function conv2png(
+  element: ImageElement,
+  base64content: string,
+): Promise<string> {
+  const blob = base64ToBlob(element, base64content);
+  const blobUrl = URL.createObjectURL(blob);
+
+  const img = await saveLoadImage(blobUrl);
 
   const canvas = document.createElement('canvas');
   [canvas.width, canvas.height] = [element.width, element.height];
@@ -111,7 +120,11 @@ export function conv2png(element: ImageElement, base64content: string): string {
   const ctx = canvas.getContext('2d') ?? new CanvasRenderingContext2D();
   ctx.drawImage(img, 0, 0, element.width, element.height);
 
-  return canvas.toDataURL('image/png').split(',')[1];
+  const dataURL = canvas.toDataURL('image/png').split(',')[1];
+  if (!dataURL) {
+    throw new Error('Failed to convert image to png');
+  }
+  return dataURL;
 }
 
 export function textContent(

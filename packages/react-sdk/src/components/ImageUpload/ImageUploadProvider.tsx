@@ -49,7 +49,6 @@ type UploadErrors = {
 
 export type ImageUploadResult = {
   fileName: string;
-  mimeType: ImageMimeType;
   size: Size;
   /**
    * MXC URI pointing to the uploaded image.
@@ -134,7 +133,6 @@ export function ImageUploadProvider({ children }: PropsWithChildren<{}>) {
         const uploadResult = await widgetApi.uploadFile(imageData);
         return {
           fileName: file.name,
-          mimeType: file.type,
           size,
           mxc: uploadResult.content_uri,
         };

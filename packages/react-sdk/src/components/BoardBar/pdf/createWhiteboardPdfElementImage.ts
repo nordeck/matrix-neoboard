@@ -19,19 +19,18 @@ import { ImageElement } from '../../../state';
 import { WhiteboardFileExport } from '../../../state/export/whiteboardDocumentExport';
 import { conv2png, image } from './utils';
 
-export function createWhiteboardPdfElementImage(
+export async function createWhiteboardPdfElementImage(
   element: ImageElement,
   files: WhiteboardFileExport[],
-): Content {
+): Promise<Content> {
   const file = files.find((f) => f.mxc === element.mxc);
   if (file) {
-    // pdfmake only supports png and jpeg images,
-    // so we use a canvas to convert other image types to png
-    // ref: https://pdfmake.github.io/docs/0.1/document-definition-object/images/
-    if (element.mimeType === 'image/png' || element.mimeType === 'image/jpeg') {
+    const decoded = atob(file.data).trim();
+    if (decoded.includes('PNG') || decoded.includes('JFIF')) {
+      // Note: JFIF is the magic string in JPEG files.
       return image(element, file.data);
     } else {
-      const data = conv2png(element, file.data);
+      const data = await conv2png(element, file.data);
       return image(element, data);
     }
   }
