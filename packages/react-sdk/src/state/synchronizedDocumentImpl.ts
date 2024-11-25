@@ -166,9 +166,15 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
             }
 
             // Do not wait for the preview
-            this.createDocumentPreviewIfEnabled(documentId).catch((e) => {
-              console.error('Error creating preview', e);
-            });
+            console.log('before preview');
+            this.createDocumentPreviewIfEnabled(documentId)
+              .then(() => {
+                console.log('preview done');
+                return;
+              })
+              .catch((e) => {
+                console.error('preview error', e);
+              });
           },
           { leading: true, trailing: true },
         ),
