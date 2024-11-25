@@ -20,6 +20,7 @@ import { ElementColorPicker } from './ColorPickerButton/ElementColorPicker';
 import { TextColorPicker } from './ColorPickerButton/TextColorPicker';
 import { DeleteActiveElementButton } from './DeleteActiveElementButton/DeleteActiveElementButton';
 import { DuplicateActiveElementButton } from './DuplicateActiveElementButton';
+import { FontSizeButton } from './FontSizeButton';
 import { TextAlignmentButtons } from './TextAlignmentButtons';
 import { TextBoldButton } from './TextBoldButton';
 import { TextItalicButton } from './TextItalicButton';
@@ -30,6 +31,7 @@ export function ElementBar() {
 
   return (
     <Toolbar aria-label={toolbarTitle}>
+      <FontSizeButton />
       <TextBoldButton />
       <TextItalicButton />
       <TextColorPicker />
