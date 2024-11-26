@@ -18,6 +18,7 @@ import { useWidgetApi } from '@matrix-widget-toolkit/react';
 import { styled } from '@mui/material';
 import { IDownloadFileActionFromWidgetResponseData } from 'matrix-widget-api';
 import React, { useCallback, useEffect, useState } from 'react';
+import { getSVGUnsafe } from '../../../imageUtils';
 import { convertMxcToHttpUrl, WidgetApiActionError } from '../../../lib';
 import { ImageElement } from '../../../state';
 import {
@@ -45,15 +46,6 @@ const Image = styled('image', {
   // prevention of partial rendering if the image has not yet been fully loaded
   visibility: loading ? 'hidden' : 'visible',
 }));
-
-function isSVG(svg: string): boolean {
-  const parser = new DOMParser();
-  const svgDom = parser.parseFromString(svg, 'image/svg+xml');
-  if (svgDom.documentElement.tagName === 'svg') {
-    return true;
-  }
-  return false;
-}
 
 /**
  * Render an image.
@@ -121,13 +113,15 @@ function ImageDisplay({
       // Check if the blob is an SVG
       // The try catch is because of the blob to text conversion
       try {
+        // This can also throw. Therefor there is the outer catch
         const stringFromBlob = await result.file.text();
 
         // Check if the string is an SVG
-        if (isSVG(stringFromBlob)) {
+        try {
+          // We use this call as a condition here. If it works we know it's an SVG. If it throws an error we know it's not an SVG
+          getSVGUnsafe(stringFromBlob);
           return result.file.slice(0, result.file.size, 'image/svg+xml');
-        }
-        {
+        } catch {
           return result.file.slice(0, result.file.size);
         }
       } catch {

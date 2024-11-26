@@ -25,14 +25,12 @@ export async function createWhiteboardPdfElementImage(
 ): Promise<Content> {
   const file = files.find((f) => f.mxc === element.mxc);
   if (file) {
-    const decoded = atob(file.data).trim();
-    if (decoded.includes('PNG') || decoded.includes('JFIF')) {
-      // Note: JFIF is the magic string in JPEG files.
-      return image(element, file.data);
-    } else {
-      const data = await conv2png(element, file.data);
-      return image(element, data);
-    }
+    // We dont do any assumptions on the image type here, we just convert it to a png.
+    //
+    // Note that past versions of this did always check the image type before converting it to a png.
+    // However we cant reliably do the type check in a browser. So we just convert it to a png which always works.
+    const data = await conv2png(element, file.data);
+    return image(element, data);
   }
 
   console.error('Could not get image url', element);

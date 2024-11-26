@@ -18,6 +18,11 @@ import emojiRegex from 'emoji-regex';
 import { get } from 'lodash';
 import { CanvasElement, Content, ContentText } from 'pdfmake/interfaces';
 import tinycolor2 from 'tinycolor2';
+import {
+  base64ToMimeType,
+  base64ToUint8Array,
+  getSVGUnsafe,
+} from '../../../imageUtils';
 import { ImageElement, ShapeElement } from '../../../state';
 import { ElementRenderProperties } from '../../Whiteboard';
 import { getTextSize } from '../../Whiteboard/ElementBehaviors/Text/fitText';
@@ -31,14 +36,7 @@ export function canvas(element: CanvasElement): Content {
 }
 
 export function image(element: ImageElement, base64content: string): Content {
-  // Cheap way to detect image type
-  const decoded = atob(base64content).trim();
-  let mimeType = 'image/png';
-  // Note: JFIF is the magic string in JPEG files.
-  if (decoded.includes('JFIF')) {
-    mimeType = 'image/jpeg';
-  }
-
+  const mimeType = base64ToMimeType(base64content);
   const dataURL = 'data:' + mimeType + ';base64,' + base64content;
   return {
     image: dataURL,
@@ -51,23 +49,16 @@ export function image(element: ImageElement, base64content: string): Content {
 function base64ToBlob(element: ImageElement, base64: string): Blob {
   const decoded = atob(base64);
 
-  const fileToImage = (decoded: string) => {
-    const byteNumbers = new Uint8Array(decoded.length);
-
-    for (let i = 0; i < decoded.length; i++) {
-      byteNumbers[i] = decoded.charCodeAt(i);
-    }
+  const fileToImage = (base64: string) => {
+    const byteNumbers = base64ToUint8Array(base64);
     return new Blob([byteNumbers]);
   };
 
-  // Check if we can parse it as an svg using DOMParser
   try {
-    const parser = new DOMParser();
-    const svgDom = parser.parseFromString(decoded, 'image/svg+xml');
-
-    // Check if it's a valid svg
+    const svgDom = getSVGUnsafe(decoded);
+    // If it's not an svg we assume it's another image type
     if (svgDom.documentElement.tagName !== 'svg') {
-      return fileToImage(decoded);
+      return fileToImage(base64);
     }
 
     // Add xmlns attribute if it's missing
@@ -90,7 +81,8 @@ function base64ToBlob(element: ImageElement, base64: string): Blob {
     const svgString = new XMLSerializer().serializeToString(svgDom);
     return new Blob([svgString], { type: 'image/svg+xml' });
   } catch {
-    return fileToImage(decoded);
+    // If DOMParser fails we assume it's not an svg
+    return fileToImage(base64);
   }
 }
 
