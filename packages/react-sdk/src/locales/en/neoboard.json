@@ -10,8 +10,8 @@
       "description": "Please choose your preferred format.",
       "download": "Download",
       "fileFormat": {
-        "nwb": "NeoBoard-File (.nwb)",
-        "pdf": "PDF-File (.pdf)",
+        "nwb": "NeoBoard file (.nwb)",
+        "pdf": "PDF file (.pdf)",
         "title": "File format"
       },
       "notAccessibleTooltip": "The provided PDF is currently not accessible and can not be read using a screen reader.",

@@ -182,11 +182,11 @@ describe('<WhiteboardHost/>', () => {
 
     expect(activeSlide.getElement('element-0')?.position).toEqual({
       x: 160,
-      y: 240,
+      y: 260,
     });
     expect(activeSlide.getElement('element-1')?.position).toEqual({
       x: 360,
-      y: 440,
+      y: 460,
     });
   });
 

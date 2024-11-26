@@ -15,14 +15,30 @@
  */
 
 import { renderHook } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { useId } from 'react';
+import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { mockLineElement } from '../../../lib/testUtils/documentTestUtils';
 import { useEndMarker } from './useEndMarker';
 
+vi.mock('react', async (importActual) => ({
+  ...(await importActual()),
+  useId: vi.fn(),
+}));
+
 describe('useEndMarker', () => {
+  let reactUseId = 1;
+
+  beforeAll(() => {
+    vi.mocked(useId).mockImplementation(() => `id-${reactUseId++}`);
+  });
+
+  beforeEach(() => {
+    reactUseId = 1;
+  });
+
   it('should return an empty result if there is no end marker', () => {
     const element = mockLineElement();
-    const { result } = renderHook(() => useEndMarker('element-0', element));
+    const { result } = renderHook(() => useEndMarker(element));
     expect(result.current).toEqual({
       endMarkerId: undefined,
       endMarker: null,
@@ -31,8 +47,8 @@ describe('useEndMarker', () => {
 
   it('should return an end marker', () => {
     const element = mockLineElement({ endMarker: 'arrow-head-line' });
-    const { result } = renderHook(() => useEndMarker('element-0', element));
-    expect(result.current.endMarkerId).toEqual('element-0-end-marker');
-    expect(result.current.endMarker?.props.id).toBe('element-0-end-marker');
+    const { result } = renderHook(() => useEndMarker(element));
+    expect(result.current.endMarkerId).toEqual('end-marker-id-1');
+    expect(result.current.endMarker?.props.id).toBe('end-marker-id-1');
   });
 });

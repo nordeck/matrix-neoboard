@@ -41,10 +41,10 @@ const LineDisplay = ({
     points: { start, end },
   } = getRenderProperties(element);
 
-  const { endMarkerId, endMarker } = useEndMarker(elementId, element);
+  const { endMarkerId, endMarker } = useEndMarker(element);
 
   const renderedChild = (
-    <g>
+    <g data-testid={`element-${elementId}`}>
       {endMarker}
       <line
         fill="none"

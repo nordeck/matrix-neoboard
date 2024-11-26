@@ -17,4 +17,4 @@
 export const whiteboardWidth = 1920;
 export const whiteboardHeight = 1080;
 
-export const gridCellSize = 40;
+export const gridCellSize = 20;
