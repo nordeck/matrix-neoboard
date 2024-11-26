@@ -40,17 +40,68 @@ export function image(element: ImageElement, base64content: string): Content {
   };
 }
 
+function preprocessSvg(element: ImageElement, svg: string): string {
+  if (element.mimeType !== 'image/svg+xml') {
+    return svg;
+  }
+
+  // Convert the svg base64 to the actual svg
+  const svgString = atob(svg);
+
+  // We lied in the past about the mimetype, so we need to check if the svg is actually an svg and otherwise return the original string
+  if (!svgString.includes('<svg')) {
+    element.mimeType = svgString.includes('PNG') ? 'image/png' : 'image/jpeg';
+    return svg;
+  }
+
+  // Parse the svg string
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(svgString, 'image/svg+xml');
+  const svgElement = doc.documentElement;
+
+  // Check if a size is set and if not set it to the size from the viewbox
+  if (!svgElement.getAttribute('width') || !svgElement.getAttribute('height')) {
+    const viewBox = svgElement.getAttribute('viewBox')?.split(' ');
+    if (viewBox) {
+      svgElement.setAttribute('width', viewBox[2]);
+      svgElement.setAttribute('height', viewBox[3]);
+    } else {
+      svgElement.setAttribute('width', element.width.toString());
+      svgElement.setAttribute('height', element.height.toString());
+    }
+  }
+
+  // Convert the svg element to a string
+  const serializer = new XMLSerializer();
+  const svgStringProcessed = serializer.serializeToString(svgElement);
+
+  // Convert the svg string to base64
+  return btoa(svgStringProcessed);
+}
+
 export function conv2png(element: ImageElement, base64content: string): string {
+  // If we have a svg image we need to preprocess it for the canvas to work
+  if (element.mimeType === 'image/svg+xml') {
+    base64content = preprocessSvg(element, base64content);
+  }
+
+  // If we now end up with a png or jpeg image we can return it early
+  if (element.mimeType === 'image/png' || element.mimeType === 'image/jpeg') {
+    return base64content;
+  }
+
   const img = new Image();
   img.src = 'data:' + element.mimeType + ';base64,' + base64content;
 
   const canvas = document.createElement('canvas');
   [canvas.width, canvas.height] = [element.width, element.height];
 
-  const ctx = canvas.getContext('2d') ?? new CanvasRenderingContext2D();
-  ctx.drawImage(img, 0, 0, element.width, element.height);
+  const ctx = canvas.getContext('2d');
+  ctx?.drawImage(img, 0, 0, element.width, element.height);
 
-  return canvas.toDataURL('image/png').split(',')[1];
+  const dataUrl = canvas.toDataURL('image/png');
+
+  return dataUrl.split(',')[1];
 }
 
 export function textContent(

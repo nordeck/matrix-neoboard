@@ -15,7 +15,42 @@
  */
 
 import { describe, expect, it, vi } from 'vitest';
-import { fitText, getTemporaryElement } from './fitText';
+import { fitText } from './fitText';
+
+function getTemporaryElement(): {
+  textElement: HTMLElement;
+  wrapperElement: HTMLElement;
+} {
+  const textId = 'fitTextTextElement';
+  const wrapperId = 'fitTextWrapperElement';
+
+  const textElement = document.getElementById(textId);
+  const wrapperElement = document.getElementById(wrapperId);
+  if (textElement && wrapperElement) {
+    return { textElement, wrapperElement };
+  } else {
+    const hiddenElement = document.createElement('div');
+    hiddenElement.style.overflow = 'hidden';
+    hiddenElement.style.height = '0px';
+    hiddenElement.style.width = '0px';
+    hiddenElement.style.visibility = 'hidden';
+    hiddenElement.style.display = 'flex';
+    document.body.appendChild(hiddenElement);
+
+    const wrapperElement = document.createElement('div');
+    wrapperElement.id = wrapperId;
+    wrapperElement.style.flexShrink = '0';
+
+    hiddenElement.appendChild(wrapperElement);
+
+    const textElement = document.createElement('div');
+    textElement.id = textId;
+
+    wrapperElement.appendChild(textElement);
+
+    return { textElement, wrapperElement };
+  }
+}
 
 describe('fitText', () => {
   it('should render without exploding', () => {

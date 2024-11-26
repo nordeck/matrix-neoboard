@@ -14,12 +14,6 @@
  * limitations under the License.
  */
 
-import { clamp } from 'lodash';
-
-const minFontSize = 10;
-const maxFontSize = 800;
-const maxSteps = 10;
-
 export function fitText(
   element: HTMLElement,
   fontWeightBold = false,
@@ -42,42 +36,7 @@ export function fitText(
   );
 
   element.style.fontSize = `${fontSize}px`;
-  element.style.padding = `${paddingTop}px ${paddingHorizontal}em 0`;
-}
-
-export function getTemporaryElement(): {
-  textElement: HTMLElement;
-  wrapperElement: HTMLElement;
-} {
-  const textId = 'fitTextTextElement';
-  const wrapperId = 'fitTextWrapperElement';
-
-  const textElement = document.getElementById(textId);
-  const wrapperElement = document.getElementById(wrapperId);
-  if (textElement && wrapperElement) {
-    return { textElement, wrapperElement };
-  } else {
-    const hiddenElement = document.createElement('div');
-    hiddenElement.style.overflow = 'hidden';
-    hiddenElement.style.height = '0px';
-    hiddenElement.style.width = '0px';
-    hiddenElement.style.visibility = 'hidden';
-    hiddenElement.style.display = 'flex';
-    document.body.appendChild(hiddenElement);
-
-    const wrapperElement = document.createElement('div');
-    wrapperElement.id = wrapperId;
-    wrapperElement.style.flexShrink = '0';
-
-    hiddenElement.appendChild(wrapperElement);
-
-    const textElement = document.createElement('div');
-    textElement.id = textId;
-
-    wrapperElement.appendChild(textElement);
-
-    return { textElement, wrapperElement };
-  }
+  element.style.padding = `${paddingTop}px ${paddingHorizontal}px 0`;
 }
 
 export function getTextSize(
@@ -94,51 +53,58 @@ export function getTextSize(
   fontSize: number;
   paddingTop: number;
   paddingHorizontal: number;
+  textWidth: number;
+  textHeight: number;
+  spaceWidth: number;
 } {
   width = Math.round(width);
   height = Math.round(height);
+  let canvas;
 
-  const { textElement: element, wrapperElement } = getTemporaryElement();
-
-  wrapperElement.style.flexBasis = `${width}px`;
-
-  element.style.lineHeight = '1.2';
-  element.style.wordBreak = 'unset';
-  element.style.overflowWrap = 'unset';
-  element.style.textAlign = 'center';
-  element.style.fontWeight = opts.fontWeightBold ? 'bold' : 'normal';
-  element.style.fontStyle = opts.fontStyleItalic ? 'italic' : 'normal';
-  element.style.overflow = 'visible';
-  element.style.fontVariantLigatures = opts?.disableLigatures
-    ? 'none'
-    : 'unset';
-  element.style.fontFamily = opts.fontFamily ?? 'unset';
-
-  if (content.innerHTML) {
-    element.innerHTML = content.innerHTML;
+  // Check if OffscreenCanvas is available in the current environment (also check it for webworkers!)
+  if (typeof OffscreenCanvas !== 'undefined') {
+    canvas = new OffscreenCanvas(width, height);
   } else {
-    element.innerText = content.innerText;
+    canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+  }
+  const context = canvas.getContext('2d') as
+    | CanvasRenderingContext2D
+    | OffscreenCanvasRenderingContext2D
+    | null;
+
+  if (!context) {
+    throw new Error('2D context not available');
   }
 
-  // add horizontal padding to balance the italic font style
-  const paddingHorizontal = opts.fontStyleItalic ? 0.2 : 0;
-  element.style.padding = `0 ${paddingHorizontal}em`;
-
-  // Do a binary search to find the best matching text size, in a few steps
-  let stepSize = maxFontSize - minFontSize;
+  const fontFamily = opts.fontFamily || 'sans-serif';
+  const minFontSize = 10;
+  const maxFontSize = 800;
   let fontSize = minFontSize;
+  const maxSteps = 10;
+  const paddingHorizontal = opts.fontStyleItalic ? 0.2 : 0;
+  let stepSize = maxFontSize - minFontSize;
+  const safetyMargin = 5;
 
   for (let i = 0; i < maxSteps; ++i) {
     const lastFontSize = fontSize;
     stepSize /= 2;
-    fontSize = clamp(fontSize + stepSize, minFontSize, maxFontSize);
+    fontSize = Math.max(
+      minFontSize,
+      Math.min(fontSize + stepSize, maxFontSize),
+    );
 
-    element.style.fontSize = `${Math.round(fontSize)}px`;
+    const { width: textWidth, height: textHeight } = measureTextWithNewlines(
+      context,
+      content.innerText,
+      fontSize,
+      fontFamily,
+    );
 
-    const { width: scrollWidth, height: scrollHeight } =
-      element.getBoundingClientRect();
-
-    const fits = scrollWidth <= width && scrollHeight <= height;
+    const fits =
+      textWidth <= width - paddingHorizontal * 2 - safetyMargin &&
+      textHeight <= height / 2 - safetyMargin;
 
     if (!fits) {
       fontSize = lastFontSize;
@@ -147,12 +113,56 @@ export function getTextSize(
 
   fontSize = Math.round(fontSize);
 
-  element.style.fontSize = `${fontSize}px`;
+  const { width: textWidth, height: textHeight } = measureTextWithNewlines(
+    context,
+    content.innerText,
+    fontSize,
+    fontFamily,
+  );
+  const paddingTop = (height - textHeight) / 4;
 
-  // calculate the padding to center the text in the box
-  const paddingTop = Math.max(0, (height - element.clientHeight) / 2);
+  // Measure the width of a space
+  const { width: spaceWidth } = measureTextWithNewlines(
+    context,
+    '\u00A0',
+    fontSize,
+    fontFamily,
+  );
 
-  element.innerText = '';
+  return {
+    fontSize,
+    paddingTop,
+    paddingHorizontal,
+    textWidth,
+    textHeight,
+    spaceWidth,
+  };
+}
 
-  return { fontSize, paddingTop, paddingHorizontal };
+function measureTextWithNewlines(
+  context: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D,
+  text: string,
+  fontSize: number,
+  fontFamily: string,
+): { width: number; height: number } {
+  if (!text) {
+    return { width: 0, height: 0 };
+  }
+  const lines = text.split('\n');
+  let maxWidth = 0;
+  let totalHeight = 0;
+
+  context.font = `${fontSize}px ${fontFamily}`;
+
+  lines.forEach((line) => {
+    const metrics = context.measureText(line);
+    const lineHeight =
+      metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
+    if (metrics.width > maxWidth) {
+      maxWidth = metrics.width;
+    }
+    totalHeight += lineHeight;
+  });
+
+  return { width: maxWidth, height: totalHeight };
 }
