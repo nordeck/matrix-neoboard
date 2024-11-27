@@ -36,8 +36,9 @@ export function useFontSize(): UseFontSizeResult {
   let fontSize = undefined;
 
   for (const element of elements) {
-    if (element.type === 'shape' && element.fontSize !== undefined) {
-      fontSize = element.fontSize;
+    if (element.type === 'shape') {
+      // Find first shape textSize
+      fontSize = element.textSize;
       break;
     }
   }

@@ -23,11 +23,11 @@ export function calculateFontSizeUpdates(
   const updates: ElementUpdate[] = [];
 
   for (const [elementId, element] of Object.entries(elements)) {
-    if (element.type !== 'shape' || element.fontSize === fontSize) {
+    if (element.type !== 'shape' || element.textSize === fontSize) {
       continue;
     }
 
-    updates.push({ elementId, patch: { fontSize } });
+    updates.push({ elementId, patch: { textSize: fontSize } });
   }
 
   return updates;
