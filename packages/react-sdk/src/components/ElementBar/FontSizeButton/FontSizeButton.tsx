@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-//import { useTranslation } from 'react-i18next';
 import { MenuItem, Select } from '@mui/material';
 import { useFontSize } from '../../../lib/text-formatting';
 import { useActiveElements, useElements } from '../../../state';
@@ -34,13 +33,28 @@ export function FontSizeButton() {
 
   return (
     <Select
-      variant="filled"
-      value={fontSize}
+      size="small"
+      variant="standard"
+      disableUnderline={true}
+      value={fontSize ?? 'auto'}
       onChange={(event) => {
-        setFontSize(event.target.value as number | undefined);
+        setFontSize(
+          event.target.value === 'auto'
+            ? undefined
+            : (event.target.value as number),
+        );
+      }}
+      renderValue={(v) => {
+        // Only render short "au" to prevent change of the select width when choosing "auto"
+        return v === 'auto' ? 'au' : v;
+      }}
+      sx={{
+        // Set a min-width to prevent change of the select width depending on the value
+        minWidth: '58px',
+        padding: '0 5px 0 10px',
       }}
     >
-      <MenuItem value={undefined}>Auto</MenuItem>
+      <MenuItem value="auto">auto</MenuItem>
       {FONT_SIZES.map((fontSize) => (
         <MenuItem value={fontSize} key={fontSize}>
           {fontSize}
