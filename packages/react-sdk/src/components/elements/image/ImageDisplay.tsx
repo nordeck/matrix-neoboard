@@ -17,7 +17,7 @@
 import { WidgetApi } from '@matrix-widget-toolkit/api';
 import { useWidgetApi } from '@matrix-widget-toolkit/react';
 import { styled } from '@mui/material';
-import { IDownloadFileActionFromWidgetResponseData } from 'matrix-widget-api';
+import { getLogger } from 'loglevel';
 import { useCallback } from 'react';
 import useSWRImmutable from 'swr/immutable';
 import { convertMxcToHttpUrl, WidgetApiActionError } from '../../../lib';
@@ -29,6 +29,11 @@ import {
   WithExtendedSelectionProps,
 } from '../../Whiteboard';
 
+/**
+ * Download a file from the widget API or fallback to HTTP download.
+ *
+ * @returns The data URL of the downloaded file. This can be a blob url or a http url.
+ */
 const downloadFile = async ({
   widgetApi,
   baseUrl,
@@ -42,14 +47,41 @@ const downloadFile = async ({
 }) => {
   try {
     const result = await tryDownloadFileWithWidgetApi(widgetApi, mxc);
-    const blob = getBlobFromResult(result, mimeType);
-    const downloadedFileDataUrl = createObjectUrlFromBlob(blob);
+
+    // Convert the widget API response to a Blob with given size and type
+    if (!(result.file instanceof Blob)) {
+      throw new Error('Got non Blob file response');
+    }
+    const blob = result.file.slice(0, result.file.size, mimeType);
+
+    // Convert blob to blob URL
+    const downloadedFileDataUrl = URL.createObjectURL(blob);
+    if (downloadedFileDataUrl === '') {
+      throw new Error('Failed to create object URL');
+    }
     return downloadedFileDataUrl;
   } catch (error) {
-    handleDownloadError(error as Error, mxc, baseUrl, mimeType);
+    const logger = getLogger('ImageDisplay.downloadFile');
+    if (error instanceof WidgetApiActionError) {
+      logger.warn(
+        'Widget API downloadFile not available, falling back to HTTP download',
+      );
+      return tryFallbackDownload(mxc, baseUrl, mimeType);
+    } else {
+      logger.error('Failed to download image:', error);
+      throw error;
+    }
   }
 };
 
+/**
+ * Try to download a file using the widget API.
+ *
+ * @param widgetApi The widget API to use for downloading the file
+ * @param mxc The mxc URL of the file to download
+ * @returns The file data as `Promise<IDownloadFileActionFromWidgetResponseData>
+ * @throws {WidgetApiActionError} If the widget API does not support the downloadFile action
+ */
 const tryDownloadFileWithWidgetApi = async (
   widgetApi: WidgetApi,
   mxc: string,
@@ -62,44 +94,19 @@ const tryDownloadFileWithWidgetApi = async (
   }
 };
 
-const getBlobFromResult = (
-  result: IDownloadFileActionFromWidgetResponseData,
-  mimeType: string,
-): Blob => {
-  if (!(result.file instanceof Blob)) {
-    throw new Error('Got non Blob file response');
-  }
-  return result.file.slice(0, result.file.size, mimeType);
-};
-
-const createObjectUrlFromBlob = (blob: Blob): string => {
-  const url = URL.createObjectURL(blob);
-  if (url === '') {
-    throw new Error('Failed to create object URL');
-  }
-  return url;
-};
-
-const handleDownloadError = (
-  error: Error,
-  mxc: string,
-  baseUrl: string,
-  mimeType: string,
-) => {
-  if (error instanceof WidgetApiActionError) {
-    tryFallbackDownload(mxc, baseUrl, mimeType);
-  } else {
-    throw error;
-  }
-};
-
+/**
+ * Try getting an http url for the given mxc url.
+ *
+ * @param mxc The mxc URL of the file to download
+ * @param baseUrl The base URL of the matrix homeserver
+ * @param mimeType The MIME type of the file
+ * @returns The URL of the file. Note this is an blob URL for SVG files.
+ */
 const tryFallbackDownload = async (
   mxc: string,
   baseUrl: string,
   mimeType: string,
 ) => {
-  let abortController: AbortController | undefined;
-
   const httpUrl = convertMxcToHttpUrl(mxc, baseUrl);
 
   if (httpUrl === null) {
@@ -107,16 +114,14 @@ const tryFallbackDownload = async (
   }
 
   if (mimeType === 'image/svg+xml') {
-    abortController = new AbortController();
     try {
-      const response = await fetch(httpUrl, {
-        signal: abortController.signal,
-      });
+      const response = await fetch(httpUrl);
       const rawBlob = await response.blob();
       const svgBlob = rawBlob.slice(0, rawBlob.size, mimeType);
       return URL.createObjectURL(svgBlob);
     } catch (fetchError) {
-      console.error('Failed to fetch SVG image:', fetchError);
+      const logger = getLogger('ImageDisplay.tryFallbackDownload');
+      logger.error('Failed to fetch SVG image:', fetchError);
       throw new Error('Failed to fetch SVG image');
     }
   }
