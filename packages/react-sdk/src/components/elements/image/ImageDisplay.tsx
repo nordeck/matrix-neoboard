@@ -18,9 +18,9 @@ import { WidgetApi } from '@matrix-widget-toolkit/api';
 import { useWidgetApi } from '@matrix-widget-toolkit/react';
 import { styled } from '@mui/material';
 import { getLogger } from 'loglevel';
-import { Suspense, useCallback } from 'react';
+import { Suspense, useCallback, useEffect, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
-import useSWRImmutable from 'swr/immutable';
+import useSWR from 'swr';
 import { getSVGUnsafe } from '../../../imageUtils';
 import { convertMxcToHttpUrl, WidgetApiActionError } from '../../../lib';
 import { ImageElement } from '../../../state';
@@ -47,7 +47,7 @@ const downloadFile = async ({
   widgetApi: WidgetApi;
   baseUrl: string;
   mxc: string;
-}) => {
+}): Promise<Blob | string> => {
   try {
     const result = await tryDownloadFileWithWidgetApi(widgetApi, mxc);
 
@@ -70,12 +70,7 @@ const downloadFile = async ({
       blob = result.file.slice(0, result.file.size);
     }
 
-    // Convert blob to blob URL
-    const downloadedFileDataUrl = URL.createObjectURL(blob);
-    if (downloadedFileDataUrl === '') {
-      throw new Error('Failed to create object URL');
-    }
-    return downloadedFileDataUrl;
+    return blob;
   } catch (error) {
     const logger = getLogger('ImageDisplay.downloadFile');
     if (error instanceof WidgetApiActionError) {
@@ -105,7 +100,9 @@ const tryDownloadFileWithWidgetApi = async (
   try {
     const result = await widgetApi.downloadFile(mxc);
     return result;
-  } catch {
+  } catch (error) {
+    const logger = getLogger('ImageDisplay.downloadFile');
+    logger.error('Failed to download image from widget api:', error);
     throw new WidgetApiActionError('downloadFile not available');
   }
 };
@@ -115,7 +112,6 @@ const tryDownloadFileWithWidgetApi = async (
  *
  * @param mxc The mxc URL of the file to download
  * @param baseUrl The base URL of the matrix homeserver
- * @param mimeType The MIME type of the file
  * @returns The URL of the file. Note this is an blob URL for SVG files.
  */
 const tryFallbackDownload = async (
@@ -132,11 +128,12 @@ const tryFallbackDownload = async (
     const response = await fetch(httpUrl);
     const rawBlob = await response.blob();
     try {
+      getSVGUnsafe(await rawBlob.text());
       const svgBlob = rawBlob.slice(0, rawBlob.size, 'image/svg+xml');
-      return URL.createObjectURL(svgBlob);
+      return svgBlob;
     } catch {
-      const imageBlob = rawBlob.slice(0, rawBlob.size);
-      return URL.createObjectURL(imageBlob);
+      return rawBlob.slice(0, rawBlob.size);
+
     }
   } catch (fetchError) {
     const logger = getLogger('ImageDisplay.tryFallbackDownload');
@@ -178,18 +175,31 @@ function ImageDisplay({
   overrides = {},
 }: ImageDisplayProps) {
   const widgetApi = useWidgetApi();
-  const { data: imageUri } = useSWRImmutable(
+  const [imageUri, setImageUri] = useState<string>();
+  const { data: image } = useSWR(
     { widgetApi, baseUrl, mxc },
     downloadFile,
     { suspense: true },
   );
 
-  const handleLoad = useCallback(() => {
-    // This can happen directly when the image is loaded and saves some memory.
-    if (imageUri) {
+  useEffect(() => {
+    if (image instanceof Blob) {
+      // Convert blob to blob URL
+      const downloadedFileDataUrl = URL.createObjectURL(image);
+      if (downloadedFileDataUrl === '') {
+        throw new Error('Failed to create object URL');
+      }
+      setImageUri(downloadedFileDataUrl);
+    } else {
+      setImageUri(image);
+    }
+  }, [image, setImageUri]);
+
+  const onLoaded = useCallback(() => {
+    if (image instanceof Blob && imageUri) {
       URL.revokeObjectURL(imageUri);
     }
-  }, [imageUri]);
+  }, [image, imageUri]);
 
   const renderedChild =
     imageUri !== undefined ? (
@@ -201,7 +211,7 @@ function ImageDisplay({
         width={width}
         height={height}
         preserveAspectRatio="none"
-        onLoad={handleLoad}
+        onLoad={onLoaded}
       />
     ) : null;
 
