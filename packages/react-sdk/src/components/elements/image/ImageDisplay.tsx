@@ -17,7 +17,7 @@
 import { WidgetApi } from '@matrix-widget-toolkit/api';
 import { useWidgetApi } from '@matrix-widget-toolkit/react';
 import { styled } from '@mui/material';
-import { IDownloadFileActionFromWidgetResponseData } from 'matrix-widget-api';
+import { getLogger } from 'loglevel';
 import { useCallback } from 'react';
 import useSWRImmutable from 'swr/immutable';
 import { getSVGUnsafe } from '../../../imageUtils';
@@ -30,6 +30,11 @@ import {
   WithExtendedSelectionProps,
 } from '../../Whiteboard';
 
+/**
+ * Download a file from the widget API or fallback to HTTP download.
+ *
+ * @returns The data URL of the downloaded file. This can be a blob url or a http url.
+ */
 const downloadFile = async ({
   widgetApi,
   baseUrl,
@@ -41,14 +46,54 @@ const downloadFile = async ({
 }) => {
   try {
     const result = await tryDownloadFileWithWidgetApi(widgetApi, mxc);
-    const blob = await getBlobFromResult(result);
-    const downloadedFileDataUrl = createObjectUrlFromBlob(blob);
+
+    // Convert the widget API response to a Blob with given size and type
+    if (!(result.file instanceof Blob)) {
+      throw new Error('Got non Blob file response');
+    }
+    // Check if the blob is an SVG
+    // The try catch is because of the blob to text conversion
+    let blob;
+    try {
+      const stringFromBlob = await result.file.text();
+
+      // Check if the string is an SVG
+      // We use this call as a condition here. If it works we know it's an SVG. If it throws an error we know it's not an SVG
+      getSVGUnsafe(stringFromBlob);
+      blob = result.file.slice(0, result.file.size, 'image/svg+xml');
+    } catch {
+      // If it fails, return the blob as is
+      blob = result.file.slice(0, result.file.size);
+    }
+
+    // Convert blob to blob URL
+    const downloadedFileDataUrl = URL.createObjectURL(blob);
+    if (downloadedFileDataUrl === '') {
+      throw new Error('Failed to create object URL');
+    }
     return downloadedFileDataUrl;
   } catch (error) {
-    handleDownloadError(error as Error, mxc, baseUrl);
+    const logger = getLogger('ImageDisplay.downloadFile');
+    if (error instanceof WidgetApiActionError) {
+      logger.warn(
+        'Widget API downloadFile not available, falling back to HTTP download',
+      );
+      return tryFallbackDownload(mxc, baseUrl);
+    } else {
+      logger.error('Failed to download image:', error);
+      throw error;
+    }
   }
 };
 
+/**
+ * Try to download a file using the widget API.
+ *
+ * @param widgetApi The widget API to use for downloading the file
+ * @param mxc The mxc URL of the file to download
+ * @returns The file data as `Promise<IDownloadFileActionFromWidgetResponseData>
+ * @throws {WidgetApiActionError} If the widget API does not support the downloadFile action
+ */
 const tryDownloadFileWithWidgetApi = async (
   widgetApi: WidgetApi,
   mxc: string,
@@ -61,50 +106,39 @@ const tryDownloadFileWithWidgetApi = async (
   }
 };
 
-const getBlobFromResult = async (
-  result: IDownloadFileActionFromWidgetResponseData,
-): Promise<Blob> => {
-  if (!(result.file instanceof Blob)) {
-    throw new Error('Got non Blob file response');
-  }
-  // Check if the blob is an SVG
-  // The try catch is because of the blob to text conversion
-  try {
-    const stringFromBlob = await result.file.text();
-
-    // Check if the string is an SVG
-    // We use this call as a condition here. If it works we know it's an SVG. If it throws an error we know it's not an SVG
-    getSVGUnsafe(stringFromBlob);
-    return result.file.slice(0, result.file.size, 'image/svg+xml');
-  } catch {
-    // If it fails, return the blob as is
-    return result.file.slice(0, result.file.size);
-  }
-};
-
-const createObjectUrlFromBlob = (blob: Blob): string => {
-  const url = URL.createObjectURL(blob);
-  if (url === '') {
-    throw new Error('Failed to create object URL');
-  }
-  return url;
-};
-
-const handleDownloadError = (error: Error, mxc: string, baseUrl: string) => {
-  if (error instanceof WidgetApiActionError) {
-    tryFallbackDownload(mxc, baseUrl);
-  } else {
-    throw error;
-  }
-};
-
-const tryFallbackDownload = async (mxc: string, baseUrl: string) => {
+/**
+ * Try getting an http url for the given mxc url.
+ *
+ * @param mxc The mxc URL of the file to download
+ * @param baseUrl The base URL of the matrix homeserver
+ * @param mimeType The MIME type of the file
+ * @returns The URL of the file. Note this is an blob URL for SVG files.
+ */
+const tryFallbackDownload = async (
+  mxc: string,
+  baseUrl: string,
+) => {
   const httpUrl = convertMxcToHttpUrl(mxc, baseUrl);
 
   if (httpUrl === null) {
     return '';
   }
-  return httpUrl;
+
+  try {
+    const response = await fetch(httpUrl);
+    const rawBlob = await response.blob();
+    try {
+      const svgBlob = rawBlob.slice(0, rawBlob.size, 'image/svg+xml');
+      return URL.createObjectURL(svgBlob);
+    } catch {
+      const imageBlob = rawBlob.slice(0, rawBlob.size);
+      return URL.createObjectURL(imageBlob);
+    }
+  } catch (fetchError) {
+    const logger = getLogger('ImageDisplay.tryFallbackDownload');
+    logger.error('Failed to fetch SVG image:', fetchError);
+    throw new Error('Failed to fetch SVG image');
+  }
 };
 
 type ImageDisplayProps = Omit<ImageElement, 'kind'> &
