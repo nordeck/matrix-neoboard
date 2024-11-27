@@ -88,17 +88,22 @@ describe('<ImageDisplay />', () => {
   it('should not have a context menu in read-only mode', () => {
     render(
       <ImageDisplay
-        elementId="element-0"
-        type="image"
-        fileName="example.jpeg"
-        mimeType="image/jpeg"
-        baseUrl="https://example.com"
-        mxc="mxc://example.com/test1234"
-        width={200}
-        height={300}
-        position={{ x: 23, y: 42 }}
-        active={false}
-        readOnly={true}
+        otherProps={{
+          active: false,
+          readOnly: true,
+          elementId: 'element-0',
+          activeElementIds: [],
+          overrides: {},
+        }}
+        element={{
+          type: 'image',
+          fileName: 'example.jpeg',
+          mimeType: 'image/jpeg',
+          mxc: 'mxc://example.com/test1234',
+          width: 200,
+          height: 300,
+          position: { x: 23, y: 42 },
+        }}
       />,
       { wrapper: Wrapper },
     );
