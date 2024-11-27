@@ -18,7 +18,8 @@ import { WidgetApi } from '@matrix-widget-toolkit/api';
 import { useWidgetApi } from '@matrix-widget-toolkit/react';
 import { styled } from '@mui/material';
 import { getLogger } from 'loglevel';
-import { useCallback } from 'react';
+import { Suspense, useCallback } from 'react';
+import { ErrorBoundary } from 'react-error-boundary';
 import useSWRImmutable from 'swr/immutable';
 import { getSVGUnsafe } from '../../../imageUtils';
 import { convertMxcToHttpUrl, WidgetApiActionError } from '../../../lib';
@@ -29,6 +30,9 @@ import {
   SelectableElement,
   WithExtendedSelectionProps,
 } from '../../Whiteboard';
+import { OtherProps } from '../../Whiteboard/Element/ConnectedElement';
+import { ImagePlaceholder } from './ImagePlaceholder';
+import { Skeleton } from './Skeleton';
 
 /**
  * Download a file from the widget API or fallback to HTTP download.
@@ -222,4 +226,50 @@ function ImageDisplay({
   );
 }
 
-export default ImageDisplay;
+function ImageDisplayWrapper({
+  element,
+  otherProps,
+}: {
+  element: ImageElement;
+  otherProps: OtherProps;
+}) {
+  const widgetApi = useWidgetApi();
+
+  if (widgetApi.widgetParameters.baseUrl === undefined) {
+    console.error('Image cannot be rendered due to missing base URL');
+    return null;
+  }
+
+  return (
+    <Suspense
+      fallback={
+        <Skeleton
+          data-testid={`element-${otherProps.elementId}-skeleton`}
+          x={element.position.x}
+          y={element.position.y}
+          width={element.width}
+          height={element.height}
+        />
+      }
+    >
+      <ErrorBoundary
+        fallback={
+          <ImagePlaceholder
+            position={element.position}
+            width={element.width}
+            height={element.height}
+            elementId={otherProps.elementId}
+          />
+        }
+      >
+        <ImageDisplay
+          baseUrl={widgetApi.widgetParameters.baseUrl}
+          {...element}
+          {...otherProps}
+        />
+      </ErrorBoundary>
+    </Suspense>
+  );
+}
+
+export default ImageDisplayWrapper;

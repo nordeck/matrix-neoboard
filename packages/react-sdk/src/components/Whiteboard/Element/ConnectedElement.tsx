@@ -14,19 +14,22 @@
  * limitations under the License.
  */
 
-import { useWidgetApi } from '@matrix-widget-toolkit/react';
-import { Suspense } from 'react';
-import { ErrorBoundary } from 'react-error-boundary';
 import { Elements } from '../../../state/types';
 import { useElementOverride } from '../../ElementOverridesProvider';
 import EllipseDisplay from '../../elements/ellipse/Display';
 import ImageDisplay from '../../elements/image/ImageDisplay';
-import { ImagePlaceholder } from '../../elements/image/ImagePlaceholder';
-import { Skeleton } from '../../elements/image/Skeleton';
 import LineDisplay from '../../elements/line/Display';
 import PolylineDisplay from '../../elements/polyline/Display';
 import RectangleDisplay from '../../elements/rectangle/Display';
 import TriangleDisplay from '../../elements/triangle/Display';
+
+export type OtherProps = {
+  active: boolean;
+  readOnly: boolean;
+  elementId: string;
+  activeElementIds: string[];
+  overrides: Elements;
+};
 
 export const ConnectedElement = ({
   id,
@@ -41,13 +44,12 @@ export const ConnectedElement = ({
   overrides?: Elements;
   setTextToolsEnabled?: (enabled: boolean) => void;
 }) => {
-  const widgetApi = useWidgetApi();
   const element = useElementOverride(id);
   const isActive =
     !readOnly && id
       ? activeElementIds.length === 1 && activeElementIds[0] === id
       : false;
-  const otherProps = {
+  const otherProps: OtherProps = {
     // TODO: Align names
     active: isActive,
     readOnly,
@@ -90,41 +92,7 @@ export const ConnectedElement = ({
         );
       }
     } else if (element.type === 'image') {
-      if (widgetApi.widgetParameters.baseUrl === undefined) {
-        console.error('Image cannot be rendered due to missing base URL');
-        return null;
-      }
-
-      return (
-        <Suspense
-          fallback={
-            <Skeleton
-              data-testid={`element-${otherProps.elementId}-skeleton`}
-              x={element.position.x}
-              y={element.position.y}
-              width={element.width}
-              height={element.height}
-            />
-          }
-        >
-          <ErrorBoundary
-            fallback={
-              <ImagePlaceholder
-                position={element.position}
-                width={element.width}
-                height={element.height}
-                elementId={otherProps.elementId}
-              />
-            }
-          >
-            <ImageDisplay
-              baseUrl={widgetApi.widgetParameters.baseUrl}
-              {...element}
-              {...otherProps}
-            />
-          </ErrorBoundary>
-        </Suspense>
-      );
+      return <ImageDisplay element={element} otherProps={otherProps} />;
     }
   }
 
