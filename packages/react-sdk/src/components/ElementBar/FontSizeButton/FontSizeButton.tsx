@@ -42,6 +42,11 @@ export function FontSizeButton() {
       inputProps={{
         'aria-label': t('elementBar.fontSize', 'Select font size'),
       }}
+      SelectDisplayProps={{
+        style: {
+          paddingRight: '18px',
+        },
+      }}
       onChange={(event) => {
         setFontSize(
           event.target.value === 'auto'
@@ -55,7 +60,7 @@ export function FontSizeButton() {
       }}
       sx={{
         // Set a min-width to prevent change of the select width depending on the value
-        minWidth: '58px',
+        minWidth: '52px',
         padding: '0 5px 0 10px',
       }}
     >
