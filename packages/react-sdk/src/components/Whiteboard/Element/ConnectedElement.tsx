@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import { useWidgetApi } from '@matrix-widget-toolkit/react';
 import { Elements } from '../../../state/types';
 import { useElementOverride } from '../../ElementOverridesProvider';
 import EllipseDisplay from '../../elements/ellipse/Display';
@@ -23,6 +22,14 @@ import LineDisplay from '../../elements/line/Display';
 import PolylineDisplay from '../../elements/polyline/Display';
 import RectangleDisplay from '../../elements/rectangle/Display';
 import TriangleDisplay from '../../elements/triangle/Display';
+
+export type OtherProps = {
+  active: boolean;
+  readOnly: boolean;
+  elementId: string;
+  activeElementIds: string[];
+  overrides: Elements;
+};
 
 export const ConnectedElement = ({
   id,
@@ -35,13 +42,12 @@ export const ConnectedElement = ({
   activeElementIds?: string[];
   overrides?: Elements;
 }) => {
-  const widgetApi = useWidgetApi();
   const element = useElementOverride(id);
   const isActive =
     !readOnly && id
       ? activeElementIds.length === 1 && activeElementIds[0] === id
       : false;
-  const otherProps = {
+  const otherProps: OtherProps = {
     // TODO: Align names
     active: isActive,
     readOnly,
@@ -66,18 +72,7 @@ export const ConnectedElement = ({
         return <TriangleDisplay {...element} {...otherProps} />;
       }
     } else if (element.type === 'image') {
-      if (widgetApi.widgetParameters.baseUrl === undefined) {
-        console.error('Image cannot be rendered due to missing base URL');
-        return null;
-      }
-
-      return (
-        <ImageDisplay
-          baseUrl={widgetApi.widgetParameters.baseUrl}
-          {...element}
-          {...otherProps}
-        />
-      );
+      return <ImageDisplay element={element} otherProps={otherProps} />;
     }
   }
 

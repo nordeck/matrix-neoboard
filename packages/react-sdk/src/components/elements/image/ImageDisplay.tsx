@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
+import { WidgetApi } from '@matrix-widget-toolkit/api';
 import { useWidgetApi } from '@matrix-widget-toolkit/react';
 import { styled } from '@mui/material';
-import { IDownloadFileActionFromWidgetResponseData } from 'matrix-widget-api';
-import React, { useCallback, useEffect, useState } from 'react';
+import { getLogger } from 'loglevel';
+import { Suspense, useCallback, useEffect, useState } from 'react';
+import { ErrorBoundary } from 'react-error-boundary';
+import useSWR from 'swr';
 import { convertMxcToHttpUrl, WidgetApiActionError } from '../../../lib';
 import { ImageElement } from '../../../state';
 import {
@@ -26,8 +29,105 @@ import {
   SelectableElement,
   WithExtendedSelectionProps,
 } from '../../Whiteboard';
+import { OtherProps } from '../../Whiteboard/Element/ConnectedElement';
 import { ImagePlaceholder } from './ImagePlaceholder';
 import { Skeleton } from './Skeleton';
+
+/**
+ * Download a file from the widget API or fallback to HTTP download.
+ *
+ * @returns The data URL of the downloaded file. This can be a blob url or a http url.
+ */
+const downloadFile = async ({
+  widgetApi,
+  baseUrl,
+  mxc,
+  mimeType,
+}: {
+  widgetApi: WidgetApi;
+  baseUrl: string;
+  mxc: string;
+  mimeType: string;
+}): Promise<Blob | string> => {
+  try {
+    const result = await tryDownloadFileWithWidgetApi(widgetApi, mxc);
+
+    // Convert the widget API response to a Blob with given size and type
+    if (!(result.file instanceof Blob)) {
+      throw new Error('Got non Blob file response');
+    }
+    const blob = result.file.slice(0, result.file.size, mimeType);
+
+    return blob;
+  } catch (error) {
+    const logger = getLogger('ImageDisplay.downloadFile');
+    if (error instanceof WidgetApiActionError) {
+      logger.warn(
+        'Widget API downloadFile not available, falling back to HTTP download',
+      );
+      return tryFallbackDownload(mxc, baseUrl, mimeType);
+    } else {
+      logger.error('Failed to download image:', error);
+      throw error;
+    }
+  }
+};
+
+/**
+ * Try to download a file using the widget API.
+ *
+ * @param widgetApi The widget API to use for downloading the file
+ * @param mxc The mxc URL of the file to download
+ * @returns The file data as `Promise<IDownloadFileActionFromWidgetResponseData>
+ * @throws {WidgetApiActionError} If the widget API does not support the downloadFile action
+ */
+const tryDownloadFileWithWidgetApi = async (
+  widgetApi: WidgetApi,
+  mxc: string,
+) => {
+  try {
+    const result = await widgetApi.downloadFile(mxc);
+    return result;
+  } catch (error) {
+    const logger = getLogger('ImageDisplay.downloadFile');
+    logger.error('Failed to download image from widget api:', error);
+    throw new WidgetApiActionError('downloadFile not available');
+  }
+};
+
+/**
+ * Try getting an http url for the given mxc url.
+ *
+ * @param mxc The mxc URL of the file to download
+ * @param baseUrl The base URL of the matrix homeserver
+ * @param mimeType The MIME type of the file
+ * @returns The URL of the file. Note this is an blob URL for SVG files.
+ */
+const tryFallbackDownload = async (
+  mxc: string,
+  baseUrl: string,
+  mimeType: string,
+) => {
+  const httpUrl = convertMxcToHttpUrl(mxc, baseUrl);
+
+  if (httpUrl === null) {
+    return '';
+  }
+
+  if (mimeType === 'image/svg+xml') {
+    try {
+      const response = await fetch(httpUrl);
+      const rawBlob = await response.blob();
+      const svgBlob = rawBlob.slice(0, rawBlob.size, mimeType);
+      return svgBlob;
+    } catch (fetchError) {
+      const logger = getLogger('ImageDisplay.tryFallbackDownload');
+      logger.error('Failed to fetch SVG image:', fetchError);
+      throw new Error('Failed to fetch SVG image');
+    }
+  }
+  return httpUrl;
+};
 
 type ImageDisplayProps = Omit<ImageElement, 'kind'> &
   WithExtendedSelectionProps & {
@@ -37,13 +137,12 @@ type ImageDisplayProps = Omit<ImageElement, 'kind'> &
     baseUrl: string;
   };
 
-const Image = styled('image', {
-  shouldForwardProp: (p) => p !== 'loading',
-})<{ loading: boolean }>(({ loading }) => ({
+const Image = styled(
+  'image',
+  {},
+)<{}>(() => ({
   userSelect: 'none',
   WebkitUserSelect: 'none',
-  // prevention of partial rendering if the image has not yet been fully loaded
-  visibility: loading ? 'hidden' : 'visible',
 }));
 
 /**
@@ -64,132 +163,34 @@ function ImageDisplay({
   overrides = {},
 }: ImageDisplayProps) {
   const widgetApi = useWidgetApi();
-  const [loadError, setLoadError] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [imageUri, setImageUri] = useState<undefined | string>();
-
-  const handleLoad = useCallback(() => {
-    setLoading(false);
-    setLoadError(false);
-
-    // This can happen directly when the image is loaded and saves some memory.
-    if (imageUri) {
-      URL.revokeObjectURL(imageUri);
-    }
-  }, [setLoading, setLoadError, imageUri]);
-
-  const handleLoadError = useCallback(() => {
-    setLoading(false);
-    setLoadError(true);
-  }, [setLoading, setLoadError]);
+  const [imageUri, setImageUri] = useState<string>();
+  const { data: image } = useSWR(
+    { widgetApi, baseUrl, mxc, mimeType },
+    downloadFile,
+    { suspense: true },
+  );
 
   useEffect(() => {
-    const downloadFile = async () => {
-      try {
-        const result = await tryDownloadFileWithWidgetApi(mxc);
-        const blob = getBlobFromResult(result, mimeType);
-        const downloadedFileDataUrl = createObjectUrlFromBlob(blob);
-        setImageUri(downloadedFileDataUrl);
-      } catch (error) {
-        handleDownloadError(error as Error);
-      }
-    };
-
-    const tryDownloadFileWithWidgetApi = async (mxc: string) => {
-      try {
-        const result = await widgetApi.downloadFile(mxc);
-        return result;
-      } catch {
-        throw new WidgetApiActionError('downloadFile not available');
-      }
-    };
-
-    const getBlobFromResult = (
-      result: IDownloadFileActionFromWidgetResponseData,
-      mimeType: string,
-    ): Blob => {
-      if (!(result.file instanceof Blob)) {
-        throw new Error('Got non Blob file response');
-      }
-      return result.file.slice(0, result.file.size, mimeType);
-    };
-
-    const createObjectUrlFromBlob = (blob: Blob): string => {
-      const url = URL.createObjectURL(blob);
-      if (url === '') {
+    if (image instanceof Blob) {
+      // Convert blob to blob URL
+      const downloadedFileDataUrl = URL.createObjectURL(image);
+      if (downloadedFileDataUrl === '') {
         throw new Error('Failed to create object URL');
       }
-      return url;
-    };
+      setImageUri(downloadedFileDataUrl);
+    } else {
+      setImageUri(image);
+    }
+  }, [image, setImageUri]);
 
-    const handleDownloadError = (error: Error) => {
-      if (error instanceof WidgetApiActionError) {
-        tryFallbackDownload();
-      } else {
-        setLoadError(true);
-      }
-    };
-
-    const tryFallbackDownload = async () => {
-      let abortController: AbortController | undefined;
-
-      const httpUrl = convertMxcToHttpUrl(mxc, baseUrl);
-
-      if (httpUrl === null) {
-        setImageUri('');
-        return;
-      }
-
-      if (mimeType === 'image/svg+xml') {
-        abortController = new AbortController();
-        try {
-          const response = await fetch(httpUrl, {
-            signal: abortController.signal,
-          });
-          const rawBlob = await response.blob();
-          const svgBlob = rawBlob.slice(0, rawBlob.size, mimeType);
-          setImageUri(URL.createObjectURL(svgBlob));
-        } catch (fetchError) {
-          console.error('Failed to fetch SVG image:', fetchError);
-          setLoadError(true);
-        }
-        return;
-      }
-
-      setImageUri(httpUrl);
-
-      return () => {
-        if (abortController) {
-          abortController.abort();
-        }
-      };
-    };
-
-    downloadFile();
-  }, [baseUrl, mimeType, mxc, widgetApi]);
-
-  const renderedSkeleton =
-    loading && !loadError ? (
-      <Skeleton
-        data-testid={`element-${elementId}-skeleton`}
-        x={position.x}
-        y={position.y}
-        width={width}
-        height={height}
-      />
-    ) : null;
-
-  const renderedPlaceholder = loadError ? (
-    <ImagePlaceholder
-      position={position}
-      width={width}
-      height={height}
-      elementId={elementId}
-    />
-  ) : null;
+  const onLoaded = useCallback(() => {
+    if (image instanceof Blob && imageUri) {
+      URL.revokeObjectURL(imageUri);
+    }
+  }, [image, imageUri]);
 
   const renderedChild =
-    imageUri !== undefined && !loadError ? (
+    imageUri !== undefined ? (
       <Image
         data-testid={`element-${elementId}-image`}
         href={imageUri}
@@ -198,18 +199,12 @@ function ImageDisplay({
         width={width}
         height={height}
         preserveAspectRatio="none"
-        onLoad={handleLoad}
-        onError={handleLoadError}
-        loading={loading}
+        onLoad={onLoaded}
       />
     ) : null;
 
   if (readOnly) {
-    return (
-      <>
-        {renderedSkeleton} {renderedChild} {renderedPlaceholder}
-      </>
-    );
+    return <>{renderedChild}</>;
   }
 
   return (
@@ -221,9 +216,7 @@ function ImageDisplay({
       >
         <MoveableElement elementId={elementId} overrides={overrides}>
           <ElementContextMenu activeElementIds={activeElementIds}>
-            {renderedSkeleton}
             {renderedChild}
-            {renderedPlaceholder}
           </ElementContextMenu>
         </MoveableElement>
       </SelectableElement>
@@ -231,4 +224,50 @@ function ImageDisplay({
   );
 }
 
-export default React.memo(ImageDisplay);
+function ImageDisplayWrapper({
+  element,
+  otherProps,
+}: {
+  element: ImageElement;
+  otherProps: OtherProps;
+}) {
+  const widgetApi = useWidgetApi();
+
+  if (widgetApi.widgetParameters.baseUrl === undefined) {
+    console.error('Image cannot be rendered due to missing base URL');
+    return null;
+  }
+
+  return (
+    <Suspense
+      fallback={
+        <Skeleton
+          data-testid={`element-${otherProps.elementId}-skeleton`}
+          x={element.position.x}
+          y={element.position.y}
+          width={element.width}
+          height={element.height}
+        />
+      }
+    >
+      <ErrorBoundary
+        fallback={
+          <ImagePlaceholder
+            position={element.position}
+            width={element.width}
+            height={element.height}
+            elementId={otherProps.elementId}
+          />
+        }
+      >
+        <ImageDisplay
+          baseUrl={widgetApi.widgetParameters.baseUrl}
+          {...element}
+          {...otherProps}
+        />
+      </ErrorBoundary>
+    </Suspense>
+  );
+}
+
+export default ImageDisplayWrapper;
