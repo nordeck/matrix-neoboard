@@ -158,7 +158,7 @@ describe('fitText', () => {
         '799px': [0, 0],
       });
 
-      fitText(container, undefined, fontStyleItalic);
+      fitText(container, undefined, undefined, fontStyleItalic);
 
       expect(container.style.padding).toEqual(expectedPadding);
     },

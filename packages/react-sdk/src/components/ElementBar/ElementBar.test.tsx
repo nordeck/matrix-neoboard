@@ -84,6 +84,12 @@ describe('<ElementBar/>', () => {
     const toolbar = screen.getByRole('toolbar', { name: 'Element' });
 
     expect(
+      within(toolbar).getByRole('combobox', {
+        name: 'Select font size',
+      }),
+    ).toBeInTheDocument();
+
+    expect(
       within(toolbar).getByRole('button', {
         name: 'Pick a text color',
       }),

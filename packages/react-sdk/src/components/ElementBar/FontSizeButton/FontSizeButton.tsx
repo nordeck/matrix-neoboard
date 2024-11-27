@@ -15,12 +15,14 @@
  */
 
 import { MenuItem, Select } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import { useFontSize } from '../../../lib/text-formatting';
 import { useActiveElements, useElements } from '../../../state';
 
 const FONT_SIZES = [8, 10, 12, 14, 16, 20, 24, 32, 36, 40, 48, 64, 96];
 
 export function FontSizeButton() {
+  const { t } = useTranslation('neoboard');
   const { fontSize, setFontSize } = useFontSize();
 
   const { activeElementIds } = useActiveElements();
@@ -37,6 +39,9 @@ export function FontSizeButton() {
       variant="standard"
       disableUnderline={true}
       value={fontSize ?? 'auto'}
+      inputProps={{
+        'aria-label': t('elementBar.fontSize', 'Select font size'),
+      }}
       onChange={(event) => {
         setFontSize(
           event.target.value === 'auto'

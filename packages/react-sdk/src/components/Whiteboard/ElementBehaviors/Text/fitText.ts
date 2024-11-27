@@ -111,8 +111,8 @@ export function getTextSize(
     wrapperElement.style.flexBasis = `${width}px`;
     wrapperElement.style.width = 'unset';
   } else {
-    wrapperElement.style.width = `${width}px`;
     wrapperElement.style.flexBasis = 'unset';
+    wrapperElement.style.width = `${width}px`;
   }
 
   element.style.lineHeight = '1.2';
@@ -169,6 +169,8 @@ export function getTextSize(
 
   // calculate the padding to center the text in the box
   const paddingTop = Math.max(0, (height - element.clientHeight) / 2);
+
+  element.innerText = '';
 
   return { fontSize, paddingTop, paddingHorizontal };
 }
