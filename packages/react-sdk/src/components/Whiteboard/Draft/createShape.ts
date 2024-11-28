@@ -95,6 +95,11 @@ export function createShape({
     }
   }
 
+  // `width` and `height` must not be 0.
+  // Picked 2px because it's also the minimum size when riszing a shape.
+  width = Math.max(width, 2);
+  height = Math.max(height, 2);
+
   return {
     fillColor,
     height,
