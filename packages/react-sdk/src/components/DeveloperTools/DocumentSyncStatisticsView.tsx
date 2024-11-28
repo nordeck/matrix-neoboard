@@ -14,43 +14,121 @@
  * limitations under the License.
  */
 
+import {
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography,
+  styled,
+} from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import { DocumentSyncStatistics } from '../../state/types';
+
+const StyledTable = styled(Table)({
+  minWidth: 600,
+  borderCollapse: 'collapse',
+});
+
+const StyledTableCell = styled(TableCell)(({ theme }) => ({
+  fontSize: '0.875rem',
+  padding: '8px 16px',
+  borderBottom: `1px solid ${theme.palette.divider}`,
+  '&:not(:last-child)': {
+    borderRight: `1px solid ${theme.palette.divider}`, // Add vertical divider between cells
+  },
+}));
+
+const HeaderCell = styled(StyledTableCell)(({ theme }) => ({
+  fontWeight: 'bold',
+  backgroundColor: theme.palette.divider,
+  textAlign: 'center',
+}));
 
 export function DocumentSyncStatisticsView({
   document,
 }: {
   document: DocumentSyncStatistics | undefined;
 }) {
-  return (
-    <table style={{ width: '100%' }}>
-      <caption>Documents</caption>
-      <thead>
-        <tr>
-          <th />
-          <th colSpan={3}>Snapshots</th>
-        </tr>
-        <tr>
-          <th>Binary / JSON Size (bytes)</th>
-          <th>Received</th>
-          <th>Send</th>
-          <th>Outstanding</th>
-        </tr>
-      </thead>
+  const { t } = useTranslation('neoboard');
 
-      <tbody>
-        {document && (
-          <tr>
-            <td align="right">
-              {document.documentSizeInBytes} / {document.contentSizeInBytes}
-            </td>
-            <td align="right">{document.snapshotsReceived}</td>
-            <td align="right">{document.snapshotsSend}</td>
-            <td align="right">
-              {document.snapshotOutstanding ? 'true' : 'false'}
-            </td>
-          </tr>
+  return (
+    <TableContainer component={Paper}>
+      <StyledTable
+        aria-label={t(
+          'boardBar.developerToolsDialog.documentSyncStatistics.tableAriaLabel',
+          'Document Sync Statistics',
         )}
-      </tbody>
-    </table>
+      >
+        <TableHead>
+          <TableRow>
+            <HeaderCell>
+              {t(
+                'boardBar.developerToolsDialog.documentSyncStatistics.binaryJsonSize',
+                'Binary / JSON Size (bytes)',
+              )}
+            </HeaderCell>
+            <HeaderCell>
+              {t(
+                'boardBar.developerToolsDialog.documentSyncStatistics.received',
+                'Received',
+              )}
+            </HeaderCell>
+            <HeaderCell>
+              {t(
+                'boardBar.developerToolsDialog.documentSyncStatistics.send',
+                'Send',
+              )}
+            </HeaderCell>
+            <HeaderCell>
+              {t(
+                'boardBar.developerToolsDialog.documentSyncStatistics.outstanding',
+                'Outstanding',
+              )}
+            </HeaderCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {document ? (
+            <TableRow>
+              <StyledTableCell align="right">
+                {document.documentSizeInBytes} / {document.contentSizeInBytes}
+              </StyledTableCell>
+              <StyledTableCell align="right">
+                {document.snapshotsReceived}
+              </StyledTableCell>
+              <StyledTableCell align="right">
+                {document.snapshotsSend}
+              </StyledTableCell>
+              <StyledTableCell align="right">
+                {document.snapshotOutstanding
+                  ? t(
+                      'boardBar.developerToolsDialog.documentSyncStatistics.true',
+                      'true',
+                    )
+                  : t(
+                      'boardBar.developerToolsDialog.documentSyncStatistics.false',
+                      'false',
+                    )}
+              </StyledTableCell>
+            </TableRow>
+          ) : (
+            <TableRow>
+              <StyledTableCell colSpan={4} align="center">
+                <Typography variant="body2" color="textSecondary">
+                  {t(
+                    'boardBar.developerToolsDialog.documentSyncStatistics.noData',
+                    'No data available',
+                  )}
+                </Typography>
+              </StyledTableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </StyledTable>
+    </TableContainer>
   );
 }

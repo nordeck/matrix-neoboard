@@ -14,4 +14,4 @@
  * limitations under the License.
  */
 
-export { DeveloperTools } from './DeveloperTools';
+export { DeveloperToolsDialog } from './DeveloperToolsDialog';

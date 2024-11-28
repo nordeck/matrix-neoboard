@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Nordeck IT + Consulting GmbH
+ * Copyright 2024 Nordeck IT + Consulting GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,116 +14,94 @@
  * limitations under the License.
  */
 
+import {
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  styled,
+} from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import { CommunicationChannelStatistics } from '../../state/communication';
+import { PeerConnectionDetail } from './PeerConnectionDetail';
+
+const StyledTable = styled(Table)({
+  minWidth: 700,
+  borderCollapse: 'collapse',
+});
+
+const StyledTableCell = styled(TableCell)(({ theme }) => ({
+  padding: '8px 16px',
+  fontSize: '0.875rem',
+  borderBottom: `1px solid ${theme.palette.divider}`,
+  '&:not(:last-child)': {
+    borderRight: `1px solid ${theme.palette.divider}`,
+  },
+}));
+
+const HeaderCell = styled(StyledTableCell)(({ theme }) => ({
+  fontWeight: 'bold',
+  textAlign: 'center',
+  backgroundColor: theme.palette.divider,
+}));
 
 export function CommunicationChannelStatisticsView({
   communicationChannel,
 }: {
   communicationChannel: CommunicationChannelStatistics;
 }) {
+  const { t } = useTranslation('neoboard');
+
   return (
-    <table style={{ width: '100%' }}>
-      <caption>Communication (WebRTC)</caption>
-
-      <thead>
-        <tr>
-          <th>Local Session Id</th>
-          <th>Peers</th>
-        </tr>
-      </thead>
-
-      <tbody>
-        <tr>
-          <td>{communicationChannel.localSessionId}</td>
-          <td>{Object.keys(communicationChannel.peerConnections).length}</td>
-        </tr>
-        {Object.entries(communicationChannel.peerConnections).map(
-          ([connectionId, peerConnection]) => (
-            <tr key={connectionId}>
-              <td colSpan={2}>
-                <table>
-                  <caption>{connectionId}</caption>
-
-                  <tbody>
-                    <tr>
-                      <td>Remote Session Id</td>
-                      <td>{peerConnection.remoteSessionId}</td>
-                    </tr>
-                    <tr>
-                      <td>User Id</td>
-                      <td>{peerConnection.remoteUserId}</td>
-                    </tr>
-                    <tr>
-                      <td>Impolite</td>
-                      <td>{peerConnection.impolite ? 'true' : 'false'}</td>
-                    </tr>
-                    <tr>
-                      <td>Connection Type</td>
-                      <td>
-                        {peerConnection.localCandidateType}
-                        {' / '}
-                        {peerConnection.remoteCandidateType}
-                      </td>
-                    </tr>
-
-                    <tr>
-                      <td colSpan={2}>
-                        <table style={{ width: '100%' }}>
-                          <tbody>
-                            <tr>
-                              <td>Bytes Received</td>
-                              <td align="right">
-                                {peerConnection.bytesReceived}
-                              </td>
-                              <td>Bytes Send</td>
-                              <td align="right">{peerConnection.bytesSent}</td>
-                            </tr>
-                            <tr>
-                              <td>Messages Received</td>
-                              <td align="right">
-                                {peerConnection.packetsReceived}
-                              </td>
-                              <td>Messages Send</td>
-                              <td align="right">
-                                {peerConnection.packetsSent}
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </td>
-                    </tr>
-
-                    <tr>
-                      <td colSpan={2}>
-                        <table style={{ width: '100%' }}>
-                          <tbody>
-                            <tr>
-                              <td>ICE Gathering</td>
-                              <td>{peerConnection.iceGatheringState}</td>
-                              <td>ICE Connection</td>
-                              <td>{peerConnection.iceConnectionState}</td>
-                            </tr>
-                            <tr>
-                              <td>Signaling</td>
-                              <td>{peerConnection.signalingState}</td>
-                              <td>Connection</td>
-                              <td>{peerConnection.connectionState}</td>
-                            </tr>
-                            <tr>
-                              <td>Data channel</td>
-                              <td>{peerConnection.dataChannelState}</td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </td>
-            </tr>
-          ),
+    <TableContainer component={Paper}>
+      <StyledTable
+        aria-label={t(
+          'boardBar.developerToolsDialog.communicationChannelStatistics.tableAriaLabel',
+          'Communication Channel Statistics',
         )}
-      </tbody>
-    </table>
+      >
+        <TableHead>
+          <TableRow>
+            <HeaderCell>
+              {t(
+                'boardBar.developerToolsDialog.communicationChannelStatistics.localSessionId',
+                'Local Session Id',
+              )}
+            </HeaderCell>
+            <HeaderCell>
+              {t(
+                'boardBar.developerToolsDialog.communicationChannelStatistics.peers',
+                'Peers',
+              )}
+            </HeaderCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          <TableRow>
+            <StyledTableCell>
+              {communicationChannel.localSessionId}
+            </StyledTableCell>
+            <StyledTableCell>
+              {Object.keys(communicationChannel.peerConnections).length}
+            </StyledTableCell>
+          </TableRow>
+          {Object.entries(communicationChannel.peerConnections).map(
+            ([connectionId, peerConnection]) => (
+              <TableRow key={connectionId}>
+                <StyledTableCell colSpan={2}>
+                  <PeerConnectionDetail
+                    connectionId={connectionId}
+                    peerConnection={peerConnection}
+                  />
+                </StyledTableCell>
+              </TableRow>
+            ),
+          )}
+        </TableBody>
+      </StyledTable>
+    </TableContainer>
   );
 }

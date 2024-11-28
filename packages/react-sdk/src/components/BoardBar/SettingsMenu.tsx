@@ -50,12 +50,8 @@ function ImportMenuItem({ onClose }: { onClose: () => void }) {
 
 export function SettingsMenu() {
   const { t } = useTranslation('neoboard');
-  const {
-    setDeveloperToolsVisible,
-    isDeveloperToolsVisible,
-    isShowGrid,
-    setShowGrid,
-  } = useLayoutState();
+  const { setDeveloperToolsVisible, isShowGrid, setShowGrid } =
+    useLayoutState();
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -88,15 +84,9 @@ export function SettingsMenu() {
   );
 
   const handleDebugClick = useCallback(() => {
+    setDeveloperToolsVisible(true);
     handleClose();
-  }, [handleClose]);
-
-  const handleDebugChange = useCallback(
-    (value: boolean) => {
-      setDeveloperToolsVisible(value);
-    },
-    [setDeveloperToolsVisible],
-  );
+  }, [handleClose, setDeveloperToolsVisible]);
 
   const menuTitle = t('boardBar.menu.title', 'Settings');
   const buttonId = useId();
@@ -161,13 +151,14 @@ export function SettingsMenu() {
           onClick={handleGridClick}
           onChange={handleGridChange}
         />
-        <MenuItemSwitch
-          checked={isDeveloperToolsVisible}
-          title={t('boardBar.menu.developerTools', 'Developer Tools')}
-          icon={<BugReportOutlinedIcon />}
-          onClick={handleDebugClick}
-          onChange={handleDebugChange}
-        />
+        <MenuItem onClick={handleDebugClick}>
+          <ListItemIcon>
+            <BugReportOutlinedIcon sx={{ color: 'text.primary' }} />
+          </ListItemIcon>
+          <ListItemText>
+            {t('boardBar.menu.developerTools', 'Developer Tools')}
+          </ListItemText>
+        </MenuItem>
       </Menu>
     </>
   );

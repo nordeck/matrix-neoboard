@@ -4,6 +4,40 @@
     "waitModeratorJoin": "Wait for the moderator to join."
   },
   "boardBar": {
+    "developerToolsDialog": {
+      "closeAriaLabel": "Close",
+      "communicationChannelStatistics": {
+        "bytes": "Bytes",
+        "connection": "Connection",
+        "connectionStates": "Connection States",
+        "connectionType": "Connection Type",
+        "dataChannel": "Data Channel",
+        "dataTransfer": "Data Transfer",
+        "impolite": "Impolite",
+        "localSessionId": "Local Session Id",
+        "messagesReceived": "Messages Received",
+        "peers": "Peers",
+        "received": "Received",
+        "remoteSessionId": "Remote Session Id",
+        "signaling": "Signaling",
+        "tableAriaLabel": "Communication Channel Statistics",
+        "true": "true",
+        "userId": "User Id"
+      },
+      "communicationChannelStatisticsTitle": "Communication Channel Statistics (WRTC)",
+      "documentSyncStatistics": {
+        "binaryJsonSize": "Binary / JSON Size (bytes)",
+        "false": "false",
+        "noData": "No data available",
+        "outstanding": "Outstanding",
+        "received": "Received",
+        "send": "Send",
+        "tableAriaLabel": "Document Sync Statistics",
+        "true": "true"
+      },
+      "documentSyncStatisticsTitle": "Document Sync Statistics (Snapshots)",
+      "title": "Developer Tools"
+    },
     "exportWhiteboardDialog": {
       "cancel": "Cancel",
       "close": "Close",
@@ -213,6 +247,11 @@
     "resolutionError_other": "The files {{fileNames}} cannot be uploaded due to their resolution. The upload is possible for a maximum of {{limit}} per file.",
     "sizeError_one": "The file {{fileNames}} cannot be uploaded due to its size. The upload is possible for a maximum of {{limit}} per file.",
     "sizeError_other": "The files {{fileNames}} cannot be uploaded due to their size. The upload is possible for a maximum of {{limit}} per file."
+  },
+  "peerConnectionDetail": {
+    "false": "false",
+    "messagesSent": "Sent",
+    "sent": "Sent"
   },
   "presentBar": {
     "disableEditing": "Disable editing",
