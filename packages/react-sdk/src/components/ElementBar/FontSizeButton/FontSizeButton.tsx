@@ -19,7 +19,7 @@ import { useTranslation } from 'react-i18next';
 import { useFontSize } from '../../../lib/text-formatting';
 import { useActiveElements, useElements } from '../../../state';
 
-const FONT_SIZES = [8, 10, 12, 14, 16, 20, 24, 32, 36, 40, 48, 64, 96];
+const FONT_SIZES = [8, 16, 24, 32, 48, 64, 96, 128, 160, 192];
 
 export function FontSizeButton() {
   const { t } = useTranslation('neoboard');
@@ -44,7 +44,9 @@ export function FontSizeButton() {
       }}
       SelectDisplayProps={{
         style: {
+          textAlign: 'center',
           paddingRight: '18px',
+          paddingTop: '4px',
         },
       }}
       onChange={(event) => {
@@ -54,14 +56,10 @@ export function FontSizeButton() {
             : (event.target.value as number),
         );
       }}
-      renderValue={(v) => {
-        // Only render short "au" to prevent change of the select width when choosing "auto"
-        return v === 'auto' ? 'au' : v;
-      }}
       sx={{
         // Set a min-width to prevent change of the select width depending on the value
-        minWidth: '52px',
-        padding: '0 5px 0 10px',
+        minWidth: '64px',
+        padding: '0 5px 0 8px',
       }}
     >
       <MenuItem value="auto">auto</MenuItem>
