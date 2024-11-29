@@ -25,7 +25,12 @@ export function base64ToUint8Array(base64: string): Uint8Array {
 // We use magic values just like libmagic does to detect the mimeType which pdfmake requires
 export function base64ToMimeType(base64: string): ImageMimeType {
   const decoded = base64ToUint8Array(base64);
-  const first_eight_bytes = decoded.subarray(0, 8);
+  return uint8ArrayToMimeType(decoded);
+
+}
+
+export function uint8ArrayToMimeType(uint8Array: Uint8Array): ImageMimeType {
+  const first_eight_bytes = uint8Array.subarray(0, 8);
   if (
     first_eight_bytes[0] === 0x89 &&
     first_eight_bytes[1] === 0x50 &&

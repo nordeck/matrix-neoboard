@@ -20,11 +20,12 @@ import { PropsWithChildren, createContext, useCallback, useRef } from 'react';
 import { ErrorCode, FileRejection } from 'react-dropzone';
 import { useTranslation } from 'react-i18next';
 import { determineImageSize } from '../../lib';
-import { ImageMimeType, Size } from '../../state';
+import { Size } from '../../state';
 import { PromiseSettledResult } from '../../types';
 import { SnackbarDismissAction, SnackbarProps, useSnackbar } from '../Snackbar';
-import { defaultAcceptedImageTypes } from './consts';
 import { useMaxUploadSize } from './useMaxUploadSize';
+import { uint8ArrayToMimeType } from '../../imageUtils';
+import { defaultAcceptedImageTypesArray } from './consts';
 
 /**
  * Allow a maximum of 32 Megapixels image resolution.
@@ -125,7 +126,7 @@ export function ImageUploadProvider({ children }: PropsWithChildren<{}>) {
           throw new ResolutionTooHighError();
         }
 
-        if (!isAllowedMimeType(file.type)) {
+        if (!isAllowedType(imageData)) {
           // This should not happen, because the file type should be validated by Dropzone.
           throw new Error('Unsupported filetype');
         }
@@ -294,7 +295,7 @@ function showErrorSnackbars(
     });
   }
 }
-
-function isAllowedMimeType(type: string): type is ImageMimeType {
-  return Object.keys(defaultAcceptedImageTypes).includes(type);
+function isAllowedType(arrayBuffer: ArrayBuffer): boolean {
+  const mime = uint8ArrayToMimeType(new Uint8Array(arrayBuffer));
+  return defaultAcceptedImageTypesArray.includes(mime);
 }
