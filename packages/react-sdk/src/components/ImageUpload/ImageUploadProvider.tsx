@@ -296,6 +296,10 @@ function showErrorSnackbars(
   }
 }
 function isAllowedType(arrayBuffer: ArrayBuffer): boolean {
-  const mime = uint8ArrayToMimeType(new Uint8Array(arrayBuffer));
-  return defaultAcceptedImageTypesArray.includes(mime);
+  try {
+    const mime = uint8ArrayToMimeType(new Uint8Array(arrayBuffer));
+    return defaultAcceptedImageTypesArray.includes(mime);
+  } catch {
+    return false;
+  }
 }
