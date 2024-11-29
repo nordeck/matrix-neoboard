@@ -15,6 +15,7 @@
  */
 
 import { useTheme } from '@mui/material';
+import { useInvertedScaledValue } from '../../../../lib';
 import { calculateBoundingRectForElements } from '../../../../state';
 import { selectCanvas } from '../../../../store/canvasSlice';
 import { useAppSelector } from '../../../../store/reduxToolkitHooks';
@@ -33,10 +34,9 @@ function SelectionAnchor({
   borderWidth: number;
 }) {
   const theme = useTheme();
-  const { scale } = useSvgCanvasContext();
   const selectionAnchorFill = 'white';
-  const selectionAnchorCornerRadius = 3 / scale;
-  const selectionAnchorSize = 10 / scale;
+  const selectionAnchorCornerRadius = useInvertedScaledValue(3);
+  const selectionAnchorSize = useInvertedScaledValue(10);
 
   return (
     <rect

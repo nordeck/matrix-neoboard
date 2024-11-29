@@ -20,15 +20,20 @@ import {
   PropsWithChildren,
   ReactNode,
   useCallback,
+  useEffect,
   useMemo,
   useRef,
 } from 'react';
 import { Point } from '../../../state';
-import { selectCanvas } from '../../../store/canvasSlice';
-import { useAppSelector } from '../../../store/reduxToolkitHooks';
+import { selectCanvas, updateOuterScale } from '../../../store/canvasSlice';
+import {
+  useAppDispatch,
+  useAppSelector,
+} from '../../../store/reduxToolkitHooks';
 import { SvgCanvasContext, SvgCanvasContextType } from './context';
 import { useMeasure } from './useMeasure';
 import { calculateScale, calculateSvgCoords } from './utils';
+import { whiteboardHeight, whiteboardWidth } from '../constants';
 
 const Canvas = styled('svg', {
   shouldForwardProp: (p) => p !== 'rounded' && p !== 'sx',
@@ -87,6 +92,13 @@ export function SvgCanvas({
     [calculateSvgCoordsFunc, height, viewportHeight, viewportWidth, width],
   );
 
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    console.log('MiW outer scale', value.scale);
+    dispatch(updateOuterScale(value.scale));
+  }, [dispatch, value.scale]);
+
   const handleMouseMove: MouseEventHandler<SVGSVGElement> = useCallback(
     (e) => {
       const position = calculateSvgCoordsFunc({
@@ -108,6 +120,11 @@ export function SvgCanvas({
     : {
         maxWidth: '100%',
       };
+
+  console.log('MiW viewport', {
+    viewportWidth,
+    viewportHeight,
+  });
 
   return (
     <Box
