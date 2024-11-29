@@ -26,3 +26,4 @@ export { FontsLoadedContextProvider, useFontsLoaded } from './useFontsLoaded';
 export { useLatestValue } from './useLatestValue';
 export { useMeasure } from './useMeasure';
 export { getUserColor } from './userColor';
+export * from './render-hooks'
