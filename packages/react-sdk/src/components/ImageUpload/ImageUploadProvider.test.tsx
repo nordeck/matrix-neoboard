@@ -147,7 +147,7 @@ describe('<ImageUploadProvider />', () => {
     const file = new File([], 'example.jpg', {
       type: 'image/jpeg',
     });
-    const uploadFileError = new Error('error uploading file');
+    const uploadFileError = new Error('Unsupported filetype');
     widgetApi.uploadFile.mockRejectedValue(uploadFileError);
 
     let results;
