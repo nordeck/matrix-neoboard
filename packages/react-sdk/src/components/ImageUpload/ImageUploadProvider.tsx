@@ -19,13 +19,13 @@ import { TFunction } from 'i18next';
 import { PropsWithChildren, createContext, useCallback, useRef } from 'react';
 import { ErrorCode, FileRejection } from 'react-dropzone';
 import { useTranslation } from 'react-i18next';
+import { uint8ArrayToMimeType } from '../../imageUtils';
 import { determineImageSize } from '../../lib';
 import { Size } from '../../state';
 import { PromiseSettledResult } from '../../types';
 import { SnackbarDismissAction, SnackbarProps, useSnackbar } from '../Snackbar';
-import { useMaxUploadSize } from './useMaxUploadSize';
-import { uint8ArrayToMimeType } from '../../imageUtils';
 import { defaultAcceptedImageTypesArray } from './consts';
+import { useMaxUploadSize } from './useMaxUploadSize';
 
 /**
  * Allow a maximum of 32 Megapixels image resolution.

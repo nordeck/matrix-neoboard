@@ -26,7 +26,6 @@ export function base64ToUint8Array(base64: string): Uint8Array {
 export function base64ToMimeType(base64: string): ImageMimeType {
   const decoded = base64ToUint8Array(base64);
   return uint8ArrayToMimeType(decoded);
-
 }
 
 export function uint8ArrayToMimeType(uint8Array: Uint8Array): ImageMimeType {
