@@ -104,7 +104,7 @@ export function UnSelectElementHandler() {
         return;
       }
 
-      dispatch(updateScale(event.deltaY < 0 ? 0.1 : -0.1));
+      dispatch(updateScale(event.deltaY < 0 ? 1 : -1));
     },
     [dispatch],
   );
