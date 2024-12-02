@@ -16,10 +16,11 @@
 
 import { Box } from '@mui/material';
 import { clamp } from 'lodash';
-import { PropsWithChildren } from 'react';
-import { useScaledValue, useTranslatedYValue } from '../../../../lib';
+import { PropsWithChildren, useMemo } from 'react';
 import { useSlideIsLocked } from '../../../../state';
 import { calculateBoundingRectForElements } from '../../../../state/crdt/documents/elements';
+import { selectCanvas } from '../../../../store/canvasSlice';
+import { useAppSelector } from '../../../../store/reduxToolkitHooks';
 import { useElementOverrides } from '../../../ElementOverridesProvider';
 import { useMeasure, useSvgCanvasContext } from '../../SvgCanvas';
 
@@ -31,11 +32,7 @@ export function ElementBarWrapper({
   const elements = Object.values(useElementOverrides(elementIds));
   const [sizeRef, { width: elementBarWidth, height: elementBarHeight }] =
     useMeasure<HTMLDivElement>();
-  const {
-    scale,
-    width: canvasWidth,
-    height: canvasHeight,
-  } = useSvgCanvasContext();
+  const { width: canvasWidth, height: canvasHeight } = useSvgCanvasContext();
 
   if (
     // no elements selected
@@ -54,36 +51,62 @@ export function ElementBarWrapper({
   } = calculateBoundingRectForElements(elements);
 
   const offset = 10;
+  // eslint-disable-next-line
+  const canvas = useAppSelector(selectCanvas);
 
-  function calculateTopPosition() {
-    const position = useTranslatedYValue(y);
-    const positionAbove = position - elementBarHeight - offset;
-    const positionBelow = position + useScaledValue(height) + offset;
-    const positionInElement = position + offset;
+  // eslint-disable-next-line
+  const position = useMemo(() => {
+    const combinedScale = (1 / canvas.scale) * canvas.outerScale;
+    const matrix = new DOMMatrix()
+      .scale(canvas.outerScale)
+      .translate(canvas.translate.x, canvas.translate.y)
+      .scale(1 / canvas.scale);
 
-    return 450;
+    // X
+    const transformedX = matrix.transformPoint({ x }).x;
+    const positionX =
+      transformedX + (width / 2) * combinedScale - elementBarWidth / 2;
+    const clampedPositionX = clamp(positionX, 0, canvasWidth - elementBarWidth);
+
+    // Y
+    const positionY = matrix.transformPoint({ y }).y;
+    const positionAbove = positionY - elementBarHeight - offset;
+    const positionBelow = positionY + height * combinedScale + offset;
+    const positionInElement = positionY + offset;
+
+    let newYPosition = positionInElement;
 
     if (positionAbove >= 0) {
-      return positionAbove;
+      newYPosition = positionAbove;
     } else if (positionBelow + elementBarHeight < canvasHeight) {
-      return positionBelow;
-    } else {
-      return positionInElement;
+      newYPosition = positionBelow;
     }
-  }
 
-  function calculateLeftPosition() {
-    const position = x + (width / 2) * scale - elementBarWidth / 2;
-    return clamp(position, 0, canvasWidth - elementBarWidth);
-  }
+    return {
+      left: clampedPositionX,
+      top: newYPosition,
+    };
+  }, [
+    canvas.outerScale,
+    canvas.translate.x,
+    canvas.translate.y,
+    canvas.scale,
+    x,
+    width,
+    elementBarWidth,
+    canvasWidth,
+    y,
+    elementBarHeight,
+    height,
+    canvasHeight,
+  ]);
 
   return (
     <Box
       ref={sizeRef}
       position="absolute"
       zIndex={(theme) => theme.zIndex.appBar}
-      left={calculateLeftPosition()}
-      top={calculateTopPosition()}
+      {...position}
     >
       {children}
     </Box>
