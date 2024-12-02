@@ -121,11 +121,6 @@ export function SvgCanvas({
         maxWidth: '100%',
       };
 
-  console.log('MiW viewport', {
-    viewportWidth,
-    viewportHeight,
-  });
-
   return (
     <Box
       sx={{
