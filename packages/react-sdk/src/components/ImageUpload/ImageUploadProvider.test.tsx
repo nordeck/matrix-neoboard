@@ -31,6 +31,7 @@ import {
   vi,
 } from 'vitest';
 import { SnackbarContext } from '../Snackbar/SnackbarProvider';
+import { readFileAsFile } from './imageTestUtils';
 import { ImageUploadProvider } from './ImageUploadProvider';
 import { useImageUpload } from './useImageUpload';
 
@@ -78,9 +79,7 @@ describe('<ImageUploadProvider />', () => {
       wrapper: Wrapper,
     });
 
-    const file = new File([], 'example.jpg', {
-      type: 'image/jpeg',
-    });
+    const file = await readFileAsFile('nordeck.jpg');
     widgetApi.uploadFile.mockResolvedValue({
       content_uri: 'mxc://example.com/abc123',
     });
@@ -94,7 +93,7 @@ describe('<ImageUploadProvider />', () => {
       {
         status: 'fulfilled',
         value: {
-          fileName: 'example.jpg',
+          fileName: 'nordeck.jpg',
           mxc: 'mxc://example.com/abc123',
           size: {
             width: 40,
@@ -144,9 +143,7 @@ describe('<ImageUploadProvider />', () => {
       wrapper: Wrapper,
     });
 
-    const file = new File([], 'example.jpg', {
-      type: 'image/jpeg',
-    });
+    const file = await readFileAsFile('nordeck.svg');
     const uploadFileError = new Error('Unsupported filetype');
     widgetApi.uploadFile.mockRejectedValue(uploadFileError);
 

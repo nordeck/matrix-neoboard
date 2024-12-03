@@ -38,8 +38,6 @@ export function uint8ArrayToMimeType(uint8Array: Uint8Array): ImageMimeType {
   }
 
   const first_eight_bytes = uint8Array.subarray(0, 8);
-  // Print first 8 bytes of the file
-  console.log(first_eight_bytes);
   if (
     first_eight_bytes[0] === 0x89 &&
     first_eight_bytes[1] === 0x50 &&

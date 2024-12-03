@@ -295,6 +295,7 @@ function showErrorSnackbars(
     });
   }
 }
+
 function isAllowedType(arrayBuffer: ArrayBuffer): boolean {
   try {
     const mime = uint8ArrayToMimeType(new Uint8Array(arrayBuffer));

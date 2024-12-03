@@ -36,6 +36,7 @@ import { WhiteboardSlideInstance } from '../../state';
 import { ImageUploadProvider } from '../ImageUpload';
 import { SnackbarProvider } from '../Snackbar';
 import { SlideImageUploadOverlay } from './SlideImageUploadOverlay';
+import { readFileAsFile } from './imageTestUtils';
 
 vi.mock('../../lib', async () => ({
   ...(await vi.importActual<typeof import('../../lib')>('../../lib')),
@@ -87,9 +88,7 @@ describe('SlideImageUploadOverlay', () => {
   it('should upload a file on drop', async () => {
     render(<></>, { wrapper: Wrapper });
 
-    const file = new File([], 'example.jpg', {
-      type: 'image/jpeg',
-    });
+    const file = await readFileAsFile('nordeck.jpg');
 
     // Use upload instead of drop. Drop does not seem to work in the test environment.
     await userEvent.upload(
