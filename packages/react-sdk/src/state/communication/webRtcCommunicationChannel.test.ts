@@ -184,12 +184,7 @@ describe('WebRtcCommunicationChannel', () => {
     expect(channel.getStatistics()).toEqual({
       localSessionId: 'session-id',
       peerConnections: {},
-      sessions: [
-        {
-          sessionId: 'another-session-id',
-          userId: '@another-user-id',
-        },
-      ],
+      sessions: [],
     });
   });
 
