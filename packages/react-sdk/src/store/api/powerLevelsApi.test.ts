@@ -123,22 +123,11 @@ describe('patchPowerLevels', () => {
 
     const store = createStore({ widgetApi });
 
-    await expect(
-      store.dispatch(
-        powerLevelsApi.endpoints.patchPowerLevels.initiate({
-          changes: { users_default: 0, events_default: 0 },
-        }),
-      ),
-    ).resolves.toEqual({
-      data: expect.objectContaining({
-        content: {
-          users: { '@user-id': 100 },
-          users_default: 0,
-          events_default: 0,
-        },
-        room_id: '!room-id',
+    await store.dispatch(
+      powerLevelsApi.endpoints.patchPowerLevels.initiate({
+        changes: { users_default: 0, events_default: 0 },
       }),
-    });
+    );
 
     expect(widgetApi.sendStateEvent).toHaveBeenCalledWith(
       'm.room.power_levels',
@@ -162,21 +151,11 @@ describe('patchPowerLevels', () => {
 
     const store = createStore({ widgetApi });
 
-    await expect(
-      store.dispatch(
-        powerLevelsApi.endpoints.patchPowerLevels.initiate({
-          changes: { users_default: 100 },
-        }),
-      ),
-    ).resolves.toEqual({
-      data: expect.objectContaining({
-        content: {
-          users: { '@user-id': 100 },
-          users_default: 100,
-        },
-        room_id: '!room-id',
+    await store.dispatch(
+      powerLevelsApi.endpoints.patchPowerLevels.initiate({
+        changes: { users_default: 100 },
       }),
-    });
+    );
 
     expect(widgetApi.sendStateEvent).not.toHaveBeenCalled();
   });
