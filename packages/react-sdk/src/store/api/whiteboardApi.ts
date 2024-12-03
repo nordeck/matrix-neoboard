@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
-import { compareOriginServerTS, StateEvent } from '@matrix-widget-toolkit/api';
+import {
+  compareOriginServerTS,
+  makeEventFromSendStateEventResult,
+  StateEvent,
+} from '@matrix-widget-toolkit/api';
 import { createEntityAdapter, EntityState } from '@reduxjs/toolkit';
 import { isEqual, isError, last } from 'lodash';
 import { bufferTime, filter } from 'rxjs';
@@ -142,13 +146,27 @@ export const whiteboardApi = baseApi.injectEndpoints({
             return { data: { event: whiteboardEvent } };
           }
 
-          const event = await widgetApi.sendStateEvent(
+          const result = await widgetApi.sendStateEvent(
             STATE_EVENT_WHITEBOARD,
             whiteboard,
             { stateKey: whiteboardId },
           );
 
-          return { data: { event } };
+          if (widgetApi.widgetParameters.userId === undefined) {
+            throw new Error('Own user ID is undefined');
+          }
+
+          return {
+            data: {
+              event: makeEventFromSendStateEventResult(
+                STATE_EVENT_WHITEBOARD,
+                whiteboardId,
+                whiteboard,
+                widgetApi.widgetParameters.userId,
+                result,
+              ),
+            },
+          };
         } catch (e) {
           return {
             error: {

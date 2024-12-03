@@ -97,7 +97,7 @@ export const powerLevelsApi = baseApi.injectEndpoints({
     }),
 
     patchPowerLevels: builder.mutation<
-      StateEvent<PowerLevelsStateEvent>,
+      null,
       { changes: Partial<PowerLevelsStateEvent> }
     >({
       async queryFn({ changes }, { extra }) {
@@ -121,15 +121,12 @@ export const powerLevelsApi = baseApi.injectEndpoints({
             powerLevelEvent &&
             isEqual(powerLevelEvent.content, powerLevels)
           ) {
-            return { data: powerLevelEvent };
+            return { data: null };
           }
 
-          const data = await widgetApi.sendStateEvent(
-            STATE_EVENT_POWER_LEVELS,
-            powerLevels,
-          );
+          await widgetApi.sendStateEvent(STATE_EVENT_POWER_LEVELS, powerLevels);
 
-          return { data };
+          return { data: null };
         } catch (e) {
           return {
             error: {
