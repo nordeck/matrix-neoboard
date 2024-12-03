@@ -29,7 +29,17 @@ export function base64ToMimeType(base64: string): ImageMimeType {
 }
 
 export function uint8ArrayToMimeType(uint8Array: Uint8Array): ImageMimeType {
+  // Check if the file is an SVG
+  try {
+    getSVGUnsafe(new TextDecoder().decode(uint8Array));
+    return 'image/svg+xml';
+  } catch {
+    // Not an SVG, continue with the other checks
+  }
+
   const first_eight_bytes = uint8Array.subarray(0, 8);
+  // Print first 8 bytes of the file
+  console.log(first_eight_bytes);
   if (
     first_eight_bytes[0] === 0x89 &&
     first_eight_bytes[1] === 0x50 &&
