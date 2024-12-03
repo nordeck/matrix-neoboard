@@ -36,7 +36,7 @@ import {
 } from '../../../model';
 import { Session, SessionManager } from './types';
 
-type SessionState = { userId: string } & WhiteboardSession;
+export type SessionState = { userId: string } & WhiteboardSession;
 
 export class SessionManagerImpl implements SessionManager {
   private readonly logger = getLogger('SessionManager');
@@ -44,6 +44,7 @@ export class SessionManagerImpl implements SessionManager {
   private readonly leaveSubject = new Subject<void>();
   private readonly sessionJoinedSubject = new Subject<Session>();
   private readonly sessionLeftSubject = new Subject<Session>();
+  private readonly sessionSubject = new Subject<SessionState>();
   private sessions: SessionState[] = [];
   private joinState: { whiteboardId: string; sessionId: string } | undefined;
 
@@ -70,6 +71,10 @@ export class SessionManagerImpl implements SessionManager {
 
   observeSessionLeft(): Observable<Session> {
     return this.sessionLeftSubject;
+  }
+
+  observeSession(): Observable<SessionState> {
+    return this.sessionSubject;
   }
 
   async join(whiteboardId: string): Promise<{ sessionId: string }> {
@@ -152,6 +157,7 @@ export class SessionManagerImpl implements SessionManager {
   destroy(): void {
     this.destroySubject.next();
     this.sessionJoinedSubject.complete();
+    this.sessionSubject.complete();
     this.sessionLeftSubject.complete();
   }
 
@@ -160,6 +166,15 @@ export class SessionManagerImpl implements SessionManager {
   ): void {
     const userId = event.state_key;
     const eventSessions = event.content.sessions.filter(isNotExpired);
+
+    event.content.sessions.forEach((session) => {
+      this.sessionSubject.next({
+        userId: event.state_key,
+        sessionId: session.sessionId,
+        expiresTs: session.expiresTs,
+        whiteboardId: session.whiteboardId,
+      });
+    });
 
     // Remove sessions
     const sessionsToRemove = this.sessions.filter(

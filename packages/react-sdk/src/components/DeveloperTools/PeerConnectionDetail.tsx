@@ -47,7 +47,7 @@ export function PeerConnectionDetail({
   return (
     <>
       <Typography variant="subtitle1" gutterBottom>
-        {connectionId}
+        {`${peerConnection.remoteUserId}: ${connectionId}`}
       </Typography>
       <Table size="small">
         <TableBody>

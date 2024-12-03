@@ -16,6 +16,7 @@
 
 import { Observable } from 'rxjs';
 import { Message, PeerConnectionStatistics } from './connection';
+import { SessionState } from './discovery/sessionManagerImpl';
 
 export type { Message, PeerConnectionStatistics } from './connection';
 
@@ -24,6 +25,8 @@ export type CommunicationChannelStatistics = {
   localSessionId?: string;
   /** Statistics for each peer connection, indexed by the connection id. */
   peerConnections: Record<string, PeerConnectionStatistics>;
+  /**All sessions */
+  sessions?: SessionState[];
 };
 
 export type CommunicationChannel = {

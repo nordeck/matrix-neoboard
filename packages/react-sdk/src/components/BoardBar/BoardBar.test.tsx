@@ -139,7 +139,7 @@ describe('<BoardBar/>', () => {
       within(settingsMenu).getByRole('menuitemcheckbox', { name: 'Grid' }),
     ).toBeInTheDocument();
     expect(
-      within(settingsMenu).getByRole('menuitemcheckbox', {
+      within(settingsMenu).getByRole('menuitem', {
         name: 'Developer Tools',
       }),
     ).toBeInTheDocument();
@@ -311,30 +311,5 @@ describe('<BoardBar/>', () => {
         checked: false,
       }),
     ).toBeInTheDocument();
-  });
-
-  it('should toggle the developer tools', async () => {
-    render(<BoardBar />, { wrapper: Wrapper });
-
-    const toolbar = screen.getByRole('toolbar', { name: 'Board' });
-
-    const menuSettingsMenu = within(toolbar).getByRole('button', {
-      name: 'Settings',
-    });
-
-    await userEvent.click(menuSettingsMenu);
-
-    const settingsMenu = screen.getByRole('menu', {
-      name: 'Settings',
-    });
-
-    const debugMenuItem = within(settingsMenu).getByRole('checkbox', {
-      name: 'Developer Tools',
-      checked: false,
-    });
-
-    await userEvent.click(debugMenuItem);
-
-    expect(debugMenuItem).toBeChecked();
   });
 });

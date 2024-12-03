@@ -35,6 +35,7 @@ import {
   WebRtcPeerConnection,
 } from './connection';
 import { Session, SessionManager } from './discovery';
+import { SessionState } from './discovery/sessionManagerImpl';
 import { SignalingChannel } from './signaling';
 import { WebRtcCommunicationChannel } from './webRtcCommunicationChannel';
 
@@ -77,6 +78,7 @@ describe('WebRtcCommunicationChannel', () => {
   let signalingChannel: SignalingChannel;
   let peerConnection: Mocked<PeerConnection>;
   let channel: WebRtcCommunicationChannel;
+  let sessionSubject: Subject<SessionState>;
   let joinedSubject: Subject<Session>;
   let leftSubject: Subject<Session>;
   let statisticsSubject: Subject<PeerConnectionStatistics>;
@@ -95,11 +97,13 @@ describe('WebRtcCommunicationChannel', () => {
       sendDescription: vi.fn().mockImplementation(async () => {}),
     };
 
+    sessionSubject = new Subject();
     joinedSubject = new Subject();
     leftSubject = new Subject();
     sessionManager = {
       getSessionId: vi.fn(() => currentSessionId),
       getSessions: vi.fn().mockReturnValue([]),
+      observeSession: vi.fn().mockReturnValue(sessionSubject),
       observeSessionJoined: vi.fn().mockReturnValue(joinedSubject),
       observeSessionLeft: vi.fn().mockReturnValue(leftSubject),
       join: vi.fn().mockImplementation(async () => {
@@ -180,6 +184,12 @@ describe('WebRtcCommunicationChannel', () => {
     expect(channel.getStatistics()).toEqual({
       localSessionId: 'session-id',
       peerConnections: {},
+      sessions: [
+        {
+          sessionId: 'another-session-id',
+          userId: '@another-user-id',
+        },
+      ],
     });
   });
 
@@ -231,12 +241,14 @@ describe('WebRtcCommunicationChannel', () => {
       peerConnections: {
         'connection-id': peerConnectionStatistics,
       },
+      sessions: [],
     });
     await expect(statisticsPromise).resolves.toEqual({
       localSessionId: 'session-id',
       peerConnections: {
         'connection-id': peerConnectionStatistics,
       },
+      sessions: [],
     });
   });
 

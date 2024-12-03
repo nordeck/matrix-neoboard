@@ -22,7 +22,15 @@
         "signaling": "Signaling",
         "tableAriaLabel": "Communication Channel Statistics",
         "true": "true",
-        "userId": "User Id"
+        "userId": "User Id",
+        "whiteboardSessionsTable": {
+          "expire": "Session will expire in {{expire}}.",
+          "expiresState": "State",
+          "noData": "No whiteboard sessions available",
+          "sessionId": "Session ID",
+          "tableAriaLabel": "Whiteboard Sessions",
+          "userId": "User ID"
+        }
       },
       "communicationChannelStatisticsTitle": "Communication Channel Statistics (WRTC)",
       "documentSyncStatistics": {
@@ -36,6 +44,7 @@
         "true": "true"
       },
       "documentSyncStatisticsTitle": "Document Sync Statistics (Snapshots)",
+      "sessions": "Sessions",
       "title": "Developer Tools"
     },
     "exportWhiteboardDialog": {

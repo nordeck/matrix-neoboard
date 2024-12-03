@@ -25,6 +25,7 @@ import {
   DialogContent,
   DialogTitle,
   IconButton,
+  Tooltip,
   Typography,
 } from '@mui/material';
 import { unstable_useId as useId } from '@mui/utils';
@@ -32,6 +33,7 @@ import { useTranslation } from 'react-i18next';
 import { useActiveWhiteboardInstanceStatistics } from '../../state';
 import { CommunicationChannelStatisticsView } from './CommunicationChannelStatisticsView';
 import { DocumentSyncStatisticsView } from './DocumentSyncStatisticsView';
+import { WhiteboardSessionsTable } from './WhiteboardSessions';
 
 export function DeveloperToolsDialog({
   open,
@@ -59,25 +61,22 @@ export function DeveloperToolsDialog({
     >
       <DialogTitle
         id={dialogTitleId}
+        component="h2"
         style={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
         }}
       >
-        <Typography variant="h6">
-          {t('boardBar.developerToolsDialog.title', 'Developer Tools')}
-        </Typography>
-        <IconButton
-          aria-label={t(
-            'boardBar.developerToolsDialog.closeAriaLabel',
-            'Close',
-          )}
+        {t('boardBar.developerToolsDialog.title', 'Developer Tools')}
+        <Tooltip
           onClick={handleClose}
-          style={{ marginLeft: 'auto' }}
+          title={t('boardBar.developerToolsDialog.closeAriaLabel', 'Close')}
         >
-          <CloseIcon />
-        </IconButton>
+          <IconButton sx={{ mr: 3 }}>
+            <CloseIcon />
+          </IconButton>
+        </Tooltip>
       </DialogTitle>
       <DialogContent
         dividers
@@ -91,7 +90,7 @@ export function DeveloperToolsDialog({
               aria-controls="document-sync-content"
               id="document-sync-header"
             >
-              <Typography variant="subtitle1">
+              <Typography variant="subtitle1" component="h3">
                 {t(
                   'boardBar.developerToolsDialog.documentSyncStatisticsTitle',
                   'Document Sync Statistics (Snapshots)',
@@ -109,7 +108,7 @@ export function DeveloperToolsDialog({
               aria-controls="communication-channel-content"
               id="communication-channel-header"
             >
-              <Typography variant="subtitle1">
+              <Typography variant="subtitle1" component="h3">
                 {t(
                   'boardBar.developerToolsDialog.communicationChannelStatisticsTitle',
                   'Communication Channel Statistics (WRTC)',
@@ -119,6 +118,26 @@ export function DeveloperToolsDialog({
             <AccordionDetails>
               <CommunicationChannelStatisticsView
                 communicationChannel={communicationChannel}
+              />
+            </AccordionDetails>
+          </Accordion>
+          <Accordion>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="communication-channel-content"
+              id="communication-channel-header"
+            >
+              <Typography variant="subtitle1" component="h3">
+                {t('boardBar.developerToolsDialog.sessions', 'Sessions')}
+              </Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <WhiteboardSessionsTable
+                sessions={communicationChannel.sessions?.filter(
+                  (s) =>
+                    s.sessionId !== communicationChannel.localSessionId &&
+                    s.expiresTs - Date.now() > 0,
+                )}
               />
             </AccordionDetails>
           </Accordion>
