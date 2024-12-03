@@ -23,7 +23,7 @@ import { selectCanvas } from '../../../../store/canvasSlice';
 import { useAppSelector } from '../../../../store/reduxToolkitHooks';
 import { useElementOverrides } from '../../../ElementOverridesProvider';
 import { useMeasure, useSvgCanvasContext } from '../../SvgCanvas';
-import { initialWhiteboardWidth } from '../../constants';
+import { whiteboardWidth, whiteboardHeight, initialWhiteboardWidth, initialWhiteboardHeight } from '../../constants';
 
 export function ElementBarWrapper({
   children,
@@ -79,12 +79,19 @@ export function ElementBarWrapper({
     // if the canvas is scaled to 5, we can see only a 5²th of the canvas.
     // elements at X=500 should be rendered at X=500, instead of X=100 when we can see the whole canvas
     matrix.scaleSelf(canvas.scale);
-    console.log("KiB matrix after canvas.scale", matrix);
+    console.log("KiB matrix after canvas.scale-scaling", matrix);
     matrix.scaleSelf(1/5); // canvas to viewport coordinate scale
     console.log("KiB matrix after canvas-to-viewport", matrix);
+    // if the canvas is scaled to 5 from the middle of the canvas,
+    // the viewport origin is moved along the line segment from the canvas origin to the "viewport origin" by the scaling factor.
+    // the scaling is apparently nonlinear (contrary to the below). TODO: adapt to the actual scaling factor.
+    const zoomFactor = 1 / 2 * (canvas.scale - 1) / (5 - 1);
+    matrix.translateSelf(-((whiteboardWidth - initialWhiteboardWidth) * zoomFactor),
+      -((whiteboardHeight - initialWhiteboardHeight) * zoomFactor));
+    console.log("KiB matrix after canvas.scale-translation", matrix);
     const elementOnViewport = matrix.transformPoint(elementOnCanvas);
-    const elementWidthOnViewport = width * 1/5;
-    const elementHeightOnViewport = height * 1/5;
+    const elementWidthOnViewport = width * canvas.scale * 1/5;
+    const elementHeightOnViewport = height * canvas.scale * 1/5;
     console.log("KiB transform Element to Viewport", {
       "original": {x, y},
       "transformed": elementOnViewport,
@@ -126,7 +133,6 @@ export function ElementBarWrapper({
       top: newYPosition,
     };
   }, [
-    canvas,
     canvas.outerScale,
     canvas.translate.x,
     canvas.translate.y,
