@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-export const initialWhiteboardWidth = 1980;
+export const initialWhiteboardWidth = 1920;
 export const initialWhiteboardHeight = 1080;
 
 export const whiteboardWidth = 9600;
