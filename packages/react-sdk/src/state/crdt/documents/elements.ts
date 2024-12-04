@@ -114,7 +114,10 @@ export type ImageElement = ElementBase & {
    */
   mxc: string;
   fileName: string;
-  mimeType: ImageMimeType;
+  /**
+   * @deprecated  This is kept for backwards compatibility. We dont send it anymore. DO NOT USE!
+   */
+  mimeType?: ImageMimeType;
 };
 
 const imageElementSchema = elementBaseSchema
@@ -125,9 +128,10 @@ const imageElementSchema = elementBaseSchema
       .allow('')
       .required(),
     fileName: Joi.string().required(),
+    // This is kept for backwards compatibility. We dont send it anymore
     mimeType: Joi.string()
       .valid(...Object.keys(defaultAcceptedImageTypes))
-      .required(),
+      .optional(),
     width: Joi.number().strict().required(),
     height: Joi.number().strict().required(),
   })

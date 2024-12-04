@@ -145,7 +145,6 @@ function mapToFiles(
     const file = new File(
       [Uint8Array.from(atob(exportedFile.data), (m) => m.codePointAt(0) ?? 0)],
       imageElement.fileName,
-      { type: imageElement.mimeType },
     );
     files.push({
       mxc: imageElement.mxc,

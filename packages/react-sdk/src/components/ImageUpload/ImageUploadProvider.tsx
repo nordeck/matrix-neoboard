@@ -19,11 +19,12 @@ import { TFunction } from 'i18next';
 import { PropsWithChildren, createContext, useCallback, useRef } from 'react';
 import { ErrorCode, FileRejection } from 'react-dropzone';
 import { useTranslation } from 'react-i18next';
+import { uint8ArrayToMimeType } from '../../imageUtils';
 import { determineImageSize } from '../../lib';
 import { ImageMimeType, Size } from '../../state';
 import { PromiseSettledResult } from '../../types';
 import { SnackbarDismissAction, SnackbarProps, useSnackbar } from '../Snackbar';
-import { defaultAcceptedImageTypes } from './consts';
+import { defaultAcceptedImageTypesArray } from './consts';
 import { useMaxUploadSize } from './useMaxUploadSize';
 
 /**
@@ -49,7 +50,6 @@ type UploadErrors = {
 
 export type ImageUploadResult = {
   fileName: string;
-  mimeType: ImageMimeType;
   size: Size;
   /**
    * MXC URI pointing to the uploaded image.
@@ -120,13 +120,14 @@ export function ImageUploadProvider({ children }: PropsWithChildren<{}>) {
 
       try {
         const imageData = await file.arrayBuffer();
-        const size = await determineImageSize(imageData, file.type);
+        const mimeType = uint8ArrayToMimeType(new Uint8Array(imageData));
+        const size = await determineImageSize(imageData, mimeType);
 
         if (size.width * size.height > maxResolutionPixels) {
           throw new ResolutionTooHighError();
         }
 
-        if (!isAllowedMimeType(file.type)) {
+        if (!isAllowedType(mimeType)) {
           // This should not happen, because the file type should be validated by Dropzone.
           throw new Error('Unsupported filetype');
         }
@@ -134,7 +135,6 @@ export function ImageUploadProvider({ children }: PropsWithChildren<{}>) {
         const uploadResult = await widgetApi.uploadFile(imageData);
         return {
           fileName: file.name,
-          mimeType: file.type,
           size,
           mxc: uploadResult.content_uri,
         };
@@ -297,6 +297,10 @@ function showErrorSnackbars(
   }
 }
 
-function isAllowedMimeType(type: string): type is ImageMimeType {
-  return Object.keys(defaultAcceptedImageTypes).includes(type);
+function isAllowedType(mimeType: ImageMimeType): boolean {
+  try {
+    return defaultAcceptedImageTypesArray.includes(mimeType);
+  } catch {
+    return false;
+  }
 }
