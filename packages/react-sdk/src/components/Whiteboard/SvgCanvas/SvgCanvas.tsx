@@ -33,7 +33,6 @@ import {
 import { SvgCanvasContext, SvgCanvasContextType } from './context';
 import { useMeasure } from './useMeasure';
 import { calculateScale, calculateSvgCoords } from './utils';
-import { whiteboardHeight, whiteboardWidth } from '../constants';
 
 const Canvas = styled('svg', {
   shouldForwardProp: (p) => p !== 'rounded' && p !== 'sx',
@@ -42,6 +41,8 @@ const Canvas = styled('svg', {
   margin: 'auto',
   display: 'block',
   borderRadius: rounded ? theme.shape.borderRadius : undefined,
+  width: '9600px',
+  height: '5400px',
 }));
 
 export type SvgCanvasProps = PropsWithChildren<{
