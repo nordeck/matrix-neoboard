@@ -57,67 +57,34 @@ export function ElementBarWrapper({
 
   // eslint-disable-next-line
   const position = useMemo(() => {
-    // const combinedScale = (1 / canvas.scale) * canvas.outerScale; // something about the "outer scale" isn't right
-    // const matrix = new DOMMatrix()
-    //   .scale(canvas.outerScale)
-    //   .translate(canvas.translate.x, canvas.translate.y)
-    //   .scale(1 / canvas.scale);
-
-    console.log("KiB canvas", canvas);
-    console.log("KiB",
-               "div width", canvasWidth,
-               "div height", canvasHeight,
-               "viewport-to-div", canvasWidth / initialWhiteboardWidth);
-
-    // transform from canvas coordinates ("5x") to viewport ("1080p")
-    const elementOnCanvas = { x, y };
+    const elementOnCanvas = {x, y};
+    console.log("KiB", "element", elementOnCanvas)
     const matrix = new DOMMatrix();
-    // if the canvas is translated to the right, we can see over the left side of the initial viewport.
-    // elements within the initial viewport are therefore further to the right.
-    // the translation distance is doubled to adjust for the halving for centering later.
-    matrix.translateSelf(canvas.translate.x * 2, canvas.translate.y * 2);
-    console.log("KiB matrix after translate", matrix);
-    // if the canvas is scaled to 5, we can see only a 5²th of the canvas.
-    // elements at X=500 should be rendered at X=500, instead of X=100 when we can see the whole canvas
+    matrix.translateSelf(canvas.translate.x, canvas.translate.y);
+    console.log("KiB", "matrix translate", matrix)
     matrix.scaleSelf(canvas.scale);
-    console.log("KiB matrix after canvas.scale-scaling", matrix);
-    matrix.scaleSelf(1/5); // canvas to viewport coordinate scale
-    console.log("KiB matrix after canvas-to-viewport", matrix);
-    // if the canvas is scaled to 5 from the middle of the canvas,
-    // the viewport origin is moved along the line segment from the canvas origin to the "viewport origin" by the scaling factor.
-    // the scaling is apparently nonlinear (contrary to the below). TODO: adapt to the actual scaling factor.
-    const zoomFactor = 1 / 2 * (canvas.scale - 1) / (5 - 1);
-    matrix.translateSelf(-((whiteboardWidth - initialWhiteboardWidth) * zoomFactor),
-      -((whiteboardHeight - initialWhiteboardHeight) * zoomFactor));
-    console.log("KiB matrix after canvas.scale-translation", matrix);
-    const elementOnViewport = matrix.transformPoint(elementOnCanvas);
-    const elementWidthOnViewport = width * canvas.scale * 1/5;
-    const elementHeightOnViewport = height * canvas.scale * 1/5;
-    console.log("KiB transform Element to Viewport", {
-      "original": {x, y},
-      "transformed": elementOnViewport,
-      "original size": {width, height},
-      "transformed size": {elementWidthOnViewport, elementHeightOnViewport}});
+    console.log("KiB", "matrix translate+scale", matrix)
+    const elementOnDiv = matrix.transformPoint(elementOnCanvas);
+    console.log("KiB", "elementOnDiv", elementOnDiv)
+    const elementWidthOnDiv = width * canvas.scale;
+    const elementHeightOnDiv = height * canvas.scale;
+    //console.log("KiB", "element size", elementWidthOnDiv, elementHeightOnDiv)
 
-    // find where to place the element bar relative to the element
-    const scaleViewportToDiv = canvasWidth / initialWhiteboardWidth;
 
-    // X
-    const elementCenterOnViewportX = elementOnViewport.x // left edge of the element
-      + (elementWidthOnViewport / 2); // horizontal center of the element
-    const elementCenterOnDivX = elementCenterOnViewportX * scaleViewportToDiv; // horizontal center of the element, but in div space
+
+
+
+
+
+    const elementManualOnDivX = x * canvas.scale + canvas.translate.x * canvas.scale;
+    console.log("KiB", "elementManualOnDivX", elementManualOnDivX)
+    const elementCenterOnDivX = elementManualOnDivX + elementWidthOnDiv/2;
     const elementBarCenterOnDivX = elementCenterOnDivX - elementBarWidth / 2; // horizontal center of the element bar
 
     // Y
-    const elementOnDivY = elementOnViewport.y * scaleViewportToDiv;
-    const positionAbove = elementOnDivY - elementBarHeight - offsetOnDiv;
-    const positionBelow = elementOnDivY + elementHeightOnViewport * scaleViewportToDiv + offsetOnDiv;
-    const positionInElement = elementOnDivY + offsetOnDiv;
-    console.log("KiB Y", {
-      "elementOnViewportY": elementOnViewport.y,
-      "elementOnDivY": elementOnDivY,
-      "positionBelow": positionBelow
-    });
+    const positionAbove = elementOnDiv.y - elementBarHeight - offsetOnDiv;
+    const positionBelow = elementOnDiv.y + elementHeightOnDiv + offsetOnDiv;
+    const positionInElement = elementOnDiv.y + offsetOnDiv;
 
     // adjust the element bar position depending on the window ("div") size
     const clampedPositionX = clamp(elementBarCenterOnDivX, 0, canvasWidth - elementBarWidth);
