@@ -29,7 +29,7 @@ export type ShapeSizesState = {
 
 const initialState: ShapeSizesState = {
   outerScale: 1,
-  scale: 5,
+  scale: 1,
   translate: { x: 0, y: 0 },
 };
 
@@ -46,17 +46,13 @@ export const canvasSlice = createSlice({
     updateScale: (state, action: PayloadAction<number>) => {
       const newScale = state.scale + action.payload;
 
-      if (newScale < 1) {
-        // Cannot zoom out less than 100 %
+      if (newScale > 1) {
         return state;
       }
 
-      if (newScale > 5) {
-        // Cannot zoom in more than 5 times
+      if (newScale <= 0.2) {
         return state;
       }
-
-      // fit func
 
       return {
         ...state,
