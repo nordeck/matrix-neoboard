@@ -33,6 +33,7 @@ import {
 } from '../../lib/testUtils/documentTestUtils';
 import { WhiteboardSlideInstance } from '../../state';
 import { SnackbarProvider } from '../Snackbar';
+import { readFileAsFile } from './imageTestUtils';
 import { ImageUploadProvider } from './ImageUploadProvider';
 import { useSlideImageUpload } from './useSlideImageUpload';
 
@@ -86,9 +87,7 @@ describe('useSlideImageUpload', () => {
   it('should add an uploaded image to the slide', async () => {
     render(<TestFileInput />, { wrapper: Wrapper });
 
-    const file = new File([], 'example.jpg', {
-      type: 'image/jpeg',
-    });
+    const file = await readFileAsFile('nordeck.jpg');
     await userEvent.upload(screen.getByTestId('file-input'), file);
 
     await waitFor(() => {

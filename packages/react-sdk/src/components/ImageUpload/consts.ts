@@ -20,3 +20,10 @@ export const defaultAcceptedImageTypes = {
   'image/png': ['.png'],
   'image/svg+xml': ['.svg'],
 };
+
+export const defaultAcceptedImageTypesArray = [
+  'image/gif',
+  'image/jpeg',
+  'image/png',
+  'image/svg+xml',
+];

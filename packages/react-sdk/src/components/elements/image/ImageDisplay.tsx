@@ -18,6 +18,7 @@ import { useWidgetApi } from '@matrix-widget-toolkit/react';
 import { styled } from '@mui/material';
 import { IDownloadFileActionFromWidgetResponseData } from 'matrix-widget-api';
 import React, { useCallback, useEffect, useState } from 'react';
+import { getSVGUnsafe } from '../../../imageUtils';
 import { convertMxcToHttpUrl, WidgetApiActionError } from '../../../lib';
 import { ImageElement } from '../../../state';
 import {
@@ -53,7 +54,6 @@ const Image = styled('image', {
 function ImageDisplay({
   baseUrl,
   mxc,
-  mimeType,
   width,
   height,
   position,
@@ -87,7 +87,7 @@ function ImageDisplay({
     const downloadFile = async () => {
       try {
         const result = await tryDownloadFileWithWidgetApi(mxc);
-        const blob = getBlobFromResult(result, mimeType);
+        const blob = await getBlobFromResult(result);
         const downloadedFileDataUrl = createObjectUrlFromBlob(blob);
         setImageUri(downloadedFileDataUrl);
       } catch (error) {
@@ -104,14 +104,25 @@ function ImageDisplay({
       }
     };
 
-    const getBlobFromResult = (
+    const getBlobFromResult = async (
       result: IDownloadFileActionFromWidgetResponseData,
-      mimeType: string,
-    ): Blob => {
+    ): Promise<Blob> => {
       if (!(result.file instanceof Blob)) {
         throw new Error('Got non Blob file response');
       }
-      return result.file.slice(0, result.file.size, mimeType);
+      // Check if the blob is an SVG
+      // The try catch is because of the blob to text conversion
+      try {
+        const stringFromBlob = await result.file.text();
+
+        // Check if the string is an SVG
+        // We use this call as a condition here. If it works we know it's an SVG. If it throws an error we know it's not an SVG
+        getSVGUnsafe(stringFromBlob);
+        return result.file.slice(0, result.file.size, 'image/svg+xml');
+      } catch {
+        // If it fails, return the blob as is
+        return result.file.slice(0, result.file.size);
+      }
     };
 
     const createObjectUrlFromBlob = (blob: Blob): string => {
@@ -131,42 +142,19 @@ function ImageDisplay({
     };
 
     const tryFallbackDownload = async () => {
-      let abortController: AbortController | undefined;
-
       const httpUrl = convertMxcToHttpUrl(mxc, baseUrl);
 
       if (httpUrl === null) {
         setImageUri('');
         return;
       }
-
-      if (mimeType === 'image/svg+xml') {
-        abortController = new AbortController();
-        try {
-          const response = await fetch(httpUrl, {
-            signal: abortController.signal,
-          });
-          const rawBlob = await response.blob();
-          const svgBlob = rawBlob.slice(0, rawBlob.size, mimeType);
-          setImageUri(URL.createObjectURL(svgBlob));
-        } catch (fetchError) {
-          console.error('Failed to fetch SVG image:', fetchError);
-          setLoadError(true);
-        }
-        return;
-      }
-
       setImageUri(httpUrl);
 
-      return () => {
-        if (abortController) {
-          abortController.abort();
-        }
-      };
+      return;
     };
 
     downloadFile();
-  }, [baseUrl, mimeType, mxc, widgetApi]);
+  }, [baseUrl, mxc, widgetApi]);
 
   const renderedSkeleton =
     loading && !loadError ? (

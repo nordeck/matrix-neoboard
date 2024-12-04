@@ -135,7 +135,6 @@ SVGSVGElement.prototype.getScreenCTM = function () {
 };
 
 // Mock File APIs
-
 File.prototype.arrayBuffer = vi.fn();
 
 // Mock the fetch API

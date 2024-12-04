@@ -18,6 +18,11 @@ import emojiRegex from 'emoji-regex';
 import { get } from 'lodash';
 import { CanvasElement, Content, ContentText } from 'pdfmake/interfaces';
 import tinycolor2 from 'tinycolor2';
+import {
+  base64ToMimeType,
+  base64ToUint8Array,
+  getSVGUnsafe,
+} from '../../../imageUtils';
 import { ImageElement, ShapeElement } from '../../../state';
 import { ElementRenderProperties } from '../../Whiteboard';
 import { getTextSize } from '../../Whiteboard/ElementBehaviors/Text/fitText';
@@ -31,7 +36,8 @@ export function canvas(element: CanvasElement): Content {
 }
 
 export function image(element: ImageElement, base64content: string): Content {
-  const dataURL = 'data:' + element.mimeType + ';base64,' + base64content;
+  const mimeType = base64ToMimeType(base64content);
+  const dataURL = 'data:' + mimeType + ';base64,' + base64content;
   return {
     image: dataURL,
     width: element.width,
@@ -40,9 +46,65 @@ export function image(element: ImageElement, base64content: string): Content {
   };
 }
 
-export function conv2png(element: ImageElement, base64content: string): string {
-  const img = new Image();
-  img.src = 'data:' + element.mimeType + ';base64,' + base64content;
+function base64ToBlob(element: ImageElement, base64: string): Blob {
+  const decoded = atob(base64);
+
+  const fileToImage = (base64: string) => {
+    const byteNumbers = base64ToUint8Array(base64);
+    return new Blob([byteNumbers]);
+  };
+
+  try {
+    const svgDom = getSVGUnsafe(decoded);
+    // If it's not an svg we assume it's another image type
+    if (svgDom.documentElement.tagName !== 'svg') {
+      return fileToImage(base64);
+    }
+
+    // Add xmlns attribute if it's missing
+    if (!svgDom.documentElement.getAttribute('xmlns')) {
+      svgDom.documentElement.setAttribute(
+        'xmlns',
+        'http://www.w3.org/2000/svg',
+      );
+    }
+
+    // Add width and height in case they are missing
+    if (!svgDom.documentElement.getAttribute('width')) {
+      svgDom.documentElement.setAttribute('width', element.width.toString());
+    }
+    if (!svgDom.documentElement.getAttribute('height')) {
+      svgDom.documentElement.setAttribute('height', element.height.toString());
+    }
+
+    // Convert to a blob
+    const svgString = new XMLSerializer().serializeToString(svgDom);
+    return new Blob([svgString], { type: 'image/svg+xml' });
+  } catch {
+    // If DOMParser fails we assume it's not an svg
+    return fileToImage(base64);
+  }
+}
+
+function saveLoadImage(url: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.addEventListener('load', () => resolve(img));
+
+    img.addEventListener('error', (err) => reject(err));
+
+    img.src = url;
+  });
+}
+
+export async function conv2png(
+  element: ImageElement,
+  base64content: string,
+): Promise<string> {
+  const blob = base64ToBlob(element, base64content);
+  const blobUrl = URL.createObjectURL(blob);
+
+  const img = await saveLoadImage(blobUrl);
 
   const canvas = document.createElement('canvas');
   [canvas.width, canvas.height] = [element.width, element.height];
@@ -50,7 +112,11 @@ export function conv2png(element: ImageElement, base64content: string): string {
   const ctx = canvas.getContext('2d') ?? new CanvasRenderingContext2D();
   ctx.drawImage(img, 0, 0, element.width, element.height);
 
-  return canvas.toDataURL('image/png').split(',')[1];
+  const dataURL = canvas.toDataURL('image/png').split(',')[1];
+  if (!dataURL) {
+    throw new Error('Failed to convert image to png');
+  }
+  return dataURL;
 }
 
 export function textContent(
