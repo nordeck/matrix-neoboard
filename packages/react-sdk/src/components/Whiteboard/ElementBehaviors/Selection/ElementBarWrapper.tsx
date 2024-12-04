@@ -74,7 +74,8 @@ export function ElementBarWrapper({
     const matrix = new DOMMatrix();
     // if the canvas is translated to the right, we can see over the left side of the initial viewport.
     // elements within the initial viewport are therefore further to the right.
-    matrix.translateSelf(canvas.translate.x, canvas.translate.y);
+    // the translation distance is doubled to adjust for the halving for centering later.
+    matrix.translateSelf(canvas.translate.x * 2, canvas.translate.y * 2);
     console.log("KiB matrix after translate", matrix);
     // if the canvas is scaled to 5, we can see only a 5²th of the canvas.
     // elements at X=500 should be rendered at X=500, instead of X=100 when we can see the whole canvas
