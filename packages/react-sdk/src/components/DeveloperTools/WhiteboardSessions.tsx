@@ -14,39 +14,14 @@
  * limitations under the License.
  */
 
-import {
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Typography,
-  styled,
-} from '@mui/material';
+import { TableBody, TableHead, TableRow } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { SessionState } from '../../state/communication/discovery/sessionManagerImpl';
-
-const StyledTable = styled(Table)({
-  minWidth: 600,
-  borderCollapse: 'collapse',
-});
-
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
-  fontSize: '0.875rem',
-  padding: '8px 16px',
-  borderBottom: `1px solid ${theme.palette.divider}`,
-  '&:not(:last-child)': {
-    borderRight: `1px solid ${theme.palette.divider}`,
-  },
-}));
-
-const HeaderCell = styled(StyledTableCell)(({ theme }) => ({
-  fontWeight: 'bold',
-  backgroundColor: theme.palette.divider,
-  textAlign: 'center',
-}));
+import {
+  StyledDevtoolsHeaderCell,
+  StyledDevtoolsTable,
+  StyledDevtoolsTableCell,
+} from './StyledDevtoolsTable';
 
 export function WhiteboardSessionsTable({
   sessions,
@@ -56,71 +31,67 @@ export function WhiteboardSessionsTable({
   const { t } = useTranslation('neoboard');
 
   return (
-    <TableContainer component={Paper}>
-      <StyledTable
-        aria-label={t(
-          'boardBar.developerToolsDialog.communicationChannelStatistics.whiteboardSessionsTable.tableAriaLabel',
-          'Whiteboard Sessions',
-        )}
-      >
-        <TableHead>
-          <TableRow>
-            <HeaderCell>
-              {t(
-                'boardBar.developerToolsDialog.communicationChannelStatistics.whiteboardSessionsTable.userId',
-                'User ID',
-              )}
-            </HeaderCell>
-            <HeaderCell>
-              {t(
-                'boardBar.developerToolsDialog.communicationChannelStatistics.whiteboardSessionsTable.sessionId',
-                'Session ID',
-              )}
-            </HeaderCell>
-            <HeaderCell>
-              {t(
-                'boardBar.developerToolsDialog.communicationChannelStatistics.whiteboardSessionsTable.expiresState',
-                'State',
-              )}
-            </HeaderCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {sessions && sessions.length > 0 ? (
-            sessions
-              .sort((a, b) => a.userId.localeCompare(b.userId))
-              .map((session) => (
-                <TableRow key={session.userId}>
-                  <StyledTableCell align="left">
-                    {session.userId}
-                  </StyledTableCell>
-                  <StyledTableCell align="left">
-                    {session.sessionId}
-                  </StyledTableCell>
-                  <StyledTableCell align="right">
-                    {t(
-                      'boardBar.developerToolsDialog.communicationChannelStatistics.whiteboardSessionsTable.expire',
-                      'Session will expire in {{expire}}.',
-                      { expire: formatTime(session.expiresTs - Date.now()) },
-                    )}
-                  </StyledTableCell>
-                </TableRow>
-              ))
-          ) : (
-            <TableRow>
-              <StyledTableCell colSpan={4} align="center">
-                <Typography variant="body2" color="textSecondary">
+    <StyledDevtoolsTable
+      ariaLabel={t(
+        'boardBar.developerToolsDialog.communicationChannelStatistics.whiteboardSessionsTable.tableAriaLabel',
+        'Whiteboard Sessions',
+      )}
+    >
+      <TableHead>
+        <TableRow>
+          <StyledDevtoolsHeaderCell
+            content={t(
+              'boardBar.developerToolsDialog.communicationChannelStatistics.whiteboardSessionsTable.userId',
+              'User ID',
+            )}
+          />
+          <StyledDevtoolsHeaderCell
+            content={t(
+              'boardBar.developerToolsDialog.communicationChannelStatistics.whiteboardSessionsTable.sessionId',
+              'Session ID',
+            )}
+          />
+          <StyledDevtoolsHeaderCell
+            content={t(
+              'boardBar.developerToolsDialog.communicationChannelStatistics.whiteboardSessionsTable.expiresState',
+              'State',
+            )}
+          />
+        </TableRow>
+      </TableHead>
+      <TableBody>
+        {sessions && sessions.length > 0 ? (
+          sessions
+            .sort((a, b) => a.userId.localeCompare(b.userId))
+            .map((session) => (
+              <TableRow key={session.userId}>
+                <StyledDevtoolsTableCell align="left">
+                  {session.userId}
+                </StyledDevtoolsTableCell>
+                <StyledDevtoolsTableCell align="left">
+                  {session.sessionId}
+                </StyledDevtoolsTableCell>
+                <StyledDevtoolsTableCell align="right">
                   {t(
-                    'boardBar.developerToolsDialog.communicationChannelStatistics.whiteboardSessionsTable.noData',
-                    'No whiteboard sessions available',
+                    'boardBar.developerToolsDialog.communicationChannelStatistics.whiteboardSessionsTable.expire',
+                    'Session will expire in {{expire}}.',
+                    { expire: formatTime(session.expiresTs - Date.now()) },
                   )}
-                </Typography>
-              </StyledTableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </StyledTable>
-    </TableContainer>
+                </StyledDevtoolsTableCell>
+              </TableRow>
+            ))
+        ) : (
+          <TableRow>
+            <StyledDevtoolsTableCell colSpan={4} align="center">
+              {t(
+                'boardBar.developerToolsDialog.communicationChannelStatistics.whiteboardSessionsTable.noData',
+                'No whiteboard sessions available',
+              )}
+            </StyledDevtoolsTableCell>
+          </TableRow>
+        )}
+      </TableBody>
+    </StyledDevtoolsTable>
   );
 }
 

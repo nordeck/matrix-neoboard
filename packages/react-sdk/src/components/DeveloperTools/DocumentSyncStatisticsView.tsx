@@ -14,39 +14,14 @@
  * limitations under the License.
  */
 
-import {
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Typography,
-  styled,
-} from '@mui/material';
+import { TableBody, TableHead, TableRow } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { DocumentSyncStatistics } from '../../state/types';
-
-const StyledTable = styled(Table)({
-  minWidth: 600,
-  borderCollapse: 'collapse',
-});
-
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
-  fontSize: '0.875rem',
-  padding: '8px 16px',
-  borderBottom: `1px solid ${theme.palette.divider}`,
-  '&:not(:last-child)': {
-    borderRight: `1px solid ${theme.palette.divider}`, // Add vertical divider between cells
-  },
-}));
-
-const HeaderCell = styled(StyledTableCell)(({ theme }) => ({
-  fontWeight: 'bold',
-  backgroundColor: theme.palette.divider,
-  textAlign: 'center',
-}));
+import {
+  StyledDevtoolsHeaderCell,
+  StyledDevtoolsTable,
+  StyledDevtoolsTableCell,
+} from './StyledDevtoolsTable';
 
 export function DocumentSyncStatisticsView({
   document,
@@ -56,79 +31,75 @@ export function DocumentSyncStatisticsView({
   const { t } = useTranslation('neoboard');
 
   return (
-    <TableContainer component={Paper}>
-      <StyledTable
-        aria-label={t(
-          'boardBar.developerToolsDialog.documentSyncStatistics.tableAriaLabel',
-          'Document Sync Statistics',
-        )}
-      >
-        <TableHead>
+    <StyledDevtoolsTable
+      ariaLabel={t(
+        'boardBar.developerToolsDialog.documentSyncStatistics.tableAriaLabel',
+        'Document Sync Statistics',
+      )}
+    >
+      <TableHead>
+        <TableRow>
+          <StyledDevtoolsHeaderCell
+            content={t(
+              'boardBar.developerToolsDialog.documentSyncStatistics.binaryJsonSize',
+              'Binary / JSON Size (bytes)',
+            )}
+          />
+          <StyledDevtoolsHeaderCell
+            content={t(
+              'boardBar.developerToolsDialog.documentSyncStatistics.received',
+              'Received',
+            )}
+          />
+          <StyledDevtoolsHeaderCell
+            content={t(
+              'boardBar.developerToolsDialog.documentSyncStatistics.send',
+              'Send',
+            )}
+          />
+          <StyledDevtoolsHeaderCell
+            content={t(
+              'boardBar.developerToolsDialog.documentSyncStatistics.outstanding',
+              'Outstanding',
+            )}
+          />
+        </TableRow>
+      </TableHead>
+      <TableBody>
+        {document ? (
           <TableRow>
-            <HeaderCell>
-              {t(
-                'boardBar.developerToolsDialog.documentSyncStatistics.binaryJsonSize',
-                'Binary / JSON Size (bytes)',
-              )}
-            </HeaderCell>
-            <HeaderCell>
-              {t(
-                'boardBar.developerToolsDialog.documentSyncStatistics.received',
-                'Received',
-              )}
-            </HeaderCell>
-            <HeaderCell>
-              {t(
-                'boardBar.developerToolsDialog.documentSyncStatistics.send',
-                'Send',
-              )}
-            </HeaderCell>
-            <HeaderCell>
-              {t(
-                'boardBar.developerToolsDialog.documentSyncStatistics.outstanding',
-                'Outstanding',
-              )}
-            </HeaderCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {document ? (
-            <TableRow>
-              <StyledTableCell align="right">
-                {document.documentSizeInBytes} / {document.contentSizeInBytes}
-              </StyledTableCell>
-              <StyledTableCell align="right">
-                {document.snapshotsReceived}
-              </StyledTableCell>
-              <StyledTableCell align="right">
-                {document.snapshotsSend}
-              </StyledTableCell>
-              <StyledTableCell align="right">
-                {document.snapshotOutstanding
-                  ? t(
-                      'boardBar.developerToolsDialog.documentSyncStatistics.true',
-                      'true',
-                    )
-                  : t(
-                      'boardBar.developerToolsDialog.documentSyncStatistics.false',
-                      'false',
-                    )}
-              </StyledTableCell>
-            </TableRow>
-          ) : (
-            <TableRow>
-              <StyledTableCell colSpan={4} align="center">
-                <Typography variant="body2" color="textSecondary">
-                  {t(
-                    'boardBar.developerToolsDialog.documentSyncStatistics.noData',
-                    'No data available',
+            <StyledDevtoolsTableCell align="right">
+              {document.documentSizeInBytes / document.contentSizeInBytes}
+            </StyledDevtoolsTableCell>
+            <StyledDevtoolsTableCell align="right">
+              {document.snapshotsReceived}
+            </StyledDevtoolsTableCell>
+            <StyledDevtoolsTableCell align="right">
+              {document.snapshotsSend}
+            </StyledDevtoolsTableCell>
+            <StyledDevtoolsTableCell align="right">
+              {document.snapshotOutstanding
+                ? t(
+                    'boardBar.developerToolsDialog.documentSyncStatistics.true',
+                    'true',
+                  )
+                : t(
+                    'boardBar.developerToolsDialog.documentSyncStatistics.false',
+                    'false',
                   )}
-                </Typography>
-              </StyledTableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </StyledTable>
-    </TableContainer>
+            </StyledDevtoolsTableCell>
+          </TableRow>
+        ) : (
+          <TableRow>
+            <StyledDevtoolsTableCell colSpan={4} align="center">
+              {t(
+                'boardBar.developerToolsDialog.documentSyncStatistics.noData',
+                'No data available',
+              )}
+            </StyledDevtoolsTableCell>
+          </TableRow>
+        )}
+      </TableBody>
+    </StyledDevtoolsTable>
   );
 }

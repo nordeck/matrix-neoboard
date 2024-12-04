@@ -14,26 +14,10 @@
  * limitations under the License.
  */
 
-import {
-  Box,
-  Table,
-  TableBody,
-  TableCell,
-  TableRow,
-  Typography,
-  styled,
-} from '@mui/material';
+import { Box, Table, TableBody, TableRow, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { PeerConnectionStatistics } from '../../state/communication';
-
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
-  padding: '8px 16px',
-  fontSize: '0.875rem',
-  borderBottom: `1px solid ${theme.palette.divider}`,
-  '&:not(:last-child)': {
-    borderRight: `1px solid ${theme.palette.divider}`,
-  },
-}));
+import { StyledDevtoolsTableCell } from './StyledDevtoolsTable';
 
 export function PeerConnectionDetail({
   connectionId,
@@ -52,59 +36,63 @@ export function PeerConnectionDetail({
       <Table size="small">
         <TableBody>
           <TableRow>
-            <StyledTableCell>
+            <StyledDevtoolsTableCell>
               {t(
                 'boardBar.developerToolsDialog.communicationChannelStatistics.remoteSessionId',
                 'Remote Session Id',
               )}
-            </StyledTableCell>
-            <StyledTableCell>{peerConnection.remoteSessionId}</StyledTableCell>
+            </StyledDevtoolsTableCell>
+            <StyledDevtoolsTableCell>
+              {peerConnection.remoteSessionId}
+            </StyledDevtoolsTableCell>
           </TableRow>
           <TableRow>
-            <StyledTableCell>
+            <StyledDevtoolsTableCell>
               {t(
                 'boardBar.developerToolsDialog.communicationChannelStatistics.userId',
                 'User Id',
               )}
-            </StyledTableCell>
-            <StyledTableCell>{peerConnection.remoteUserId}</StyledTableCell>
+            </StyledDevtoolsTableCell>
+            <StyledDevtoolsTableCell>
+              {peerConnection.remoteUserId}
+            </StyledDevtoolsTableCell>
           </TableRow>
           <TableRow>
-            <StyledTableCell>
+            <StyledDevtoolsTableCell>
               {t(
                 'boardBar.developerToolsDialog.communicationChannelStatistics.impolite',
                 'Impolite',
               )}
-            </StyledTableCell>
-            <StyledTableCell>
+            </StyledDevtoolsTableCell>
+            <StyledDevtoolsTableCell>
               {peerConnection.impolite
                 ? t(
                     'boardBar.developerToolsDialog.communicationChannelStatistics.true',
                     'true',
                   )
                 : t('peerConnectionDetail.false', 'false')}
-            </StyledTableCell>
+            </StyledDevtoolsTableCell>
           </TableRow>
           <TableRow>
-            <StyledTableCell>
+            <StyledDevtoolsTableCell>
               {t(
                 'boardBar.developerToolsDialog.communicationChannelStatistics.connectionType',
                 'Connection Type',
               )}
-            </StyledTableCell>
-            <StyledTableCell>
+            </StyledDevtoolsTableCell>
+            <StyledDevtoolsTableCell>
               {peerConnection.localCandidateType} /{' '}
               {peerConnection.remoteCandidateType}
-            </StyledTableCell>
+            </StyledDevtoolsTableCell>
           </TableRow>
           <TableRow>
-            <StyledTableCell>
+            <StyledDevtoolsTableCell>
               {t(
                 'boardBar.developerToolsDialog.communicationChannelStatistics.dataTransfer',
                 'Data Transfer',
               )}
-            </StyledTableCell>
-            <StyledTableCell>
+            </StyledDevtoolsTableCell>
+            <StyledDevtoolsTableCell>
               <Box>
                 <Typography variant="subtitle2">
                   {t(
@@ -128,16 +116,16 @@ export function PeerConnectionDetail({
                 {t('peerConnectionDetail.messagesSent', 'Sent')}:{' '}
                 {peerConnection.packetsSent}
               </Box>
-            </StyledTableCell>
+            </StyledDevtoolsTableCell>
           </TableRow>
           <TableRow>
-            <StyledTableCell>
+            <StyledDevtoolsTableCell>
               {t(
                 'boardBar.developerToolsDialog.communicationChannelStatistics.connectionStates',
                 'Connection States',
               )}
-            </StyledTableCell>
-            <StyledTableCell>
+            </StyledDevtoolsTableCell>
+            <StyledDevtoolsTableCell>
               <Box>
                 ICE: {peerConnection.iceConnectionState} /{' '}
                 {peerConnection.iceGatheringState}
@@ -160,7 +148,7 @@ export function PeerConnectionDetail({
                 )}
                 : {peerConnection.dataChannelState}
               </Box>
-            </StyledTableCell>
+            </StyledDevtoolsTableCell>
           </TableRow>
         </TableBody>
       </Table>

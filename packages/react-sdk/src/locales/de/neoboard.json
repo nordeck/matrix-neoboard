@@ -27,7 +27,7 @@
           "expire": "Die Sitzung läuft in {{expire}} ab.",
           "expiresState": "Status",
           "noData": "Keine Whiteboard-Sitzungen verfügbar",
-          "sessionId": "Sitzungs-ID",
+          "sessionId": "Sitzungs",
           "tableAriaLabel": "Whiteboard-Sitzungen",
           "userId": "Benutzer-ID"
         }
@@ -258,9 +258,9 @@
     "sizeError_other": "Die Dateien {{fileNames}} können aufgrund ihrer Größe nicht hochgeladen werden. Der Upload ist mit maximal {{limit}} pro Datei möglich."
   },
   "peerConnectionDetail": {
-    "false": "false",
-    "messagesSent": "Sent",
-    "sent": "Sent"
+    "false": "falsch",
+    "messagesSent": "Gesendet",
+    "sent": "Gesendet"
   },
   "presentBar": {
     "disableEditing": "Bearbeitung sperren",

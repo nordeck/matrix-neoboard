@@ -14,39 +14,15 @@
  * limitations under the License.
  */
 
-import {
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  styled,
-} from '@mui/material';
+import { TableBody, TableHead, TableRow } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { CommunicationChannelStatistics } from '../../state/communication';
 import { PeerConnectionDetail } from './PeerConnectionDetail';
-
-const StyledTable = styled(Table)({
-  minWidth: 700,
-  borderCollapse: 'collapse',
-});
-
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
-  padding: '8px 16px',
-  fontSize: '0.875rem',
-  borderBottom: `1px solid ${theme.palette.divider}`,
-  '&:not(:last-child)': {
-    borderRight: `1px solid ${theme.palette.divider}`,
-  },
-}));
-
-const HeaderCell = styled(StyledTableCell)(({ theme }) => ({
-  fontWeight: 'bold',
-  textAlign: 'center',
-  backgroundColor: theme.palette.divider,
-}));
+import {
+  StyledDevtoolsHeaderCell,
+  StyledDevtoolsTable,
+  StyledDevtoolsTableCell,
+} from './StyledDevtoolsTable';
 
 export function CommunicationChannelStatisticsView({
   communicationChannel,
@@ -56,52 +32,50 @@ export function CommunicationChannelStatisticsView({
   const { t } = useTranslation('neoboard');
 
   return (
-    <TableContainer component={Paper}>
-      <StyledTable
-        aria-label={t(
-          'boardBar.developerToolsDialog.communicationChannelStatistics.tableAriaLabel',
-          'Communication Channel Statistics',
+    <StyledDevtoolsTable
+      ariaLabel={t(
+        'boardBar.developerToolsDialog.communicationChannelStatistics.tableAriaLabel',
+        'Communication Channel Statistics',
+      )}
+    >
+      <TableHead>
+        <TableRow>
+          <StyledDevtoolsHeaderCell
+            content={t(
+              'boardBar.developerToolsDialog.communicationChannelStatistics.localSessionId',
+              'Local Session Id',
+            )}
+          />
+          <StyledDevtoolsHeaderCell
+            content={t(
+              'boardBar.developerToolsDialog.communicationChannelStatistics.peers',
+              'Peers',
+            )}
+          />
+        </TableRow>
+      </TableHead>
+      <TableBody>
+        <TableRow>
+          <StyledDevtoolsTableCell align="right">
+            {communicationChannel.localSessionId}
+          </StyledDevtoolsTableCell>
+          <StyledDevtoolsTableCell align="right">
+            {Object.keys(communicationChannel.peerConnections).length}
+          </StyledDevtoolsTableCell>
+        </TableRow>
+        {Object.entries(communicationChannel.peerConnections).map(
+          ([connectionId, peerConnection]) => (
+            <TableRow key={connectionId}>
+              <StyledDevtoolsTableCell colSpan={2}>
+                <PeerConnectionDetail
+                  connectionId={connectionId}
+                  peerConnection={peerConnection}
+                />
+              </StyledDevtoolsTableCell>
+            </TableRow>
+          ),
         )}
-      >
-        <TableHead>
-          <TableRow>
-            <HeaderCell>
-              {t(
-                'boardBar.developerToolsDialog.communicationChannelStatistics.localSessionId',
-                'Local Session Id',
-              )}
-            </HeaderCell>
-            <HeaderCell>
-              {t(
-                'boardBar.developerToolsDialog.communicationChannelStatistics.peers',
-                'Peers',
-              )}
-            </HeaderCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          <TableRow>
-            <StyledTableCell>
-              {communicationChannel.localSessionId}
-            </StyledTableCell>
-            <StyledTableCell>
-              {Object.keys(communicationChannel.peerConnections).length}
-            </StyledTableCell>
-          </TableRow>
-          {Object.entries(communicationChannel.peerConnections).map(
-            ([connectionId, peerConnection]) => (
-              <TableRow key={connectionId}>
-                <StyledTableCell colSpan={2}>
-                  <PeerConnectionDetail
-                    connectionId={connectionId}
-                    peerConnection={peerConnection}
-                  />
-                </StyledTableCell>
-              </TableRow>
-            ),
-          )}
-        </TableBody>
-      </StyledTable>
-    </TableContainer>
+      </TableBody>
+    </StyledDevtoolsTable>
   );
 }
