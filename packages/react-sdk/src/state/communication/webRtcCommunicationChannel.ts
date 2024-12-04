@@ -29,11 +29,11 @@ import {
   interval,
   map,
   mergeMap,
-  race,
   switchMap,
   takeUntil,
   timeout,
 } from 'rxjs';
+import { raceWith } from 'rxjs/operators';
 import {
   Message,
   PeerConnection,
@@ -207,17 +207,22 @@ export class WebRtcCommunicationChannel implements CommunicationChannel {
       return;
     }
 
-    const source = race(
-      interval(250).pipe(
-        map(() => {
-          return this.turnServers;
-        }),
-        filter((t) => t !== undefined),
+    const source = NEVER.pipe(timeout(2500)).pipe(
+      raceWith(
+        interval(250).pipe(
+          map(() => {
+            return this.turnServers;
+          }),
+          filter((t) => t !== undefined),
+        ),
       ),
-      NEVER.pipe(timeout(2500)),
     );
 
-    await firstValueFrom(source);
+    try {
+      await firstValueFrom(source);
+    } catch (error) {
+      this.logger.warn('Loading TURN configuration timed out', error);
+    }
   }
 
   private async handleSessionJoined(session: Session): Promise<void> {
@@ -229,7 +234,7 @@ export class WebRtcCommunicationChannel implements CommunicationChannel {
       throw new Error('Unknown session id');
     }
 
-    // Wait for the Widget API or TURN servers to be ready
+    // Wait for the Widget API and TURN servers to be ready
     await this.widgetApiPromise;
     await this.initTurnServers();
 
