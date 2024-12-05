@@ -131,7 +131,11 @@ export function textContent(
     textProperties.width,
     textProperties.height,
     { innerText: element.text },
-    { disableLigatures: true, fontFamily: 'Inter,"Noto Emoji"' },
+    {
+      disableLigatures: true,
+      fontFamily: 'Inter,"Noto Emoji"',
+      fontSize: element.textSize,
+    },
   );
 
   const regex = emojiRegex();

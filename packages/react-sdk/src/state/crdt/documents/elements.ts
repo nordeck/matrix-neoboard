@@ -54,6 +54,7 @@ export type ShapeElement = ElementBase & {
   textColor?: string;
   textBold?: boolean;
   textItalic?: boolean;
+  textSize?: number;
 };
 
 const shapeElementSchema = elementBaseSchema
@@ -73,6 +74,7 @@ const shapeElementSchema = elementBaseSchema
     textColor: Joi.string().strict(),
     textBold: Joi.boolean(),
     textItalic: Joi.boolean(),
+    textSize: Joi.number().strict(),
   })
   .required();
 
