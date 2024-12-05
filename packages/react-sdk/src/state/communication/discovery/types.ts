@@ -15,6 +15,7 @@
  */
 
 import { Observable } from 'rxjs';
+import { SessionState } from './sessionManagerImpl';
 
 export type Session = { userId: string; sessionId: string };
 
@@ -34,6 +35,10 @@ export type SessionManager = {
    * Is never triggered for the own session.
    */
   observeSessionLeft(): Observable<Session>;
+  /**
+   * Observes sessions in the current whiteboard.
+   */
+  observeSession(): Observable<SessionState>;
   /**
    * Join a whiteboard session.
    * Session join and leave events are related to the joined whiteboard.

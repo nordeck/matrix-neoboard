@@ -41,6 +41,7 @@ import {
   WebRtcPeerConnection,
 } from './connection';
 import { Session, SessionManager } from './discovery';
+import { SessionState } from './discovery/sessionManagerImpl';
 import { SignalingChannel } from './signaling';
 import { CommunicationChannel, CommunicationChannelStatistics } from './types';
 import { observeVisibilityState } from './visibilityState';
@@ -53,6 +54,7 @@ export class WebRtcCommunicationChannel implements CommunicationChannel {
     new Subject<CommunicationChannelStatistics>();
   private readonly statistics: CommunicationChannelStatistics = {
     peerConnections: {},
+    sessions: [],
   };
   private readonly peerConnections: PeerConnection[] = [];
   private turnServers: TurnServer | undefined;
@@ -78,6 +80,13 @@ export class WebRtcCommunicationChannel implements CommunicationChannel {
         this.logger.log('Received new turn servers', turnServers);
 
         this.turnServers = turnServers;
+      });
+
+    this.sessionManager
+      .observeSession()
+      .pipe(takeUntil(this.destroySubject))
+      .subscribe((session) => {
+        this.addSessionStatistics(session);
       });
 
     this.sessionManager
@@ -274,5 +283,27 @@ export class WebRtcCommunicationChannel implements CommunicationChannel {
     }
 
     this.statisticsSubject.next(cloneDeep(this.statistics));
+  }
+
+  private addSessionStatistics(session: SessionState) {
+    if (!this.statistics.sessions) {
+      this.statistics.sessions = [];
+    }
+
+    // Find the index of the session if it already exists
+    const existingSessionIndex = this.statistics.sessions.findIndex(
+      (existingSession) =>
+        existingSession.sessionId === session.sessionId &&
+        existingSession.userId === session.userId &&
+        existingSession.whiteboardId === session.whiteboardId,
+    );
+
+    // If session exists, replace it with the new session
+    if (existingSessionIndex !== -1) {
+      this.statistics.sessions[existingSessionIndex] = session;
+    } else {
+      // If session does not exist, add it
+      this.statistics.sessions.push(session);
+    }
   }
 }

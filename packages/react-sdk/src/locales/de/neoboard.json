@@ -4,6 +4,49 @@
     "waitModeratorJoin": "Bitte warte auf den Moderator."
   },
   "boardBar": {
+    "developerToolsDialog": {
+      "closeAriaLabel": "Schließen",
+      "communicationChannelStatistics": {
+        "bytes": "Bytes",
+        "connection": "Verbindung",
+        "connectionStates": "Verbindungsstatus",
+        "connectionType": "Verbindungstyp",
+        "dataChannel": "Datenkanal",
+        "dataTransfer": "Datenübertragung",
+        "impolite": "Unhöflich",
+        "localSessionId": "Lokale Sitzungs-ID",
+        "messagesReceived": "Empfangene Nachrichten",
+        "peers": "Teilnehmer",
+        "received": "Empfangen",
+        "remoteSessionId": "Entfernte Sitzungs-ID",
+        "signaling": "Signalisierung",
+        "tableAriaLabel": "Statistiken der Kommunikationskanäle",
+        "true": "wahr",
+        "userId": "Benutzer-ID",
+        "whiteboardSessionsTable": {
+          "expire": "Die Sitzung läuft in {{expire}} ab.",
+          "expiresState": "Status",
+          "noData": "Keine Whiteboard-Sitzungen verfügbar",
+          "sessionId": "Sitzungs",
+          "tableAriaLabel": "Whiteboard-Sitzungen",
+          "userId": "Benutzer-ID"
+        }
+      },
+      "communicationChannelStatisticsTitle": "Statistiken der Kommunikationskanäle (WRTC)",
+      "documentSyncStatistics": {
+        "binaryJsonSize": "Binär / JSON-Größe (Bytes)",
+        "false": "falsch",
+        "noData": "Keine Daten verfügbar",
+        "outstanding": "Ausstehend",
+        "received": "Empfangen",
+        "send": "Gesendet",
+        "tableAriaLabel": "Statistiken der Dokumentensynchronisation",
+        "true": "wahr"
+      },
+      "documentSyncStatisticsTitle": "Statistiken der Dokumentensynchronisation (Snapshots)",
+      "sessions": "Sitzungs-ID",
+      "title": "Entwicklerwerkzeuge"
+    },
     "exportWhiteboardDialog": {
       "cancel": "Abbrechen",
       "close": "Schließen",
@@ -214,6 +257,11 @@
     "resolutionError_other": "Die Dateien {{fileNames}} können aufgrund ihrer Auflösung nicht hochgeladen werden. Der Upload ist mit maximal {{limit}} pro Datei möglich.",
     "sizeError_one": "Die Datei {{fileNames}} kann aufgrund ihrer Größe nicht hochgeladen werden. Der Upload ist mit maximal {{limit}} pro Datei möglich.",
     "sizeError_other": "Die Dateien {{fileNames}} können aufgrund ihrer Größe nicht hochgeladen werden. Der Upload ist mit maximal {{limit}} pro Datei möglich."
+  },
+  "peerConnectionDetail": {
+    "false": "falsch",
+    "messagesSent": "Gesendet",
+    "sent": "Gesendet"
   },
   "presentBar": {
     "disableEditing": "Bearbeitung sperren",
