@@ -158,11 +158,22 @@ describe('fitText', () => {
         '799px': [0, 0],
       });
 
-      fitText(container, undefined, fontStyleItalic);
+      fitText(container, undefined, undefined, fontStyleItalic);
 
       expect(container.style.padding).toEqual(expectedPadding);
     },
   );
+
+  it('should set a static font size', () => {
+    const container = createContainerElement(500, 500, {
+      '405px': [0, 0],
+    });
+
+    fitText(container, 23);
+
+    expect(container.style.flexBasis).toBe('');
+    expect(container.style.fontSize).toBe('23px');
+  });
 });
 
 function createContainerElement(

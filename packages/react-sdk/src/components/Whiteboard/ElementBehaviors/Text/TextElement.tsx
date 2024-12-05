@@ -49,6 +49,7 @@ export type TextElementProps = {
   fillColor: string;
   elementId: string;
   textColor?: string;
+  fontSize?: number;
 };
 
 export const TextElement = ({
@@ -64,6 +65,7 @@ export const TextElement = ({
   fillColor,
   elementId,
   textColor,
+  fontSize,
 }: TextElementProps) => {
   const slideInstance = useWhiteboardSlideInstance();
   const [unsubmittedText, setUnsubmittedText] = useState(text);
@@ -111,6 +113,7 @@ export const TextElement = ({
         onChange={handleTextChange}
         height={height}
         width={width}
+        fontSize={fontSize}
       />
     </ForeignObjectNoInteraction>
   );

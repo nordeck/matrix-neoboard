@@ -36,5 +36,6 @@ export type ElementRenderProperties = {
     alignment: TextAlignment;
     bold: boolean;
     italic: boolean;
+    fontSize?: number;
   };
 };
