@@ -22,13 +22,18 @@ const StyledTable = styled(Table)({
   borderCollapse: 'collapse',
 });
 
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
+interface StyledTableCellProps {
+  monospace?: boolean;
+}
+
+const StyledTableCell = styled(TableCell)<StyledTableCellProps>(({ monospace, theme }) => ({
   fontSize: '0.875rem',
   padding: '8px 16px',
   borderBottom: `1px solid ${theme.palette.divider}`,
   '&:not(:last-child)': {
     borderRight: `1px solid ${theme.palette.divider}`,
   },
+  ...(monospace ? {fontFamily: 'monospace'} : undefined)
 }));
 
 const HeaderCell = styled(StyledTableCell)(({ theme }) => ({
@@ -54,12 +59,14 @@ export function StyledDevtoolsTableCell({
   children,
   colSpan,
   align,
+  monospace,
 }: PropsWithChildren<{
   colSpan?: number;
   align?: 'inherit' | 'left' | 'center' | 'right' | 'justify';
+  monospace?: boolean;
 }>) {
   return (
-    <StyledTableCell colSpan={colSpan} align={align}>
+    <StyledTableCell colSpan={colSpan} align={align} monospace={monospace}>
       {children}
     </StyledTableCell>
   );

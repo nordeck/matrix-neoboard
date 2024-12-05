@@ -56,10 +56,10 @@ export function CommunicationChannelStatisticsView({
       </TableHead>
       <TableBody>
         <TableRow>
-          <StyledDevtoolsTableCell align="right">
+          <StyledDevtoolsTableCell align="center" monospace={true}>
             {communicationChannel.localSessionId}
           </StyledDevtoolsTableCell>
-          <StyledDevtoolsTableCell align="right">
+          <StyledDevtoolsTableCell align="center">
             {Object.keys(communicationChannel.peerConnections).length}
           </StyledDevtoolsTableCell>
         </TableRow>

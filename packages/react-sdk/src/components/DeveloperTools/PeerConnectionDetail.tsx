@@ -42,7 +42,7 @@ export function PeerConnectionDetail({
                 'Remote Session Id',
               )}
             </StyledDevtoolsTableCell>
-            <StyledDevtoolsTableCell>
+            <StyledDevtoolsTableCell monospace={true}>
               {peerConnection.remoteSessionId}
             </StyledDevtoolsTableCell>
           </TableRow>
@@ -53,7 +53,7 @@ export function PeerConnectionDetail({
                 'User Id',
               )}
             </StyledDevtoolsTableCell>
-            <StyledDevtoolsTableCell>
+            <StyledDevtoolsTableCell monospace={true}>
               {peerConnection.remoteUserId}
             </StyledDevtoolsTableCell>
           </TableRow>
