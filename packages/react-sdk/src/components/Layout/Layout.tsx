@@ -16,7 +16,7 @@
 
 import { TabPanel } from '@mui/base';
 import { Box, Collapse, Slide, Stack, styled } from '@mui/material';
-import { ReactElement } from 'react';
+import { ReactElement, useCallback } from 'react';
 import { useMeasure } from '../../lib';
 import {
   SlideProvider,
@@ -27,7 +27,7 @@ import {
 import { usePowerLevels } from '../../store/api/usePowerLevels';
 import { BoardBar } from '../BoardBar';
 import { CollaborationBar } from '../CollaborationBar';
-import { DeveloperTools } from '../DeveloperTools/DeveloperTools';
+import { DeveloperToolsDialog } from '../DeveloperTools';
 import { ElementOverridesProvider } from '../ElementOverridesProvider';
 import { FullscreenModeBar } from '../FullscreenModeBar';
 import { GuidedTour } from '../GuidedTour';
@@ -63,14 +63,22 @@ export type LayoutProps = {
 
 export function Layout({ height = '100vh' }: LayoutProps) {
   const { loading } = useIsWhiteboardLoading();
-  const { isDeveloperToolsVisible, isFullscreenMode, isSlideOverviewVisible } =
-    useLayoutState();
+  const {
+    isDeveloperToolsVisible,
+    setDeveloperToolsVisible,
+    isFullscreenMode,
+    isSlideOverviewVisible,
+  } = useLayoutState();
   const slideIds = useActiveWhiteboardInstanceSlideIds();
   const { state: presentationState } = usePresentationMode();
   const isViewingPresentation = presentationState.type === 'presentation';
 
   const { handleUploadDragEnter, uploadDragOverlay } =
     useSlideImageDropUpload();
+
+  const handleClose = useCallback(() => {
+    setDeveloperToolsVisible(false);
+  }, [setDeveloperToolsVisible]);
 
   if (loading) {
     return <PageLoader />;
@@ -112,10 +120,10 @@ export function Layout({ height = '100vh' }: LayoutProps) {
                 </TabPanelStyled>
               ))}
             </Box>
-
-            <AnimatedSidebar visible={isDeveloperToolsVisible} direction="left">
-              <DeveloperTools />
-            </AnimatedSidebar>
+            <DeveloperToolsDialog
+              open={isDeveloperToolsVisible}
+              handleClose={handleClose}
+            />
           </Stack>
         </ImportWhiteboardDialogProvider>
       </ImageUploadProvider>
