@@ -64,14 +64,17 @@ export function WhiteboardSessionsTable({
           sessions
             .sort((a, b) => a.userId.localeCompare(b.userId))
             .map((session) => (
-              <TableRow key={session.userId}>
-                <StyledDevtoolsTableCell align="left">
+              <TableRow key={session.userId + session.sessionId}>
+                <StyledDevtoolsTableCell align="left" monospace={true}>
                   {session.userId}
                 </StyledDevtoolsTableCell>
-                <StyledDevtoolsTableCell align="left">
+                <StyledDevtoolsTableCell align="left" monospace={true}>
                   {session.sessionId}
                 </StyledDevtoolsTableCell>
-                <StyledDevtoolsTableCell align="right">
+                <StyledDevtoolsTableCell align="left">
+                  {session.status}
+                </StyledDevtoolsTableCell>
+                <StyledDevtoolsTableCell align="left" monospace={true}>
                   {t(
                     'boardBar.developerToolsDialog.communicationChannelStatistics.whiteboardSessionsTable.expire',
                     'Session will expire in {{expire}}.',
