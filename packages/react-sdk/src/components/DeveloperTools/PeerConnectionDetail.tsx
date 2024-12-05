@@ -39,7 +39,7 @@ export function PeerConnectionDetail({
             <StyledDevtoolsTableCell>
               {t(
                 'boardBar.developerToolsDialog.communicationChannelStatistics.remoteSessionId',
-                'Remote Session Id',
+                'Remote Session ID',
               )}
             </StyledDevtoolsTableCell>
             <StyledDevtoolsTableCell monospace={true}>
@@ -50,7 +50,7 @@ export function PeerConnectionDetail({
             <StyledDevtoolsTableCell>
               {t(
                 'boardBar.developerToolsDialog.communicationChannelStatistics.userId',
-                'User Id',
+                'User ID',
               )}
             </StyledDevtoolsTableCell>
             <StyledDevtoolsTableCell monospace={true}>

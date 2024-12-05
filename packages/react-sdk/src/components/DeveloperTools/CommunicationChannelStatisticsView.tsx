@@ -43,7 +43,7 @@ export function CommunicationChannelStatisticsView({
           <StyledDevtoolsHeaderCell
             content={t(
               'boardBar.developerToolsDialog.communicationChannelStatistics.localSessionId',
-              'Local Session Id',
+              'Local Session ID',
             )}
           />
           <StyledDevtoolsHeaderCell

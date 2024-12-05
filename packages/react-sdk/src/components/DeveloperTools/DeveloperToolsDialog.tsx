@@ -133,11 +133,19 @@ export function DeveloperToolsDialog({
             </AccordionSummary>
             <AccordionDetails>
               <WhiteboardSessionsTable
-                sessions={communicationChannel.sessions?.filter(
-                  (s) =>
-                    s.sessionId !== communicationChannel.localSessionId &&
-                    s.expiresTs - Date.now() > 0,
-                )}
+                sessions={communicationChannel.sessions
+                  ?.filter(
+                    (s) =>
+                      s.sessionId !== communicationChannel.localSessionId &&
+                      s.expiresTs - Date.now() > 0,
+                  )
+                  .map((s) => ({
+                    ...s,
+                    status: Object.values(
+                      communicationChannel.peerConnections,
+                    ).find((p) => p.remoteSessionId === s.sessionId)
+                      ?.connectionState,
+                  }))}
               />
             </AccordionDetails>
           </Accordion>

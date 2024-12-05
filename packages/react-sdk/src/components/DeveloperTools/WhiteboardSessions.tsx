@@ -15,6 +15,7 @@
  */
 
 import { TableBody, TableHead, TableRow } from '@mui/material';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SessionState } from '../../state/communication/discovery/sessionManagerImpl';
 import {
@@ -26,9 +27,18 @@ import {
 export function WhiteboardSessionsTable({
   sessions,
 }: {
-  sessions: SessionState[] | undefined;
+  sessions: (SessionState & { status?: string })[] | undefined;
 }) {
   const { t } = useTranslation('neoboard');
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      setNow(Date.now());
+    }, 1000);
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, []);
 
   return (
     <StyledDevtoolsTable
@@ -53,8 +63,14 @@ export function WhiteboardSessionsTable({
           />
           <StyledDevtoolsHeaderCell
             content={t(
-              'boardBar.developerToolsDialog.communicationChannelStatistics.whiteboardSessionsTable.expiresState',
+              'boardBar.developerToolsDialog.communicationChannelStatistics.whiteboardSessionsTable.state',
               'State',
+            )}
+          />
+          <StyledDevtoolsHeaderCell
+            content={t(
+              'boardBar.developerToolsDialog.communicationChannelStatistics.whiteboardSessionsTable.lifetime',
+              'Remaining',
             )}
           />
         </TableRow>
@@ -77,8 +93,8 @@ export function WhiteboardSessionsTable({
                 <StyledDevtoolsTableCell align="left" monospace={true}>
                   {t(
                     'boardBar.developerToolsDialog.communicationChannelStatistics.whiteboardSessionsTable.expire',
-                    'Session will expire in {{expire}}.',
-                    { expire: formatTime(session.expiresTs - Date.now()) },
+                    '{{minutes}}:{{seconds}}',
+                    formatTime(Math.max(0, session.expiresTs - now)),
                   )}
                 </StyledDevtoolsTableCell>
               </TableRow>
@@ -98,9 +114,15 @@ export function WhiteboardSessionsTable({
   );
 }
 
-function formatTime(milliseconds: number): string {
-  const minutes = Math.floor(milliseconds / 60000);
-  const seconds = Math.floor((milliseconds % 60000) / 1000);
-
-  return `${minutes}m ${seconds}s`;
+function formatTime(milliseconds: number): {
+  minutes: string;
+  seconds: string;
+} {
+  const minutes = Math.floor(milliseconds / 60000)
+    .toString()
+    .padStart(2, '0');
+  const seconds = Math.floor((milliseconds % 60000) / 1000)
+    .toString()
+    .padStart(2, '0');
+  return { minutes, seconds };
 }
