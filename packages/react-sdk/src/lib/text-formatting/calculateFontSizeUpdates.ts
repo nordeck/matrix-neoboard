@@ -14,6 +14,21 @@
  * limitations under the License.
  */
 
-export { useFontSize } from './useFontSize';
-export { useToggleBold } from './useToggleBold';
-export { useToggleItalic } from './useToggleItalic';
+import { Elements, ElementUpdate } from '../../state/types';
+
+export function calculateFontSizeUpdates(
+  elements: Elements,
+  fontSize?: number,
+): ElementUpdate[] {
+  const updates: ElementUpdate[] = [];
+
+  for (const [elementId, element] of Object.entries(elements)) {
+    if (element.type !== 'shape' || element.textSize === fontSize) {
+      continue;
+    }
+
+    updates.push({ elementId, patch: { textSize: fontSize } });
+  }
+
+  return updates;
+}

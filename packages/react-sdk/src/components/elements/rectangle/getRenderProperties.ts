@@ -40,6 +40,7 @@ export function getRenderProperties(
       alignment: shape.textAlignment ?? 'center',
       bold: shape.textBold ?? false,
       italic: shape.textItalic ?? false,
+      fontSize: shape.textSize,
     },
   };
 }
