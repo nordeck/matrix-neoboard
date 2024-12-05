@@ -19,21 +19,28 @@ import { cloneDeep } from 'lodash';
 import { getLogger } from 'loglevel';
 import {
   BehaviorSubject,
+  NEVER,
   Observable,
   Subject,
   distinctUntilChanged,
+  filter,
+  firstValueFrom,
   from,
+  interval,
+  map,
   mergeMap,
   switchMap,
   takeUntil,
+  timeout,
 } from 'rxjs';
+import { raceWith } from 'rxjs/operators';
 import {
   Message,
   PeerConnection,
   PeerConnectionStatistics,
   WebRtcPeerConnection,
 } from './connection';
-import { SessionManager } from './discovery';
+import { Session, SessionManager } from './discovery';
 import { SignalingChannel } from './signaling';
 import { CommunicationChannel, CommunicationChannelStatistics } from './types';
 import { observeVisibilityState } from './visibilityState';
@@ -76,39 +83,7 @@ export class WebRtcCommunicationChannel implements CommunicationChannel {
     this.sessionManager
       .observeSessionJoined()
       .pipe(takeUntil(this.destroySubject))
-      .subscribe((session) => {
-        const sessionId = this.sessionManager.getSessionId();
-
-        this.logger.log('joined', session.sessionId, session.userId);
-
-        if (!sessionId) {
-          throw new Error('Unknown session id');
-        }
-
-        const peerConnection = new WebRtcPeerConnection(
-          this.signalingChannel,
-          session,
-          sessionId,
-          { turnServer: this.turnServers },
-        );
-        this.peerConnections.push(peerConnection);
-
-        peerConnection
-          .observeMessages()
-          .subscribe((m) => this.messagesSubject.next(m));
-
-        peerConnection.observeStatistics().subscribe({
-          next: (peerConnectionStatistics) => {
-            this.addPeerConnectionStatistics(
-              peerConnection.getConnectionId(),
-              peerConnectionStatistics,
-            );
-          },
-          complete: () => {
-            this.addPeerConnectionStatistics(peerConnection.getConnectionId());
-          },
-        });
-      });
+      .subscribe(this.handleSessionJoined.bind(this));
 
     this.sessionManager
       .observeSessionLeft()
@@ -220,6 +195,72 @@ export class WebRtcCommunicationChannel implements CommunicationChannel {
 
     this.statistics.localSessionId = undefined;
     this.statisticsSubject.next(cloneDeep(this.statistics));
+  }
+
+  /**
+   * If there are already known TURN servers, this is a noop.
+   * Otherwise wait for TURN servers from the Widget API until a timeout.
+   */
+  private async initTurnServers(): Promise<void> {
+    if (this.turnServers !== undefined) {
+      // TURN servers already known
+      return;
+    }
+
+    const source = NEVER.pipe(timeout(2500)).pipe(
+      raceWith(
+        interval(250).pipe(
+          map(() => {
+            return this.turnServers;
+          }),
+          filter((t) => t !== undefined),
+        ),
+      ),
+    );
+
+    try {
+      await firstValueFrom(source);
+    } catch (error) {
+      this.logger.warn('Loading TURN configuration timed out', error);
+    }
+  }
+
+  private async handleSessionJoined(session: Session): Promise<void> {
+    const sessionId = this.sessionManager.getSessionId();
+
+    this.logger.log('joined', session.sessionId, session.userId);
+
+    if (!sessionId) {
+      throw new Error('Unknown session id');
+    }
+
+    // Wait for the Widget API and TURN servers to be ready
+    await this.widgetApiPromise;
+    await this.initTurnServers();
+
+    const peerConnection = new WebRtcPeerConnection(
+      this.signalingChannel,
+      session,
+      sessionId,
+      { turnServer: this.turnServers },
+    );
+    this.peerConnections.push(peerConnection);
+
+    peerConnection
+      .observeMessages()
+      .subscribe((m) => this.messagesSubject.next(m));
+
+    peerConnection.observeStatistics().subscribe({
+      next: (peerConnectionStatistics) => {
+        this.addPeerConnectionStatistics(
+          peerConnection.getConnectionId(),
+          peerConnectionStatistics,
+        );
+      },
+      complete: () => {
+        this.addPeerConnectionStatistics(peerConnection.getConnectionId());
+      },
+    });
   }
 
   private addPeerConnectionStatistics(

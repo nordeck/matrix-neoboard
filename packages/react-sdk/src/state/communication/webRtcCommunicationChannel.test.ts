@@ -16,7 +16,15 @@
 
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { waitFor } from '@testing-library/react';
-import { BehaviorSubject, NEVER, Subject, firstValueFrom, toArray } from 'rxjs';
+import {
+  BehaviorSubject,
+  NEVER,
+  Subject,
+  delay,
+  firstValueFrom,
+  of,
+  toArray,
+} from 'rxjs';
 import {
   Mocked,
   afterEach,
@@ -27,7 +35,6 @@ import {
   vi,
 } from 'vitest';
 import { mockDocumentVisibilityState } from '../../lib/testUtils/domTestUtils';
-import * as connection from './connection';
 import {
   Message,
   PeerConnection,
@@ -131,6 +138,202 @@ describe('WebRtcCommunicationChannel', () => {
     vi.mocked(WebRtcPeerConnection).mockReturnValue(
       peerConnection as unknown as WebRtcPeerConnection,
     );
+  });
+
+  afterEach(() => {
+    channel.destroy();
+    vi.resetAllMocks();
+  });
+
+  describe('with non-deferred TURN config', () => {
+    beforeEach(() => {
+      createChannel();
+    });
+
+    it('should close peer connections for left sessions', async () => {
+      joinedSubject.next(anotherSession);
+      await waitForSessionExists();
+
+      leftSubject.next(anotherSession);
+
+      expect(peerConnection.close).toHaveBeenCalled();
+      expect(channel.getStatistics()).toEqual({
+        localSessionId: 'session-id',
+        peerConnections: {},
+      });
+    });
+
+    it('should disconnect while the browser is hidden', async () => {
+      joinedSubject.next(anotherSession);
+      await waitForSessionExists();
+
+      vi.useFakeTimers();
+
+      // Hide the tab
+      mockDocumentVisibilityState('hidden');
+
+      vi.advanceTimersByTime(250);
+      expect(sessionManager.leave).toHaveBeenCalled();
+      expect(peerConnection.close).toHaveBeenCalled();
+
+      await vi.waitFor(() => {
+        expect(sessionManager.getSessionId()).toBeUndefined();
+      });
+
+      // Make the tab visible again
+      mockDocumentVisibilityState('visible');
+
+      expect(sessionManager.join).toHaveBeenCalledTimes(2);
+      expect(sessionManager.join).toHaveBeenCalledWith('whiteboard-id');
+    });
+
+    it('should skip disconnect while the browser is hidden if disabled', async () => {
+      vi.useFakeTimers();
+      joinedSubject.next(anotherSession);
+
+      enableObserveVisibilityStateSubject.next(false);
+
+      // Hide the tab
+      mockDocumentVisibilityState('hidden');
+
+      vi.advanceTimersByTime(1250);
+      expect(sessionManager.leave).not.toHaveBeenCalled();
+      expect(peerConnection.close).not.toHaveBeenCalled();
+    });
+
+    it('should forward statistics from peer connections', async () => {
+      joinedSubject.next(anotherSession);
+      await waitForSessionExists();
+
+      const statisticsPromise = firstValueFrom(channel.observeStatistics());
+
+      statisticsSubject.next(peerConnectionStatistics);
+
+      expect(channel.getStatistics()).toEqual({
+        localSessionId: 'session-id',
+        peerConnections: {
+          'connection-id': peerConnectionStatistics,
+        },
+      });
+      await expect(statisticsPromise).resolves.toEqual({
+        localSessionId: 'session-id',
+        peerConnections: {
+          'connection-id': peerConnectionStatistics,
+        },
+      });
+    });
+
+    it('should messages from peer connections', async () => {
+      joinedSubject.next(anotherSession);
+      await waitForSessionExists();
+
+      const messagesPromise = firstValueFrom(channel.observeMessages());
+
+      messageSubject.next({
+        type: 'example_type',
+        content: { key: 'value' },
+        senderSessionId: 'another-session-id',
+        senderUserId: '@another-user-id',
+      });
+
+      await expect(messagesPromise).resolves.toEqual({
+        type: 'example_type',
+        content: { key: 'value' },
+        senderSessionId: 'another-session-id',
+        senderUserId: '@another-user-id',
+      });
+    });
+
+    it('should send messages to all peer connections', async () => {
+      joinedSubject.next(anotherSession);
+      await waitForSessionExists();
+
+      channel.broadcastMessage('example_type', { key: 'value' });
+
+      expect(peerConnection.sendMessage).toHaveBeenCalledWith('example_type', {
+        key: 'value',
+      });
+    });
+
+    it('should leave after destroying', async () => {
+      joinedSubject.next(anotherSession);
+      await waitForSessionExists();
+
+      const messagesPromise = firstValueFrom(
+        channel.observeMessages().pipe(toArray()),
+      );
+      const statisticsPromise = firstValueFrom(
+        channel.observeMessages().pipe(toArray()),
+      );
+
+      channel.destroy();
+
+      await expect(messagesPromise).resolves.toEqual([]);
+      await expect(statisticsPromise).resolves.toEqual([]);
+      await waitFor(() => {
+        expect(sessionManager.leave).toHaveBeenCalled();
+      });
+      await waitFor(() => {
+        expect(peerConnection.close).toHaveBeenCalled();
+      });
+    });
+  });
+
+  describe('with deferred TURN config', () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+      createChannel(true);
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('should add peer connections for joined sessions', async () => {
+      expect(sessionManager.join).toHaveBeenCalledWith('whiteboard-id');
+      expect(channel.getStatistics()).toMatchObject({
+        localSessionId: 'session-id',
+      });
+
+      joinedSubject.next(anotherSession);
+      await vi.runAllTimersAsync();
+
+      expect(WebRtcPeerConnection).toHaveBeenCalledWith(
+        signalingChannel,
+        anotherSession,
+        'session-id',
+        {
+          turnServer: {
+            credential: 'example-turn-credentials',
+            urls: ['turn:turn.example.com'],
+            username: 'example-turn-username',
+          },
+        },
+      );
+    });
+  });
+
+  async function waitForSessionExists() {
+    await waitFor(() => {
+      statisticsSubject.next(peerConnectionStatistics);
+      expect(
+        Object.values(channel.getStatistics().peerConnections).length,
+      ).toBe(1);
+    });
+  }
+
+  function createChannel(deferredTurnConfig = false) {
+    if (deferredTurnConfig) {
+      // Simulate deferred TURN server configuration
+      widgetApi.observeTurnServers.mockImplementation(() => {
+        const exampleTurn = of({
+          urls: ['turn:turn.example.com'],
+          username: 'example-turn-username',
+          credential: 'example-turn-credentials',
+        });
+        return exampleTurn.pipe(delay(500));
+      });
+    }
 
     channel = new WebRtcCommunicationChannel(
       widgetApi,
@@ -140,155 +343,5 @@ describe('WebRtcCommunicationChannel', () => {
       enableObserveVisibilityStateSubject,
       250,
     );
-  });
-
-  afterEach(() => {
-    channel.destroy();
-    vi.resetAllMocks();
-  });
-
-  it('should add peer connections for joined sessions', () => {
-    const spy = vi.spyOn(connection, 'WebRtcPeerConnection');
-    expect(sessionManager.join).toHaveBeenCalledWith('whiteboard-id');
-    expect(channel.getStatistics()).toMatchObject({
-      localSessionId: 'session-id',
-    });
-
-    joinedSubject.next(anotherSession);
-
-    expect(spy).toHaveBeenCalledWith(
-      signalingChannel,
-      anotherSession,
-      'session-id',
-      {
-        turnServer: {
-          credential: 'credential',
-          urls: ['turn:turn.matrix.org'],
-          username: 'user',
-        },
-      },
-    );
-  });
-
-  it('should close peer connections for left sessions', () => {
-    joinedSubject.next(anotherSession);
-
-    statisticsSubject.next(peerConnectionStatistics);
-    leftSubject.next(anotherSession);
-
-    expect(peerConnection.close).toHaveBeenCalled();
-    expect(channel.getStatistics()).toEqual({
-      localSessionId: 'session-id',
-      peerConnections: {},
-    });
-  });
-
-  it('should disconnect while the browser is hidden', async () => {
-    vi.useFakeTimers();
-    joinedSubject.next(anotherSession);
-
-    // Hide the tab
-    mockDocumentVisibilityState('hidden');
-
-    vi.advanceTimersByTime(250);
-    expect(sessionManager.leave).toHaveBeenCalled();
-    expect(peerConnection.close).toHaveBeenCalled();
-
-    await vi.waitFor(() => {
-      expect(sessionManager.getSessionId()).toBeUndefined();
-    });
-
-    // Make the tab visible again
-    mockDocumentVisibilityState('visible');
-
-    expect(sessionManager.join).toHaveBeenCalledTimes(2);
-    expect(sessionManager.join).toHaveBeenCalledWith('whiteboard-id');
-  });
-
-  it('should skip disconnect while the browser is hidden if disabled', async () => {
-    vi.useFakeTimers();
-    joinedSubject.next(anotherSession);
-
-    enableObserveVisibilityStateSubject.next(false);
-
-    // Hide the tab
-    mockDocumentVisibilityState('hidden');
-
-    vi.advanceTimersByTime(1250);
-    expect(sessionManager.leave).not.toHaveBeenCalled();
-    expect(peerConnection.close).not.toHaveBeenCalled();
-  });
-
-  it('should forward statistics from peer connections', async () => {
-    joinedSubject.next(anotherSession);
-
-    const statisticsPromise = firstValueFrom(channel.observeStatistics());
-
-    statisticsSubject.next(peerConnectionStatistics);
-
-    expect(channel.getStatistics()).toEqual({
-      localSessionId: 'session-id',
-      peerConnections: {
-        'connection-id': peerConnectionStatistics,
-      },
-    });
-    await expect(statisticsPromise).resolves.toEqual({
-      localSessionId: 'session-id',
-      peerConnections: {
-        'connection-id': peerConnectionStatistics,
-      },
-    });
-  });
-
-  it('should messages from peer connections', async () => {
-    joinedSubject.next(anotherSession);
-
-    const messagesPromise = firstValueFrom(channel.observeMessages());
-
-    messageSubject.next({
-      type: 'example_type',
-      content: { key: 'value' },
-      senderSessionId: 'another-session-id',
-      senderUserId: '@another-user-id',
-    });
-
-    await expect(messagesPromise).resolves.toEqual({
-      type: 'example_type',
-      content: { key: 'value' },
-      senderSessionId: 'another-session-id',
-      senderUserId: '@another-user-id',
-    });
-  });
-
-  it('should send messages to all peer connections', () => {
-    joinedSubject.next(anotherSession);
-
-    channel.broadcastMessage('example_type', { key: 'value' });
-
-    expect(peerConnection.sendMessage).toHaveBeenCalledWith('example_type', {
-      key: 'value',
-    });
-  });
-
-  it('should leave after destroying', async () => {
-    joinedSubject.next(anotherSession);
-
-    const messagesPromise = firstValueFrom(
-      channel.observeMessages().pipe(toArray()),
-    );
-    const statisticsPromise = firstValueFrom(
-      channel.observeMessages().pipe(toArray()),
-    );
-
-    channel.destroy();
-
-    await expect(messagesPromise).resolves.toEqual([]);
-    await expect(statisticsPromise).resolves.toEqual([]);
-    await waitFor(() => {
-      expect(sessionManager.leave).toHaveBeenCalled();
-    });
-    await waitFor(() => {
-      expect(peerConnection.close).toHaveBeenCalled();
-    });
-  });
+  }
 });
