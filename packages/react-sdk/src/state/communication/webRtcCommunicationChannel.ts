@@ -40,8 +40,8 @@ import {
   PeerConnectionStatistics,
   WebRtcPeerConnection,
 } from './connection';
-import { SessionState } from './discovery/sessionManagerImpl';
 import { Session, SessionManager } from './discovery';
+import { SessionState } from './discovery/sessionManagerImpl';
 import { SignalingChannel } from './signaling';
 import { CommunicationChannel, CommunicationChannelStatistics } from './types';
 import { observeVisibilityState } from './visibilityState';

@@ -159,7 +159,7 @@ describe('WebRtcCommunicationChannel', () => {
       await waitForSessionExists();
 
       leftSubject.next(anotherSession);
-      
+
       expect(peerConnection.close).toHaveBeenCalled();
       expect(channel.getStatistics()).toEqual({
         localSessionId: 'session-id',
