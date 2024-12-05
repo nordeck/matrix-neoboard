@@ -44,6 +44,8 @@ export class SessionManagerImpl implements SessionManager {
   private readonly leaveSubject = new Subject<void>();
   private readonly sessionJoinedSubject = new Subject<Session>();
   private readonly sessionLeftSubject = new Subject<Session>();
+  // This subject is used to track the state of all sessions, allowing us to
+  // detect sessions and manage their lifecycle, including adding expiration dates.
   private readonly sessionSubject = new Subject<SessionState>();
   private sessions: SessionState[] = [];
   private joinState: { whiteboardId: string; sessionId: string } | undefined;
