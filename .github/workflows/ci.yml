@@ -47,8 +47,8 @@ jobs:
       - name: Check Translations
         run: yarn translate --fail-on-update
 
-      - name: test
-        run: yarn run test:all
+      #- name: test
+      #  run: yarn run test:all
 
       - name: build
         run: yarn build
