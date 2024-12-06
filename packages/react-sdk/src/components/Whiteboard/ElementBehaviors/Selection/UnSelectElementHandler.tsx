@@ -21,8 +21,15 @@ import {
   useActiveElement,
   useWhiteboardSlideInstance,
 } from '../../../../state';
-import { updateScale, updateTranslation } from '../../../../store/canvasSlice';
-import { useAppDispatch } from '../../../../store/reduxToolkitHooks';
+import {
+  selectCanvas,
+  updateScale,
+  updateTranslation,
+} from '../../../../store/canvasSlice';
+import {
+  useAppDispatch,
+  useAppSelector,
+} from '../../../../store/reduxToolkitHooks';
 import { useLayoutState } from '../../../Layout';
 import { HOTKEY_SCOPE_WHITEBOARD } from '../../../WhiteboardHotkeysProvider';
 import { useSvgCanvasContext } from '../../SvgCanvas';
@@ -34,6 +41,8 @@ export function UnSelectElementHandler() {
   const { calculateSvgCoords } = useSvgCanvasContext();
   const [previousPanCoordinates, setPreviousPanCoordinates] = useState<Point>();
   const dispatch = useAppDispatch();
+  const { infiniteMode } = useAppSelector(selectCanvas);
+  const [panEnabled, setPanEnabled] = useState(false);
 
   const unselectElement = useCallback(() => {
     if (activeElementId) {
@@ -54,14 +63,22 @@ export function UnSelectElementHandler() {
           slideInstance.setActiveElementId(undefined);
           window.getSelection()?.empty();
         }
-      } else if (event.button === 1) {
+      } else if (event.button === 2) {
+        // Right click
         event.preventDefault();
         event.stopPropagation();
+
+        if (!infiniteMode) {
+          return;
+        }
+
+        setPanEnabled(true);
         setPreviousPanCoordinates({ x: event.clientX, y: event.clientY });
       }
     },
     [
       activeElementId,
+      infiniteMode,
       slideInstance,
       calculateSvgCoords,
       setDragSelectStartCoords,
@@ -71,7 +88,7 @@ export function UnSelectElementHandler() {
 
   const handleMouseMove = useCallback(
     (event: MouseEvent<SVGRectElement>) => {
-      if (previousPanCoordinates === undefined) {
+      if (!panEnabled || previousPanCoordinates === undefined) {
         return;
       }
 
@@ -84,30 +101,48 @@ export function UnSelectElementHandler() {
 
       setPreviousPanCoordinates({ x: event.clientX, y: event.clientY });
     },
-    [dispatch, previousPanCoordinates, setPreviousPanCoordinates],
+    [dispatch, panEnabled, previousPanCoordinates, setPreviousPanCoordinates],
   );
 
   const handleMouseUp = useCallback(
     (event: MouseEvent<SVGRectElement>) => {
-      if (event.button === 1) {
+      if (event.button === 2) {
+        // Right click
         event.preventDefault();
         event.stopPropagation();
-        setPreviousPanCoordinates(undefined);
+
+        if (!infiniteMode) {
+          return;
+        }
+
+        setPanEnabled(false);
       }
     },
-    [setPreviousPanCoordinates],
+    [infiniteMode],
   );
 
   const handleWheel = useCallback(
     (event: WheelEvent) => {
+      if (!infiniteMode) {
+        return;
+      }
+
       if (event.deltaY === 0) {
         return;
       }
 
       dispatch(updateScale(event.deltaY < 0 ? 0.2 : -0.2));
     },
-    [dispatch],
+    [dispatch, infiniteMode],
   );
+
+  const handleMouseEnter = useCallback((event: MouseEvent<SVGRectElement>) => {
+    if (event.buttons !== 2) {
+      // Stop pan
+      setPanEnabled(false);
+      setPreviousPanCoordinates(undefined);
+    }
+  }, []);
 
   useHotkeys(
     'Escape',
@@ -127,7 +162,12 @@ export function UnSelectElementHandler() {
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
+      onMouseEnter={handleMouseEnter}
       onWheel={handleWheel}
+      onContextMenu={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      }}
       width="100%"
       data-testid="unselect-element-layer"
     />
