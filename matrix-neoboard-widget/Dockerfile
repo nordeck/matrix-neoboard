@@ -1,4 +1,4 @@
-FROM ghcr.io/nordeck/matrix-widget-toolkit/widget-server:1
+FROM ghcr.io/nordeck/matrix-widget-toolkit/widget-server:1.1.0@sha256:85b4bf57747788ef1ac3472a826502219be20e7b1fffff6193ad4c0b0ccbc42d
 
 ARG REACT_APP_VERSION
 ARG REACT_APP_REVISION
