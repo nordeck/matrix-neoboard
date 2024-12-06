@@ -85,4 +85,4 @@ env: []
 # Configuration related to the nginx within the container which serves the widget.
 nginx:
   # Only listen on ipv4
-  ipv4Only: false
+  ipv4Only: true
