@@ -60,11 +60,22 @@ spec:
             mountPath: /var/cache/nginx
           - name: tmp-volume
             mountPath: /tmp
+          {{- if .Values.nginx.ipv4Only }}
+          - name: "nginx-configs"
+            mountPath: "/etc/nginx/conf.d/custom"
+            subpath: "listen.conf"
+            readOnly: true
+          {{- end }}
       volumes:
       - name: cache-volume
         emptyDir: {}
       - name: tmp-volume
         emptyDir: {}
+      {{- if .Values.nginx.ipv4Only }}
+      - name: "nginx-configs"
+        configMap:
+          name: "{{ include "app.fullname" . }}-nginx-configs"
+      {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
