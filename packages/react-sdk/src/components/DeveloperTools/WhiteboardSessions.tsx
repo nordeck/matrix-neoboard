@@ -15,8 +15,9 @@
  */
 
 import { TableBody, TableHead, TableRow } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useInterval } from 'react-use';
 import { SessionState } from '../../state/communication/discovery/sessionManagerImpl';
 import {
   StyledDevtoolsHeaderCell,
@@ -31,14 +32,9 @@ export function WhiteboardSessionsTable({
 }) {
   const { t } = useTranslation('neoboard');
   const [now, setNow] = useState(Date.now());
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      setNow(Date.now());
-    }, 1000);
-    return () => {
-      clearInterval(intervalId);
-    };
-  }, []);
+  useInterval(() => {
+    setNow(Date.now());
+  }, 1000);
 
   return (
     <StyledDevtoolsTable
