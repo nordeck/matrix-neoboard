@@ -151,6 +151,8 @@ Yon can run the widget using Docker:
 docker run --rm -e REACT_APP_HOME_SERVER_URL=https://matrix-client.matrix.org -p 8080:8080 ghcr.io/nordeck/matrix-neoboard-widget:latest
 ```
 
+To run IPv4 please take a look at <https://github.com/nordeck/matrix-widget-toolkit/tree/main/containers/widget-server#custom-listen-directive>
+
 We also provide a [HELM chart](./charts/).
 
 ### Important notes
