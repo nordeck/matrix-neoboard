@@ -2,4 +2,4 @@
 '@nordeck/matrix-neoboard-widget': minor
 ---
 
-Allow running neoboard in an ipv4-only setup
+New widget-server base image that supports IPv4-only deployments
