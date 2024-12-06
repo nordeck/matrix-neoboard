@@ -145,7 +145,7 @@ const WhiteboardHost = ({
 const BaseArea = () => {
   return (
     <path
-      fill='transparent'
+      fill="transparent"
       strokeWidth={2}
       stroke="#bbb"
       d={`M ${(whiteboardWidth - initialWhiteboardWidth) / 2} ${(whiteboardHeight - initialWhiteboardHeight) / 2} l 0 ${initialWhiteboardHeight} l ${initialWhiteboardWidth} 0 l 0 -${initialWhiteboardHeight} l -${initialWhiteboardWidth} 0`}
