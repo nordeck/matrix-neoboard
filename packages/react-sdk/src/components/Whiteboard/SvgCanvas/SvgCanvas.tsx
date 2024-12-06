@@ -21,11 +21,16 @@ import {
   ReactNode,
   useCallback,
   useEffect,
+  useId,
   useMemo,
   useRef,
 } from 'react';
 import { Point } from '../../../state';
-import { selectCanvas, updateOuterScale } from '../../../store/canvasSlice';
+import {
+  refreshCanvas,
+  selectCanvas,
+  updateOuterScale,
+} from '../../../store/canvasSlice';
 import {
   useAppDispatch,
   useAppSelector,
@@ -41,8 +46,6 @@ const Canvas = styled('svg', {
   margin: 'auto',
   display: 'block',
   borderRadius: rounded ? theme.shape.borderRadius : undefined,
-  width: '9600px',
-  height: '5400px',
 }));
 
 export type SvgCanvasProps = PropsWithChildren<{
@@ -96,9 +99,15 @@ export function SvgCanvas({
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    console.log('MiW outer scale', value.scale);
     dispatch(updateOuterScale(value.scale));
   }, [dispatch, value.scale]);
+
+  useEffect(() => {
+    if (svgRef.current !== undefined) {
+      // Refresh the canvas state once after rendering
+      dispatch(refreshCanvas());
+    }
+  }, [dispatch]);
 
   const handleMouseMove: MouseEventHandler<SVGSVGElement> = useCallback(
     (e) => {
@@ -122,8 +131,21 @@ export function SvgCanvas({
         maxWidth: '100%',
       };
 
+  const id = useId();
+
+  useEffect(() => {
+    const hanldeWindowResize = () => {
+      dispatch(refreshCanvas());
+    };
+
+    window.addEventListener('resize', hanldeWindowResize);
+
+    return () => window.removeEventListener('resize', hanldeWindowResize);
+  }, [dispatch]);
+
   return (
     <Box
+      id={preview ? id : 'board-wrapper'}
       sx={{
         flex: 1,
         aspectRatio,
@@ -151,19 +173,32 @@ export function SvgCanvas({
                   pointerEvents: 'none',
                 },
               }
-            : {
-                overflow: 'hidden',
-              }
+            : preview
+              ? {}
+              : {
+                  position: 'relative',
+                  top: '-2700px',
+                  left: '-4800px',
+                }
         }
       >
         <SvgCanvasContext.Provider value={value}>
           <Canvas
             ref={svgRef}
             rounded={rounded}
-            sx={{ aspectRatio }}
+            sx={{
+              aspectRatio,
+              ...(preview
+                ? {}
+                : {
+                    width: '9600px',
+                    height: '5400px',
+                  }),
+            }}
             viewBox={`0 0 ${viewportWidth} ${viewportHeight}`}
             onMouseDown={onMouseDown}
             onMouseMove={handleMouseMove}
+            transform-origin="center center"
             transform={
               !preview
                 ? `translate(${translate.x}, ${translate.y}) scale(${scale})`

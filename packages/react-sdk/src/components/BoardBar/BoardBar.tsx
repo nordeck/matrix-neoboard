@@ -16,6 +16,7 @@
 
 import { useTranslation } from 'react-i18next';
 import { Toolbar } from '../common/Toolbar';
+import { InfiniteModeToggle } from './InfiniteModeToggle';
 import { SettingsMenu } from './SettingsMenu';
 import { ShowSlideOverviewToggle } from './ShowSlideOverviewToggle';
 
@@ -31,6 +32,7 @@ export function BoardBar() {
       data-guided-tour-target="settings"
     >
       <ShowSlideOverviewToggle />
+      <InfiniteModeToggle />
       <SettingsMenu />
     </Toolbar>
   );

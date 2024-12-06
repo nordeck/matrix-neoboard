@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { whiteboardWidth } from '../components/Whiteboard';
-import { selectCombinedScale } from '../store/canvasSlice';
+import { whiteboardHeight, whiteboardWidth } from '../components/Whiteboard';
+import { CanvasState, selectCombinedScale } from '../store/canvasSlice';
 import { useAppSelector } from '../store/reduxToolkitHooks';
 
 export const useScaledValue = (value: number) => {
@@ -28,10 +28,19 @@ export const useInvertedScaledValue = (value: number) => {
   return value / scale;
 };
 
-export const useTranslateXToViewport = (value: number) => {
-  return value - whiteboardWidth / 2;
-};
-
-export const useTranslatedYValue = (value: number) => {
-  return value;
+export const transformedPointSvgToDiv = (
+  canvas: CanvasState,
+  point: { x: number; y: number },
+) => {
+  const matrix = new DOMMatrix();
+  matrix.translateSelf(canvas.translate.x, canvas.translate.y);
+  matrix.scaleSelf(
+    canvas.scale,
+    canvas.scale,
+    undefined,
+    whiteboardWidth / 2,
+    whiteboardHeight / 2,
+  );
+  const elementOnDiv = matrix.transformPoint(point);
+  return elementOnDiv;
 };

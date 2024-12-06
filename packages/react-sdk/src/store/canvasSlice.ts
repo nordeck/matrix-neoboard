@@ -15,28 +15,125 @@
  */
 
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { whiteboardWidth } from '../components/Whiteboard';
-import { initialWhiteboardWidth } from '../components/Whiteboard/constants';
+import { clamp } from 'lodash';
+import {
+  initialWhiteboardHeight,
+  initialWhiteboardWidth,
+  whiteboardHeight,
+  whiteboardWidth,
+} from '../components/Whiteboard/constants';
 import { RootState } from './store';
 
 type Translation = { x: number; y: number };
 
-export type ShapeSizesState = {
+export type CanvasState = {
+  infiniteMode: boolean;
   outerScale: number;
   scale: number;
   translate: Translation;
 };
 
-const initialState: ShapeSizesState = {
+const initialState: CanvasState = {
+  infiniteMode: false,
   outerScale: 1,
   scale: 1,
-  translate: { x: 0, y: 0 },
+  translate: {
+    x: 0,
+    y: 0,
+  },
+};
+
+const fitFunc = (state: CanvasState): CanvasState => {
+  // TODO - evil hack for the infinite canvas spike
+  const boardWrapperElement = document.getElementById('board-wrapper');
+  const boardWrapperDimensions = {
+    width: boardWrapperElement!.clientWidth,
+    height: boardWrapperElement!.clientHeight,
+  };
+
+  if (!state.infiniteMode) {
+    // Fit initial canvas to be contained in the viewport
+
+    if (
+      boardWrapperDimensions.width > initialWhiteboardWidth &&
+      boardWrapperDimensions.height > initialWhiteboardHeight
+    ) {
+      // Container DIV is larger than initial whiteboard, center it
+      return {
+        ...state,
+        scale: 1,
+        translate: {
+          x: boardWrapperDimensions.width / 2,
+          y: boardWrapperDimensions.height / 2,
+        },
+      };
+    }
+
+    const containerHasPortraitRatio =
+      boardWrapperDimensions.width / boardWrapperDimensions.height >
+      whiteboardWidth / whiteboardHeight;
+
+    if (containerHasPortraitRatio) {
+      // Fit height
+      const scale = boardWrapperDimensions.height / initialWhiteboardHeight;
+
+      return {
+        ...state,
+        scale,
+        translate: {
+          x: boardWrapperDimensions.width / 2,
+          y: boardWrapperDimensions.height / 2,
+        },
+      };
+    }
+
+    // Fit width
+    return {
+      ...state,
+      scale: boardWrapperDimensions.width / initialWhiteboardWidth,
+      translate: {
+        x: boardWrapperDimensions.width / 2,
+        y: boardWrapperDimensions.height / 2,
+      },
+    };
+  }
+
+  const minScaleX = boardWrapperDimensions.width / whiteboardWidth;
+  const minScaleY = boardWrapperDimensions.height / whiteboardHeight;
+  const fittedScale = Math.max(state.scale, minScaleX, minScaleY);
+
+  const clampXStart = (whiteboardWidth / 2) * fittedScale;
+  const clampXEnd =
+    boardWrapperDimensions.width - (whiteboardWidth / 2) * fittedScale;
+  const clampYStart = (whiteboardHeight / 2) * fittedScale;
+  const clampYEnd =
+    boardWrapperDimensions.height - (whiteboardHeight / 2) * fittedScale;
+
+  return {
+    ...state,
+    scale: fittedScale,
+    translate: {
+      x: clamp(state.translate.x, clampXEnd, clampXStart),
+      y: clamp(state.translate.y, clampYEnd, clampYStart),
+    },
+  };
 };
 
 export const canvasSlice = createSlice({
   name: 'canvas',
   initialState,
   reducers: {
+    refreshCanvas: (state) => {
+      return fitFunc({ ...state });
+    },
+    setInfiniteMode: (state, action: PayloadAction<boolean>) => {
+      const newState = {
+        ...state,
+        infiniteMode: action.payload,
+      };
+
+      return fitFunc(newState);
+    },
     updateOuterScale: (state, action: PayloadAction<number>) => {
       return {
         ...state,
@@ -46,6 +143,7 @@ export const canvasSlice = createSlice({
     updateScale: (state, action: PayloadAction<number>) => {
       const newScale = state.scale + action.payload;
 
+      // Limit zoom levels
       if (newScale > 1) {
         return state;
       }
@@ -54,45 +152,34 @@ export const canvasSlice = createSlice({
         return state;
       }
 
-      return {
+      const newState = {
         ...state,
         scale: newScale,
       };
+
+      return fitFunc(newState);
     },
     updateTranslation: (state, action: PayloadAction<Translation>) => {
-      const combinedScale = state.scale * state.outerScale;
-      const capX =
-        ((whiteboardWidth - initialWhiteboardWidth) / 2) * combinedScale;
-
-      const calculatedNewX = state.translate.x + action.payload.x;
-
-      const newX = Math.min(capX, calculatedNewX);
-
-      console.log('MiW ', {
-        outerScale: state.outerScale,
-        scale: state.scale,
-        translateX: state.translate.x,
-        translateY: state.translate.y,
-        capX,
-        calculatedNewX,
-        newX,
-      });
-
-      // fit func
-
-      return {
+      const newState = {
         ...state,
         translate: {
-          x: newX,
+          x: state.translate.x + action.payload.x,
           y: state.translate.y + action.payload.y,
         },
       };
+
+      return fitFunc(newState);
     },
   },
 });
 
-export const { updateScale, updateOuterScale, updateTranslation } =
-  canvasSlice.actions;
+export const {
+  refreshCanvas,
+  setInfiniteMode,
+  updateScale,
+  updateOuterScale,
+  updateTranslation,
+} = canvasSlice.actions;
 
 export const selectCanvas = (state: RootState) => state.canvasReducer;
 
