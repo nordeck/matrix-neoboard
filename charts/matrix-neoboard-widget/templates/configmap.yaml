@@ -17,5 +17,5 @@ metadata:
 {{ include "app.labels" . | indent 4 }}
 data:
   listen.conf: |
-    listen 8080;
+    listen 8081;
 {{- end }}
