@@ -26,6 +26,8 @@ import { DraggableCore, DraggableData, DraggableEvent } from 'react-draggable';
 import { useUnmount } from 'react-use';
 import { useWhiteboardSlideInstance } from '../../../../state';
 import { Elements } from '../../../../state/types';
+import { selectCanvas } from '../../../../store/canvasSlice';
+import { useAppSelector } from '../../../../store/reduxToolkitHooks';
 import {
   createResetElementOverrides,
   useSetElementOverride,
@@ -55,8 +57,9 @@ export function MoveableElement({
   const isDragging = useRef<boolean>(false);
   const nodeRef = useRef<SVGRectElement>(null);
   const setElementOverride = useSetElementOverride();
-  const { scale, viewportHeight, viewportWidth } = useSvgCanvasContext();
+  const { viewportHeight, viewportWidth } = useSvgCanvasContext();
   const slideInstance = useWhiteboardSlideInstance();
+  const { scale } = useAppSelector(selectCanvas);
 
   const [{ deltaX, deltaY }, setDelta] = useState({ deltaX: 0, deltaY: 0 });
 
