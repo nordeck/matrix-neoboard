@@ -1,5 +1,42 @@
 # @nordeck/matrix-neoboard-react-sdk
 
+## 1.0.0
+
+### Major Changes
+
+- d1aa5b7: Migrate neoboard to vitejs + vitest
+
+  We replaced react-scripts with vitejs and jest with vitest. This change should not affect the functionality of the widget,
+  but it allows us to update dependencies and modernize the build process. It also improves the ability to react to security issues in the future.
+
+  However there are changes to the tooling. This will only affect you if you are building the widget yourself and do not use the provided build script.
+  This means that you will need to update your build script to use vitejs instead of react-scripts. Additionally, if you had custom changes to the configurations you will have to update them to the vitejs equivalent.
+
+  Finally, the package is now an ECMAScript module (ESM). This means that you might have to update your imports if you consumed the package directly.
+
+### Minor Changes
+
+- c068495: The font size can now be set absolutely. Automatic font sizes are still available.
+- 4153d8d: Enhanced the Developer Tools by moving them into a more user-friendly and accessible dialog, improving usability.
+- fd631c6: Transparent is now the last colour in the picker, so that the order of colours is the same for shapes and other elements.
+- 9eed0b8: New API functions: WhiteboardManager.clear, WhiteboardInstance.persist and WhiteboardInstance.destroy
+- 95dc0a4: Adds PDF import as images in slides
+- 35d0fee: Ensure that we calculate the mime types ourself due to browsers only checking the file ending and the data on import being untrsuted user input.
+
+  This allows that SVGs are properly working inside of pdf exports and images handling is more stable.
+
+- 60c3602: The grid size changed from 40 to 20 px
+- 14f9a15: NeoBoard now monitors the browser's online state and displays a notification if offline
+
+### Patch Changes
+
+- cff43fe: Improve german language
+- 6e6fbe7: NeoBoard now more reliably uses the TURN server provided by the Matrix server configuration.
+- 0456eed: Bump matrix-widget-toolkit/mui to 2.1.0
+- b62299c: An error was fixed, that caused arrow heads sometimes not appear on the first slide
+- db08392: A snapshot is sent when a new document is created
+- a4e9a8b: Change rounded corner rectangle element position in the toolbar.
+
 ## 0.2.2
 
 ### Patch Changes
