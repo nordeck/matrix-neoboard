@@ -7,6 +7,7 @@ metadata:
 {{ include "app.labels" . | indent 4 }}
 data:
   REACT_APP_HOME_SERVER_URL: "https://synapse.{{- .Values.settings.hostname -}}"
+{{- if .Values.nginx.ipv4Only }}
 ---
 kind: "ConfigMap"
 apiVersion: "v1"
@@ -14,4 +15,7 @@ metadata:
   name: "{{ include "app.fullname" . }}-nginx-configs"
   labels:
 {{ include "app.labels" . | indent 4 }}
-data: {{ .Values.nginx.additionalConfigs | default "{}" }}
+data:
+  listen.conf: |
+    listen 8080;
+{{- end }}
