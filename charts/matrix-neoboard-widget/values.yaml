@@ -89,6 +89,6 @@ nginx:
   #
   # Example:
   # additionalConfigs:
-  #   listen.ipv4.conf: |
+  #   listen.conf: |
   #     listen 8080;
   additionalConfigs: {}

@@ -1,0 +1,2 @@
+namespace: 'neoboard'
+release-label: 'app.kubernetes.io/instance'
