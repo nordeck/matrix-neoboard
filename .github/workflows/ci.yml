@@ -18,7 +18,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           # required for changesets
-          fetch-depth: '0'
+          fetch-depth: "0"
           # don't persist the credentials so the changesets action doesn't use the
           # github actions token but the git token provided via environment variable
           persist-credentials: false
@@ -26,8 +26,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version-file: 'package.json'
-          cache: 'yarn'
+          node-version-file: "package.json"
+          cache: "yarn"
 
       - name: yarn install
         run: yarn install --frozen-lockfile
@@ -125,7 +125,7 @@ jobs:
     # Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
     # However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
     concurrency:
-      group: 'pages'
+      group: "pages"
       cancel-in-progress: false
     environment:
       name: github-pages
@@ -137,8 +137,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version-file: 'package.json'
-          cache: 'yarn'
+          node-version-file: "package.json"
+          cache: "yarn"
 
       - name: yarn install
         run: yarn install --frozen-lockfile
@@ -161,7 +161,7 @@ jobs:
       - name: Upload artifact to GitHub pages
         uses: actions/upload-pages-artifact@v3
         with:
-          path: 'matrix-neoboard-widget/build'
+          path: "matrix-neoboard-widget/build"
 
       - name: Deploy to GitHub Pages
         id: deployment
@@ -210,7 +210,7 @@ jobs:
         uses: azure/setup-helm@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: "3.12"
           check-latest: true
       - name: Set up chart-testing
         uses: helm/chart-testing-action@v2.6.1
@@ -235,7 +235,6 @@ jobs:
         if: steps.list-changed.outputs.changed == 'true'
         run: |
           kubectl create namespace neoboard
-          kubectl create secret docker-registry neoboard --docker-server=https://ghcr.io --docker-username="$USERNAME" --docker-password="$GITHUB_TOKEN" --namespace=neoboard
       # This is done since we set DOCKER_METADATA_PR_HEAD_SHA to true in the build job. This makes us use the PR SHA as the tag
       - name: Set short github sha from github.sha
         run: echo "SHORT_SHA=`echo ${PR_SHA:-$GITHUB_SHA} | cut -c1-7`" >> $GITHUB_ENV
@@ -246,4 +245,4 @@ jobs:
         if: steps.list-changed.outputs.changed == 'true'
         run: |
           echo "Running chart-testing install for ${{ env.SHORT_SHA }}"
-          ct install --config=".github/k8s_config.yaml" --target-branch ${{ github.event.repository.default_branch }} --helm-extra-set-args="--set=imagePullSecrets[0].name=neoboard --set=image.tag=${{ env.SHORT_SHA }}"
+          ct install --config=".github/k8s_config.yaml" --target-branch ${{ github.event.repository.default_branch }} --helm-extra-set-args=" --set=image.tag=${{ env.SHORT_SHA }}"
