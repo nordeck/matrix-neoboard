@@ -62,8 +62,9 @@ spec:
             mountPath: /tmp
           {{- if .Values.nginx.ipv4Only }}
           - name: "nginx-configs"
-            mountPath: "/etc/nginx/conf.d/custom/listen.conf"
+            mountPath: "/etc/nginx/conf.d/custom"
             subpath: "listen.conf"
+            readOnly: true
           {{- end }}
       volumes:
       - name: cache-volume
