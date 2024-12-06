@@ -79,3 +79,16 @@ settings:
 
 # Extra env variables to pass to the container
 env: []
+
+# Configuration related to the nginx within the container which serves the widget.
+nginx:
+  # -- Additional custom configurations for the nginx server.
+  # This should be an object containing <filename>: <content> pairs.
+  #
+  # Note: The chart expects the server to be reachable on port 8080.
+  #
+  # Example:
+  # additionalConfigs:
+  #   listen.ipv4.conf: |
+  #     listen 8080;
+  additionalConfigs: {}

@@ -60,11 +60,16 @@ spec:
             mountPath: /var/cache/nginx
           - name: tmp-volume
             mountPath: /tmp
+          - name: "nginx-configs"
+            mountPath: "/etc/nginx/conf.d/custom/"
       volumes:
       - name: cache-volume
         emptyDir: {}
       - name: tmp-volume
         emptyDir: {}
+      - name: "nginx-configs"
+        configMap:
+          name: "{{ include "app.fullname" . }}-nginx-configs"
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
