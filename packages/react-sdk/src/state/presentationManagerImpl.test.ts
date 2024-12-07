@@ -80,6 +80,7 @@ describe('presentationManager', () => {
       getPresentationManager: vi.fn(),
       getSlide: vi.fn(),
       getSlideIds: vi.fn(),
+      getDocumentId: vi.fn(),
       getWhiteboardId: vi.fn(),
       getWhiteboardStatistics: vi.fn(),
       import: vi.fn(),

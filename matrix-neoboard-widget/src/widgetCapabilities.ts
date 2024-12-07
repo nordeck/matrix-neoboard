@@ -23,6 +23,8 @@ import {
   ROOM_EVENT_DOCUMENT_CHUNK,
   ROOM_EVENT_DOCUMENT_CREATE,
   ROOM_EVENT_DOCUMENT_SNAPSHOT,
+  STATE_EVENT_ROOM_ENCRYPTION,
+  STATE_EVENT_ROOM_HISTORY_VISIBILITY,
   STATE_EVENT_ROOM_NAME,
   STATE_EVENT_WHITEBOARD,
   STATE_EVENT_WHITEBOARD_SESSIONS,
@@ -100,6 +102,15 @@ export const widgetCapabilities = [
   WidgetEventCapability.forStateEvent(
     EventDirection.Receive,
     STATE_EVENT_ROOM_NAME,
+  ),
+
+  WidgetEventCapability.forStateEvent(
+    EventDirection.Receive,
+    STATE_EVENT_ROOM_HISTORY_VISIBILITY,
+  ),
+  WidgetEventCapability.forStateEvent(
+    EventDirection.Receive,
+    STATE_EVENT_ROOM_ENCRYPTION,
   ),
 
   WidgetEventCapability.forToDeviceEvent(

@@ -18,12 +18,21 @@ export { baseApi } from './baseApi';
 export {
   documentSnapshotApi,
   useCreateDocumentMutation,
+  useGetDocumentSnapshotQuery,
 } from './documentSnapshotApi';
 export {
   powerLevelsApi,
   useGetPowerLevelsQuery,
   usePatchPowerLevelsMutation,
 } from './powerLevelsApi';
+export {
+  roomEncryptionApi,
+  useGetRoomEncryptionQuery,
+} from './roomEncryptionApi';
+export {
+  roomHistoryVisibilityApi,
+  useGetRoomHistoryVisibilityQuery,
+} from './roomHistoryVisibilityApi';
 export {
   roomMemberApi,
   selectRoomMember,

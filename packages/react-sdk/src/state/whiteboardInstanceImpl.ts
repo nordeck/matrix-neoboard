@@ -387,6 +387,10 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
     }
   }
 
+  getDocumentId(): string {
+    return this.whiteboardEvent.content.documentId;
+  }
+
   getWhiteboardId(): string {
     return this.whiteboardEvent.event_id;
   }
@@ -452,8 +456,8 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
     this.communicationChannel.destroy();
   }
 
-  async persist() {
-    await this.synchronizedDocument.persist();
+  async persist(force: boolean = false): Promise<void> {
+    await this.synchronizedDocument.persist(force);
   }
 
   clearUndoManager(): void {

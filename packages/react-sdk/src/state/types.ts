@@ -57,6 +57,8 @@ export type WhiteboardStatistics = {
 
 /** An instance of a whiteboard that can be used to read and manipulate it. */
 export type WhiteboardInstance = {
+  /** Returns the id of the document */
+  getDocumentId(): string;
   /** Returns the id of the whiteboard. */
   getWhiteboardId(): string;
   /**
@@ -148,7 +150,7 @@ export type WhiteboardInstance = {
   destroy(): void;
 
   /** Persist the whiteboard state. */
-  persist(): Promise<void>;
+  persist(force?: boolean): Promise<void>;
 };
 
 export type ElementUpdate = {
@@ -261,7 +263,7 @@ export type SynchronizedDocument<T extends Record<string, unknown>> = {
   /** Destroy the document to cleanup all open connections. */
   destroy(): void;
   /** Persist the document immediately. */
-  persist(): Promise<void>;
+  persist(force: boolean): Promise<void>;
 };
 
 export type PresentationState =

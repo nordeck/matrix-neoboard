@@ -197,9 +197,9 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
     return this.loadingSubject.pipe(distinctUntilChanged());
   }
 
-  private async persistDocument(doc: Document<T>) {
-    if (!this.statistics.snapshotOutstanding) {
-      // No outstanding snapshot, do nothing
+  private async persistDocument(doc: Document<T>, force = false) {
+    // If there is no outstanding snapshot and we are not forcing to persist, we can skip this
+    if (!this.statistics.snapshotOutstanding && !force) {
       return;
     }
 
@@ -217,8 +217,8 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
     }
   }
 
-  async persist() {
-    await this.persistDocument(this.document);
+  async persist(force = false) {
+    await this.persistDocument(this.document, force);
   }
 
   private async createDocumentSnapshot(
