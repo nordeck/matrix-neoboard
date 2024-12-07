@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-export const whiteboardWidth = 1920;
-export const whiteboardHeight = 1080;
+export const initialWhiteboardWidth = 1920;
+export const initialWhiteboardHeight = 1080;
+
+export const whiteboardWidth = 9600;
+export const whiteboardHeight = 5400;
 
 export const gridCellSize = 20;

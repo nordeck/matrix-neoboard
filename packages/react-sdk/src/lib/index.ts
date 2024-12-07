@@ -20,6 +20,7 @@ export { findForegroundColor } from './findForegroundColor';
 export { isDefined } from './isDefined';
 export { setLocale } from './locale';
 export { WidgetApiActionError, convertMxcToHttpUrl } from './matrix';
+export * from './render-hooks';
 export { findColor, useColorPalette } from './useColorPalette';
 export type { Color } from './useColorPalette';
 export { FontsLoadedContextProvider, useFontsLoaded } from './useFontsLoaded';
