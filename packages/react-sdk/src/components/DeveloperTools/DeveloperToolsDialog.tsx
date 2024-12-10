@@ -29,6 +29,7 @@ import {
   Typography,
 } from '@mui/material';
 import { unstable_useId as useId } from '@mui/utils';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useActiveWhiteboardInstanceStatistics } from '../../state';
 import { CommunicationChannelStatisticsView } from './CommunicationChannelStatisticsView';
@@ -46,6 +47,27 @@ export function DeveloperToolsDialog({
 
   const { document, communicationChannel } =
     useActiveWhiteboardInstanceStatistics();
+
+  const sessions = useMemo(
+    () =>
+      communicationChannel.sessions
+        ?.filter(
+          (s) =>
+            s.sessionId !== communicationChannel.localSessionId &&
+            s.expiresTs - Date.now() > 0,
+        )
+        .map((s) => ({
+          ...s,
+          status: Object.values(communicationChannel.peerConnections).find(
+            (p) => p.remoteSessionId === s.sessionId,
+          )?.connectionState,
+        })),
+    [
+      communicationChannel.sessions,
+      communicationChannel.localSessionId,
+      communicationChannel.peerConnections,
+    ],
+  );
 
   const dialogTitleId = useId();
   const dialogDescriptionId = useId();
@@ -132,21 +154,7 @@ export function DeveloperToolsDialog({
               </Typography>
             </AccordionSummary>
             <AccordionDetails>
-              <WhiteboardSessionsTable
-                sessions={communicationChannel.sessions
-                  ?.filter(
-                    (s) =>
-                      s.sessionId !== communicationChannel.localSessionId &&
-                      s.expiresTs - Date.now() > 0,
-                  )
-                  .map((s) => ({
-                    ...s,
-                    status: Object.values(
-                      communicationChannel.peerConnections,
-                    ).find((p) => p.remoteSessionId === s.sessionId)
-                      ?.connectionState,
-                  }))}
-              />
+              <WhiteboardSessionsTable sessions={sessions} />
             </AccordionDetails>
           </Accordion>
         </Box>
