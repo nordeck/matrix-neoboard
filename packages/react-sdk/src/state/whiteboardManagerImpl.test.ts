@@ -21,6 +21,29 @@ import { createStore } from '../store';
 import { WhiteboardInstanceImpl } from './whiteboardInstanceImpl';
 import { createWhiteboardManager } from './whiteboardManagerImpl';
 
+// Mock away WebRTC stuff
+// We don't test WebRTC here and we don't want to have side-effects from that.
+vi.mock('./communication/connection', async (importOriginal) => {
+  const original = (await importOriginal()) as object;
+  return {
+    ...original,
+    WebRtcPeerConnection: vi.fn().mockImplementation(() => {
+      return {
+        observeMessages: () => {
+          return {
+            subscribe: () => {},
+          };
+        },
+        observeStatistics: () => {
+          return {
+            subscribe: () => {},
+          };
+        },
+      };
+    }),
+  };
+});
+
 let widgetApi: MockedWidgetApi;
 
 afterEach(() => widgetApi.stop());
@@ -52,6 +75,7 @@ describe('WhiteboardManagerImpl', () => {
     );
   });
 
+  // flakes
   it('should destroy a whiteboard when selecting a new one', async () => {
     const whiteboardManager = createTestWhiteboardManager();
 
@@ -71,27 +95,9 @@ describe('WhiteboardManagerImpl', () => {
     whiteboardManager.selectActiveWhiteboardInstance(event0, '@user-id');
     expect(destroySpy).not.toHaveBeenCalled();
 
-    // Handler for the `Error: Channel not initialized` throw
-    const error = await new Promise<Error | null>((resolve) => {
-      process.once('uncaughtException', (err: Error) => {
-        resolve(err);
-      });
-
-      whiteboardManager.selectActiveWhiteboardInstance(event1, '@user-id');
-
-      expect(destroySpy).toHaveBeenCalled();
-
-      return vi
-        .waitFor(() => {
-          expect(destroySpy).toHaveBeenCalled();
-        })
-        .then(() => resolve(null));
-    });
-
-    // This seems to not consistently throw the error, so we check if it was thrown.
-    if (error) {
-      expect(error).toBeInstanceOf(Error);
-    }
+    // Select another whiteboard
+    whiteboardManager.selectActiveWhiteboardInstance(event1, '@user-id');
+    expect(destroySpy).toHaveBeenCalled();
   });
 
   describe('clear', () => {
