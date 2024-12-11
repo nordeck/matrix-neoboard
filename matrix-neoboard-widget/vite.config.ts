@@ -28,6 +28,8 @@ if (process.env.VITE_DEV_SSL === 'true') {
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  // overriding the default '/' base allows for sub-path deployments
+  base: '',
   esbuild: {
     // needed to fix neoboard yjs errors, see: https://github.com/vitejs/vite/issues/11722
     target: 'es2020',
