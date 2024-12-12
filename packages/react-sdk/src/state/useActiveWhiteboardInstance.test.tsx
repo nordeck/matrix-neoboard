@@ -64,7 +64,7 @@ describe('useActiveWhiteboardInstance', () => {
   });
 
   it('hook should throw if no active whiteboard instance is available', () => {
-    whiteboardManager.getActiveWhiteboardInstance.mockReturnValue(undefined);
+    whiteboardManager.clear();
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     expect(() =>
@@ -74,6 +74,16 @@ describe('useActiveWhiteboardInstance', () => {
     ).toThrow(Error('No active whiteboard instance'));
 
     consoleSpy.mockRestore();
+  });
+
+  it('hook(false) should return undefined, if no active whiteboard instance is available', () => {
+    whiteboardManager.clear();
+
+    const { result } = renderHook(() => useActiveWhiteboardInstance(false), {
+      wrapper: Wrapper,
+    });
+
+    expect(result.current).toBeUndefined();
   });
 });
 
@@ -100,7 +110,7 @@ describe('useActiveWhiteboardInstanceSlideIds', () => {
   });
 
   it('hook should throw if no active whiteboard instance is available', () => {
-    whiteboardManager.getActiveWhiteboardInstance.mockReturnValue(undefined);
+    whiteboardManager.clear();
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     expect(() =>
@@ -184,7 +194,7 @@ describe('useActiveWhiteboardInstanceStatistics', () => {
   });
 
   it('hook should throw if no active whiteboard instance is available', () => {
-    whiteboardManager.getActiveWhiteboardInstance.mockReturnValue(undefined);
+    whiteboardManager.clear();
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     expect(() =>

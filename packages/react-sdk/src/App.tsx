@@ -15,10 +15,15 @@
  */
 
 import { useWidgetApi } from '@matrix-widget-toolkit/react';
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Layout, LayoutProps } from './components/Layout';
 import { PageLoader } from './components/common/PageLoader';
-import { useOwnedWhiteboard, useWhiteboardManager } from './state';
+import {
+  useActiveWhiteboardInstance,
+  useOwnedWhiteboard,
+  useWhiteboardManager,
+} from './state';
 
 export type AppProps = {
   layoutProps?: LayoutProps;
@@ -28,31 +33,31 @@ export const App = ({ layoutProps }: AppProps) => {
   const { t } = useTranslation('neoboard');
   const { value, loading } = useOwnedWhiteboard();
   const whiteboardManager = useWhiteboardManager();
+  const activeWhiteboard = useActiveWhiteboardInstance(false);
   const ownUserId = useWidgetApi().widgetParameters.userId;
 
   if (!ownUserId) {
     throw new Error('Unknown user id');
   }
 
-  if (!loading && value.type === 'whiteboard' && value.event) {
-    whiteboardManager.selectActiveWhiteboardInstance(value.event, ownUserId);
+  useEffect(() => {
+    if (!loading && value.type === 'whiteboard' && value.event) {
+      whiteboardManager.selectActiveWhiteboardInstance(value.event, ownUserId);
+    }
+  }, [loading, ownUserId, value, whiteboardManager]);
+
+  if (activeWhiteboard !== undefined && value?.type !== 'waiting') {
+    // Show the whiteboard if there is one and we are not waiting for a moderator
+    return <Layout {...layoutProps} />;
   }
 
-  if (
-    loading ||
-    (value.type === 'whiteboard' && !value.event) ||
-    value.type === 'waiting'
-  ) {
-    return (
-      <PageLoader
-        text={
-          value?.type === 'waiting'
-            ? t('app.waitModeratorJoin', 'Wait for the moderator to join.')
-            : undefined
-        }
-      />
-    );
-  }
-
-  return <Layout {...layoutProps} />;
+  return (
+    <PageLoader
+      text={
+        value?.type === 'waiting'
+          ? t('app.waitModeratorJoin', 'Wait for the moderator to join.')
+          : undefined
+      }
+    />
+  );
 };
