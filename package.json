@@ -52,7 +52,10 @@
     "translate": "yarn workspaces run translate",
     "prettier:check": "prettier --check .",
     "prettier:write": "prettier --write .",
-    "generate-disclaimer": "yarn workspaces run generate-disclaimer"
+    "generate-disclaimer": "yarn workspaces run generate-disclaimer",
+    "clean": "yarn run clean:cache && yarn run clean:build",
+    "clean:cache": "rm -rf node_modules/.vite && yarn workspaces run clean:cache",
+    "clean:build": "yarn workspaces run clean:build"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
