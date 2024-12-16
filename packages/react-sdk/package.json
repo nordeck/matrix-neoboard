@@ -36,7 +36,7 @@
     "react-draggable": "^4.4.6",
     "react-dropzone": "^14.2.9",
     "react-hotkeys-hook": "^4.5.0",
-    "react-joyride": "^2.9.2",
+    "react-joyride": "^2.9.3",
     "react-redux": "^9.1.2",
     "react-transition-group": "^4.4.5",
     "react-use": "^17.5.1",
