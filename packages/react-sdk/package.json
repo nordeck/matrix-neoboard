@@ -91,6 +91,9 @@
     "lint": "eslint .",
     "translate": "i18next \"src/**/*.{ts,tsx}\"",
     "prettier:check": "prettier --check .",
-    "prettier:write": "prettier --write ."
+    "prettier:write": "prettier --write .",
+    "clean": "yarn run clean:cache && yarn run clean:build",
+    "clean:cache": "rm -rf node_modules/.vite",
+    "clean:build": "rm -rf build"
   }
 }
