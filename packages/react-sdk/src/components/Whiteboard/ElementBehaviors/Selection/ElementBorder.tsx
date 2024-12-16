@@ -15,10 +15,8 @@
  */
 
 import { useTheme } from '@mui/material';
-import { useInvertedScaledValue } from '../../../../lib';
+import { useScaleDivToSvg } from '../../../../lib';
 import { calculateBoundingRectForElements } from '../../../../state';
-import { selectCanvas } from '../../../../store/canvasSlice';
-import { useAppSelector } from '../../../../store/reduxToolkitHooks';
 import { useElementOverrides } from '../../../ElementOverridesProvider';
 import { useLayoutState } from '../../../Layout';
 import { getRenderProperties } from '../../../elements/line/getRenderProperties';
@@ -34,8 +32,8 @@ function SelectionAnchor({
 }) {
   const theme = useTheme();
   const selectionAnchorFill = 'white';
-  const selectionAnchorCornerRadius = useInvertedScaledValue(3);
-  const selectionAnchorSize = useInvertedScaledValue(10);
+  const selectionAnchorCornerRadius = useScaleDivToSvg(3);
+  const selectionAnchorSize = useScaleDivToSvg(10);
 
   return (
     <rect
@@ -61,8 +59,6 @@ export function ElementBorder({ elementIds, padding = 1 }: ElementBorderProps) {
   const theme = useTheme();
   const { activeTool } = useLayoutState();
   const isInSelectionMode = activeTool === 'select';
-  const { scale } = useAppSelector(selectCanvas);
-
   const elements = Object.values(useElementOverrides(elementIds));
   const {
     offsetX: x,
@@ -71,8 +67,8 @@ export function ElementBorder({ elementIds, padding = 1 }: ElementBorderProps) {
     height,
   } = calculateBoundingRectForElements(elements);
 
-  const scaledPadding = padding / scale;
-  const selectionBorderWidth = 2 / scale;
+  const scaledPadding = useScaleDivToSvg(padding);
+  const selectionBorderWidth = useScaleDivToSvg(2);
   const selectionX = x - (selectionBorderWidth / 2 + scaledPadding);
   const selectionY = y - (selectionBorderWidth / 2 + scaledPadding);
   const selectionWidth = width + 2 * (selectionBorderWidth / 2 + scaledPadding);
