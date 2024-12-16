@@ -15,16 +15,26 @@
  */
 
 import { whiteboardHeight, whiteboardWidth } from '../components/Whiteboard';
-import { CanvasState, selectCombinedScale } from '../store/canvasSlice';
+import {
+  CanvasState,
+  selectCanvas,
+  selectCombinedScale,
+} from '../store/canvasSlice';
 import { useAppSelector } from '../store/reduxToolkitHooks';
 
-export const useScaledValue = (value: number) => {
+/**
+ * Scale a value from the canvas to the outside.
+ */
+export const useScaleSvgToDiv = (value: number) => {
   const scale = useAppSelector(selectCombinedScale);
   return value * scale;
 };
 
-export const useInvertedScaledValue = (value: number) => {
-  const scale = useAppSelector(selectCombinedScale);
+/**
+ * Scale a value from outside to the canvas.
+ */
+export const useScaleDivToSvg = (value: number) => {
+  const { scale } = useAppSelector(selectCanvas);
   return value / scale;
 };
 
