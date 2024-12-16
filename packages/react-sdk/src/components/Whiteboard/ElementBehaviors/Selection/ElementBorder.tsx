@@ -15,11 +15,11 @@
  */
 
 import { useTheme } from '@mui/material';
+import { useScaleDivToSvg } from '../../../../lib';
 import { calculateBoundingRectForElements } from '../../../../state';
 import { useElementOverrides } from '../../../ElementOverridesProvider';
 import { useLayoutState } from '../../../Layout';
 import { getRenderProperties } from '../../../elements/line/getRenderProperties';
-import { useSvgCanvasContext } from '../../SvgCanvas';
 
 function SelectionAnchor({
   x,
@@ -31,10 +31,9 @@ function SelectionAnchor({
   borderWidth: number;
 }) {
   const theme = useTheme();
-  const { scale } = useSvgCanvasContext();
   const selectionAnchorFill = 'white';
-  const selectionAnchorCornerRadius = 3 / scale;
-  const selectionAnchorSize = 10 / scale;
+  const selectionAnchorCornerRadius = useScaleDivToSvg(3);
+  const selectionAnchorSize = useScaleDivToSvg(10);
 
   return (
     <rect
@@ -60,8 +59,6 @@ export function ElementBorder({ elementIds, padding = 1 }: ElementBorderProps) {
   const theme = useTheme();
   const { activeTool } = useLayoutState();
   const isInSelectionMode = activeTool === 'select';
-  const { scale } = useSvgCanvasContext();
-
   const elements = Object.values(useElementOverrides(elementIds));
   const {
     offsetX: x,
@@ -70,8 +67,8 @@ export function ElementBorder({ elementIds, padding = 1 }: ElementBorderProps) {
     height,
   } = calculateBoundingRectForElements(elements);
 
-  const scaledPadding = padding / scale;
-  const selectionBorderWidth = 2 / scale;
+  const scaledPadding = useScaleDivToSvg(padding);
+  const selectionBorderWidth = useScaleDivToSvg(2);
   const selectionX = x - (selectionBorderWidth / 2 + scaledPadding);
   const selectionY = y - (selectionBorderWidth / 2 + scaledPadding);
   const selectionWidth = width + 2 * (selectionBorderWidth / 2 + scaledPadding);
