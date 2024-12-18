@@ -3,4 +3,4 @@
 '@nordeck/matrix-neoboard-react-sdk': patch
 ---
 
-cleanup to properly revoke object URLs using `URL.revokeObjectURL()` when the component is unmounted or `imageUri` changes.
+Images no longer disappear when presentation mode is activated. This often happened with Chromium-based browsers, but sometimes also with others.
