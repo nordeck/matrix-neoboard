@@ -111,6 +111,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
 
+  neoboard-standalone-ci-checks:
+    needs: build
+    uses: nordeck/matrix-neoboard-standalone/.github/workflows/ci-checks.yml@293ef9579938427cbd5527c3a9d5fb4184a1f0fd
+    secrets: inherit
+
   deploy-pages:
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     name: Deploy to GitHub Pages
