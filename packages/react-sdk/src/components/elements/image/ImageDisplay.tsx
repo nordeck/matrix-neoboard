@@ -17,7 +17,7 @@
 import { useWidgetApi } from '@matrix-widget-toolkit/react';
 import { styled } from '@mui/material';
 import { IDownloadFileActionFromWidgetResponseData } from 'matrix-widget-api';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { getSVGUnsafe } from '../../../imageUtils';
 import { convertMxcToHttpUrl, WidgetApiActionError } from '../../../lib';
 import { ImageElement } from '../../../state';
@@ -67,16 +67,12 @@ function ImageDisplay({
   const [loadError, setLoadError] = useState(false);
   const [loading, setLoading] = useState(true);
   const [imageUri, setImageUri] = useState<undefined | string>();
+  const imageUriRef = useRef<string | undefined>(undefined);
 
   const handleLoad = useCallback(() => {
     setLoading(false);
     setLoadError(false);
-
-    // This can happen directly when the image is loaded and saves some memory.
-    if (imageUri) {
-      URL.revokeObjectURL(imageUri);
-    }
-  }, [setLoading, setLoadError, imageUri]);
+  }, [setLoading, setLoadError]);
 
   const handleLoadError = useCallback(() => {
     setLoading(false);
@@ -84,13 +80,21 @@ function ImageDisplay({
   }, [setLoading, setLoadError]);
 
   useEffect(() => {
+    let isMounted = true;
+
     const downloadFile = async () => {
       try {
         const result = await tryDownloadFileWithWidgetApi(mxc);
+        if (!isMounted) return;
+
         const blob = await getBlobFromResult(result);
         const downloadedFileDataUrl = createObjectUrlFromBlob(blob);
-        setImageUri(downloadedFileDataUrl);
+        if (isMounted && imageUriRef.current !== downloadedFileDataUrl) {
+          imageUriRef.current = downloadedFileDataUrl;
+          setImageUri(downloadedFileDataUrl);
+        }
       } catch (error) {
+        if (!isMounted) return;
         handleDownloadError(error as Error);
       }
     };
@@ -135,25 +139,26 @@ function ImageDisplay({
 
     const handleDownloadError = (error: Error) => {
       if (error instanceof WidgetApiActionError) {
-        tryFallbackDownload();
+        const httpUrl = convertMxcToHttpUrl(mxc, baseUrl);
+        if (httpUrl) {
+          setImageUri(httpUrl);
+        } else {
+          setLoadError(true);
+        }
       } else {
         setLoadError(true);
       }
     };
 
-    const tryFallbackDownload = async () => {
-      const httpUrl = convertMxcToHttpUrl(mxc, baseUrl);
-
-      if (httpUrl === null) {
-        setImageUri('');
-        return;
-      }
-      setImageUri(httpUrl);
-
-      return;
-    };
-
     downloadFile();
+
+    // This can happen directly when the image is loaded and saves some memory.
+    return () => {
+      isMounted = false;
+      if (imageUriRef.current) {
+        URL.revokeObjectURL(imageUriRef.current);
+      }
+    };
   }, [baseUrl, mxc, widgetApi]);
 
   const renderedSkeleton =
