@@ -71,17 +71,22 @@ function ImageDisplay({
   const handleLoad = useCallback(() => {
     setLoading(false);
     setLoadError(false);
-
-    // This can happen directly when the image is loaded and saves some memory.
-    if (imageUri) {
-      URL.revokeObjectURL(imageUri);
-    }
-  }, [setLoading, setLoadError, imageUri]);
+  }, [setLoading, setLoadError]);
 
   const handleLoadError = useCallback(() => {
     setLoading(false);
     setLoadError(true);
   }, [setLoading, setLoadError]);
+
+  // Cleanup effect to revoke the object URL when the component is unmounted or `imageUri` changes.
+  // This prevents memory leaks by releasing the memory associated with the object URL.
+  useEffect(() => {
+    return () => {
+      if (imageUri) {
+        URL.revokeObjectURL(imageUri);
+      }
+    };
+  }, [imageUri]);
 
   useEffect(() => {
     const downloadFile = async () => {
