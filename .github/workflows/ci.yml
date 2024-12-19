@@ -111,6 +111,76 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
 
+  build-standalone:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: matrix-neoboard
+          # required for changesets
+          fetch-depth: '0'
+          # don't persist the credentials so the changesets action doesn't use the
+          # github actions token but the git token provided via environment variable
+          persist-credentials: false
+
+      - uses: actions/checkout@v4
+        with:
+          repository: nordeck/matrix-neoboard-standalone
+          path: matrix-neoboard-standalone
+          # required for changesets
+          fetch-depth: '0'
+          # don't persist the credentials so the changesets action doesn't use the
+          # github actions token but the git token provided via environment variable
+          persist-credentials: false
+          ssh-key: ${{ secrets.STANDALONE_DEPLOY_KEY }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: 'matrix-neoboard-standalone/package.json'
+          cache: 'yarn'
+          cache-dependency-path: |
+            matrix-neoboard-standalone/yarn.lock
+            matrix-neoboard/yarn.lock
+
+      - name: yarn install neoboard
+        working-directory: ./matrix-neoboard/
+        run: yarn install --frozen-lockfile
+
+      - name: yarn install neoboard standalone
+        working-directory: ./matrix-neoboard-standalone/
+        run: yarn install --frozen-lockfile
+
+      - name: depcheck
+        working-directory: ./matrix-neoboard-standalone/
+        run: yarn depcheck
+
+      - name: prettier:check
+        working-directory: ./matrix-neoboard-standalone/
+        run: yarn prettier:check
+
+      - name: Check Linting Rules
+        working-directory: ./matrix-neoboard-standalone/
+        run: yarn lint
+
+      - name: type checking and declarations
+        working-directory: ./matrix-neoboard-standalone/
+        run: yarn tsc
+
+      - name: Check Translations
+        working-directory: ./matrix-neoboard-standalone/
+        run: yarn translate --fail-on-update
+
+      - name: test
+        working-directory: ./matrix-neoboard-standalone/
+        run: yarn run test:all
+
+      - name: build
+        working-directory: ./matrix-neoboard-standalone/
+        run: yarn build && yarn version:info
+
   deploy-pages:
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     name: Deploy to GitHub Pages
