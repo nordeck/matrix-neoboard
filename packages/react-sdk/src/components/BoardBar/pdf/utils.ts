@@ -160,6 +160,13 @@ export function textContent(
     lineHeight: 1,
     margin: 0,
     font: 'Inter',
+    // Set maxHeight to prevent text overflows.
+    // This is not optimal, because it does not clip the text.
+    // Instead it does not draw lines, that would not fit into the shape.
+    // Uses element.height and not textProperties.height + padding to avoid being too strict and
+    // cut things off, that should actually be there.
+    // @ts-expect-error This does exist but is not yet part of @types/pdfmake
+    maxHeight: element.height,
   };
 
   return {

@@ -127,6 +127,9 @@ In the project directory, you can run:
 - `yarn generate-disclaimer`: Generates license disclaimer and include it in the build output.
 - `yarn docker:build`: Builds a container from the output of `yarn build` and `yarn generate-disclaimer`.
 - `yarn docker:run`: Runs the container and serves the widget at [http://localhost:3000](http://localhost:3000).
+- `yarn clean`: Cleans builds and caches
+- `yarn clean:build`: Cleans builds
+- `yarn clean:cache`: Cleans caches
 
 ### Versioning
 

@@ -18,14 +18,29 @@ import { useMemo } from 'react';
 import { useObservable } from 'react-use';
 import { useLatestValue } from '../lib';
 import { WhiteboardInstance, WhiteboardStatistics } from './types';
+import { useDistinctObserveBehaviorSubject } from './useDistinctObserveBehaviorSubject';
 import { useWhiteboardManager } from './useWhiteboardManager';
 
-export function useActiveWhiteboardInstance(): WhiteboardInstance {
+/**
+ * @throws an Error, if there is no active whiteboard
+ */
+export function useActiveWhiteboardInstance(
+  shouldThrow?: true,
+): WhiteboardInstance;
+export function useActiveWhiteboardInstance(
+  shouldThrow: false,
+): WhiteboardInstance | undefined;
+export function useActiveWhiteboardInstance(
+  shouldThrow = true,
+): WhiteboardInstance | undefined {
   const whiteboardManager = useWhiteboardManager();
-  const activeWhiteboardInstance =
-    whiteboardManager.getActiveWhiteboardInstance();
+  const subject = useMemo(() => {
+    return whiteboardManager.getActiveWhiteboardSubject();
+  }, [whiteboardManager]);
 
-  if (!activeWhiteboardInstance) {
+  const activeWhiteboardInstance = useDistinctObserveBehaviorSubject(subject);
+
+  if (shouldThrow && !activeWhiteboardInstance) {
     throw new Error('No active whiteboard instance');
   }
 

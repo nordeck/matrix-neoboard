@@ -40,7 +40,7 @@ import {
   PeerConnectionStatistics,
 } from '../../state/communication';
 import { SharedMap, YArray, YMap } from '../../state/crdt/y';
-import { SynchronizedDocument } from '../../state/types';
+import { SynchronizedDocument, WhiteboardInstance } from '../../state/types';
 import { WhiteboardInstanceImpl } from '../../state/whiteboardInstanceImpl';
 import { createStore } from '../../store';
 import { mockWhiteboard } from './matrixTestUtils';
@@ -139,14 +139,18 @@ export function mockWhiteboardManager(
     '@user-id',
   );
 
-  const activeWhiteboardSubject = new BehaviorSubject(whiteboardInstance);
+  const activeWhiteboardSubject = new BehaviorSubject<
+    WhiteboardInstance | undefined
+  >(whiteboardInstance);
   const whiteboardManager: Mocked<WhiteboardManager> = {
     getActiveWhiteboardInstance: vi.fn().mockReturnValue(whiteboardInstance),
     getActiveWhiteboardSubject: vi
       .fn()
       .mockReturnValue(activeWhiteboardSubject),
     selectActiveWhiteboardInstance: vi.fn(),
-    clear: vi.fn(),
+    clear: vi.fn().mockImplementation(() => {
+      activeWhiteboardSubject.next(undefined);
+    }),
   };
 
   return {

@@ -45,6 +45,7 @@ exports[`createWhiteboardPdfDefinition > should generate a pdf header and table 
                       "fontSize": 10,
                       "lineHeight": 1,
                       "margin": 0,
+                      "maxHeight": 100,
                       "text": [
                         "Rectangle",
                       ],
@@ -99,6 +100,7 @@ exports[`createWhiteboardPdfDefinition > should generate a pdf header and table 
                       "fontSize": 10,
                       "lineHeight": 1,
                       "margin": 0,
+                      "maxHeight": 100,
                       "text": [
                         "Rectangle Text",
                       ],
@@ -151,6 +153,7 @@ exports[`createWhiteboardPdfDefinition > should generate a pdf header and table 
                       "fontSize": 10,
                       "lineHeight": 1,
                       "margin": 0,
+                      "maxHeight": 100,
                       "text": [
                         "Circle ",
                         {
@@ -207,6 +210,7 @@ exports[`createWhiteboardPdfDefinition > should generate a pdf header and table 
                       "fontSize": 10,
                       "lineHeight": 1,
                       "margin": 0,
+                      "maxHeight": 100,
                       "text": [
                         "Ellipse",
                       ],
@@ -270,6 +274,7 @@ exports[`createWhiteboardPdfDefinition > should generate a pdf header and table 
                       "fontSize": 10,
                       "lineHeight": 1,
                       "margin": 0,
+                      "maxHeight": 100,
                       "text": [
                         "Triangle ",
                         {

@@ -29,8 +29,7 @@ import React, {
 import { useTranslation } from 'react-i18next';
 import { useNetworkState } from 'react-use';
 import { useSnackbar } from '../../components/Snackbar';
-import { useWhiteboardManager } from '../../state';
-import { useDistinctObserveBehaviorSubject } from '../../state/useDistinctObserveBehaviorSubject';
+import { useActiveWhiteboardInstance } from '../../state';
 import { useAppDispatch } from '../../store';
 import {
   selectConnectionInfo,
@@ -58,9 +57,7 @@ export const ConnectionStateProvider: React.FC<PropsWithChildren> = function ({
   children,
 }) {
   const theme = useTheme();
-  const whiteboard = useDistinctObserveBehaviorSubject(
-    useWhiteboardManager().getActiveWhiteboardSubject(),
-  );
+  const whiteboard = useActiveWhiteboardInstance(false);
   const dispatch = useAppDispatch();
   const pendingSendSnapshot = useRef(false);
   const { t } = useTranslation('neoboard');

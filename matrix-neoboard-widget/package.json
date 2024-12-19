@@ -67,7 +67,10 @@
     "translate": "i18next \"src/**/*.{ts,tsx}\"",
     "prettier:check": "prettier --check .",
     "prettier:write": "prettier --write .",
-    "generate-disclaimer": "cp ../LICENSE ./build/LICENSE.txt && cp NOTICE ./build/NOTICE.txt && yarn licenses generate-disclaimer --prod >> ./build/NOTICE.txt && yarn licenses list --prod --json --no-progress > ./build/licenses.json"
+    "generate-disclaimer": "cp ../LICENSE ./build/LICENSE.txt && cp NOTICE ./build/NOTICE.txt && yarn licenses generate-disclaimer --prod >> ./build/NOTICE.txt && yarn licenses list --prod --json --no-progress > ./build/licenses.json",
+    "clean": "yarn run clean:cache && yarn run clean:build",
+    "clean:cache": "rm -rf node_modules/.vite",
+    "clean:build": "rm -rf build"
   },
   "browserslist": {
     "production": [
