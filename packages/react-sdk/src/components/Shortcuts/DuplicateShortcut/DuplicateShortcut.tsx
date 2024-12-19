@@ -16,7 +16,13 @@
 
 import { useCallback } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
-import { useActiveElements, useWhiteboardSlideInstance } from '../../../state';
+import {
+  calculateBoundingRectForElements,
+  useActiveElements,
+  useWhiteboardSlideInstance,
+} from '../../../state';
+import { duplicate } from '../../ElementBar/DuplicateActiveElementButton/DuplicateActiveElementButton';
+import { gridCellSize } from '../../Whiteboard';
 import { HOTKEY_SCOPE_WHITEBOARD } from '../../WhiteboardHotkeysProvider';
 
 export function DuplicateShortcut() {
@@ -24,9 +30,17 @@ export function DuplicateShortcut() {
   const slideInstance = useWhiteboardSlideInstance();
 
   const handleDuplicate = useCallback(() => {
-    if (activeElementIds.length) {
-      slideInstance.removeElements(activeElementIds);
-    }
+    const sortedActiveElementIds =
+      slideInstance.sortElementIds(activeElementIds);
+    const elements = Object.values(
+      slideInstance.getElements(sortedActiveElementIds),
+    );
+    const boundingRect = calculateBoundingRectForElements(elements);
+    const duplicatedElements = elements.map((element) =>
+      duplicate(element, gridCellSize, boundingRect),
+    );
+
+    slideInstance.addElements(duplicatedElements);
   }, [activeElementIds, slideInstance]);
 
   useHotkeys(

@@ -70,29 +70,27 @@ describe('<DuplicateShortcut>', () => {
   });
 
   it.each([
-    ['a single element', '{delete}', ['element-1']],
-    ['multiple elements', '{delete}', ['element-1', 'element-2']],
-    ['a single element', '{backspace}', ['element-1']],
-    ['multiple elements', '{backspace}', ['element-1', 'element-2']],
-  ])('should delete %s with the %s key', async (_testname, key, elementIds) => {
-    const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
-    activeSlide.setActiveElementIds(elementIds);
+    ['a single element', '{Control>}d{/Control}', ['element-1']],
+    ['multiple elements', '{Control>}d{/Control}', ['element-1', 'element-2']],
+    ['a single element', '{meta>}d', ['element-1']],
+    ['multiple elements', '{meta>}d', ['element-1', 'element-2']],
+  ])(
+    'should duplicate %s with the %s keys',
+    async (_testname, key, elementIds) => {
+      const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
+      activeSlide.setActiveElementIds(elementIds);
 
-    render(<DuplicateShortcut />, { wrapper: Wrapper });
+      render(<DuplicateShortcut />, { wrapper: Wrapper });
 
-    // check that all elements are on the board before the delete action
-    elementIds.forEach((elementId) => {
-      expect(activeSlide.getElement(elementId)).toBeDefined();
-    });
+      // check that all elements are on the board before the duplication action
+      elementIds.forEach((elementId) => {
+        expect(activeSlide.getElement(elementId)).toBeDefined();
+      });
 
-    await userEvent.keyboard(key);
+      await userEvent.keyboard(key);
 
-    // check that none of the elements to be deleted remain on the slide
-    expect(
-      activeSlide
-        .getElementIds()
-        .some((elementId) => elementIds.includes(elementId)),
-    ).toBeFalsy();
-    expect(activeSlide.getActiveElementIds()).toHaveLength(0);
-  });
+      // check that the elements have been duplicated
+      expect(activeSlide.getElementIds()).toHaveLength(3 + elementIds.length);
+    },
+  );
 });
