@@ -1,5 +1,13 @@
 # @nordeck/matrix-neoboard-react-sdk
 
+## 1.0.1
+
+### Patch Changes
+
+- 6b4db98: Images no longer disappear when presentation mode is activated. This often happened with Chromium-based browsers, but sometimes also with others.
+- f7b18f2: Duplicate shape or selection with hotkey (CTRL+D / CMD+D)
+- 2c29529: On PDF export texts do no longer overflow shapes. Lines, that would be cut off are not printed at all.
+
 ## 1.0.0
 
 ### Major Changes
