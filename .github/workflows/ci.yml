@@ -161,7 +161,7 @@ jobs:
         working-directory: ./matrix-neoboard-standalone/
         run: yarn prettier:check
 
-      - name: Check Linting Rules
+      - name: Check linting rules
         working-directory: ./matrix-neoboard-standalone/
         run: yarn lint
 
