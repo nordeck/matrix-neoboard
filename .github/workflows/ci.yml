@@ -136,7 +136,7 @@ jobs:
           persist-credentials: false
           ssh-key: ${{ secrets.STANDALONE_DEPLOY_KEY }}
 
-      - name: Setup Node.js
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version-file: 'matrix-neoboard-standalone/package.json'
