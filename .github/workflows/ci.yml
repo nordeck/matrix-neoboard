@@ -169,7 +169,7 @@ jobs:
         working-directory: ./matrix-neoboard-standalone/
         run: yarn tsc
 
-      - name: Check Translations
+      - name: Check translations
         working-directory: ./matrix-neoboard-standalone/
         run: yarn translate --fail-on-update
 
