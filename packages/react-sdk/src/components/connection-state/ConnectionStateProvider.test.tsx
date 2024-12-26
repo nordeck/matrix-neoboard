@@ -138,7 +138,7 @@ describe('<ConnectionStateProvider />', () => {
     expect(synchronizedDocument.persist).toHaveBeenCalledTimes(3);
 
     // Store should say snapshot not failed
-    expect(store.getState().connectionInfoReducer.snapshotFailed).toBe(false);
+    expect(store.getState().snapshotInfoReducer.snapshotFailed).toBe(false);
 
     // Advance > retry interval
     await act(async () => {
