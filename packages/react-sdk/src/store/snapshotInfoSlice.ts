@@ -17,16 +17,16 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { RootState } from './store';
 
-export type ConnectionInfoState = {
+export type SnapshotInfoState = {
   snapshotFailed: boolean;
 };
 
-const initialState: ConnectionInfoState = {
+const initialState: SnapshotInfoState = {
   snapshotFailed: false,
 };
 
-export const connectionInfoSlice = createSlice({
-  name: 'connectionInfo',
+export const snapshotInfoSlice = createSlice({
+  name: 'SnapshotInfo',
   initialState,
   reducers: {
     setSnapshotFailed: (state) => {
@@ -45,9 +45,9 @@ export const connectionInfoSlice = createSlice({
 });
 
 export const { setSnapshotFailed, setSnapshotSuccessful } =
-  connectionInfoSlice.actions;
+  snapshotInfoSlice.actions;
 
-export const selectConnectionInfo = (state: RootState) =>
-  state.connectionInfoReducer;
+export const selectSnapshotInfo = (state: RootState) =>
+  state.snapshotInfoReducer;
 
-export const connectionInfoReducer = connectionInfoSlice.reducer;
+export const snapshotInfoReducer = snapshotInfoSlice.reducer;
