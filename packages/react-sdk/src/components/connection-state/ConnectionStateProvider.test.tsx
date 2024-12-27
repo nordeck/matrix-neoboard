@@ -34,7 +34,7 @@ import {
   WhiteboardManagerProvider,
 } from '../../state';
 import { SynchronizedDocument } from '../../state/types';
-import { createStore, setSnapshotFailed, StoreType } from '../../store';
+import { createStore, setSnapshotSaveFailed, StoreType } from '../../store';
 import { SnackbarProvider } from '../Snackbar';
 import { ConnectionStateProvider } from './ConnectionStateProvider';
 import { useConnectionState } from './useConnectionState';
@@ -101,7 +101,7 @@ describe('<ConnectionStateProvider />', () => {
     goOffline();
 
     // Set last snapshot to failed
-    store.dispatch(setSnapshotFailed());
+    store.dispatch(setSnapshotSaveFailed());
 
     const { result } = renderHook(useConnectionState, { wrapper: Wrapper });
 
@@ -138,7 +138,7 @@ describe('<ConnectionStateProvider />', () => {
     expect(synchronizedDocument.persist).toHaveBeenCalledTimes(3);
 
     // Store should say snapshot not failed
-    expect(store.getState().snapshotInfoReducer.snapshotFailed).toBe(false);
+    expect(store.getState().snapshotInfoReducer.snapshotSaveFailed).toBe(false);
 
     // Advance > retry interval
     await act(async () => {

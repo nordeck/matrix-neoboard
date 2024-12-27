@@ -30,6 +30,7 @@ import {
   PageLoader,
   Snackbar,
   SnackbarProvider,
+  SnapshotLoadStateDialog,
   StoreType,
   WhiteboardHotkeysProvider,
   WhiteboardManager,
@@ -72,6 +73,7 @@ export const AppContainer = ({
                         <Snackbar />
                         <ConnectionStateProvider>
                           <ConnectionStateDialog />
+                          <SnapshotLoadStateDialog />
                           <App />
                         </ConnectionStateProvider>
                       </SnackbarProvider>

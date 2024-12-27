@@ -18,8 +18,10 @@ export * from './api';
 export { useAppDispatch } from './reduxToolkitHooks';
 export { shapeSizesReducer } from './shapeSizesSlide';
 export {
-  setSnapshotFailed,
-  setSnapshotSuccessful,
+  setSnapshotLoadFailed,
+  setSnapshotLoadSuccessful,
+  setSnapshotSaveFailed,
+  setSnapshotSaveSuccessful,
   snapshotInfoReducer,
 } from './snapshotInfoSlice';
 export { createStore } from './store';

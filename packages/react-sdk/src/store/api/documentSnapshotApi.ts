@@ -287,10 +287,11 @@ export async function findLatestSnapshot(
       eventType: ROOM_EVENT_DOCUMENT_SNAPSHOT,
       from: fromSnapshot,
     });
-
+    console.log('MILTON: snapshot relations result', result);
     const snapshots = result.chunk.filter(isValidDocumentSnapshotRoomEvent);
 
     for (const snapshot of snapshots) {
+      console.error('MILTON: found snapshot', snapshot);
       const backlog = new DocumentSnapshotBacklog(
         documentId,
         undefined,
@@ -335,8 +336,9 @@ async function* findChunks(
       eventType: ROOM_EVENT_DOCUMENT_CHUNK,
       from: fromChunk,
     });
-
+    console.log('MILTON: chunk relations result', result);
     for (const chunk of result.chunk.filter(isValidDocumentChunkRoomEvent)) {
+      console.error('MILTON: found chunk', chunk);
       yield chunk;
     }
 

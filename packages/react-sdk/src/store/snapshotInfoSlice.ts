@@ -18,34 +18,52 @@ import { createSlice } from '@reduxjs/toolkit';
 import { RootState } from './store';
 
 export type SnapshotInfoState = {
-  snapshotFailed: boolean;
+  snapshotSaveFailed: boolean;
+  snapshotLoadFailed: boolean;
 };
 
 const initialState: SnapshotInfoState = {
-  snapshotFailed: false,
+  snapshotSaveFailed: false,
+  snapshotLoadFailed: false,
 };
 
 export const snapshotInfoSlice = createSlice({
   name: 'SnapshotInfo',
   initialState,
   reducers: {
-    setSnapshotFailed: (state) => {
+    setSnapshotSaveFailed: (state) => {
       return {
         ...state,
-        snapshotFailed: true,
+        snapshotSaveFailed: true,
       };
     },
-    setSnapshotSuccessful: (state) => {
+    setSnapshotSaveSuccessful: (state) => {
       return {
         ...state,
-        snapshotFailed: false,
+        snapshotSaveFailed: false,
+      };
+    },
+    setSnapshotLoadFailed: (state) => {
+      return {
+        ...state,
+        snapshotLoadFailed: true,
+      };
+    },
+    setSnapshotLoadSuccessful: (state) => {
+      return {
+        ...state,
+        snapshotLoadFailed: false,
       };
     },
   },
 });
 
-export const { setSnapshotFailed, setSnapshotSuccessful } =
-  snapshotInfoSlice.actions;
+export const {
+  setSnapshotSaveFailed,
+  setSnapshotSaveSuccessful,
+  setSnapshotLoadFailed,
+  setSnapshotLoadSuccessful,
+} = snapshotInfoSlice.actions;
 
 export const selectSnapshotInfo = (state: RootState) =>
   state.snapshotInfoReducer;
