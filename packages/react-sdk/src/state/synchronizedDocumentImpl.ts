@@ -36,7 +36,6 @@ import {
 import { isDefined } from '../lib';
 import {
   documentSnapshotApi,
-  setSnapshotLoadFailed,
   setSnapshotLoadSuccessful,
   setSnapshotSaveFailed,
   setSnapshotSaveSuccessful,
@@ -128,7 +127,6 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
         next: (data) => {
           try {
             document.mergeFrom(data);
-            console.log('MILTON: MERGE FROM DATA', data);
             this.store.dispatch(setSnapshotLoadSuccessful());
           } catch (ex) {
             this.logger.error('Error while merging remote document', ex);
@@ -140,7 +138,7 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
             documentId,
             error,
           );
-          this.store.dispatch(setSnapshotLoadFailed());
+          //this.store.dispatch(setSnapshotLoadFailed());
         },
       });
 
@@ -271,7 +269,7 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
             observer.next(snapshotData.data);
           } else {
             console.error('MILTON: Snapshot data is not available.', result);
-            observer.error(new Error('Snapshot data is not available.'));
+            //observer.error(new Error(result.error?.message));
           }
 
           this.loadingSubject.next(false);
