@@ -36,8 +36,10 @@ import {
 import { isDefined } from '../lib';
 import {
   documentSnapshotApi,
-  setSnapshotFailed,
-  setSnapshotSuccessful,
+  setSnapshotLoadFailed,
+  setSnapshotLoadSuccessful,
+  setSnapshotSaveFailed,
+  setSnapshotSaveSuccessful,
   StoreType,
 } from '../store';
 import { DocumentSnapshotValidator } from '../store/api/documentSnapshotBacklog';
@@ -122,12 +124,24 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
 
     concat(storageObservable, snapshotsObservable)
       .pipe(takeUntil(this.destroySubject))
-      .subscribe((data) => {
-        try {
-          document.mergeFrom(data);
-        } catch (ex) {
-          this.logger.error('Error while merging remote document', ex);
-        }
+      .subscribe({
+        next: (data) => {
+          try {
+            document.mergeFrom(data);
+            console.log('MILTON: MERGE FROM DATA', data);
+            this.store.dispatch(setSnapshotLoadSuccessful());
+          } catch (ex) {
+            this.logger.error('Error while merging remote document', ex);
+          }
+        },
+        error: (error) => {
+          console.error(
+            'MILTON: Could not load snapshot for',
+            documentId,
+            error,
+          );
+          this.store.dispatch(setSnapshotLoadFailed());
+        },
       });
 
     this.document
@@ -156,10 +170,10 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
           async ({ doc }) => {
             try {
               await this.persistDocument(doc);
-              this.store.dispatch(setSnapshotSuccessful());
+              this.store.dispatch(setSnapshotSaveSuccessful());
             } catch (e) {
               this.logger.error('Could not store snapshot for', documentId, e);
-              this.store.dispatch(setSnapshotFailed());
+              this.store.dispatch(setSnapshotSaveFailed());
             }
           },
           { leading: true, trailing: true },
@@ -255,6 +269,9 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
 
           if (snapshotData) {
             observer.next(snapshotData.data);
+          } else {
+            console.error('MILTON: Snapshot data is not available.', result);
+            observer.error(new Error('Snapshot data is not available.'));
           }
 
           this.loadingSubject.next(false);
