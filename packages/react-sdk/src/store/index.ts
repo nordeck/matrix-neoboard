@@ -20,6 +20,8 @@ export {
   setSnapshotFailed,
   setSnapshotSuccessful,
 } from './connectionInfoSlice';
+
+export { canvasReducer } from './canvasSlice';
 export { useAppDispatch } from './reduxToolkitHooks';
 export { shapeSizesReducer } from './shapeSizesSlide';
 export { createStore } from './store';
