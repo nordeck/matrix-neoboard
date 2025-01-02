@@ -31,7 +31,7 @@
     "lodash": "^4.17.21",
     "loglevel": "^1.9.2",
     "matrix-widget-api": "^1.9.0",
-    "pdfmake": "^0.2.13",
+    "pdfmake": "^0.2.18",
     "react-beautiful-dnd": "^13.1.1",
     "react-draggable": "^4.4.6",
     "react-dropzone": "^14.2.9",
