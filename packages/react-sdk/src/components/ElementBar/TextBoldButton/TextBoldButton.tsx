@@ -16,8 +16,8 @@
 
 import FormatBoldIcon from '@mui/icons-material/FormatBold';
 import { useTranslation } from 'react-i18next';
-import { useToggleBold } from '../../../lib/text-formatting';
-import { useActiveElements, useElements } from '../../../state';
+import { isEmptyText, useToggleBold } from '../../../lib/text-formatting';
+import { ShapeElement, useActiveElements, useElements } from '../../../state';
 import { ToolbarToggle } from '../../common/Toolbar';
 
 export function TextBoldButton() {
@@ -29,6 +29,12 @@ export function TextBoldButton() {
   const elements = Object.values(activeElements);
 
   if (elements.every((element) => element.type !== 'shape')) {
+    return null;
+  }
+
+  if (
+    elements.every((element) => isEmptyText((element as ShapeElement).text))
+  ) {
     return null;
   }
 

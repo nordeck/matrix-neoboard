@@ -16,8 +16,8 @@
 
 import { MenuItem, Select } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { useFontSize } from '../../../lib/text-formatting';
-import { useActiveElements, useElements } from '../../../state';
+import { isEmptyText, useFontSize } from '../../../lib/text-formatting';
+import { ShapeElement, useActiveElements, useElements } from '../../../state';
 
 const FONT_SIZES = [8, 16, 24, 32, 48, 64, 96, 128, 160, 192];
 
@@ -30,6 +30,12 @@ export function FontSizeButton() {
   const elements = Object.values(activeElements);
 
   if (elements.every((element) => element.type !== 'shape')) {
+    return null;
+  }
+
+  if (
+    elements.every((element) => isEmptyText((element as ShapeElement).text))
+  ) {
     return null;
   }
 

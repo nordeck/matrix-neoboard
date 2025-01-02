@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-export { isEmptyText } from './isEmptyText';
-export { useFontSize } from './useFontSize';
-export { useToggleBold } from './useToggleBold';
-export { useToggleItalic } from './useToggleItalic';
+export function isEmptyText(text: string) {
+  if (text.trim() === '') {
+    return true;
+  }
+
+  return false;
+}
