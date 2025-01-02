@@ -50,9 +50,15 @@ describe('<TextBoldButton />', () => {
         [
           'slide',
           [
-            ['rectangle', mockRectangleElement({ textBold: false })],
-            ['circle', mockCircleElement({ textBold: true })],
-            ['triangle', mockTriangleElement({ textBold: false })],
+            [
+              'rectangle',
+              mockRectangleElement({ text: 'Hello', textBold: false }),
+            ],
+            ['circle', mockCircleElement({ text: 'Hello', textBold: true })],
+            [
+              'triangle',
+              mockTriangleElement({ text: 'Hello', textBold: false }),
+            ],
             ['line', mockLineElement()],
           ],
         ],

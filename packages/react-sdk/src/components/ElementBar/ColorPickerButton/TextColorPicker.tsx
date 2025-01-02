@@ -17,9 +17,11 @@
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { findColor, useColorPalette } from '../../../lib';
+import { isEmptyText } from '../../../lib/text-formatting';
 import {
   includesShapeWithText,
   includesTextShape,
+  ShapeElement,
   useActiveElements,
   useElements,
 } from '../../../state';
@@ -44,6 +46,7 @@ export function TextColorPicker() {
   const { activeElementIds } = useActiveElements();
   const activeElementsObject = useElements(activeElementIds);
   const activeElements = Object.values(activeElementsObject);
+  const elements = Object.values(activeElements);
 
   const hasText = includesTextShape(activeElements);
   const hasTextShape = includesShapeWithText(activeElements);
@@ -85,6 +88,12 @@ export function TextColorPicker() {
       setActiveShapeTextShade,
     ],
   );
+
+  if (
+    elements.every((element) => isEmptyText((element as ShapeElement).text))
+  ) {
+    return null;
+  }
 
   return (
     <ColorPicker

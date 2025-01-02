@@ -16,8 +16,8 @@
 
 import FormatItalicIcon from '@mui/icons-material/FormatItalic';
 import { useTranslation } from 'react-i18next';
-import { useToggleItalic } from '../../../lib/text-formatting';
-import { useActiveElements, useElements } from '../../../state';
+import { isEmptyText, useToggleItalic } from '../../../lib/text-formatting';
+import { ShapeElement, useActiveElements, useElements } from '../../../state';
 import { ToolbarToggle } from '../../common/Toolbar';
 
 export function TextItalicButton() {
@@ -29,6 +29,12 @@ export function TextItalicButton() {
   const { isItalic, toggleItalic } = useToggleItalic();
 
   if (elements.every((element) => element.type !== 'shape')) {
+    return null;
+  }
+
+  if (
+    elements.every((element) => isEmptyText((element as ShapeElement).text))
+  ) {
     return null;
   }
 

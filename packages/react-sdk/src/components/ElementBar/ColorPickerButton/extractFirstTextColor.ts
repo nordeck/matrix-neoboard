@@ -15,6 +15,7 @@
  */
 
 import { findForegroundColor } from '../../../lib';
+import { isEmptyText } from '../../../lib/text-formatting';
 import { Element } from '../../../state';
 
 /**
@@ -27,7 +28,7 @@ import { Element } from '../../../state';
  */
 export function extractFirstTextColor(elements: Element[]): string | undefined {
   for (const element of elements) {
-    if ('text' in element && element.text.length > 0) {
+    if ('text' in element && !isEmptyText(element.text)) {
       return (
         // The element has an explicit color set, return it
         element.textColor ??

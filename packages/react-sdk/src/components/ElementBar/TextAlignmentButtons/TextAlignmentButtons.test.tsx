@@ -24,6 +24,7 @@ import {
   WhiteboardTestingContextProvider,
   mockEllipseElement,
   mockLineElement,
+  mockRectangleElement,
   mockWhiteboardManager,
 } from '../../../lib/testUtils/documentTestUtils';
 import { WhiteboardSlideInstance } from '../../../state';
@@ -48,9 +49,15 @@ describe('<TextAlignmentButtons/>', () => {
         [
           'slide-0',
           [
-            ['element-0', mockEllipseElement({ textAlignment: 'left' })],
+            [
+              'element-0',
+              mockEllipseElement({ text: 'Hello', textAlignment: 'left' }),
+            ],
             ['element-1', mockLineElement()],
-            ['element-2', mockEllipseElement({ textAlignment: 'right' })],
+            [
+              'element-2',
+              mockRectangleElement({ text: 'Goodbye', textAlignment: 'right' }),
+            ],
           ],
         ],
       ],
