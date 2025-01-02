@@ -48,7 +48,7 @@ describe('calculateDragDimension', () => {
   it('should ensure a minimum size', () => {
     expect(calculateDragDimension(0, 1)).toEqual({
       position: 0,
-      size: 2,
+      size: 1,
       inverted: false,
     });
   });
@@ -279,8 +279,8 @@ describe('calculateDimensions', () => {
     ).toEqual({
       x: 15,
       y: 30,
-      width: 2,
-      height: 2,
+      width: 1,
+      height: 1,
     });
   });
 
@@ -441,7 +441,7 @@ describe('computeResizing', () => {
 
   const viewportWidth = 360;
   const viewportHeight = 360;
-  const gridCellSize = 40;
+  const gridCellSize = 20;
 
   const line = mockLineElement({
     position: { x: 120, y: 160 },

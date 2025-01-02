@@ -95,6 +95,10 @@ export function createShape({
     }
   }
 
+  // `width` and `height` must not be 0.
+  width = Math.max(width, 1);
+  height = Math.max(height, 1);
+
   return {
     fillColor,
     height,
