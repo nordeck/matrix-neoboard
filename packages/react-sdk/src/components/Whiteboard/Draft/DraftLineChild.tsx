@@ -49,23 +49,11 @@ export const DraftLineChild = ({
 
   const handleMouseUp = useCallback(() => {
     if (cursorPoints) {
-      // check for minimal distance between points to avoid creating zero-sized lines
-      const uniqueCursorPoints = cursorPoints.filter((point, index) => {
-        return (
-          cursorPoints.findIndex((p, i) => {
-            if (i >= index) return false;
-            const distance = Math.sqrt(
-              (p.x - point.x) ** 2 + (p.y - point.y) ** 2,
-            );
-            return distance < 1;
-          }) === -1
-        );
-      });
-      if (uniqueCursorPoints.length > 1) {
+      if (cursorPoints.length > 1) {
         slideInstance.addElement(
           createShapeFromPoints({
             kind,
-            cursorPoints: uniqueCursorPoints,
+            cursorPoints,
             strokeColor,
             gridCellSize: isShowGrid ? gridCellSize : undefined,
             onlyStartAndEndPoints,
