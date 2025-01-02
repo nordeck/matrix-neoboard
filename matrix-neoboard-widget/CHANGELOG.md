@@ -1,5 +1,18 @@
 # @nordeck/matrix-neoboard-widget
 
+## 2.0.1
+
+### Patch Changes
+
+- 6b4db98: Images no longer disappear when presentation mode is activated. This often happened with Chromium-based browsers, but sometimes also with others.
+- 2c29529: On PDF export texts do no longer overflow shapes. Lines, that would be cut off are not printed at all.
+- b82d827: Pins cross-spawn and nanoid packages to latest verisons to fix CVE-2024-21538 and CVE-2024-55565
+- Updated dependencies [6b4db98]
+- Updated dependencies [f7b18f2]
+- Updated dependencies [2c29529]
+- Updated dependencies [b82d827]
+  - @nordeck/matrix-neoboard-react-sdk@1.0.1
+
 ## 2.0.0
 
 ### Major Changes
