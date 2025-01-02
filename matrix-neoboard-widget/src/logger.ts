@@ -38,7 +38,7 @@ window.addEventListener('unhandledrejection', (event) => {
 window.addEventListener('error', (event) => {
   if (event.message.startsWith('ResizeObserver loop limit exceeded')) {
     // This error can come up a lot, therefore we are ignoring it to avoid
-    // spamming the console. The error is "save to ignore":
+    // spamming the console. The error is "safe to ignore":
     // https://stackoverflow.com/a/50387233/218902
     return;
   }

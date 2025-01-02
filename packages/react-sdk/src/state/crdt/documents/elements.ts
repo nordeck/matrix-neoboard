@@ -63,8 +63,8 @@ const shapeElementSchema = elementBaseSchema
     kind: Joi.string()
       .valid('rectangle', 'circle', 'ellipse', 'triangle')
       .required(),
-    width: Joi.number().strict().required(),
-    height: Joi.number().strict().required(),
+    width: Joi.number().strict().min(1).required(),
+    height: Joi.number().strict().min(1).required(),
     fillColor: Joi.string().required(),
     strokeColor: Joi.string().strict(),
     strokeWidth: Joi.number().strict(),
@@ -134,8 +134,8 @@ const imageElementSchema = elementBaseSchema
     mimeType: Joi.string()
       .valid(...Object.keys(defaultAcceptedImageTypes))
       .optional(),
-    width: Joi.number().strict().required(),
-    height: Joi.number().strict().required(),
+    width: Joi.number().strict().min(1).required(),
+    height: Joi.number().strict().min(1).required(),
   })
   .required();
 
