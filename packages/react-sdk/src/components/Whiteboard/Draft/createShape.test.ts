@@ -135,18 +135,18 @@ describe('createShape', () => {
     });
   });
 
-  it('should constrain to the grid', () => {
+  it('should constrain shape to the grid', () => {
     const result = createShape({
       kind: 'circle',
       startCoords: { x: 10, y: 20 },
       endCoords: { x: 30, y: 60 },
       fillColor: '#ffffff',
-      gridCellSize: 40,
+      gridCellSize: 20,
     });
     expect(result).toEqual({
-      width: 40,
+      width: 20,
       height: 40,
-      position: { x: 0, y: 40 },
+      position: { x: 20, y: 20 },
       type: 'shape',
       kind: 'circle',
       text: '',
@@ -160,12 +160,12 @@ describe('createShape', () => {
       startCoords: { x: 30, y: 60 },
       endCoords: { x: 10, y: 20 },
       fillColor: '#ffffff',
-      gridCellSize: 40,
+      gridCellSize: 20,
     });
     expect(result).toEqual({
-      width: 40,
+      width: 20,
       height: 40,
-      position: { x: 0, y: 40 },
+      position: { x: 20, y: 20 },
       type: 'shape',
       kind: 'circle',
       text: '',
@@ -249,7 +249,7 @@ describe('createShapeFromPoints', () => {
     });
   });
 
-  it('should constrain to the grid', () => {
+  it('should constrain line to the grid', () => {
     const cursorPoints = [
       { x: 10, y: 20 },
       { x: 50, y: 60 },
@@ -259,17 +259,35 @@ describe('createShapeFromPoints', () => {
       cursorPoints,
       strokeColor: '#000000',
       onlyStartAndEndPoints: true,
-      gridCellSize: 40,
+      gridCellSize: 20,
     });
     expect(result).toEqual({
       points: [
         { x: 0, y: 0 },
         { x: 40, y: 40 },
       ],
-      position: { x: 0, y: 40 },
+      position: { x: 20, y: 20 },
       strokeColor: '#000000',
       type: 'path',
       kind: 'line',
+    });
+  });
+
+  it('should create shape with minimum width and height', () => {
+    const result = createShape({
+      kind: 'circle',
+      startCoords: { x: 30, y: 60 },
+      endCoords: { x: 30.5, y: 60.5 },
+      fillColor: '#ffffff',
+    });
+    expect(result).toEqual({
+      width: 1,
+      height: 1,
+      position: { x: 30, y: 60 },
+      type: 'shape',
+      kind: 'circle',
+      text: '',
+      fillColor: '#ffffff',
     });
   });
 });
