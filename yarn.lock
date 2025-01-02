@@ -729,7 +729,7 @@
   resolved "https://registry.yarnpkg.com/@floating-ui/utils/-/utils-0.2.7.tgz#d0ece53ce99ab5a8e37ebdfe5e32452a2bfc073e"
   integrity sha512-X8R8Oj771YRl/w+c1HqAC1szL8zWQRwFvgDwT129k9ACdBoud/+/rX9V0qiMl6LWUdP9voC2nDVZYPMQQsb6eA==
 
-"@foliojs-fork/fontkit@^1.9.1":
+"@foliojs-fork/fontkit@^1.9.2":
   version "1.9.2"
   resolved "https://registry.yarnpkg.com/@foliojs-fork/fontkit/-/fontkit-1.9.2.tgz#94241c195bc6204157bc84c33f34bdc967eca9c3"
   integrity sha512-IfB5EiIb+GZk+77TRB86AHroVaqfq8JRFlUbz0WEwsInyCG0epX2tCPOy+UfaWPju30DeVoUAXfzWXmhn753KA==
@@ -743,7 +743,7 @@
     unicode-properties "^1.2.2"
     unicode-trie "^2.0.0"
 
-"@foliojs-fork/linebreak@^1.1.1":
+"@foliojs-fork/linebreak@^1.1.1", "@foliojs-fork/linebreak@^1.1.2":
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/@foliojs-fork/linebreak/-/linebreak-1.1.2.tgz#32fee03d5431fa73284373439e172e451ae1e2da"
   integrity sha512-ZPohpxxbuKNE0l/5iBJnOAfUaMACwvUIKCvqtWGKIMv1lPYoNjYXRfhi9FeeV9McBkBLxsMFWTVVhHJA8cyzvg==
@@ -751,14 +751,15 @@
     base64-js "1.3.1"
     unicode-trie "^2.0.0"
 
-"@foliojs-fork/pdfkit@^0.14.0":
-  version "0.14.0"
-  resolved "https://registry.yarnpkg.com/@foliojs-fork/pdfkit/-/pdfkit-0.14.0.tgz#ed1868050edd2904284655f8dcddd56b49576c98"
-  integrity sha512-nMOiQAv6id89MT3tVTCgc7HxD5ZMANwio2o5yvs5sexQkC0KI3BLaLakpsrHmFfeGFAhqPmZATZGbJGXTUebpg==
+"@foliojs-fork/pdfkit@^0.15.3":
+  version "0.15.3"
+  resolved "https://registry.yarnpkg.com/@foliojs-fork/pdfkit/-/pdfkit-0.15.3.tgz#590b31e770a98e2af62ce44f268a0d06b41ff32f"
+  integrity sha512-Obc0Wmy3bm7BINFVvPhcl2rnSSK61DQrlHU8aXnAqDk9LCjWdUOPwhgD8Ywz5VtuFjRxmVOM/kQ/XLIBjDvltw==
   dependencies:
-    "@foliojs-fork/fontkit" "^1.9.1"
+    "@foliojs-fork/fontkit" "^1.9.2"
     "@foliojs-fork/linebreak" "^1.1.1"
     crypto-js "^4.2.0"
+    jpeg-exif "^1.1.4"
     png-js "^1.0.0"
 
 "@foliojs-fork/restructure@^2.0.2":
@@ -4388,6 +4389,11 @@ joi@^17.13.3:
     "@sideway/formula" "^3.0.1"
     "@sideway/pinpoint" "^2.0.0"
 
+jpeg-exif@^1.1.4:
+  version "1.1.4"
+  resolved "https://registry.yarnpkg.com/jpeg-exif/-/jpeg-exif-1.1.4.tgz#781a65b6cd74f62cb1c493511020f8d3577a1c2b"
+  integrity sha512-a+bKEcCjtuW5WTdgeXFzswSrdqi0jk4XlEtZlx5A94wCoBpFjfFTbo/Tra5SpNCl/YFZPvcV1dJc+TAYeg6ROQ==
+
 js-base64@^3.7.7:
   version "3.7.7"
   resolved "https://registry.yarnpkg.com/js-base64/-/js-base64-3.7.7.tgz#e51b84bf78fbf5702b9541e2cb7bfcb893b43e79"
@@ -5217,15 +5223,15 @@ pdfjs-dist@^4.6.82:
     canvas "^2.11.2"
     path2d "^0.2.1"
 
-pdfmake@^0.2.13:
-  version "0.2.13"
-  resolved "https://registry.yarnpkg.com/pdfmake/-/pdfmake-0.2.13.tgz#ea43fe9f0c8de1e5ec7b08486d6f4f8bbb8619e4"
-  integrity sha512-qeVE9Bzjm0oPCitH4/HYM/XCGTwoeOAOVAXPnV3s0kpPvTLkTF/bAF4jzorjkaIhXGQhzYk6Xclt0hMDYLY93w==
+pdfmake@^0.2.18:
+  version "0.2.18"
+  resolved "https://registry.yarnpkg.com/pdfmake/-/pdfmake-0.2.18.tgz#0be32a9274466494a69285193b64f61f3198ea4e"
+  integrity sha512-Fe+GnMS8EVZu5rci/CDaQ+xmUoHvx8P+rvIlrwSYM6A5c7Aik8G6lpJbddhjBE2jXGjv6WcUCFCB06uZbjxkMw==
   dependencies:
-    "@foliojs-fork/linebreak" "^1.1.1"
-    "@foliojs-fork/pdfkit" "^0.14.0"
+    "@foliojs-fork/linebreak" "^1.1.2"
+    "@foliojs-fork/pdfkit" "^0.15.3"
     iconv-lite "^0.6.3"
-    xmldoc "^1.1.2"
+    xmldoc "^1.3.0"
 
 picocolors@^1.0.0, picocolors@^1.1.0:
   version "1.1.0"
@@ -6980,7 +6986,7 @@ xmlchars@^2.2.0:
   resolved "https://registry.yarnpkg.com/xmlchars/-/xmlchars-2.2.0.tgz#060fe1bcb7f9c76fe2a17db86a9bc3ab894210cb"
   integrity sha512-JZnDKK8B0RCDw84FNdDAIpZK+JuJw+s7Lz8nksI7SIuU3UXJJslUthsi+uWBUYOwPFwW7W7PRLRfUKpxjtjFCw==
 
-xmldoc@^1.1.2:
+xmldoc@^1.3.0:
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/xmldoc/-/xmldoc-1.3.0.tgz#7823225b096c74036347c9ec5924d06b6a3cebab"
   integrity sha512-y7IRWW6PvEnYQZNZFMRLNJw+p3pezM4nKYPfr15g4OOW9i8VpeydycFuipE2297OvZnh3jSb2pxOt9QpkZUVng==
