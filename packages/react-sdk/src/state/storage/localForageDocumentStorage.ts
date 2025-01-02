@@ -61,7 +61,7 @@ export class LocalForageDocumentStorage implements DocumentStorage {
   async load(documentId: string): Promise<Uint8Array | undefined> {
     try {
       const document = await this.documentStore.getItem<Uint8Array>(documentId);
-
+      console.error('MILTON: loaded from local storage', document);
       if (!document) {
         return undefined;
       }

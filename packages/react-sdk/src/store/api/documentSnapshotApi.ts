@@ -72,11 +72,14 @@ export const documentSnapshotApi = baseApi.injectEndpoints({
         const widgetApi = await (extra as ThunkExtraArgument).widgetApi;
 
         try {
+          console.error('MILTON: GET SNAPSHOT', documentId);
           const snapshotResult = await findLatestSnapshot(
             widgetApi,
             documentId,
             validator,
           );
+
+          console.error('MILTON: loaded snapshot');
 
           if (!snapshotResult) {
             return {
@@ -116,14 +119,15 @@ export const documentSnapshotApi = baseApi.injectEndpoints({
           getCacheEntry().data?.event.origin_server_ts,
           validator,
         );
-
+        console.error('MILTON: on cache entry added', snapshotBacklog);
         const snapshotSubscription = widgetApi
           .observeRoomEvents(ROOM_EVENT_DOCUMENT_SNAPSHOT)
           .pipe(filter(isValidDocumentSnapshotRoomEvent))
           .subscribe((snapshot) => {
             snapshotBacklog.registerSnapshot(snapshot);
-
+            console.error('MILTON: got cache snapshot', snapshot);
             const result = snapshotBacklog.findCompleteSnapshot();
+            console.error('MILTON: got cache snapshot result', result);
             if (result) {
               dispatch(
                 documentSnapshotApi.util.upsertQueryData(
@@ -242,6 +246,7 @@ export const documentSnapshotApi = baseApi.injectEndpoints({
             ),
           );
 
+          console.error('MILTON: persisted document');
           return { data: { event: snapshotEvent } };
         } catch (e) {
           return {
@@ -281,16 +286,18 @@ export async function findLatestSnapshot(
   let fromSnapshot: string | undefined = undefined;
 
   do {
+    console.error('MILTON: will read relations', documentId, fromSnapshot);
     const result = await widgetApi.readEventRelations(documentId, {
       limit: 50,
       relationType: 'm.reference',
       eventType: ROOM_EVENT_DOCUMENT_SNAPSHOT,
       from: fromSnapshot,
     });
-
+    console.log('MILTON: snapshot relations result', result);
     const snapshots = result.chunk.filter(isValidDocumentSnapshotRoomEvent);
 
     for (const snapshot of snapshots) {
+      console.error('MILTON: found snapshot', snapshot);
       const backlog = new DocumentSnapshotBacklog(
         documentId,
         undefined,
@@ -335,8 +342,9 @@ async function* findChunks(
       eventType: ROOM_EVENT_DOCUMENT_CHUNK,
       from: fromChunk,
     });
-
+    console.log('MILTON: chunk relations result', result);
     for (const chunk of result.chunk.filter(isValidDocumentChunkRoomEvent)) {
+      console.error('MILTON: found chunk', chunk);
       yield chunk;
     }
 

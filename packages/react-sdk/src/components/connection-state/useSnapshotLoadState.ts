@@ -14,7 +14,20 @@
  * limitations under the License.
  */
 
-export { ConnectionStateDialog } from './ConnectionStateDialog';
-export { ConnectionStateProvider } from './ConnectionStateProvider';
-export { SnapshotLoadStateDialog } from './SnapshotLoadStateDialog';
-export { useConnectionState } from './useConnectionState';
+import { useContext } from 'react';
+import {
+  ConnectionStateContext,
+  SnapshotLoadState,
+} from './ConnectionStateProvider';
+
+export function useSnapshotLoadState(): SnapshotLoadState {
+  const value = useContext(ConnectionStateContext);
+
+  if (!value) {
+    throw new Error(
+      'useConnectionState can only be used inside of <ConnectionStateProvider>',
+    );
+  }
+
+  return value;
+}
