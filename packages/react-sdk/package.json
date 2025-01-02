@@ -34,7 +34,7 @@
     "pdfmake": "^0.2.13",
     "react-beautiful-dnd": "^13.1.1",
     "react-draggable": "^4.4.6",
-    "react-dropzone": "^14.2.9",
+    "react-dropzone": "^14.3.5",
     "react-hotkeys-hook": "^4.5.0",
     "react-joyride": "^2.9.2",
     "react-redux": "^9.1.2",
