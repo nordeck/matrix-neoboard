@@ -16,27 +16,12 @@
 
 import FormatBoldIcon from '@mui/icons-material/FormatBold';
 import { useTranslation } from 'react-i18next';
-import { isEmptyText, useToggleBold } from '../../../lib/text-formatting';
-import { ShapeElement, useActiveElements, useElements } from '../../../state';
+import { useToggleBold } from '../../../lib/text-formatting';
 import { ToolbarToggle } from '../../common/Toolbar';
 
 export function TextBoldButton() {
   const { t } = useTranslation('neoboard');
   const { isBold, toggleBold } = useToggleBold();
-
-  const { activeElementIds } = useActiveElements();
-  const activeElements = useElements(activeElementIds);
-  const elements = Object.values(activeElements);
-
-  if (elements.every((element) => element.type !== 'shape')) {
-    return null;
-  }
-
-  if (
-    elements.every((element) => isEmptyText((element as ShapeElement).text))
-  ) {
-    return null;
-  }
 
   return (
     <ToolbarToggle

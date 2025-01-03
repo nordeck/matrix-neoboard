@@ -15,7 +15,8 @@
  */
 
 import { Box } from '@mui/material';
-import { useCallback } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { isEmptyText } from '../../lib/text-formatting';
 import {
   type Point,
   useActiveElements,
@@ -63,6 +64,26 @@ const WhiteboardHost = ({
     useLayoutState();
   const { activeElementIds } = useActiveElements();
   const overrides = useElementOverrides(activeElementIds);
+  const [areTextToolsVisible, setTextToolsVisible] = useState(false);
+  const [canShowToolbar, setCanShowToolbar] = useState(false);
+
+  // iterate over all activeElements and check if any of them has text content
+  const hasTextElement = useMemo(() => {
+    return activeElementIds.some((id) => {
+      const element = slideInstance.getElement(id);
+      if (element?.type === 'shape') {
+        return !isEmptyText(element.text);
+      }
+      return false;
+    });
+  }, [activeElementIds, slideInstance]);
+
+  useEffect(() => {
+    if (activeElementIds.length > 0 && slideInstance) {
+      setTextToolsVisible(hasTextElement);
+      setCanShowToolbar(true);
+    }
+  }, [activeElementIds, hasTextElement, slideInstance]);
 
   return (
     <Box
@@ -81,9 +102,10 @@ const WhiteboardHost = ({
         additionalChildren={
           dragSelectStartCoords === undefined &&
           !readOnly &&
-          activeElementIds.length > 0 && (
+          activeElementIds.length > 0 &&
+          canShowToolbar && (
             <ElementBarWrapper elementIds={activeElementIds}>
-              <ElementBar />
+              <ElementBar showTextTools={areTextToolsVisible} />
             </ElementBarWrapper>
           )
         }
@@ -106,6 +128,7 @@ const WhiteboardHost = ({
             readOnly={readOnly}
             activeElementIds={activeElementIds}
             overrides={overrides}
+            showTextTools={setTextToolsVisible}
           />
         ))}
 

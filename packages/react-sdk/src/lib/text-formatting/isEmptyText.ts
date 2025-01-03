@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
-export function isEmptyText(text: string) {
+export function isEmptyText(text?: string | null) {
+  if (text === undefined || text === null) {
+    return true;
+  }
+
   if (text.trim() === '') {
     return true;
   }
