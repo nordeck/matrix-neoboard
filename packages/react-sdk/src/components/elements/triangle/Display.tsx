@@ -66,6 +66,7 @@ const TriangleDisplay = ({
           height={text.height}
           fillColor={shape.fillColor}
           fontSize={text.fontSize}
+          enableTextTools={shape.enableTextTools}
         />
       )}
     </g>
