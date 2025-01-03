@@ -69,6 +69,7 @@ const RectangleDisplay = ({
           fillColor={shape.fillColor}
           textColor={shape.textColor}
           fontSize={text.fontSize}
+          enableTextTools={shape.enableTextTools}
         />
       )}
     </g>

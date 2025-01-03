@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { PropsWithChildren } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Toolbar } from '../common/Toolbar';
 import { ElementColorPicker } from './ColorPickerButton/ElementColorPicker';
@@ -25,18 +26,24 @@ import { TextAlignmentButtons } from './TextAlignmentButtons';
 import { TextBoldButton } from './TextBoldButton';
 import { TextItalicButton } from './TextItalicButton';
 
-export function ElementBar() {
+export function ElementBar({
+  showTextTools = true,
+}: PropsWithChildren<{ showTextTools?: boolean }>) {
   const { t } = useTranslation('neoboard');
   const toolbarTitle = t('elementBar.title', 'Element');
 
   return (
     <Toolbar aria-label={toolbarTitle}>
-      <FontSizeButton />
-      <TextBoldButton />
-      <TextItalicButton />
-      <TextColorPicker />
+      {showTextTools && (
+        <>
+          <FontSizeButton />
+          <TextBoldButton />
+          <TextItalicButton />
+          <TextColorPicker />
+          <TextAlignmentButtons />
+        </>
+      )}
       <ElementColorPicker />
-      <TextAlignmentButtons />
       <DuplicateActiveElementButton />
       <DeleteActiveElementButton />
     </Toolbar>

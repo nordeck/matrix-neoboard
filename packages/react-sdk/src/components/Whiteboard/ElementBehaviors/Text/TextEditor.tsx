@@ -27,6 +27,7 @@ import {
   useState,
 } from 'react';
 import { useFontsLoaded } from '../../../../lib';
+import { isEmptyText } from '../../../../lib/text-formatting';
 import { TextAlignment } from '../../../../state';
 import {
   HOTKEY_SCOPE_WHITEBOARD,
@@ -106,6 +107,7 @@ export type TextEditorProps = {
   height: number;
   fontSize?: number;
   editModeOnMount: boolean;
+  enableTextTools: ((isVisible: boolean) => void) | undefined;
 };
 
 // TODO: Consider an alternative to content-editable. Right now it allows to do unexpected things
@@ -124,6 +126,7 @@ export function TextEditor({
   height,
   fontSize,
   editModeOnMount = false,
+  enableTextTools = () => {},
 }: TextEditorProps) {
   const textRef = useRef<HTMLDivElement>(null);
   const [isEditMode, setEditMode] = useState(editModeOnMount);
@@ -134,8 +137,9 @@ export function TextEditor({
       onBlur();
 
       setEditMode(false);
+      enableTextTools(false);
     }
-  }, [editable, isEditMode, onBlur]);
+  }, [editable, isEditMode, onBlur, enableTextTools]);
 
   const handleDoubleClick = useCallback(
     (event: MouseEvent) => {
@@ -175,9 +179,12 @@ export function TextEditor({
     window.requestAnimationFrame(() => {
       if (textRef.current) {
         fitText(textRef.current, fontSize, contentBold, contentItalic);
+        if (!isEmptyText(textRef.current.innerText)) {
+          enableTextTools(true);
+        }
       }
     });
-  }, [fontSize, contentBold, contentItalic, textRef]);
+  }, [fontSize, contentBold, contentItalic, enableTextTools]);
 
   const handleKeyUp = useCallback(() => {
     if (textRef.current) {

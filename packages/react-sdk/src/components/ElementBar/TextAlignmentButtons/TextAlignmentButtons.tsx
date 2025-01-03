@@ -19,7 +19,6 @@ import FormatAlignLeftIcon from '@mui/icons-material/FormatAlignLeft';
 import FormatAlignRightIcon from '@mui/icons-material/FormatAlignRight';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { isEmptyText } from '../../../lib/text-formatting';
 import {
   TextAlignment,
   useActiveElements,
@@ -47,24 +46,6 @@ export function TextAlignmentButtons() {
   );
 
   const elementsArray = Object.values(elements);
-
-  const onlyNonShapes = elementsArray.every(function (element) {
-    return element.type !== 'shape';
-  });
-
-  if (
-    elementsArray.every(
-      (element) => element.type === 'shape' && isEmptyText(element.text),
-    )
-  ) {
-    return null;
-  }
-
-  if (onlyNonShapes) {
-    // There is no text alignment tool for only non-shapes
-    return null;
-  }
-
   let textAlignment: TextAlignment = 'center';
 
   for (const element of elementsArray) {

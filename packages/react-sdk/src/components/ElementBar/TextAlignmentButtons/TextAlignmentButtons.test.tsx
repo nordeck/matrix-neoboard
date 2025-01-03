@@ -15,7 +15,7 @@
  */
 
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
-import { act, render, screen, waitFor, within } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import axe from 'axe-core';
 import { ComponentType, PropsWithChildren } from 'react';
@@ -113,22 +113,6 @@ describe('<TextAlignmentButtons/>', () => {
     expect(screen.getByRole('radio', { name: 'Left' })).toBeChecked();
     expect(screen.getByRole('radio', { name: 'Center' })).not.toBeChecked();
     expect(screen.getByRole('radio', { name: 'Right' })).not.toBeChecked();
-  });
-
-  it('should hide for non-shape elements', async () => {
-    render(<TextAlignmentButtons />, { wrapper: Wrapper });
-
-    const radioGroup = screen.getByRole('radiogroup', {
-      name: 'Text Alignment',
-    });
-
-    act(() => {
-      slide.setActiveElementId('element-1');
-    });
-
-    await waitFor(() => {
-      expect(radioGroup).not.toBeInTheDocument();
-    });
   });
 
   it('should switch the text alignment for one element', async () => {

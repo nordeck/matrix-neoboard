@@ -15,7 +15,7 @@
  */
 
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import axe from 'axe-core';
 import { ComponentType, PropsWithChildren } from 'react';
@@ -93,20 +93,6 @@ describe('<TextItalicButton />', () => {
   it('should reflect the italic text state of the first element', () => {
     render(<TextItalicButton />, { wrapper: Wrapper });
     expect(screen.getByRole('checkbox', { name: 'Italic' })).not.toBeChecked();
-  });
-
-  it('should hide for non-shape elements', async () => {
-    render(<TextItalicButton />, { wrapper: Wrapper });
-
-    const checkbox = screen.getByRole('checkbox', { name: 'Italic' });
-
-    act(() => {
-      slide.setActiveElementId('line');
-    });
-
-    await waitFor(() => {
-      expect(checkbox).not.toBeInTheDocument();
-    });
   });
 
   // Only test one toggle case here.

@@ -16,27 +16,13 @@
 
 import FormatItalicIcon from '@mui/icons-material/FormatItalic';
 import { useTranslation } from 'react-i18next';
-import { isEmptyText, useToggleItalic } from '../../../lib/text-formatting';
-import { ShapeElement, useActiveElements, useElements } from '../../../state';
+import { useToggleItalic } from '../../../lib/text-formatting';
 import { ToolbarToggle } from '../../common/Toolbar';
 
 export function TextItalicButton() {
-  const { activeElementIds } = useActiveElements();
-  const activeElements = useElements(activeElementIds);
-  const elements = Object.values(activeElements);
   const { t } = useTranslation('neoboard');
 
   const { isItalic, toggleItalic } = useToggleItalic();
-
-  if (elements.every((element) => element.type !== 'shape')) {
-    return null;
-  }
-
-  if (
-    elements.every((element) => isEmptyText((element as ShapeElement).text))
-  ) {
-    return null;
-  }
 
   return (
     <ToolbarToggle

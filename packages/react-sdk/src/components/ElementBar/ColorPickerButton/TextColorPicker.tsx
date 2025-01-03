@@ -16,12 +16,10 @@
 
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { findColor, useColorPalette } from '../../../lib';
-import { isEmptyText } from '../../../lib/text-formatting';
+import { findColor, findForegroundColor, useColorPalette } from '../../../lib';
 import {
   includesShapeWithText,
   includesTextShape,
-  ShapeElement,
   useActiveElements,
   useElements,
 } from '../../../state';
@@ -46,14 +44,20 @@ export function TextColorPicker() {
   const { activeElementIds } = useActiveElements();
   const activeElementsObject = useElements(activeElementIds);
   const activeElements = Object.values(activeElementsObject);
-  const elements = Object.values(activeElements);
 
   const hasText = includesTextShape(activeElements);
   const hasTextShape = includesShapeWithText(activeElements);
 
   const defaultShade = hasTextShape ? activeShapeTextShade : activeTextShade;
 
-  const color = extractFirstTextColor(activeElements);
+  let color = extractFirstTextColor(activeElements);
+  if (color == undefined) {
+    const element = activeElements[0];
+    if (element && 'fillColor' in element) {
+      color = findForegroundColor(element.fillColor);
+    }
+  }
+
   const paletteColor =
     color !== undefined ? findColor(color, colorPalette) : undefined;
   const shade =
@@ -88,12 +92,6 @@ export function TextColorPicker() {
       setActiveShapeTextShade,
     ],
   );
-
-  if (
-    elements.every((element) => isEmptyText((element as ShapeElement).text))
-  ) {
-    return null;
-  }
 
   return (
     <ColorPicker
