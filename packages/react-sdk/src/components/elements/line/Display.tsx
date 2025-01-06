@@ -22,6 +22,7 @@ import {
   SelectableElement,
   WithExtendedSelectionProps,
 } from '../../Whiteboard';
+import { useSvgCanvasContext } from '../../Whiteboard/SvgCanvas';
 import { getRenderProperties } from './getRenderProperties';
 import { useEndMarker } from './useEndMarker';
 
@@ -40,6 +41,10 @@ const LineDisplay = ({
     strokeWidth,
     points: { start, end },
   } = getRenderProperties(element);
+  const { scale } = useSvgCanvasContext();
+  // Fallback to scale = 1 if scale is 0
+  const adjustedScale = scale === 0 ? 1 : scale;
+  const adjustedStrokeWidth = (strokeWidth + 10) * adjustedScale;
 
   const { endMarkerId, endMarker } = useEndMarker(element);
 
@@ -49,7 +54,7 @@ const LineDisplay = ({
       <line
         fill="none"
         stroke="transparent"
-        strokeWidth={strokeWidth + 10}
+        strokeWidth={adjustedStrokeWidth}
         x1={start.x}
         x2={end.x}
         y1={start.y}
