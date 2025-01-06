@@ -372,7 +372,7 @@ export function mockFullscreenApi(): void {
     return Promise.resolve();
   });
 
-  document.documentElement.requestFullscreen = vi.fn(function () {
+  document.body.requestFullscreen = vi.fn(function () {
     // @ts-expect-error Ignore TS and linter here for setting a mocked API
     // eslint-disable-next-line
     document.fullscreenElement = {};

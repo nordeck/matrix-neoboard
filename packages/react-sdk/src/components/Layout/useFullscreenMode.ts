@@ -55,10 +55,8 @@ export function useFullscreenMode(): UseFullscreenModeResult {
     isFullscreenRequestRunning.current = true;
 
     if (value && !document.fullscreenElement) {
-      const container =
-        document.getElementById('widget-root') ?? document.documentElement;
       try {
-        await container.requestFullscreen();
+        await document.body.requestFullscreen();
       } catch (error) {
         loglevel.error('Error while going fullscreen', error);
       }

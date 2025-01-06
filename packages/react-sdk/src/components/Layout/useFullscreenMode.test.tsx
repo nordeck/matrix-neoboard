@@ -42,7 +42,7 @@ describe('useFullscreenMode', () => {
         result.current.setFullscreenMode(true);
       });
 
-      expect(document.documentElement.requestFullscreen).toHaveBeenCalled();
+      expect(document.body.requestFullscreen).toHaveBeenCalled();
       expect(result.current.isFullscreenMode).toBe(true);
     },
   );
