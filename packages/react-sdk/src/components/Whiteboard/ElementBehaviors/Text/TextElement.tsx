@@ -99,6 +99,11 @@ export const TextElement = ({
     activeElement.fillColor === 'transparent' &&
     activeElement.text.trim() === '';
 
+  // foreign object can't have negative dimensions
+  if (height < 0 || width < 0) {
+    return null;
+  }
+
   return (
     <ForeignObjectNoInteraction x={x} y={y} height={height} width={width}>
       <TextEditor

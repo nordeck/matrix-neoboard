@@ -148,9 +148,11 @@ describe('isValidElement', () => {
     { width: undefined },
     { width: null },
     { width: '111' },
+    { width: 0 },
     { height: undefined },
     { height: null },
     { height: '111' },
+    { height: 0 },
     { fillColor: undefined },
     { fillColor: null },
     { fillColor: 111 },
@@ -225,9 +227,11 @@ describe('isValidElement', () => {
     { width: undefined },
     { width: null },
     { width: '111' },
+    { width: 0 },
     { height: undefined },
     { height: null },
     { height: '111' },
+    { height: 0 },
   ])('should reject an image event with patch %j', (patch: object) => {
     const data = {
       type: 'image',

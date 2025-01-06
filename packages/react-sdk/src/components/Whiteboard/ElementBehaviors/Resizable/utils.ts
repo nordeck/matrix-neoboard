@@ -103,8 +103,8 @@ export function calculateDragDimension(
     ? dragOrigin - constrainedDragPosition
     : constrainedDragPosition - dragOrigin;
 
-  // Force shapes to have at least a dimension of two, to match our validation.
-  const size = Math.max(2, dimension);
+  // Force shapes to have at least a dimension of one
+  const size = Math.max(1, dimension);
   return {
     position,
     size,
