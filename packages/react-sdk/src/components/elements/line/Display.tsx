@@ -48,6 +48,15 @@ const LineDisplay = ({
       {endMarker}
       <line
         fill="none"
+        stroke="transparent"
+        strokeWidth={strokeWidth + 10}
+        x1={start.x}
+        x2={end.x}
+        y1={start.y}
+        y2={end.y}
+      />
+      <line
+        fill="none"
         stroke={strokeColor}
         strokeWidth={strokeWidth}
         x1={start.x}
