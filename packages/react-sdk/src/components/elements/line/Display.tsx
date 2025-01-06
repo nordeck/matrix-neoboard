@@ -44,7 +44,7 @@ const LineDisplay = ({
   const { scale } = useSvgCanvasContext();
   // Fallback to scale = 1 if scale is 0
   const adjustedScale = scale === 0 ? 1 : scale;
-  const adjustedStrokeWidth = (strokeWidth + 10) * adjustedScale;
+  const adjustedStrokeWidth = strokeWidth + 10 / adjustedScale;
 
   const { endMarkerId, endMarker } = useEndMarker(element);
 
