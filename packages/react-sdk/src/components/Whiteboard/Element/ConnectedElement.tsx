@@ -29,13 +29,13 @@ export const ConnectedElement = ({
   readOnly = false,
   activeElementIds = [],
   overrides = {},
-  showTextTools = () => {},
+  enableTextTools = () => {},
 }: {
   id: string;
   readOnly?: boolean;
   activeElementIds?: string[];
   overrides?: Elements;
-  showTextTools?: (isVisible: boolean) => void;
+  enableTextTools?: (isVisible: boolean) => void;
 }) => {
   const widgetApi = useWidgetApi();
   const element = useElementOverride(id);
@@ -65,7 +65,7 @@ export const ConnectedElement = ({
           <EllipseDisplay
             {...element}
             {...otherProps}
-            enableTextTools={showTextTools}
+            enableTextTools={enableTextTools}
           />
         );
       } else if (element.kind === 'rectangle') {
@@ -73,7 +73,7 @@ export const ConnectedElement = ({
           <RectangleDisplay
             {...element}
             {...otherProps}
-            enableTextTools={showTextTools}
+            enableTextTools={enableTextTools}
           />
         );
       } else if (element.kind === 'triangle') {
@@ -81,7 +81,7 @@ export const ConnectedElement = ({
           <TriangleDisplay
             {...element}
             {...otherProps}
-            enableTextTools={showTextTools}
+            enableTextTools={enableTextTools}
           />
         );
       }

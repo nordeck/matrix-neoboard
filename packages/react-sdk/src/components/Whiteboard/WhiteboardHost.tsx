@@ -65,7 +65,6 @@ const WhiteboardHost = ({
   const { activeElementIds } = useActiveElements();
   const overrides = useElementOverrides(activeElementIds);
   const [areTextToolsVisible, setTextToolsVisible] = useState(false);
-  const [canShowToolbar, setCanShowToolbar] = useState(false);
 
   // iterate over all activeElements and check if any of them has text content
   const hasTextElement = useMemo(() => {
@@ -79,11 +78,8 @@ const WhiteboardHost = ({
   }, [activeElementIds, slideInstance]);
 
   useEffect(() => {
-    if (activeElementIds.length > 0 && slideInstance) {
-      setTextToolsVisible(hasTextElement);
-      setCanShowToolbar(true);
-    }
-  }, [activeElementIds, hasTextElement, slideInstance]);
+    setTextToolsVisible(hasTextElement);
+  }, [activeElementIds, hasTextElement]);
 
   return (
     <Box
@@ -102,8 +98,7 @@ const WhiteboardHost = ({
         additionalChildren={
           dragSelectStartCoords === undefined &&
           !readOnly &&
-          activeElementIds.length > 0 &&
-          canShowToolbar && (
+          activeElementIds.length > 0 && (
             <ElementBarWrapper elementIds={activeElementIds}>
               <ElementBar showTextTools={areTextToolsVisible} />
             </ElementBarWrapper>
@@ -128,7 +123,7 @@ const WhiteboardHost = ({
             readOnly={readOnly}
             activeElementIds={activeElementIds}
             overrides={overrides}
-            showTextTools={setTextToolsVisible}
+            enableTextTools={setTextToolsVisible}
           />
         ))}
 

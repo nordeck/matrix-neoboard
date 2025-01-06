@@ -137,7 +137,6 @@ export function TextEditor({
       onBlur();
 
       setEditMode(false);
-      enableTextTools(false);
     }
   }, [editable, isEditMode, onBlur, enableTextTools]);
 
