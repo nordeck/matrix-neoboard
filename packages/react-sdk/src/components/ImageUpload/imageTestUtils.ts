@@ -35,9 +35,10 @@ const readFileAsFile = async (original_path: string): Promise<File> => {
   // Convert to real path.
   const path = new URL(fullPath, import.meta.url).pathname;
   const file = await readFile(path);
-  const fileObj = new File([file.buffer], original_path, { type: mime });
-  // This is required since jsdom doesnt support it.
-  fileObj.arrayBuffer = async () => file.buffer;
+  const fileBlob = file.buffer as ArrayBuffer;
+  const fileObj = new File([fileBlob], original_path, { type: mime });
+  // This is required since jsdom doesn't support it.
+  fileObj.arrayBuffer = async () => fileBlob;
   return fileObj;
 };
 
