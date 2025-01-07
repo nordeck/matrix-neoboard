@@ -53,7 +53,11 @@ export const ConnectionStateDialog: React.FC = () => {
   }
 
   return (
-    <Dialog onClose={handleCloseConnectionStateDialog} open={true}>
+    <Dialog
+      container={document.getElementById('widget-root')}
+      onClose={handleCloseConnectionStateDialog}
+      open={true}
+    >
       <DialogTitle>
         {t('connectionState.dialog.title', 'Your changes are not saved')}
       </DialogTitle>

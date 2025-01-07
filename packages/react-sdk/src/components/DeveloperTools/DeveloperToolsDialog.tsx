@@ -44,7 +44,7 @@ export function DeveloperToolsDialog({
 }) {
   const { t } = useTranslation('neoboard');
 
-  const { document, communicationChannel } =
+  const { document: communicationDocument, communicationChannel } =
     useActiveWhiteboardInstanceStatistics();
 
   const dialogTitleId = useId();
@@ -58,6 +58,7 @@ export function DeveloperToolsDialog({
       maxWidth="md"
       aria-labelledby={dialogTitleId}
       aria-describedby={dialogDescriptionId}
+      container={document.getElementById('widget-root')}
     >
       <DialogTitle
         id={dialogTitleId}
@@ -98,7 +99,7 @@ export function DeveloperToolsDialog({
               </Typography>
             </AccordionSummary>
             <AccordionDetails>
-              <DocumentSyncStatisticsView document={document} />
+              <DocumentSyncStatisticsView document={communicationDocument} />
             </AccordionDetails>
           </Accordion>
 

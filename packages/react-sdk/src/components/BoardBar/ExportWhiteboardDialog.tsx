@@ -54,6 +54,7 @@ export function ExportWhiteboardDialog({
     <Dialog
       aria-labelledby={dialogTitleId}
       aria-describedby={dialogDescriptionId}
+      container={document.getElementById('widget-root')}
       open={open}
       onClose={onClose}
       maxWidth="sm"

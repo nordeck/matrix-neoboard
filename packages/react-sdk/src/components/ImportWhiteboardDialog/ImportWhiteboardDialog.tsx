@@ -213,6 +213,7 @@ export function ImportWhiteboardDialog({
     <Dialog
       aria-labelledby={dialogTitleId}
       aria-describedby={dialogDescriptionId}
+      container={document.getElementById('widget-root')}
       open={open}
       onClose={handleClose}
       fullWidth

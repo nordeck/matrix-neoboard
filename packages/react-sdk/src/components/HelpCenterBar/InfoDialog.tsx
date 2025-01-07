@@ -59,6 +59,7 @@ export function InfoDialog({ open, onClose }: InfoDialogProps) {
       onClose={onClose}
       fullWidth
       maxWidth="sm"
+      container={document.getElementById('widget-root')}
       aria-labelledby={dialogTitleId}
       aria-describedby={dialogDescriptionId}
     >
