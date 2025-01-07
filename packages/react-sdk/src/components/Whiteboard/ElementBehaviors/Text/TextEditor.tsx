@@ -137,6 +137,7 @@ export function TextEditor({
       onBlur();
 
       setEditMode(false);
+      enableTextTools(false);
     }
   }, [editable, isEditMode, onBlur, enableTextTools]);
 
@@ -148,11 +149,12 @@ export function TextEditor({
 
       if (editable) {
         setEditMode(true);
+        enableTextTools(true);
       } else {
         event.preventDefault();
       }
     },
-    [editable, isEditMode],
+    [editable, isEditMode, enableTextTools],
   );
 
   const handleFocus = useCallback(() => {

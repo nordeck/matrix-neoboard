@@ -15,7 +15,7 @@
  */
 
 import { Box } from '@mui/material';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { isEmptyText } from '../../lib/text-formatting';
 import {
   type Point,
@@ -64,10 +64,10 @@ const WhiteboardHost = ({
     useLayoutState();
   const { activeElementIds } = useActiveElements();
   const overrides = useElementOverrides(activeElementIds);
-  const [areTextToolsVisible, setTextToolsVisible] = useState(false);
+  const [enableTextTools, setEnableTextTools] = useState(false);
 
   // iterate over all activeElements and check if any of them has text content
-  const hasTextElement = useMemo(() => {
+  const hasTextShape = useMemo(() => {
     return activeElementIds.some((id) => {
       const element = slideInstance.getElement(id);
       if (element?.type === 'shape') {
@@ -77,9 +77,7 @@ const WhiteboardHost = ({
     });
   }, [activeElementIds, slideInstance]);
 
-  useEffect(() => {
-    setTextToolsVisible(hasTextElement);
-  }, [activeElementIds, hasTextElement]);
+  const showTextTools = enableTextTools || hasTextShape;
 
   return (
     <Box
@@ -100,7 +98,7 @@ const WhiteboardHost = ({
           !readOnly &&
           activeElementIds.length > 0 && (
             <ElementBarWrapper elementIds={activeElementIds}>
-              <ElementBar showTextTools={areTextToolsVisible} />
+              <ElementBar showTextTools={showTextTools} />
             </ElementBarWrapper>
           )
         }
@@ -123,7 +121,7 @@ const WhiteboardHost = ({
             readOnly={readOnly}
             activeElementIds={activeElementIds}
             overrides={overrides}
-            enableTextTools={setTextToolsVisible}
+            enableTextTools={setEnableTextTools}
           />
         ))}
 
