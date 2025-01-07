@@ -170,7 +170,12 @@ describe('<ToolsBar/>', () => {
     expect(await axe.run(container)).toHaveNoViolations();
   });
 
-  it('should switch to the pen tool', async () => {
+  it('should switch to the pen tool and unselect elements', async () => {
+    const slide = whiteboardManager
+      .getActiveWhiteboardInstance()
+      ?.getSlide('slide-0');
+
+    slide?.setActiveElementIds(['element-0']);
     render(<ToolsBar />, { wrapper: Wrapper });
 
     const toolbar = screen.getByRole('toolbar', { name: 'Tools' });
@@ -186,5 +191,6 @@ describe('<ToolsBar/>', () => {
     await userEvent.click(penTool);
 
     expect(penTool).toBeChecked();
+    expect(slide?.getActiveElementIds()).toEqual([]);
   });
 });
