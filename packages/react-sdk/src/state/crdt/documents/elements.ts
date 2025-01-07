@@ -57,14 +57,16 @@ export type ShapeElement = ElementBase & {
   textSize?: number;
 };
 
+const emptyCoordinateSchema = Joi.any().valid(null, 0, '');
+
 const shapeElementSchema = elementBaseSchema
   .append<ShapeElement>({
     type: Joi.string().valid('shape').required(),
     kind: Joi.string()
       .valid('rectangle', 'circle', 'ellipse', 'triangle')
       .required(),
-    width: Joi.number().strict().min(1).required(),
-    height: Joi.number().strict().min(1).required(),
+    width: Joi.number().strict().empty(emptyCoordinateSchema).default(1),
+    height: Joi.number().strict().empty(emptyCoordinateSchema).default(1),
     fillColor: Joi.string().required(),
     strokeColor: Joi.string().strict(),
     strokeWidth: Joi.number().strict(),
@@ -134,8 +136,8 @@ const imageElementSchema = elementBaseSchema
     mimeType: Joi.string()
       .valid(...Object.keys(defaultAcceptedImageTypes))
       .optional(),
-    width: Joi.number().strict().min(1).required(),
-    height: Joi.number().strict().min(1).required(),
+    width: Joi.number().strict().empty(emptyCoordinateSchema).default(1),
+    height: Joi.number().strict().empty(emptyCoordinateSchema).default(1),
   })
   .required();
 
