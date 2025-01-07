@@ -3,4 +3,4 @@
 '@nordeck/matrix-neoboard-widget': patch
 ---
 
-Apply fullscreen styles to the body element instead of the html element to resolve MUI dialog display issues.
+Fix the issue where the dialog is not displayed in fullscreen mode.
