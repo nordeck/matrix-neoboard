@@ -78,7 +78,7 @@ export default ts.config(
             {
               name: '@mui/material',
               importNames: ['Dialog'],
-              message: 'Pleas use neoboard react SKD Dialog instad',
+              message: 'Please use the Neoboard React SDK Dialog instead.',
             },
           ],
         },
