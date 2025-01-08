@@ -305,6 +305,9 @@
   },
   "snapshotLoadState": {
     "dialog": {
+      "goBackButton": {
+        "label": "Zurück"
+      },
       "text": "Du kannst den Inhalt des Boards erst sehen, wenn ein anderer Nutzer das Board betrachtet.",
       "title": "Das Board kann nicht angezeigt werden"
     }

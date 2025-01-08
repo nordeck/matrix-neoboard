@@ -88,8 +88,6 @@ export const ConnectionStateProvider: React.FC<PropsWithChildren> = function ({
    * Monitor load snapshot state. Display dialog if snapshot load failed.
    */
   useEffect(() => {
-    console.error('MILTON: load failed?', snapshotInfo.snapshotLoadFailed);
-
     if (!snapshotInfo.snapshotLoadFailed) {
       // No load snapshot error - no dialog
       setSnapshotLoadDialogOpen(false);

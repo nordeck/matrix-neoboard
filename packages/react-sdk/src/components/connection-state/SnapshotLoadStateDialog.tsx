@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
+import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import {
+  Button,
   Dialog,
+  DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
@@ -26,15 +29,15 @@ import { useSnapshotLoadState } from './useSnapshotLoadState';
 
 export const SnapshotLoadStateDialog: React.FC = () => {
   const { t } = useTranslation('neoboard');
-  const { snapshotLoadDialogOpen, handleCloseSnapshotLoadDialog } =
-    useSnapshotLoadState();
+  const { snapshotLoadDialogOpen } = useSnapshotLoadState();
+  const embedded = getEnvironment('REACT_APP_EMBEDDED') === 'true';
 
   if (!snapshotLoadDialogOpen) {
     return null;
   }
 
   return (
-    <Dialog onClose={handleCloseSnapshotLoadDialog} open={true}>
+    <Dialog open={true} disableEscapeKeyDown={true}>
       <DialogTitle>
         {t('snapshotLoadState.dialog.title', 'Unable to display the board')}
       </DialogTitle>
@@ -46,6 +49,13 @@ export const SnapshotLoadStateDialog: React.FC = () => {
           )}
         </DialogContentText>
       </DialogContent>
+      {embedded && (
+        <DialogActions>
+          <Button variant="contained" onClick={() => window.location.reload()}>
+            {t('snapshotLoadState.dialog.goBackButton.label', 'Go back')}
+          </Button>
+        </DialogActions>
+      )}
     </Dialog>
   );
 };

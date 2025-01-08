@@ -127,7 +127,6 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
       .subscribe((data) => {
         if (data.length === 0) {
           this.store.dispatch(setSnapshotLoadFailed());
-          return;
         } else {
           try {
             document.mergeFrom(data);
@@ -260,13 +259,12 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
         )(state);
 
         if (!result.isLoading) {
-          this.loadingSubject.next(false);
-
           const snapshotData = result.data;
+
           if (snapshotData) {
+            this.loadingSubject.next(false);
             observer.next(snapshotData.data);
           } else {
-            console.error('MILTON: Snapshot data is not available.', result);
             observer.next('');
           }
         }
