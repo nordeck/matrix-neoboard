@@ -29,11 +29,13 @@ export const ConnectedElement = ({
   readOnly = false,
   activeElementIds = [],
   overrides = {},
+  setTextToolsEnabled = () => {},
 }: {
   id: string;
   readOnly?: boolean;
   activeElementIds?: string[];
   overrides?: Elements;
+  setTextToolsEnabled?: (enabled: boolean) => void;
 }) => {
   const widgetApi = useWidgetApi();
   const element = useElementOverride(id);
@@ -59,11 +61,29 @@ export const ConnectedElement = ({
       }
     } else if (element.type === 'shape') {
       if (element.kind === 'circle' || element.kind === 'ellipse') {
-        return <EllipseDisplay {...element} {...otherProps} />;
+        return (
+          <EllipseDisplay
+            {...element}
+            {...otherProps}
+            setTextToolsEnabled={setTextToolsEnabled}
+          />
+        );
       } else if (element.kind === 'rectangle') {
-        return <RectangleDisplay {...element} {...otherProps} />;
+        return (
+          <RectangleDisplay
+            {...element}
+            {...otherProps}
+            setTextToolsEnabled={setTextToolsEnabled}
+          />
+        );
       } else if (element.kind === 'triangle') {
-        return <TriangleDisplay {...element} {...otherProps} />;
+        return (
+          <TriangleDisplay
+            {...element}
+            {...otherProps}
+            setTextToolsEnabled={setTextToolsEnabled}
+          />
+        );
       }
     } else if (element.type === 'image') {
       if (widgetApi.widgetParameters.baseUrl === undefined) {

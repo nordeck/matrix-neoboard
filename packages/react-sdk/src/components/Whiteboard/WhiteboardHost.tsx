@@ -15,8 +15,10 @@
  */
 
 import { Box } from '@mui/material';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import {
+  includesShapeWithText,
+  includesTextShape,
   type Point,
   useActiveElements,
   useIsWhiteboardLoading,
@@ -63,6 +65,13 @@ const WhiteboardHost = ({
     useLayoutState();
   const { activeElementIds } = useActiveElements();
   const overrides = useElementOverrides(activeElementIds);
+  const [textToolsEnabled, setTextToolsEnabled] = useState(false);
+
+  const hasElementWithText =
+    includesTextShape(Object.values(overrides)) ||
+    includesShapeWithText(Object.values(overrides));
+
+  const showTextTools = textToolsEnabled || hasElementWithText;
 
   return (
     <Box
@@ -83,7 +92,7 @@ const WhiteboardHost = ({
           !readOnly &&
           activeElementIds.length > 0 && (
             <ElementBarWrapper elementIds={activeElementIds}>
-              <ElementBar />
+              <ElementBar showTextTools={showTextTools} />
             </ElementBarWrapper>
           )
         }
@@ -106,6 +115,7 @@ const WhiteboardHost = ({
             readOnly={readOnly}
             activeElementIds={activeElementIds}
             overrides={overrides}
+            setTextToolsEnabled={setTextToolsEnabled}
           />
         ))}
 

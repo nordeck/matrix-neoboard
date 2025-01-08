@@ -72,6 +72,7 @@ const EllipseDisplay = ({
           height={text.height}
           fillColor={shape.fillColor}
           fontSize={text.fontSize}
+          setTextToolsEnabled={shape.setTextToolsEnabled}
         />
       )}
     </g>

@@ -90,6 +90,18 @@ describe('<ElementBar/>', () => {
     ).toBeInTheDocument();
 
     expect(
+      within(toolbar).getByRole('checkbox', {
+        name: 'Bold',
+      }),
+    ).toBeInTheDocument();
+
+    expect(
+      within(toolbar).getByRole('checkbox', {
+        name: 'Italic',
+      }),
+    ).toBeInTheDocument();
+
+    expect(
       within(toolbar).getByRole('button', {
         name: 'Pick a text color',
       }),
@@ -106,6 +118,59 @@ describe('<ElementBar/>', () => {
         name: 'Text Alignment',
       }),
     ).toBeInTheDocument();
+
+    expect(
+      within(toolbar).getByRole('button', {
+        name: 'Duplicate the active element',
+      }),
+    ).toBeInTheDocument();
+
+    expect(
+      within(toolbar).getByRole('button', { name: 'Delete element' }),
+    ).toBeInTheDocument();
+  });
+
+  it('should not render text tools when not required', () => {
+    activeSlide.setActiveElementIds(['element-2']);
+    render(<ElementBar showTextTools={false} />, { wrapper: Wrapper });
+
+    const toolbar = screen.getByRole('toolbar', { name: 'Element' });
+
+    expect(
+      within(toolbar).queryByRole('combobox', {
+        name: 'Select font size',
+      }),
+    ).not.toBeInTheDocument();
+
+    expect(
+      within(toolbar).queryByRole('checkbox', {
+        name: 'Bold',
+      }),
+    ).not.toBeInTheDocument();
+
+    expect(
+      within(toolbar).queryByRole('checkbox', {
+        name: 'Italic',
+      }),
+    ).not.toBeInTheDocument();
+
+    expect(
+      within(toolbar).queryByRole('button', {
+        name: 'Pick a text color',
+      }),
+    ).not.toBeInTheDocument();
+
+    expect(
+      within(toolbar).getByRole('button', {
+        name: 'Pick a color',
+      }),
+    ).toBeInTheDocument();
+
+    expect(
+      within(toolbar).queryByRole('radiogroup', {
+        name: 'Text Alignment',
+      }),
+    ).not.toBeInTheDocument();
 
     expect(
       within(toolbar).getByRole('button', {

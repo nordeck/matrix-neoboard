@@ -97,6 +97,15 @@ describe('<Display />', () => {
       >
         <line
           fill="none"
+          stroke="transparent"
+          stroke-width="14"
+          x1="0"
+          x2="2"
+          y1="2"
+          y2="4"
+        />
+        <line
+          fill="none"
           stroke="#ffffff"
           stroke-width="4"
           x1="0"
@@ -144,6 +153,15 @@ describe('<Display />', () => {
             stroke="#ffffff"
           />
         </marker>
+        <line
+          fill="none"
+          stroke="transparent"
+          stroke-width="14"
+          x1="0"
+          x2="2"
+          y1="2"
+          y2="4"
+        />
         <line
           fill="none"
           marker-end="url(#end-marker-id-1)"
