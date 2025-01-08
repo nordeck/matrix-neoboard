@@ -124,24 +124,19 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
 
     concat(storageObservable, snapshotsObservable)
       .pipe(takeUntil(this.destroySubject))
-      .subscribe({
-        next: (data) => {
+      .subscribe((data) => {
+        if (data.length === 0) {
+          this.store.dispatch(setSnapshotLoadFailed());
+          return;
+        } else {
           try {
             document.mergeFrom(data);
-            console.log('MILTON: MERGE FROM DATA', data);
             this.store.dispatch(setSnapshotLoadSuccessful());
           } catch (ex) {
             this.logger.error('Error while merging remote document', ex);
+            this.store.dispatch(setSnapshotLoadFailed());
           }
-        },
-        error: (error) => {
-          console.error(
-            'MILTON: Could not load snapshot for',
-            documentId,
-            error,
-          );
-          this.store.dispatch(setSnapshotLoadFailed());
-        },
+        }
       });
 
     this.document
@@ -265,16 +260,15 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
         )(state);
 
         if (!result.isLoading) {
-          const snapshotData = result.data;
+          this.loadingSubject.next(false);
 
+          const snapshotData = result.data;
           if (snapshotData) {
             observer.next(snapshotData.data);
           } else {
             console.error('MILTON: Snapshot data is not available.', result);
-            observer.error(new Error('Snapshot data is not available.'));
+            observer.next('');
           }
-
-          this.loadingSubject.next(false);
         }
       });
 
