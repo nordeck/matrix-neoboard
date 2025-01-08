@@ -16,7 +16,7 @@
 
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { findColor, useColorPalette } from '../../../lib';
+import { findColor, findForegroundColor, useColorPalette } from '../../../lib';
 import {
   includesShapeWithText,
   includesTextShape,
@@ -50,7 +50,18 @@ export function TextColorPicker() {
 
   const defaultShade = hasTextShape ? activeShapeTextShade : activeTextShade;
 
-  const color = extractFirstTextColor(activeElements);
+  let color = extractFirstTextColor(activeElements);
+
+  // Gets a default color when there is no text, based on the fill color of the first
+  // selected element. This is required for when the text formatting tools are shown
+  // if you start typing new text into a shape
+  if (color == undefined) {
+    const element = activeElements[0];
+    if (element && 'fillColor' in element) {
+      color = findForegroundColor(element.fillColor);
+    }
+  }
+
   const paletteColor =
     color !== undefined ? findColor(color, colorPalette) : undefined;
   const shade =

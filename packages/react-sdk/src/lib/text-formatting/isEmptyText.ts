@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Nordeck IT + Consulting GmbH
+ * Copyright 2024 Nordeck IT + Consulting GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-import { Elements } from '../../../../state/types';
+export function isEmptyText(text?: string | null) {
+  if (text === undefined || text === null) {
+    return true;
+  }
 
-export type WithSelectionProps = {
-  readOnly: boolean;
-  active: boolean;
-  elementId: string;
-};
+  if (text.trim() === '') {
+    return true;
+  }
 
-export type WithExtendedSelectionProps = WithSelectionProps & {
-  activeElementIds?: string[];
-  overrides?: Elements;
-  setTextToolsEnabled?: (enabled: boolean) => void;
-};
+  return false;
+}

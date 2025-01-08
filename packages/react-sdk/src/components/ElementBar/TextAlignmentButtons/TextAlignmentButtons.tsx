@@ -46,16 +46,6 @@ export function TextAlignmentButtons() {
   );
 
   const elementsArray = Object.values(elements);
-
-  const onlyNonShapes = elementsArray.every(function (element) {
-    return element.type !== 'shape';
-  });
-
-  if (onlyNonShapes) {
-    // There is no text alignment tool for only non-shapes
-    return null;
-  }
-
   let textAlignment: TextAlignment = 'center';
 
   for (const element of elementsArray) {
