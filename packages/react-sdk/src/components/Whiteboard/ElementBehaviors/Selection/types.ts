@@ -25,5 +25,5 @@ export type WithSelectionProps = {
 export type WithExtendedSelectionProps = WithSelectionProps & {
   activeElementIds?: string[];
   overrides?: Elements;
-  enableTextTools?: (isVisible: boolean) => void;
+  setTextToolsEnabled?: (enabled: boolean) => void;
 };

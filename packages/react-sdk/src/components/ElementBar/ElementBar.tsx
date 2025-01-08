@@ -39,8 +39,8 @@ export function ElementBar({
           <FontSizeButton />
           <TextBoldButton />
           <TextItalicButton />
-          <TextColorPicker />
           <TextAlignmentButtons />
+          <TextColorPicker />
         </>
       )}
       <ElementColorPicker />

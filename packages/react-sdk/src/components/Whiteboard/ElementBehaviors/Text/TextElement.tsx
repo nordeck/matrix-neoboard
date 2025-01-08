@@ -51,7 +51,7 @@ export type TextElementProps = {
   textColor?: string;
   fontSize?: number;
 
-  enableTextTools: ((isVisible: boolean) => void) | undefined;
+  setTextToolsEnabled: ((enabled: boolean) => void) | undefined;
 };
 
 export const TextElement = ({
@@ -68,7 +68,7 @@ export const TextElement = ({
   elementId,
   textColor,
   fontSize,
-  enableTextTools,
+  setTextToolsEnabled,
 }: TextElementProps) => {
   const slideInstance = useWhiteboardSlideInstance();
   const [unsubmittedText, setUnsubmittedText] = useState(text);
@@ -122,7 +122,7 @@ export const TextElement = ({
         height={height}
         width={width}
         fontSize={fontSize}
-        enableTextTools={enableTextTools}
+        setTextToolsEnabled={setTextToolsEnabled}
       />
     </ForeignObjectNoInteraction>
   );

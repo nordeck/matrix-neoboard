@@ -51,6 +51,10 @@ export function TextColorPicker() {
   const defaultShade = hasTextShape ? activeShapeTextShade : activeTextShade;
 
   let color = extractFirstTextColor(activeElements);
+
+  // Gets a default color when there is no text, based on the fill color of the first
+  // selected element. This is required for when the text formatting tools are shown
+  // if you start typing new text into a shape
   if (color == undefined) {
     const element = activeElements[0];
     if (element && 'fillColor' in element) {

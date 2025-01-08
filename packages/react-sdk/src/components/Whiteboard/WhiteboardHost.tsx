@@ -15,9 +15,10 @@
  */
 
 import { Box } from '@mui/material';
-import { useCallback, useMemo, useState } from 'react';
-import { isEmptyText } from '../../lib/text-formatting';
+import { useCallback, useState } from 'react';
 import {
+  includesShapeWithText,
+  includesTextShape,
   type Point,
   useActiveElements,
   useIsWhiteboardLoading,
@@ -64,20 +65,13 @@ const WhiteboardHost = ({
     useLayoutState();
   const { activeElementIds } = useActiveElements();
   const overrides = useElementOverrides(activeElementIds);
-  const [enableTextTools, setEnableTextTools] = useState(false);
+  const [textToolsEnabled, setTextToolsEnabled] = useState(false);
 
-  // iterate over all activeElements and check if any of them has text content
-  const hasTextShape = useMemo(() => {
-    return activeElementIds.some((id) => {
-      const element = slideInstance.getElement(id);
-      if (element?.type === 'shape') {
-        return !isEmptyText(element.text);
-      }
-      return false;
-    });
-  }, [activeElementIds, slideInstance]);
+  const hasElementWithText =
+    includesTextShape(Object.values(overrides)) ||
+    includesShapeWithText(Object.values(overrides));
 
-  const showTextTools = enableTextTools || hasTextShape;
+  const showTextTools = textToolsEnabled || hasElementWithText;
 
   return (
     <Box
@@ -121,7 +115,7 @@ const WhiteboardHost = ({
             readOnly={readOnly}
             activeElementIds={activeElementIds}
             overrides={overrides}
-            enableTextTools={setEnableTextTools}
+            setTextToolsEnabled={setTextToolsEnabled}
           />
         ))}
 

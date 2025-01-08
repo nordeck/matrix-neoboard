@@ -107,7 +107,7 @@ export type TextEditorProps = {
   height: number;
   fontSize?: number;
   editModeOnMount: boolean;
-  enableTextTools: ((isVisible: boolean) => void) | undefined;
+  setTextToolsEnabled: ((enabled: boolean) => void) | undefined;
 };
 
 // TODO: Consider an alternative to content-editable. Right now it allows to do unexpected things
@@ -126,7 +126,7 @@ export function TextEditor({
   height,
   fontSize,
   editModeOnMount = false,
-  enableTextTools = () => {},
+  setTextToolsEnabled = () => {},
 }: TextEditorProps) {
   const textRef = useRef<HTMLDivElement>(null);
   const [isEditMode, setEditMode] = useState(editModeOnMount);
@@ -137,9 +137,9 @@ export function TextEditor({
       onBlur();
 
       setEditMode(false);
-      enableTextTools(false);
+      setTextToolsEnabled(false);
     }
-  }, [editable, isEditMode, onBlur, enableTextTools]);
+  }, [editable, isEditMode, onBlur, setTextToolsEnabled]);
 
   const handleDoubleClick = useCallback(
     (event: MouseEvent) => {
@@ -149,12 +149,12 @@ export function TextEditor({
 
       if (editable) {
         setEditMode(true);
-        enableTextTools(true);
+        setTextToolsEnabled(true);
       } else {
         event.preventDefault();
       }
     },
-    [editable, isEditMode, enableTextTools],
+    [editable, isEditMode, setTextToolsEnabled],
   );
 
   const handleFocus = useCallback(() => {
@@ -181,11 +181,11 @@ export function TextEditor({
       if (textRef.current) {
         fitText(textRef.current, fontSize, contentBold, contentItalic);
         if (!isEmptyText(textRef.current.innerText)) {
-          enableTextTools(true);
+          setTextToolsEnabled(true);
         }
       }
     });
-  }, [fontSize, contentBold, contentItalic, enableTextTools]);
+  }, [fontSize, contentBold, contentItalic, setTextToolsEnabled]);
 
   const handleKeyUp = useCallback(() => {
     if (textRef.current) {
