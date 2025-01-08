@@ -21,7 +21,6 @@ import {
   Box,
   Button,
   CircularProgress,
-  Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
@@ -37,6 +36,7 @@ import {
   WhiteboardDocumentExport,
 } from '../../state';
 import { importWhiteboard } from '../../state/import';
+import { Dialog } from '../common/Dialog';
 import { useImageUpload } from '../ImageUpload';
 import { readNWB, readPDF } from './fileHandlers';
 import { ImportedWhiteboard } from './types';
@@ -213,7 +213,6 @@ export function ImportWhiteboardDialog({
     <Dialog
       aria-labelledby={dialogTitleId}
       aria-describedby={dialogDescriptionId}
-      container={document.getElementById('widget-root')}
       open={open}
       onClose={handleClose}
       fullWidth

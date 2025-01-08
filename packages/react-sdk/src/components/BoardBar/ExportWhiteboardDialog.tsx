@@ -18,7 +18,6 @@ import CloseIcon from '@mui/icons-material/Close';
 import {
   Alert,
   Button,
-  Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
@@ -35,6 +34,7 @@ import {
 import { unstable_useId as useId, visuallyHidden } from '@mui/utils';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Dialog } from '../common/Dialog';
 import { ExportWhiteboardDialogDownloadFile } from './ExportWhiteboardDialogDownloadFile';
 import { ExportWhiteboardDialogDownloadPdf } from './ExportWhiteboardDialogDownloadPdf';
 
@@ -54,7 +54,6 @@ export function ExportWhiteboardDialog({
     <Dialog
       aria-labelledby={dialogTitleId}
       aria-describedby={dialogDescriptionId}
-      container={document.getElementById('widget-root')}
       open={open}
       onClose={onClose}
       maxWidth="sm"

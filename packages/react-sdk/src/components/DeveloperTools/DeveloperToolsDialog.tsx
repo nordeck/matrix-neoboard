@@ -21,7 +21,6 @@ import {
   AccordionDetails,
   AccordionSummary,
   Box,
-  Dialog,
   DialogContent,
   DialogTitle,
   IconButton,
@@ -31,6 +30,7 @@ import {
 import { unstable_useId as useId } from '@mui/utils';
 import { useTranslation } from 'react-i18next';
 import { useActiveWhiteboardInstanceStatistics } from '../../state';
+import { Dialog } from '../common/Dialog';
 import { CommunicationChannelStatisticsView } from './CommunicationChannelStatisticsView';
 import { DocumentSyncStatisticsView } from './DocumentSyncStatisticsView';
 import { WhiteboardSessionsTable } from './WhiteboardSessions';
@@ -44,7 +44,7 @@ export function DeveloperToolsDialog({
 }) {
   const { t } = useTranslation('neoboard');
 
-  const { document: communicationDocument, communicationChannel } =
+  const { document, communicationChannel } =
     useActiveWhiteboardInstanceStatistics();
 
   const dialogTitleId = useId();
@@ -58,7 +58,6 @@ export function DeveloperToolsDialog({
       maxWidth="md"
       aria-labelledby={dialogTitleId}
       aria-describedby={dialogDescriptionId}
-      container={document.getElementById('widget-root')}
     >
       <DialogTitle
         id={dialogTitleId}
@@ -99,7 +98,7 @@ export function DeveloperToolsDialog({
               </Typography>
             </AccordionSummary>
             <AccordionDetails>
-              <DocumentSyncStatisticsView document={communicationDocument} />
+              <DocumentSyncStatisticsView document={document} />
             </AccordionDetails>
           </Accordion>
 

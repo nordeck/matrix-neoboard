@@ -18,7 +18,6 @@ import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import CloseIcon from '@mui/icons-material/Close';
 import {
   Button,
-  Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
@@ -33,6 +32,7 @@ import { unstable_useId as useId } from '@mui/utils';
 import { DispatchWithoutAction, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CopyableText } from '../common/CopyableText';
+import { Dialog } from '../common/Dialog';
 
 type InfoDialogProps = {
   open: boolean;
@@ -59,7 +59,6 @@ export function InfoDialog({ open, onClose }: InfoDialogProps) {
       onClose={onClose}
       fullWidth
       maxWidth="sm"
-      container={document.getElementById('widget-root')}
       aria-labelledby={dialogTitleId}
       aria-describedby={dialogDescriptionId}
     >

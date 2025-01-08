@@ -16,7 +16,6 @@
 
 import {
   Button,
-  Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
@@ -24,6 +23,7 @@ import {
 } from '@mui/material';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Dialog } from '../common/Dialog';
 import { useConnectionState } from './useConnectionState';
 
 export const ConnectionStateDialog: React.FC = () => {
@@ -53,11 +53,7 @@ export const ConnectionStateDialog: React.FC = () => {
   }
 
   return (
-    <Dialog
-      container={document.getElementById('widget-root')}
-      onClose={handleCloseConnectionStateDialog}
-      open={true}
-    >
+    <Dialog onClose={handleCloseConnectionStateDialog} open={true}>
       <DialogTitle>
         {t('connectionState.dialog.title', 'Your changes are not saved')}
       </DialogTitle>

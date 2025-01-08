@@ -75,6 +75,11 @@ export default ts.config(
               importNames: ['act'],
               message: 'Please import "act" from "react" instead',
             },
+            {
+              name: '@mui/material',
+              importNames: ['Dialog'],
+              message: 'Pleas use neoboard react SKD Dialog instad',
+            },
           ],
         },
       ],
