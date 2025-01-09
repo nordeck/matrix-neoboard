@@ -45,7 +45,7 @@ export const SnapshotLoadStateDialog: React.FC = () => {
         <DialogContentText>
           {t(
             'snapshotLoadState.dialog.text',
-            'You will be able to see the contents of the board as soon as another user is viewing the board.',
+            'You will be able to see the contents when another user is working on the board.',
           )}
         </DialogContentText>
       </DialogContent>
