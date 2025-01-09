@@ -90,7 +90,12 @@ export function ImportWhiteboardDialogProvider({
       }}
     >
       <div {...getRootProps()}></div>
-      <input {...getInputProps()} data-testid="import-file-picker" />
+      {/* We are hiding it for screen readers and instead expect the dialog to be used */}
+      <input
+        {...getInputProps()}
+        data-testid="import-file-picker"
+        aria-hidden
+      />
       <ImportWhiteboardDialog
         open={openImportWhiteboardDialog}
         atSlideIndex={atSlideIndex}
