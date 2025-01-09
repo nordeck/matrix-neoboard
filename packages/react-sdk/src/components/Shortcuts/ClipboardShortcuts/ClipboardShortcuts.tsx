@@ -14,12 +14,17 @@
  * limitations under the License.
  */
 
+import { useWidgetApi } from '@matrix-widget-toolkit/react';
 import { useEffect } from 'react';
 import { useHotkeysContext } from 'react-hotkeys-hook';
+import { determineImageSize } from '../../../lib/determineImageSize';
 import {
+  ImageElement,
+  ImageMimeType,
   usePresentationMode,
   useWhiteboardSlideInstance,
 } from '../../../state';
+import { defaultAcceptedImageTypesArray } from '../../ImageUpload/consts';
 import { HOTKEY_SCOPE_WHITEBOARD } from '../../WhiteboardHotkeysProvider';
 import {
   ClipboardContent,
@@ -48,6 +53,7 @@ export function ClipboardShortcuts() {
   const slideInstance = useWhiteboardSlideInstance();
   const { state: presentationState } = usePresentationMode();
   const isViewingPresentation = presentationState.type === 'presentation';
+  const widgetApi = useWidgetApi();
 
   // Copy event is triggered by the default keyboard shortcut for copying in the
   // browser, usually Ctrl/Meta+C
@@ -131,7 +137,7 @@ export function ClipboardShortcuts() {
   // Paste event is triggered by the default keyboard shortcut for pasting in
   // the browser, usually Ctrl/Meta+V
   useEffect(() => {
-    const handler = (event: ClipboardEvent) => {
+    const handler = async (event: ClipboardEvent) => {
       if (!enableShortcuts) {
         return;
       }
@@ -147,11 +153,44 @@ export function ClipboardShortcuts() {
         const pastedElementIds = slideInstance.addElements(elements);
         slideInstance.setActiveElementIds(pastedElementIds);
       }
+
+      // Handle image files
+      const files = event.clipboardData?.files;
+      if (files && files.length > 0) {
+        const imageFiles = Array.from(files).filter((file) =>
+          defaultAcceptedImageTypesArray.includes(file.type),
+        );
+
+        if (imageFiles.length > 0) {
+          const promises = imageFiles.map(async (file) => {
+            const fileContent = await file.arrayBuffer();
+            const size = await determineImageSize(
+              fileContent,
+              file.type as ImageMimeType,
+            );
+            const uploadResult = await widgetApi.uploadFile(fileContent);
+            const imageElement: ImageElement = {
+              type: 'image',
+              mxc: uploadResult.content_uri,
+              fileName: file.name,
+              position: { x: 0, y: 0 },
+              mimeType: file.type as ImageMimeType,
+              width: size.width,
+              height: size.height,
+            };
+            return imageElement;
+          });
+
+          const imageElements = await Promise.all(promises);
+          const pastedImageIds = slideInstance.addElements(imageElements);
+          slideInstance.setActiveElementIds(pastedImageIds);
+        }
+      }
     };
 
     document.addEventListener('paste', handler);
     return () => document.removeEventListener('paste', handler);
-  }, [enableShortcuts, isViewingPresentation, slideInstance]);
+  }, [enableShortcuts, isViewingPresentation, slideInstance, widgetApi]);
 
   return null;
 }
