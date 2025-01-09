@@ -58,6 +58,7 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
 {
   private readonly logger = getLogger('SynchronizedDocument');
   private readonly loadingSubject = new BehaviorSubject<boolean>(true);
+  private readonly loadingDone = new BehaviorSubject<boolean>(false);
   private readonly destroySubject = new Subject<void>();
   private readonly statisticsSubject = new Subject<DocumentSyncStatistics>();
   private readonly statistics: DocumentSyncStatistics = {
@@ -125,16 +126,11 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
     concat(storageObservable, snapshotsObservable)
       .pipe(takeUntil(this.destroySubject))
       .subscribe((data) => {
-        if (data.length === 0) {
-          this.store.dispatch(setSnapshotLoadFailed());
-        } else {
-          try {
-            document.mergeFrom(data);
-            this.store.dispatch(setSnapshotLoadSuccessful());
-          } catch (ex) {
-            this.logger.error('Error while merging remote document', ex);
-            this.store.dispatch(setSnapshotLoadFailed());
-          }
+        try {
+          document.mergeFrom(data);
+          this.store.dispatch(setSnapshotLoadSuccessful());
+        } catch (ex) {
+          this.logger.error('Error while merging remote document', ex);
         }
       });
 
@@ -147,7 +143,7 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
       .subscribe();
 
     combineLatest({
-      loading: this.observeIsLoading().pipe(filter((loading) => !loading)),
+      loading: this.observeLoadingDone().pipe(filter((done) => !done)),
       doc: this.document.observePersist().pipe(
         tap(() => {
           this.statistics.snapshotOutstanding = true;
@@ -195,6 +191,7 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
     this.destroySubject.next();
     this.statisticsSubject.complete();
     this.loadingSubject.complete();
+    this.loadingDone.complete();
   }
 
   observeDocumentStatistics(): Observable<DocumentSyncStatistics> {
@@ -203,6 +200,10 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
 
   observeIsLoading(): Observable<boolean> {
     return this.loadingSubject.pipe(distinctUntilChanged());
+  }
+
+  observeLoadingDone(): Observable<boolean> {
+    return this.loadingDone.pipe(distinctUntilChanged());
   }
 
   private async persistDocument(doc: Document<T>) {
@@ -248,6 +249,8 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
     validator?: DocumentSnapshotValidator,
   ) {
     return new Observable<string>((observer) => {
+      let snapshotLoadDispatch = false;
+
       const unsubscribe = this.store.subscribe(() => {
         const state = this.store.getState();
 
@@ -265,8 +268,12 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
             this.loadingSubject.next(false);
             observer.next(snapshotData.data);
           } else {
-            observer.next('');
+            if (!snapshotLoadDispatch) {
+              snapshotLoadDispatch = true;
+              this.store.dispatch(setSnapshotLoadFailed());
+            }
           }
+          this.loadingDone.next(true);
         }
       });
 

@@ -116,11 +116,13 @@ export const documentSnapshotApi = baseApi.injectEndpoints({
           getCacheEntry().data?.event.origin_server_ts,
           validator,
         );
+
         const snapshotSubscription = widgetApi
           .observeRoomEvents(ROOM_EVENT_DOCUMENT_SNAPSHOT)
           .pipe(filter(isValidDocumentSnapshotRoomEvent))
           .subscribe((snapshot) => {
             snapshotBacklog.registerSnapshot(snapshot);
+
             const result = snapshotBacklog.findCompleteSnapshot();
             if (result) {
               dispatch(
@@ -285,6 +287,7 @@ export async function findLatestSnapshot(
       eventType: ROOM_EVENT_DOCUMENT_SNAPSHOT,
       from: fromSnapshot,
     });
+
     const snapshots = result.chunk.filter(isValidDocumentSnapshotRoomEvent);
 
     for (const snapshot of snapshots) {
@@ -332,6 +335,7 @@ async function* findChunks(
       eventType: ROOM_EVENT_DOCUMENT_CHUNK,
       from: fromChunk,
     });
+
     for (const chunk of result.chunk.filter(isValidDocumentChunkRoomEvent)) {
       yield chunk;
     }
