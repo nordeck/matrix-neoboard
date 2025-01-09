@@ -24,6 +24,7 @@ import {
   calculateBoundingRectForElements,
   calculateCentredPosition,
   calculateFittedElementSize,
+  elementSchema,
   includesTextShape,
   isShapeWithText,
   isTextShape,
@@ -145,14 +146,8 @@ describe('isValidElement', () => {
     { kind: null },
     { kind: 111 },
     { kind: 'other' },
-    { width: undefined },
-    { width: null },
     { width: '111' },
-    { width: 0 },
-    { height: undefined },
-    { height: null },
     { height: '111' },
-    { height: 0 },
     { fillColor: undefined },
     { fillColor: null },
     { fillColor: 111 },
@@ -224,14 +219,8 @@ describe('isValidElement', () => {
     { position: null },
     { position: 111 },
     { position: {} },
-    { width: undefined },
-    { width: null },
     { width: '111' },
-    { width: 0 },
-    { height: undefined },
-    { height: null },
     { height: '111' },
-    { height: 0 },
   ])('should reject an image event with patch %j', (patch: object) => {
     const data = {
       type: 'image',
@@ -245,6 +234,49 @@ describe('isValidElement', () => {
 
     expect(isValidElement(data)).toBe(false);
   });
+
+  it.each<object>([
+    { width: null, height: null },
+    { width: undefined, height: undefined },
+    { width: '', height: '' },
+    { width: 0, height: 0 },
+  ])(
+    'should use default shape values for width and height',
+    (patch: object) => {
+      const data = {
+        type: 'shape',
+        kind: 'rectangle',
+        position: { x: 10, y: 20 },
+        ...patch,
+      };
+
+      const result = elementSchema.validate(data);
+      expect(result.value.width).toBe(1);
+      expect(result.value.height).toBe(1);
+    },
+  );
+
+  it.each<object>([
+    { width: null, height: null },
+    { width: undefined, height: undefined },
+    { width: '', height: '' },
+    { width: 0, height: 0 },
+  ])(
+    'should use default image values for width and height',
+    (patch: object) => {
+      const data = {
+        type: 'image',
+        mxc: 'mxc://example.com/test1234',
+        fileName: 'example.jpg',
+        position: { x: 10, y: 20 },
+        ...patch,
+      };
+
+      const result = elementSchema.validate(data);
+      expect(result.value.width).toBe(1);
+      expect(result.value.height).toBe(1);
+    },
+  );
 });
 
 describe('calculateBoundingRectForElements', () => {
