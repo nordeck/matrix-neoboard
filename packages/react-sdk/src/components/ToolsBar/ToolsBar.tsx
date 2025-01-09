@@ -99,37 +99,39 @@ export function ToolsBar() {
   const { getRootProps, getInputProps } = useSlideImageUpload({ noDrag: true });
 
   return (
-    <Toolbar
-      aria-label={toolsBarTitle}
-      sx={{ pointerEvents: 'initial' }}
-      data-guided-tour-target="toolsbar"
-    >
-      <ToolbarRadioGroup flexWrap="wrap" aria-label={toolsBarTitle}>
-        {tools.map(({ label, icon, value }) => (
-          <ToolbarRadio
-            inputProps={{ 'aria-label': label }}
+    <>
+      {/* We are hiding it for screen readers and instead expect the button to be used */}
+      <input aria-hidden={true} {...getInputProps()} onClick={undefined} />
+      <Toolbar
+        aria-label={toolsBarTitle}
+        sx={{ pointerEvents: 'initial' }}
+        data-guided-tour-target="toolsbar"
+      >
+        <ToolbarRadioGroup flexWrap="wrap" aria-label={toolsBarTitle}>
+          {tools.map(({ label, icon, value }) => (
+            <ToolbarRadio
+              inputProps={{ 'aria-label': label }}
+              disabled={isLocked}
+              icon={icon}
+              checkedIcon={icon}
+              key={value}
+              value={value}
+              checked={activeTool === value && !isLocked}
+              onChange={handleRadioClick}
+            />
+          ))}
+          <ToolbarButton
+            aria-label={t('toolsBar.imageUploadTool', 'Upload image')}
             disabled={isLocked}
-            icon={icon}
-            checkedIcon={icon}
-            key={value}
-            value={value}
-            checked={activeTool === value && !isLocked}
-            onChange={handleRadioClick}
-          />
-        ))}
-        <ToolbarButton
-          aria-label={t('toolsBar.imageUploadTool', 'Upload image')}
-          disabled={isLocked}
-          {...getRootProps()}
-          // This must be button and it MUST be after getRootProps as the dropzone would otherwise set it to the "presentation" role
-          // However in this case we want it to be a button
-          role="button"
-        >
-          {/* We are hiding it for screen readers and instead expect the button to be used */}
-          <input aria-hidden={true} {...getInputProps()} onClick={undefined} />
-          <UploadIcon sx={{ height: 22 }} />
-        </ToolbarButton>
-      </ToolbarRadioGroup>
-    </Toolbar>
+            {...getRootProps()}
+            // This must be button and it MUST be after getRootProps as the dropzone would otherwise set it to the "presentation" role
+            // However in this case we want it to be a button
+            role="button"
+          >
+            <UploadIcon sx={{ height: 22 }} />
+          </ToolbarButton>
+        </ToolbarRadioGroup>
+      </Toolbar>
+    </>
   );
 }
