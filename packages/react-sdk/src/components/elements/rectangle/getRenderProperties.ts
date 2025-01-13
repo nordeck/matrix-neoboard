@@ -20,10 +20,11 @@ import { ElementRenderProperties } from '../../Whiteboard';
 export function getRenderProperties(
   shape: ShapeElement,
 ): ElementRenderProperties {
-  const padding = 10;
-
   const width = shape.width;
   const height = shape.height;
+
+  const verticalPaddingVertical = height > 40 ? 10 : 2;
+  const horizontalPadding = width > 40 ? 10 : 2;
 
   return {
     strokeColor: shape.strokeColor ?? shape.fillColor,
@@ -32,11 +33,11 @@ export function getRenderProperties(
 
     text: {
       position: {
-        x: shape.position.x + padding,
-        y: shape.position.y + padding,
+        x: shape.position.x + horizontalPadding,
+        y: shape.position.y + verticalPaddingVertical,
       },
-      width: width - padding * 2,
-      height: height - padding * 2,
+      width: width - horizontalPadding * 2,
+      height: height - verticalPaddingVertical * 2,
       alignment: shape.textAlignment ?? 'center',
       bold: shape.textBold ?? false,
       italic: shape.textItalic ?? false,
