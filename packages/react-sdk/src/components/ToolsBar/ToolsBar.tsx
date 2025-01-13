@@ -21,7 +21,7 @@ import SquareIcon from '@mui/icons-material/Square';
 import TitleRoundedIcon from '@mui/icons-material/TitleRounded';
 import { ChangeEvent, ReactElement, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSlideIsLocked } from '../../state';
+import { useSlideIsLocked, useWhiteboardSlideInstance } from '../../state';
 import { Toolbar, ToolbarButton, ToolbarRadioGroup } from '../common/Toolbar';
 import { ToolbarRadio } from '../common/Toolbar/ToolbarRadio';
 import { CursorDefaultIcon } from '../icons/CursorDefaultIcon';
@@ -35,15 +35,18 @@ import { ActiveTool, useLayoutState } from '../Layout';
 export function ToolsBar() {
   const { t } = useTranslation('neoboard');
   const isLocked = useSlideIsLocked();
+  const slide = useWhiteboardSlideInstance();
   const { activeTool, setActiveTool } = useLayoutState();
 
   const handleRadioClick = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
       if (event.target.checked) {
         setActiveTool(event.target.value as ActiveTool);
+        // Clear active elements, so that when using a tool the active elements are not in the way
+        slide.setActiveElementIds([]);
       }
     },
-    [setActiveTool],
+    [setActiveTool, slide],
   );
 
   const tools: Array<{ label: string; icon: ReactElement; value: ActiveTool }> =
