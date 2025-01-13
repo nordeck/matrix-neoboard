@@ -33,6 +33,7 @@ import {
 import { useLayoutState } from '../../../Layout';
 import { HOTKEY_SCOPE_WHITEBOARD } from '../../../WhiteboardHotkeysProvider';
 import { useSvgCanvasContext } from '../../SvgCanvas';
+import { zoomStep } from '../../constants';
 
 export function UnSelectElementHandler() {
   const { activeElementId } = useActiveElement();
@@ -131,7 +132,7 @@ export function UnSelectElementHandler() {
         return;
       }
 
-      dispatch(updateScale(event.deltaY < 0 ? 0.2 : -0.2));
+      dispatch(updateScale(event.deltaY < 0 ? zoomStep : -zoomStep));
     },
     [dispatch, infiniteMode],
   );

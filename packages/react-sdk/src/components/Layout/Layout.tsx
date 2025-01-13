@@ -25,6 +25,8 @@ import {
   usePresentationMode,
 } from '../../state';
 import { usePowerLevels } from '../../store/api/usePowerLevels';
+import { selectCanvas } from '../../store/canvasSlice';
+import { useAppSelector } from '../../store/reduxToolkitHooks';
 import { BoardBar } from '../BoardBar';
 import { CollaborationBar } from '../CollaborationBar';
 import { DeveloperToolsDialog } from '../DeveloperTools';
@@ -40,6 +42,7 @@ import { SlideOverviewBar } from '../SlideOverviewBar';
 import { ToolsBar } from '../ToolsBar';
 import { UndoRedoBar } from '../UndoRedoBar';
 import { WhiteboardHost } from '../Whiteboard';
+import { ZoomBar } from '../ZoomBar';
 import { PageLoader } from '../common/PageLoader';
 import { SlidesProvider } from './SlidesProvider';
 import { ToolbarCanvasContainer } from './ToolbarCanvasContainer';
@@ -158,6 +161,7 @@ function ContentArea() {
     isViewingPresentation && presentationState.isEditMode;
   const { canStopPresentation } = usePowerLevels();
   const [sizeRef, { width: toolbarWidth }] = useMeasure<HTMLDivElement>();
+  const { infiniteMode } = useAppSelector(selectCanvas);
 
   return (
     <>
@@ -190,6 +194,8 @@ function ContentArea() {
             position="fixed"
             bottom={(theme) => theme.spacing(5)}
           >
+            {infiniteMode && <ZoomBar />}
+
             <Box flex="1" />
 
             <ToolsBar />
