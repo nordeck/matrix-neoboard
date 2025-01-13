@@ -21,6 +21,8 @@ import {
   initialWhiteboardWidth,
   whiteboardHeight,
   whiteboardWidth,
+  zoomMax,
+  zoomMin,
 } from '../components/Whiteboard/constants';
 import { RootState } from './store';
 
@@ -141,15 +143,13 @@ export const canvasSlice = createSlice({
       };
     },
     updateScale: (state, action: PayloadAction<number>) => {
-      const newScale = state.scale + action.payload;
+      let newScale = state.scale + action.payload;
 
       // Limit zoom levels
-      if (newScale > 1) {
-        return state;
-      }
-
-      if (newScale <= 0.2) {
-        return state;
+      if (newScale > zoomMax) {
+        newScale = zoomMax;
+      } else if (newScale <= zoomMin) {
+        newScale = zoomMin;
       }
 
       const newState = {
