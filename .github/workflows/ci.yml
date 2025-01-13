@@ -129,6 +129,8 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: nordeck/matrix-neoboard-standalone
+          # Use infinite canvas spike branch
+          ref: 'nic/spike/infinite-canvas'
           path: matrix-neoboard-standalone
           # required for changesets
           fetch-depth: '0'
