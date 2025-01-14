@@ -23,7 +23,7 @@ export function getRenderProperties(
   const width = shape.width;
   const height = shape.height;
 
-  const verticalPaddingVertical = height > 40 ? 10 : 2;
+  const verticalPadding = height > 40 ? 10 : 2;
   const horizontalPadding = width > 40 ? 10 : 2;
 
   return {
@@ -34,10 +34,10 @@ export function getRenderProperties(
     text: {
       position: {
         x: shape.position.x + horizontalPadding,
-        y: shape.position.y + verticalPaddingVertical,
+        y: shape.position.y + verticalPadding,
       },
       width: width - horizontalPadding * 2,
-      height: height - verticalPaddingVertical * 2,
+      height: height - verticalPadding * 2,
       alignment: shape.textAlignment ?? 'center',
       bold: shape.textBold ?? false,
       italic: shape.textItalic ?? false,
