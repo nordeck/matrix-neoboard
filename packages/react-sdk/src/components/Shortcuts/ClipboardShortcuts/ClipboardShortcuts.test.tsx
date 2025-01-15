@@ -33,6 +33,7 @@ import {
   mockWhiteboardManager,
 } from '../../../lib/testUtils/documentTestUtils';
 import { WhiteboardInstance, WhiteboardManager } from '../../../state';
+import { ImageUploadProvider } from '../../ImageUpload';
 import {
   HOTKEY_SCOPE_WHITEBOARD,
   WhiteboardHotkeysProvider,
@@ -80,7 +81,7 @@ describe('<CopyAndPasteShortcuts>', () => {
           whiteboardManager={whiteboardManager}
           widgetApi={widgetApi}
         >
-          {children}
+          <ImageUploadProvider>{children}</ImageUploadProvider>
         </WhiteboardTestingContextProvider>
       </WhiteboardHotkeysProvider>
     );
