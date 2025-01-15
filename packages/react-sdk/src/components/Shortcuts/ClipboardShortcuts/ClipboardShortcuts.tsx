@@ -19,12 +19,13 @@ import { useEffect } from 'react';
 import { useHotkeysContext } from 'react-hotkeys-hook';
 import { determineImageSize } from '../../../lib/determineImageSize';
 import {
-  ImageElement,
   ImageMimeType,
   usePresentationMode,
   useWhiteboardSlideInstance,
 } from '../../../state';
+import { ImageUploadResult } from '../../ImageUpload';
 import { defaultAcceptedImageTypesArray } from '../../ImageUpload/consts';
+import { getImageForSlide } from '../../ImageUpload/useSlideImageUpload';
 import { HOTKEY_SCOPE_WHITEBOARD } from '../../WhiteboardHotkeysProvider';
 import {
   ClipboardContent,
@@ -168,17 +169,13 @@ export function ClipboardShortcuts() {
               fileContent,
               file.type as ImageMimeType,
             );
-            const uploadResult = await widgetApi.uploadFile(fileContent);
-            const imageElement: ImageElement = {
-              type: 'image',
-              mxc: uploadResult.content_uri,
+            const uploadResponse = await widgetApi.uploadFile(fileContent);
+            const uploadResult: ImageUploadResult = {
               fileName: file.name,
-              position: { x: 0, y: 0 },
-              mimeType: file.type as ImageMimeType,
-              width: size.width,
-              height: size.height,
+              mxc: uploadResponse.content_uri,
+              size,
             };
-            return imageElement;
+            return getImageForSlide(uploadResult);
           });
 
           const imageElements = await Promise.all(promises);

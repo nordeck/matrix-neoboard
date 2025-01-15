@@ -17,7 +17,7 @@
 import { useCallback } from 'react';
 import { FileRejection, useDropzone } from 'react-dropzone';
 import {
-  WhiteboardSlideInstance,
+  ImageElement,
   calculateCentredPosition,
   calculateFittedElementSize,
   useWhiteboardSlideInstance,
@@ -55,11 +55,12 @@ export function useSlideImageUpload(
     async (files: File[], rejectedFiles: FileRejection[]) => {
       const results = await imageUpload.handleDrop(files, rejectedFiles);
 
-      results.forEach((result) => {
-        if (result.status === 'fulfilled') {
-          addImageToSlide(slide, result.value);
-        }
-      });
+      const images = results
+        .filter((result) => result.status === 'fulfilled')
+        .map((result) => {
+          return getImageForSlide(result.value);
+        });
+      slide.addElements(images);
     },
     [imageUpload, slide],
   );
@@ -81,17 +82,16 @@ export function useSlideImageUpload(
 }
 
 /**
- * Fit, centre and add an image to a slide.
+ * Fit and centre an image for a slide.
  *
- * @param slide - Slide to which the element should be added
- * @param mxc - MXC URI of the image {@link https://spec.matrix.org/v1.9/client-server-api/#matrix-content-mxc-uris}
- * @param fileName - File name
- * @param imageSize - Image size
+ * @param uploadResult - Information from the image upload
+ * @param uploadResult.mxc - MXC URI of the image {@link https://spec.matrix.org/v1.9/client-server-api/#matrix-content-mxc-uris}
+ * @param uploadResult.fileName - File name
+ * @param uploadResult.imageSize - Image size
  */
-function addImageToSlide(
-  slide: WhiteboardSlideInstance,
+export function getImageForSlide(
   uploadResult: ImageUploadResult,
-): void {
+): ImageElement {
   const fittedSize = calculateFittedElementSize(uploadResult.size, {
     width: whiteboardWidth,
     height: whiteboardHeight,
@@ -100,11 +100,11 @@ function addImageToSlide(
     width: whiteboardWidth,
     height: whiteboardHeight,
   });
-  slide.addElement({
+  return {
     type: 'image',
     position: centredPosition,
     ...fittedSize,
     mxc: uploadResult.mxc,
     fileName: uploadResult.fileName,
-  });
+  };
 }
