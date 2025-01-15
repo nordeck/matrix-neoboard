@@ -85,7 +85,7 @@ jobs:
         uses: aquasecurity/trivy-action@0.29.0
         with:
           scan-type: 'image'
-          scanners: 'vuln,license'
+          scanners: 'license'
           format: 'spdx-json'
           output: 'sbom.spdx.json'
           image-ref: ${{ env.IMAGE_REF }}

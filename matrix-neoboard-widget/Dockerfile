@@ -2,7 +2,7 @@ FROM aquasec/trivy:latest AS scanner
 
 # Copy yarn.lock to run SBOM scan
 COPY --from=root yarn.lock /tmp
-RUN trivy fs --format spdx-json --scanners "vuln,license" /tmp/yarn.lock > /tmp/sbom.spdx.json
+RUN trivy fs --format spdx-json --scanners "license" /tmp/yarn.lock > /tmp/sbom.spdx.json
 
 FROM ghcr.io/nordeck/matrix-widget-toolkit/widget-server:1.1.0@sha256:85b4bf57747788ef1ac3472a826502219be20e7b1fffff6193ad4c0b0ccbc42d
 
