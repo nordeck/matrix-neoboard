@@ -87,13 +87,16 @@ jobs:
           scan-type: 'image'
           scanners: 'vuln,license'
           format: 'spdx-json'
-          output: '${{ steps.build_and_push.outputs.imageid }}-sbom.spdx.json'
+          output: 'sbom.spdx.json'
           image-ref: ${{ env.IMAGE_REF }}
           github-pat: ${{ secrets.GITHUB_TOKEN }}
 
-      # TODO:
-      # - Double check the step above
-      # - Upload SBOM asset with a low retention period (e.g. 30 days?)
+      - name: Upload SBOM to release assets
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ github.ref_name }}
+        run: |
+          gh release upload "$tag" sbom.spdx.json --repo="$GITHUB_REPOSITORY"
 
       - name: Sign the images with GitHub OIDC Token
         env:

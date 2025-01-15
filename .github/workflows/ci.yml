@@ -106,12 +106,16 @@ jobs:
           scan-type: 'image'
           scanners: 'vuln,license'
           format: 'spdx-json'
-          output: '${{ steps.build_and_push.outputs.imageid }}-sbom.spdx.json'
+          output: 'sbom.spdx.json'
           image-ref: ${{ env.IMAGE_REF }}
           github-pat: ${{ secrets.GITHUB_TOKEN }}
 
-      # TODO:
-      # - Upload SBOM asset with a low retention period (e.g. 30 days?)
+      - name: Upload SBOM report as a build artifcat
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-spdx-report
+          path: 'sbom.spdx.json'
+          retention-days: 30
 
       - name: Generate GitHub token
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
