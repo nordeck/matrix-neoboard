@@ -79,7 +79,7 @@ jobs:
             REACT_APP_VERSION=${{ fromJSON(steps.meta-new-tags.outputs.json).labels['org.opencontainers.image.version'] }}
             REACT_APP_REVISION=${{ fromJSON(steps.meta-new-tags.outputs.json).labels['org.opencontainers.image.revision'] }}
 
-      - name: Run Trivy to get an SBOM of the container
+      - name: Run Trivy to get an SBOM report of the container
         env:
           IMAGE_REF: ${{ env.DOCKER_IMAGE }}@${{ steps.build_and_push.outputs.digest }}
         uses: aquasecurity/trivy-action@0.29.0
