@@ -82,10 +82,13 @@ jobs:
             type=sha,prefix=
 
       - name: Build and push
+        id: build_and_push
         uses: docker/build-push-action@v6
         with:
           push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' || github.event_name == 'pull_request' && secrets.GH_APP_OS_APP_ID != '' }}
           context: ./matrix-neoboard-widget/
+          build-contexts: |
+            root=./
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           platforms: linux/amd64,linux/arm64,linux/s390x
@@ -94,6 +97,21 @@ jobs:
           build-args: |
             REACT_APP_VERSION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
             REACT_APP_REVISION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.revision'] }}
+
+      - name: Run Trivy to get an SBOM of the container
+        env:
+          IMAGE_REF: ${{ env.DOCKER_IMAGE }}@${{ steps.build_and_push.outputs.digest }}
+        uses: aquasecurity/trivy-action@0.29.0
+        with:
+          scan-type: 'image'
+          scanners: 'vuln,license'
+          format: 'spdx-json'
+          output: '${{ steps.build_and_push.outputs.imageid }}-sbom.spdx.json'
+          image-ref: ${{ env.IMAGE_REF }}
+          github-pat: ${{ secrets.GITHUB_TOKEN }}
+
+      # TODO:
+      # - Upload SBOM asset with a low retention period (e.g. 30 days?)
 
       - name: Generate GitHub token
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}

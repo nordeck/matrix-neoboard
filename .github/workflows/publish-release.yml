@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
-      contents: read
+      contents: write
       packages: write
       id-token: write
     env:
@@ -78,6 +78,22 @@ jobs:
           build-args: |
             REACT_APP_VERSION=${{ fromJSON(steps.meta-new-tags.outputs.json).labels['org.opencontainers.image.version'] }}
             REACT_APP_REVISION=${{ fromJSON(steps.meta-new-tags.outputs.json).labels['org.opencontainers.image.revision'] }}
+
+      - name: Run Trivy to get an SBOM of the container
+        env:
+          IMAGE_REF: ${{ env.DOCKER_IMAGE }}@${{ steps.build_and_push.outputs.digest }}
+        uses: aquasecurity/trivy-action@0.29.0
+        with:
+          scan-type: 'image'
+          scanners: 'vuln,license'
+          format: 'spdx-json'
+          output: '${{ steps.build_and_push.outputs.imageid }}-sbom.spdx.json'
+          image-ref: ${{ env.IMAGE_REF }}
+          github-pat: ${{ secrets.GITHUB_TOKEN }}
+
+      # TODO:
+      # - Double check the step above
+      # - Upload SBOM asset with a low retention period (e.g. 30 days?)
 
       - name: Sign the images with GitHub OIDC Token
         env:
