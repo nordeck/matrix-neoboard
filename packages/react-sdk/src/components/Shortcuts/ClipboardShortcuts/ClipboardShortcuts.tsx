@@ -15,17 +15,15 @@
  */
 
 import { useWidgetApi } from '@matrix-widget-toolkit/react';
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useHotkeysContext } from 'react-hotkeys-hook';
-import { determineImageSize } from '../../../lib/determineImageSize';
 import {
-  ImageMimeType,
   usePresentationMode,
   useWhiteboardSlideInstance,
 } from '../../../state';
-import { ImageUploadResult } from '../../ImageUpload';
+import { useImageUpload } from '../../ImageUpload';
+import { addImagesToSlide } from '../../ImageUpload/addImagesToSlide';
 import { defaultAcceptedImageTypesArray } from '../../ImageUpload/consts';
-import { getImageForSlide } from '../../ImageUpload/useSlideImageUpload';
 import { HOTKEY_SCOPE_WHITEBOARD } from '../../WhiteboardHotkeysProvider';
 import {
   ClipboardContent,
@@ -55,6 +53,7 @@ export function ClipboardShortcuts() {
   const { state: presentationState } = usePresentationMode();
   const isViewingPresentation = presentationState.type === 'presentation';
   const widgetApi = useWidgetApi();
+  const { handleDrop } = useImageUpload();
 
   // Copy event is triggered by the default keyboard shortcut for copying in the
   // browser, usually Ctrl/Meta+C
@@ -135,6 +134,18 @@ export function ClipboardShortcuts() {
     return () => document.removeEventListener('cut', handler);
   }, [enableShortcuts, isViewingPresentation, slideInstance]);
 
+  const handlePasteImages = useCallback(
+    async (files: File[]) => {
+      const results = await handleDrop(Array.from(files));
+
+      const images = results
+        .filter((result) => result.status === 'fulfilled')
+        .map((result) => result.value);
+      addImagesToSlide(slideInstance, images);
+    },
+    [handleDrop, slideInstance],
+  );
+
   // Paste event is triggered by the default keyboard shortcut for pasting in
   // the browser, usually Ctrl/Meta+V
   useEffect(() => {
@@ -163,31 +174,21 @@ export function ClipboardShortcuts() {
         );
 
         if (imageFiles.length > 0) {
-          const promises = imageFiles.map(async (file) => {
-            const fileContent = await file.arrayBuffer();
-            const size = await determineImageSize(
-              fileContent,
-              file.type as ImageMimeType,
-            );
-            const uploadResponse = await widgetApi.uploadFile(fileContent);
-            const uploadResult: ImageUploadResult = {
-              fileName: file.name,
-              mxc: uploadResponse.content_uri,
-              size,
-            };
-            return getImageForSlide(uploadResult);
-          });
-
-          const imageElements = await Promise.all(promises);
-          const pastedImageIds = slideInstance.addElements(imageElements);
-          slideInstance.setActiveElementIds(pastedImageIds);
+          handlePasteImages(Array.from(imageFiles));
+          // slideInstance.setActiveElementIds(pastedImageIds);
         }
       }
     };
 
     document.addEventListener('paste', handler);
     return () => document.removeEventListener('paste', handler);
-  }, [enableShortcuts, isViewingPresentation, slideInstance, widgetApi]);
+  }, [
+    enableShortcuts,
+    handlePasteImages,
+    isViewingPresentation,
+    slideInstance,
+    widgetApi,
+  ]);
 
   return null;
 }

@@ -16,15 +16,9 @@
 
 import { useCallback } from 'react';
 import { FileRejection, useDropzone } from 'react-dropzone';
-import {
-  ImageElement,
-  calculateCentredPosition,
-  calculateFittedElementSize,
-  useWhiteboardSlideInstance,
-} from '../../state';
-import { whiteboardHeight, whiteboardWidth } from '../Whiteboard';
+import { useWhiteboardSlideInstance } from '../../state';
+import { addImagesToSlide } from './addImagesToSlide';
 import { defaultAcceptedImageTypes } from './consts';
-import { ImageUploadResult } from './ImageUploadProvider';
 import { useImageUpload as useImageUploadContext } from './useImageUpload';
 
 type UseSlideImageUploadArgs = {
@@ -57,10 +51,8 @@ export function useSlideImageUpload(
 
       const images = results
         .filter((result) => result.status === 'fulfilled')
-        .map((result) => {
-          return getImageForSlide(result.value);
-        });
-      slide.addElements(images);
+        .map((result) => result.value);
+      addImagesToSlide(slide, images);
     },
     [imageUpload, slide],
   );
@@ -78,33 +70,5 @@ export function useSlideImageUpload(
   return {
     getInputProps,
     getRootProps,
-  };
-}
-
-/**
- * Fit and centre an image for a slide.
- *
- * @param uploadResult - Information from the image upload
- * @param uploadResult.mxc - MXC URI of the image {@link https://spec.matrix.org/v1.9/client-server-api/#matrix-content-mxc-uris}
- * @param uploadResult.fileName - File name
- * @param uploadResult.imageSize - Image size
- */
-export function getImageForSlide(
-  uploadResult: ImageUploadResult,
-): ImageElement {
-  const fittedSize = calculateFittedElementSize(uploadResult.size, {
-    width: whiteboardWidth,
-    height: whiteboardHeight,
-  });
-  const centredPosition = calculateCentredPosition(fittedSize, {
-    width: whiteboardWidth,
-    height: whiteboardHeight,
-  });
-  return {
-    type: 'image',
-    position: centredPosition,
-    ...fittedSize,
-    mxc: uploadResult.mxc,
-    fileName: uploadResult.fileName,
   };
 }
