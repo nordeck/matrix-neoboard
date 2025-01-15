@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useHotkeysContext } from 'react-hotkeys-hook';
 import {
   usePresentationMode,
   useWhiteboardSlideInstance,
 } from '../../../state';
+import { useImageUpload } from '../../ImageUpload';
+import { addImageToSlide } from '../../ImageUpload/addImageToSlide';
 import { HOTKEY_SCOPE_WHITEBOARD } from '../../WhiteboardHotkeysProvider';
 import {
   ClipboardContent,
@@ -48,6 +50,7 @@ export function ClipboardShortcuts() {
   const slideInstance = useWhiteboardSlideInstance();
   const { state: presentationState } = usePresentationMode();
   const isViewingPresentation = presentationState.type === 'presentation';
+  const { handleDrop } = useImageUpload();
 
   // Copy event is triggered by the default keyboard shortcut for copying in the
   // browser, usually Ctrl/Meta+C
@@ -128,6 +131,19 @@ export function ClipboardShortcuts() {
     return () => document.removeEventListener('cut', handler);
   }, [enableShortcuts, isViewingPresentation, slideInstance]);
 
+  const handlePasteImages = useCallback(
+    async (files: File[]) => {
+      const results = await handleDrop(Array.from(files));
+
+      results.forEach((result) => {
+        if (result.status === 'fulfilled') {
+          addImageToSlide(slideInstance, result.value);
+        }
+      });
+    },
+    [handleDrop, slideInstance],
+  );
+
   // Paste event is triggered by the default keyboard shortcut for pasting in
   // the browser, usually Ctrl/Meta+V
   useEffect(() => {
@@ -147,11 +163,23 @@ export function ClipboardShortcuts() {
         const pastedElementIds = slideInstance.addElements(elements);
         slideInstance.setActiveElementIds(pastedElementIds);
       }
+
+      const files = event.clipboardData?.files;
+
+      if (files && files.length > 0) {
+        handlePasteImages(Array.from(files));
+      }
     };
 
     document.addEventListener('paste', handler);
     return () => document.removeEventListener('paste', handler);
-  }, [enableShortcuts, isViewingPresentation, slideInstance]);
+  }, [
+    enableShortcuts,
+    handleDrop,
+    handlePasteImages,
+    isViewingPresentation,
+    slideInstance,
+  ]);
 
   return null;
 }
