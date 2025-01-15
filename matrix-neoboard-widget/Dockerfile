@@ -11,10 +11,10 @@ ARG REACT_APP_REVISION
 ENV REACT_APP_VERSION=${REACT_APP_VERSION}
 ENV REACT_APP_REVISION=${REACT_APP_REVISION}
 
-ADD --chown=101:101 build /usr/share/nginx/html/
+ADD --chown=nginx:nginx build /usr/share/nginx/html/
 
 # Add SBOM to the public folder
-COPY --from=trivy --chown=101:101 /tmp/sbom.spdx.json /usr/share/nginx/html/sbom.spdx.json
+COPY --from=trivy --chown=nginx:nginx /tmp/sbom.spdx.json /usr/share/nginx/html/sbom.spdx.json
 
 # Allow loading images from all HTTP(s) URLs and blobs
 ENV CSP_IMG_SRC="http: https: blob:"
