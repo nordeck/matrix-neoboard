@@ -22,6 +22,7 @@ import { WhiteboardInstance } from '../../../state';
 import { whiteboardHeight, whiteboardWidth } from '../../Whiteboard';
 import { createWhiteboardPdfContentSlide } from './createWhiteboardPdfContentSlide';
 import { forceLoadFontFamily } from './forceLoadFontFamily';
+import { themeOptions } from './themeOptions';
 
 export async function createWhiteboardPdfDefinition({
   whiteboardInstance,
@@ -37,6 +38,9 @@ export async function createWhiteboardPdfDefinition({
   // make sure the font is loaded so the text size calculations are correct
   await forceLoadFontFamily('Noto Emoji');
   const whiteboardExport = await whiteboardInstance.export(widgetApi);
+  const noImageSvg = generateHideImageOutlinedSvg(
+    themeOptions.paletteErrorMain,
+  );
 
   return {
     pageMargins: 0,
@@ -51,7 +55,8 @@ export async function createWhiteboardPdfDefinition({
               stack: [
                 await createWhiteboardPdfContentSlide(
                   slide,
-                  whiteboardExport.whiteboard.files,
+                  whiteboardExport.whiteboard.files ?? [],
+                  noImageSvg,
                 ),
               ],
               pageBreak: idx > 0 ? 'before' : undefined,
@@ -73,4 +78,12 @@ export async function createWhiteboardPdfDefinition({
       author: authorName,
     },
   };
+}
+
+function generateHideImageOutlinedSvg(errorMainColor: string): string {
+  /**
+   * Same as MUI hide_image_outlined_24px.svg: https://github.com/mui/material-ui/blob/master/packages/mui-icons-material/material-icons/hide_image_outlined_24px.svg
+   * But with fill and fill-opacity added.
+   */
+  return `<svg xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" height="24" viewBox="0 0 24 24" width="24" fill="${errorMainColor}" fill-opacity="0.3"><g><rect fill="none" height="24" width="24"/></g><g><g><path d="M19,5v11.17l2,2V5c0-1.1-0.9-2-2-2H5.83l2,2H19z"/><path d="M2.81,2.81L1.39,4.22L3,5.83V19c0,1.1,0.9,2,2,2h13.17l1.61,1.61l1.41-1.41L2.81,2.81z M5,19V7.83l7.07,7.07L11.25,16 L9,13l-3,4h8.17l2,2H5z"/></g></g></svg>`;
 }

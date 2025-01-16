@@ -23,7 +23,7 @@ import {
   base64ToUint8Array,
   getSVGUnsafe,
 } from '../../../imageUtils';
-import { ImageElement, ShapeElement } from '../../../state';
+import { ImageElement, Point, ShapeElement } from '../../../state';
 import { ElementRenderProperties } from '../../Whiteboard';
 import { getTextSize } from '../../Whiteboard/ElementBehaviors/Text/fitText';
 
@@ -35,7 +35,14 @@ export function canvas(element: CanvasElement): Content {
   };
 }
 
-export function image(element: ImageElement, base64content: string): Content {
+export function image(
+  element: {
+    position: Point;
+    width: number;
+    height: number;
+  },
+  base64content: string,
+): Content {
   const mimeType = base64ToMimeType(base64content);
   const dataURL = 'data:' + mimeType + ';base64,' + base64content;
   return {
@@ -46,7 +53,7 @@ export function image(element: ImageElement, base64content: string): Content {
   };
 }
 
-function base64ToBlob(element: ImageElement, base64: string): Blob {
+export function base64ToBlob(element: ImageElement, base64: string): Blob {
   const decoded = atob(base64);
 
   const fileToImage = (base64: string) => {
@@ -98,10 +105,12 @@ function saveLoadImage(url: string): Promise<HTMLImageElement> {
 }
 
 export async function conv2png(
-  element: ImageElement,
-  base64content: string,
+  element: {
+    width: number;
+    height: number;
+  },
+  blob: Blob,
 ): Promise<string> {
-  const blob = base64ToBlob(element, base64content);
   const blobUrl = URL.createObjectURL(blob);
 
   const img = await saveLoadImage(blobUrl);

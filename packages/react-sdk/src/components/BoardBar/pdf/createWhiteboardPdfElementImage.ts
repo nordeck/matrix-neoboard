@@ -14,25 +14,84 @@
  * limitations under the License.
  */
 
+import log from 'loglevel';
 import { Content } from 'pdfmake/interfaces';
 import { ImageElement } from '../../../state';
 import { WhiteboardFileExport } from '../../../state/export/whiteboardDocumentExport';
-import { conv2png, image } from './utils';
+import { themeOptions } from './themeOptions';
+import { base64ToBlob, canvas, conv2png, image } from './utils';
 
 export async function createWhiteboardPdfElementImage(
   element: ImageElement,
-  files: WhiteboardFileExport[],
+  file: WhiteboardFileExport | undefined,
+  noImageSvg: string,
 ): Promise<Content> {
-  const file = files.find((f) => f.mxc === element.mxc);
   if (file) {
     // We dont do any assumptions on the image type here, we just convert it to a png.
     //
     // Note that past versions of this did always check the image type before converting it to a png.
     // However we cant reliably do the type check in a browser. So we just convert it to a png which always works.
-    const data = await conv2png(element, file.data);
+    const blob = base64ToBlob(element, file.data);
+    const data = await conv2png(element, blob);
     return image(element, data);
+  } else {
+    log.warn('No file provided, use placeholder for image element', element);
+
+    return createNoImageContent(element, noImageSvg);
+  }
+}
+
+async function createNoImageContent(
+  element: ImageElement,
+  noImageSvg: string,
+): Promise<Content> {
+  const position = element.position;
+  const { width, height } = element;
+
+  // select min to keep ratio
+  const size = Math.min(width, height);
+  const noImageSize = size / 3;
+
+  const noImageElement = {
+    position: {
+      x: position.x + width / 2 - size / 6,
+      y: position.y + height / 2 - size / 6,
+    },
+    width: noImageSize,
+    height: noImageSize,
+  };
+
+  const blob = new Blob([noImageSvg], { type: 'image/svg+xml' });
+  let data: string | undefined = undefined;
+  try {
+    data = await conv2png(noImageElement, blob);
+  } catch {
+    // fails if image has around zero width or height
+    log.warn('Could not generate png for no image svg');
   }
 
-  console.error('Could not get image url', element);
-  return [];
+  const content: Content = [];
+
+  content.push(
+    canvas({
+      type: 'rect',
+      x: position.x,
+      y: position.y,
+      w: width,
+      h: height,
+      color: themeOptions.paletteErrorMain,
+      fillOpacity: 0.05,
+      lineWidth: 2,
+      lineColor: themeOptions.paletteErrorMain,
+      dash: {
+        length: 10,
+      },
+    }),
+  );
+
+  if (data) {
+    content.push(image(noImageElement, data));
+  }
+
+  return content;
 }
