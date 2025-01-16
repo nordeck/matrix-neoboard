@@ -71,7 +71,7 @@ export type ImageUploadState = {
    */
   handleDrop: (
     files: File[],
-    rejectedFiles: FileRejection[],
+    rejectedFiles?: FileRejection[],
     overrideFile?: string,
   ) => Promise<PromiseSettledResult<ImageUploadResult>[]>;
   /**
@@ -158,10 +158,10 @@ export function ImageUploadProvider({ children }: PropsWithChildren<{}>) {
   const handleDrop = useCallback(
     async (
       files: File[],
-      rejectedFiles: FileRejection[],
+      rejectedFiles?: FileRejection[],
       overrideFile?: string,
     ) => {
-      rejectedFiles.forEach(handleRejectedFile);
+      rejectedFiles?.forEach(handleRejectedFile);
 
       if (files.length > 0) {
         const message = t(
