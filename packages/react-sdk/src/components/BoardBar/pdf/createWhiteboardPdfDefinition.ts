@@ -22,25 +22,28 @@ import { WhiteboardInstance } from '../../../state';
 import { whiteboardHeight, whiteboardWidth } from '../../Whiteboard';
 import { createWhiteboardPdfContentSlide } from './createWhiteboardPdfContentSlide';
 import { forceLoadFontFamily } from './forceLoadFontFamily';
-import { themeOptions } from './themeOptions';
+import { ThemeOptions } from './themeOptions';
 
 export async function createWhiteboardPdfDefinition({
   whiteboardInstance,
   roomName,
   authorName,
   widgetApi,
+  themePaletteErrorMain,
 }: {
   whiteboardInstance: WhiteboardInstance;
   roomName: string;
   authorName: string;
   widgetApi: WidgetApi;
+  themePaletteErrorMain: string;
 }): Promise<TDocumentDefinitions> {
   // make sure the font is loaded so the text size calculations are correct
   await forceLoadFontFamily('Noto Emoji');
   const whiteboardExport = await whiteboardInstance.export(widgetApi);
-  const noImageSvg = generateHideImageOutlinedSvg(
-    themeOptions.paletteErrorMain,
-  );
+  const themeOptions: ThemeOptions = {
+    paletteErrorMain: themePaletteErrorMain,
+  };
+  const noImageSvg = generateHideImageOutlinedSvg(themePaletteErrorMain);
 
   return {
     pageMargins: 0,
@@ -56,6 +59,7 @@ export async function createWhiteboardPdfDefinition({
                 await createWhiteboardPdfContentSlide(
                   slide,
                   whiteboardExport.whiteboard.files ?? [],
+                  themeOptions,
                   noImageSvg,
                 ),
               ],

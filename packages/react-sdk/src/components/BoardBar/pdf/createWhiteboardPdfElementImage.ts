@@ -18,12 +18,13 @@ import log from 'loglevel';
 import { Content } from 'pdfmake/interfaces';
 import { ImageElement } from '../../../state';
 import { WhiteboardFileExport } from '../../../state/export/whiteboardDocumentExport';
-import { themeOptions } from './themeOptions';
+import { ThemeOptions } from './themeOptions';
 import { base64ToBlob, canvas, conv2png, image } from './utils';
 
 export async function createWhiteboardPdfElementImage(
   element: ImageElement,
   file: WhiteboardFileExport | undefined,
+  themeOptions: ThemeOptions,
   noImageSvg: string,
 ): Promise<Content> {
   if (file) {
@@ -37,12 +38,13 @@ export async function createWhiteboardPdfElementImage(
   } else {
     log.warn('No file provided, use placeholder for image element', element);
 
-    return createNoImageContent(element, noImageSvg);
+    return createNoImageContent(element, themeOptions, noImageSvg);
   }
 }
 
 async function createNoImageContent(
   element: ImageElement,
+  themeOptions: ThemeOptions,
   noImageSvg: string,
 ): Promise<Content> {
   const position = element.position;

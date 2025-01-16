@@ -14,10 +14,6 @@
  * limitations under the License.
  */
 
-type ThemeOptions = {
+export type ThemeOptions = {
   paletteErrorMain: string;
-};
-
-export const themeOptions: ThemeOptions = {
-  paletteErrorMain: '#d51928',
 };

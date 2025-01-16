@@ -20,10 +20,12 @@ import { WhiteboardFileExport } from '../../../state/export/whiteboardDocumentEx
 import { createWhiteboardPdfElementImage } from './createWhiteboardPdfElementImage';
 import { createWhiteboardPdfElementPath } from './createWhiteboardPdfElementPath';
 import { createWhiteboardPdfElementShape } from './createWhiteboardPdfElementShape';
+import { ThemeOptions } from './themeOptions';
 
 export async function createWhiteboardPdfContentSlide(
   slideInstance: WhiteboardSlideInstance,
   files: Array<WhiteboardFileExport>,
+  themeOptions: ThemeOptions,
   noImageSvg: string,
 ): Promise<Content> {
   return await Promise.all(
@@ -42,6 +44,7 @@ export async function createWhiteboardPdfContentSlide(
           return await createWhiteboardPdfElementImage(
             element,
             file,
+            themeOptions,
             noImageSvg,
           );
         }

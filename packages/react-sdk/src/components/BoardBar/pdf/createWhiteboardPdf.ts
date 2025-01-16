@@ -24,6 +24,7 @@ export function createWhiteboardPdf(params: {
   roomName: string;
   authorName: string;
   widgetApi: WidgetApi;
+  themePaletteErrorMain: string;
 }): Observable<Blob> {
   const contentObservable = from(createWhiteboardPdfDefinition(params));
 

@@ -176,6 +176,7 @@ describe('<ExportWhiteboardDialogDownloadPdf />', () => {
         roomName: 'NeoBoard',
         widgetApi: widgetApi,
         whiteboardInstance: whiteboardManager.getActiveWhiteboardInstance(),
+        themePaletteErrorMain: expect.any(String),
       });
     });
   });
