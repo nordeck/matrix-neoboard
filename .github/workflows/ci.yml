@@ -67,6 +67,15 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: get argo-cd type of sha
+        run: |
+          COMMIT_SHA=${{ github.sha }}
+          if [[ '${{ github.event_name }}' == 'pull_request' ]]
+          then
+            COMMIT_SHA=${{ github.event.pull_request.head.sha }}
+          fi
+          echo "ARGOCD_SHA=$(echo $COMMIT_SHA | cut -c1-8)" >> $GITHUB_ENV
+
       - name: Generate Docker metadata
         id: meta
         uses: docker/metadata-action@v5
@@ -80,6 +89,7 @@ jobs:
             org.opencontainers.image.vendor=Nordeck IT + Consulting GmbH
           tags: |
             type=sha,prefix=
+            type=raw,value=argo-${{ env.ARGOCD_SHA }}
 
       - name: Build and push
         id: build_and_push
