@@ -110,7 +110,7 @@ jobs:
           image-ref: ${{ env.IMAGE_REF }}
           github-pat: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload SBOM report as a build artifcat
+      - name: Upload SBOM report as a build artifact
         uses: actions/upload-artifact@v4
         with:
           name: sbom-spdx-report
