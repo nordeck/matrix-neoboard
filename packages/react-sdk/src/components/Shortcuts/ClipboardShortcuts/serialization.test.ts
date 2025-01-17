@@ -76,7 +76,7 @@ describe('deserializeFromClipboard', () => {
     expect(content).toEqual({
       elements: [
         {
-          fillColor: '#FFFFFF',
+          fillColor: 'transparent',
           height: 300,
           kind: 'rectangle',
           position: { x: 660, y: 390 },
@@ -154,7 +154,7 @@ describe('deserializeFromPlainText', () => {
     expect(content).toEqual({
       elements: [
         {
-          fillColor: '#FFFFFF',
+          fillColor: 'transparent',
           height: 300,
           kind: 'rectangle',
           position: { x: 660, y: 390 },

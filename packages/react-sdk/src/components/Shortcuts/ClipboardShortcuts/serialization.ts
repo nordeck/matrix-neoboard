@@ -99,7 +99,7 @@ export function deserializeFromPlainText(
         height,
         width,
         text,
-        fillColor: '#FFFFFF',
+        fillColor: 'transparent',
       },
     ],
   };
