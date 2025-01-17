@@ -88,6 +88,7 @@
     "test": "echo \"Tests have to run from root project\"",
     "deduplicate": "yarn-deduplicate",
     "depcheck": "depcheck --ignores=\"@vitest/coverage-v8\"",
+    "generate-disclaimer": "echo \"This command does not apply to this package\"",
     "lint": "eslint .",
     "translate": "i18next \"src/**/*.{ts,tsx}\"",
     "prettier:check": "prettier --check .",

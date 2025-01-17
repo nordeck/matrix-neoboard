@@ -53,7 +53,7 @@
   },
   "scripts": {
     "docker": "yarn run docker:build && yarn run docker:run",
-    "docker:build": "docker build -t nordeck/matrix-neoboard-widget .",
+    "docker:build": "docker build --build-context root=../ -t nordeck/matrix-neoboard-widget .",
     "docker:run": "dotenv -c -- docker run -it --rm -e REACT_APP_HOME_SERVER_URL -p 3000:8080 --name matrix-neoboard-widget nordeck/matrix-neoboard-widget",
     "dev": "vite",
     "dev:https": "VITE_DEV_SSL=true vite",
