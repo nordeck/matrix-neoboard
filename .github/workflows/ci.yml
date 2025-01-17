@@ -100,6 +100,7 @@ jobs:
             REACT_APP_REVISION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.revision'] }}
 
       - name: Run Trivy to get an SBOM report of the container
+        if: ${{ success() && steps.build_and_push.outputs.digest }}
         env:
           IMAGE_REF: ${{ env.DOCKER_IMAGE }}@${{ steps.build_and_push.outputs.digest }}
         uses: aquasecurity/trivy-action@0.29.0
@@ -112,6 +113,7 @@ jobs:
           github-pat: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload SBOM report as a build artifact
+        if: ${{ success() && steps.build_and_push.outputs.digest }}
         uses: actions/upload-artifact@v4
         with:
           name: sbom-spdx-report
