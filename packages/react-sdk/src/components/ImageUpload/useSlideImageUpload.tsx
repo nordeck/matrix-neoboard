@@ -16,15 +16,9 @@
 
 import { useCallback } from 'react';
 import { FileRejection, useDropzone } from 'react-dropzone';
-import {
-  WhiteboardSlideInstance,
-  calculateCentredPosition,
-  calculateFittedElementSize,
-  useWhiteboardSlideInstance,
-} from '../../state';
-import { whiteboardHeight, whiteboardWidth } from '../Whiteboard';
+import { useWhiteboardSlideInstance } from '../../state';
+import { addImagesToSlide } from './addImagesToSlide';
 import { defaultAcceptedImageTypes } from './consts';
-import { ImageUploadResult } from './ImageUploadProvider';
 import { useImageUpload as useImageUploadContext } from './useImageUpload';
 
 type UseSlideImageUploadArgs = {
@@ -55,11 +49,10 @@ export function useSlideImageUpload(
     async (files: File[], rejectedFiles: FileRejection[]) => {
       const results = await imageUpload.handleDrop(files, rejectedFiles);
 
-      results.forEach((result) => {
-        if (result.status === 'fulfilled') {
-          addImageToSlide(slide, result.value);
-        }
-      });
+      const images = results
+        .filter((result) => result.status === 'fulfilled')
+        .map((result) => result.value);
+      addImagesToSlide(slide, images);
     },
     [imageUpload, slide],
   );
@@ -78,33 +71,4 @@ export function useSlideImageUpload(
     getInputProps,
     getRootProps,
   };
-}
-
-/**
- * Fit, centre and add an image to a slide.
- *
- * @param slide - Slide to which the element should be added
- * @param mxc - MXC URI of the image {@link https://spec.matrix.org/v1.9/client-server-api/#matrix-content-mxc-uris}
- * @param fileName - File name
- * @param imageSize - Image size
- */
-function addImageToSlide(
-  slide: WhiteboardSlideInstance,
-  uploadResult: ImageUploadResult,
-): void {
-  const fittedSize = calculateFittedElementSize(uploadResult.size, {
-    width: whiteboardWidth,
-    height: whiteboardHeight,
-  });
-  const centredPosition = calculateCentredPosition(fittedSize, {
-    width: whiteboardWidth,
-    height: whiteboardHeight,
-  });
-  slide.addElement({
-    type: 'image',
-    position: centredPosition,
-    ...fittedSize,
-    mxc: uploadResult.mxc,
-    fileName: uploadResult.fileName,
-  });
 }

@@ -14,12 +14,16 @@
  * limitations under the License.
  */
 
-import { useEffect } from 'react';
+import { useWidgetApi } from '@matrix-widget-toolkit/react';
+import { useCallback, useEffect } from 'react';
 import { useHotkeysContext } from 'react-hotkeys-hook';
 import {
   usePresentationMode,
   useWhiteboardSlideInstance,
 } from '../../../state';
+import { useImageUpload } from '../../ImageUpload';
+import { addImagesToSlide } from '../../ImageUpload/addImagesToSlide';
+import { defaultAcceptedImageTypesArray } from '../../ImageUpload/consts';
 import { HOTKEY_SCOPE_WHITEBOARD } from '../../WhiteboardHotkeysProvider';
 import {
   ClipboardContent,
@@ -48,6 +52,8 @@ export function ClipboardShortcuts() {
   const slideInstance = useWhiteboardSlideInstance();
   const { state: presentationState } = usePresentationMode();
   const isViewingPresentation = presentationState.type === 'presentation';
+  const widgetApi = useWidgetApi();
+  const { handleDrop } = useImageUpload();
 
   // Copy event is triggered by the default keyboard shortcut for copying in the
   // browser, usually Ctrl/Meta+C
@@ -128,10 +134,22 @@ export function ClipboardShortcuts() {
     return () => document.removeEventListener('cut', handler);
   }, [enableShortcuts, isViewingPresentation, slideInstance]);
 
+  const handlePasteImages = useCallback(
+    async (files: File[]) => {
+      const results = await handleDrop(Array.from(files));
+
+      const images = results
+        .filter((result) => result.status === 'fulfilled')
+        .map((result) => result.value);
+      addImagesToSlide(slideInstance, images);
+    },
+    [handleDrop, slideInstance],
+  );
+
   // Paste event is triggered by the default keyboard shortcut for pasting in
   // the browser, usually Ctrl/Meta+V
   useEffect(() => {
-    const handler = (event: ClipboardEvent) => {
+    const handler = async (event: ClipboardEvent) => {
       if (!enableShortcuts) {
         return;
       }
@@ -147,11 +165,30 @@ export function ClipboardShortcuts() {
         const pastedElementIds = slideInstance.addElements(elements);
         slideInstance.setActiveElementIds(pastedElementIds);
       }
+
+      // Handle image files
+      const files = event.clipboardData?.files;
+      if (files && files.length > 0) {
+        const imageFiles = Array.from(files).filter((file) =>
+          defaultAcceptedImageTypesArray.includes(file.type),
+        );
+
+        if (imageFiles.length > 0) {
+          handlePasteImages(Array.from(imageFiles));
+          // slideInstance.setActiveElementIds(pastedImageIds);
+        }
+      }
     };
 
     document.addEventListener('paste', handler);
     return () => document.removeEventListener('paste', handler);
-  }, [enableShortcuts, isViewingPresentation, slideInstance]);
+  }, [
+    enableShortcuts,
+    handlePasteImages,
+    isViewingPresentation,
+    slideInstance,
+    widgetApi,
+  ]);
 
   return null;
 }

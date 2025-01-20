@@ -154,7 +154,9 @@ Yon can run the widget using Docker:
 docker run --rm -e REACT_APP_HOME_SERVER_URL=https://matrix-client.matrix.org -p 8080:8080 ghcr.io/nordeck/matrix-neoboard-widget:latest
 ```
 
-Our docker image supports customizing the nginx config by supplying additional config files.
+Be sure, that you also read the security notes in the base image [@matrix-widget-toolkit/widget-server](https://github.com/nordeck/matrix-widget-toolkit/tree/main/containers/widget-server) docs.
+
+The image supports customizing the nginx config by supplying additional config files.
 For example, this allows running the image in an IPv4-only environment, as demonstrated at <https://github.com/nordeck/matrix-widget-toolkit/tree/main/containers/widget-server#custom-listen-directive>
 
 We also provide a [HELM chart](./charts/).
@@ -173,7 +175,18 @@ The official matrix.org homeserver will work; see for example how to configure t
 For a good NeoBoard experience we highly recommend to tweak the rate limiting settings as described in the [configuration](./docs/configuration.md#rate-limiting-settings).
 Otherwise users may get stuck in a state where they need to confirm to re-send messages before NeoBoard resumes to work normally after it ran into rate limiting.
 
-## Verify the Container Images
+## Supply Chain Security
+
+To ensure transparency and security in our software supply chain, we provide comprehensive Software Bill of Materials (SBOM) reports for this project and signed container images.
+
+### SBOM Reports
+
+We provide SBOM reports within the widget container and as a release artifact.
+
+- The generated SBOM report is available alongside the hosted widget assets, and can be found at `<DEPLOYMENT-URL>/sbom.spdx.json`, or via the filesystem at `/usr/share/nginx/html/sbom.spdx.json`
+- Each GitHub release has a corresponding image SBOM scan report file attached as a release asset
+
+### Signed Container Images
 
 The container images releases are signed by [cosign](https://github.com/sigstore/cosign) using identity-based ("keyless") signing and transparency.
 Execute the following command to verify the signature of a container image:

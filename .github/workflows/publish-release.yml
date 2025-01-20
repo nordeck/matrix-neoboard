@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
-      contents: read
+      contents: write
       packages: write
       id-token: write
     env:
@@ -78,6 +78,25 @@ jobs:
           build-args: |
             REACT_APP_VERSION=${{ fromJSON(steps.meta-new-tags.outputs.json).labels['org.opencontainers.image.version'] }}
             REACT_APP_REVISION=${{ fromJSON(steps.meta-new-tags.outputs.json).labels['org.opencontainers.image.revision'] }}
+
+      - name: Run Trivy to get an SBOM report of the container
+        env:
+          IMAGE_REF: ${{ env.DOCKER_IMAGE }}@${{ steps.build_and_push.outputs.digest }}
+        uses: aquasecurity/trivy-action@0.29.0
+        with:
+          scan-type: 'image'
+          scanners: 'license'
+          format: 'spdx-json'
+          output: 'sbom.spdx.json'
+          image-ref: ${{ env.IMAGE_REF }}
+          github-pat: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload SBOM to release assets
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ github.ref_name }}
+        run: |
+          gh release upload "$tag" sbom.spdx.json --repo="$GITHUB_REPOSITORY"
 
       - name: Sign the images with GitHub OIDC Token
         env:
