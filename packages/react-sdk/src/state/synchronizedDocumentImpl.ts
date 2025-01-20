@@ -127,7 +127,6 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
       .subscribe((data) => {
         try {
           document.mergeFrom(data);
-          this.store.dispatch(setSnapshotLoadSuccessful());
         } catch (ex) {
           this.logger.error('Error while merging remote document', ex);
         }
@@ -270,6 +269,9 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
               observer.next(snapshotData.data);
             }
             this.loadingSubject.next(false);
+            if (state.snapshotInfoReducer.snapshotLoadFailed !== false) {
+              this.store.dispatch(setSnapshotLoadSuccessful());
+            }
           }
         }
       });

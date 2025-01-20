@@ -19,12 +19,12 @@ import { RootState } from './store';
 
 export type SnapshotInfoState = {
   snapshotSaveFailed: boolean;
-  snapshotLoadFailed: boolean;
+  snapshotLoadFailed: boolean | undefined;
 };
 
 const initialState: SnapshotInfoState = {
   snapshotSaveFailed: false,
-  snapshotLoadFailed: false,
+  snapshotLoadFailed: undefined,
 };
 
 export const snapshotInfoSlice = createSlice({

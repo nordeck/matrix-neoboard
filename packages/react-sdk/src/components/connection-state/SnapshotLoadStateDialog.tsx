@@ -32,6 +32,14 @@ export const SnapshotLoadStateDialog: React.FC = () => {
     return null;
   }
 
+  // This dialog can also be triggered by a generic networking error
+  // that we are unable to handle because the Widget API is not providing additional
+  // information on the readRelationships call.
+  //
+  // We decide to keep this dialog focused on the scenario that relations fail to
+  // load because the user is unable to retrieve the snapshots due to being in an encrypted room
+  // or a room with limited history visibility
+
   return (
     <Dialog open={true} disableEscapeKeyDown={true}>
       <DialogTitle>
