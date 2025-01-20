@@ -30,11 +30,12 @@ import { useTranslation } from 'react-i18next';
 import { useNetworkState } from 'react-use';
 import { useActiveWhiteboardInstance } from '../../state';
 import { useAppDispatch } from '../../store';
-import { useAppSelector } from '../../store/reduxToolkitHooks';
 import {
-  selectSnapshotInfo,
-  setSnapshotSaveSuccessful,
-} from '../../store/snapshotInfoSlice';
+  selectConnectionInfo,
+  setSnapshotSuccessful,
+} from '../../store/connectionInfoSlice';
+import { useAppSelector } from '../../store/reduxToolkitHooks';
+import { selectSnapshotInfo } from '../../store/snapshotInfoSlice';
 import { useSnackbar } from '../Snackbar';
 
 const logger = getLogger('ConnectionStateProvider');
@@ -75,6 +76,7 @@ export const ConnectionStateProvider: React.FC<PropsWithChildren> = function ({
   const [connectionStateDialogOpen, setConnectionStateDialogOpen] =
     useState(false);
   const [snapshotLoadDialogOpen, setSnapshotLoadDialogOpen] = useState(false);
+  const connectiontInfo = useAppSelector(selectConnectionInfo);
   const snapshotInfo = useAppSelector(selectSnapshotInfo);
   const connectionState: ConnectionState = networkState.online
     ? 'online'
@@ -105,7 +107,7 @@ export const ConnectionStateProvider: React.FC<PropsWithChildren> = function ({
    * Monitor send snapshot state. Display a snackbar on errors.
    */
   useEffect(() => {
-    if (snapshotInfo.snapshotSaveFailed === false) {
+    if (connectiontInfo.snapshotFailed === false) {
       // No send snapshot error - no connection state snackbar and no dialog
       clearSnackbar();
       setConnectionStateDialogOpen(false);
@@ -151,9 +153,9 @@ export const ConnectionStateProvider: React.FC<PropsWithChildren> = function ({
     });
   }, [
     clearSnackbar,
-    snapshotInfo.snapshotSaveFailed,
     connectionState,
     connectionStateDialogOpen,
+    connectiontInfo.snapshotFailed,
     handleLearnMoreClick,
     setConnectionStateDialogOpen,
     showSnackbar,
@@ -170,7 +172,7 @@ export const ConnectionStateProvider: React.FC<PropsWithChildren> = function ({
       return false;
     }
 
-    if (snapshotInfo.snapshotSaveFailed === false) {
+    if (connectiontInfo.snapshotFailed === false) {
       // Do not retry, if there is no error
       logger.debug(
         'Retry snapshot: No retry, because there is no failed snapshot',
@@ -188,7 +190,7 @@ export const ConnectionStateProvider: React.FC<PropsWithChildren> = function ({
 
     logger.debug('Retry snapshot: Should retry');
     return true;
-  }, [snapshotInfo.snapshotSaveFailed, connectionState, whiteboard]);
+  }, [connectionState, connectiontInfo.snapshotFailed, whiteboard]);
 
   // Actually retry to send the snapshot.
   useEffect(() => {
@@ -212,7 +214,7 @@ export const ConnectionStateProvider: React.FC<PropsWithChildren> = function ({
 
       try {
         await whiteboard.persist();
-        dispatch(setSnapshotSaveSuccessful());
+        dispatch(setSnapshotSuccessful());
         return true;
       } catch {
         return false;

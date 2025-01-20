@@ -36,10 +36,10 @@ import {
 import { isDefined } from '../lib';
 import {
   documentSnapshotApi,
+  setSnapshotFailed,
   setSnapshotLoadFailed,
   setSnapshotLoadSuccessful,
-  setSnapshotSaveFailed,
-  setSnapshotSaveSuccessful,
+  setSnapshotSuccessful,
   StoreType,
 } from '../store';
 import { DocumentSnapshotValidator } from '../store/api/documentSnapshotBacklog';
@@ -158,10 +158,10 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
           async ({ doc }) => {
             try {
               await this.persistDocument(doc);
-              this.store.dispatch(setSnapshotSaveSuccessful());
+              this.store.dispatch(setSnapshotSuccessful());
             } catch (e) {
               this.logger.error('Could not store snapshot for', documentId, e);
-              this.store.dispatch(setSnapshotSaveFailed());
+              this.store.dispatch(setSnapshotFailed());
             }
           },
           { leading: true, trailing: true },
