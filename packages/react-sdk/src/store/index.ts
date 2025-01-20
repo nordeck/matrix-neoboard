@@ -18,6 +18,7 @@ export * from './api';
 export { useAppDispatch } from './reduxToolkitHooks';
 export { shapeSizesReducer } from './shapeSizesSlide';
 export {
+  connectionInfoReducer,
   setSnapshotLoadFailed,
   setSnapshotLoadSuccessful,
   setSnapshotSaveFailed,

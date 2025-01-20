@@ -151,8 +151,6 @@ jobs:
         with:
           repository: nordeck/matrix-neoboard-standalone
           path: matrix-neoboard-standalone
-          # TODO: change this before merging
-          ref: nic/feat/NEO-954-no-spapshot-available-dialog
           # required for changesets
           fetch-depth: '0'
           # don't persist the credentials so the changesets action doesn't use the

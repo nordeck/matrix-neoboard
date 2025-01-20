@@ -68,4 +68,6 @@ export const {
 export const selectSnapshotInfo = (state: RootState) =>
   state.snapshotInfoReducer;
 
+// TODO: Remove this export once this PR is merged
+export const connectionInfoReducer = snapshotInfoSlice.reducer;
 export const snapshotInfoReducer = snapshotInfoSlice.reducer;
