@@ -18,8 +18,8 @@ import { WidgetApi } from '@matrix-widget-toolkit/api';
 import { useWidgetApi } from '@matrix-widget-toolkit/react';
 import { styled } from '@mui/material';
 import { getLogger } from 'loglevel';
-import { Suspense, useCallback, useEffect, useState } from 'react';
-import { ErrorBoundary } from 'react-error-boundary';
+import { IDownloadFileActionFromWidgetResponseData } from 'matrix-widget-api';
+import { Component, Suspense, useCallback, useState } from 'react';
 import useSWR from 'swr';
 import { getSVGUnsafe } from '../../../imageUtils';
 import { convertMxcToHttpUrl, WidgetApiActionError } from '../../../lib';
@@ -39,15 +39,11 @@ import { Skeleton } from './Skeleton';
  *
  * @returns The data URL of the downloaded file. This can be a blob url or a http url.
  */
-const downloadFile = async ({
-  widgetApi,
-  baseUrl,
-  mxc,
-}: {
-  widgetApi: WidgetApi;
-  baseUrl: string;
-  mxc: string;
-}): Promise<Blob | string> => {
+const downloadFile = async (
+  widgetApi: WidgetApi,
+  baseUrl: string,
+  mxc: string,
+): Promise<Blob> => {
   try {
     const result = await tryDownloadFileWithWidgetApi(widgetApi, mxc);
 
@@ -96,7 +92,7 @@ const downloadFile = async ({
 const tryDownloadFileWithWidgetApi = async (
   widgetApi: WidgetApi,
   mxc: string,
-) => {
+): Promise<IDownloadFileActionFromWidgetResponseData> => {
   try {
     const result = await widgetApi.downloadFile(mxc);
     return result;
@@ -112,13 +108,16 @@ const tryDownloadFileWithWidgetApi = async (
  *
  * @param mxc The mxc URL of the file to download
  * @param baseUrl The base URL of the matrix homeserver
- * @returns The URL of the file. Note this is an blob URL for SVG files.
+ * @returns The Blob of the file. Note this is an blob URL for SVG files.
  */
-const tryFallbackDownload = async (mxc: string, baseUrl: string) => {
+const tryFallbackDownload = async (
+  mxc: string,
+  baseUrl: string,
+): Promise<Blob> => {
   const httpUrl = convertMxcToHttpUrl(mxc, baseUrl);
 
   if (httpUrl === null) {
-    return '';
+    throw new Error('Failed to convert mxc to http URL');
   }
 
   try {
@@ -171,23 +170,21 @@ function ImageDisplay({
   overrides = {},
 }: ImageDisplayProps) {
   const widgetApi = useWidgetApi();
-  const [imageUri, setImageUri] = useState<string>();
-  const { data: image } = useSWR({ widgetApi, baseUrl, mxc }, downloadFile, {
-    suspense: true,
-  });
-
-  useEffect(() => {
+  // We pass widgetApi differently to not break swr devtools. It has no significatn impact on the code.
+  const { data: image } = useSWR<Blob, Error, [string, string]>(
+    [baseUrl, mxc],
+    ([baseUrl, mxc]) => downloadFile(widgetApi, baseUrl, mxc),
+    {
+      suspense: true,
+    },
+  );
+  // This is mandatory to ensure that we dont have any flashing.
+  const [imageUri] = useState<string | undefined>(() => {
     if (image instanceof Blob) {
-      // Convert blob to blob URL
-      const downloadedFileDataUrl = URL.createObjectURL(image);
-      if (downloadedFileDataUrl === '') {
-        throw new Error('Failed to create object URL');
-      }
-      setImageUri(downloadedFileDataUrl);
-    } else {
-      setImageUri(image);
+      return URL.createObjectURL(image);
     }
-  }, [image, setImageUri]);
+    return undefined;
+  });
 
   const onLoaded = useCallback(() => {
     if (image instanceof Blob && imageUri) {
@@ -277,3 +274,33 @@ function ImageDisplayWrapper({
 }
 
 export default ImageDisplayWrapper;
+
+interface ErrorBoundaryProps {
+  fallback?: React.ReactNode;
+  children: React.ReactNode;
+}
+
+/**
+ * This is an error boundary for the suspense and specific to the search results UI.
+ *
+ * Due to react limitations this MUST be a class component at this time.
+ * See https://17.reactjs.org/docs/concurrent-mode-suspense.html#handling-errors
+ */
+class ErrorBoundary extends Component<
+  ErrorBoundaryProps,
+  { hasError: boolean; error: Error | null }
+> {
+  state = { hasError: false, error: null };
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+
+  render() {
+    if (this.state.hasError) {
+      console.error(this.state.error);
+      return this.props.fallback || null;
+    }
+
+    return this.props.children;
+  }
+}
