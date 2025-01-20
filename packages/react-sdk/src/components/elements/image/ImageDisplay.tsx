@@ -114,10 +114,7 @@ const tryDownloadFileWithWidgetApi = async (
  * @param baseUrl The base URL of the matrix homeserver
  * @returns The URL of the file. Note this is an blob URL for SVG files.
  */
-const tryFallbackDownload = async (
-  mxc: string,
-  baseUrl: string,
-) => {
+const tryFallbackDownload = async (mxc: string, baseUrl: string) => {
   const httpUrl = convertMxcToHttpUrl(mxc, baseUrl);
 
   if (httpUrl === null) {
@@ -133,7 +130,6 @@ const tryFallbackDownload = async (
       return svgBlob;
     } catch {
       return rawBlob.slice(0, rawBlob.size);
-
     }
   } catch (fetchError) {
     const logger = getLogger('ImageDisplay.tryFallbackDownload');
@@ -176,11 +172,9 @@ function ImageDisplay({
 }: ImageDisplayProps) {
   const widgetApi = useWidgetApi();
   const [imageUri, setImageUri] = useState<string>();
-  const { data: image } = useSWR(
-    { widgetApi, baseUrl, mxc },
-    downloadFile,
-    { suspense: true },
-  );
+  const { data: image } = useSWR({ widgetApi, baseUrl, mxc }, downloadFile, {
+    suspense: true,
+  });
 
   useEffect(() => {
     if (image instanceof Blob) {
