@@ -94,6 +94,7 @@ describe('createWhiteboardPdfDefinition', () => {
         roomName: 'My Room',
         authorName: 'Alice',
         widgetApi: mockWidgetApi(),
+        themePaletteErrorMain: '#d51928',
       }),
     ).toMatchSnapshot();
   });
@@ -109,6 +110,7 @@ describe('createWhiteboardPdfDefinition', () => {
       roomName: 'My Room',
       authorName: 'Alice',
       widgetApi: mockWidgetApi(),
+      themePaletteErrorMain: '#d51928',
     });
 
     expect(spy).toHaveBeenCalledWith('Noto Emoji');

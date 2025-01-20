@@ -18,6 +18,7 @@ import { useWidgetApi } from '@matrix-widget-toolkit/react';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { LoadingButton } from '@mui/lab';
 import { Tooltip, Typography } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import { unstable_useId as useId, visuallyHidden } from '@mui/utils';
 import { getLogger } from 'loglevel';
 import { Dispatch, PropsWithChildren, useEffect, useState } from 'react';
@@ -86,6 +87,7 @@ function useGeneratePdf(
   roomName: string,
   onError?: Dispatch<string | undefined>,
 ) {
+  const theme = useTheme();
   const widgetApi = useWidgetApi();
 
   const [downloadUrl, setDownloadUrl] = useState<string>();
@@ -108,6 +110,7 @@ function useGeneratePdf(
       roomName,
       authorName,
       widgetApi,
+      themePaletteErrorMain: theme.palette.error.main,
     }).subscribe({
       next: (blob) => {
         url = URL.createObjectURL(blob);
@@ -138,6 +141,7 @@ function useGeneratePdf(
     widgetApi,
     widgetApi.widgetParameters.userId,
     widgetApi.widgetParameters.baseUrl,
+    theme.palette.error.main,
   ]);
 
   return downloadUrl;

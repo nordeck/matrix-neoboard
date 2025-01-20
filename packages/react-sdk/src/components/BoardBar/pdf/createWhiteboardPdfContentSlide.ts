@@ -20,10 +20,13 @@ import { WhiteboardFileExport } from '../../../state/export/whiteboardDocumentEx
 import { createWhiteboardPdfElementImage } from './createWhiteboardPdfElementImage';
 import { createWhiteboardPdfElementPath } from './createWhiteboardPdfElementPath';
 import { createWhiteboardPdfElementShape } from './createWhiteboardPdfElementShape';
+import { ThemeOptions } from './themeOptions';
 
 export async function createWhiteboardPdfContentSlide(
   slideInstance: WhiteboardSlideInstance,
-  files?: Array<WhiteboardFileExport>,
+  files: Array<WhiteboardFileExport>,
+  themeOptions: ThemeOptions,
+  noImageSvg: string,
 ): Promise<Content> {
   return await Promise.all(
     slideInstance.getElementIds().map(async (elementId) => {
@@ -36,12 +39,15 @@ export async function createWhiteboardPdfContentSlide(
         case 'path':
           return createWhiteboardPdfElementPath(element);
 
-        case 'image':
-          if (!files) {
-            console.error('No files provided for image element', element);
-            return [];
-          }
-          return await createWhiteboardPdfElementImage(element, files!);
+        case 'image': {
+          const file = files.find((f) => f.mxc === element.mxc);
+          return await createWhiteboardPdfElementImage(
+            element,
+            file,
+            themeOptions,
+            noImageSvg,
+          );
+        }
 
         default:
           console.error('Unknown element type', element);
