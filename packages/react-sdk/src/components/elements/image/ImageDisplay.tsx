@@ -181,7 +181,12 @@ function ImageDisplay({
   // This is mandatory to ensure that we dont have any flashing.
   const [imageUri] = useState<string | undefined>(() => {
     if (image instanceof Blob) {
-      return URL.createObjectURL(image);
+      const blobURL = URL.createObjectURL(image);
+      // Unsure if this is an incorrect test mock or createObjectURL really returns this. Its not documented well.
+      if (blobURL === '') {
+        throw new Error('Failed to create object URL');
+      }
+      return blobURL;
     }
     return undefined;
   });
