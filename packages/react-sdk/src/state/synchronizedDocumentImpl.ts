@@ -58,7 +58,6 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
 {
   private readonly logger = getLogger('SynchronizedDocument');
   private readonly loadingSubject = new BehaviorSubject<boolean>(true);
-  private readonly loadingDone = new BehaviorSubject<boolean>(false);
   private readonly destroySubject = new Subject<void>();
   private readonly statisticsSubject = new Subject<DocumentSyncStatistics>();
   private readonly statistics: DocumentSyncStatistics = {
@@ -143,7 +142,7 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
       .subscribe();
 
     combineLatest({
-      loading: this.observeLoadingDone().pipe(filter((done) => !done)),
+      loading: this.observeIsLoading().pipe(filter((loading) => !loading)),
       doc: this.document.observePersist().pipe(
         tap(() => {
           this.statistics.snapshotOutstanding = true;
@@ -191,7 +190,6 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
     this.destroySubject.next();
     this.statisticsSubject.complete();
     this.loadingSubject.complete();
-    this.loadingDone.complete();
   }
 
   observeDocumentStatistics(): Observable<DocumentSyncStatistics> {
@@ -200,10 +198,6 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
 
   observeIsLoading(): Observable<boolean> {
     return this.loadingSubject.pipe(distinctUntilChanged());
-  }
-
-  observeLoadingDone(): Observable<boolean> {
-    return this.loadingDone.pipe(distinctUntilChanged());
   }
 
   private async persistDocument(doc: Document<T>) {
@@ -249,8 +243,6 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
     validator?: DocumentSnapshotValidator,
   ) {
     return new Observable<string>((observer) => {
-      let snapshotLoadDispatch = false;
-
       const unsubscribe = this.store.subscribe(() => {
         const state = this.store.getState();
 
@@ -262,18 +254,23 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
         )(state);
 
         if (!result.isLoading) {
-          const snapshotData = result.data;
-
-          if (snapshotData) {
-            this.loadingSubject.next(false);
-            observer.next(snapshotData.data);
-          } else {
-            if (!snapshotLoadDispatch) {
-              snapshotLoadDispatch = true;
+          if (
+            result.isError &&
+            result.error.name == 'LoadFailed' &&
+            result.error.message &&
+            result.error.message.startsWith('Could not load the document')
+          ) {
+            if (!state.snapshotInfoReducer.snapshotLoadFailed) {
               this.store.dispatch(setSnapshotLoadFailed());
             }
+          } else {
+            const snapshotData = result.data;
+
+            if (snapshotData) {
+              observer.next(snapshotData.data);
+            }
+            this.loadingSubject.next(false);
           }
-          this.loadingDone.next(true);
         }
       });
 

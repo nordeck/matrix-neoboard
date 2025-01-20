@@ -95,7 +95,11 @@ export const ConnectionStateProvider: React.FC<PropsWithChildren> = function ({
     }
 
     setSnapshotLoadDialogOpen(true);
-  }, [snapshotInfo, snapshotLoadDialogOpen, setSnapshotLoadDialogOpen]);
+  }, [
+    snapshotInfo.snapshotLoadFailed,
+    snapshotLoadDialogOpen,
+    setSnapshotLoadDialogOpen,
+  ]);
 
   /**
    * Monitor send snapshot state. Display a snackbar on errors.

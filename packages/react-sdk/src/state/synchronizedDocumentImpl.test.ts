@@ -42,7 +42,7 @@ import {
   mockDocumentSnapshot,
   mockWhiteboard,
 } from '../lib/testUtils/matrixTestUtils';
-import { createStore, setSnapshotLoadSuccessful } from '../store';
+import { createStore } from '../store';
 import { CommunicationChannel, Message } from './communication';
 import { ChangeFn, Document } from './crdt';
 import { SharedMap, YDocument, YMap, createMigrations } from './crdt/y';
@@ -558,8 +558,6 @@ describe('SynchronizedDocumentImpl', () => {
       '$document-0',
     );
 
-    store.dispatch(setSnapshotLoadSuccessful());
-
     const outstandingStatistics = firstValueFrom(
       synchronizedDocument.observeDocumentStatistics().pipe(take(2), toArray()),
     );
@@ -568,7 +566,9 @@ describe('SynchronizedDocumentImpl', () => {
     );
 
     const isReady = firstValueFrom(
-      synchronizedDocument.observeLoadingDone().pipe(filter((fail) => !fail)),
+      synchronizedDocument
+        .observeIsLoading()
+        .pipe(filter((loading) => !loading)),
     );
 
     doc.performChange((doc) => doc.set('num', 10));
@@ -656,10 +656,10 @@ describe('SynchronizedDocumentImpl', () => {
       '$document-0',
     );
 
-    store.dispatch(setSnapshotLoadSuccessful());
-
     const isReady = firstValueFrom(
-      synchronizedDocument.observeLoadingDone().pipe(filter((fail) => !fail)),
+      synchronizedDocument
+        .observeIsLoading()
+        .pipe(filter((loading) => !loading)),
     );
     await isReady;
 
@@ -802,7 +802,9 @@ describe('SynchronizedDocumentImpl', () => {
       );
 
       await firstValueFrom(
-        synchronizedDocument.observeLoadingDone().pipe(filter((fail) => !fail)),
+        synchronizedDocument
+          .observeIsLoading()
+          .pipe(filter((loading) => !loading)),
       );
 
       synchronizedDocument.persist();

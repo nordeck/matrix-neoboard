@@ -18,3 +18,4 @@ export { ConnectionStateDialog } from './ConnectionStateDialog';
 export { ConnectionStateProvider } from './ConnectionStateProvider';
 export { SnapshotLoadStateDialog } from './SnapshotLoadStateDialog';
 export { useConnectionState } from './useConnectionState';
+export { useSnapshotLoadState } from './useSnapshotLoadState';
