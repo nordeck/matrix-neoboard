@@ -253,13 +253,16 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
         )(state);
 
         if (!result.isLoading) {
+          const snapshotLoadFailed =
+            state.connectionInfoReducer.snapshotLoadFailed;
+
           if (
             result.isError &&
             result.error.name == 'LoadFailed' &&
             result.error.message &&
             result.error.message.startsWith('Could not load the document')
           ) {
-            if (!state.connectionInfoReducer.snapshotLoadFailed) {
+            if (!snapshotLoadFailed) {
               this.store.dispatch(setSnapshotLoadFailed());
             }
           } else {
@@ -269,7 +272,7 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
               observer.next(snapshotData.data);
             }
             this.loadingSubject.next(false);
-            if (state.connectionInfoReducer.snapshotLoadFailed !== false) {
+            if (snapshotLoadFailed !== false) {
               this.store.dispatch(setSnapshotLoadSuccessful());
             }
           }
