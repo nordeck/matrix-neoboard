@@ -17,8 +17,10 @@
 export * from './api';
 export {
   connectionInfoReducer,
-  setSnapshotFailed,
-  setSnapshotSuccessful,
+  setSnapshotLoadFailed,
+  setSnapshotLoadSuccessful,
+  setSnapshotSaveFailed,
+  setSnapshotSaveSuccessful,
 } from './connectionInfoSlice';
 export { useAppDispatch } from './reduxToolkitHooks';
 export { shapeSizesReducer } from './shapeSizesSlide';

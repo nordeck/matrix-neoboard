@@ -41,6 +41,7 @@ import {
   mockDocumentCreate,
   mockDocumentSnapshot,
   mockWhiteboard,
+  mockWhiteboardDocumentSnapshot,
 } from '../lib/testUtils/matrixTestUtils';
 import { createStore } from '../store';
 import { CommunicationChannel, Message } from './communication';
@@ -725,6 +726,100 @@ describe('SynchronizedDocumentImpl', () => {
 
     expect(await statistics).toEqual([]);
     expect(await loading).toEqual([]);
+  });
+
+  describe('load snapshot', () => {
+    it('should have a snapshot load failure undefined at start', async () => {
+      const doc = createExampleDocument();
+      const store = createStore({ widgetApi });
+
+      new SynchronizedDocumentImpl(
+        doc,
+        store,
+        communicationChannel,
+        storage,
+        '$document-0',
+      );
+
+      expect(store.getState().connectionInfoReducer.snapshotLoadFailed).toBe(
+        undefined,
+      );
+    });
+
+    it('should dispatch a snapshot load failure to the store', async () => {
+      widgetApi.readEventRelations.mockRejectedValue(new Error('Some Error'));
+
+      const doc = createExampleDocument();
+      const store = createStore({ widgetApi });
+
+      new SynchronizedDocumentImpl(
+        doc,
+        store,
+        communicationChannel,
+        storage,
+        '$document-0',
+      );
+
+      await waitFor(() => {
+        expect(store.getState().connectionInfoReducer.snapshotLoadFailed).toBe(
+          true,
+        );
+      });
+    });
+
+    it('should dispatch a snapshot load success to the store', async () => {
+      const store = createStore({ widgetApi });
+
+      const doc = createExampleDocument();
+      new SynchronizedDocumentImpl(
+        doc,
+        store,
+        communicationChannel,
+        storage,
+        '$document-0',
+      );
+
+      await waitFor(() => {
+        expect(store.getState().connectionInfoReducer.snapshotLoadFailed).toBe(
+          false,
+        );
+      });
+    });
+
+    it('should recover from a snapshot load failure', async () => {
+      widgetApi.readEventRelations.mockRejectedValue(new Error('Some Error'));
+
+      const doc = createExampleDocument();
+      const store = createStore({ widgetApi });
+
+      new SynchronizedDocumentImpl(
+        doc,
+        store,
+        communicationChannel,
+        storage,
+        '$document-0',
+      );
+
+      await waitFor(() => {
+        expect(store.getState().connectionInfoReducer.snapshotLoadFailed).toBe(
+          true,
+        );
+      });
+
+      const document = mockWhiteboardDocumentSnapshot();
+      const { snapshot, chunks } = mockDocumentSnapshot({
+        document: document,
+        origin_server_ts: 2000,
+      });
+      widgetApi.mockSendRoomEvent(snapshot);
+      chunks.forEach(widgetApi.mockSendRoomEvent);
+
+      await waitFor(() => {
+        expect(store.getState().connectionInfoReducer.snapshotLoadFailed).toBe(
+          false,
+        );
+      });
+    });
   });
 
   describe('persist', () => {

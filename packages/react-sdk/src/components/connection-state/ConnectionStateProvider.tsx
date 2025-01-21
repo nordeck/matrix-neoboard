@@ -28,14 +28,14 @@ import React, {
 } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNetworkState } from 'react-use';
-import { useSnackbar } from '../../components/Snackbar';
 import { useActiveWhiteboardInstance } from '../../state';
 import { useAppDispatch } from '../../store';
 import {
   selectConnectionInfo,
-  setSnapshotSuccessful,
+  setSnapshotSaveSuccessful,
 } from '../../store/connectionInfoSlice';
 import { useAppSelector } from '../../store/reduxToolkitHooks';
+import { useSnackbar } from '../Snackbar';
 
 const logger = getLogger('ConnectionStateProvider');
 
@@ -49,8 +49,13 @@ export type ConnectionStateState = {
   handleCloseConnectionStateDialog: () => void;
 };
 
+export type SnapshotLoadState = {
+  snapshotLoadDialogOpen: boolean;
+  handleCloseSnapshotLoadDialog: () => void;
+};
+
 export const ConnectionStateContext = createContext<
-  ConnectionStateState | undefined
+  (ConnectionStateState & SnapshotLoadState) | undefined
 >(undefined);
 
 export const ConnectionStateProvider: React.FC<PropsWithChildren> = function ({
@@ -69,6 +74,7 @@ export const ConnectionStateProvider: React.FC<PropsWithChildren> = function ({
   const networkState = useNetworkState();
   const [connectionStateDialogOpen, setConnectionStateDialogOpen] =
     useState(false);
+  const [snapshotLoadDialogOpen, setSnapshotLoadDialogOpen] = useState(false);
   const connectionInfo = useAppSelector(selectConnectionInfo);
   const connectionState: ConnectionState = networkState.online
     ? 'online'
@@ -79,10 +85,27 @@ export const ConnectionStateProvider: React.FC<PropsWithChildren> = function ({
   }, [setConnectionStateDialogOpen]);
 
   /**
+   * Monitor load snapshot state. Display dialog if snapshot load failed.
+   */
+  useEffect(() => {
+    if (!connectionInfo.snapshotLoadFailed) {
+      // No load snapshot error - no dialog
+      setSnapshotLoadDialogOpen(false);
+      return;
+    }
+
+    setSnapshotLoadDialogOpen(true);
+  }, [
+    connectionInfo.snapshotLoadFailed,
+    snapshotLoadDialogOpen,
+    setSnapshotLoadDialogOpen,
+  ]);
+
+  /**
    * Monitor send snapshot state. Display a snackbar on errors.
    */
   useEffect(() => {
-    if (connectionInfo.snapshotFailed === false) {
+    if (connectionInfo.snapshotSaveFailed === false) {
       // No send snapshot error - no connection state snackbar and no dialog
       clearSnackbar();
       setConnectionStateDialogOpen(false);
@@ -128,9 +151,9 @@ export const ConnectionStateProvider: React.FC<PropsWithChildren> = function ({
     });
   }, [
     clearSnackbar,
-    connectionInfo.snapshotFailed,
     connectionState,
     connectionStateDialogOpen,
+    connectionInfo.snapshotSaveFailed,
     handleLearnMoreClick,
     setConnectionStateDialogOpen,
     showSnackbar,
@@ -147,7 +170,7 @@ export const ConnectionStateProvider: React.FC<PropsWithChildren> = function ({
       return false;
     }
 
-    if (connectionInfo.snapshotFailed === false) {
+    if (connectionInfo.snapshotSaveFailed === false) {
       // Do not retry, if there is no error
       logger.debug(
         'Retry snapshot: No retry, because there is no failed snapshot',
@@ -165,7 +188,7 @@ export const ConnectionStateProvider: React.FC<PropsWithChildren> = function ({
 
     logger.debug('Retry snapshot: Should retry');
     return true;
-  }, [connectionInfo.snapshotFailed, connectionState, whiteboard]);
+  }, [connectionState, connectionInfo.snapshotSaveFailed, whiteboard]);
 
   // Actually retry to send the snapshot.
   useEffect(() => {
@@ -189,7 +212,7 @@ export const ConnectionStateProvider: React.FC<PropsWithChildren> = function ({
 
       try {
         await whiteboard.persist();
-        dispatch(setSnapshotSuccessful());
+        dispatch(setSnapshotSaveSuccessful());
         return true;
       } catch {
         return false;
@@ -222,12 +245,18 @@ export const ConnectionStateProvider: React.FC<PropsWithChildren> = function ({
     setConnectionStateDialogOpen(false);
   }, [setConnectionStateDialogOpen]);
 
+  const handleCloseSnapshotLoadDialog = useCallback(() => {
+    setSnapshotLoadDialogOpen(false);
+  }, [setSnapshotLoadDialogOpen]);
+
   return (
     <ConnectionStateContext.Provider
       value={{
         handleCloseConnectionStateDialog,
         connectionState,
         connectionStateDialogOpen,
+        handleCloseSnapshotLoadDialog,
+        snapshotLoadDialogOpen,
       }}
     >
       {children}

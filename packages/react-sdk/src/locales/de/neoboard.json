@@ -303,6 +303,12 @@
   "snackbar": {
     "dismissAction": "Ausblenden"
   },
+  "snapshotLoadState": {
+    "dialog": {
+      "text": "Sie können die Inhalte sehen, wenn ein anderer Benutzer an der Tafel arbeitet.",
+      "title": "Das Board kann nicht angezeigt werden"
+    }
+  },
   "textColorPicker": {
     "title": "Wähle eine Textfarbe"
   },

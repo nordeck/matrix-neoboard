@@ -36,8 +36,10 @@ import {
 import { isDefined } from '../lib';
 import {
   documentSnapshotApi,
-  setSnapshotFailed,
-  setSnapshotSuccessful,
+  setSnapshotLoadFailed,
+  setSnapshotLoadSuccessful,
+  setSnapshotSaveFailed,
+  setSnapshotSaveSuccessful,
   StoreType,
 } from '../store';
 import { DocumentSnapshotValidator } from '../store/api/documentSnapshotBacklog';
@@ -156,10 +158,10 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
           async ({ doc }) => {
             try {
               await this.persistDocument(doc);
-              this.store.dispatch(setSnapshotSuccessful());
+              this.store.dispatch(setSnapshotSaveSuccessful());
             } catch (e) {
               this.logger.error('Could not store snapshot for', documentId, e);
-              this.store.dispatch(setSnapshotFailed());
+              this.store.dispatch(setSnapshotSaveFailed());
             }
           },
           { leading: true, trailing: true },
@@ -251,13 +253,29 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
         )(state);
 
         if (!result.isLoading) {
-          const snapshotData = result.data;
+          const snapshotLoadFailed =
+            state.connectionInfoReducer.snapshotLoadFailed;
 
-          if (snapshotData) {
-            observer.next(snapshotData.data);
+          if (
+            result.isError &&
+            result.error.name == 'LoadFailed' &&
+            result.error.message &&
+            result.error.message.startsWith('Could not load the document')
+          ) {
+            if (!snapshotLoadFailed) {
+              this.store.dispatch(setSnapshotLoadFailed());
+            }
+          } else {
+            const snapshotData = result.data;
+
+            if (snapshotData) {
+              observer.next(snapshotData.data);
+            }
+            this.loadingSubject.next(false);
+            if (snapshotLoadFailed !== false) {
+              this.store.dispatch(setSnapshotLoadSuccessful());
+            }
           }
-
-          this.loadingSubject.next(false);
         }
       });
 

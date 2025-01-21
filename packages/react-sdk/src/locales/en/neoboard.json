@@ -303,6 +303,12 @@
   "snackbar": {
     "dismissAction": "Dismiss"
   },
+  "snapshotLoadState": {
+    "dialog": {
+      "text": "You will be able to see the contents when another user is working on the board.",
+      "title": "Unable to display the board"
+    }
+  },
   "textColorPicker": {
     "title": "Pick a text color"
   },
