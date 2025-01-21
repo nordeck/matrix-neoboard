@@ -20,7 +20,7 @@ export {
   setSnapshotLoadFailed,
   setSnapshotLoadSuccessful,
   setSnapshotSaveFailed,
-  setSnapshotSuccessful,
+  setSnapshotSaveSuccessful,
 } from './connectionInfoSlice';
 export { useAppDispatch } from './reduxToolkitHooks';
 export { shapeSizesReducer } from './shapeSizesSlide';

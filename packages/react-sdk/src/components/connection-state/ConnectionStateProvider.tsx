@@ -32,7 +32,7 @@ import { useActiveWhiteboardInstance } from '../../state';
 import { useAppDispatch } from '../../store';
 import {
   selectConnectionInfo,
-  setSnapshotSuccessful,
+  setSnapshotSaveSuccessful,
 } from '../../store/connectionInfoSlice';
 import { useAppSelector } from '../../store/reduxToolkitHooks';
 import { useSnackbar } from '../Snackbar';
@@ -212,7 +212,7 @@ export const ConnectionStateProvider: React.FC<PropsWithChildren> = function ({
 
       try {
         await whiteboard.persist();
-        dispatch(setSnapshotSuccessful());
+        dispatch(setSnapshotSaveSuccessful());
         return true;
       } catch {
         return false;

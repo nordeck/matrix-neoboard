@@ -37,7 +37,7 @@ export const connectionInfoSlice = createSlice({
         snapshotSaveFailed: true,
       };
     },
-    setSnapshotSuccessful: (state) => {
+    setSnapshotSaveSuccessful: (state) => {
       return {
         ...state,
         snapshotSaveFailed: false,
@@ -60,7 +60,7 @@ export const connectionInfoSlice = createSlice({
 
 export const {
   setSnapshotSaveFailed,
-  setSnapshotSuccessful,
+  setSnapshotSaveSuccessful,
   setSnapshotLoadFailed,
   setSnapshotLoadSuccessful,
 } = connectionInfoSlice.actions;
