@@ -19,10 +19,12 @@ import { RootState } from './store';
 
 export type ConnectionInfoState = {
   snapshotFailed: boolean;
+  snapshotLoadFailed: boolean | undefined;
 };
 
 const initialState: ConnectionInfoState = {
   snapshotFailed: false,
+  snapshotLoadFailed: undefined,
 };
 
 export const connectionInfoSlice = createSlice({
@@ -41,11 +43,27 @@ export const connectionInfoSlice = createSlice({
         snapshotFailed: false,
       };
     },
+    setSnapshotLoadFailed: (state) => {
+      return {
+        ...state,
+        snapshotLoadFailed: true,
+      };
+    },
+    setSnapshotLoadSuccessful: (state) => {
+      return {
+        ...state,
+        snapshotLoadFailed: false,
+      };
+    },
   },
 });
 
-export const { setSnapshotFailed, setSnapshotSuccessful } =
-  connectionInfoSlice.actions;
+export const {
+  setSnapshotFailed,
+  setSnapshotSuccessful,
+  setSnapshotLoadFailed,
+  setSnapshotLoadSuccessful,
+} = connectionInfoSlice.actions;
 
 export const selectConnectionInfo = (state: RootState) =>
   state.connectionInfoReducer;

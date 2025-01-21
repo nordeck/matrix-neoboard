@@ -741,7 +741,7 @@ describe('SynchronizedDocumentImpl', () => {
         '$document-0',
       );
 
-      expect(store.getState().snapshotInfoReducer.snapshotLoadFailed).toBe(
+      expect(store.getState().connectionInfoReducer.snapshotLoadFailed).toBe(
         undefined,
       );
     });
@@ -761,7 +761,7 @@ describe('SynchronizedDocumentImpl', () => {
       );
 
       await waitFor(() => {
-        expect(store.getState().snapshotInfoReducer.snapshotLoadFailed).toBe(
+        expect(store.getState().connectionInfoReducer.snapshotLoadFailed).toBe(
           true,
         );
       });
@@ -780,7 +780,7 @@ describe('SynchronizedDocumentImpl', () => {
       );
 
       await waitFor(() => {
-        expect(store.getState().snapshotInfoReducer.snapshotLoadFailed).toBe(
+        expect(store.getState().connectionInfoReducer.snapshotLoadFailed).toBe(
           false,
         );
       });
@@ -801,7 +801,7 @@ describe('SynchronizedDocumentImpl', () => {
       );
 
       await waitFor(() => {
-        expect(store.getState().snapshotInfoReducer.snapshotLoadFailed).toBe(
+        expect(store.getState().connectionInfoReducer.snapshotLoadFailed).toBe(
           true,
         );
       });
@@ -815,7 +815,7 @@ describe('SynchronizedDocumentImpl', () => {
       chunks.forEach(widgetApi.mockSendRoomEvent);
 
       await waitFor(() => {
-        expect(store.getState().snapshotInfoReducer.snapshotLoadFailed).toBe(
+        expect(store.getState().connectionInfoReducer.snapshotLoadFailed).toBe(
           false,
         );
       });

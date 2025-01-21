@@ -35,7 +35,6 @@ import {
   setSnapshotSuccessful,
 } from '../../store/connectionInfoSlice';
 import { useAppSelector } from '../../store/reduxToolkitHooks';
-import { selectSnapshotInfo } from '../../store/snapshotInfoSlice';
 import { useSnackbar } from '../Snackbar';
 
 const logger = getLogger('ConnectionStateProvider');
@@ -77,7 +76,6 @@ export const ConnectionStateProvider: React.FC<PropsWithChildren> = function ({
     useState(false);
   const [snapshotLoadDialogOpen, setSnapshotLoadDialogOpen] = useState(false);
   const connectiontInfo = useAppSelector(selectConnectionInfo);
-  const snapshotInfo = useAppSelector(selectSnapshotInfo);
   const connectionState: ConnectionState = networkState.online
     ? 'online'
     : 'no_internet_connection';
@@ -90,7 +88,7 @@ export const ConnectionStateProvider: React.FC<PropsWithChildren> = function ({
    * Monitor load snapshot state. Display dialog if snapshot load failed.
    */
   useEffect(() => {
-    if (!snapshotInfo.snapshotLoadFailed) {
+    if (!connectiontInfo.snapshotLoadFailed) {
       // No load snapshot error - no dialog
       setSnapshotLoadDialogOpen(false);
       return;
@@ -98,7 +96,7 @@ export const ConnectionStateProvider: React.FC<PropsWithChildren> = function ({
 
     setSnapshotLoadDialogOpen(true);
   }, [
-    snapshotInfo.snapshotLoadFailed,
+    connectiontInfo.snapshotLoadFailed,
     snapshotLoadDialogOpen,
     setSnapshotLoadDialogOpen,
   ]);

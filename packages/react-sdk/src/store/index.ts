@@ -18,15 +18,12 @@ export * from './api';
 export {
   connectionInfoReducer,
   setSnapshotFailed,
+  setSnapshotLoadFailed,
+  setSnapshotLoadSuccessful,
   setSnapshotSuccessful,
 } from './connectionInfoSlice';
 export { useAppDispatch } from './reduxToolkitHooks';
 export { shapeSizesReducer } from './shapeSizesSlide';
-export {
-  setSnapshotLoadFailed,
-  setSnapshotLoadSuccessful,
-  snapshotInfoReducer,
-} from './snapshotInfoSlice';
 export { createStore } from './store';
 export type {
   AppDispatch,

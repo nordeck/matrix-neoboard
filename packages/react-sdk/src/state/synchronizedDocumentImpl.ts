@@ -259,7 +259,7 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
             result.error.message &&
             result.error.message.startsWith('Could not load the document')
           ) {
-            if (!state.snapshotInfoReducer.snapshotLoadFailed) {
+            if (!state.connectionInfoReducer.snapshotLoadFailed) {
               this.store.dispatch(setSnapshotLoadFailed());
             }
           } else {
@@ -269,7 +269,7 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
               observer.next(snapshotData.data);
             }
             this.loadingSubject.next(false);
-            if (state.snapshotInfoReducer.snapshotLoadFailed !== false) {
+            if (state.connectionInfoReducer.snapshotLoadFailed !== false) {
               this.store.dispatch(setSnapshotLoadSuccessful());
             }
           }
