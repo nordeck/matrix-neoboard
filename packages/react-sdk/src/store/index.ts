@@ -17,9 +17,9 @@
 export * from './api';
 export {
   connectionInfoReducer,
-  setSnapshotFailed,
   setSnapshotLoadFailed,
   setSnapshotLoadSuccessful,
+  setSnapshotSaveFailed,
   setSnapshotSuccessful,
 } from './connectionInfoSlice';
 export { useAppDispatch } from './reduxToolkitHooks';

@@ -36,9 +36,9 @@ import {
 import { isDefined } from '../lib';
 import {
   documentSnapshotApi,
-  setSnapshotFailed,
   setSnapshotLoadFailed,
   setSnapshotLoadSuccessful,
+  setSnapshotSaveFailed,
   setSnapshotSuccessful,
   StoreType,
 } from '../store';
@@ -161,7 +161,7 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
               this.store.dispatch(setSnapshotSuccessful());
             } catch (e) {
               this.logger.error('Could not store snapshot for', documentId, e);
-              this.store.dispatch(setSnapshotFailed());
+              this.store.dispatch(setSnapshotSaveFailed());
             }
           },
           { leading: true, trailing: true },

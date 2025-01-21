@@ -18,12 +18,12 @@ import { createSlice } from '@reduxjs/toolkit';
 import { RootState } from './store';
 
 export type ConnectionInfoState = {
-  snapshotFailed: boolean;
+  snapshotSaveFailed: boolean;
   snapshotLoadFailed: boolean | undefined;
 };
 
 const initialState: ConnectionInfoState = {
-  snapshotFailed: false,
+  snapshotSaveFailed: false,
   snapshotLoadFailed: undefined,
 };
 
@@ -31,16 +31,16 @@ export const connectionInfoSlice = createSlice({
   name: 'connectionInfo',
   initialState,
   reducers: {
-    setSnapshotFailed: (state) => {
+    setSnapshotSaveFailed: (state) => {
       return {
         ...state,
-        snapshotFailed: true,
+        snapshotSaveFailed: true,
       };
     },
     setSnapshotSuccessful: (state) => {
       return {
         ...state,
-        snapshotFailed: false,
+        snapshotSaveFailed: false,
       };
     },
     setSnapshotLoadFailed: (state) => {
@@ -59,7 +59,7 @@ export const connectionInfoSlice = createSlice({
 });
 
 export const {
-  setSnapshotFailed,
+  setSnapshotSaveFailed,
   setSnapshotSuccessful,
   setSnapshotLoadFailed,
   setSnapshotLoadSuccessful,
