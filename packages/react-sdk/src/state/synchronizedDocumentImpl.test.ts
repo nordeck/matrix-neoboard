@@ -729,7 +729,7 @@ describe('SynchronizedDocumentImpl', () => {
   });
 
   describe('load snapshot', () => {
-    it('store snapshot load failure state is undefined at start', async () => {
+    it('should have a snapshot load failure undefined at start', async () => {
       const doc = createExampleDocument();
       const store = createStore({ widgetApi });
 
@@ -746,7 +746,7 @@ describe('SynchronizedDocumentImpl', () => {
       );
     });
 
-    it('should dispatch a snaphot load failed in the store', async () => {
+    it('should dispatch a snapshot load failure to the store', async () => {
       widgetApi.readEventRelations.mockRejectedValue(new Error('Some Error'));
 
       const doc = createExampleDocument();
@@ -767,7 +767,7 @@ describe('SynchronizedDocumentImpl', () => {
       });
     });
 
-    it('should dispatch a snaphot load success in the store', async () => {
+    it('should dispatch a snapshot load success to the store', async () => {
       const store = createStore({ widgetApi });
 
       const doc = createExampleDocument();
@@ -786,7 +786,7 @@ describe('SynchronizedDocumentImpl', () => {
       });
     });
 
-    it('should recover from snapshot load failure', async () => {
+    it('should recover from a snapshot load failure', async () => {
       widgetApi.readEventRelations.mockRejectedValue(new Error('Some Error'));
 
       const doc = createExampleDocument();
