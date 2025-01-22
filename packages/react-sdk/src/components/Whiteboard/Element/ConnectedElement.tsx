@@ -17,7 +17,7 @@
 import { Elements } from '../../../state/types';
 import { useElementOverride } from '../../ElementOverridesProvider';
 import EllipseDisplay from '../../elements/ellipse/Display';
-import ImageDisplay from '../../elements/image/ImageDisplay';
+import ImageDisplayWrapper from '../../elements/image/ImageDisplay';
 import LineDisplay from '../../elements/line/Display';
 import PolylineDisplay from '../../elements/polyline/Display';
 import RectangleDisplay from '../../elements/rectangle/Display';
@@ -92,7 +92,7 @@ export const ConnectedElement = ({
         );
       }
     } else if (element.type === 'image') {
-      return <ImageDisplay element={element} otherProps={otherProps} />;
+      return <ImageDisplayWrapper element={element} otherProps={otherProps} />;
     }
   }
 
