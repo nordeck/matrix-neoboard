@@ -218,7 +218,7 @@ describe('<CopyAndPasteShortcuts>', () => {
     expect(activeElementId).not.toBe('element-1');
     const activeElement = activeSlide.getElement(activeElementId!);
     expect(activeElement).toEqual({
-      fillColor: '#FFFFFF',
+      fillColor: 'transparent',
       height: 300,
       kind: 'rectangle',
       position: {
