@@ -247,24 +247,24 @@ function ImageDisplayWrapper({
   }
 
   return (
-    <Suspense
+    <ErrorBoundary
       fallback={
-        <Skeleton
-          data-testid={`element-${otherProps.elementId}-skeleton`}
-          x={element.position.x}
-          y={element.position.y}
+        <ImagePlaceholder
+          position={element.position}
           width={element.width}
           height={element.height}
+          elementId={otherProps.elementId}
         />
       }
     >
-      <ErrorBoundary
+      <Suspense
         fallback={
-          <ImagePlaceholder
-            position={element.position}
+          <Skeleton
+            data-testid={`element-${otherProps.elementId}-skeleton`}
+            x={element.position.x}
+            y={element.position.y}
             width={element.width}
             height={element.height}
-            elementId={otherProps.elementId}
           />
         }
       >
@@ -273,8 +273,8 @@ function ImageDisplayWrapper({
           {...element}
           {...otherProps}
         />
-      </ErrorBoundary>
-    </Suspense>
+      </Suspense>
+    </ErrorBoundary>
   );
 }
 
