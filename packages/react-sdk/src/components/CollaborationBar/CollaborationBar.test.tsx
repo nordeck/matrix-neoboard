@@ -65,8 +65,8 @@ describe('<CollaborationBar>', () => {
     await act(async () => {
       expect(
         within(toolbar).getByRole('checkbox', {
-          name: "Show collaborators' cursors",
-          checked: false,
+          name: "Hide collaborators' cursors",
+          checked: true,
         }),
       ).toBeInTheDocument();
       expect(
@@ -101,15 +101,15 @@ describe('<CollaborationBar>', () => {
 
     await userEvent.click(
       screen.getByRole('checkbox', {
-        name: "Show collaborators' cursors",
-        checked: false,
+        name: "Hide collaborators' cursors",
+        checked: true,
       }),
     );
 
     expect(
       screen.getByRole('checkbox', {
-        name: "Hide collaborators' cursors",
-        checked: true,
+        name: "Show collaborators' cursors",
+        checked: false,
       }),
     ).toBeInTheDocument();
   });
