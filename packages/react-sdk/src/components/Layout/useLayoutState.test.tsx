@@ -36,10 +36,10 @@ describe('useLayoutState', () => {
     expect(result.current.isSlideOverviewVisible).toBe(false);
   });
 
-  it("should start with collaborators' cursors hidden", () => {
+  it("should start with collaborators' cursors visible", () => {
     const { result } = renderHook(() => useLayoutState(), { wrapper: Wrapper });
 
-    expect(result.current.isShowCollaboratorsCursors).toBe(false);
+    expect(result.current.isShowCollaboratorsCursors).toBe(true);
   });
 
   it('should start with developer tools hidden', () => {

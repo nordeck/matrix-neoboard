@@ -65,8 +65,8 @@ describe('<CollaborationBar>', () => {
     await act(async () => {
       expect(
         within(toolbar).getByRole('checkbox', {
-          name: "Show collaborators' cursors",
-          checked: false,
+          name: "Hide collaborators' cursors",
+          checked: true,
         }),
       ).toBeInTheDocument();
       expect(
@@ -101,40 +101,30 @@ describe('<CollaborationBar>', () => {
 
     await userEvent.click(
       screen.getByRole('checkbox', {
-        name: "Show collaborators' cursors",
-        checked: false,
+        name: "Hide collaborators' cursors",
+        checked: true,
       }),
     );
 
     expect(
       screen.getByRole('checkbox', {
-        name: "Hide collaborators' cursors",
-        checked: true,
+        name: "Show collaborators' cursors",
+        checked: false,
       }),
     ).toBeInTheDocument();
   });
 
-  it('should show cursors in presentation mode if edit mode is enabled', async () => {
+  it('should show cursors checkbox in presentation mode if edit mode is enabled', async () => {
     setPresentationMode(true, true);
 
     render(<CollaborationBar />, { wrapper: Wrapper });
 
-    await userEvent.click(
-      screen.getByRole('checkbox', {
-        name: "Show collaborators' cursors",
-        checked: false,
-      }),
-    );
-
     expect(
-      screen.getByRole('checkbox', {
-        name: "Hide collaborators' cursors",
-        checked: true,
-      }),
+      screen.getByRole('checkbox', { name: /cursors$/ }),
     ).toBeInTheDocument();
   });
 
-  it('should hide cursors in presentation mode if edit mode is not enabled', async () => {
+  it('should hide cursors checkbox in presentation mode if edit mode is not enabled', async () => {
     setPresentationMode(true, false);
 
     render(<CollaborationBar />, { wrapper: Wrapper });

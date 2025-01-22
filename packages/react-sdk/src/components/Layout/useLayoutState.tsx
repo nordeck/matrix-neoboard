@@ -102,7 +102,7 @@ export function LayoutStateProvider({ children }: PropsWithChildren<{}>) {
   const [isDeveloperToolsVisible, setDeveloperToolsVisible] =
     useState<boolean>(false);
   const [isShowCollaboratorsCursors, setShowCollaboratorsCursors] =
-    useState<boolean>(false);
+    useState<boolean>(true);
   const [isShowGrid, setShowGrid] = useState<boolean>(true);
   const [activeTool, setActiveTool] = useState<ActiveTool>('select');
   const { isFullscreenMode, setFullscreenMode } = useFullscreenMode();
