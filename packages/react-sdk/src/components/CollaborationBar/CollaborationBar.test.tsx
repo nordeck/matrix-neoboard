@@ -119,13 +119,6 @@ describe('<CollaborationBar>', () => {
 
     render(<CollaborationBar />, { wrapper: Wrapper });
 
-    await userEvent.click(
-      screen.getByRole('checkbox', {
-        name: "Show collaborators' cursors",
-        checked: false,
-      }),
-    );
-
     expect(
       screen.getByRole('checkbox', {
         name: "Hide collaborators' cursors",
@@ -138,6 +131,13 @@ describe('<CollaborationBar>', () => {
     setPresentationMode(true, false);
 
     render(<CollaborationBar />, { wrapper: Wrapper });
+
+    await userEvent.click(
+      screen.getByRole('checkbox', {
+        name: "Hide collaborators' cursors",
+        checked: true,
+      }),
+    );
 
     await act(async () => {
       expect(
