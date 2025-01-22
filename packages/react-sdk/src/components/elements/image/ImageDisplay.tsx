@@ -179,7 +179,7 @@ function ImageDisplay({
     },
   );
   // This is mandatory to ensure that we dont have any flashing.
-  const [imageUri] = useState<string | undefined>(() => {
+  const [imageUri] = useState<string>(() => {
     if (image instanceof Blob) {
       const blobURL = URL.createObjectURL(image);
       // Unsure if this is an incorrect test mock or createObjectURL really returns this. Its not documented well.
@@ -188,7 +188,7 @@ function ImageDisplay({
       }
       return blobURL;
     }
-    return undefined;
+    throw new Error('Invalid image data');
   });
 
   const onLoaded = useCallback(() => {
@@ -197,19 +197,18 @@ function ImageDisplay({
     }
   }, [image, imageUri]);
 
-  const renderedChild =
-    imageUri !== undefined ? (
-      <Image
-        data-testid={`element-${elementId}-image`}
-        href={imageUri}
-        x={position.x}
-        y={position.y}
-        width={width}
-        height={height}
-        preserveAspectRatio="none"
-        onLoad={onLoaded}
-      />
-    ) : null;
+  const renderedChild = (
+    <Image
+      data-testid={`element-${elementId}-image`}
+      href={imageUri}
+      x={position.x}
+      y={position.y}
+      width={width}
+      height={height}
+      preserveAspectRatio="none"
+      onLoad={onLoaded}
+    />
+  );
 
   if (readOnly) {
     return <>{renderedChild}</>;
