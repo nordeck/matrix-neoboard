@@ -93,6 +93,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           platforms: linux/amd64,linux/arm64,linux/s390x
           sbom: true
+          outputs: 'type=image'
           provenance: true
           build-args: |
             REACT_APP_VERSION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
