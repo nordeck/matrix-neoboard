@@ -45,7 +45,12 @@ import { DragSelect } from './ElementBehaviors/Selection/DragSelect';
 import { DotGrid } from './Grid';
 import { SlideSkeleton } from './SlideSkeleton';
 import { SvgCanvas } from './SvgCanvas';
-import { whiteboardHeight, whiteboardWidth } from './constants';
+import {
+  initialWhiteboardHeight,
+  initialWhiteboardWidth,
+  whiteboardHeight,
+  whiteboardWidth,
+} from './constants';
 
 const WhiteboardHost = ({
   elementIds,
@@ -83,6 +88,8 @@ const WhiteboardHost = ({
       alignContent="space-around"
       position="relative"
       data-guided-tour-target="canvas"
+      width="calc(100vw - 50px)"
+      overflow="hidden"
     >
       <SvgCanvas
         viewportHeight={whiteboardHeight}
@@ -105,6 +112,7 @@ const WhiteboardHost = ({
           [slideInstance],
         )}
       >
+        <BaseArea />
         {!hideDotGrid && <DotGrid />}
         {!readOnly && <UnSelectElementHandler />}
 
@@ -141,6 +149,17 @@ const WhiteboardHost = ({
         {isShowCollaboratorsCursors && !hideCursors && <CursorRenderer />}
       </SvgCanvas>
     </Box>
+  );
+};
+
+const BaseArea = () => {
+  return (
+    <path
+      fill="transparent"
+      strokeWidth={2}
+      stroke="#bbb"
+      d={`M ${(whiteboardWidth - initialWhiteboardWidth) / 2} ${(whiteboardHeight - initialWhiteboardHeight) / 2} l 0 ${initialWhiteboardHeight} l ${initialWhiteboardWidth} 0 l 0 -${initialWhiteboardHeight} l -${initialWhiteboardWidth} 0`}
+    ></path>
   );
 };
 
