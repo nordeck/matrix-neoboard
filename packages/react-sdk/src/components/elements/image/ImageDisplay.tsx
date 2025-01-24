@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
+import { WidgetApi } from '@matrix-widget-toolkit/api';
 import { useWidgetApi } from '@matrix-widget-toolkit/react';
 import { styled } from '@mui/material';
+import { getLogger } from 'loglevel';
 import { IDownloadFileActionFromWidgetResponseData } from 'matrix-widget-api';
-import React, { useCallback, useEffect, useState } from 'react';
+import { Component, Suspense, useCallback, useState } from 'react';
+import useSWR from 'swr';
 import { getSVGUnsafe } from '../../../imageUtils';
 import { convertMxcToHttpUrl, WidgetApiActionError } from '../../../lib';
 import { ImageElement } from '../../../state';
@@ -27,8 +30,112 @@ import {
   SelectableElement,
   WithExtendedSelectionProps,
 } from '../../Whiteboard';
+import { OtherProps } from '../../Whiteboard/Element/ConnectedElement';
 import { ImagePlaceholder } from './ImagePlaceholder';
 import { Skeleton } from './Skeleton';
+
+/**
+ * Download a file from the widget API or fallback to HTTP download.
+ *
+ * @returns The data URL of the downloaded file. This can be a blob url or a http url.
+ */
+const downloadFile = async (
+  widgetApi: WidgetApi,
+  baseUrl: string,
+  mxc: string,
+): Promise<Blob> => {
+  try {
+    const result = await tryDownloadFileWithWidgetApi(widgetApi, mxc);
+
+    // Convert the widget API response to a Blob with given size and type
+    if (!(result.file instanceof Blob)) {
+      throw new Error('Got non Blob file response');
+    }
+    // Check if the blob is an SVG
+    // The try catch is because of the blob to text conversion
+    let blob;
+    try {
+      const stringFromBlob = await result.file.text();
+
+      // Check if the string is an SVG
+      // We use this call as a condition here. If it works we know it's an SVG. If it throws an error we know it's not an SVG
+      getSVGUnsafe(stringFromBlob);
+      blob = result.file.slice(0, result.file.size, 'image/svg+xml');
+    } catch {
+      // If it fails, return the blob as is
+      blob = result.file.slice(0, result.file.size);
+    }
+
+    return blob;
+  } catch (error) {
+    const logger = getLogger('ImageDisplay.downloadFile');
+    if (error instanceof WidgetApiActionError) {
+      logger.warn(
+        'Widget API downloadFile not available, falling back to HTTP download',
+      );
+      return tryFallbackDownload(mxc, baseUrl);
+    } else {
+      logger.error('Failed to download image:', error);
+      throw error;
+    }
+  }
+};
+
+/**
+ * Try to download a file using the widget API.
+ *
+ * @param widgetApi The widget API to use for downloading the file
+ * @param mxc The mxc URL of the file to download
+ * @returns The file data as `Promise<IDownloadFileActionFromWidgetResponseData>
+ * @throws {WidgetApiActionError} If the widget API does not support the downloadFile action
+ */
+const tryDownloadFileWithWidgetApi = async (
+  widgetApi: WidgetApi,
+  mxc: string,
+): Promise<IDownloadFileActionFromWidgetResponseData> => {
+  try {
+    const result = await widgetApi.downloadFile(mxc);
+    return result;
+  } catch (error) {
+    const logger = getLogger('ImageDisplay.downloadFile');
+    logger.error('Failed to download image from widget api:', error);
+    throw new WidgetApiActionError('downloadFile not available');
+  }
+};
+
+/**
+ * Try getting an http url for the given mxc url.
+ *
+ * @param mxc The mxc URL of the file to download
+ * @param baseUrl The base URL of the matrix homeserver
+ * @returns The Blob of the file. Note this is an blob URL for SVG files.
+ */
+const tryFallbackDownload = async (
+  mxc: string,
+  baseUrl: string,
+): Promise<Blob> => {
+  const httpUrl = convertMxcToHttpUrl(mxc, baseUrl);
+
+  if (httpUrl === null) {
+    throw new Error('Failed to convert mxc to http URL');
+  }
+
+  try {
+    const response = await fetch(httpUrl);
+    const rawBlob = await response.blob();
+    try {
+      getSVGUnsafe(await rawBlob.text());
+      const svgBlob = rawBlob.slice(0, rawBlob.size, 'image/svg+xml');
+      return svgBlob;
+    } catch {
+      return rawBlob.slice(0, rawBlob.size);
+    }
+  } catch (fetchError) {
+    const logger = getLogger('ImageDisplay.tryFallbackDownload');
+    logger.error('Failed to fetch SVG image:', fetchError);
+    throw new Error('Failed to fetch SVG image');
+  }
+};
 
 type ImageDisplayProps = Omit<ImageElement, 'kind'> &
   WithExtendedSelectionProps & {
@@ -38,13 +145,12 @@ type ImageDisplayProps = Omit<ImageElement, 'kind'> &
     baseUrl: string;
   };
 
-const Image = styled('image', {
-  shouldForwardProp: (p) => p !== 'loading',
-})<{ loading: boolean }>(({ loading }) => ({
+const Image = styled(
+  'image',
+  {},
+)<{}>(() => ({
   userSelect: 'none',
   WebkitUserSelect: 'none',
-  // prevention of partial rendering if the image has not yet been fully loaded
-  visibility: loading ? 'hidden' : 'visible',
 }));
 
 /**
@@ -64,145 +170,48 @@ function ImageDisplay({
   overrides = {},
 }: ImageDisplayProps) {
   const widgetApi = useWidgetApi();
-  const [loadError, setLoadError] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [imageUri, setImageUri] = useState<undefined | string>();
-
-  const handleLoad = useCallback(() => {
-    setLoading(false);
-    setLoadError(false);
-  }, [setLoading, setLoadError]);
-
-  const handleLoadError = useCallback(() => {
-    setLoading(false);
-    setLoadError(true);
-  }, [setLoading, setLoadError]);
-
-  // Cleanup effect to revoke the object URL when the component is unmounted or `imageUri` changes.
-  // This prevents memory leaks by releasing the memory associated with the object URL.
-  useEffect(() => {
-    return () => {
-      if (imageUri) {
-        URL.revokeObjectURL(imageUri);
-      }
-    };
-  }, [imageUri]);
-
-  useEffect(() => {
-    const downloadFile = async () => {
-      try {
-        const result = await tryDownloadFileWithWidgetApi(mxc);
-        const blob = await getBlobFromResult(result);
-        const downloadedFileDataUrl = createObjectUrlFromBlob(blob);
-        setImageUri(downloadedFileDataUrl);
-      } catch (error) {
-        handleDownloadError(error as Error);
-      }
-    };
-
-    const tryDownloadFileWithWidgetApi = async (mxc: string) => {
-      try {
-        const result = await widgetApi.downloadFile(mxc);
-        return result;
-      } catch {
-        throw new WidgetApiActionError('downloadFile not available');
-      }
-    };
-
-    const getBlobFromResult = async (
-      result: IDownloadFileActionFromWidgetResponseData,
-    ): Promise<Blob> => {
-      if (!(result.file instanceof Blob)) {
-        throw new Error('Got non Blob file response');
-      }
-      // Check if the blob is an SVG
-      // The try catch is because of the blob to text conversion
-      try {
-        const stringFromBlob = await result.file.text();
-
-        // Check if the string is an SVG
-        // We use this call as a condition here. If it works we know it's an SVG. If it throws an error we know it's not an SVG
-        getSVGUnsafe(stringFromBlob);
-        return result.file.slice(0, result.file.size, 'image/svg+xml');
-      } catch {
-        // If it fails, return the blob as is
-        return result.file.slice(0, result.file.size);
-      }
-    };
-
-    const createObjectUrlFromBlob = (blob: Blob): string => {
-      const url = URL.createObjectURL(blob);
-      if (url === '') {
+  // We pass widgetApi differently to not break swr devtools. It has no significatn impact on the code.
+  const { data: image } = useSWR<Blob, Error, [string, string]>(
+    [baseUrl, mxc],
+    ([baseUrl, mxc]) => downloadFile(widgetApi, baseUrl, mxc),
+    {
+      suspense: true,
+    },
+  );
+  // This is mandatory to ensure that we dont have any flashing.
+  const [imageUri] = useState<string>(() => {
+    if (image instanceof Blob) {
+      const blobURL = URL.createObjectURL(image);
+      // Unsure if this is an incorrect test mock or createObjectURL really returns this. Its not documented well.
+      if (blobURL === '') {
         throw new Error('Failed to create object URL');
       }
-      return url;
-    };
+      return blobURL;
+    }
+    throw new Error('Invalid image data');
+  });
 
-    const handleDownloadError = (error: Error) => {
-      if (error instanceof WidgetApiActionError) {
-        tryFallbackDownload();
-      } else {
-        setLoadError(true);
-      }
-    };
+  const onLoaded = useCallback(() => {
+    if (image instanceof Blob && imageUri) {
+      URL.revokeObjectURL(imageUri);
+    }
+  }, [image, imageUri]);
 
-    const tryFallbackDownload = async () => {
-      const httpUrl = convertMxcToHttpUrl(mxc, baseUrl);
-
-      if (httpUrl === null) {
-        setImageUri('');
-        return;
-      }
-      setImageUri(httpUrl);
-
-      return;
-    };
-
-    downloadFile();
-  }, [baseUrl, mxc, widgetApi]);
-
-  const renderedSkeleton =
-    loading && !loadError ? (
-      <Skeleton
-        data-testid={`element-${elementId}-skeleton`}
-        x={position.x}
-        y={position.y}
-        width={width}
-        height={height}
-      />
-    ) : null;
-
-  const renderedPlaceholder = loadError ? (
-    <ImagePlaceholder
-      position={position}
+  const renderedChild = (
+    <Image
+      data-testid={`element-${elementId}-image`}
+      href={imageUri}
+      x={position.x}
+      y={position.y}
       width={width}
       height={height}
-      elementId={elementId}
+      preserveAspectRatio="none"
+      onLoad={onLoaded}
     />
-  ) : null;
-
-  const renderedChild =
-    imageUri !== undefined && !loadError ? (
-      <Image
-        data-testid={`element-${elementId}-image`}
-        href={imageUri}
-        x={position.x}
-        y={position.y}
-        width={width}
-        height={height}
-        preserveAspectRatio="none"
-        onLoad={handleLoad}
-        onError={handleLoadError}
-        loading={loading}
-      />
-    ) : null;
+  );
 
   if (readOnly) {
-    return (
-      <>
-        {renderedSkeleton} {renderedChild} {renderedPlaceholder}
-      </>
-    );
+    return <>{renderedChild}</>;
   }
 
   return (
@@ -214,9 +223,7 @@ function ImageDisplay({
       >
         <MoveableElement elementId={elementId} overrides={overrides}>
           <ElementContextMenu activeElementIds={activeElementIds}>
-            {renderedSkeleton}
             {renderedChild}
-            {renderedPlaceholder}
           </ElementContextMenu>
         </MoveableElement>
       </SelectableElement>
@@ -224,4 +231,80 @@ function ImageDisplay({
   );
 }
 
-export default React.memo(ImageDisplay);
+function ImageDisplayWrapper({
+  element,
+  otherProps,
+}: {
+  element: ImageElement;
+  otherProps: OtherProps;
+}) {
+  const widgetApi = useWidgetApi();
+
+  if (widgetApi.widgetParameters.baseUrl === undefined) {
+    console.error('Image cannot be rendered due to missing base URL');
+    return null;
+  }
+
+  return (
+    <ErrorBoundary
+      fallback={
+        <ImagePlaceholder
+          position={element.position}
+          width={element.width}
+          height={element.height}
+          elementId={otherProps.elementId}
+        />
+      }
+    >
+      <Suspense
+        fallback={
+          <Skeleton
+            data-testid={`element-${otherProps.elementId}-skeleton`}
+            x={element.position.x}
+            y={element.position.y}
+            width={element.width}
+            height={element.height}
+          />
+        }
+      >
+        <ImageDisplay
+          baseUrl={widgetApi.widgetParameters.baseUrl}
+          {...element}
+          {...otherProps}
+        />
+      </Suspense>
+    </ErrorBoundary>
+  );
+}
+
+export default ImageDisplayWrapper;
+
+interface ErrorBoundaryProps {
+  fallback?: React.ReactNode;
+  children: React.ReactNode;
+}
+
+/**
+ * This is an error boundary for the suspense and specific to the search results UI.
+ *
+ * Due to react limitations this MUST be a class component at this time.
+ * See https://17.reactjs.org/docs/concurrent-mode-suspense.html#handling-errors
+ */
+class ErrorBoundary extends Component<
+  ErrorBoundaryProps,
+  { hasError: boolean; error: Error | null }
+> {
+  state = { hasError: false, error: null };
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+
+  render() {
+    if (this.state.hasError) {
+      console.error(this.state.error);
+      return this.props.fallback || null;
+    }
+
+    return this.props.children;
+  }
+}
