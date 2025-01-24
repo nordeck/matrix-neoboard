@@ -39,10 +39,10 @@ export function PeerConnectionDetail({
             <StyledDevtoolsTableCell>
               {t(
                 'boardBar.developerToolsDialog.communicationChannelStatistics.remoteSessionId',
-                'Remote Session Id',
+                'Remote Session ID',
               )}
             </StyledDevtoolsTableCell>
-            <StyledDevtoolsTableCell>
+            <StyledDevtoolsTableCell monospace={true}>
               {peerConnection.remoteSessionId}
             </StyledDevtoolsTableCell>
           </TableRow>
@@ -50,10 +50,10 @@ export function PeerConnectionDetail({
             <StyledDevtoolsTableCell>
               {t(
                 'boardBar.developerToolsDialog.communicationChannelStatistics.userId',
-                'User Id',
+                'User ID',
               )}
             </StyledDevtoolsTableCell>
-            <StyledDevtoolsTableCell>
+            <StyledDevtoolsTableCell monospace={true}>
               {peerConnection.remoteUserId}
             </StyledDevtoolsTableCell>
           </TableRow>
