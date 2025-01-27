@@ -19,6 +19,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useUnmount } from 'react-use';
 import { findForegroundColor } from '../../../../lib';
 import { TextAlignment, useWhiteboardSlideInstance } from '../../../../state';
+import { TextFontFamily } from '../../../../state/crdt/documents/elements';
 import { TextEditor } from './TextEditor';
 
 export type ForeignObjectNoInteractionProps = {
@@ -26,13 +27,17 @@ export type ForeignObjectNoInteractionProps = {
   paddingLeft?: number;
   paddingRight?: number;
   paddingBottom?: number;
+  fontFamily?: TextFontFamily;
 };
 
-const ForeignObjectNoInteraction = styled('foreignObject')({
+const ForeignObjectNoInteraction = styled(
+  'foreignObject',
+)<ForeignObjectNoInteractionProps>(({ fontFamily }) => ({
+  fontFamily: fontFamily || 'inherit',
   // disable the pointer events because the foreignObject is always square
   // while the actual element might be a triangle or a circle.
   pointerEvents: 'none',
-});
+}));
 
 export type TextElementProps = {
   active?: boolean;
@@ -50,6 +55,7 @@ export type TextElementProps = {
   elementId: string;
   textColor?: string;
   fontSize?: number;
+  fontFamily?: TextFontFamily;
 
   setTextToolsEnabled: ((enabled: boolean) => void) | undefined;
 };
@@ -68,6 +74,7 @@ export const TextElement = ({
   elementId,
   textColor,
   fontSize,
+  fontFamily,
   setTextToolsEnabled,
 }: TextElementProps) => {
   const slideInstance = useWhiteboardSlideInstance();
@@ -108,7 +115,13 @@ export const TextElement = ({
   }
 
   return (
-    <ForeignObjectNoInteraction x={x} y={y} height={height} width={width}>
+    <ForeignObjectNoInteraction
+      x={x}
+      y={y}
+      height={height}
+      width={width}
+      fontFamily={fontFamily}
+    >
       <TextEditor
         color={color}
         content={unsubmittedText}

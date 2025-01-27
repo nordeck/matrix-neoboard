@@ -41,7 +41,7 @@ exports[`createWhiteboardPdfDefinition > should generate a pdf header and table 
                     {
                       "alignment": "center",
                       "color": "#000",
-                      "font": "Inter",
+                      "font": "inter",
                       "fontSize": 10,
                       "lineHeight": 1,
                       "margin": 0,
@@ -96,7 +96,7 @@ exports[`createWhiteboardPdfDefinition > should generate a pdf header and table 
                     {
                       "alignment": "center",
                       "color": "#000",
-                      "font": "Inter",
+                      "font": "inter",
                       "fontSize": 10,
                       "lineHeight": 1,
                       "margin": 0,
@@ -149,7 +149,7 @@ exports[`createWhiteboardPdfDefinition > should generate a pdf header and table 
                     {
                       "alignment": "right",
                       "color": "#000",
-                      "font": "Inter",
+                      "font": "inter",
                       "fontSize": 10,
                       "lineHeight": 1,
                       "margin": 0,
@@ -206,7 +206,7 @@ exports[`createWhiteboardPdfDefinition > should generate a pdf header and table 
                     {
                       "alignment": "center",
                       "color": "#000",
-                      "font": "Inter",
+                      "font": "inter",
                       "fontSize": 10,
                       "lineHeight": 1,
                       "margin": 0,
@@ -270,7 +270,7 @@ exports[`createWhiteboardPdfDefinition > should generate a pdf header and table 
                     {
                       "alignment": "center",
                       "color": "#000",
-                      "font": "Inter",
+                      "font": "inter",
                       "fontSize": 10,
                       "lineHeight": 1,
                       "margin": 0,

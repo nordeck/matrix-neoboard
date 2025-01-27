@@ -85,6 +85,12 @@ describe('<ElementBar/>', () => {
 
     expect(
       within(toolbar).getByRole('combobox', {
+        name: 'Select font style',
+      }),
+    ).toBeInTheDocument();
+
+    expect(
+      within(toolbar).getByRole('combobox', {
         name: 'Select font size',
       }),
     ).toBeInTheDocument();
@@ -135,6 +141,12 @@ describe('<ElementBar/>', () => {
     render(<ElementBar showTextTools={false} />, { wrapper: Wrapper });
 
     const toolbar = screen.getByRole('toolbar', { name: 'Element' });
+
+    expect(
+      within(toolbar).queryByRole('combobox', {
+        name: 'Select font style',
+      }),
+    ).not.toBeInTheDocument();
 
     expect(
       within(toolbar).queryByRole('combobox', {
