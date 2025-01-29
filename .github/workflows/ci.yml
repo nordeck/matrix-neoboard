@@ -341,3 +341,50 @@ jobs:
                 tag: '${{ github.sha }}'
               }
             })
+
+  deploy-on-neotoolsuite-dev:
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    name: Deploy to Neotoolsuite Dev
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: '0'
+          persist-credentials: false
+
+      - name: Checkout valhalla for values
+        uses: actions/checkout@v4
+        with:
+          ref: dev
+          sparse-checkout: |
+            /cluster/neotoolsuite-dev/neoboard/values-neotoolsuite-dev.yaml
+          sparse-checkout-cone-mode: false
+          repository: nordeck/valhalla
+          token: ${{ secrets.PACKAGE_TOKEN }}
+          path: valhalla
+          persist-credentials: false
+
+      - name: Create Kubeconfig
+        run: |
+          # Extract the base64 encoded config data and write this to the KUBECONFIG
+          echo "${{ secrets.KUBECONFIG_NEOTOOLSUITE_DEV }}" | base64 -d > /tmp/config
+          chmod 600 /tmp/config
+          echo "KUBECONFIG=/tmp/config" >> $GITHUB_ENV
+
+      - name: Deploy k8s to cluster
+        uses: wahyd4/kubectl-helm-action@master
+        env:
+          KUBE_CONFIG_DATA: ${{ secrets.KUBECONFIG_NEOTOOLSUITE_DEV }}
+        with:
+          args: |
+            helm upgrade --install neoboard ./charts/matrix-poll-widget -f ./valhalla/cluster/neotoolsuite-dev/neoboard/values-neotoolsuite-dev.yaml -n matrix --set image.tag="latest"
+
+      - name: Restart rollout
+        uses: wahyd4/kubectl-helm-action@master
+        env:
+          KUBE_CONFIG_DATA: ${{ secrets.KUBECONFIG_NEOTOOLSUITE_DEV }}
+        with:
+          args: |
+            kubectl rollout restart deployment neoboard -n matrix
