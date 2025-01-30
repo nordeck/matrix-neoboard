@@ -85,7 +85,7 @@ describe('<ElementBar/>', () => {
 
     expect(
       within(toolbar).getByRole('combobox', {
-        name: 'Select font style',
+        name: 'Select font family',
       }),
     ).toBeInTheDocument();
 
@@ -144,7 +144,7 @@ describe('<ElementBar/>', () => {
 
     expect(
       within(toolbar).queryByRole('combobox', {
-        name: 'Select font style',
+        name: 'Select font family',
       }),
     ).not.toBeInTheDocument();
 
