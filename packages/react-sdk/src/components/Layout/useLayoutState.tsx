@@ -24,6 +24,7 @@ import {
 } from 'react';
 import { useColorPalette } from '../../lib';
 import { Point } from '../../state';
+import { TextFontFamily } from '../../state/crdt/documents/elements';
 import { useFullscreenMode } from './useFullscreenMode';
 
 export type ActiveTool =
@@ -46,6 +47,7 @@ type LayoutState = {
   activeColor: string;
   activeShade: number;
   activeTextColor: string | undefined;
+  activeFontFamily: TextFontFamily;
   activeTextShade: number;
   activeShapeColor: string;
   activeShapeShade: number;
@@ -59,6 +61,7 @@ type LayoutState = {
   setActiveColor: (color: string) => void;
   setActiveShade: (shade: number) => void;
   setActiveTextColor: (color: string | undefined) => void;
+  setActiveFontFamily: (font: TextFontFamily) => void;
   setActiveTextShade: (shade: number) => void;
   setActiveShapeColor: (color: string) => void;
   setActiveShapeShade: (shade: number) => void;
@@ -111,6 +114,8 @@ export function LayoutStateProvider({ children }: PropsWithChildren<{}>) {
   const [activeColor, setActiveColor] = useState<string>(grey[500]);
   const [activeShade, setActiveShade] = useState(3);
   const [activeTextColor, setActiveTextColor] = useState(defaultTextColor);
+  const [activeFontFamily, setActiveFontFamily] =
+    useState<TextFontFamily>('Inter');
   const [activeTextShade, setActiveTextShade] = useState(defaultTextShade);
   const [activeShapeColor, setActiveShapeColor] = useState(defaultShapeColor);
   const [activeShapeShade, setActiveShapeShade] = useState(defaultShapeShade);
@@ -129,6 +134,7 @@ export function LayoutStateProvider({ children }: PropsWithChildren<{}>) {
       activeColor,
       activeShade,
       activeTextColor,
+      activeFontFamily,
       activeTextShade,
       activeShapeColor,
       activeShapeShade,
@@ -142,6 +148,7 @@ export function LayoutStateProvider({ children }: PropsWithChildren<{}>) {
       setActiveColor,
       setActiveShade,
       setActiveTextColor,
+      setActiveFontFamily,
       setActiveTextShade,
       setActiveShapeColor,
       setActiveShapeShade,
@@ -156,6 +163,7 @@ export function LayoutStateProvider({ children }: PropsWithChildren<{}>) {
       activeColor,
       activeShade,
       activeTextColor,
+      activeFontFamily,
       activeTextShade,
       activeShapeColor,
       activeShapeShade,

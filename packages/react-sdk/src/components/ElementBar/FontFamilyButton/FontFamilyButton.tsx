@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-import { MenuItem, Select } from '@mui/material';
+import { MenuItem, Select, SelectChangeEvent } from '@mui/material';
+import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useFontFamily } from '../../../lib/text-formatting/useFontFamily';
 import { TextFontFamily } from '../../../state/crdt/documents/elements';
+import { useLayoutState } from '../../Layout';
 
 const FONT_FAMILIES = [
   'Abel',
@@ -31,13 +33,24 @@ const FONT_FAMILIES = [
 
 export function FontFamilyButton() {
   const { t } = useTranslation('neoboard');
-  const { fontFamily, setFontFamily } = useFontFamily();
+  const { setFontFamily } = useFontFamily();
+  const { activeFontFamily, setActiveFontFamily } = useLayoutState();
+
+  const handleChange = useCallback(
+    (event: SelectChangeEvent) => {
+      const selectedFont = event.target.value as TextFontFamily;
+      setFontFamily(selectedFont);
+      setActiveFontFamily(selectedFont);
+    },
+    [setFontFamily, setActiveFontFamily],
+  );
+
   return (
     <Select
       size="small"
       variant="standard"
       disableUnderline={true}
-      value={fontFamily ?? 'Inter'} // Default font style is 'Inter'
+      value={activeFontFamily}
       inputProps={{
         'aria-label': t('elementBar.fontForm', 'Select font family'),
       }}
@@ -48,9 +61,7 @@ export function FontFamilyButton() {
           paddingTop: '4px',
         },
       }}
-      onChange={(event) => {
-        setFontFamily(event.target.value as TextFontFamily);
-      }}
+      onChange={handleChange}
       sx={{
         // Set a min-width to prevent change of the select width depending on the value
         minWidth: '128px', // Adjusted to provide more space for longer font names

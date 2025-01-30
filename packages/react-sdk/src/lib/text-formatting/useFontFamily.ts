@@ -15,6 +15,7 @@
  */
 
 import { useCallback } from 'react';
+import { useLayoutState } from '../../components/Layout';
 import {
   useActiveElements,
   useElements,
@@ -24,7 +25,6 @@ import { TextFontFamily } from '../../state/crdt/documents/elements';
 import { calculateFontFamilyUpdates } from './calculateFontFamilyUpdates';
 
 type UseFontFamilyResult = {
-  fontFamily?: TextFontFamily;
   setFontFamily: (value?: TextFontFamily) => void;
 };
 
@@ -33,13 +33,12 @@ export function useFontFamily(): UseFontFamilyResult {
   const { activeElementIds } = useActiveElements();
   const activeElements = useElements(activeElementIds);
   const elements = Object.values(activeElements);
-
-  let fontFamily: TextFontFamily | undefined = 'Inter';
+  const { setActiveFontFamily } = useLayoutState();
 
   for (const element of elements) {
-    if (element.type === 'shape') {
+    if (element.type === 'shape' && element.textFontFamily) {
       // Find first shape textFont
-      fontFamily = element.textFontFamily;
+      setActiveFontFamily(element.textFontFamily);
       break;
     }
   }
@@ -56,7 +55,6 @@ export function useFontFamily(): UseFontFamilyResult {
   );
 
   return {
-    fontFamily,
     setFontFamily,
   };
 }
