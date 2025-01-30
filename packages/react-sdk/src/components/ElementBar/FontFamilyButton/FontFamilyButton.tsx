@@ -17,40 +17,29 @@
 import { MenuItem, Select } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useFontFamily } from '../../../lib/text-formatting/useFontFamily';
-import { useActiveElements, useElements } from '../../../state';
 import { TextFontFamily } from '../../../state/crdt/documents/elements';
 
-const FONT_FAMILY = [
-  'inter',
+const FONT_FAMILIES = [
   'Abel',
   'Actor',
   'Adamina',
   'Chewy',
   'Gwendolyn',
+  'Inter',
   'Pirata One',
 ];
 
 export function FontFamilyButton() {
   const { t } = useTranslation('neoboard');
   const { fontFamily, setFontFamily } = useFontFamily();
-
-  const { activeElementIds } = useActiveElements();
-  const activeElements = useElements(activeElementIds);
-  const elements = Object.values(activeElements);
-
-  // If no 'shape' elements exist, do not render the button
-  if (elements.every((element) => element.type !== 'shape')) {
-    return null;
-  }
-
   return (
     <Select
       size="small"
       variant="standard"
       disableUnderline={true}
-      value={fontFamily ?? 'inter'} // Default font style is 'inter'
+      value={fontFamily ?? 'Inter'} // Default font style is 'Inter'
       inputProps={{
-        'aria-label': t('elementBar.fontForm', 'Select font style'),
+        'aria-label': t('elementBar.fontForm', 'Select font family'),
       }}
       SelectDisplayProps={{
         style: {
@@ -68,7 +57,7 @@ export function FontFamilyButton() {
         padding: '0 5px 0 8px',
       }}
     >
-      {FONT_FAMILY.map((font) => (
+      {FONT_FAMILIES.map((font) => (
         <MenuItem
           value={font}
           key={font}

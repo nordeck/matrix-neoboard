@@ -28,7 +28,7 @@ describe('calculateFontFamilyUpdates', () => {
   const line = mockLineElement();
 
   it('should return an empty list for empty elements', () => {
-    expect(calculateFontFamilyUpdates({}, 'inter')).toEqual([]);
+    expect(calculateFontFamilyUpdates({}, 'Inter')).toEqual([]);
   });
 
   it('should return updates only for shape elements', () => {
@@ -44,8 +44,8 @@ describe('calculateFontFamilyUpdates', () => {
     expect(
       calculateFontFamilyUpdates(
         {
-          rectangle: { ...rectangle, textFontFamily: 'inter' },
-          circle: { ...circle, textFontFamily: 'inter' },
+          rectangle: { ...rectangle, textFontFamily: 'Inter' },
+          circle: { ...circle, textFontFamily: 'Inter' },
           line,
         },
         'Chewy',
@@ -60,11 +60,11 @@ describe('calculateFontFamilyUpdates', () => {
     expect(
       calculateFontFamilyUpdates(
         {
-          rectangle: { ...rectangle, textFontFamily: 'inter' },
-          circle: { ...circle, textFontFamily: 'inter' },
+          rectangle: { ...rectangle, textFontFamily: 'Inter' },
+          circle: { ...circle, textFontFamily: 'Inter' },
           line,
         },
-        'inter',
+        'Inter',
       ),
     ).toEqual([]);
   });

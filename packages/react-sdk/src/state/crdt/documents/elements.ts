@@ -40,7 +40,7 @@ const elementBaseSchema = Joi.object<ElementBase, true>({
 export type ShapeKind = 'rectangle' | 'circle' | 'ellipse' | 'triangle';
 export type TextAlignment = 'left' | 'center' | 'right';
 export type TextFontFamily =
-  | 'inter'
+  | 'Inter'
   | 'Abel'
   | 'Actor'
   | 'Adamina'

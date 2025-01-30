@@ -3,4 +3,4 @@
 '@nordeck/matrix-neoboard-react-sdk': minor
 ---
 
-Added font customization for text and shapes.Users can now select from six new fonts (Abel, Actor, Adamina, Chewy, Gwendolyn, Pirata One) in the context menu, in addition to the default "Inter".
+Users can now select from six new shape fonts (Abel, Actor, Adamina, Chewy, Gwendolyn and Pirata One), in addition to the default "Inter" one.

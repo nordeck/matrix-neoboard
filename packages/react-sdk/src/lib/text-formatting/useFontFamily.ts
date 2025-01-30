@@ -23,18 +23,18 @@ import {
 import { TextFontFamily } from '../../state/crdt/documents/elements';
 import { calculateFontFamilyUpdates } from './calculateFontFamilyUpdates';
 
-type UseFontSizeResult = {
+type UseFontFamilyResult = {
   fontFamily?: TextFontFamily;
   setFontFamily: (value?: TextFontFamily) => void;
 };
 
-export function useFontFamily(): UseFontSizeResult {
+export function useFontFamily(): UseFontFamilyResult {
   const slideInstance = useWhiteboardSlideInstance();
   const { activeElementIds } = useActiveElements();
   const activeElements = useElements(activeElementIds);
   const elements = Object.values(activeElements);
 
-  let fontFamily: TextFontFamily | undefined = 'inter';
+  let fontFamily: TextFontFamily | undefined = 'Inter';
 
   for (const element of elements) {
     if (element.type === 'shape') {
