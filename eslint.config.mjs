@@ -26,6 +26,7 @@ import vitest from 'eslint-plugin-vitest';
 import path from 'path';
 import ts from 'typescript-eslint';
 import { fileURLToPath } from 'url';
+import reactCompiler from 'eslint-plugin-react-compiler';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -130,6 +131,7 @@ export default ts.config(
       'react/react-in-jsx-scope': 'off',
     },
   },
+  reactCompiler.configs.recommended,
   // Test-specific configuration
   {
     files: ['**/*.test.*'],
