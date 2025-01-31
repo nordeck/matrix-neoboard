@@ -15,18 +15,17 @@
  */
 
 import { createTheme } from '@mui/material/styles';
-import AbelRegular from './fonts/Abel-Regular.ttf';
-import ActorRegular from './fonts/Actor-Regular.ttf';
-import AdaminaRegular from './fonts/Adamina-Regular.ttf';
-import ChewyRegular from './fonts/Chewy-Regular.ttf';
-import GwendolynRegular from './fonts/Gwendolyn-Regular.ttf';
-import InterRegular from './fonts/Inter_24pt-Regular.ttf';
-import PirataOneRegular from './fonts/PirataOne-Regular.ttf';
+import AbelRegular from '../public/fonts/Abel-Regular.ttf';
+import ActorRegular from '../public/fonts/Actor-Regular.ttf';
+import AdaminaRegular from '../public/fonts/Adamina-Regular.ttf';
+import ChewyRegular from '../public/fonts/Chewy-Regular.ttf';
+import GwendolynRegular from '../public/fonts/Gwendolyn-Regular.ttf';
+import InterRegular from '../public/fonts/Inter_24pt-Regular.ttf';
+import PirataOneRegular from '../public/fonts/PirataOne-Regular.ttf';
 
 const theme = createTheme({
   typography: {
-    fontFamily:
-      'Abel, Actor, Adamina, Chewy, Gwendolyn, Inter, Pirata One, sans-serif',
+    fontFamily: 'Abel, Actor, Adamina, Chewy, Gwendolyn, Inter, Pirata One',
   },
   components: {
     MuiCssBaseline: {

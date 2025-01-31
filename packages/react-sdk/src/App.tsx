@@ -15,9 +15,9 @@
  */
 
 import { useWidgetApi } from '@matrix-widget-toolkit/react';
-import { ThemeProvider } from '@mui/material/styles';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { ReactSdkThemeProvider } from './ReactSdkThemeProvider';
 import { Layout, LayoutProps } from './components/Layout';
 import { PageLoader } from './components/common/PageLoader';
 import {
@@ -25,7 +25,6 @@ import {
   useOwnedWhiteboard,
   useWhiteboardManager,
 } from './state';
-import theme from './theme';
 
 export type AppProps = {
   layoutProps?: LayoutProps;
@@ -51,9 +50,9 @@ export const App = ({ layoutProps }: AppProps) => {
   if (activeWhiteboard !== undefined && value?.type !== 'waiting') {
     // Show the whiteboard if there is one and we are not waiting for a moderator
     return (
-      <ThemeProvider theme={theme}>
+      <ReactSdkThemeProvider>
         <Layout {...layoutProps} />
-      </ThemeProvider>
+      </ReactSdkThemeProvider>
     );
   }
 
