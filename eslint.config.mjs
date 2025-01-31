@@ -20,13 +20,13 @@ import eslintConfigPrettier from 'eslint-config-prettier';
 import notice from 'eslint-plugin-notice';
 import pluginPromise from 'eslint-plugin-promise';
 import react from 'eslint-plugin-react';
+import reactCompiler from 'eslint-plugin-react-compiler';
 import hooksPlugin from 'eslint-plugin-react-hooks';
 import testingLibrary from 'eslint-plugin-testing-library';
 import vitest from 'eslint-plugin-vitest';
 import path from 'path';
 import ts from 'typescript-eslint';
 import { fileURLToPath } from 'url';
-import reactCompiler from 'eslint-plugin-react-compiler';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

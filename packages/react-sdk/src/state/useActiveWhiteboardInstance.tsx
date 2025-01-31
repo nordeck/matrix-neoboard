@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useObservable } from 'react-use';
-import { useLatestValue } from '../lib';
 import { WhiteboardInstance, WhiteboardStatistics } from './types';
 import { useDistinctObserveBehaviorSubject } from './useDistinctObserveBehaviorSubject';
 import { useWhiteboardManager } from './useWhiteboardManager';
@@ -50,19 +49,39 @@ export function useActiveWhiteboardInstance(
 export function useActiveWhiteboardInstanceSlideIds(): string[] {
   const whiteboardInstance = useActiveWhiteboardInstance();
 
-  return useLatestValue(
-    () => whiteboardInstance.getSlideIds(),
-    whiteboardInstance.observeSlideIds(),
+  const [slideIds, setSlideIds] = useState<string[]>(
+    whiteboardInstance.getSlideIds(),
   );
+  useEffect(() => {
+    const subscription = whiteboardInstance.observeSlideIds().subscribe(() => {
+      setSlideIds(whiteboardInstance.getSlideIds());
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [whiteboardInstance]);
+  return slideIds;
 }
 
 export function useActiveWhiteboardInstanceStatistics(): WhiteboardStatistics {
   const whiteboardInstance = useActiveWhiteboardInstance();
 
-  return useLatestValue(
-    () => whiteboardInstance.getWhiteboardStatistics(),
-    whiteboardInstance.observeWhiteboardStatistics(),
+  const [statistics, setStatistics] = useState<WhiteboardStatistics>(
+    whiteboardInstance.getWhiteboardStatistics(),
   );
+  useEffect(() => {
+    const subscription = whiteboardInstance
+      .observeWhiteboardStatistics()
+      .subscribe(() => {
+        setStatistics(whiteboardInstance.getWhiteboardStatistics());
+      });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [whiteboardInstance]);
+  return statistics;
 }
 
 type ActiveSlide = {
@@ -75,14 +94,21 @@ export function useActiveSlide(): ActiveSlide {
   const slideIds = useActiveWhiteboardInstanceSlideIds();
 
   const whiteboardInstance = useActiveWhiteboardInstance();
-  const observable = useMemo(
-    () => whiteboardInstance.observeActiveSlideId(),
-    [whiteboardInstance],
+
+  const [activeSlideId, setActiveSlideId] = useState<string | undefined>(
+    whiteboardInstance.getActiveSlideId(),
   );
-  const activeSlideId = useLatestValue(
-    () => whiteboardInstance.getActiveSlideId(),
-    observable,
-  );
+  useEffect(() => {
+    const subscription = whiteboardInstance
+      .observeActiveSlideId()
+      .subscribe(() => {
+        setActiveSlideId(whiteboardInstance.getActiveSlideId());
+      });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [whiteboardInstance]);
 
   return {
     activeSlideId,
@@ -96,10 +122,19 @@ export function useActiveSlide(): ActiveSlide {
 
 export function useIsWhiteboardLoading(): { loading: boolean } {
   const whiteboardInstance = useActiveWhiteboardInstance();
-  const loading = useLatestValue(
-    () => whiteboardInstance.isLoading(),
-    whiteboardInstance.observeIsLoading(),
+
+  const [loading, setLoading] = useState<boolean>(
+    whiteboardInstance.isLoading(),
   );
+  useEffect(() => {
+    const subscription = whiteboardInstance.observeIsLoading().subscribe(() => {
+      setLoading(whiteboardInstance.isLoading());
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [whiteboardInstance]);
 
   return { loading };
 }
