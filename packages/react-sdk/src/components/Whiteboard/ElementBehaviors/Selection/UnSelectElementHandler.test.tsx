@@ -72,6 +72,7 @@ describe('<UnSelectElementHandler/>', () => {
     activeSlide = activeWhiteboard.getSlide('slide-0');
 
     function LayoutStateExtractor() {
+      // eslint-disable-next-line react-compiler/react-compiler
       ({ dragSelectStartCoords } = useLayoutState());
       return null;
     }

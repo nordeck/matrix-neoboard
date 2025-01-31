@@ -50,6 +50,7 @@ describe('useElementOverrides', () => {
     });
 
     function ElementOverrideSetterExtractor() {
+      // eslint-disable-next-line react-compiler/react-compiler
       setElementOverride = useContext(ElementOverrideSetterContext);
       return null;
     }

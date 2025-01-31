@@ -43,6 +43,8 @@ export function usePauseHotkeysScope(scope: string, paused = true): void {
     return () => {
       if (paused) {
         const count = (scopePauseReferenceCount.current.get(scope) ?? 0) - 1;
+        // eslint-disable-next-line react-compiler/react-compiler
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- This is fine as we have a Map inside the ref. Sadly this ignore breaks react-compiler...
         scopePauseReferenceCount.current.set(scope, count);
 
         if (count <= 0) {
