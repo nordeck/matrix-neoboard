@@ -33,7 +33,7 @@ export function WhiteboardHotkeysProvider({ children }: PropsWithChildren<{}>) {
       initiallyActiveScopes={[HOTKEY_SCOPE_WHITEBOARD, HOTKEY_SCOPE_GLOBAL]}
     >
       <ScopePauseReferenceCountContext.Provider
-        value={scopePauseReferenceCountRef.current}
+        value={scopePauseReferenceCountRef}
       >
         {children}
       </ScopePauseReferenceCountContext.Provider>
