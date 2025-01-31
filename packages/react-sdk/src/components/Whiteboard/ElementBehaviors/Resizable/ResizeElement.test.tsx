@@ -104,7 +104,7 @@ describe('<ResizeElement />', () => {
     activeSlide = activeWhiteboard.getSlide('slide-0');
 
     const ExtractStore = () => {
-      store = useStore();
+      store = useStore() as StoreType;
       return null;
     };
 

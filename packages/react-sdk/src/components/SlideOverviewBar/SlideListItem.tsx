@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { Tab } from '@mui/base';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { alpha, Stack, styled, Tooltip, Typography } from '@mui/material';
 import { unstable_useId as useId, visuallyHidden } from '@mui/utils';
-import { Draggable } from 'react-beautiful-dnd';
 import { useTranslation } from 'react-i18next';
 import { SlideProvider, useSlideIsLocked } from '../../state';
 import { SlidePreview } from '../Whiteboard';
@@ -59,83 +60,88 @@ export function SlideListItem({
   const { t } = useTranslation('neoboard');
   const isLocked = useSlideIsLocked(slideId);
 
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+    isSorting,
+    node,
+  } = useSortable({ id: slideId });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
   const titleId = useId();
   const descriptionId = useId();
 
   return (
-    <Draggable
-      draggableId={slideId}
-      index={slideIndex}
-      disableInteractiveElementBlocking={true}
-    >
-      {(provided, snapshot) => (
-        <TabWithContextMenu
-          slots={{ root: 'div' }}
-          innerRef={provided.innerRef}
-          {...provided.draggableProps}
-          {...provided.dragHandleProps}
-          // disable the item on dragging to trigger an internal resorting of
-          // the tab order for the keyboard navigation. See also
-          // https://github.com/mui/material-ui/issues/36800
-          disabled={snapshot.isDragging || snapshot.isDropAnimating}
-          role="tab"
-          tabIndex={active ? 0 : -1}
-          value={slideId}
-          aria-labelledby={titleId}
-          aria-describedby={descriptionId}
-          aria-haspopup="menu"
-          slideId={slideId}
-          slideIndex={slideIndex}
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+      <TabWithContextMenu
+        innerRef={node}
+        slots={{ root: 'div' }}
+        disabled={isDragging || isSorting}
+        role="tab"
+        tabIndex={active ? 0 : -1}
+        value={slideId}
+        aria-labelledby={titleId}
+        aria-describedby={descriptionId}
+        aria-haspopup="menu"
+        slideId={slideId}
+        slideIndex={slideIndex}
+      >
+        <Typography sx={visuallyHidden} id={descriptionId}>
+          {t(
+            'slideOverviewBar.dragAndDrop.dragInstructions',
+            'Press the M key to start a drag. When dragging you can use the arrow keys to move the item around and escape to cancel. Ensure your screen reader is in focus mode or forms mode.',
+          )}
+        </Typography>
+
+        <SlideProvider slideId={slideId}>
+          <SlidePreview />
+        </SlideProvider>
+
+        <Stack
+          direction="row"
+          id={titleId}
+          borderTop="1px solid"
+          borderColor="divider"
+          px={2}
+          py={1}
+          bgcolor={(theme) =>
+            active
+              ? alpha(
+                  theme.palette.primary.main,
+                  theme.palette.action.activatedOpacity,
+                )
+              : undefined
+          }
+          alignItems="center"
+          justifyContent="space-between"
         >
-          <Typography sx={visuallyHidden} id={descriptionId}>
-            {t(
-              'slideOverviewBar.dragAndDrop.dragInstructions',
-              'Press the M key to start a drag. When dragging you can use the arrow keys to move the item around and escape to cancel. Ensure your screen reader is in focus mode or forms mode.',
-            )}
-          </Typography>
-
-          <SlideProvider slideId={slideId}>
-            <SlidePreview />
-          </SlideProvider>
-
-          <Stack
-            direction="row"
-            id={titleId}
-            borderTop="1px solid"
-            borderColor="divider"
-            px={2}
-            py={1}
-            bgcolor={(theme) =>
-              active
-                ? alpha(
-                    theme.palette.primary.main,
-                    theme.palette.action.activatedOpacity,
-                  )
-                : undefined
-            }
-            alignItems="center"
-            justifyContent="space-between"
-          >
-            <Typography component="span" sx={visuallyHidden}>
-              {t('slideOverviewBar.slideTitle', 'Slide')}
-            </Typography>{' '}
-            {slideIndex + 1}
-            {isLocked && (
-              <>
-                {' '}
-                <Typography component="span" sx={visuallyHidden}>
-                  {t('slideOverviewBar.slideTitleLocked', '(locked)')}
-                </Typography>
-                <Tooltip
-                  title={t('slideOverviewBar.slideLockedTooltip', 'Locked')}
-                >
-                  <LockOutlinedIcon fontSize="small" />
-                </Tooltip>
-              </>
-            )}
-          </Stack>
-        </TabWithContextMenu>
-      )}
-    </Draggable>
+          <Typography component="span" sx={visuallyHidden}>
+            {t('slideOverviewBar.slideTitle', 'Slide')}
+          </Typography>{' '}
+          {slideIndex + 1}
+          {isLocked && (
+            <>
+              {' '}
+              <Typography component="span" sx={visuallyHidden}>
+                {t('slideOverviewBar.slideTitleLocked', '(locked)')}
+              </Typography>
+              <Tooltip
+                title={t('slideOverviewBar.slideLockedTooltip', 'Locked')}
+              >
+                <LockOutlinedIcon fontSize="small" />
+              </Tooltip>
+            </>
+          )}
+        </Stack>
+      </TabWithContextMenu>
+    </div>
   );
 }
