@@ -86,7 +86,7 @@ const shapeElementSchema = elementBaseSchema
     textBold: Joi.boolean(),
     textItalic: Joi.boolean(),
     textSize: Joi.number().strict(),
-    textFontFamily: Joi.string().strict(),
+    textFontFamily: Joi.string().strict().default('Inter'),
   })
   .required();
 

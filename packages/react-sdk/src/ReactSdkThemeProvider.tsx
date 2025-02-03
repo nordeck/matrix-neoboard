@@ -17,7 +17,7 @@
 import { MuiThemeProvider } from '@matrix-widget-toolkit/mui';
 import { CssBaseline, ThemeProvider, useTheme } from '@mui/material';
 import { deepmerge } from '@mui/utils';
-import { PropsWithChildren, useMemo } from 'react';
+import { PropsWithChildren, useCallback } from 'react';
 import theme from './theme';
 
 /**
@@ -27,7 +27,7 @@ import theme from './theme';
 export function ReactSdkThemeProvider({ children }: PropsWithChildren<{}>) {
   const MuiTheme = useTheme();
 
-  const reactSdkTheme = useMemo(() => {
+  const reactSdkTheme = useCallback(() => {
     return deepmerge(theme, MuiTheme);
   }, [MuiTheme]);
 
