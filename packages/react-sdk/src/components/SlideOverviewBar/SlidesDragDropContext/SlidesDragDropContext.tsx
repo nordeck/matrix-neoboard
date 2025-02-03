@@ -14,131 +14,76 @@
  * limitations under the License.
  */
 
-import { PropsWithChildren, useCallback } from 'react';
 import {
-  DragDropContext,
-  DragStart,
-  DragUpdate,
-  DropResult,
-  ResponderProvided,
-  useMouseSensor,
-  useTouchSensor,
-} from 'react-beautiful-dnd';
-import { useTranslation } from 'react-i18next';
+  DndContext,
+  DragEndEvent,
+  DragOverEvent,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
+import { PropsWithChildren, useCallback } from 'react';
 import { useActiveWhiteboardInstance } from '../../../state';
-import { useCustomKeyboardSensor } from './useCustomKeyboardSensor';
 import { useFixLiveRegionAfterModals } from './useFixLiveRegionAfterModals';
 
-export function SlidesDragDropContext({ children }: PropsWithChildren<{}>) {
-  const { t } = useTranslation('neoboard');
+export function SlidesDragDropContext({
+  children,
+  onDraggingOver,
+}: PropsWithChildren<{ onDraggingOver?: (event: DragOverEvent) => void }>) {
   const whiteboardInstance = useActiveWhiteboardInstance();
 
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+      keyboardCodes: {
+        start: ['KeyM'],
+        cancel: ['Escape'],
+        end: ['Enter'],
+      },
+    }),
+  );
   useFixLiveRegionAfterModals();
 
-  const handleDragStart = useCallback(
-    (initial: DragStart, { announce }: ResponderProvided) => {
-      announce(
-        t(
-          'slideOverviewBar.dragAndDrop.dragStart',
-          'You have lifted a slide. It is in position {{startPosition}} of {{totalCount}} in the list. Use the arrow keys to move, the M key to drop, and escape to cancel.',
-          {
-            startPosition: initial.source.index + 1,
-            totalCount: whiteboardInstance.getSlideIds().length,
-          },
-        ),
-      );
-    },
-    [t, whiteboardInstance],
-  );
-
-  const handleDragUpdate = useCallback(
-    (update: DragUpdate, { announce }: ResponderProvided) => {
-      if (!update.destination) {
-        announce(
-          t(
-            'slideOverviewBar.dragAndDrop.notOverDropTarget',
-            'You are currently not dragging over any droppable area.',
-          ),
-        );
-      } else {
-        announce(
-          t(
-            'slideOverviewBar.dragAndDrop.movedPosition',
-            `You have moved the slide to position {{position}} of {{totalCount}}.`,
-            {
-              position: update.destination.index + 1,
-              totalCount: whiteboardInstance.getSlideIds().length,
-            },
-          ),
-        );
-      }
-    },
-    [t, whiteboardInstance],
-  );
-
   const handleDragEnd = useCallback(
-    (result: DropResult, { announce }: ResponderProvided) => {
-      if (result.type !== 'slide') {
-        throw new Error('Unknown draggable type');
+    (event: DragEndEvent) => {
+      const { active, over } = event;
+
+      if (
+        active.id !== over?.id &&
+        active.id !== undefined &&
+        over?.id !== undefined
+      ) {
+        const sourceIndex = active.id;
+        const targetIndex = over?.id;
+        const sourceSlideId = whiteboardInstance
+          .getSlideIds()
+          .find((slideId) => slideId === sourceIndex);
+        const targetSlideIndex = whiteboardInstance
+          .getSlideIds()
+          .findIndex((slideId) => slideId === targetIndex);
+
+        if (sourceSlideId && targetIndex) {
+          whiteboardInstance.moveSlide(sourceSlideId, targetSlideIndex);
+        }
       }
-
-      if (result.reason === 'CANCEL') {
-        announce(
-          t(
-            'slideOverviewBar.dragAndDrop.movementCanceled',
-            'Movement cancelled. The slide has returned to its starting position of {{startPosition}}.',
-            {
-              startPosition: result.source.index + 1,
-            },
-          ),
-        );
-        return;
-      }
-
-      if (!result.destination) {
-        announce(
-          t(
-            'slideOverviewBar.dragAndDrop.droppedOnNoDropTarget',
-            'The slide has been dropped while not over a location. The slide has returned to its starting position of {{startPosition}}.',
-            { startPosition: result.source.index + 1 },
-          ),
-        );
-        return;
-      }
-
-      announce(
-        t(
-          'slideOverviewBar.dragAndDrop.dropped',
-          'You have dropped the slide. It has moved from position {{startPosition}} to {{destinationPosition}}.',
-          {
-            startPosition: result.source.index + 1,
-            destinationPosition: result.destination.index + 1,
-          },
-        ),
-      );
-
-      if (result.destination.index === result.source.index) {
-        return;
-      }
-
-      const sourceIndex = result.source.index;
-      const targetIndex = result.destination.index;
-      const sourceSlideId = whiteboardInstance.getSlideIds()[sourceIndex];
-
-      whiteboardInstance.moveSlide(sourceSlideId, targetIndex);
     },
-    [t, whiteboardInstance],
+    [whiteboardInstance],
   );
 
   return (
-    <DragDropContext
-      enableDefaultSensors={false}
-      sensors={[useTouchSensor, useMouseSensor, useCustomKeyboardSensor]}
-      onDragStart={handleDragStart}
-      onDragUpdate={handleDragUpdate}
+    <DndContext
+      sensors={sensors}
+      onDragOver={onDraggingOver}
       onDragEnd={handleDragEnd}
     >
       {children}
-    </DragDropContext>
+    </DndContext>
   );
 }
