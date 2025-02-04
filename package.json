@@ -25,7 +25,7 @@
     "prettier-plugin-organize-imports": "^4.1.0",
     "typescript-eslint": "^8.19.1",
     "typescript": "^5.7.2",
-    "vitest": "^2.1.8",
+    "vitest": "^2.1.9",
     "yarn-deduplicate": "^6.0.2"
   },
   "resolutions": {
