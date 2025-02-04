@@ -20,6 +20,7 @@ import eslintConfigPrettier from 'eslint-config-prettier';
 import notice from 'eslint-plugin-notice';
 import pluginPromise from 'eslint-plugin-promise';
 import react from 'eslint-plugin-react';
+import reactCompiler from 'eslint-plugin-react-compiler';
 import hooksPlugin from 'eslint-plugin-react-hooks';
 import testingLibrary from 'eslint-plugin-testing-library';
 import vitest from 'eslint-plugin-vitest';
@@ -130,6 +131,7 @@ export default ts.config(
       'react/react-in-jsx-scope': 'off',
     },
   },
+  reactCompiler.configs.recommended,
   // Test-specific configuration
   {
     files: ['**/*.test.*'],

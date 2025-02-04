@@ -14,9 +14,14 @@
  * limitations under the License.
  */
 
-import React, { PropsWithChildren, useContext, useMemo } from 'react';
+import React, {
+  PropsWithChildren,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { EMPTY } from 'rxjs';
-import { useLatestValue } from '../lib';
 import { Element } from './crdt';
 import { Elements, WhiteboardSlideInstance } from './types';
 import { useActiveWhiteboardInstance } from './useActiveWhiteboardInstance';
@@ -48,10 +53,7 @@ export function useWhiteboardSlideInstance(): WhiteboardSlideInstance {
 export function useSlideElementIds(): string[] {
   const slideInstance = useWhiteboardSlideInstance();
 
-  return useLatestValue(
-    () => slideInstance.getElementIds(),
-    slideInstance.observeElementIds(),
-  );
+  return slideInstance.getElementIds();
 }
 
 export function useElement(elementId: string | undefined): Element | undefined {
@@ -62,10 +64,19 @@ export function useElement(elementId: string | undefined): Element | undefined {
     [elementId, slideInstance],
   );
 
-  return useLatestValue(
-    () => (elementId ? slideInstance.getElement(elementId) : undefined),
-    observable,
+  const [element, setElement] = useState<Element | undefined>(
+    elementId ? slideInstance.getElement(elementId) : undefined,
   );
+  useEffect(() => {
+    const subscription = observable.subscribe(() => {
+      setElement(elementId ? slideInstance.getElement(elementId) : undefined);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [observable, elementId, slideInstance]);
+  return element;
 }
 
 export function useElements(elementIds: string[]): Elements {
@@ -76,10 +87,19 @@ export function useElements(elementIds: string[]): Elements {
     [elementIds, slideInstance],
   );
 
-  return useLatestValue(
-    () => slideInstance.getElements(elementIds),
-    observable,
+  const [elements, setElements] = useState<Elements>(
+    slideInstance.getElements(elementIds),
   );
+  useEffect(() => {
+    const subscription = observable.subscribe(() => {
+      setElements(slideInstance.getElements(elementIds));
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [observable, elementIds, slideInstance]);
+  return elements;
 }
 
 type ActiveElement = {
@@ -102,11 +122,18 @@ export function useActiveElement(): ActiveElement {
     [slideInstance],
   );
 
-  const activeElementId = useLatestValue(
-    () => slideInstance.getActiveElementId(),
-    observable,
+  const [activeElementId, setActiveElementId] = useState<string | undefined>(
+    slideInstance.getActiveElementId(),
   );
+  useEffect(() => {
+    const subscription = observable.subscribe(() => {
+      setActiveElementId(slideInstance.getActiveElementId());
+    });
 
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [observable, slideInstance]);
   return { activeElementId };
 }
 
@@ -121,11 +148,18 @@ export function useActiveElements(): ActiveElements {
     [slideInstance],
   );
 
-  const activeElementIds = useLatestValue(
-    () => slideInstance.getActiveElementIds(),
-    observable,
+  const [activeElementIds, setActiveElementIds] = useState<string[]>(
+    slideInstance.getActiveElementIds(),
   );
+  useEffect(() => {
+    const subscription = observable.subscribe(() => {
+      setActiveElementIds(slideInstance.getActiveElementIds());
+    });
 
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [observable, slideInstance]);
   return { activeElementIds };
 }
 
@@ -148,5 +182,15 @@ export function useSlideIsLocked(slideId?: string): boolean {
     [slideInstance],
   );
 
-  return useLatestValue(() => slideInstance.isLocked(), observable);
+  const [isLocked, setIsLocked] = useState<boolean>(slideInstance.isLocked());
+  useEffect(() => {
+    const subscription = observable.subscribe(() => {
+      setIsLocked(slideInstance.isLocked());
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [observable, slideInstance]);
+  return isLocked;
 }

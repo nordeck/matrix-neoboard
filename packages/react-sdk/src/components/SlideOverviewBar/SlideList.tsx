@@ -14,9 +14,13 @@
  * limitations under the License.
  */
 
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
 import { TabsListProps, TabsListProvider, useTabsList } from '@mui/base';
 import { Box } from '@mui/material';
-import { forwardRef } from 'react';
+import { forwardRef, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   useActiveSlide,
@@ -24,38 +28,36 @@ import {
 } from '../../state';
 import { SlideListItem } from './SlideListItem';
 import { SlidesDragDropContext } from './SlidesDragDropContext';
-import { StrictModeDroppable } from './StrictModeDroppable';
 
 export function SlideList() {
   const { t } = useTranslation('neoboard');
   const slideIds = useActiveWhiteboardInstanceSlideIds();
   const { activeSlideId } = useActiveSlide();
 
+  const [isDraggingOver, setIsDraggingOver] = useState(false);
+  const onDraggingOver = useCallback(() => {
+    setIsDraggingOver(true);
+  }, [setIsDraggingOver]);
+
   const slideListTitle = t('slideOverviewBar.slideListTitle', 'Slides');
 
   return (
-    <SlidesDragDropContext>
-      <StrictModeDroppable droppableId="slide-overview" type="slide">
-        {(provided, snapshot) => (
-          <SlideListTabs
-            aria-label={slideListTitle}
-            isDraggingOver={snapshot.isDraggingOver}
-            ref={provided.innerRef}
-            {...provided.droppableProps}
-          >
-            {slideIds.map((slideId, index) => (
-              <SlideListItem
-                active={slideId === activeSlideId}
-                key={slideId}
-                slideId={slideId}
-                slideIndex={index}
-              />
-            ))}
-
-            {provided.placeholder}
-          </SlideListTabs>
-        )}
-      </StrictModeDroppable>
+    <SlidesDragDropContext onDraggingOver={onDraggingOver}>
+      <SortableContext items={slideIds} strategy={verticalListSortingStrategy}>
+        <SlideListTabs
+          isDraggingOver={isDraggingOver}
+          aria-label={slideListTitle}
+        >
+          {slideIds.map((slideId, index) => (
+            <SlideListItem
+              active={slideId === activeSlideId}
+              key={slideId}
+              slideId={slideId}
+              slideIndex={index}
+            />
+          ))}
+        </SlideListTabs>
+      </SortableContext>
     </SlidesDragDropContext>
   );
 }
@@ -78,19 +80,7 @@ const SlideListTabs = forwardRef<
 
   return (
     <TabsListProvider value={contextValue}>
-      <Box
-        flex="1"
-        display="flex"
-        flexDirection="column"
-        {...tabProps}
-        sx={{
-          '& button[data-rbd-placeholder-context-id="1"]': {
-            // Remove all styling from the placeholder, as it would otherwise look
-            // like a button.
-            visibility: 'hidden',
-          },
-        }}
-      />
+      <Box flex="1" display="flex" flexDirection="column" {...tabProps} />
     </TabsListProvider>
   );
 });

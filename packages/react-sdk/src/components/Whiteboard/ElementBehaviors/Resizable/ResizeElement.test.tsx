@@ -104,7 +104,8 @@ describe('<ResizeElement />', () => {
     activeSlide = activeWhiteboard.getSlide('slide-0');
 
     const ExtractStore = () => {
-      store = useStore();
+      // eslint-disable-next-line react-compiler/react-compiler
+      store = useStore() as StoreType;
       return null;
     };
 

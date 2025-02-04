@@ -29,6 +29,7 @@ describe('<SnackbarDismissAction />', () => {
 
   beforeEach(() => {
     function SnackbarStateExtractor() {
+      // eslint-disable-next-line react-compiler/react-compiler
       snackbarState = useSnackbar();
       vi.spyOn(snackbarState, 'clearSnackbar');
       return null;

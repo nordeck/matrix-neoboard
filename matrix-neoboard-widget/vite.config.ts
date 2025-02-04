@@ -15,10 +15,21 @@
  */
 
 import basicSsl from '@vitejs/plugin-basic-ssl';
-import react from '@vitejs/plugin-react-swc';
+import react from '@vitejs/plugin-react';
 import { Plugin, PluginOption, defineConfig } from 'vite';
 
-const plugins: [Plugin | PluginOption] = [react()];
+const ReactCompilerConfig = {
+  target: '18',
+};
+
+// We cant use swc with react compiler until https://github.com/vitejs/vite-plugin-react-swc/issues/205 is resolved
+const plugins: [Plugin | PluginOption] = [
+  react({
+    babel: {
+      plugins: [['babel-plugin-react-compiler', ReactCompilerConfig]],
+    },
+  }),
+];
 let port = 5273;
 
 if (process.env.VITE_DEV_SSL === 'true') {

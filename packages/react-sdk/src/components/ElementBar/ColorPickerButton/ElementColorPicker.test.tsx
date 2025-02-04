@@ -80,6 +80,7 @@ describe('<ElementColorPicker/>', () => {
     activeSlide = activeWhiteboard.getSlide('slide-0');
 
     function LayoutStateExtractor() {
+      // eslint-disable-next-line react-compiler/react-compiler
       ({ setActiveColor, activeColor } = useLayoutState());
       return null;
     }

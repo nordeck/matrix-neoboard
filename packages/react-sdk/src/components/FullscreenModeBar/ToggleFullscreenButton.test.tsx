@@ -29,6 +29,7 @@ describe('<ToggleFullscreenButton/>', () => {
 
   beforeEach(() => {
     function LayoutStateExtractor() {
+      // eslint-disable-next-line react-compiler/react-compiler
       ({ setFullscreenMode: setFullscreen } = useLayoutState());
       return null;
     }

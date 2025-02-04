@@ -77,6 +77,7 @@ describe('TextColorPicker', () => {
 
     function LayoutStateExtractor() {
       const layoutState = useLayoutState();
+      // eslint-disable-next-line react-compiler/react-compiler
       activeTextColor = layoutState.activeTextColor;
       activeShapeTextColor = layoutState.activeShapeTextColor;
       return null;
