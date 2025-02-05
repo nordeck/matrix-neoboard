@@ -49,6 +49,7 @@ describe('duplicate', () => {
       width: 80,
       height: 70,
       fillColor: '#000',
+      textFontFamily: 'Inter',
       text: '',
     };
 
@@ -80,6 +81,7 @@ describe('duplicate', () => {
       width: 80,
       height: 70,
       fillColor: '#000',
+      textFontFamily: 'Inter',
       text: '',
     };
 
@@ -137,6 +139,7 @@ describe('duplicate', () => {
       width: 80,
       height: 70,
       fillColor: '#000',
+      textFontFamily: 'Inter',
       text: '',
     };
 
@@ -168,6 +171,7 @@ describe('duplicate', () => {
       width: 80,
       height: 70,
       fillColor: '#000',
+      textFontFamily: 'Inter',
       text: '',
     };
 
@@ -225,6 +229,7 @@ describe('duplicate', () => {
       width: 80,
       height: 70,
       fillColor: '#000',
+      textFontFamily: 'Inter',
       text: '',
     };
 
@@ -256,6 +261,7 @@ describe('duplicate', () => {
       width: 80,
       height: 70,
       fillColor: '#000',
+      textFontFamily: 'Inter',
       text: '',
     };
 

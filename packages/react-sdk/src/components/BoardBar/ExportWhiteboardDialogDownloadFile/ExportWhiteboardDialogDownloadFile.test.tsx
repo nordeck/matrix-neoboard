@@ -181,6 +181,7 @@ describe('<ExportWhiteboardDialogDownloadFile />', () => {
                     kind: 'ellipse',
                     position: { x: 0, y: 1 },
                     fillColor: '#ffffff',
+                    textFontFamily: 'Inter',
                     height: 100,
                     width: 50,
                     text: '',

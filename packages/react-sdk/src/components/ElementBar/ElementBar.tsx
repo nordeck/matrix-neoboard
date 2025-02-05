@@ -21,6 +21,7 @@ import { ElementColorPicker } from './ColorPickerButton/ElementColorPicker';
 import { TextColorPicker } from './ColorPickerButton/TextColorPicker';
 import { DeleteActiveElementButton } from './DeleteActiveElementButton/DeleteActiveElementButton';
 import { DuplicateActiveElementButton } from './DuplicateActiveElementButton';
+import { FontFamilyButton } from './FontFamilyButton';
 import { FontSizeButton } from './FontSizeButton';
 import { TextAlignmentButtons } from './TextAlignmentButtons';
 import { TextBoldButton } from './TextBoldButton';
@@ -36,6 +37,7 @@ export function ElementBar({
     <Toolbar aria-label={toolbarTitle}>
       {showTextTools && (
         <>
+          <FontFamilyButton />
           <FontSizeButton />
           <TextBoldButton />
           <TextItalicButton />

@@ -62,7 +62,7 @@ export const DraftShapeChild = ({
     activeTool,
   } = useLayoutState();
   const slideInstance = useWhiteboardSlideInstance();
-  const { setActiveTool } = useLayoutState();
+  const { setActiveTool, activeFontFamily } = useLayoutState();
   const shapeSizes = useAppSelector((state) => selectShapeSizes(state));
   const dispatch = useAppDispatch();
 
@@ -102,6 +102,7 @@ export const DraftShapeChild = ({
           sameLength,
           rounded: activeTool === 'rounded-rectangle' ? true : false,
           textColor,
+          textFontFamily: activeFontFamily,
         }),
       );
       setActiveTool('select');
@@ -117,6 +118,7 @@ export const DraftShapeChild = ({
       textColor,
       activeTool,
       fillColor,
+      activeFontFamily,
     ],
   );
 
@@ -132,6 +134,7 @@ export const DraftShapeChild = ({
           sameLength,
           rounded,
           textColor,
+          textFontFamily: activeFontFamily,
         }),
       );
       setActiveTool('select');
@@ -152,6 +155,7 @@ export const DraftShapeChild = ({
     rounded,
     textColor,
     fillColor,
+    activeFontFamily,
   ]);
 
   const handleMouseMove = useCallback(
@@ -179,6 +183,7 @@ export const DraftShapeChild = ({
             sameLength,
             rounded,
             textColor,
+            textFontFamily: activeFontFamily,
           })
         : undefined,
     [
@@ -191,6 +196,7 @@ export const DraftShapeChild = ({
       rounded,
       textColor,
       fillColor,
+      activeFontFamily,
     ],
   );
 

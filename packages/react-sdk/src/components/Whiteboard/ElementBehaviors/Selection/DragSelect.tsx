@@ -34,7 +34,8 @@ const NoInteraction = styled('g')({
 export function DragSelect() {
   const theme = useTheme();
   const slideInstance = useWhiteboardSlideInstance();
-  const { dragSelectStartCoords, setDragSelectStartCoords } = useLayoutState();
+  const { dragSelectStartCoords, setDragSelectStartCoords, activeFontFamily } =
+    useLayoutState();
   const { calculateSvgCoords } = useSvgCanvasContext();
   const [endCoords, setEndCoords] = useState<Point>();
 
@@ -60,6 +61,7 @@ export function DragSelect() {
 
     return {
       fillColor: `${theme.palette.primary.main}26`,
+      textFontFamily: activeFontFamily,
       height,
       kind: 'rectangle',
       position: { x, y },
@@ -69,7 +71,7 @@ export function DragSelect() {
       type: 'shape',
       width,
     };
-  }, [endCoords, dragSelectStartCoords, theme]);
+  }, [endCoords, dragSelectStartCoords, theme, activeFontFamily]);
 
   useEffect(() => {
     if (shape) {

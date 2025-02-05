@@ -36,11 +36,12 @@ describe('serializeToClipboard', () => {
       elements: [mockEllipseElement({ text: 'Hello World' })],
     });
 
-    expect(clipboardContent).toEqual({
-      'text/html':
-        '<span data-meta="<--(net.nordeck.whiteboard)eyJlbGVtZW50cyI6W3sidHlwZSI6InNoYXBlIiwia2luZCI6ImVsbGlwc2UiLCJwb3NpdGlvbiI6eyJ4IjowLCJ5IjoxfSwiZmlsbENvbG9yIjoiI2ZmZmZmZiIsImhlaWdodCI6MTAwLCJ3aWR0aCI6NTAsInRleHQiOiJIZWxsbyBXb3JsZCJ9XX0=(/net.nordeck.whiteboard)-->"></span><div>Hello World</div>',
-      'text/plain': 'Hello World',
-    });
+    expect(clipboardContent).toMatchInlineSnapshot(`
+      {
+        "text/html": "<span data-meta="<--(net.nordeck.whiteboard)eyJlbGVtZW50cyI6W3sidHlwZSI6InNoYXBlIiwia2luZCI6ImVsbGlwc2UiLCJwb3NpdGlvbiI6eyJ4IjowLCJ5IjoxfSwiZmlsbENvbG9yIjoiI2ZmZmZmZiIsInRleHRGb250RmFtaWx5IjoiSW50ZXIiLCJoZWlnaHQiOjEwMCwid2lkdGgiOjUwLCJ0ZXh0IjoiSGVsbG8gV29ybGQifV19(/net.nordeck.whiteboard)-->"></span><div>Hello World</div>",
+        "text/plain": "Hello World",
+      }
+    `);
   });
 });
 
@@ -77,6 +78,7 @@ describe('deserializeFromClipboard', () => {
       elements: [
         {
           fillColor: 'transparent',
+          textFontFamily: 'Inter',
           height: 300,
           kind: 'rectangle',
           position: { x: 660, y: 390 },
@@ -155,6 +157,7 @@ describe('deserializeFromPlainText', () => {
       elements: [
         {
           fillColor: 'transparent',
+          textFontFamily: 'Inter',
           height: 300,
           kind: 'rectangle',
           position: { x: 660, y: 390 },
@@ -173,8 +176,8 @@ describe('serializeAsHtml', () => {
       elements: [mockEllipseElement({ text: 'Hello World' })],
     });
 
-    expect(content).toBe(
-      '<span data-meta="<--(net.nordeck.whiteboard)eyJlbGVtZW50cyI6W3sidHlwZSI6InNoYXBlIiwia2luZCI6ImVsbGlwc2UiLCJwb3NpdGlvbiI6eyJ4IjowLCJ5IjoxfSwiZmlsbENvbG9yIjoiI2ZmZmZmZiIsImhlaWdodCI6MTAwLCJ3aWR0aCI6NTAsInRleHQiOiJIZWxsbyBXb3JsZCJ9XX0=(/net.nordeck.whiteboard)-->"></span><div>Hello World</div>',
+    expect(content).toMatchInlineSnapshot(
+      `"<span data-meta="<--(net.nordeck.whiteboard)eyJlbGVtZW50cyI6W3sidHlwZSI6InNoYXBlIiwia2luZCI6ImVsbGlwc2UiLCJwb3NpdGlvbiI6eyJ4IjowLCJ5IjoxfSwiZmlsbENvbG9yIjoiI2ZmZmZmZiIsInRleHRGb250RmFtaWx5IjoiSW50ZXIiLCJoZWlnaHQiOjEwMCwid2lkdGgiOjUwLCJ0ZXh0IjoiSGVsbG8gV29ybGQifV19(/net.nordeck.whiteboard)-->"></span><div>Hello World</div>"`,
     );
   });
 
@@ -187,8 +190,8 @@ describe('serializeAsHtml', () => {
       ],
     });
 
-    expect(content).toBe(
-      '<span data-meta="<--(net.nordeck.whiteboard)eyJlbGVtZW50cyI6W3sidHlwZSI6InNoYXBlIiwia2luZCI6ImVsbGlwc2UiLCJwb3NpdGlvbiI6eyJ4IjowLCJ5IjoxfSwiZmlsbENvbG9yIjoiI2ZmZmZmZiIsImhlaWdodCI6MTAwLCJ3aWR0aCI6NTAsInRleHQiOiJIZWxsbyBXb3JsZCJ9LHsidHlwZSI6InNoYXBlIiwia2luZCI6ImVsbGlwc2UiLCJwb3NpdGlvbiI6eyJ4IjowLCJ5IjoxfSwiZmlsbENvbG9yIjoiI2ZmZmZmZiIsImhlaWdodCI6MTAwLCJ3aWR0aCI6NTAsInRleHQiOiJNdWx0aVxuTGluZSJ9LHsidHlwZSI6InBhdGgiLCJraW5kIjoibGluZSIsInBvc2l0aW9uIjp7IngiOjAsInkiOjF9LCJzdHJva2VDb2xvciI6IiNmZmZmZmYiLCJwb2ludHMiOlt7IngiOjAsInkiOjF9LHsieCI6MiwieSI6M31dfV19(/net.nordeck.whiteboard)-->"></span><div>Hello World</div><div>Multi<br>Line</div>',
+    expect(content).toMatchInlineSnapshot(
+      `"<span data-meta="<--(net.nordeck.whiteboard)eyJlbGVtZW50cyI6W3sidHlwZSI6InNoYXBlIiwia2luZCI6ImVsbGlwc2UiLCJwb3NpdGlvbiI6eyJ4IjowLCJ5IjoxfSwiZmlsbENvbG9yIjoiI2ZmZmZmZiIsInRleHRGb250RmFtaWx5IjoiSW50ZXIiLCJoZWlnaHQiOjEwMCwid2lkdGgiOjUwLCJ0ZXh0IjoiSGVsbG8gV29ybGQifSx7InR5cGUiOiJzaGFwZSIsImtpbmQiOiJlbGxpcHNlIiwicG9zaXRpb24iOnsieCI6MCwieSI6MX0sImZpbGxDb2xvciI6IiNmZmZmZmYiLCJ0ZXh0Rm9udEZhbWlseSI6IkludGVyIiwiaGVpZ2h0IjoxMDAsIndpZHRoIjo1MCwidGV4dCI6Ik11bHRpXG5MaW5lIn0seyJ0eXBlIjoicGF0aCIsImtpbmQiOiJsaW5lIiwicG9zaXRpb24iOnsieCI6MCwieSI6MX0sInN0cm9rZUNvbG9yIjoiI2ZmZmZmZiIsInBvaW50cyI6W3sieCI6MCwieSI6MX0seyJ4IjoyLCJ5IjozfV19XX0=(/net.nordeck.whiteboard)-->"></span><div>Hello World</div><div>Multi<br>Line</div>"`,
     );
   });
 });
