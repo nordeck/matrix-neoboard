@@ -25,6 +25,7 @@ describe('getRenderProperties', () => {
       kind: 'rectangle',
       position: { x: 10, y: 15 },
       fillColor: '#00ffff',
+      textFontFamily: 'Inter',
       width: 100,
       height: 50,
       text: 'My Text',
@@ -36,6 +37,7 @@ describe('getRenderProperties', () => {
 
       text: {
         position: { x: 20, y: 25 },
+        fontFamily: 'Inter',
         width: 80,
         height: 30,
         alignment: 'center',
@@ -51,6 +53,7 @@ describe('getRenderProperties', () => {
       kind: 'rectangle',
       position: { x: 10, y: 15 },
       fillColor: '#00ffff',
+      textFontFamily: 'Inter',
       width: 100,
       height: 50,
       text: 'My Text',
@@ -64,6 +67,7 @@ describe('getRenderProperties', () => {
 
       text: {
         position: { x: 20, y: 25 },
+        fontFamily: 'Inter',
         width: 80,
         height: 30,
         alignment: 'center',
@@ -79,6 +83,7 @@ describe('getRenderProperties', () => {
       kind: 'rectangle',
       position: { x: 10, y: 15 },
       fillColor: '#00ffff',
+      textFontFamily: 'Inter',
       width: 100,
       height: 50,
       text: 'My Text',
@@ -91,6 +96,7 @@ describe('getRenderProperties', () => {
 
       text: {
         position: { x: 20, y: 25 },
+        fontFamily: 'Inter',
         width: 80,
         height: 30,
         alignment: 'right',
@@ -108,6 +114,7 @@ describe('getRenderProperties', () => {
 
       text: {
         position: { x: expect.any(Number), y: expect.any(Number) },
+        fontFamily: 'Inter',
         width: expect.any(Number),
         height: expect.any(Number),
         alignment: 'center',
@@ -128,6 +135,7 @@ describe('getRenderProperties', () => {
 
       text: {
         position: { x: expect.any(Number), y: expect.any(Number) },
+        fontFamily: 'Inter',
         width: expect.any(Number),
         height: expect.any(Number),
         alignment: 'center',
@@ -143,6 +151,7 @@ describe('getRenderProperties', () => {
       kind: 'rectangle',
       position: { x: 10, y: 15 },
       fillColor: '#00ffff',
+      textFontFamily: 'Inter',
       strokeColor: '#ff0000',
       strokeWidth: 1,
       width: 100,
@@ -156,6 +165,7 @@ describe('getRenderProperties', () => {
 
       text: {
         position: { x: 20, y: 25 },
+        fontFamily: 'Inter',
         width: 80,
         height: 30,
         alignment: 'center',

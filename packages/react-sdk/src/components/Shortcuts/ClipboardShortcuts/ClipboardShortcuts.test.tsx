@@ -219,6 +219,7 @@ describe('<CopyAndPasteShortcuts>', () => {
     const activeElement = activeSlide.getElement(activeElementId!);
     expect(activeElement).toEqual({
       fillColor: 'transparent',
+      textFontFamily: 'Inter',
       height: 300,
       kind: 'rectangle',
       position: {

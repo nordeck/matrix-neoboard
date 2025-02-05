@@ -27,13 +27,13 @@ export type ForeignObjectNoInteractionProps = {
   paddingLeft?: number;
   paddingRight?: number;
   paddingBottom?: number;
-  fontFamily?: TextFontFamily;
+  fontFamily: TextFontFamily;
 };
 
 const ForeignObjectNoInteraction = styled(
   'foreignObject',
 )<ForeignObjectNoInteractionProps>(({ fontFamily }) => ({
-  fontFamily: fontFamily || 'inherit',
+  fontFamily: fontFamily,
   // disable the pointer events because the foreignObject is always square
   // while the actual element might be a triangle or a circle.
   pointerEvents: 'none',
@@ -55,7 +55,7 @@ export type TextElementProps = {
   elementId: string;
   textColor?: string;
   fontSize?: number;
-  fontFamily?: TextFontFamily;
+  fontFamily: TextFontFamily;
 
   setTextToolsEnabled: ((enabled: boolean) => void) | undefined;
 };

@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-import { MuiThemeProvider } from '@matrix-widget-toolkit/mui';
-import { CssBaseline, ThemeProvider, useTheme } from '@mui/material';
+import { createTheme, CssBaseline, ThemeProvider } from '@mui/material';
 import { deepmerge } from '@mui/utils';
 import { PropsWithChildren, useCallback } from 'react';
 import theme from './theme';
@@ -25,18 +24,17 @@ import theme from './theme';
  * applying the custom fonts and theme settings from the `theme.ts` file.
  */
 export function ReactSdkThemeProvider({ children }: PropsWithChildren<{}>) {
-  const MuiTheme = useTheme();
-
-  const reactSdkTheme = useCallback(() => {
-    return deepmerge(theme, MuiTheme);
-  }, [MuiTheme]);
+  const applyNeoBoardTheme = useCallback(
+    (baseTheme: ReturnType<typeof createTheme>) => {
+      return deepmerge(theme, baseTheme);
+    },
+    [],
+  );
 
   return (
-    <MuiThemeProvider>
-      <ThemeProvider theme={reactSdkTheme}>
-        <CssBaseline />
-        {children}
-      </ThemeProvider>
-    </MuiThemeProvider>
+    <ThemeProvider theme={applyNeoBoardTheme}>
+      <CssBaseline />
+      {children}
+    </ThemeProvider>
   );
 }

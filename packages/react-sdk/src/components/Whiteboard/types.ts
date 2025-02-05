@@ -38,6 +38,6 @@ export type ElementRenderProperties = {
     bold: boolean;
     italic: boolean;
     fontSize?: number;
-    fontFamily?: TextFontFamily;
+    fontFamily: TextFontFamily;
   };
 };

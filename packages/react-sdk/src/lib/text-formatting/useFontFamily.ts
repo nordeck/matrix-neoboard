@@ -25,7 +25,7 @@ import { TextFontFamily } from '../../state/crdt/documents/elements';
 import { calculateFontFamilyUpdates } from './calculateFontFamilyUpdates';
 
 type UseFontFamilyResult = {
-  setFontFamily: (value?: TextFontFamily) => void;
+  setFontFamily: (value: TextFontFamily) => void;
 };
 
 export function useFontFamily(): UseFontFamilyResult {
@@ -36,7 +36,7 @@ export function useFontFamily(): UseFontFamilyResult {
   const { setActiveFontFamily } = useLayoutState();
 
   for (const element of elements) {
-    if (element.type === 'shape' && element.textFontFamily) {
+    if (element.type === 'shape' && element.text.trim() !== '') {
       // Find first shape textFont
       setActiveFontFamily(element.textFontFamily);
       break;

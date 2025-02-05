@@ -40,12 +40,12 @@ const elementBaseSchema = Joi.object<ElementBase, true>({
 export type ShapeKind = 'rectangle' | 'circle' | 'ellipse' | 'triangle';
 export type TextAlignment = 'left' | 'center' | 'right';
 export type TextFontFamily =
-  | 'Inter'
   | 'Abel'
   | 'Actor'
   | 'Adamina'
   | 'Chewy'
   | 'Gwendolyn'
+  | 'Inter'
   | 'Pirata One';
 
 export type ShapeElement = ElementBase & {
@@ -63,7 +63,7 @@ export type ShapeElement = ElementBase & {
   textBold?: boolean;
   textItalic?: boolean;
   textSize?: number;
-  textFontFamily?: TextFontFamily;
+  textFontFamily: TextFontFamily;
 };
 
 const emptyCoordinateSchema = Joi.any().valid(null, 0, '');

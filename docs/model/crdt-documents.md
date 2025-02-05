@@ -119,25 +119,24 @@ An Element that has a shape attached, that has a text and a fill color.
 
 #### Fields
 
-| Field                           | Type                                                                                               | Description                                                   |
-| ------------------------------- | -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
-| `type`                          | `'shape'`                                                                                          | Identifies the element as a shape.                            |
-| `kind`                          | `'rectangle' \| 'circle' \| 'ellipse' \| 'triangle'`                                               | The kind of shape, defining its look.                         |
-| `position`                      | `Point`                                                                                            | The position of the shape on the whiteboard canvas.           |
-| `width`                         | `number`                                                                                           | Scaling of the shape on the x-axis.                           |
-| `height`                        | `number`                                                                                           | Scaling of the shape on the y-axis.                           |
-| `fillColor`                     | `string`                                                                                           | The fill color of the shape as [CSS color value][csscolor].   |
-| `strokeColor`                   | `string \| undefined`                                                                              | The border color of the shape as [CSS color value][csscolor]. |
-| `strokeWidth`                   | `number \| undefined`                                                                              | The border width of the shape in pixels.                      |
-| `borderRadius`                  | `number \| undefined`                                                                              | The border radius of the shape in pixels.                     |
-| `text`                          | `YText` / `string`                                                                                 | Text that is displayed in the shape.                          |
-| `textAlignment`                 | `'left' \| 'center' \| 'right' \| undefined`                                                       | The alignment of the text in the shape.                       |
-| `textColor`                     | `string \| undefined`                                                                              | The text color of the shape as [CSS color value][csscolor].   |
-| `textBold`                      | `boolean \| undefined`                                                                             | Should the text have a bold formatting?                       |
-| `textItalic`                    | `boolean \| undefined`                                                                             | Should the text have an italic formatting?                    |
-| `textSize`                      | `number \| undefined`                                                                              | Font size of the text in CSS pixel unit                       |
-| `undefined` for auto text size. |
-| `textFontFamily`                | `'Inter' \| 'Abel' \| 'Actor' \| 'Adamina' \| 'Chewy' \| 'Gwendolyn' \| 'Pirata One' \| undefined` | The font family of the text. Defaults to `"Inter"`.           |
+| Field            | Type                                                                                               | Description                                                              |
+| ---------------- | -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| `type`           | `'shape'`                                                                                          | Identifies the element as a shape.                                       |
+| `kind`           | `'rectangle' \| 'circle' \| 'ellipse' \| 'triangle'`                                               | The kind of shape, defining its look.                                    |
+| `position`       | `Point`                                                                                            | The position of the shape on the whiteboard canvas.                      |
+| `width`          | `number`                                                                                           | Scaling of the shape on the x-axis.                                      |
+| `height`         | `number`                                                                                           | Scaling of the shape on the y-axis.                                      |
+| `fillColor`      | `string`                                                                                           | The fill color of the shape as [CSS color value][csscolor].              |
+| `strokeColor`    | `string \| undefined`                                                                              | The border color of the shape as [CSS color value][csscolor].            |
+| `strokeWidth`    | `number \| undefined`                                                                              | The border width of the shape in pixels.                                 |
+| `borderRadius`   | `number \| undefined`                                                                              | The border radius of the shape in pixels.                                |
+| `text`           | `YText` / `string`                                                                                 | Text that is displayed in the shape.                                     |
+| `textAlignment`  | `'left' \| 'center' \| 'right' \| undefined`                                                       | The alignment of the text in the shape.                                  |
+| `textColor`      | `string \| undefined`                                                                              | The text color of the shape as [CSS color value][csscolor].              |
+| `textBold`       | `boolean \| undefined`                                                                             | Should the text have a bold formatting?                                  |
+| `textItalic`     | `boolean \| undefined`                                                                             | Should the text have an italic formatting?                               |
+| `textSize`       | `number \| undefined`                                                                              | Font size of the text in CSS pixel unit, `undefined` for auto text size. |
+| `textFontFamily` | `'Inter' \| 'Abel' \| 'Actor' \| 'Adamina' \| 'Chewy' \| 'Gwendolyn' \| 'Pirata One' \| undefined` | The font family of the text. Defaults to `"Inter"`.                      |
 
 #### Example
 

@@ -142,7 +142,6 @@ export function textContent(
     { innerText: element.text },
     {
       disableLigatures: true,
-      fontFamily: element.textFontFamily,
       fontSize: element.textSize,
     },
   );
