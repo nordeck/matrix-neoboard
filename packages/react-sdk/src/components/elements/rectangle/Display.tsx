@@ -69,7 +69,7 @@ const RectangleDisplay = ({
           fillColor={shape.fillColor}
           textColor={shape.textColor}
           fontSize={text.fontSize}
-          fontFamily={shape.textFontFamily}
+          fontFamily={shape.textFontFamily ?? 'Inter'}
           setTextToolsEnabled={shape.setTextToolsEnabled}
         />
       )}

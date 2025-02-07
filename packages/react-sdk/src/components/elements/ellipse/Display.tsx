@@ -72,7 +72,7 @@ const EllipseDisplay = ({
           height={text.height}
           fillColor={shape.fillColor}
           fontSize={text.fontSize}
-          fontFamily={shape.textFontFamily}
+          fontFamily={shape.textFontFamily ?? 'Inter'}
           setTextToolsEnabled={shape.setTextToolsEnabled}
         />
       )}
