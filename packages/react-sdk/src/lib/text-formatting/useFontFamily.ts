@@ -38,7 +38,7 @@ export function useFontFamily(): UseFontFamilyResult {
   for (const element of elements) {
     if (element.type === 'shape' && element.text.trim() !== '') {
       // Find first shape textFont
-      setActiveFontFamily(element.textFontFamily ?? 'Inter');
+      setActiveFontFamily(element.textFontFamily);
       break;
     }
   }

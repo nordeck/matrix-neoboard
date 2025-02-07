@@ -114,7 +114,7 @@ export function LayoutStateProvider({ children }: PropsWithChildren<{}>) {
   const [activeColor, setActiveColor] = useState<string>(grey[500]);
   const [activeShade, setActiveShade] = useState(3);
   const [activeTextColor, setActiveTextColor] = useState(defaultTextColor);
-  const [activeFontFamily, setActiveFontFamily] =
+  const [activeFontFamily, setActiveFontFamilyState] =
     useState<TextFontFamily>('Inter');
   const [activeTextShade, setActiveTextShade] = useState(defaultTextShade);
   const [activeShapeColor, setActiveShapeColor] = useState(defaultShapeColor);
@@ -123,6 +123,10 @@ export function LayoutStateProvider({ children }: PropsWithChildren<{}>) {
     useState(defaultTextColor);
   const [activeShapeTextShade, setActiveShapeTextShade] =
     useState(defaultTextShade);
+
+  const setActiveFontFamily = (font: TextFontFamily) => {
+    setActiveFontFamilyState(font ?? 'Inter');
+  };
 
   const value = useMemo(
     () => ({
