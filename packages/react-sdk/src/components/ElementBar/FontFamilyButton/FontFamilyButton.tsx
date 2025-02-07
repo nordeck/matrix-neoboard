@@ -50,7 +50,7 @@ export function FontFamilyButton() {
       size="small"
       variant="standard"
       disableUnderline={true}
-      value={activeFontFamily ?? 'Inter'}
+      value={activeFontFamily}
       inputProps={{
         'aria-label': t('elementBar.fontForm', 'Select font family'),
       }}
