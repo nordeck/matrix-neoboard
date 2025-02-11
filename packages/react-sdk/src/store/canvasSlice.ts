@@ -24,6 +24,7 @@ import {
   zoomMax,
   zoomMin,
 } from '../components/Whiteboard/constants';
+import { Point } from '../state';
 import { RootState } from './store';
 
 type Translation = { x: number; y: number };
@@ -121,6 +122,50 @@ const fitFunc = (state: CanvasState): CanvasState => {
   };
 };
 
+type UpdateScalePayload = {
+  scaleChange: number;
+  origin?: Point;
+};
+
+const handleSetScale = (
+  state: CanvasState,
+  newScale: number,
+  origin?: Point,
+) => {
+  // Limit zoom levels
+  if (newScale > zoomMax) {
+    newScale = zoomMax;
+  } else if (newScale <= zoomMin) {
+    newScale = zoomMin;
+  }
+
+  const translation: { translate?: Point } = {};
+
+  if (origin !== undefined) {
+    // Origin needs to be translated to the canvas origin, which is centre
+    const translatedOriginX = origin.x - whiteboardWidth / 2;
+    const translatedOriginY = origin.y - whiteboardHeight / 2;
+
+    // Calculate offset to keep the origin at the same point on the viewport after scale
+    const scaleChange = newScale - state.scale;
+    const offsetX = -(translatedOriginX * scaleChange);
+    const offsetY = -(translatedOriginY * scaleChange);
+
+    translation.translate = {
+      x: state.translate.x + offsetX,
+      y: state.translate.y + offsetY,
+    };
+  }
+
+  const newState = {
+    ...state,
+    scale: newScale,
+    ...translation,
+  };
+
+  return fitFunc(newState);
+};
+
 export const canvasSlice = createSlice({
   name: 'canvas',
   initialState,
@@ -142,22 +187,12 @@ export const canvasSlice = createSlice({
         outerScale: action.payload,
       };
     },
-    updateScale: (state, action: PayloadAction<number>) => {
-      let newScale = state.scale + action.payload;
-
-      // Limit zoom levels
-      if (newScale > zoomMax) {
-        newScale = zoomMax;
-      } else if (newScale <= zoomMin) {
-        newScale = zoomMin;
-      }
-
-      const newState = {
-        ...state,
-        scale: newScale,
-      };
-
-      return fitFunc(newState);
+    setScale: (state, action: PayloadAction<number>) => {
+      return handleSetScale(state, action.payload);
+    },
+    updateScale: (state, action: PayloadAction<UpdateScalePayload>) => {
+      const newScale = state.scale + action.payload.scaleChange;
+      return handleSetScale(state, newScale, action.payload.origin);
     },
     updateTranslation: (state, action: PayloadAction<Translation>) => {
       const newState = {
@@ -176,6 +211,7 @@ export const canvasSlice = createSlice({
 export const {
   refreshCanvas,
   setInfiniteMode,
+  setScale,
   updateScale,
   updateOuterScale,
   updateTranslation,

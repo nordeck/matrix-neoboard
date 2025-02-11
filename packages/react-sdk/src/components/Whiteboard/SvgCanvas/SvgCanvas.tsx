@@ -16,14 +16,17 @@
 
 import { Box, styled } from '@mui/material';
 import {
+  forwardRef,
   MouseEventHandler,
   PropsWithChildren,
   ReactNode,
   useCallback,
   useEffect,
   useId,
+  useImperativeHandle,
   useMemo,
   useRef,
+  WheelEventHandler,
 } from 'react';
 import { Point } from '../../../state';
 import {
@@ -58,21 +61,30 @@ export type SvgCanvasProps = PropsWithChildren<{
 
   onMouseDown?: MouseEventHandler<SVGSVGElement> | undefined;
   onMouseMove?: (position: Point) => void | undefined;
+  onWheel?: WheelEventHandler;
 }>;
 
-export function SvgCanvas({
-  viewportHeight,
-  viewportWidth,
-  children,
-  rounded,
-  additionalChildren,
-  withOutline,
-  onMouseDown,
-  onMouseMove,
-  preview,
-}: SvgCanvasProps) {
+export const SvgCanvas = forwardRef(function SvgCanvas(
+  {
+    viewportHeight,
+    viewportWidth,
+    children,
+    rounded,
+    additionalChildren,
+    withOutline,
+    onMouseDown,
+    onMouseMove,
+    preview,
+    onWheel,
+  }: SvgCanvasProps,
+  forwardedRef,
+) {
   const [sizeRef, { width, height }] = useMeasure<HTMLDivElement>();
   const svgRef = useRef<SVGSVGElement>(null);
+
+  // by that svgRef can be used here, while also forwarding the ref
+  useImperativeHandle(forwardedRef, () => svgRef.current);
+
   const calculateSvgCoordsFunc = useCallback(
     (position: Point) => {
       if (!svgRef.current) {
@@ -198,6 +210,7 @@ export function SvgCanvas({
             viewBox={`0 0 ${viewportWidth} ${viewportHeight}`}
             onMouseDown={onMouseDown}
             onMouseMove={handleMouseMove}
+            onWheel={onWheel}
             transform-origin="center center"
             transform={
               !preview
@@ -212,4 +225,4 @@ export function SvgCanvas({
       </Box>
     </Box>
   );
-}
+});

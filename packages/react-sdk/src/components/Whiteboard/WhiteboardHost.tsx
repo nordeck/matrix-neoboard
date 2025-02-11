@@ -15,7 +15,7 @@
  */
 
 import { Box } from '@mui/material';
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import {
   includesShapeWithText,
   includesTextShape,
@@ -30,6 +30,12 @@ import {
 import { ElementBar } from '../ElementBar';
 import { useElementOverrides } from '../ElementOverridesProvider';
 import { useLayoutState } from '../Layout';
+import {
+  initialWhiteboardHeight,
+  initialWhiteboardWidth,
+  whiteboardHeight,
+  whiteboardWidth,
+} from './constants';
 import { CursorRenderer } from './CursorRenderer';
 import { DraftPicker } from './Draft/DraftPicker';
 import { ConnectedElement } from './Element';
@@ -45,12 +51,7 @@ import { DragSelect } from './ElementBehaviors/Selection/DragSelect';
 import { DotGrid } from './Grid';
 import { SlideSkeleton } from './SlideSkeleton';
 import { SvgCanvas } from './SvgCanvas';
-import {
-  initialWhiteboardHeight,
-  initialWhiteboardWidth,
-  whiteboardHeight,
-  whiteboardWidth,
-} from './constants';
+import { useWheelZoom } from './SvgCanvas/useWheelZoom';
 
 const WhiteboardHost = ({
   elementIds,
@@ -65,6 +66,7 @@ const WhiteboardHost = ({
   hideDotGrid?: boolean;
   withOutline?: boolean;
 }) => {
+  const svgRef = useRef<SVGSVGElement>(null);
   const slideInstance = useWhiteboardSlideInstance();
   const { isShowCollaboratorsCursors, dragSelectStartCoords } =
     useLayoutState();
@@ -77,6 +79,8 @@ const WhiteboardHost = ({
     includesShapeWithText(Object.values(overrides));
 
   const showTextTools = textToolsEnabled || hasElementWithText;
+
+  const { handleWheelZoom } = useWheelZoom(svgRef);
 
   return (
     <Box
@@ -92,6 +96,7 @@ const WhiteboardHost = ({
       overflow="hidden"
     >
       <SvgCanvas
+        ref={svgRef}
         viewportHeight={whiteboardHeight}
         viewportWidth={whiteboardWidth}
         additionalChildren={
@@ -111,6 +116,7 @@ const WhiteboardHost = ({
           },
           [slideInstance],
         )}
+        onWheel={handleWheelZoom}
       >
         <BaseArea />
         {!hideDotGrid && <DotGrid />}

@@ -19,7 +19,7 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import { useTheme } from '@mui/material';
 import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { selectCanvas, updateScale } from '../../store/canvasSlice';
+import { selectCanvas, setScale, updateScale } from '../../store/canvasSlice';
 import { useAppDispatch, useAppSelector } from '../../store/reduxToolkitHooks';
 import { Toolbar, ToolbarButton } from '../common/Toolbar';
 import { zoomStep } from '../Whiteboard/constants';
@@ -34,15 +34,15 @@ export const ZoomBar: React.FC = () => {
   const scalePercentage = Math.floor(100 * scale);
 
   const handleResetZoom = useCallback(() => {
-    dispatch(updateScale(1));
+    dispatch(setScale(1));
   }, [dispatch]);
 
   const handleZoomOut = useCallback(() => {
-    dispatch(updateScale(-zoomStep));
+    dispatch(updateScale({ scaleChange: -zoomStep }));
   }, [dispatch]);
 
   const handleZoomIn = useCallback(() => {
-    dispatch(updateScale(zoomStep));
+    dispatch(updateScale({ scaleChange: zoomStep }));
   }, [dispatch]);
 
   return (
