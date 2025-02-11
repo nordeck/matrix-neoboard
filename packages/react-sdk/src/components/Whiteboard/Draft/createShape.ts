@@ -39,6 +39,7 @@ export function createShape({
   rounded = false,
   textColor,
   textFontFamily,
+  textSize,
 }: {
   kind: ShapeKind;
   startCoords: Point;
@@ -49,6 +50,7 @@ export function createShape({
   rounded?: boolean;
   textColor?: string;
   textFontFamily: TextFontFamily;
+  textSize?: number;
 }): ShapeElement {
   const normalizedStart =
     gridCellSize === undefined
@@ -114,6 +116,7 @@ export function createShape({
     text: '',
     textColor,
     textFontFamily,
+    textSize,
     borderRadius: rounded ? 20 : undefined,
   };
 }
