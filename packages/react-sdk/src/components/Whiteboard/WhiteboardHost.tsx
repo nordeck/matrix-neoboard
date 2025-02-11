@@ -30,12 +30,7 @@ import {
 import { ElementBar } from '../ElementBar';
 import { useElementOverrides } from '../ElementOverridesProvider';
 import { useLayoutState } from '../Layout';
-import {
-  initialWhiteboardHeight,
-  initialWhiteboardWidth,
-  whiteboardHeight,
-  whiteboardWidth,
-} from './constants';
+import { whiteboardHeight, whiteboardWidth } from './constants';
 import { CursorRenderer } from './CursorRenderer';
 import { DraftPicker } from './Draft/DraftPicker';
 import { ConnectedElement } from './Element';
@@ -118,7 +113,6 @@ const WhiteboardHost = ({
         )}
         onWheel={handleWheelZoom}
       >
-        <BaseArea />
         {!hideDotGrid && <DotGrid />}
         {!readOnly && <UnSelectElementHandler />}
 
@@ -155,17 +149,6 @@ const WhiteboardHost = ({
         {isShowCollaboratorsCursors && !hideCursors && <CursorRenderer />}
       </SvgCanvas>
     </Box>
-  );
-};
-
-const BaseArea = () => {
-  return (
-    <path
-      fill="transparent"
-      strokeWidth={2}
-      stroke="#bbb"
-      d={`M ${(whiteboardWidth - initialWhiteboardWidth) / 2} ${(whiteboardHeight - initialWhiteboardHeight) / 2} l 0 ${initialWhiteboardHeight} l ${initialWhiteboardWidth} 0 l 0 -${initialWhiteboardHeight} l -${initialWhiteboardWidth} 0`}
-    ></path>
   );
 };
 
