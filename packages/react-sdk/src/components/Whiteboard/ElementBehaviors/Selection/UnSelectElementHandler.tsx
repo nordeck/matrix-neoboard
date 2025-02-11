@@ -15,17 +15,13 @@
  */
 
 import { Point } from 'pdfmake/interfaces';
-import { MouseEvent, WheelEvent, useCallback, useState } from 'react';
+import { MouseEvent, useCallback, useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import {
   useActiveElement,
   useWhiteboardSlideInstance,
 } from '../../../../state';
-import {
-  selectCanvas,
-  updateScale,
-  updateTranslation,
-} from '../../../../store/canvasSlice';
+import { selectCanvas, updateTranslation } from '../../../../store/canvasSlice';
 import {
   useAppDispatch,
   useAppSelector,
@@ -33,7 +29,6 @@ import {
 import { useLayoutState } from '../../../Layout';
 import { HOTKEY_SCOPE_WHITEBOARD } from '../../../WhiteboardHotkeysProvider';
 import { useSvgCanvasContext } from '../../SvgCanvas';
-import { zoomStep } from '../../constants';
 
 export function UnSelectElementHandler() {
   const { activeElementId } = useActiveElement();
@@ -122,21 +117,6 @@ export function UnSelectElementHandler() {
     [infiniteMode],
   );
 
-  const handleWheel = useCallback(
-    (event: WheelEvent) => {
-      if (!infiniteMode) {
-        return;
-      }
-
-      if (event.deltaY === 0) {
-        return;
-      }
-
-      dispatch(updateScale(event.deltaY < 0 ? zoomStep : -zoomStep));
-    },
-    [dispatch, infiniteMode],
-  );
-
   const handleMouseEnter = useCallback((event: MouseEvent<SVGRectElement>) => {
     if (event.buttons !== 2) {
       // Stop pan
@@ -164,7 +144,6 @@ export function UnSelectElementHandler() {
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onMouseEnter={handleMouseEnter}
-      onWheel={handleWheel}
       onContextMenu={(e) => {
         e.preventDefault();
         e.stopPropagation();

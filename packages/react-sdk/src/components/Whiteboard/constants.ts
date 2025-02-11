@@ -22,6 +22,6 @@ export const whiteboardHeight = 5400;
 
 export const gridCellSize = 20;
 
-export const zoomStep = 0.2;
+export const zoomStep = 0.1;
 export const zoomMax = 1;
 export const zoomMin = 0.2;
