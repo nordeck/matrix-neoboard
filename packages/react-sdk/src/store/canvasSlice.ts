@@ -37,7 +37,7 @@ export type CanvasState = {
 };
 
 const initialState: CanvasState = {
-  infiniteMode: false,
+  infiniteMode: true,
   outerScale: 1,
   scale: 1,
   translate: {
