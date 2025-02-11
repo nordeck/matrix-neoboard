@@ -38,6 +38,7 @@ import {
   useAppDispatch,
   useAppSelector,
 } from '../../../store/reduxToolkitHooks';
+import { whiteboardHeight, whiteboardWidth } from '../constants';
 import { SvgCanvasContext, SvgCanvasContextType } from './context';
 import { useMeasure } from './useMeasure';
 import { calculateScale, calculateSvgCoords } from './utils';
@@ -189,8 +190,8 @@ export const SvgCanvas = forwardRef(function SvgCanvas(
               ? {}
               : {
                   position: 'relative',
-                  top: '-2700px',
-                  left: '-4800px',
+                  top: `-${whiteboardHeight / 2}px`,
+                  left: `-${whiteboardWidth / 2}px`,
                 }
         }
       >
@@ -203,8 +204,8 @@ export const SvgCanvas = forwardRef(function SvgCanvas(
               ...(preview
                 ? {}
                 : {
-                    width: '9600px',
-                    height: '5400px',
+                    width: `${whiteboardWidth}px`,
+                    height: `${whiteboardHeight}px`,
                   }),
             }}
             viewBox={`0 0 ${viewportWidth} ${viewportHeight}`}
