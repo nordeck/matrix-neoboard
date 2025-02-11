@@ -1,0 +1,2 @@
+namespace: 'matrix-neoboard-widget'
+release-label: 'app.kubernetes.io/instance'
