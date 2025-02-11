@@ -17,11 +17,11 @@
 export const initialWhiteboardWidth = 1920;
 export const initialWhiteboardHeight = 1080;
 
-export const whiteboardWidth = 9600;
-export const whiteboardHeight = 5400;
+export const whiteboardWidth = 19200;
+export const whiteboardHeight = 10800;
 
 export const gridCellSize = 20;
 
 export const zoomStep = 0.1;
 export const zoomMax = 1;
-export const zoomMin = 0.2;
+export const zoomMin = 0.05;
