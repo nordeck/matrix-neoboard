@@ -33,6 +33,8 @@ import { DraftMouseHandler } from './DraftMouseHandler';
 import { calculateShapeCoords } from './calculateShapeCoords';
 import { createShape } from './createShape';
 
+const defaultTextSize = 16;
+
 export type DraftShapeChildProps = {
   kind: ShapeKind;
   display: ComponentType<ShapeElement & WithExtendedSelectionProps>;
@@ -103,6 +105,7 @@ export const DraftShapeChild = ({
           rounded: activeTool === 'rounded-rectangle' ? true : false,
           textColor,
           textFontFamily: activeFontFamily,
+          textSize: defaultTextSize,
         }),
       );
       setActiveTool('select');
@@ -135,6 +138,7 @@ export const DraftShapeChild = ({
           rounded,
           textColor,
           textFontFamily: activeFontFamily,
+          textSize: defaultTextSize,
         }),
       );
       setActiveTool('select');

@@ -16,6 +16,8 @@
 
 import { Dispatch, RefObject, useCallback, useRef } from 'react';
 import { DraggableCore, DraggableData, DraggableEvent } from 'react-draggable';
+import { selectCanvas } from '../../../../store/canvasSlice';
+import { useAppSelector } from '../../../../store/reduxToolkitHooks';
 import { useSvgCanvasContext } from '../../SvgCanvas';
 import { HandlePosition } from './types';
 import { isLineElementHandlePosition } from './utils';
@@ -157,7 +159,8 @@ export type ResizeHandleProps = {
 
 export function ResizeHandle(props: ResizeHandleProps) {
   const nodeRef = useRef<SVGRectElement>(null);
-  const { scale, calculateSvgCoords } = useSvgCanvasContext();
+  const { calculateSvgCoords } = useSvgCanvasContext();
+  const { scale } = useAppSelector(selectCanvas);
 
   const {
     position: { name },
