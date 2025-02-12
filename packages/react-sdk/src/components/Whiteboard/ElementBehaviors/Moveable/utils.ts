@@ -15,9 +15,15 @@
  */
 
 import { clamp } from 'lodash';
-import { calculateBoundingRectForElements } from '../../../../state/crdt/documents/elements';
+import {
+  calculateBoundingRectForElements,
+  PathElement,
+} from '../../../../state/crdt/documents/elements';
+import { BoundingRect } from '../../../../state/crdt/documents/point';
 import { Elements } from '../../../../state/types';
 import { ElementOverrideUpdate } from '../../../ElementOverridesProvider';
+import { computeResizingConnectingPathElements } from '../Resizable';
+import { pathElementGetConnectedNotSelectedElements } from '../utils';
 
 export function calculateElementOverrideUpdates(
   elements: Elements,
@@ -25,6 +31,8 @@ export function calculateElementOverrideUpdates(
   deltaY: number,
   viewportWidth: number,
   viewportHeight: number,
+  connectingPathElements?: Record<string, PathElement>,
+  boundingRect?: BoundingRect,
 ): ElementOverrideUpdate[] {
   const {
     offsetX,
@@ -36,18 +44,48 @@ export function calculateElementOverrideUpdates(
   const rectX = offsetX + deltaX;
   const rectY = offsetY + deltaY;
 
-  return Object.entries(elements).map(([elemId, elem]) => {
-    const x = elem.position.x + deltaX;
-    const y = elem.position.y + deltaY;
+  const res: ElementOverrideUpdate[] = Object.entries(elements).map(
+    ([elemId, element]) => {
+      const x = element.position.x + deltaX;
+      const y = element.position.y + deltaY;
 
-    return {
-      elementId: elemId,
-      elementOverride: {
-        position: {
-          x: clamp(x, x - rectX, viewportWidth - 1 - (rectX + rectWidth - x)),
-          y: clamp(y, y - rectY, viewportHeight - 1 - (rectY + rectHeight - y)),
+      return {
+        elementId: elemId,
+        elementOverride: {
+          position: {
+            x: clamp(x, x - rectX, viewportWidth - 1 - (rectX + rectWidth - x)),
+            y: clamp(
+              y,
+              y - rectY,
+              viewportHeight - 1 - (rectY + rectHeight - y),
+            ),
+          },
         },
+        pathElementDisconnectElements:
+          pathElementGetConnectedNotSelectedElements(element, elements),
+      };
+    },
+  );
+
+  if (connectingPathElements && boundingRect) {
+    const otherOvers = computeResizingConnectingPathElements(
+      connectingPathElements,
+      elements,
+      {
+        x: boundingRect.offsetX,
+        y: boundingRect.offsetY,
+        width: boundingRect.width,
+        height: boundingRect.height,
       },
-    };
-  });
+      {
+        x: rectX,
+        y: rectY,
+        width: rectWidth,
+        height: rectHeight,
+      },
+    );
+    res.push(...otherOvers);
+  }
+
+  return res;
 }

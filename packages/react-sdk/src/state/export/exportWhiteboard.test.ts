@@ -21,9 +21,13 @@ import * as lib from '../../lib';
 import {
   mockEllipseElement,
   mockImageElement,
+  mockLineElement,
+  mockRectangleElement,
+  mockTriangleElement,
 } from '../../lib/testUtils/documentTestUtils';
 import {
   createWhiteboardDocument,
+  Element,
   generateAddElement,
   generateAddSlide,
   generateLockSlide,
@@ -274,6 +278,84 @@ describe('convertWhiteboardToExportFormat', () => {
                 mockEllipseElement({ kind: 'circle' }),
                 mockEllipseElement({ kind: 'triangle' }),
                 mockEllipseElement({ kind: 'ellipse' }),
+              ],
+            },
+          ],
+        },
+      },
+    );
+  });
+
+  it('should export ids for connected elements', async () => {
+    const document = createWhiteboardDocument();
+
+    const ellipseId = 'element-id-1';
+    const lineId = 'element-id-2';
+    const triangleId = 'element-id-3';
+
+    document.performChange((doc) => {
+      const [addElement0] = generateAddElement(slide0, mockRectangleElement());
+      addElement0(doc);
+
+      const [addElement1] = generateAddElement(
+        slide0,
+        mockEllipseElement({
+          connectedPaths: [lineId],
+        }),
+        ellipseId,
+      );
+      addElement1(doc);
+
+      const [addElement2] = generateAddElement(
+        slide0,
+        mockLineElement({
+          connectedElementStart: ellipseId,
+          connectedElementEnd: triangleId,
+        }),
+        lineId,
+      );
+      addElement2(doc);
+
+      const [addElement3] = generateAddElement(
+        slide0,
+        {
+          ...mockTriangleElement({
+            connectedPaths: [lineId],
+          }),
+          id: 'some-id', // element validation allows custom field, should not go to export
+        } as unknown as Element,
+        triangleId,
+      );
+      addElement3(doc);
+    });
+
+    expect(await exportWhiteboard(document.getData(), mockWidgetApi())).toEqual(
+      {
+        version: 'net.nordeck.whiteboard@v1',
+        whiteboard: {
+          slides: [
+            {
+              elements: [
+                mockRectangleElement(),
+                {
+                  id: ellipseId,
+                  ...mockEllipseElement({
+                    connectedPaths: [lineId],
+                  }),
+                },
+                {
+                  id: lineId,
+                  ...mockLineElement({
+                    connectedElementStart: ellipseId,
+                    connectedElementEnd: triangleId,
+                  }),
+                },
+                {
+                  id: triangleId,
+                  ...mockTriangleElement({
+                    connectedPaths: [lineId],
+                  }),
+                },
               ],
             },
           ],

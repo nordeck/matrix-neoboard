@@ -15,9 +15,15 @@
  */
 
 import { clamp } from 'lodash';
-import { calculateBoundingRectForPoints, Point } from '../../../../state';
+import {
+  calculateBoundingRectForPoints,
+  Elements,
+  PathElement,
+  Point,
+} from '../../../../state';
 import { ElementOverrideUpdate } from '../../../ElementOverridesProvider';
 import { snapToGrid } from '../../Grid';
+import { pathElementGetConnectedNotSelectedElements } from '../utils';
 import { DragEvent } from './ResizeHandle';
 import {
   Dimensions,
@@ -248,24 +254,23 @@ export function calculateDimensions(
   return dimensions;
 }
 
-function computeResizingOfLineElement(
+type LinePosition = {
+  position: Point;
+  points: Point[];
+};
+
+function computeResizingOfLine(
   handlePositionName: LineElementHandlePositionName,
-  resizableProperties: ResizableProperties,
+  { position, points }: LinePosition,
   dragX: number,
   dragY: number,
-): ElementOverrideUpdate[] {
-  const [elementId, element] = Object.entries(resizableProperties.elements)[0];
-
-  if (element.type !== 'path' || element.kind !== 'line') {
-    return [];
-  }
-
-  const start = element.points[0];
-  const end = element.points[element.points.length - 1];
+): LinePosition {
+  const start = points[0];
+  const end = points[points.length - 1];
 
   const cursor = {
-    x: dragX - resizableProperties.x,
-    y: dragY - resizableProperties.y,
+    x: dragX - position.x,
+    y: dragY - position.y,
   };
 
   let newPoints: Point[];
@@ -278,21 +283,16 @@ function computeResizingOfLineElement(
 
   const boundingRect = calculateBoundingRectForPoints(newPoints);
 
-  return [
-    {
-      elementId,
-      elementOverride: {
-        position: {
-          x: resizableProperties.x + boundingRect.offsetX,
-          y: resizableProperties.y + boundingRect.offsetY,
-        },
-        points: newPoints.map((point) => ({
-          x: point.x - boundingRect.offsetX,
-          y: point.y - boundingRect.offsetY,
-        })),
-      },
+  return {
+    position: {
+      x: position.x + boundingRect.offsetX,
+      y: position.y + boundingRect.offsetY,
     },
-  ];
+    points: newPoints.map((point) => ({
+      x: point.x - boundingRect.offsetX,
+      y: point.y - boundingRect.offsetY,
+    })),
+  };
 }
 
 export function computeResizing(
@@ -316,12 +316,29 @@ export function computeResizing(
       gridCellSize,
     );
 
-    return computeResizingOfLineElement(
+    const [elementId, element] = Object.entries(
+      resizableProperties.elements,
+    )[0];
+    if (element.type !== 'path' || element.kind !== 'line') {
+      return [];
+    }
+
+    const linePosition = computeResizingOfLine(
       handlePosition.name,
-      resizableProperties,
+      {
+        position: element.position,
+        points: element.points,
+      },
       dragX,
       dragY,
     );
+
+    return [
+      {
+        elementId,
+        elementOverride: linePosition,
+      },
+    ];
   }
 
   const dimensions = calculateDimensions(
@@ -334,41 +351,215 @@ export function computeResizing(
     gridCellSize,
   );
 
-  return Object.entries(resizableProperties.elements).map(
-    ([elementId, element]) => {
-      return {
-        elementId,
-        elementOverride: {
-          position: {
-            x:
-              dimensions.x +
-              ((element.position.x - resizableProperties.x) /
-                resizableProperties.width) *
-                dimensions.width,
-            y:
-              dimensions.y +
-              ((element.position.y - resizableProperties.y) /
-                resizableProperties.height) *
-                dimensions.height,
-          },
-          width:
-            element.type === 'shape' || element.type === 'image'
-              ? (element.width / resizableProperties.width) * dimensions.width
-              : undefined,
-          height:
-            element.type === 'shape' || element.type === 'image'
-              ? (element.height / resizableProperties.height) *
-                dimensions.height
-              : undefined,
-          points:
-            element.type === 'path'
-              ? element.points.map((point) => ({
-                  x: (point.x / resizableProperties.width) * dimensions.width,
-                  y: (point.y / resizableProperties.height) * dimensions.height,
-                }))
-              : undefined,
+  const res: ElementOverrideUpdate[] = Object.entries(
+    resizableProperties.elements,
+  ).map(([elementId, element]) => {
+    return {
+      elementId,
+      elementOverride: {
+        position: {
+          x:
+            dimensions.x +
+            ((element.position.x - resizableProperties.x) /
+              resizableProperties.width) *
+              dimensions.width,
+          y:
+            dimensions.y +
+            ((element.position.y - resizableProperties.y) /
+              resizableProperties.height) *
+              dimensions.height,
         },
-      };
-    },
-  );
+        width:
+          element.type === 'shape' || element.type === 'image'
+            ? (element.width / resizableProperties.width) * dimensions.width
+            : undefined,
+        height:
+          element.type === 'shape' || element.type === 'image'
+            ? (element.height / resizableProperties.height) * dimensions.height
+            : undefined,
+        points:
+          element.type === 'path'
+            ? element.points.map((point) => ({
+                x: (point.x / resizableProperties.width) * dimensions.width,
+                y: (point.y / resizableProperties.height) * dimensions.height,
+              }))
+            : undefined,
+      },
+      pathElementDisconnectElements: pathElementGetConnectedNotSelectedElements(
+        element,
+        resizableProperties.elements,
+      ),
+    };
+  });
+
+  if (resizableProperties.connectingPathElements) {
+    res.push(
+      ...computeResizingConnectingPathElements(
+        resizableProperties.connectingPathElements,
+        resizableProperties.elements,
+        resizableProperties,
+        dimensions,
+      ),
+    );
+  }
+
+  return res;
+}
+
+export function computeResizingConnectingPathElements(
+  connectingPathElements: Record<string, PathElement>,
+  elements: Elements,
+  resizableProperties: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  },
+  dimensions: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  },
+): ElementOverrideUpdate[] {
+  const res: ElementOverrideUpdate[] = [];
+
+  for (const [elementId, element] of Object.entries(connectingPathElements)) {
+    const eos = computeResizingConnectingPathElement(
+      {
+        elementId,
+        element,
+      },
+      elements,
+      resizableProperties,
+      dimensions,
+    );
+    if (eos) {
+      res.push(eos);
+    }
+  }
+
+  return res;
+}
+
+function computeResizingConnectingPathElement(
+  {
+    elementId,
+    element,
+  }: {
+    elementId: string;
+    element: PathElement;
+  },
+  elements: Elements,
+  resizableProperties: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  },
+  dimensions: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  },
+): ElementOverrideUpdate | undefined {
+  if (!(element.connectedElementStart || element.connectedElementEnd)) {
+    return undefined;
+  }
+
+  let linePosition: LinePosition = {
+    position: element.position,
+    points: element.points,
+  };
+
+  const connectedElements = [
+    element.connectedElementStart,
+    element.connectedElementEnd,
+  ];
+  for (let i = 0; i < connectedElements.length; i++) {
+    const connectedElementId = connectedElements[i];
+    if (connectedElementId && elements[connectedElementId] !== undefined) {
+      const pointX = element.position.x + element.points[i].x;
+      const pointY = element.position.y + element.points[i].y;
+
+      const newPointX =
+        dimensions.x +
+        ((pointX - resizableProperties.x) / resizableProperties.width) *
+          dimensions.width;
+
+      const newPointY =
+        dimensions.y +
+        ((pointY - resizableProperties.y) / resizableProperties.height) *
+          dimensions.height;
+
+      const positionName = i === 0 ? 'start' : 'end';
+      linePosition = computeResizingOfLine(
+        positionName,
+        linePosition,
+        newPointX,
+        newPointY,
+      );
+    }
+  }
+
+  return {
+    elementId: elementId,
+    elementOverride: linePosition,
+  };
+}
+
+export function computeResizingConnectingPathElementOverDeltaPoints(
+  {
+    elementId,
+    element,
+  }: {
+    elementId: string;
+    element: PathElement;
+  },
+  elements: Elements,
+  deltaPoints: (Point | undefined)[],
+): ElementOverrideUpdate | undefined {
+  if (!(element.connectedElementStart || element.connectedElementEnd)) {
+    return undefined;
+  }
+
+  let linePosition: LinePosition = {
+    position: element.position,
+    points: element.points,
+  };
+
+  const connectedElements = [
+    element.connectedElementStart,
+    element.connectedElementEnd,
+  ];
+  for (let i = 0; i < connectedElements.length; i++) {
+    const connectedElementId = connectedElements[i];
+    const deltaPoint = deltaPoints[i];
+
+    if (
+      connectedElementId &&
+      elements[connectedElementId] !== undefined &&
+      deltaPoint
+    ) {
+      const pointX = element.position.x + element.points[i].x;
+      const pointY = element.position.y + element.points[i].y;
+
+      const newPointX = pointX + deltaPoint.x;
+      const newPointY = pointY + deltaPoint.y;
+
+      const positionName = i === 0 ? 'start' : 'end';
+      linePosition = computeResizingOfLine(
+        positionName,
+        linePosition,
+        newPointX,
+        newPointY,
+      );
+    }
+  }
+
+  return {
+    elementId: elementId,
+    elementOverride: linePosition,
+  };
 }

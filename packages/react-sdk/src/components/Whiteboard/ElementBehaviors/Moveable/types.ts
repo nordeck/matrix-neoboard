@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Nordeck IT + Consulting GmbH
+ * Copyright 2025 Nordeck IT + Consulting GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-export * from './Connectable';
-export * from './ContextMenu';
-export * from './Moveable';
-export * from './Resizable';
-export * from './Selection';
-export * from './Text';
-export { getPathElements } from './utils';
+import { PathElement } from '../../../../state';
+import { BoundingRect } from '../../../../state/crdt/documents/point';
+
+export type ResizableProperties = {
+  boundingRect: BoundingRect;
+  connectingPathElements: Record<string, PathElement>;
+};

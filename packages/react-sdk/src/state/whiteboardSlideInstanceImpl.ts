@@ -60,6 +60,13 @@ import {
   WhiteboardSlideInstance,
   WhiteboardUndoManagerContext,
 } from './types';
+import {
+  deleteConnectionData,
+  disconnectPathElement,
+  disconnectShapeElement,
+  findConnectingPaths,
+  findConnectingShapes,
+} from './utils';
 
 export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
   private readonly destroySubject = new Subject<void>();
@@ -146,7 +153,8 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
   addElement(element: Element): string {
     this.assertLocked();
 
-    const [changeFn, elementId] = generateAddElement(this.slideId, element);
+    const newElement = deleteConnectionData(element);
+    const [changeFn, elementId] = generateAddElement(this.slideId, newElement);
 
     // set the active element ID first, so it is captured in the undomanager
     this.setActiveElementId(elementId);
@@ -159,7 +167,11 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
   addElements(elements: Array<Element>): string[] {
     this.assertLocked();
 
-    const [changeFn, elementIds] = generateAddElements(this.slideId, elements);
+    const newElements = elements.map((e) => deleteConnectionData(e));
+    const [changeFn, elementIds] = generateAddElements(
+      this.slideId,
+      newElements,
+    );
 
     // set the active element IDs first, so it is captured in the undomanager
     this.setActiveElementIds(elementIds);
@@ -171,8 +183,42 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
 
   removeElements(elementIds: string[]): void {
     this.assertLocked();
+
+    const updates: {
+      elementId: string;
+      patch: UpdateElementPatch;
+    }[] = [];
+
+    const elements: Elements = this.getElements(elementIds);
+    const connectedElementIds = [
+      ...findConnectingPaths(elements),
+      ...findConnectingShapes(elements),
+    ];
+    for (const elementId of connectedElementIds) {
+      const element = this.getElement(elementId);
+
+      let elementPatch: UpdateElementPatch | undefined;
+      if (element?.type === 'path') {
+        elementPatch = disconnectPathElement(element, elementIds);
+      } else if (element?.type === 'shape') {
+        elementPatch = disconnectShapeElement(element, elementIds, true);
+      }
+
+      if (elementPatch) {
+        updates.push({
+          elementId,
+          patch: elementPatch,
+        });
+      }
+    }
+
     this.document.performChange(
-      generateRemoveElements(this.slideId, elementIds),
+      generate([
+        ...updates.map(({ elementId, patch }) =>
+          generateUpdateElement(this.slideId, elementId, patch),
+        ),
+        generateRemoveElements(this.slideId, elementIds),
+      ]),
     );
   }
 
