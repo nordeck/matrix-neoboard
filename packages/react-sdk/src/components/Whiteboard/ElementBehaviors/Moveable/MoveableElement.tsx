@@ -24,17 +24,28 @@ import {
 } from 'react';
 import { DraggableCore, DraggableData, DraggableEvent } from 'react-draggable';
 import { useUnmount } from 'react-use';
-import { useWhiteboardSlideInstance } from '../../../../state';
+import {
+  calculateBoundingRectForElements,
+  findConnectingPaths,
+  PathElement,
+  Point,
+  useWhiteboardSlideInstance,
+} from '../../../../state';
+import { BoundingRect } from '../../../../state/crdt/documents/point';
 import { Elements } from '../../../../state/types';
 import {
   createResetElementOverrides,
+  ElementOverrideUpdate,
   useSetElementOverride,
 } from '../../../ElementOverridesProvider';
 import { useLayoutState } from '../../../Layout';
 import { snapToGrid } from '../../Grid';
 import { useSvgCanvasContext } from '../../SvgCanvas';
 import { gridCellSize } from '../../constants';
+import { computeResizingConnectingPathElementOverDeltaPoints } from '../Resizable';
+import { elementsWithUpdates, getPathElements } from '../utils';
 import { addUserSelectStyles, removeUserSelectStyles } from './DraggableStyles';
+import { ResizableProperties } from './types';
 import { calculateElementOverrideUpdates } from './utils';
 
 const DraggableGroup = styled('g')({
@@ -59,6 +70,11 @@ export function MoveableElement({
   const slideInstance = useWhiteboardSlideInstance();
 
   const [{ deltaX, deltaY }, setDelta] = useState({ deltaX: 0, deltaY: 0 });
+  const [resizableProperties, setResizableProperties] =
+    useState<ResizableProperties>();
+  const [elementOverrideUpdates, setElementOverrideUpdates] = useState<
+    ElementOverrideUpdate[]
+  >([]);
 
   useUnmount(() => {
     if (isDragging.current) {
@@ -77,40 +93,132 @@ export function MoveableElement({
 
   const handleDrag = useCallback(
     (_: DraggableEvent, data: DraggableData) => {
+      let boundingRect: BoundingRect | undefined;
+      let connectingPathElements: Record<string, PathElement> | undefined;
+      if (!resizableProperties) {
+        setResizableProperties({
+          boundingRect: calculateBoundingRectForElements(
+            Object.values(overrides),
+          ),
+          connectingPathElements: getPathElements(
+            slideInstance,
+            findConnectingPaths(overrides),
+          ),
+        });
+      } else {
+        ({ boundingRect, connectingPathElements } = resizableProperties);
+      }
+
       setDelta((old) => ({
         deltaX: old.deltaX + data.deltaX,
         deltaY: old.deltaY + data.deltaY,
       }));
 
-      setElementOverride(
-        calculateElementOverrideUpdates(
-          overrides,
-          data.deltaX,
-          data.deltaY,
-          viewportWidth,
-          viewportHeight,
-        ),
+      const elementOverrideUpdates = calculateElementOverrideUpdates(
+        overrides,
+        data.deltaX,
+        data.deltaY,
+        viewportWidth,
+        viewportHeight,
+        connectingPathElements,
+        boundingRect,
       );
+
+      setElementOverride(elementOverrideUpdates);
+      setElementOverrideUpdates(elementOverrideUpdates);
     },
-    [setElementOverride, viewportHeight, viewportWidth, overrides],
+    [
+      setElementOverride,
+      viewportHeight,
+      viewportWidth,
+      overrides,
+      resizableProperties,
+      slideInstance,
+    ],
   );
 
   const handleStop = useCallback(() => {
-    setElementOverride(createResetElementOverrides(Object.keys(overrides)));
+    setElementOverride(undefined);
+    setResizableProperties(undefined);
 
     if (deltaX !== 0 || deltaY !== 0) {
+      const newOverrideElements = elementsWithUpdates(
+        slideInstance,
+        overrides,
+        elementOverrideUpdates,
+      );
+
       slideInstance.updateElements(
-        Object.entries(overrides).map(([elementId, element]) => {
-          const x = isShowGrid
-            ? snapToGrid(element.position.x, gridCellSize)
-            : element.position.x;
-          const y = isShowGrid
-            ? snapToGrid(element.position.y, gridCellSize)
-            : element.position.y;
+        Object.entries(newOverrideElements).map(([elementId, element]) => {
+          let x, y: number;
+          let points: Point[] | undefined;
+          if (!isShowGrid) {
+            x = element.position.x;
+            y = element.position.y;
+          } else if (
+            element.type === 'path' &&
+            (element.connectedElementStart || element.connectedElementEnd)
+          ) {
+            const deltaPoints: (Point | undefined)[] = [];
+            const connectedElements = [
+              element.connectedElementStart,
+              element.connectedElementEnd,
+            ];
+            for (let i = 0; i < connectedElements.length; i++) {
+              const connectedElementId = connectedElements[i];
+
+              const connectedElement = connectedElementId
+                ? newOverrideElements[connectedElementId]
+                : undefined;
+
+              if (connectedElement) {
+                deltaPoints.push({
+                  x:
+                    snapToGrid(connectedElement.position.x, gridCellSize) -
+                    connectedElement.position.x,
+                  y:
+                    snapToGrid(connectedElement.position.y, gridCellSize) -
+                    connectedElement.position.y,
+                });
+              } else {
+                deltaPoints.push(undefined);
+              }
+            }
+
+            const newOverride =
+              computeResizingConnectingPathElementOverDeltaPoints(
+                {
+                  elementId,
+                  element,
+                },
+                newOverrideElements,
+                deltaPoints,
+              );
+
+            x = newOverride?.elementOverride?.position?.x ?? element.position.x;
+            y = newOverride?.elementOverride?.position?.y ?? element.position.y;
+            points = newOverride?.elementOverride?.points;
+          } else {
+            x = snapToGrid(element.position.x, gridCellSize);
+            y = snapToGrid(element.position.y, gridCellSize);
+          }
 
           return {
             elementId,
-            patch: { position: { x, y } },
+            patch: {
+              position: { x, y },
+              points:
+                element.type === 'path'
+                  ? (points ?? element.points)
+                  : undefined,
+              ...(element.type === 'path' && {
+                connectedElementStart: element.connectedElementStart,
+                connectedElementEnd: element.connectedElementEnd,
+              }),
+              ...(element.type === 'shape' && {
+                connectedPaths: element.connectedPaths,
+              }),
+            },
           };
         }),
       );
@@ -121,10 +229,11 @@ export function MoveableElement({
   }, [
     deltaX,
     deltaY,
+    elementOverrideUpdates,
     isShowGrid,
+    overrides,
     setElementOverride,
     slideInstance,
-    overrides,
   ]);
 
   return (

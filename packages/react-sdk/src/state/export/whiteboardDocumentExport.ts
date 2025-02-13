@@ -19,8 +19,12 @@ import loglevel from 'loglevel';
 import { Element } from '../crdt';
 import { elementSchema } from '../crdt/documents/elements';
 
+export type ElementExport = {
+  id?: string;
+} & Element;
+
 export type SlideExport = {
-  elements: Array<Element>;
+  elements: Array<ElementExport>;
   lock?: {};
 };
 

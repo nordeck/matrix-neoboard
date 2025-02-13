@@ -18,7 +18,15 @@ import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { ComponentType, PropsWithChildren } from 'react';
 import { useStore } from 'react-redux';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
 import {
   WhiteboardTestingContextProvider,
   mockImageElement,
@@ -29,6 +37,7 @@ import {
 } from '../../../../lib/testUtils/documentTestUtils';
 import { WhiteboardSlideInstance } from '../../../../state';
 import { StoreType } from '../../../../store';
+import { ConnectionPointProvider } from '../../../ConnectionPointProvider';
 import { ElementOverridesProvider } from '../../../ElementOverridesProvider';
 import { LayoutStateProvider } from '../../../Layout';
 import { SvgCanvas } from '../../SvgCanvas';
@@ -56,6 +65,10 @@ vi.mock('../../SvgCanvas/useMeasure', () => {
       },
     ],
   };
+});
+
+beforeAll(() => {
+  document.elementFromPoint = vi.fn();
 });
 
 describe('<ResizeElement />', () => {
@@ -116,13 +129,17 @@ describe('<ResizeElement />', () => {
         >
           <ExtractStore />
           <ElementOverridesProvider>
-            <SvgCanvas viewportWidth={200} viewportHeight={200}>
-              {children}
-            </SvgCanvas>
+            <ConnectionPointProvider>
+              <SvgCanvas viewportWidth={200} viewportHeight={200}>
+                {children}
+              </SvgCanvas>
+            </ConnectionPointProvider>
           </ElementOverridesProvider>
         </WhiteboardTestingContextProvider>
       </LayoutStateProvider>
     );
+
+    // vi.spyOn(document, 'append123');
   });
 
   afterEach(() => {

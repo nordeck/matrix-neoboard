@@ -673,6 +673,25 @@ describe('generateAddElement', () => {
     expect(getNormalizedElementIds(doc.getData(), slide0)).toEqual([elementId]);
   });
 
+  it('should add element with id', () => {
+    const doc = createWhiteboardDocument();
+
+    const element = mockLineElement();
+    const [changeFn, elementId] = generateAddElement(
+      slide0,
+      element,
+      'element-id-0',
+    );
+
+    doc.performChange(changeFn);
+
+    expect(elementId).toEqual('element-id-0');
+    expect(getElement(doc.getData(), slide0, elementId)?.toJSON()).toEqual(
+      element,
+    );
+    expect(getNormalizedElementIds(doc.getData(), slide0)).toEqual([elementId]);
+  });
+
   it('should throw if the slide does not exist', () => {
     const doc = createWhiteboardDocument();
 

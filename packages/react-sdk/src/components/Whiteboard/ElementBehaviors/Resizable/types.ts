@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Elements } from '../../../../state/types';
+import { Elements, PathElement } from '../../../../state';
 
 export type LineElementHandlePositionName = 'start' | 'end';
 
@@ -22,6 +22,7 @@ export type LineElementHandlePosition = {
   name: LineElementHandlePositionName;
   x: number;
   y: number;
+  elementId: string;
 };
 
 export type HandlePositionName =
@@ -39,6 +40,7 @@ export type HandlePosition =
       name: HandlePositionName;
       containerWidth: number;
       containerHeight: number;
+      elementId?: undefined;
     }
   | LineElementHandlePosition;
 
@@ -50,5 +52,13 @@ export type Dimensions = {
 };
 
 export type ResizableProperties = Dimensions & {
+  /**
+   * Selected elements with applied overrides to resize.
+   */
   elements: Elements;
+
+  /**
+   * Not selected paths connecting selected elements.
+   */
+  connectingPathElements?: Record<string, PathElement>;
 };

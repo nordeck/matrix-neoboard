@@ -137,6 +137,7 @@ An Element that has a shape attached, that has a text and a fill color.
 | `textItalic`     | `boolean \| undefined`                                                                             | Should the text have an italic formatting?                               |
 | `textSize`       | `number \| undefined`                                                                              | Font size of the text in CSS pixel unit, `undefined` for auto text size. |
 | `textFontFamily` | `'Inter' \| 'Abel' \| 'Actor' \| 'Adamina' \| 'Chewy' \| 'Gwendolyn' \| 'Pirata One' \| undefined` | The font family of the text. Defaults to `"Inter"`.                      |
+| `connectedPaths` | `string[] \| undefined`                                                                            | Ids of connected path elements. Currently lines can be connected         |
 
 #### Example
 
@@ -158,14 +159,16 @@ An element that consists of points.
 
 #### Fields
 
-| Field         | Type                             | Description                                                                                     |
-| ------------- | -------------------------------- | ----------------------------------------------------------------------------------------------- |
-| `type`        | `'path'`                         | Identifies the element as a path.                                                               |
-| `kind`        | `'line' \| 'polyline'`           | The kind of path, either a straight `line` between two points or a `polyline` with many points. |
-| `position`    | `Point`                          | The position of the path on the whiteboard canvas.                                              |
-| `points`      | `Point[]`                        | The points of the path in relative coordinates to its position.                                 |
-| `strokeColor` | `string`                         | The stroke color of the path as [CSS color value][csscolor].                                    |
-| `endMarker`   | `'arrow-head-line' \| undefined` | An optional marker for the end of a path.                                                       |
+| Field                   | Type                             | Description                                                                                     |
+| ----------------------- | -------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `type`                  | `'path'`                         | Identifies the element as a path.                                                               |
+| `kind`                  | `'line' \| 'polyline'`           | The kind of path, either a straight `line` between two points or a `polyline` with many points. |
+| `position`              | `Point`                          | The position of the path on the whiteboard canvas.                                              |
+| `points`                | `Point[]`                        | The points of the path in relative coordinates to its position.                                 |
+| `strokeColor`           | `string`                         | The stroke color of the path as [CSS color value][csscolor].                                    |
+| `endMarker`             | `'arrow-head-line' \| undefined` | An optional marker for the end of a path.                                                       |
+| `connectedElementStart` | `string \| undefined`            | The id of connected element on the first point. Currently shapes can be connected.              |
+| `connectedElementEnd`   | `string \| undefined`            | The id of connected element on the last point. Currently shapes can be connected.               |
 
 #### Example
 
@@ -182,6 +185,46 @@ An element that consists of points.
   "endMarker": "arrow-head-line"
 }
 ```
+
+### Connected elements
+
+Connection happens when line end is dropped over shape's connection point.
+For example when line start handler is dropped over bottom right rectangle the following data is produced:
+
+Rectangle shape with element id: `rectangle-id-1`:
+
+```json
+{
+  "type": "shape",
+  "kind": "rectangle",
+  "position": { "x": 100, "y": 100 },
+  "fillColor": "#ffffff",
+  "height": 200,
+  "width": 200,
+  "text": "Hello World",
+  "connectedPaths": ["line-id-1"]
+}
+```
+
+Line element with element id: `line-id-1`:
+
+```json
+{
+  "type": "path",
+  "kind": "line",
+  "position": { "x": 300, "y": 300 },
+  "strokeColor": "#ffffff",
+  "points": [
+    { "x": 0, "y": 0 },
+    { "x": 400, "y": 400 }
+  ],
+  "connectedElementStart": "rectangle-id-1"
+}
+```
+
+Application considers connections when operations (moving, resizing, etc) on elements are applied.
+For example a line connected to a shape will be automatically resized to be connected to the same point of the shape
+if shape element is moved. It is applied to resize and multiselect cases.
 
 ### `ImageElement`
 

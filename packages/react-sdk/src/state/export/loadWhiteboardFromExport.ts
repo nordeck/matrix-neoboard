@@ -51,8 +51,9 @@ export function generateLoadWhiteboardFromExport(
       const [addSlide, slideId] = generateAddSlide();
       addSlide(doc);
 
-      slide.elements.forEach((element) => {
-        const [addElement] = generateAddElement(slideId, element);
+      slide.elements.forEach((exportElement) => {
+        const { id, ...element } = exportElement;
+        const [addElement] = generateAddElement(slideId, element, id);
         addElement(doc);
       });
 

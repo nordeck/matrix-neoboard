@@ -31,6 +31,7 @@ import {
   WhiteboardInstance,
   WhiteboardSlideInstance,
 } from '../../state';
+import { ConnectionPointProvider } from '../ConnectionPointProvider';
 import { ElementOverridesProvider } from '../ElementOverridesProvider';
 import { LayoutStateProvider, useLayoutState } from '../Layout';
 import { WhiteboardHotkeysProvider } from '../WhiteboardHotkeysProvider';
@@ -89,7 +90,9 @@ describe('<WhiteboardHost/>', () => {
             whiteboardManager={whiteboardManager}
             widgetApi={widgetApi}
           >
-            <ElementOverridesProvider>{children}</ElementOverridesProvider>
+            <ElementOverridesProvider>
+              <ConnectionPointProvider>{children}</ConnectionPointProvider>
+            </ElementOverridesProvider>
           </WhiteboardTestingContextProvider>
         </WhiteboardHotkeysProvider>
       </LayoutStateProvider>
