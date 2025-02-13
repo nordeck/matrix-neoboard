@@ -214,7 +214,7 @@ export function ResizeElement({ elementIds }: ResizeElementProps) {
       }
 
       setResizableProperties(undefined);
-      setElementOverride(createResetElementOverrides(Object.keys(elements)));
+      setElementOverride(undefined);
     },
     [
       dispatch,
