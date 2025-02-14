@@ -20,6 +20,7 @@ import { isDefined } from '../../../../lib';
 import { ShapeElement } from '../../../../state';
 import { useConnectionPoint } from '../../../ConnectionPointProvider';
 import { useSvgCanvasContext } from '../../SvgCanvas';
+import { ActivationArea } from './ActivationArea';
 
 type ConnectableElementProps = {
   elementId: string;
@@ -28,22 +29,18 @@ type ConnectableElementProps = {
 
 export function ConnectableElement({
   elementId,
-  element,
+  element: {
+    kind,
+    position: { x, y },
+    width,
+    height,
+  },
 }: ConnectableElementProps) {
   const theme = useTheme();
   const { scale } = useSvgCanvasContext();
 
-  const x = element.position.x;
-  const y = element.position.y;
-  const width = element.width;
-  const height = element.height;
-
   const [showConnectionAnchors, setShowConnectionAnchors] =
     useState<boolean>(false);
-
-  const kind = element.kind;
-
-  const shapeMargin = 40;
 
   const areaSize = 20 / scale;
 
@@ -80,14 +77,13 @@ export function ConnectableElement({
 
   return (
     <>
-      <rect
-        data-connect-type={`activation-area`}
-        data-connect-element-id={elementId}
-        x={x - shapeMargin}
-        y={y - shapeMargin}
-        width={width + 2 * shapeMargin}
-        height={height + 2 * shapeMargin}
-        fill="transparent"
+      <ActivationArea
+        elementId={elementId}
+        kind={kind}
+        x={x}
+        y={y}
+        width={width}
+        height={height}
       />
 
       {points.map(([pointX, pointY], idx) => (

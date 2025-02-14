@@ -137,7 +137,7 @@ An Element that has a shape attached, that has a text and a fill color.
 | `textItalic`     | `boolean \| undefined`                                                                             | Should the text have an italic formatting?                               |
 | `textSize`       | `number \| undefined`                                                                              | Font size of the text in CSS pixel unit, `undefined` for auto text size. |
 | `textFontFamily` | `'Inter' \| 'Abel' \| 'Actor' \| 'Adamina' \| 'Chewy' \| 'Gwendolyn' \| 'Pirata One' \| undefined` | The font family of the text. Defaults to `"Inter"`.                      |
-| `connectedPaths` | `string[] \| undefined`                                                                            | Ids of connected path elements. Currently lines can be connected         |
+| `connectedPaths` | `string[] \| undefined`                                                                            | IDs of connected path elements. Currently lines can be connected         |
 
 #### Example
 
@@ -167,8 +167,8 @@ An element that consists of points.
 | `points`                | `Point[]`                        | The points of the path in relative coordinates to its position.                                 |
 | `strokeColor`           | `string`                         | The stroke color of the path as [CSS color value][csscolor].                                    |
 | `endMarker`             | `'arrow-head-line' \| undefined` | An optional marker for the end of a path.                                                       |
-| `connectedElementStart` | `string \| undefined`            | The id of connected element on the first point. Currently shapes can be connected.              |
-| `connectedElementEnd`   | `string \| undefined`            | The id of connected element on the last point. Currently shapes can be connected.               |
+| `connectedElementStart` | `string \| undefined`            | The ID of connected element on the first point. Currently shapes can be connected.              |
+| `connectedElementEnd`   | `string \| undefined`            | The ID of connected element on the last point. Currently shapes can be connected.               |
 
 #### Example
 

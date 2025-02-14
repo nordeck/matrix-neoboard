@@ -2,9 +2,6 @@
 
 This document describes the data format of the files that can be exported from and imported into the whiteboard.
 The format is JSON-based and contains all slides and elements that are originally stored in the [CRDT Document Model][crdt-documents].
-The file won't include ID (slide or element) of the original document.
-They will be generated when the slides are added into an existing (or new) document.
-The exception is when elements are connected. In this case ids of elements are exported.
 
 ## Document
 

@@ -138,8 +138,6 @@ describe('<ResizeElement />', () => {
         </WhiteboardTestingContextProvider>
       </LayoutStateProvider>
     );
-
-    // vi.spyOn(document, 'append123');
   });
 
   afterEach(() => {
