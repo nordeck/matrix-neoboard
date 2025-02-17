@@ -28,7 +28,7 @@ import {
   WhiteboardSlideInstance,
 } from '../../../state';
 import { ElementOverrideUpdate } from '../../ElementOverridesProvider';
-import { elementsWithUpdates, lineResizeUpdates } from './utils';
+import { elementsUpdates, lineResizeUpdates } from './utils';
 
 describe('lineResizeUpdates', () => {
   let slideElements: Elements;
@@ -180,8 +180,8 @@ describe('lineResizeUpdates', () => {
   });
 });
 
-describe('elementsWithUpdates', () => {
-  it('should provide updates elements', () => {
+describe('elementsUpdates', () => {
+  it('should provide elements updates', () => {
     const slideElements: Elements = {
       ['rectangle-id']: mockRectangleElement({
         position: { x: 100, y: 100 },
@@ -253,7 +253,6 @@ describe('elementsWithUpdates', () => {
         elementOverride: {
           position: { x: 300, y: 300 },
         },
-        pathElementDisconnectElements: ['ellipse-id'],
       },
       {
         elementId: 'line-id-2',
@@ -274,38 +273,37 @@ describe('elementsWithUpdates', () => {
     } as WhiteboardSlideInstance;
 
     expect(
-      elementsWithUpdates(slideInstance, elements, elementOverrideUpdates),
-    ).toEqual({
-      ['rectangle-id']: mockRectangleElement({
-        position: { x: 300, y: 100 },
-        width: 200,
-        height: 200,
-        connectedPaths: ['line-id-1', 'line-id-2'],
-      }),
-      ['ellipse-id']: mockEllipseElement({
-        position: { x: 100, y: 500 },
-        width: 200,
-        height: 200,
-        connectedPaths: undefined,
-      }),
-      ['line-id-1']: mockLineElement({
-        position: { x: 300, y: 300 },
-        points: [
-          { x: 0, y: 0 },
-          { x: 100, y: 200 },
-        ],
-        connectedElementStart: 'rectangle-id',
-        connectedElementEnd: undefined,
-      }),
-      ['line-id-2']: mockLineElement({
-        position: { x: 500, y: 300 },
-        points: [
-          { x: 0, y: 0 },
-          { x: 100, y: 200 },
-        ],
-        connectedElementStart: 'rectangle-id',
-        connectedElementEnd: 'triangle-id',
-      }),
-    });
+      elementsUpdates(slideInstance, elements, elementOverrideUpdates),
+    ).toStrictEqual([
+      {
+        elementId: 'rectangle-id',
+        patch: {
+          position: { x: 300, y: 100 },
+        },
+      },
+      {
+        elementId: 'line-id-1',
+        patch: {
+          position: { x: 300, y: 300 },
+          connectedElementEnd: undefined,
+        },
+      },
+      {
+        elementId: 'line-id-2',
+        patch: {
+          position: { x: 500, y: 300 },
+          points: [
+            { x: 0, y: 0 },
+            { x: 100, y: 200 },
+          ],
+        },
+      },
+      {
+        elementId: 'ellipse-id',
+        patch: {
+          connectedPaths: undefined,
+        },
+      },
+    ]);
   });
 });

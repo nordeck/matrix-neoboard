@@ -122,71 +122,53 @@ export function lineResizeUpdates(
 }
 
 /**
- * Creates elements with all updates applied:
- *  - original updates because of move or resize elements
- *  - connecting paths resizing
- *  - selected lines disconnect to shapes outside of selection
+ * Takes elements overrides and provides elements updates.
+ * Considers that some lines may become disconnected and provides updates to disconnect elements.
  *
  * @param slideInstance slide instance to load elements that are not in original selection but have to be modified
  * @param elements selected elements with updates
- * @param elementOverrideUpdates all updates including changes to connecting paths and shapes disconnections
- * @return elements including connecting paths, extra shapes disconnected
+ * @param elementOverrideUpdates all elements overrides
+ * @return elements updates
  */
-export function elementsWithUpdates(
+export function elementsUpdates(
   slideInstance: WhiteboardSlideInstance,
   elements: Elements,
   elementOverrideUpdates: ElementOverrideUpdate[],
-): Elements {
-  const disconnectPathElements: [string, string[]][] =
-    findPathElementsToDisconnect(elementOverrideUpdates);
-  const disconnectLineObject = Object.fromEntries(disconnectPathElements);
-
-  // Selected lines may become disconnected, apply disconnect patch
-  const newOverrideElements: [string, Element][] = Object.entries(elements).map(
-    ([elementId, element]) => {
-      const elementIds: string[] | undefined = disconnectLineObject[elementId];
-      if (!elementIds) {
-        return [elementId, element];
-      }
-
-      if (element.type !== 'path') {
-        return [elementId, element];
-      }
-
-      const elementPatch = disconnectPathElement(element, elementIds);
-      if (!elementPatch) {
-        return [elementId, element];
-      }
-
-      return [
-        elementId,
-        {
-          ...element,
-          ...elementPatch,
-        },
-      ];
-    },
+): ElementUpdate[] {
+  const disconnectPathElementsObj = findPathElementsToDisconnect(
+    elementOverrideUpdates,
+    elements,
   );
 
-  // Connecting lines overrides
-  const otherOverrides: [string, Element][] = [];
-  for (const { elementId, elementOverride } of elementOverrideUpdates.filter(
-    (u) => elements[u.elementId] === undefined,
-  )) {
-    const element = slideInstance.getElement(elementId);
+  // Selected lines may become disconnected, apply disconnect patch
+  const elementsUpdates: ElementUpdate[] = [];
+  for (const { elementId, elementOverride } of elementOverrideUpdates) {
+    let element: Element | undefined;
+    if (elements[elementId]) {
+      element = elements[elementId];
+    } else {
+      element = slideInstance.getElement(elementId);
+    }
     if (element) {
-      otherOverrides.push([
+      elementsUpdates.push({
         elementId,
-        {
-          ...element,
+        patch: {
           ...elementOverride,
+          ...(element.type === 'path' &&
+            disconnectPathElementsObj[elementId] &&
+            disconnectPathElement(
+              element,
+              disconnectPathElementsObj[elementId],
+            )),
         },
-      ]);
+      });
     }
   }
 
   const disconnectShapeObject: Record<string, string[]> = {};
-  for (const [lineElementId, shapeElementIds] of disconnectPathElements) {
+  for (const [lineElementId, shapeElementIds] of Object.entries(
+    disconnectPathElementsObj,
+  )) {
     for (const shapeElementId of shapeElementIds) {
       if (disconnectShapeObject[shapeElementId] === undefined) {
         disconnectShapeObject[shapeElementId] = [];
@@ -195,12 +177,13 @@ export function elementsWithUpdates(
     }
   }
 
-  // Shapes that are outside of selection elements and will be disconnected from selected lines
-  const shapeOverrides: [string, Element][] = [];
+  // Disconnect shapes
+  const shapesUpdates: ElementUpdate[] = [];
   for (const [shapeElementId, disconnectLineIds] of Object.entries(
     disconnectShapeObject,
   )) {
     const shapeElement = slideInstance.getElement(shapeElementId);
+
     if (shapeElement && shapeElement.type === 'shape') {
       const elementPatch = disconnectShapeElement(
         shapeElement,
@@ -209,38 +192,32 @@ export function elementsWithUpdates(
       );
 
       if (elementPatch) {
-        shapeOverrides.push([
-          shapeElementId,
-          {
-            ...shapeElement,
+        shapesUpdates.push({
+          elementId: shapeElementId,
+          patch: {
             ...elementPatch,
           },
-        ]);
+        });
       }
     }
   }
 
-  return Object.fromEntries([
-    ...newOverrideElements,
-    ...otherOverrides,
-    ...shapeOverrides,
-  ]);
+  return [...elementsUpdates, ...shapesUpdates];
 }
 
 function findPathElementsToDisconnect(
   elementOverrideUpdates: ElementOverrideUpdate[],
-): [string, string[]][] {
-  const res: [string, string[]][] = [];
+  elements: Elements,
+): Record<string, string[]> {
+  const res: Record<string, string[]> = {};
 
-  for (const {
-    elementId,
-    pathElementDisconnectElements,
-  } of elementOverrideUpdates) {
-    if (
-      pathElementDisconnectElements &&
-      pathElementDisconnectElements.length > 0
-    ) {
-      res.push([elementId, pathElementDisconnectElements]);
+  for (const { elementId, elementOverride } of elementOverrideUpdates) {
+    const element = elements[elementId];
+    if (element && element.type === 'path' && elementOverride) {
+      const ids = pathElementGetConnectedNotSelectedElements(element, elements);
+      if (ids) {
+        res[elementId] = ids;
+      }
     }
   }
 

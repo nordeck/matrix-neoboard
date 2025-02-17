@@ -35,7 +35,6 @@ export const ElementOverrideGetterContext =
 export type ElementOverrideUpdate = {
   elementId: string;
   elementOverride: ElementOverride | undefined;
-  pathElementDisconnectElements?: string[];
 };
 
 export function createResetElementOverrides(

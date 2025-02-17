@@ -36,11 +36,7 @@ import { useLayoutState } from '../../../Layout';
 import { getRenderProperties } from '../../../elements/line/getRenderProperties';
 import { useSvgCanvasContext } from '../../SvgCanvas';
 import { gridCellSize } from '../../constants';
-import {
-  elementsWithUpdates,
-  getPathElements,
-  lineResizeUpdates,
-} from '../utils';
+import { elementsUpdates, getPathElements, lineResizeUpdates } from '../utils';
 import { DragEvent, ResizeHandle } from './ResizeHandle';
 import { HandlePosition, ResizableProperties } from './types';
 import { computeResizing } from './utils';
@@ -164,36 +160,11 @@ export function ResizeElement({ elementIds }: ResizeElementProps) {
           connectToElementId,
         );
       } else {
-        const newElements = elementsWithUpdates(
+        updates = elementsUpdates(
           slideInstance,
           elements,
           elementOverrideUpdates,
         );
-
-        updates = Object.entries(newElements).map(([elementId, element]) => {
-          return {
-            elementId,
-            patch: {
-              position: element.position,
-              width:
-                element.type === 'shape' || element.type === 'image'
-                  ? element.width
-                  : undefined,
-              height:
-                element.type === 'shape' || element.type === 'image'
-                  ? element.height
-                  : undefined,
-              points: element.type === 'path' ? element.points : undefined,
-              ...(element.type === 'path' && {
-                connectedElementStart: element.connectedElementStart,
-                connectedElementEnd: element.connectedElementEnd,
-              }),
-              ...(element.type === 'shape' && {
-                connectedPaths: element.connectedPaths,
-              }),
-            },
-          };
-        });
       }
 
       slideInstance.updateElements(updates);

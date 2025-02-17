@@ -23,7 +23,6 @@ import {
 } from '../../../../state';
 import { ElementOverrideUpdate } from '../../../ElementOverridesProvider';
 import { snapToGrid } from '../../Grid';
-import { pathElementGetConnectedNotSelectedElements } from '../utils';
 import { DragEvent } from './ResizeHandle';
 import {
   Dimensions,
@@ -385,10 +384,6 @@ export function computeResizing(
               }))
             : undefined,
       },
-      pathElementDisconnectElements: pathElementGetConnectedNotSelectedElements(
-        element,
-        resizableProperties.elements,
-      ),
     };
   });
 
@@ -510,40 +505,19 @@ function computeResizingConnectingPathElement(
 }
 
 export function computeResizingConnectingPathElementOverDeltaPoints(
-  {
-    elementId,
-    element,
-  }: {
-    elementId: string;
-    element: PathElement;
-  },
-  elements: Elements,
+  elementLinePosition: LinePosition,
   deltaPoints: (Point | undefined)[],
-): ElementOverrideUpdate | undefined {
-  if (!(element.connectedElementStart || element.connectedElementEnd)) {
-    return undefined;
-  }
-
+): LinePosition {
   let linePosition: LinePosition = {
-    position: element.position,
-    points: element.points,
+    ...elementLinePosition,
   };
 
-  const connectedElements = [
-    element.connectedElementStart,
-    element.connectedElementEnd,
-  ];
-  for (let i = 0; i < connectedElements.length; i++) {
-    const connectedElementId = connectedElements[i];
+  for (let i = 0; i < deltaPoints.length; i++) {
     const deltaPoint = deltaPoints[i];
 
-    if (
-      connectedElementId &&
-      elements[connectedElementId] !== undefined &&
-      deltaPoint
-    ) {
-      const pointX = element.position.x + element.points[i].x;
-      const pointY = element.position.y + element.points[i].y;
+    if (deltaPoint) {
+      const pointX = linePosition.position.x + linePosition.points[i].x;
+      const pointY = linePosition.position.y + linePosition.points[i].y;
 
       const newPointX = pointX + deltaPoint.x;
       const newPointY = pointY + deltaPoint.y;
@@ -558,8 +532,5 @@ export function computeResizingConnectingPathElementOverDeltaPoints(
     }
   }
 
-  return {
-    elementId: elementId,
-    elementOverride: linePosition,
-  };
+  return linePosition;
 }
