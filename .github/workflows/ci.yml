@@ -153,7 +153,6 @@ jobs:
         with:
           repository: nordeck/matrix-neoboard-standalone
           path: matrix-neoboard-standalone
-          ref: nic/feat/NEO-138-compiler-lib-option
           # required for changesets
           fetch-depth: '0'
           # don't persist the credentials so the changesets action doesn't use the
