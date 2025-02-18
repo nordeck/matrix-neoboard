@@ -64,6 +64,7 @@ export type ShapeElement = ElementBase & {
   textItalic?: boolean;
   textSize?: number;
   textFontFamily: TextFontFamily;
+  connectedPaths?: string[];
 };
 
 const emptyCoordinateSchema = Joi.any().valid(null, 0, '');
@@ -87,6 +88,7 @@ const shapeElementSchema = elementBaseSchema
     textItalic: Joi.boolean(),
     textSize: Joi.number().strict(),
     textFontFamily: Joi.string().strict().default('Inter'),
+    connectedPaths: Joi.array().items(Joi.string()),
   })
   .required();
 
@@ -100,6 +102,8 @@ export type PathElement = ElementBase & {
   points: Point[];
   strokeColor: string;
   endMarker?: EndMarker;
+  connectedElementStart?: string;
+  connectedElementEnd?: string;
 };
 
 const pathElementSchema = elementBaseSchema
@@ -109,6 +113,8 @@ const pathElementSchema = elementBaseSchema
     points: Joi.array().items(pointSchema).required(),
     strokeColor: Joi.string().required(),
     endMarker: Joi.string().valid('arrow-head-line'),
+    connectedElementStart: Joi.string(),
+    connectedElementEnd: Joi.string(),
   })
   .required();
 
@@ -295,4 +301,10 @@ export function includesTextShape(elements: Element[]): boolean {
  */
 export function includesShapeWithText(elements: Element[]): boolean {
   return elements.some(isShapeWithText);
+}
+
+export function isShapeElementPair(
+  pair: [string, Element],
+): pair is [string, ShapeElement] {
+  return pair[1].type === 'shape';
 }

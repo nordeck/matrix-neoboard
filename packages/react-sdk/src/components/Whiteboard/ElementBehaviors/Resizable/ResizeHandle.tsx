@@ -16,11 +16,13 @@
 
 import { Dispatch, RefObject, useCallback, useRef } from 'react';
 import { DraggableCore, DraggableData, DraggableEvent } from 'react-draggable';
+import { Point } from '../../../../state';
+import { useConnectionPoint } from '../../../ConnectionPointProvider';
 import { useSvgCanvasContext } from '../../SvgCanvas';
-import { HandlePosition } from './types';
+import { HandlePosition, LineElementHandlePositionName } from './types';
 import { isLineElementHandlePosition } from './utils';
 
-export function calculateResizeHandlePosition(params: {
+function calculateResizeHandlePosition(params: {
   position: HandlePosition;
   scale: number;
 }): {
@@ -140,12 +142,61 @@ export function calculateResizeHandlePosition(params: {
   }
 }
 
+type ConnectData = {
+  connectElementId: string;
+  connectPoint?: Point;
+};
+
+function findConnectData(
+  data: DraggableData,
+  scale: number,
+): ConnectData | undefined {
+  const element = document.elementFromPoint(data.x * scale, data.y * scale);
+
+  if (!element) {
+    return undefined;
+  }
+
+  const connectType = element.getAttribute('data-connect-type');
+  if (!connectType) {
+    return undefined;
+  }
+
+  const connectElementId =
+    element.getAttribute('data-connect-element-id') ?? undefined;
+  if (!connectElementId) {
+    return undefined;
+  }
+
+  let connectPoint: Point | undefined;
+
+  if (
+    connectType === 'connection-point-area' ||
+    connectType === 'connection-point'
+  ) {
+    const rect = element.getBoundingClientRect();
+    connectPoint = {
+      x: (rect.x + rect.width / 2) / scale,
+      y: (rect.y + rect.height / 2) / scale,
+    };
+  }
+
+  return {
+    connectElementId,
+    connectPoint,
+  };
+}
+
 export type DragEvent = {
   x: number;
   y: number;
-  deltaX: number;
-  deltaY: number;
   lockAspectRatio: boolean;
+  connectData?: DragConnectData;
+};
+
+export type DragConnectData = {
+  resizePositionName: LineElementHandlePositionName;
+  connectToElementId?: string;
 };
 
 export type ResizeHandleProps = {
@@ -158,6 +209,8 @@ export type ResizeHandleProps = {
 export function ResizeHandle(props: ResizeHandleProps) {
   const nodeRef = useRef<SVGRectElement>(null);
   const { scale, calculateSvgCoords } = useSvgCanvasContext();
+  const { isHandleDragging, setIsHandleDragging, setConnectElementId } =
+    useConnectionPoint();
 
   const {
     position: { name },
@@ -176,6 +229,7 @@ export function ResizeHandle(props: ResizeHandleProps) {
       dragEvent: Dispatch<DragEvent> | undefined,
       event: DraggableEvent,
       data: DraggableData,
+      connectData: DragConnectData | undefined,
     ) => {
       if (dragEvent) {
         dragEvent({
@@ -183,9 +237,8 @@ export function ResizeHandle(props: ResizeHandleProps) {
             x: data.x * scale,
             y: data.y * scale,
           }),
-          deltaX: data.deltaX,
-          deltaY: data.deltaY,
           lockAspectRatio: event.shiftKey,
+          connectData,
         });
       }
     },
@@ -194,23 +247,61 @@ export function ResizeHandle(props: ResizeHandleProps) {
 
   const handleDrag = useCallback(
     (event: DraggableEvent, data: DraggableData) => {
-      dispatchDragEvent(onDrag, event, data);
+      let connectPoint: Point | undefined;
+
+      if (isHandleDragging) {
+        const connectData = findConnectData(data, scale);
+        setConnectElementId(connectData?.connectElementId);
+        connectPoint = connectData?.connectPoint;
+      }
+
+      const newData: DraggableData = connectPoint
+        ? { ...data, x: connectPoint.x, y: connectPoint.y }
+        : data;
+
+      dispatchDragEvent(onDrag, event, newData, undefined);
     },
-    [onDrag, dispatchDragEvent],
+    [dispatchDragEvent, isHandleDragging, onDrag, scale, setConnectElementId],
   );
 
   const handleStart = useCallback(
     (event: DraggableEvent, data: DraggableData) => {
-      dispatchDragEvent(onDragStart, event, data);
+      if (name === 'start' || name === 'end') {
+        setIsHandleDragging(true);
+      }
+      dispatchDragEvent(onDragStart, event, data, undefined);
     },
-    [onDragStart, dispatchDragEvent],
+    [dispatchDragEvent, onDragStart, name, setIsHandleDragging],
   );
 
   const handleStop = useCallback(
     (event: DraggableEvent, data: DraggableData) => {
-      dispatchDragEvent(onDragStop, event, data);
+      let dragConnectData: DragConnectData | undefined;
+
+      if (name === 'start' || name === 'end') {
+        const connectData = findConnectData(data, scale);
+
+        dragConnectData = {
+          resizePositionName: name,
+          connectToElementId:
+            connectData?.connectElementId && connectData?.connectPoint
+              ? connectData?.connectElementId
+              : undefined,
+        };
+
+        setConnectElementId(undefined);
+        setIsHandleDragging(false);
+      }
+      dispatchDragEvent(onDragStop, event, data, dragConnectData);
     },
-    [onDragStop, dispatchDragEvent],
+    [
+      dispatchDragEvent,
+      onDragStop,
+      name,
+      scale,
+      setIsHandleDragging,
+      setConnectElementId,
+    ],
   );
 
   const handleMouseDown = useCallback((ev: MouseEvent) => {

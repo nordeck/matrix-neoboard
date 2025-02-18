@@ -15,3 +15,7 @@
  */
 
 export { ResizeElement } from './ResizeElement';
+export {
+  computeResizingConnectingPathElementOverDeltaPoints,
+  computeResizingConnectingPathElements,
+} from './utils';

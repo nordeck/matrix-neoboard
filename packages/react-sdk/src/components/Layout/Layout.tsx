@@ -27,6 +27,7 @@ import {
 import { usePowerLevels } from '../../store/api/usePowerLevels';
 import { BoardBar } from '../BoardBar';
 import { CollaborationBar } from '../CollaborationBar';
+import { ConnectionPointProvider } from '../ConnectionPointProvider';
 import { DeveloperToolsDialog } from '../DeveloperTools';
 import { ElementOverridesProvider } from '../ElementOverridesProvider';
 import { FullscreenModeBar } from '../FullscreenModeBar';
@@ -113,8 +114,10 @@ export function Layout({ height = '100vh' }: LayoutProps) {
                 <TabPanelStyled value={slideId} key={slideId}>
                   <SlideProvider slideId={slideId}>
                     <ElementOverridesProvider>
-                      <ContentArea />
-                      {uploadDragOverlay}
+                      <ConnectionPointProvider>
+                        <ContentArea />
+                        {uploadDragOverlay}
+                      </ConnectionPointProvider>
                     </ElementOverridesProvider>
                   </SlideProvider>
                 </TabPanelStyled>

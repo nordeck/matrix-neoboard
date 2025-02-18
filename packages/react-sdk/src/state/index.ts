@@ -17,6 +17,7 @@
 export * from './crdt';
 export * from './export';
 export type {
+  Elements,
   PresentationManager,
   PresentationState,
   WhiteboardInstance,
@@ -51,4 +52,9 @@ export {
   useSlideIsLocked,
   useWhiteboardSlideInstance,
 } from './useWhiteboardSlideInstance';
+export {
+  disconnectPathElement,
+  disconnectShapeElement,
+  findConnectingPaths,
+} from './utils';
 export { createWhiteboardManager } from './whiteboardManagerImpl';

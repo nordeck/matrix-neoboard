@@ -20,6 +20,7 @@ export {
   calculateFittedElementSize,
   includesShapeWithText,
   includesTextShape,
+  isShapeElementPair,
   isShapeWithText,
   isTextShape,
   isValidElement,

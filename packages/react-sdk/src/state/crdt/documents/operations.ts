@@ -244,8 +244,9 @@ export function getNormalizedElementIds(
 export function generateAddElement(
   slideId: string,
   element: Element,
+  elementId?: string,
 ): [ChangeFn<WhiteboardDocument>, string] {
-  const elementId = nanoid();
+  const newElementId = elementId ?? nanoid();
 
   const changeFn = (doc: SharedMap<WhiteboardDocument>) => {
     const slide = getSlide(doc, slideId);
@@ -258,11 +259,11 @@ export function generateAddElement(
 
     const elementMap = new YMap(Object.entries(element)) as SharedMap<Element>;
 
-    slide.get('elements').set(elementId, elementMap);
-    slide.get('elementIds').push([elementId]);
+    slide.get('elements').set(newElementId, elementMap);
+    slide.get('elementIds').push([newElementId]);
   };
 
-  return [changeFn, elementId];
+  return [changeFn, newElementId];
 }
 
 /**
