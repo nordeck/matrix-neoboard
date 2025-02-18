@@ -21,6 +21,9 @@ REACT_APP_DEVTOOLS=true
 # Indicate if the widget is embedded in standalone mode to hide the about button
 REACT_APP_EMBEDDED=false
 
+# Select the Realtime Communication (RTC) implementation (defaults to `webrtc`, otherwise `matrixrtc`)
+REACT_APP_RTC=webrtc
+
 # Whether to use infinite canvas (under development)
 REACT_APP_INFINITE_CANVAS=false
 ```
