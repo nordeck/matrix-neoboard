@@ -193,7 +193,8 @@ connections between the elements. These IDs are exported into nwb file and are l
 the same IDs in the CRDT document to the connected elements.
 
 A connection happens when a line end is dropped over a shape's connection point.
-For example, when a line start handle is dropped over the bottom right rectangle the following data is produced:
+For example, when a line start handle is dropped over the bottom right connection point of rectangle
+the following data is produced:
 
 Rectangle shape element with id: `E8LVfJCoYubKA-x2cuc0n`:
 
