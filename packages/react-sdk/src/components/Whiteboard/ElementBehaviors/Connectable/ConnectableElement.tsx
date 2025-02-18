@@ -42,7 +42,7 @@ export function ConnectableElement({
   const [showConnectionAnchors, setShowConnectionAnchors] =
     useState<boolean>(false);
 
-  const areaSize = 20 / scale;
+  const connectionPointAreaSize = 20 / scale;
 
   const connectionAnchorBorderWidth = 2 / scale;
   const connectionAnchorSize = 5 / scale;
@@ -91,10 +91,10 @@ export function ConnectableElement({
           <rect
             data-connect-type="connection-point-area"
             data-connect-element-id={elementId}
-            x={pointX - areaSize / 2}
-            y={pointY - areaSize / 2}
-            width={areaSize}
-            height={areaSize}
+            x={pointX - connectionPointAreaSize / 2}
+            y={pointY - connectionPointAreaSize / 2}
+            width={connectionPointAreaSize}
+            height={connectionPointAreaSize}
             fill="transparent"
           />
 
