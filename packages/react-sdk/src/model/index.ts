@@ -35,6 +35,16 @@ export {
   isValidDocumentSnapshotRoomEvent,
 } from './documentSnapshot';
 export type { DocumentSnapshot } from './documentSnapshot';
+export {
+  STATE_EVENT_RTC_MEMBER,
+  isLivekitFocus,
+  isLivekitFocusActive,
+  isLivekitFocusConfig,
+  isRTCSessionNotExpired,
+  isValidRTCSessionStateEvent,
+  newRTCSession,
+} from './matrixRtcSessions';
+export type { RTCSessionEventContent } from './matrixRtcSessions';
 export { STATE_EVENT_ROOM_NAME, isValidRoomNameEvent } from './roomNameEvent';
 export type { RoomNameEvent } from './roomNameEvent';
 export {
