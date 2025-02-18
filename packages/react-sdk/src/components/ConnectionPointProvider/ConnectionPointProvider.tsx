@@ -24,10 +24,10 @@ import {
 
 type ConnectionPointContextType = {
   /**
-   * Is true when start or end resize handle (current for a line only) is on drag, false otherwise.
+   * Is true when start or end resize handle (currently for a line only) is on drag, false otherwise.
    */
-  isDragGoing: boolean;
-  setIsDragGoing: (value: boolean) => void;
+  isHandleDragging: boolean;
+  setIsHandleDragging: (value: boolean) => void;
 
   /**
    * Is an element id when handle is over element's connection point, undefined otherwise.
@@ -41,17 +41,17 @@ const ConnectionPointContext = createContext<
 >(undefined);
 
 export function ConnectionPointProvider({ children }: PropsWithChildren) {
-  const [isDragGoing, setIsDragGoing] = useState(false);
+  const [isHandleDragging, setIsHandleDragging] = useState(false);
   const [connectElementId, setConnectElementId] = useState<string>();
 
   const context = useMemo(
     () => ({
-      isDragGoing,
-      setIsDragGoing,
+      isHandleDragging,
+      setIsHandleDragging,
       connectElementId,
       setConnectElementId,
     }),
-    [connectElementId, isDragGoing],
+    [connectElementId, isHandleDragging],
   );
 
   return (

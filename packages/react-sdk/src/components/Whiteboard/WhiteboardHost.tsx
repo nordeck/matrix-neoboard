@@ -68,7 +68,7 @@ const WhiteboardHost = ({
     useLayoutState();
   const { activeElementIds } = useActiveElements();
   const overrides = useElementOverrides(activeElementIds);
-  const { isDragGoing } = useConnectionPoint();
+  const { isHandleDragging } = useConnectionPoint();
 
   const [textToolsEnabled, setTextToolsEnabled] = useState(false);
 
@@ -143,7 +143,7 @@ const WhiteboardHost = ({
           </>
         )}
 
-        {isDragGoing &&
+        {isHandleDragging &&
           Object.entries(
             slideInstance.getElements(slideInstance.getElementIds()),
           )

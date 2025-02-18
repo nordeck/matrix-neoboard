@@ -209,7 +209,7 @@ export type ResizeHandleProps = {
 export function ResizeHandle(props: ResizeHandleProps) {
   const nodeRef = useRef<SVGRectElement>(null);
   const { scale, calculateSvgCoords } = useSvgCanvasContext();
-  const { isDragGoing, setIsDragGoing, setConnectElementId } =
+  const { isHandleDragging, setIsHandleDragging, setConnectElementId } =
     useConnectionPoint();
 
   const {
@@ -249,7 +249,7 @@ export function ResizeHandle(props: ResizeHandleProps) {
     (event: DraggableEvent, data: DraggableData) => {
       let connectPoint: Point | undefined;
 
-      if (isDragGoing) {
+      if (isHandleDragging) {
         const connectData = findConnectData(data, scale);
         setConnectElementId(connectData?.connectElementId);
         connectPoint = connectData?.connectPoint;
@@ -261,17 +261,17 @@ export function ResizeHandle(props: ResizeHandleProps) {
 
       dispatchDragEvent(onDrag, event, newData, undefined);
     },
-    [dispatchDragEvent, isDragGoing, onDrag, scale, setConnectElementId],
+    [dispatchDragEvent, isHandleDragging, onDrag, scale, setConnectElementId],
   );
 
   const handleStart = useCallback(
     (event: DraggableEvent, data: DraggableData) => {
       if (name === 'start' || name === 'end') {
-        setIsDragGoing(true);
+        setIsHandleDragging(true);
       }
       dispatchDragEvent(onDragStart, event, data, undefined);
     },
-    [dispatchDragEvent, onDragStart, name, setIsDragGoing],
+    [dispatchDragEvent, onDragStart, name, setIsHandleDragging],
   );
 
   const handleStop = useCallback(
@@ -290,7 +290,7 @@ export function ResizeHandle(props: ResizeHandleProps) {
         };
 
         setConnectElementId(undefined);
-        setIsDragGoing(false);
+        setIsHandleDragging(false);
       }
       dispatchDragEvent(onDragStop, event, data, dragConnectData);
     },
@@ -299,7 +299,7 @@ export function ResizeHandle(props: ResizeHandleProps) {
       onDragStop,
       name,
       scale,
-      setIsDragGoing,
+      setIsHandleDragging,
       setConnectElementId,
     ],
   );
