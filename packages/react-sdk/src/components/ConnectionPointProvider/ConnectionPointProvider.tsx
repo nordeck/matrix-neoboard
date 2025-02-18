@@ -24,13 +24,13 @@ import {
 
 type ConnectionPointContextType = {
   /**
-   * Is true when start or end resize handler (current for a line only) is on drag, false otherwise.
+   * Is true when start or end resize handle (current for a line only) is on drag, false otherwise.
    */
   isDragGoing: boolean;
   setIsDragGoing: (value: boolean) => void;
 
   /**
-   * Is an element id when handler is over element's connection point, undefined otherwise.
+   * Is an element id when handle is over element's connection point, undefined otherwise.
    */
   connectElementId: string | undefined;
   setConnectElementId: (value: string | undefined) => void;

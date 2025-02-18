@@ -119,25 +119,25 @@ An Element that has a shape attached, that has a text and a fill color.
 
 #### Fields
 
-| Field            | Type                                                                                               | Description                                                              |
-| ---------------- | -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
-| `type`           | `'shape'`                                                                                          | Identifies the element as a shape.                                       |
-| `kind`           | `'rectangle' \| 'circle' \| 'ellipse' \| 'triangle'`                                               | The kind of shape, defining its look.                                    |
-| `position`       | `Point`                                                                                            | The position of the shape on the whiteboard canvas.                      |
-| `width`          | `number`                                                                                           | Scaling of the shape on the x-axis.                                      |
-| `height`         | `number`                                                                                           | Scaling of the shape on the y-axis.                                      |
-| `fillColor`      | `string`                                                                                           | The fill color of the shape as [CSS color value][csscolor].              |
-| `strokeColor`    | `string \| undefined`                                                                              | The border color of the shape as [CSS color value][csscolor].            |
-| `strokeWidth`    | `number \| undefined`                                                                              | The border width of the shape in pixels.                                 |
-| `borderRadius`   | `number \| undefined`                                                                              | The border radius of the shape in pixels.                                |
-| `text`           | `YText` / `string`                                                                                 | Text that is displayed in the shape.                                     |
-| `textAlignment`  | `'left' \| 'center' \| 'right' \| undefined`                                                       | The alignment of the text in the shape.                                  |
-| `textColor`      | `string \| undefined`                                                                              | The text color of the shape as [CSS color value][csscolor].              |
-| `textBold`       | `boolean \| undefined`                                                                             | Should the text have a bold formatting?                                  |
-| `textItalic`     | `boolean \| undefined`                                                                             | Should the text have an italic formatting?                               |
-| `textSize`       | `number \| undefined`                                                                              | Font size of the text in CSS pixel unit, `undefined` for auto text size. |
-| `textFontFamily` | `'Inter' \| 'Abel' \| 'Actor' \| 'Adamina' \| 'Chewy' \| 'Gwendolyn' \| 'Pirata One' \| undefined` | The font family of the text. Defaults to `"Inter"`.                      |
-| `connectedPaths` | `string[] \| undefined`                                                                            | IDs of connected path elements. Currently lines can be connected         |
+| Field            | Type                                                                                               | Description                                                                |
+| ---------------- | -------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| `type`           | `'shape'`                                                                                          | Identifies the element as a shape.                                         |
+| `kind`           | `'rectangle' \| 'circle' \| 'ellipse' \| 'triangle'`                                               | The kind of shape, defining its look.                                      |
+| `position`       | `Point`                                                                                            | The position of the shape on the whiteboard canvas.                        |
+| `width`          | `number`                                                                                           | Scaling of the shape on the x-axis.                                        |
+| `height`         | `number`                                                                                           | Scaling of the shape on the y-axis.                                        |
+| `fillColor`      | `string`                                                                                           | The fill color of the shape as [CSS color value][csscolor].                |
+| `strokeColor`    | `string \| undefined`                                                                              | The border color of the shape as [CSS color value][csscolor].              |
+| `strokeWidth`    | `number \| undefined`                                                                              | The border width of the shape in pixels.                                   |
+| `borderRadius`   | `number \| undefined`                                                                              | The border radius of the shape in pixels.                                  |
+| `text`           | `YText` / `string`                                                                                 | Text that is displayed in the shape.                                       |
+| `textAlignment`  | `'left' \| 'center' \| 'right' \| undefined`                                                       | The alignment of the text in the shape.                                    |
+| `textColor`      | `string \| undefined`                                                                              | The text color of the shape as [CSS color value][csscolor].                |
+| `textBold`       | `boolean \| undefined`                                                                             | Should the text have a bold formatting?                                    |
+| `textItalic`     | `boolean \| undefined`                                                                             | Should the text have an italic formatting?                                 |
+| `textSize`       | `number \| undefined`                                                                              | Font size of the text in CSS pixel unit, `undefined` for auto text size.   |
+| `textFontFamily` | `'Inter' \| 'Abel' \| 'Actor' \| 'Adamina' \| 'Chewy' \| 'Gwendolyn' \| 'Pirata One' \| undefined` | The font family of the text. Defaults to `"Inter"`.                        |
+| `connectedPaths` | `string[] \| undefined`                                                                            | The IDs of connected path elements. Currently only lines can be connected. |
 
 #### Example
 
@@ -188,10 +188,14 @@ An element that consists of points.
 
 ### Connected elements
 
-Connection happens when line end is dropped over shape's connection point.
-For example when line start handler is dropped over bottom right rectangle the following data is produced:
+An ID is generated for each element that is added to the CRDT document. These IDs are used as well to store the
+connections between the elements. These IDs are exported into nwb file and are loaded by import to assign
+the same IDs in the CRDT document to the connected elements.
 
-Rectangle shape with element id: `rectangle-id-1`:
+A connection happens when a line end is dropped over a shape's connection point.
+For example, when a line start handle is dropped over the bottom right rectangle the following data is produced:
+
+Rectangle shape element with id: `E8LVfJCoYubKA-x2cuc0n`:
 
 ```json
 {
@@ -202,11 +206,11 @@ Rectangle shape with element id: `rectangle-id-1`:
   "height": 200,
   "width": 200,
   "text": "Hello World",
-  "connectedPaths": ["line-id-1"]
+  "connectedPaths": ["jmU4s3M4aysDWiSVKAXI2"]
 }
 ```
 
-Line element with element id: `line-id-1`:
+Line element element with id: `jmU4s3M4aysDWiSVKAXI2`:
 
 ```json
 {
@@ -218,13 +222,14 @@ Line element with element id: `line-id-1`:
     { "x": 0, "y": 0 },
     { "x": 400, "y": 400 }
   ],
-  "connectedElementStart": "rectangle-id-1"
+  "connectedElementStart": "E8LVfJCoYubKA-x2cuc0n"
 }
 ```
 
-Application considers connections when operations (moving, resizing, etc) on elements are applied.
-For example a line connected to a shape will be automatically resized to be connected to the same point of the shape
-if shape element is moved. It is applied to resize and multiselect cases.
+The application considers connections when operations (moving, resizing, etc) on elements are applied.
+For example a line connected to a shape will be automatically resized and stay connected to the same point
+of the shape when the shape element is moved or resized. This behaviour is also applied when multiple items
+are selected.
 
 ### `ImageElement`
 
