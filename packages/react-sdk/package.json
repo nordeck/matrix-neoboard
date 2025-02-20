@@ -27,6 +27,7 @@
     "emoji-regex": "^10.3.0",
     "joi": "^17.13.3",
     "js-base64": "^3.7.7",
+    "livekit-client": "^2.8.1",
     "localforage": "^1.10.0",
     "lodash": "^4.17.21",
     "loglevel": "^1.9.2",

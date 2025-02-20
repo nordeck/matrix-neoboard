@@ -107,7 +107,6 @@ export class RTCSessionManagerImpl implements SessionManager {
         takeUntil(this.leaveSubject),
       )
       .subscribe((rtcSession) => {
-        // @todo Handle the event
         this.handleRTCSessionEvent(rtcSession);
       });
 
@@ -293,6 +292,7 @@ export class RTCSessionManagerImpl implements SessionManager {
     const { whiteboardId, sessionId } = this.joinState ?? {};
 
     if (!userId || !deviceId || !whiteboardId) {
+      // @todo this needs to be handled better so it bubbles up to the user
       throw new Error('Unknown user id or device id or whiteboard id');
     }
 
@@ -310,6 +310,7 @@ export class RTCSessionManagerImpl implements SessionManager {
       const updatedSession = patchFn({
         userId: session.user_id,
         sessionId: session.session_id,
+        ...session,
       });
 
       if (!isEqual(updatedSession, sessionEvent?.content)) {

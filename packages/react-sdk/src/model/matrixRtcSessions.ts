@@ -16,47 +16,13 @@
 
 import { StateEvent } from '@matrix-widget-toolkit/api';
 import Joi from 'joi';
+import { RTCFocus } from './rtcFocus';
 import { isValidEvent } from './validation';
 
 export const DEFAULT_RTC_EXPIRE_DURATION = 1000 * 60 * 60 * 4;
 
-// unsable prefix for m.rtc.member in MSC4143
+// unstable prefix for m.rtc.member in MSC4143
 export const STATE_EVENT_RTC_MEMBER = 'org.matrix.msc3401.call.member';
-
-export type RTCFocus = {
-  type: string;
-  [key: string]: unknown;
-};
-
-export interface LivekitFocusConfig extends RTCFocus {
-  type: 'livekit';
-  livekit_service_url: string;
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const isLivekitFocusConfig = (
-  object: any,
-): object is LivekitFocusConfig =>
-  object.type === 'livekit' && 'livekit_service_url' in object;
-
-export interface LivekitFocus extends LivekitFocusConfig {
-  livekit_alias: string;
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const isLivekitFocus = (object: any): object is LivekitFocus =>
-  isLivekitFocusConfig(object) && 'livekit_alias' in object;
-
-export interface LivekitFocusActive extends RTCFocus {
-  type: 'livekit';
-  focus_selection: 'oldest_membership';
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const isLivekitFocusActive = (
-  object: any,
-): object is LivekitFocusActive =>
-  object.type === 'livekit' && 'focus_selection' in object;
 
 export type RTCSessionEventContent = {
   call_id: string;
@@ -125,76 +91,3 @@ export function newRTCSession(
     foci_preferred: [],
   };
 }
-
-/*
-export class RTCMembership {
-  private membershipData: RTCSessionMembershipData;
-
-  public constructor(
-    private parentEvent: StateEvent<unknown>
-  ) {
-    if (!isValidRTCMembershipDataStateEvent(parentEvent)) {
-        throw Error(
-            `unknown RTCMembership data.`,
-        );
-    } else {
-        this.membershipData = parentEvent.content;
-    }
-  }
-
-  public get sender(): string | undefined {
-    return this.parentEvent.sender;
-  }
-
-  public get eventId(): string | undefined {
-      return this.parentEvent.event_id;
-  }
-
-  public get callId(): string {
-      return this.membershipData.callId;
-  }
-
-  public get deviceId(): string {
-      return this.membershipData.deviceId;
-  }
-
-  public get application(): string | undefined {
-      return this.membershipData.application;
-  }
-
-  public get scope(): string | undefined {
-      return this.membershipData.scope;
-  }
-
-  public get membershipID(): string {
-      return this.createdTs().toString();
-  }
-
-  public createdTs(): number {
-      return this.membershipData.createdTs ?? this.parentEvent.origin_server_ts;
-  }
-
-  public getAbsoluteExpiry(): number {
-      return this.createdTs() + (this.membershipData.expires ?? DEFAULT_RTC_EXPIRE_DURATION);
-  }
-
-  public getMsUntilExpiry(): number {
-      return this.getAbsoluteExpiry() - Date.now();
-  }
-
-  public isExpired(): boolean {
-      return this.getMsUntilExpiry() <= 0;
-  }
-
-  public getPreferredFoci(): RTCFocus[] {
-      return this.membershipData.foci_preferred;
-  }
-
-  public getFocusSelection(): string | undefined {
-      const focusActive = this.membershipData.focus_active;
-      if (isLivekitFocusActive(focusActive)) {
-          return focusActive.focus_selection;
-      }
-  }
-}
-*/
