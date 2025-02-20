@@ -15,7 +15,7 @@
   "type": "module",
   "dependencies": {
     "@fontsource/noto-emoji": "^5.1.1",
-    "@matrix-widget-toolkit/api": "^4.0.0",
+    "@matrix-widget-toolkit/api": "link:/Users/mgcm/Desktop/nordeck/widgets/matrix-widget-toolkit/packages/api",
     "@matrix-widget-toolkit/mui": "^2.1.1",
     "@matrix-widget-toolkit/react": "^2.0.4",
     "@mui/base": "^5.0.0-beta.68",
@@ -27,6 +27,7 @@
     "emoji-regex": "^10.3.0",
     "joi": "^17.13.3",
     "js-base64": "^3.7.7",
+    "livekit-client": "^2.8.1",
     "localforage": "^1.10.0",
     "lodash": "^4.17.21",
     "loglevel": "^1.9.2",
