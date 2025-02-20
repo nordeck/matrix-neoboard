@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { WidgetApi } from '@matrix-widget-toolkit/api';
+import { WidgetApi, WidgetParameter } from '@matrix-widget-toolkit/api';
 import {
   MuiThemeProvider,
   MuiWidgetApiProvider,
@@ -63,6 +63,7 @@ export const AppContainer = ({
                 name: 'NeoBoard',
                 // "pad" suffix to get a custom icon
                 type: 'net.nordeck.whiteboard:pad',
+                requiredParameters: [WidgetParameter.DeviceId],
               }}
             >
               <FontsLoadedContextProvider>

@@ -88,6 +88,7 @@ export function createWhiteboardManager(
   widgetApiPromise: Promise<WidgetApi>,
 ): WhiteboardManager {
   // We never destroy these, but this is fine
+  // @todo this isn't needed for matrix rtc
   const signalingChannel = new ToDeviceMessageSignalingChannel(
     widgetApiPromise,
   );
