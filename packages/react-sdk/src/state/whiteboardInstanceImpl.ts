@@ -15,6 +15,7 @@
  */
 
 import { StateEvent, WidgetApi } from '@matrix-widget-toolkit/api';
+import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { cloneDeep, isEqual } from 'lodash';
 import {
   BehaviorSubject,
@@ -42,6 +43,7 @@ import {
   WebRtcCommunicationChannel,
   isValidFocusOnMessage,
 } from './communication';
+import { MatrixRtcCommunicationChannel } from './communication/matrixRtcCommunicationChannel';
 import { emptyCommunicationChannelStatistics } from './communication/types';
 import {
   WhiteboardDocument,
@@ -190,17 +192,28 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
     whiteboardEvent: StateEvent<Whiteboard>,
     userId: string,
   ): WhiteboardInstanceImpl {
+    const matrixrtc = getEnvironment('REACT_APP_RTC') === 'matrixrtc';
+
     const enableObserveVisibilityStateSubject = new BehaviorSubject(true);
-    const communicationChannel =
-      sessionManager && signalingChannel
-        ? new WebRtcCommunicationChannel(
-            widgetApiPromise,
-            sessionManager,
-            signalingChannel,
-            whiteboardEvent.event_id,
-            enableObserveVisibilityStateSubject,
-          )
-        : undefined;
+
+    let communicationChannel: CommunicationChannel;
+    if (matrixrtc) {
+      communicationChannel = new MatrixRtcCommunicationChannel(
+        widgetApiPromise,
+        sessionManager,
+        whiteboardEvent.event_id,
+        enableObserveVisibilityStateSubject,
+      );
+    } else {
+      communicationChannel = new WebRtcCommunicationChannel(
+        widgetApiPromise,
+        sessionManager,
+        signalingChannel,
+        whiteboardEvent.event_id,
+        enableObserveVisibilityStateSubject,
+      );
+    }
+
     const storage = new LocalForageDocumentStorage();
 
     const document = new SynchronizedDocumentImpl(
