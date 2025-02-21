@@ -82,7 +82,9 @@ export class RTCSessionManagerImpl implements SessionManager {
   }
 
   async join(whiteboardId: string): Promise<{ sessionId: string }> {
+    console.error('LiveKit: join called', whiteboardId);
     if (this.joinState) {
+      console.error('LiveKit: already joined!');
       await this.leave();
     }
 
@@ -107,6 +109,7 @@ export class RTCSessionManagerImpl implements SessionManager {
         takeUntil(this.leaveSubject),
       )
       .subscribe((rtcSession) => {
+        console.error('LiveKit: got session event', rtcSession);
         this.handleRTCSessionEvent(rtcSession);
       });
 
@@ -174,6 +177,8 @@ export class RTCSessionManagerImpl implements SessionManager {
     const sessionId = event.state_key;
     const sessions = this.sessions.filter((s) => s.session_id === sessionId);
 
+    console.error('LiveKit: handling RTC event', JSON.stringify(event));
+
     sessions.forEach((session) => {
       this.sessionSubject.next({
         userId: event.sender,
@@ -238,6 +243,8 @@ export class RTCSessionManagerImpl implements SessionManager {
     this.logger.log(
       `Session ${session_id} by ${user_id} joined whiteboard ${whiteboard_id}`,
     );
+
+    console.error('LiveKit: new session added', JSON.stringify(session));
 
     this.sessions = [...this.sessions, session];
     this.sessionJoinedSubject.next({ sessionId: session_id, userId: user_id });
@@ -306,6 +313,7 @@ export class RTCSessionManagerImpl implements SessionManager {
         ? clone(sessionEvent.content)
         : newRTCSession(userId, deviceId, whiteboardId);
 
+    session.call_id = '';
     if (isRTCSessionNotExpired(session)) {
       const updatedSession = patchFn({
         userId: session.user_id,
@@ -320,6 +328,7 @@ export class RTCSessionManagerImpl implements SessionManager {
             updatedSession,
             { stateKey: `_${userId}_${deviceId}` },
           );
+          // console.error("LiveKit: session refresh", JSON.stringify(updatedSession));
         } catch (ex) {
           this.logger.error('Error while sending RTC session', ex);
         }

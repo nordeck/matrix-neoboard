@@ -80,3 +80,7 @@ The road to a working MatrixRTC + LikeKit requires:
 [ ] Have a finished ADR009
 
 [ ] Do we still need statistics? Maybe livekit gives us that?
+
+[ ] Discovery process and handle focus change
+
+[ ] Correct session termination

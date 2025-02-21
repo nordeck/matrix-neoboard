@@ -4366,7 +4366,7 @@ listr2@^8.2.5:
     rfdc "^1.4.1"
     wrap-ansi "^9.0.0"
 
-livekit-client@^2.8.1:
+livekit-client@^2.9.3:
   version "2.9.3"
   resolved "https://registry.yarnpkg.com/livekit-client/-/livekit-client-2.9.3.tgz#1f0e494561ba8790d214047d413e37db3aebdf16"
   integrity sha512-mDLgenjmGI3ga1qXsuonw8cTpQMUTm6T8tmjB/O+uzjsjI9UP0ebzjgrcOBn+IamjbulIdWWvtrt5A/6ftuH5A==
