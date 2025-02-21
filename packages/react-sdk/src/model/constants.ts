@@ -16,7 +16,7 @@
 
 import { getEnvironment } from '@matrix-widget-toolkit/mui';
 
-const infiniteCanvasMode =
+export const infiniteCanvasMode =
   getEnvironment('REACT_APP_INFINITE_CANVAS') === 'true';
 
 export const defaultTextSize = infiniteCanvasMode ? 16 : undefined;

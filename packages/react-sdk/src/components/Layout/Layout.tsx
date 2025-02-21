@@ -18,6 +18,7 @@ import { TabPanel } from '@mui/base';
 import { Box, Collapse, Slide, Stack, styled } from '@mui/material';
 import { ReactElement, useCallback } from 'react';
 import { useMeasure } from '../../lib';
+import { infiniteCanvasMode } from '../../model';
 import {
   SlideProvider,
   useActiveWhiteboardInstanceSlideIds,
@@ -25,8 +26,6 @@ import {
   usePresentationMode,
 } from '../../state';
 import { usePowerLevels } from '../../store/api/usePowerLevels';
-import { selectCanvas } from '../../store/canvasSlice';
-import { useAppSelector } from '../../store/reduxToolkitHooks';
 import { BoardBar } from '../BoardBar';
 import { CollaborationBar } from '../CollaborationBar';
 import { ConnectionPointProvider } from '../ConnectionPointProvider';
@@ -164,7 +163,6 @@ function ContentArea() {
     isViewingPresentation && presentationState.isEditMode;
   const { canStopPresentation } = usePowerLevels();
   const [sizeRef, { width: toolbarWidth }] = useMeasure<HTMLDivElement>();
-  const { infiniteMode } = useAppSelector(selectCanvas);
 
   return (
     <>
@@ -197,7 +195,7 @@ function ContentArea() {
             position="fixed"
             bottom={(theme) => theme.spacing(5)}
           >
-            {infiniteMode && <ZoomBar />}
+            {infiniteCanvasMode && <ZoomBar />}
 
             <Box flex="1" />
 
