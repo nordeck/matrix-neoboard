@@ -31,13 +31,11 @@ import { RootState } from './store';
 type Translation = { x: number; y: number };
 
 export type CanvasState = {
-  outerScale: number;
   scale: number;
   translate: Translation;
 };
 
 const initialState: CanvasState = {
-  outerScale: 1,
   scale: 1,
   translate: {
     x: 0,
@@ -217,9 +215,6 @@ export const {
 } = canvasSlice.actions;
 
 export const selectCanvas = (state: RootState) => state.canvasReducer;
-
-export const selectCombinedScale = (state: RootState) =>
-  state.canvasReducer.scale * state.canvasReducer.outerScale;
 
 export const selectTranslate = (state: RootState) =>
   state.canvasReducer.translate;

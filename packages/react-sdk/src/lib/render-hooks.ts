@@ -15,20 +15,8 @@
  */
 
 import { whiteboardHeight, whiteboardWidth } from '../components/Whiteboard';
-import {
-  CanvasState,
-  selectCanvas,
-  selectCombinedScale,
-} from '../store/canvasSlice';
+import { CanvasState, selectCanvas } from '../store/canvasSlice';
 import { useAppSelector } from '../store/reduxToolkitHooks';
-
-/**
- * Scale a value from the canvas to the outside.
- */
-export const useScaleSvgToDiv = (value: number) => {
-  const scale = useAppSelector(selectCombinedScale);
-  return value * scale;
-};
 
 /**
  * Scale a value from outside to the canvas.
