@@ -23,6 +23,7 @@ export type {
   ConnectionSignaling,
   Description,
 } from './connectionSignaling';
+export * from './constants';
 export {
   ROOM_EVENT_DOCUMENT_CHUNK,
   isValidDocumentChunkRoomEvent,

@@ -15,6 +15,7 @@
  */
 
 import { ComponentType, useCallback, useMemo, useState } from 'react';
+import { defaultTextSize } from '../../../model';
 import {
   Point,
   ShapeElement,
@@ -32,8 +33,6 @@ import { gridCellSize } from '../constants';
 import { DraftMouseHandler } from './DraftMouseHandler';
 import { calculateShapeCoords } from './calculateShapeCoords';
 import { createShape } from './createShape';
-
-const defaultTextSize = 16;
 
 export type DraftShapeChildProps = {
   kind: ShapeKind;
