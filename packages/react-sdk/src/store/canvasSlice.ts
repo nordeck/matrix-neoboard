@@ -24,20 +24,19 @@ import {
   zoomMax,
   zoomMin,
 } from '../components/Whiteboard/constants';
+import { infiniteCanvasMode } from '../model';
 import { Point } from '../state';
 import { RootState } from './store';
 
 type Translation = { x: number; y: number };
 
 export type CanvasState = {
-  infiniteMode: boolean;
   outerScale: number;
   scale: number;
   translate: Translation;
 };
 
 const initialState: CanvasState = {
-  infiniteMode: true,
   outerScale: 1,
   scale: 1,
   translate: {
@@ -54,7 +53,7 @@ const fitFunc = (state: CanvasState): CanvasState => {
     height: boardWrapperElement!.clientHeight,
   };
 
-  if (!state.infiniteMode) {
+  if (!infiniteCanvasMode) {
     // Fit initial canvas to be contained in the viewport
 
     if (

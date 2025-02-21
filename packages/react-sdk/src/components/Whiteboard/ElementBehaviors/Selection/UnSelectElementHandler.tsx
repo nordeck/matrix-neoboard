@@ -17,15 +17,13 @@
 import { Point } from 'pdfmake/interfaces';
 import { MouseEvent, useCallback, useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
+import { infiniteCanvasMode } from '../../../../model';
 import {
   useActiveElement,
   useWhiteboardSlideInstance,
 } from '../../../../state';
-import { selectCanvas, updateTranslation } from '../../../../store/canvasSlice';
-import {
-  useAppDispatch,
-  useAppSelector,
-} from '../../../../store/reduxToolkitHooks';
+import { updateTranslation } from '../../../../store/canvasSlice';
+import { useAppDispatch } from '../../../../store/reduxToolkitHooks';
 import { useLayoutState } from '../../../Layout';
 import { HOTKEY_SCOPE_WHITEBOARD } from '../../../WhiteboardHotkeysProvider';
 import { useSvgCanvasContext } from '../../SvgCanvas';
@@ -37,7 +35,6 @@ export function UnSelectElementHandler() {
   const { calculateSvgCoords } = useSvgCanvasContext();
   const [previousPanCoordinates, setPreviousPanCoordinates] = useState<Point>();
   const dispatch = useAppDispatch();
-  const { infiniteMode } = useAppSelector(selectCanvas);
   const [panEnabled, setPanEnabled] = useState(false);
 
   const unselectElement = useCallback(() => {
@@ -64,7 +61,7 @@ export function UnSelectElementHandler() {
         event.preventDefault();
         event.stopPropagation();
 
-        if (!infiniteMode) {
+        if (!infiniteCanvasMode) {
           return;
         }
 
@@ -74,7 +71,6 @@ export function UnSelectElementHandler() {
     },
     [
       activeElementId,
-      infiniteMode,
       slideInstance,
       calculateSvgCoords,
       setDragSelectStartCoords,
@@ -100,22 +96,19 @@ export function UnSelectElementHandler() {
     [dispatch, panEnabled, previousPanCoordinates, setPreviousPanCoordinates],
   );
 
-  const handleMouseUp = useCallback(
-    (event: MouseEvent<SVGRectElement>) => {
-      if (event.button === 2) {
-        // Right click
-        event.preventDefault();
-        event.stopPropagation();
+  const handleMouseUp = useCallback((event: MouseEvent<SVGRectElement>) => {
+    if (event.button === 2) {
+      // Right click
+      event.preventDefault();
+      event.stopPropagation();
 
-        if (!infiniteMode) {
-          return;
-        }
-
-        setPanEnabled(false);
+      if (!infiniteCanvasMode) {
+        return;
       }
-    },
-    [infiniteMode],
-  );
+
+      setPanEnabled(false);
+    }
+  }, []);
 
   const handleMouseEnter = useCallback((event: MouseEvent<SVGRectElement>) => {
     if (event.buttons !== 2) {

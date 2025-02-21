@@ -15,11 +15,9 @@
  */
 
 import { RefObject, useCallback, WheelEvent, WheelEventHandler } from 'react';
-import { selectCanvas, updateScale } from '../../../store/canvasSlice';
-import {
-  useAppDispatch,
-  useAppSelector,
-} from '../../../store/reduxToolkitHooks';
+import { infiniteCanvasMode } from '../../../model';
+import { updateScale } from '../../../store/canvasSlice';
+import { useAppDispatch } from '../../../store/reduxToolkitHooks';
 import { zoomStep } from '../constants';
 import { calculateSvgCoords } from './utils';
 
@@ -30,16 +28,15 @@ type UseWheelZoomResult = {
 export const useWheelZoom = (
   svgRef: RefObject<SVGSVGElement>,
 ): UseWheelZoomResult => {
-  const { infiniteMode } = useAppSelector(selectCanvas);
   const dispatch = useAppDispatch();
 
   const handleWheelZoom = useCallback(
     (event: WheelEvent) => {
-      if (!svgRef.current) {
+      if (!infiniteCanvasMode) {
         return;
       }
 
-      if (!infiniteMode) {
+      if (!svgRef.current) {
         return;
       }
 
@@ -64,7 +61,7 @@ export const useWheelZoom = (
         }),
       );
     },
-    [dispatch, infiniteMode, svgRef],
+    [dispatch, svgRef],
   );
 
   return {

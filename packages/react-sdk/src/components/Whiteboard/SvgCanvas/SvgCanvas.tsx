@@ -29,11 +29,7 @@ import {
   WheelEventHandler,
 } from 'react';
 import { Point } from '../../../state';
-import {
-  refreshCanvas,
-  selectCanvas,
-  updateOuterScale,
-} from '../../../store/canvasSlice';
+import { refreshCanvas, selectCanvas } from '../../../store/canvasSlice';
 import {
   useAppDispatch,
   useAppSelector,
@@ -41,7 +37,7 @@ import {
 import { whiteboardHeight, whiteboardWidth } from '../constants';
 import { SvgCanvasContext, SvgCanvasContextType } from './context';
 import { useMeasure } from './useMeasure';
-import { calculateScale, calculateSvgCoords } from './utils';
+import { calculateSvgCoords } from './utils';
 
 const Canvas = styled('svg', {
   shouldForwardProp: (p) => p !== 'rounded' && p !== 'sx',
@@ -103,17 +99,12 @@ export const SvgCanvas = forwardRef(function SvgCanvas(
       height,
       viewportWidth,
       viewportHeight,
-      scale: calculateScale(width, height, viewportWidth, viewportHeight),
       calculateSvgCoords: calculateSvgCoordsFunc,
     }),
     [calculateSvgCoordsFunc, height, viewportHeight, viewportWidth, width],
   );
 
   const dispatch = useAppDispatch();
-
-  useEffect(() => {
-    dispatch(updateOuterScale(value.scale));
-  }, [dispatch, value.scale]);
 
   useEffect(() => {
     if (svgRef.current !== undefined) {

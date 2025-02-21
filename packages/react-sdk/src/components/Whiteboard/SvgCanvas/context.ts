@@ -22,7 +22,6 @@ export type SvgCanvasContextType = {
   height: number;
   viewportWidth: number;
   viewportHeight: number;
-  scale: number;
 
   calculateSvgCoords: (position: Point) => Point;
 };
