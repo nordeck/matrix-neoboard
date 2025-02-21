@@ -15,7 +15,7 @@
  */
 
 import { WidgetApi } from '@matrix-widget-toolkit/api';
-import { Room } from 'livekit-client';
+import { Room, RoomEvent } from 'livekit-client';
 import { cloneDeep } from 'lodash';
 import { getLogger } from 'loglevel';
 import { IOpenIDCredentials } from 'matrix-widget-api';
@@ -29,12 +29,14 @@ import {
   takeUntil,
 } from 'rxjs';
 import { LivekitFocus } from '../../model';
+import { MatrixRtcPeerConnection } from './connection/matrixRtcPeerConnection';
 import { Session, SessionManager } from './discovery';
 import { SessionState } from './discovery/matrixRtcSessionManagerImpl';
 import {
   CommunicationChannel,
   CommunicationChannelStatistics,
   Message,
+  PeerConnectionStatistics,
 } from './types';
 import { observeVisibilityState } from './visibilityState';
 
@@ -60,7 +62,7 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
     peerConnections: {},
     sessions: [],
   };
-  private encoder: TextEncoder = new TextEncoder();
+  private peerConnection: MatrixRtcPeerConnection | undefined;
   private decoder: TextDecoder = new TextDecoder();
   private sfuConfig: SFUConfig | undefined;
   private liveKitRoom: Room | undefined;
@@ -76,10 +78,13 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
   ) {
     this.logger.log('Creating communication channel');
 
+    console.error('LiveKit: MatrixRtcCommunicationChannel init');
+
     this.sessionManager
       .observeSession()
       .pipe(takeUntil(this.destroySubject))
       .subscribe((session) => {
+        console.error('LiveKit: new session', session);
         this.addSessionStatistics(session);
       });
 
@@ -128,11 +133,16 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
   }
 
   broadcastMessage<T = unknown>(type: string, content: T): void {
+    if (this.peerConnection) {
+      console.error('LiveKit: broadcast message', JSON.stringify(content));
+      this.peerConnection.sendMessage(type, content);
+    }
+    /*
     if (this.liveKitRoom) {
       const message = { type, content };
       const data = JSON.stringify(message);
       this.liveKitRoom.localParticipant.publishData(this.encoder.encode(data));
-    }
+    }*/
   }
 
   observeMessages(): Observable<Message> {
@@ -156,13 +166,22 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
   }
 
   private async connect() {
+    console.error('LiveKit: MatrixRtcCommunicationChannel connect');
     if (this.statistics.localSessionId) {
       this.logger.log('Communication channel is already open');
+      console.error('LiveKit: already connected');
       return;
     }
 
     this.logger.log('Connecting communication channel');
     const { sessionId } = await this.sessionManager.join(this.whiteboardId);
+    console.error('LiveKit: connected to whiteboard', sessionId);
+
+    const widgetApi = await Promise.resolve(this.widgetApiPromise);
+    await this.handleSessionJoined({
+      sessionId,
+      userId: widgetApi.widgetParameters.userId!,
+    });
 
     this.statistics.localSessionId = sessionId;
     this.statisticsSubject.next(cloneDeep(this.statistics));
@@ -170,6 +189,7 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
 
   private async disconnect(): Promise<void> {
     this.logger.log('Disconnecting communication channel');
+    console.error('LiveKit: MatrixRtcCommunicationChannel disconnect');
 
     await this.sessionManager.leave();
 
@@ -178,7 +198,9 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
   }
 
   private async initLiveKitServer(session: Session): Promise<void> {
+    console.log('LiveKit: initLiveKitServer');
     if (this.sfuConfig !== undefined && this.liveKitRoom !== undefined) {
+      console.error('LiveKit: already initialized');
       // LiveKit servers already known
       return;
     }
@@ -188,18 +210,17 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
 
       const focus = (await makePreferredLivekitFoci(session))[0];
       this.sfuConfig = await getSFUConfigWithOpenID(widgetApi, focus);
+      console.error(
+        'LiveKit: getSFUConfigWithOpenID',
+        JSON.stringify(this.sfuConfig),
+      );
+
       if (!this.sfuConfig) {
-        this.liveKitRoom = new Room({});
-        await this.liveKitRoom.connect(
-          this.sfuConfig!.url,
-          this.sfuConfig!.jwt,
-        );
-      } else {
         this.logger.warn('Failed to get LiveKit JWT');
         throw new Error('Failed to get LiveKit JWT');
       }
     } catch (error) {
-      this.logger.warn('LiveKit setup timed out', error);
+      this.logger.warn('LiveKit SFU setup timed out', error);
     }
   }
 
@@ -207,40 +228,64 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
     const sessionId = this.sessionManager.getSessionId();
 
     this.logger.log('joined', session.sessionId, session.userId);
+    console.error('LiveKit: handleSessionJoined');
 
     if (!sessionId) {
+      console.error('LiveKit: Unknown session id');
       throw new Error('Unknown session id');
     }
 
-    // Wait for the Widget API and TURN servers to be ready
+    // Wait for the Widget API and LiveKit servers to be ready
     await this.widgetApiPromise;
     await this.initLiveKitServer(session);
 
-    /*
-    const peerConnection = new WebRtcPeerConnection(
-      this.signalingChannel,
-      session,
-      sessionId,
-      { turnServer: this.turnServers },
-    );
-    this.peerConnections.push(peerConnection);
+    if (this.sfuConfig) {
+      console.error('LiveKit: setting up peer connection');
+      this.peerConnection = new MatrixRtcPeerConnection(
+        session,
+        this.sfuConfig,
+      );
 
-    peerConnection
-      .observeMessages()
-      .subscribe((m) => this.messagesSubject.next(m));
+      this.peerConnection.room!.on(
+        RoomEvent.DataReceived,
+        (payload, participant) => {
+          const message = JSON.parse(this.decoder.decode(payload)) as Message;
+          message.senderUserId = participant!.identity;
+          this.messagesSubject.next(message);
+        },
+      );
 
-    peerConnection.observeStatistics().subscribe({
-      next: (peerConnectionStatistics) => {
-        this.addPeerConnectionStatistics(
-          peerConnection.getConnectionId(),
-          peerConnectionStatistics,
-        );
-      },
-      complete: () => {
-        this.addPeerConnectionStatistics(peerConnection.getConnectionId());
-      },
-    });
-    */
+      this.peerConnection
+        .observeMessages()
+        .subscribe((m) => this.messagesSubject.next(m));
+
+      this.peerConnection.observeStatistics().subscribe({
+        next: (peerConnectionStatistics) => {
+          this.addPeerConnectionStatistics(
+            this.peerConnection!.getConnectionId(),
+            peerConnectionStatistics,
+          );
+        },
+        complete: () => {
+          this.addPeerConnectionStatistics(
+            this.peerConnection!.getConnectionId(),
+          );
+        },
+      });
+    }
+  }
+
+  private addPeerConnectionStatistics(
+    connectionId: string,
+    peerConnectionStatistics?: PeerConnectionStatistics,
+  ) {
+    if (!peerConnectionStatistics) {
+      delete this.statistics.peerConnections[connectionId];
+    } else {
+      this.statistics.peerConnections[connectionId] = peerConnectionStatistics;
+    }
+
+    this.statisticsSubject.next(cloneDeep(this.statistics));
   }
 
   private addSessionStatistics(session: SessionState) {
