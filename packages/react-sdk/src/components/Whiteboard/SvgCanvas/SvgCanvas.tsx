@@ -29,7 +29,6 @@ import {
   WheelEventHandler,
 } from 'react';
 import { Point } from '../../../state';
-import { useAppDispatch } from '../../../store/reduxToolkitHooks';
 import { whiteboardHeight, whiteboardWidth } from '../constants';
 import { useSvgScaleContext } from '../SvgScaleContext';
 import { SvgCanvasContext, SvgCanvasContextType } from './context';
@@ -75,7 +74,7 @@ export const SvgCanvas = forwardRef(function SvgCanvas(
 ) {
   const [sizeRef, { width, height }] = useMeasure<HTMLDivElement>();
   const svgRef = useRef<SVGSVGElement>(null);
-  const { refreshCanvas, scale, translation } = useSvgScaleContext();
+  const { scale, translation, setContainerDimensions } = useSvgScaleContext();
 
   // by that svgRef can be used here, while also forwarding the ref
   useImperativeHandle(forwardedRef, () => svgRef.current);
@@ -102,14 +101,9 @@ export const SvgCanvas = forwardRef(function SvgCanvas(
     [calculateSvgCoordsFunc, height, viewportHeight, viewportWidth, width],
   );
 
-  const dispatch = useAppDispatch();
-
   useEffect(() => {
-    if (svgRef.current !== undefined) {
-      // Refresh the canvas state once after rendering
-      refreshCanvas();
-    }
-  }, [refreshCanvas]);
+    setContainerDimensions({ width, height });
+  }, [width, height, setContainerDimensions]);
 
   const handleMouseMove: MouseEventHandler<SVGSVGElement> = useCallback(
     (e) => {
@@ -134,19 +128,10 @@ export const SvgCanvas = forwardRef(function SvgCanvas(
 
   const id = useId();
 
-  useEffect(() => {
-    const handleWindowResize = () => {
-      refreshCanvas();
-    };
-
-    window.addEventListener('resize', handleWindowResize);
-
-    return () => window.removeEventListener('resize', handleWindowResize);
-  }, [dispatch, refreshCanvas]);
-
   return (
     <Box
       id={preview ? id : 'board-wrapper'}
+      ref={sizeRef}
       sx={{
         flex: 1,
         aspectRatio,
@@ -155,7 +140,6 @@ export const SvgCanvas = forwardRef(function SvgCanvas(
       }}
     >
       <Box
-        ref={sizeRef}
         sx={
           withOutline
             ? {

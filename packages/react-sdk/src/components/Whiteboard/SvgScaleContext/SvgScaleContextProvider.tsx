@@ -26,50 +26,50 @@ import {
   zoomMax,
   zoomMin,
 } from '../constants';
-import { SvgScaleContext, SvgScaleContextType } from './context';
+import {
+  ContainerDimensions,
+  SvgScaleContext,
+  SvgScaleContextType,
+} from './context';
 
 type SvgScaleContextValues = Pick<SvgScaleContextType, 'scale' | 'translation'>;
 
-const fitFunc = (state: SvgScaleContextValues): SvgScaleContextValues => {
-  // TODO - evil hack for the infinite canvas spike
-  const boardWrapperElement = document.getElementById('board-wrapper');
-  const boardWrapperDimensions = {
-    width: boardWrapperElement!.clientWidth,
-    height: boardWrapperElement!.clientHeight,
-  };
-
+const fitFunc = (
+  state: SvgScaleContextValues,
+  containerDimensions: ContainerDimensions,
+): SvgScaleContextValues => {
   if (!infiniteCanvasMode) {
     // Fit initial canvas to be contained in the viewport
 
     if (
-      boardWrapperDimensions.width > initialWhiteboardWidth &&
-      boardWrapperDimensions.height > initialWhiteboardHeight
+      containerDimensions.width > initialWhiteboardWidth &&
+      containerDimensions.height > initialWhiteboardHeight
     ) {
       // Container DIV is larger than initial whiteboard, center it
       return {
         ...state,
         scale: 1,
         translation: {
-          x: boardWrapperDimensions.width / 2,
-          y: boardWrapperDimensions.height / 2,
+          x: containerDimensions.width / 2,
+          y: containerDimensions.height / 2,
         },
       };
     }
 
     const containerHasPortraitRatio =
-      boardWrapperDimensions.width / boardWrapperDimensions.height >
+      containerDimensions.width / containerDimensions.height >
       whiteboardWidth / whiteboardHeight;
 
     if (containerHasPortraitRatio) {
       // Fit height
-      const scale = boardWrapperDimensions.height / initialWhiteboardHeight;
+      const scale = containerDimensions.height / initialWhiteboardHeight;
 
       return {
         ...state,
         scale,
         translation: {
-          x: boardWrapperDimensions.width / 2,
-          y: boardWrapperDimensions.height / 2,
+          x: containerDimensions.width / 2,
+          y: containerDimensions.height / 2,
         },
       };
     }
@@ -77,24 +77,24 @@ const fitFunc = (state: SvgScaleContextValues): SvgScaleContextValues => {
     // Fit width
     return {
       ...state,
-      scale: boardWrapperDimensions.width / initialWhiteboardWidth,
+      scale: containerDimensions.width / initialWhiteboardWidth,
       translation: {
-        x: boardWrapperDimensions.width / 2,
-        y: boardWrapperDimensions.height / 2,
+        x: containerDimensions.width / 2,
+        y: containerDimensions.height / 2,
       },
     };
   }
 
-  const minScaleX = boardWrapperDimensions.width / whiteboardWidth;
-  const minScaleY = boardWrapperDimensions.height / whiteboardHeight;
+  const minScaleX = containerDimensions.width / whiteboardWidth;
+  const minScaleY = containerDimensions.height / whiteboardHeight;
   const fittedScale = Math.max(state.scale, minScaleX, minScaleY);
 
   const clampXStart = (whiteboardWidth / 2) * fittedScale;
   const clampXEnd =
-    boardWrapperDimensions.width - (whiteboardWidth / 2) * fittedScale;
+    containerDimensions.width - (whiteboardWidth / 2) * fittedScale;
   const clampYStart = (whiteboardHeight / 2) * fittedScale;
   const clampYEnd =
-    boardWrapperDimensions.height - (whiteboardHeight / 2) * fittedScale;
+    containerDimensions.height - (whiteboardHeight / 2) * fittedScale;
 
   return {
     ...state,
@@ -116,6 +116,9 @@ export const SvgScaleContextProvider: React.FC<PropsWithChildren> = ({
       y: 0,
     },
   });
+
+  const [containerDimensions, setContainerDimensionsState] =
+    useState<ContainerDimensions>({ width: 0, height: 0 });
 
   const setScale = useCallback(
     (newScale: number, origin?: Point) => {
@@ -147,13 +150,13 @@ export const SvgScaleContextProvider: React.FC<PropsWithChildren> = ({
         };
       }
 
-      const fittedState = fitFunc(newState);
+      const fittedState = fitFunc(newState, containerDimensions);
 
       if (!isEqual(fittedState, stateValues)) {
         setStateValues(fittedState);
       }
     },
-    [stateValues],
+    [containerDimensions, stateValues],
   );
 
   const updateScale = useCallback(
@@ -165,11 +168,21 @@ export const SvgScaleContextProvider: React.FC<PropsWithChildren> = ({
   );
 
   const refreshCanvas = useCallback(() => {
-    const fittedState = fitFunc(stateValues);
+    const fittedState = fitFunc(stateValues, containerDimensions);
     if (!isEqual(fittedState, stateValues)) {
       setStateValues(fittedState);
     }
-  }, [stateValues]);
+  }, [containerDimensions, stateValues]);
+
+  const setContainerDimensions = useCallback(
+    (dimensions: ContainerDimensions) => {
+      if (!isEqual(dimensions, containerDimensions)) {
+        setContainerDimensionsState(dimensions);
+        refreshCanvas();
+      }
+    },
+    [containerDimensions, refreshCanvas],
+  );
 
   const updateTranslation = useCallback(
     (changeX: number, changeY: number) => {
@@ -181,13 +194,13 @@ export const SvgScaleContextProvider: React.FC<PropsWithChildren> = ({
         },
       };
 
-      const fittedState = fitFunc(newState);
+      const fittedState = fitFunc(newState, containerDimensions);
 
       if (!isEqual(fittedState, stateValues)) {
         setStateValues(fittedState);
       }
     },
-    [stateValues],
+    [containerDimensions, stateValues],
   );
 
   const state: SvgScaleContextType = useMemo(() => {
@@ -198,9 +211,13 @@ export const SvgScaleContextProvider: React.FC<PropsWithChildren> = ({
       translation: stateValues.translation,
       updateTranslation,
       refreshCanvas,
+      containerDimensions,
+      setContainerDimensions,
     };
   }, [
+    containerDimensions,
     refreshCanvas,
+    setContainerDimensions,
     setScale,
     stateValues.scale,
     stateValues.translation,

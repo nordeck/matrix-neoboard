@@ -19,6 +19,8 @@ import { Point } from '../../../state';
 
 export type Translation = { x: number; y: number };
 
+export type ContainerDimensions = { width: number; height: number };
+
 export type SvgScaleContextType = {
   scale: number;
   setScale: (newScale: number, origin?: Point) => void;
@@ -26,6 +28,8 @@ export type SvgScaleContextType = {
   translation: Translation;
   updateTranslation: (changeX: number, changeY: number) => void;
   refreshCanvas: () => void;
+  containerDimensions: ContainerDimensions;
+  setContainerDimensions: (dimensions: ContainerDimensions) => void;
 };
 
 export const SvgScaleContext = createContext<SvgScaleContextType | undefined>(
