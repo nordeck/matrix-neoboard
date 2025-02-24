@@ -29,12 +29,9 @@ import {
   WheelEventHandler,
 } from 'react';
 import { Point } from '../../../state';
-import { refreshCanvas, selectCanvas } from '../../../store/canvasSlice';
-import {
-  useAppDispatch,
-  useAppSelector,
-} from '../../../store/reduxToolkitHooks';
+import { useAppDispatch } from '../../../store/reduxToolkitHooks';
 import { whiteboardHeight, whiteboardWidth } from '../constants';
+import { useSvgScaleContext } from '../SvgScaleContext';
 import { SvgCanvasContext, SvgCanvasContextType } from './context';
 import { useMeasure } from './useMeasure';
 import { calculateSvgCoords } from './utils';
@@ -78,6 +75,7 @@ export const SvgCanvas = forwardRef(function SvgCanvas(
 ) {
   const [sizeRef, { width, height }] = useMeasure<HTMLDivElement>();
   const svgRef = useRef<SVGSVGElement>(null);
+  const { refreshCanvas, scale, translation } = useSvgScaleContext();
 
   // by that svgRef can be used here, while also forwarding the ref
   useImperativeHandle(forwardedRef, () => svgRef.current);
@@ -109,9 +107,9 @@ export const SvgCanvas = forwardRef(function SvgCanvas(
   useEffect(() => {
     if (svgRef.current !== undefined) {
       // Refresh the canvas state once after rendering
-      dispatch(refreshCanvas());
+      refreshCanvas();
     }
-  }, [dispatch]);
+  }, [refreshCanvas]);
 
   const handleMouseMove: MouseEventHandler<SVGSVGElement> = useCallback(
     (e) => {
@@ -127,7 +125,6 @@ export const SvgCanvas = forwardRef(function SvgCanvas(
   );
 
   const aspectRatio = `${viewportWidth} / ${viewportHeight}`;
-  const { scale, translate } = useAppSelector((state) => selectCanvas(state));
 
   const boxSx = preview
     ? {}
@@ -138,14 +135,14 @@ export const SvgCanvas = forwardRef(function SvgCanvas(
   const id = useId();
 
   useEffect(() => {
-    const hanldeWindowResize = () => {
-      dispatch(refreshCanvas());
+    const handleWindowResize = () => {
+      refreshCanvas();
     };
 
-    window.addEventListener('resize', hanldeWindowResize);
+    window.addEventListener('resize', handleWindowResize);
 
-    return () => window.removeEventListener('resize', hanldeWindowResize);
-  }, [dispatch]);
+    return () => window.removeEventListener('resize', handleWindowResize);
+  }, [dispatch, refreshCanvas]);
 
   return (
     <Box
@@ -206,7 +203,7 @@ export const SvgCanvas = forwardRef(function SvgCanvas(
             transform-origin="center center"
             transform={
               !preview
-                ? `translate(${translate.x}, ${translate.y}) scale(${scale})`
+                ? `translate(${translation.x}, ${translation.y}) scale(${scale})`
                 : ''
             }
           >

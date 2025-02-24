@@ -16,14 +16,13 @@
 
 import React from 'react';
 import { PathElement } from '../../../state';
-import { selectCanvas } from '../../../store/canvasSlice';
-import { useAppSelector } from '../../../store/reduxToolkitHooks';
 import {
   ElementContextMenu,
   MoveableElement,
   SelectableElement,
   WithExtendedSelectionProps,
 } from '../../Whiteboard';
+import { useSvgScaleContext } from '../../Whiteboard/SvgScaleContext';
 import { getRenderProperties } from './getRenderProperties';
 import { useEndMarker } from './useEndMarker';
 
@@ -42,7 +41,7 @@ const LineDisplay = ({
     strokeWidth,
     points: { start, end },
   } = getRenderProperties(element);
-  const { scale } = useAppSelector(selectCanvas);
+  const { scale } = useSvgScaleContext();
   // Fallback to scale = 1 if scale is 0
   const adjustedScale = scale === 0 ? 1 : scale;
   const adjustedStrokeWidth = strokeWidth + 10 / adjustedScale;

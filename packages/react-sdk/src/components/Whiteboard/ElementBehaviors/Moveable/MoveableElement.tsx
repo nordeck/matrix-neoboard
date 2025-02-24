@@ -32,8 +32,6 @@ import {
 } from '../../../../state';
 import { BoundingRect } from '../../../../state/crdt/documents/point';
 import { Elements } from '../../../../state/types';
-import { selectCanvas } from '../../../../store/canvasSlice';
-import { useAppSelector } from '../../../../store/reduxToolkitHooks';
 import {
   createResetElementOverrides,
   ElementOverrideUpdate,
@@ -41,6 +39,7 @@ import {
 } from '../../../ElementOverridesProvider';
 import { useLayoutState } from '../../../Layout';
 import { useSvgCanvasContext } from '../../SvgCanvas';
+import { useSvgScaleContext } from '../../SvgScaleContext';
 import { elementsUpdates, getPathElements } from '../utils';
 import { addUserSelectStyles, removeUserSelectStyles } from './DraggableStyles';
 import { ResizableProperties } from './types';
@@ -69,7 +68,7 @@ export function MoveableElement({
   const setElementOverride = useSetElementOverride();
   const { viewportHeight, viewportWidth } = useSvgCanvasContext();
   const slideInstance = useWhiteboardSlideInstance();
-  const { scale } = useAppSelector(selectCanvas);
+  const { scale } = useSvgScaleContext();
 
   const [{ deltaX, deltaY }, setDelta] = useState({ deltaX: 0, deltaY: 0 });
   const [resizableProperties, setResizableProperties] =

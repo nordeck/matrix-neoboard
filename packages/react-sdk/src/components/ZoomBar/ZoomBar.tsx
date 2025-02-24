@@ -19,31 +19,29 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import { useTheme } from '@mui/material';
 import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { selectCanvas, setScale, updateScale } from '../../store/canvasSlice';
-import { useAppDispatch, useAppSelector } from '../../store/reduxToolkitHooks';
 import { Toolbar, ToolbarButton } from '../common/Toolbar';
 import { zoomStep } from '../Whiteboard/constants';
+import { useSvgScaleContext } from '../Whiteboard/SvgScaleContext';
 
 export const ZoomBar: React.FC = () => {
   const { t } = useTranslation('neoboard');
   const theme = useTheme();
-  const dispatch = useAppDispatch();
   const toolbarTitle = t('zoomBar.title', 'Zoom controls');
-  const { scale } = useAppSelector(selectCanvas);
+  const { scale, setScale, updateScale } = useSvgScaleContext();
 
   const scalePercentage = Math.floor(100 * scale);
 
   const handleResetZoom = useCallback(() => {
-    dispatch(setScale(1));
-  }, [dispatch]);
+    setScale(1);
+  }, [setScale]);
 
   const handleZoomOut = useCallback(() => {
-    dispatch(updateScale({ scaleChange: -zoomStep }));
-  }, [dispatch]);
+    updateScale(-zoomStep);
+  }, [updateScale]);
 
   const handleZoomIn = useCallback(() => {
-    dispatch(updateScale({ scaleChange: zoomStep }));
-  }, [dispatch]);
+    updateScale(zoomStep);
+  }, [updateScale]);
 
   return (
     <Toolbar aria-label={toolbarTitle} sx={{ pointerEvents: 'initial' }}>

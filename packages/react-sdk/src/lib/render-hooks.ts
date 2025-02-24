@@ -15,26 +15,29 @@
  */
 
 import { whiteboardHeight, whiteboardWidth } from '../components/Whiteboard';
-import { CanvasState, selectCanvas } from '../store/canvasSlice';
-import { useAppSelector } from '../store/reduxToolkitHooks';
+import { useSvgScaleContext } from '../components/Whiteboard/SvgScaleContext';
+import { SvgScaleContextType } from '../components/Whiteboard/SvgScaleContext/context';
 
 /**
  * Scale a value from outside to the canvas.
  */
 export const useScaleDivToSvg = (value: number) => {
-  const { scale } = useAppSelector(selectCanvas);
+  const { scale } = useSvgScaleContext();
   return value / scale;
 };
 
 export const transformedPointSvgToDiv = (
-  canvas: CanvasState,
+  svtScaleContextValues: SvgScaleContextType,
   point: { x: number; y: number },
 ) => {
   const matrix = new DOMMatrix();
-  matrix.translateSelf(canvas.translate.x, canvas.translate.y);
+  matrix.translateSelf(
+    svtScaleContextValues.translation.x,
+    svtScaleContextValues.translation.y,
+  );
   matrix.scaleSelf(
-    canvas.scale,
-    canvas.scale,
+    svtScaleContextValues.scale,
+    svtScaleContextValues.scale,
     undefined,
     whiteboardWidth / 2,
     whiteboardHeight / 2,

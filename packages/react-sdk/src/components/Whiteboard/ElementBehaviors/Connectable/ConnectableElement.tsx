@@ -18,9 +18,8 @@ import { useTheme } from '@mui/material';
 import { Fragment, useEffect, useMemo, useState } from 'react';
 import { isDefined } from '../../../../lib';
 import { ShapeElement } from '../../../../state';
-import { selectCanvas } from '../../../../store/canvasSlice';
-import { useAppSelector } from '../../../../store/reduxToolkitHooks';
 import { useConnectionPoint } from '../../../ConnectionPointProvider';
+import { useSvgScaleContext } from '../../SvgScaleContext';
 import { ActivationArea } from './ActivationArea';
 
 type ConnectableElementProps = {
@@ -38,7 +37,7 @@ export function ConnectableElement({
   },
 }: ConnectableElementProps) {
   const theme = useTheme();
-  const { scale } = useAppSelector(selectCanvas);
+  const { scale } = useSvgScaleContext();
 
   const [showConnectionAnchors, setShowConnectionAnchors] =
     useState<boolean>(false);

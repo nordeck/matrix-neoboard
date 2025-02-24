@@ -42,6 +42,7 @@ import { SlideOverviewBar } from '../SlideOverviewBar';
 import { ToolsBar } from '../ToolsBar';
 import { UndoRedoBar } from '../UndoRedoBar';
 import { WhiteboardHost } from '../Whiteboard';
+import { SvgScaleContextProvider } from '../Whiteboard/SvgScaleContext';
 import { ZoomBar } from '../ZoomBar';
 import { PageLoader } from '../common/PageLoader';
 import { SlidesProvider } from './SlidesProvider';
@@ -165,7 +166,7 @@ function ContentArea() {
   const [sizeRef, { width: toolbarWidth }] = useMeasure<HTMLDivElement>();
 
   return (
-    <>
+    <SvgScaleContextProvider>
       <Shortcuts />
 
       <ToolbarContainer
@@ -208,6 +209,6 @@ function ContentArea() {
           </ToolbarContainer>
         </ToolbarCanvasContainer>
       )}
-    </>
+    </SvgScaleContextProvider>
   );
 }

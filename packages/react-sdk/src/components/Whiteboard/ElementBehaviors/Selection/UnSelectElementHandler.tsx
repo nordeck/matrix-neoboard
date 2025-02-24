@@ -22,11 +22,10 @@ import {
   useActiveElement,
   useWhiteboardSlideInstance,
 } from '../../../../state';
-import { updateTranslation } from '../../../../store/canvasSlice';
-import { useAppDispatch } from '../../../../store/reduxToolkitHooks';
 import { useLayoutState } from '../../../Layout';
 import { HOTKEY_SCOPE_WHITEBOARD } from '../../../WhiteboardHotkeysProvider';
 import { useSvgCanvasContext } from '../../SvgCanvas';
+import { useSvgScaleContext } from '../../SvgScaleContext';
 
 export function UnSelectElementHandler() {
   const { activeElementId } = useActiveElement();
@@ -34,8 +33,8 @@ export function UnSelectElementHandler() {
   const { setDragSelectStartCoords } = useLayoutState();
   const { calculateSvgCoords } = useSvgCanvasContext();
   const [previousPanCoordinates, setPreviousPanCoordinates] = useState<Point>();
-  const dispatch = useAppDispatch();
   const [panEnabled, setPanEnabled] = useState(false);
+  const { updateTranslation } = useSvgScaleContext();
 
   const unselectElement = useCallback(() => {
     if (activeElementId) {
@@ -84,16 +83,14 @@ export function UnSelectElementHandler() {
         return;
       }
 
-      dispatch(
-        updateTranslation({
-          x: event.clientX - previousPanCoordinates.x,
-          y: event.clientY - previousPanCoordinates.y,
-        }),
+      updateTranslation(
+        event.clientX - previousPanCoordinates.x,
+        event.clientY - previousPanCoordinates.y,
       );
 
       setPreviousPanCoordinates({ x: event.clientX, y: event.clientY });
     },
-    [dispatch, panEnabled, previousPanCoordinates, setPreviousPanCoordinates],
+    [panEnabled, previousPanCoordinates, updateTranslation],
   );
 
   const handleMouseUp = useCallback((event: MouseEvent<SVGRectElement>) => {

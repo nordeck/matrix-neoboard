@@ -19,10 +19,9 @@ import { PropsWithChildren, useMemo } from 'react';
 import { transformedPointSvgToDiv } from '../../../../lib';
 import { useSlideIsLocked } from '../../../../state';
 import { calculateBoundingRectForElements } from '../../../../state/crdt/documents/elements';
-import { selectCanvas } from '../../../../store/canvasSlice';
-import { useAppSelector } from '../../../../store/reduxToolkitHooks';
 import { useElementOverrides } from '../../../ElementOverridesProvider';
 import { useMeasure, useSvgCanvasContext } from '../../SvgCanvas';
+import { useSvgScaleContext } from '../../SvgScaleContext';
 
 export function ElementBarWrapper({
   children,
@@ -51,8 +50,8 @@ export function ElementBarWrapper({
   } = calculateBoundingRectForElements(elements);
 
   const offsetOnDiv = 10;
-  // eslint-disable-next-line
-  const canvas = useAppSelector(selectCanvas);
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const canvas = useSvgScaleContext();
 
   // eslint-disable-next-line
   const position = useMemo(() => {
