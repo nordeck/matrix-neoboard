@@ -15,10 +15,12 @@
  */
 
 import { StateEvent, WidgetApi } from '@matrix-widget-toolkit/api';
+import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { BehaviorSubject } from 'rxjs';
 import { Whiteboard } from '../model';
 import { StoreType } from '../store';
 import {
+  RTCSessionManagerImpl,
   SessionManager,
   SessionManagerImpl,
   SignalingChannel,
@@ -86,15 +88,19 @@ export function createWhiteboardManager(
   widgetApiPromise: Promise<WidgetApi>,
 ): WhiteboardManager {
   // We never destroy these, but this is fine
+  // @todo this isn't needed for matrix rtc
   const signalingChannel = new ToDeviceMessageSignalingChannel(
     widgetApiPromise,
   );
+  const matrixrtc = getEnvironment('REACT_APP_RTC') === 'matrixrtc';
+
   const sessionManager = new SessionManagerImpl(widgetApiPromise);
+  const rtcSessionManager = new RTCSessionManagerImpl(widgetApiPromise);
 
   return new WhiteboardManagerImpl(
     store,
     widgetApiPromise,
-    sessionManager,
+    matrixrtc ? rtcSessionManager : sessionManager,
     signalingChannel,
   );
 }
