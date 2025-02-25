@@ -394,6 +394,7 @@ export function mockWhiteboardDocumentSnapshot(): Document<WhiteboardDocument> {
     kind: 'ellipse',
     position: { x: 0, y: 1 },
     fillColor: 'red',
+    textFontFamily: 'Inter',
     height: 100,
     width: 50,
     text: '',

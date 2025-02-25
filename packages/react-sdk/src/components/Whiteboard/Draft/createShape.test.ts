@@ -25,6 +25,7 @@ describe('createShape', () => {
       endCoords: { x: 30, y: 40 },
       fillColor: '#ffffff',
       textColor: '#ff0000',
+      textFontFamily: 'Inter',
     });
 
     expect(result).toEqual({
@@ -36,6 +37,7 @@ describe('createShape', () => {
       text: '',
       fillColor: '#ffffff',
       textColor: '#ff0000',
+      textFontFamily: 'Inter',
     });
   });
 
@@ -45,6 +47,7 @@ describe('createShape', () => {
       startCoords: { x: 10, y: 20 },
       endCoords: { x: 30, y: 40 },
       fillColor: '#ffffff',
+      textFontFamily: 'Inter',
       rounded: true,
     });
 
@@ -56,6 +59,7 @@ describe('createShape', () => {
       kind: 'rectangle',
       text: '',
       fillColor: '#ffffff',
+      textFontFamily: 'Inter',
       borderRadius: 20,
     });
   });
@@ -66,6 +70,7 @@ describe('createShape', () => {
       startCoords: { x: 30, y: 40 },
       endCoords: { x: 10, y: 20 },
       fillColor: '#ffffff',
+      textFontFamily: 'Inter',
     });
     expect(result).toEqual({
       width: 20,
@@ -75,6 +80,7 @@ describe('createShape', () => {
       kind: 'rectangle',
       text: '',
       fillColor: '#ffffff',
+      textFontFamily: 'Inter',
     });
   });
 
@@ -85,6 +91,7 @@ describe('createShape', () => {
       endCoords: { x: 30, y: 60 },
       fillColor: '#ffffff',
       sameLength: true,
+      textFontFamily: 'Inter',
     });
     expect(result).toEqual({
       width: 40,
@@ -94,6 +101,7 @@ describe('createShape', () => {
       kind: 'circle',
       text: '',
       fillColor: '#ffffff',
+      textFontFamily: 'Inter',
     });
   });
 
@@ -103,6 +111,7 @@ describe('createShape', () => {
       startCoords: { x: 30, y: 60 },
       endCoords: { x: 10, y: 20 },
       fillColor: '#ffffff',
+      textFontFamily: 'Inter',
       sameLength: true,
     });
     expect(result).toEqual({
@@ -113,6 +122,7 @@ describe('createShape', () => {
       kind: 'circle',
       text: '',
       fillColor: '#ffffff',
+      textFontFamily: 'Inter',
     });
   });
 
@@ -122,6 +132,7 @@ describe('createShape', () => {
       startCoords: { x: 60, y: 20 },
       endCoords: { x: 10, y: 10 },
       fillColor: '#ffffff',
+      textFontFamily: 'Inter',
       sameLength: true,
     });
     expect(result).toEqual({
@@ -132,6 +143,7 @@ describe('createShape', () => {
       kind: 'circle',
       text: '',
       fillColor: '#ffffff',
+      textFontFamily: 'Inter',
     });
   });
 
@@ -141,6 +153,7 @@ describe('createShape', () => {
       startCoords: { x: 10, y: 20 },
       endCoords: { x: 30, y: 60 },
       fillColor: '#ffffff',
+      textFontFamily: 'Inter',
       gridCellSize: 20,
     });
     expect(result).toEqual({
@@ -151,6 +164,7 @@ describe('createShape', () => {
       kind: 'circle',
       text: '',
       fillColor: '#ffffff',
+      textFontFamily: 'Inter',
     });
   });
 
@@ -160,6 +174,7 @@ describe('createShape', () => {
       startCoords: { x: 30, y: 60 },
       endCoords: { x: 10, y: 20 },
       fillColor: '#ffffff',
+      textFontFamily: 'Inter',
       gridCellSize: 20,
     });
     expect(result).toEqual({
@@ -170,6 +185,7 @@ describe('createShape', () => {
       kind: 'circle',
       text: '',
       fillColor: '#ffffff',
+      textFontFamily: 'Inter',
     });
   });
 });
@@ -279,6 +295,7 @@ describe('createShapeFromPoints', () => {
       startCoords: { x: 30, y: 60 },
       endCoords: { x: 30.5, y: 60.5 },
       fillColor: '#ffffff',
+      textFontFamily: 'Inter',
     });
     expect(result).toEqual({
       width: 1,
@@ -288,6 +305,7 @@ describe('createShapeFromPoints', () => {
       kind: 'circle',
       text: '',
       fillColor: '#ffffff',
+      textFontFamily: 'Inter',
     });
   });
 });

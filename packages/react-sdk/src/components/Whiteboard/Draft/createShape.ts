@@ -22,7 +22,10 @@ import {
   ShapeElement,
   ShapeKind,
 } from '../../../state';
-import { EndMarker } from '../../../state/crdt/documents/elements';
+import {
+  EndMarker,
+  TextFontFamily,
+} from '../../../state/crdt/documents/elements';
 import { whiteboardHeight, whiteboardWidth } from '../constants';
 import { snapToGrid } from '../Grid';
 
@@ -35,6 +38,7 @@ export function createShape({
   sameLength = false,
   rounded = false,
   textColor,
+  textFontFamily,
 }: {
   kind: ShapeKind;
   startCoords: Point;
@@ -44,6 +48,7 @@ export function createShape({
   sameLength?: boolean;
   rounded?: boolean;
   textColor?: string;
+  textFontFamily: TextFontFamily;
 }): ShapeElement {
   const normalizedStart =
     gridCellSize === undefined
@@ -108,6 +113,7 @@ export function createShape({
     width,
     text: '',
     textColor,
+    textFontFamily,
     borderRadius: rounded ? 20 : undefined,
   };
 }

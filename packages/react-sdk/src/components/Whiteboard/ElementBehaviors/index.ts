@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
+export * from './Connectable';
 export * from './ContextMenu';
 export * from './Moveable';
 export * from './Resizable';
 export * from './Selection';
 export * from './Text';
+export { getPathElements } from './utils';

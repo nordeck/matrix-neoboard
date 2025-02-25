@@ -46,7 +46,9 @@ export function createResetElementOverrides(
   }));
 }
 
-export type ElementOverrideSetter = (updates: ElementOverrideUpdate[]) => void;
+export type ElementOverrideSetter = (
+  updates: ElementOverrideUpdate[] | undefined,
+) => void;
 export const ElementOverrideSetterContext =
   createContext<ElementOverrideSetter>(() => {});
 
@@ -60,21 +62,29 @@ export function ElementOverridesProvider({ children }: PropsWithChildren<{}>) {
     [elementOverrides],
   );
 
-  const setElementOverride = useCallback((updates: ElementOverrideUpdate[]) => {
-    setElementOverrides((old) => {
-      const newState = { ...old };
-
-      for (const { elementId, elementOverride } of updates) {
-        if (elementOverride) {
-          newState[elementId] = elementOverride;
-        } else {
-          delete newState[elementId];
-        }
+  const setElementOverride = useCallback(
+    (updates: ElementOverrideUpdate[] | undefined) => {
+      if (updates === undefined) {
+        setElementOverrides({});
+        return;
       }
 
-      return newState;
-    });
-  }, []);
+      setElementOverrides((old) => {
+        const newState = { ...old };
+
+        for (const { elementId, elementOverride } of updates) {
+          if (elementOverride) {
+            newState[elementId] = elementOverride;
+          } else {
+            delete newState[elementId];
+          }
+        }
+
+        return newState;
+      });
+    },
+    [],
+  );
 
   return (
     <ElementOverrideSetterContext.Provider value={setElementOverride}>

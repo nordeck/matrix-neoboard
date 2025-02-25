@@ -109,6 +109,7 @@ describe('useElementOverrides', () => {
     expect(result.current).toEqual({
       'element-0': {
         fillColor: '#ffffff',
+        textFontFamily: 'Inter',
         height: 1338,
         kind: 'ellipse',
         position: {
@@ -181,6 +182,7 @@ describe('useElementOverrides', () => {
     expect(result.current).toEqual({
       'element-0': {
         fillColor: '#ffffff',
+        textFontFamily: 'Inter',
         height: 1338,
         kind: 'ellipse',
         position: {

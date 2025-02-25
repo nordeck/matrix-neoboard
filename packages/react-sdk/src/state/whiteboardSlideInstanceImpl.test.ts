@@ -29,6 +29,7 @@ import {
 import {
   mockEllipseElement,
   mockLineElement,
+  mockRectangleElement,
 } from '../lib/testUtils/documentTestUtils';
 import {
   CommunicationChannel,
@@ -116,6 +117,44 @@ describe('WhiteboardSlideInstanceImpl', () => {
 
     expect(slideInstance.getElement(element0)).toEqual(element);
     expect(slideInstance.getActiveElementId()).toEqual(element0);
+  });
+
+  it('should add line and shape elements and connect', () => {
+    const slideInstance = new WhiteboardSlideInstanceImpl(
+      communicationChannel,
+      slide0,
+      document,
+      '@user-id',
+    );
+
+    const elementLine = mockLineElement();
+    const elementLineId = slideInstance.addElement(elementLine);
+    const elementShape = mockRectangleElement();
+    const elementShapeId = slideInstance.addElement(elementShape);
+
+    slideInstance.updateElements([
+      {
+        elementId: elementLineId,
+        patch: {
+          connectedElementStart: elementShapeId,
+        },
+      },
+      {
+        elementId: elementShapeId,
+        patch: {
+          connectedPaths: [elementLineId],
+        },
+      },
+    ]);
+
+    expect(slideInstance.getElement(elementLineId)).toEqual({
+      ...elementLine,
+      connectedElementStart: elementShapeId,
+    });
+    expect(slideInstance.getElement(elementShapeId)).toEqual({
+      ...elementShape,
+      connectedPaths: [elementLineId],
+    });
   });
 
   it('should add elements and select them as active elements', () => {
@@ -221,6 +260,103 @@ describe('WhiteboardSlideInstanceImpl', () => {
       // chat that the elements not to be removed are still there
       expect(slideInstance.getElement(element3Id)).toEqual(element3);
     });
+  });
+
+  it('should remove connected shape', () => {
+    const slideInstance = new WhiteboardSlideInstanceImpl(
+      communicationChannel,
+      slide0,
+      document,
+      '@user-id',
+    );
+
+    const elementLine = mockLineElement();
+    const elementLineId = slideInstance.addElement(elementLine);
+    const elementShape = mockRectangleElement();
+    const elementShapeId = slideInstance.addElement(elementShape);
+
+    slideInstance.updateElements([
+      {
+        elementId: elementLineId,
+        patch: {
+          connectedElementStart: elementShapeId,
+        },
+      },
+      {
+        elementId: elementShapeId,
+        patch: {
+          connectedPaths: [elementLineId],
+        },
+      },
+    ]);
+    slideInstance.removeElements([elementShapeId]);
+
+    expect(slideInstance.getElement(elementLineId)).toEqual(elementLine);
+  });
+
+  it('should remove connected line', () => {
+    const slideInstance = new WhiteboardSlideInstanceImpl(
+      communicationChannel,
+      slide0,
+      document,
+      '@user-id',
+    );
+
+    const elementLine = mockLineElement();
+    const elementLineId = slideInstance.addElement(elementLine);
+    const elementShape = mockRectangleElement();
+    const elementShapeId = slideInstance.addElement(elementShape);
+
+    slideInstance.updateElements([
+      {
+        elementId: elementLineId,
+        patch: {
+          connectedElementStart: elementShapeId,
+        },
+      },
+      {
+        elementId: elementShapeId,
+        patch: {
+          connectedPaths: [elementLineId],
+        },
+      },
+    ]);
+    slideInstance.removeElements([elementLineId]);
+
+    expect(slideInstance.getElement(elementShapeId)).toEqual(elementShape);
+  });
+
+  it('should remove connected line with two connections to shape', () => {
+    const slideInstance = new WhiteboardSlideInstanceImpl(
+      communicationChannel,
+      slide0,
+      document,
+      '@user-id',
+    );
+
+    const elementLine = mockLineElement();
+    const elementLineId = slideInstance.addElement(elementLine);
+    const elementShape = mockRectangleElement();
+    const elementShapeId = slideInstance.addElement(elementShape);
+
+    slideInstance.updateElements([
+      {
+        elementId: elementLineId,
+        patch: {
+          connectedElementStart: elementShapeId,
+          connectedElementEnd: elementShapeId,
+        },
+      },
+      {
+        elementId: elementShapeId,
+        patch: {
+          connectedPaths: [elementLineId, elementLineId],
+        },
+      },
+    ]);
+    slideInstance.removeElements([elementLineId]);
+
+    expect(slideInstance.getElement(elementShapeId)).toEqual(elementShape);
   });
 
   it('should throw when removing element from a locked slide', () => {

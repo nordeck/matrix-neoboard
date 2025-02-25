@@ -15,6 +15,7 @@
  */
 
 import { TextAlignment } from '../../state';
+import { TextFontFamily } from '../../state/crdt/documents/elements';
 
 /** Common properties of elements that describes the rendering */
 export type ElementRenderProperties = {
@@ -37,5 +38,6 @@ export type ElementRenderProperties = {
     bold: boolean;
     italic: boolean;
     fontSize?: number;
+    fontFamily: TextFontFamily;
   };
 };

@@ -18,6 +18,7 @@ import { describe, expect, it } from 'vitest';
 import {
   mockCircleElement,
   mockEllipseElement,
+  mockLineElement,
   mockTriangleElement,
 } from '../../lib/testUtils/documentTestUtils';
 import {
@@ -120,6 +121,70 @@ describe('generateLoadWhiteboardFromExport', () => {
             [slide0Element0]: mockCircleElement(),
             [slide0Element1]: mockTriangleElement(),
             [slide0Element2]: mockEllipseElement(),
+          },
+          elementIds: [slide0Element0, slide0Element1, slide0Element2],
+        },
+      },
+      slideIds: [slide0],
+    });
+  });
+
+  it('should load the elements with ids', () => {
+    const lineId = 'element-id-1';
+    const triangleId = 'element-id-2';
+
+    const exportDocument: WhiteboardDocumentExport = {
+      version: 'net.nordeck.whiteboard@v1',
+      whiteboard: {
+        slides: [
+          {
+            elements: [
+              mockCircleElement(),
+              {
+                id: triangleId,
+                ...mockTriangleElement({ connectedPaths: [lineId] }),
+              },
+              {
+                id: lineId,
+                ...mockLineElement({
+                  connectedElementStart: triangleId,
+                }),
+              },
+            ],
+          },
+        ],
+      },
+    };
+
+    const document = createWhiteboardDocument();
+
+    const importWhiteboard = generateLoadWhiteboardFromExport(
+      exportDocument,
+      '@user-id',
+    );
+    document.performChange(importWhiteboard);
+
+    const doc = document.getData();
+
+    const [slide0] = getNormalizedSlideIds(doc);
+
+    const [slide0Element0, slide0Element1, slide0Element2] =
+      getNormalizedElementIds(doc, slide0);
+
+    expect(slide0Element1).toEqual(triangleId);
+    expect(slide0Element2).toEqual(lineId);
+
+    expect(doc.toJSON()).toEqual({
+      slides: {
+        [slide0]: {
+          elements: {
+            [slide0Element0]: mockCircleElement(),
+            [triangleId]: mockTriangleElement({
+              connectedPaths: [lineId],
+            }),
+            [lineId]: mockLineElement({
+              connectedElementStart: triangleId,
+            }),
           },
           elementIds: [slide0Element0, slide0Element1, slide0Element2],
         },

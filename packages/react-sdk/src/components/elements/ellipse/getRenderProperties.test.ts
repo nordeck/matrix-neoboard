@@ -25,6 +25,7 @@ describe('getRenderProperties', () => {
       kind: 'ellipse',
       position: { x: 10, y: 15 },
       fillColor: '#00ffff',
+      textFontFamily: 'Inter',
       width: 100,
       height: 50,
       text: 'My Text',
@@ -36,6 +37,7 @@ describe('getRenderProperties', () => {
 
       text: {
         position: { x: expect.any(Number), y: expect.any(Number) },
+        fontFamily: 'Inter',
         width: expect.any(Number),
         height: expect.any(Number),
         alignment: 'center',
@@ -56,6 +58,7 @@ describe('getRenderProperties', () => {
       kind: 'ellipse',
       position: { x: 10, y: 15 },
       fillColor: '#00ffff',
+      textFontFamily: 'Inter',
       width: 100,
       height: 50,
       text: 'My Text',
@@ -68,6 +71,7 @@ describe('getRenderProperties', () => {
 
       text: {
         position: { x: expect.any(Number), y: expect.any(Number) },
+        fontFamily: 'Inter',
         width: expect.any(Number),
         height: expect.any(Number),
         alignment: 'right',
@@ -87,6 +91,7 @@ describe('getRenderProperties', () => {
 
       text: {
         position: { x: expect.any(Number), y: expect.any(Number) },
+        fontFamily: 'Inter',
         width: expect.any(Number),
         height: expect.any(Number),
         alignment: 'center',
@@ -106,6 +111,7 @@ describe('getRenderProperties', () => {
 
       text: {
         position: { x: expect.any(Number), y: expect.any(Number) },
+        fontFamily: 'Inter',
         width: expect.any(Number),
         height: expect.any(Number),
         alignment: 'center',

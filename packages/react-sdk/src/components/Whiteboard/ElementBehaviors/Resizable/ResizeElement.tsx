@@ -18,13 +18,17 @@ import { Dispatch, useCallback, useState } from 'react';
 import { useUnmount } from 'react-use';
 import {
   calculateBoundingRectForElements,
+  findConnectingPaths,
+  PathElement,
   useWhiteboardSlideInstance,
 } from '../../../../state';
+import { ElementUpdate } from '../../../../state/types';
 import { useAppDispatch } from '../../../../store';
 import { setShapeSize } from '../../../../store/shapeSizesSlide';
+import { useConnectionPoint } from '../../../ConnectionPointProvider';
 import {
-  ElementOverrideUpdate,
   createResetElementOverrides,
+  ElementOverrideUpdate,
   useElementOverrides,
   useSetElementOverride,
 } from '../../../ElementOverridesProvider';
@@ -32,6 +36,7 @@ import { useLayoutState } from '../../../Layout';
 import { getRenderProperties } from '../../../elements/line/getRenderProperties';
 import { useSvgCanvasContext } from '../../SvgCanvas';
 import { gridCellSize } from '../../constants';
+import { elementsUpdates, getPathElements, lineResizeUpdates } from '../utils';
 import { DragEvent, ResizeHandle } from './ResizeHandle';
 import { HandlePosition, ResizableProperties } from './types';
 import { computeResizing } from './utils';
@@ -56,6 +61,7 @@ export function ResizeHandleWrapper({
 }: ResizeHandleWrapperProps) {
   const { isShowGrid } = useLayoutState();
   const { viewportWidth, viewportHeight } = useSvgCanvasContext();
+  const { connectElementId } = useConnectionPoint();
 
   const handleDrag = useCallback(
     (event: DragEvent) => {
@@ -66,7 +72,7 @@ export function ResizeHandleWrapper({
           viewportWidth,
           viewportHeight,
           invertLockAspectRatio,
-          isShowGrid ? gridCellSize : undefined,
+          isShowGrid && !connectElementId ? gridCellSize : undefined,
           resizableProperties,
         ),
       );
@@ -79,6 +85,7 @@ export function ResizeHandleWrapper({
       resizableProperties,
       viewportHeight,
       viewportWidth,
+      connectElementId,
     ],
   );
 
@@ -105,6 +112,9 @@ export function ResizeElement({ elementIds }: ResizeElementProps) {
 
   const [resizableProperties, setResizableProperties] =
     useState<ResizableProperties>();
+  const [elementOverrideUpdates, setElementOverrideUpdates] = useState<
+    ElementOverrideUpdate[]
+  >([]);
 
   useUnmount(() => {
     if (resizableProperties) {
@@ -121,52 +131,76 @@ export function ResizeElement({ elementIds }: ResizeElementProps) {
       width: boundingRect.width,
       height: boundingRect.height,
       elements,
+      connectingPathElements: getPathElements(
+        slideInstance,
+        findConnectingPaths(elements),
+      ),
     });
-  }, [activeElements, elements]);
+  }, [activeElements, elements, slideInstance]);
 
-  const handleDragStop = useCallback(() => {
-    slideInstance.updateElements(
-      Object.entries(elements).map(([elementId, element]) => {
-        return {
+  const handleDragStop = useCallback(
+    ({ connectData }: DragEvent) => {
+      let updates: ElementUpdate[];
+      if (
+        Object.values(elements).length === 1 &&
+        Object.values(elements)[0].type === 'path' &&
+        connectData
+      ) {
+        const elementId = Object.keys(elements)[0];
+        const element = Object.values(elements)[0] as PathElement;
+
+        const position = connectData.resizePositionName;
+        const connectToElementId = connectData.connectToElementId;
+
+        updates = lineResizeUpdates(
+          slideInstance,
           elementId,
-          patch: {
-            position: element.position,
-            width:
-              element.type === 'shape' || element.type === 'image'
-                ? element.width
-                : undefined,
-            height:
-              element.type === 'shape' || element.type === 'image'
-                ? element.height
-                : undefined,
-            points: element.type === 'path' ? element.points : undefined,
-          },
-        };
-      }),
-    );
-
-    if (Object.values(elements).length === 1) {
-      const element = Object.values(elements)[0];
-
-      if (element.type === 'shape') {
-        // If the element is a shape, update last size in the store
-
-        const shapeSize = {
-          width: element.width,
-          height: element.height,
-        };
-
-        dispatch(setShapeSize({ kind: element.kind, size: shapeSize }));
+          element,
+          position,
+          connectToElementId,
+        );
+      } else {
+        updates = elementsUpdates(
+          slideInstance,
+          elements,
+          elementOverrideUpdates,
+        );
       }
-    }
 
-    setResizableProperties(undefined);
-    setElementOverride(createResetElementOverrides(elementIds));
-  }, [dispatch, elementIds, elements, setElementOverride, slideInstance]);
+      slideInstance.updateElements(updates);
+
+      if (Object.values(elements).length === 1) {
+        const element = Object.values(elements)[0];
+
+        if (element.type === 'shape') {
+          // If the element is a shape, update last size in the store
+
+          const shapeSize = {
+            width: element.width,
+            height: element.height,
+          };
+
+          dispatch(setShapeSize({ kind: element.kind, size: shapeSize }));
+        }
+      }
+
+      setResizableProperties(undefined);
+      setElementOverride(undefined);
+    },
+    [
+      dispatch,
+      setElementOverride,
+      slideInstance,
+      elementOverrideUpdates,
+      elements,
+    ],
+  );
 
   const handleDrag = useCallback(
-    (elementOverrideUpdates: ElementOverrideUpdate[]) =>
-      setElementOverride(elementOverrideUpdates),
+    (elementOverrideUpdates: ElementOverrideUpdate[]) => {
+      setElementOverride(elementOverrideUpdates);
+      setElementOverrideUpdates(elementOverrideUpdates);
+    },
     [setElementOverride],
   );
 
@@ -189,6 +223,7 @@ export function ResizeElement({ elementIds }: ResizeElementProps) {
             name: 'start',
             x: renderProperties.points.start.x,
             y: renderProperties.points.start.y,
+            elementId: elementIds[0],
           }}
           onDrag={handleDrag}
           onDragStart={handleDragStart}
@@ -200,6 +235,7 @@ export function ResizeElement({ elementIds }: ResizeElementProps) {
             name: 'end',
             x: renderProperties.points.end.x,
             y: renderProperties.points.end.y,
+            elementId: elementIds[0],
           }}
           onDrag={handleDrag}
           onDragStart={handleDragStart}

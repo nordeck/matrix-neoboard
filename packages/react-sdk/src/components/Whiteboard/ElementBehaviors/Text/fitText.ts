@@ -93,7 +93,6 @@ export function getTextSize(
   opts: {
     disableLigatures?: boolean;
     fontSize?: number;
-    fontFamily?: string;
     fontWeightBold?: boolean;
     fontStyleItalic?: boolean;
   } = {},
@@ -125,7 +124,6 @@ export function getTextSize(
   element.style.fontVariantLigatures = opts?.disableLigatures
     ? 'none'
     : 'unset';
-  element.style.fontFamily = opts.fontFamily ?? 'unset';
 
   if (content.innerHTML) {
     element.innerHTML = content.innerHTML;

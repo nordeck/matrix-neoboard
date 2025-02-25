@@ -44,6 +44,34 @@ describe('isValidElement', () => {
     expect(isValidElement(data)).toBe(true);
   });
 
+  it.each([
+    {
+      connectedElementStart: 'element-id-1',
+    },
+    {
+      connectedElementStart: 'element-id-1',
+      connectedElementEnd: 'element-id-2',
+    },
+    {
+      connectedElementEnd: 'element-id-2',
+    },
+  ])(
+    'should accept path event',
+    ({ connectedElementStart, connectedElementEnd }) => {
+      const data = {
+        type: 'path',
+        position: { x: 1, y: 2 },
+        kind: 'line',
+        points: [],
+        strokeColor: 'red',
+        connectedElementStart,
+        connectedElementEnd,
+      };
+
+      expect(isValidElement(data)).toBe(true);
+    },
+  );
+
   it('should accept additional properties for path event', () => {
     const data = {
       type: 'path',
@@ -68,11 +96,34 @@ describe('isValidElement', () => {
         height: 100,
         fillColor: 'red',
         text: '',
+        connectedPaths: ['element-id-1'],
       };
 
       expect(isValidElement(data)).toBe(true);
     },
   );
+
+  it.each([
+    {
+      connectedPaths: undefined,
+    },
+    {
+      connectedPaths: ['element-1'],
+    },
+  ])('should accept shape event', ({ connectedPaths }) => {
+    const data = {
+      type: 'shape',
+      position: { x: 1, y: 2 },
+      kind: 'rectangle',
+      width: 100,
+      height: 100,
+      fillColor: 'red',
+      text: '',
+      connectedPaths,
+    };
+
+    expect(isValidElement(data)).toBe(true);
+  });
 
   it('should accept additional properties for shape event', () => {
     const data = {

@@ -100,6 +100,7 @@ export function deserializeFromPlainText(
         width,
         text,
         fillColor: 'transparent',
+        textFontFamily: 'Inter',
       },
     ],
   };

@@ -480,7 +480,7 @@ describe('computeResizing', () => {
     ({ name, x, y, dragX, dragY, expectedX, expectedY }) => {
       expect(
         computeResizing(
-          { name, x, y },
+          { name, x, y, elementId: 'element-id' },
           { ...event, x: dragX, y: dragY },
           viewportWidth,
           viewportHeight,
@@ -512,7 +512,7 @@ describe('computeResizing', () => {
   it('should not compute resizing of line', () => {
     expect(
       computeResizing(
-        { name: 'start', x: 0, y: 0 },
+        { name: 'start', x: 0, y: 0, elementId: 'element-id' },
         event,
         viewportWidth,
         viewportHeight,

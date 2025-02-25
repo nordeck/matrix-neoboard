@@ -55,6 +55,7 @@ export function getRenderProperties(
       bold: shape.textBold ?? false,
       italic: shape.textItalic ?? false,
       fontSize: shape.textSize,
+      fontFamily: shape.textFontFamily,
     },
 
     points: {

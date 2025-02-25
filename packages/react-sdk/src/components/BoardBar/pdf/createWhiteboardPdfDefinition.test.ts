@@ -49,7 +49,11 @@ describe('createWhiteboardPdfDefinition', () => {
           [
             [
               'element-rectangle',
-              mockEllipseElement({ kind: 'rectangle', text: 'Rectangle' }),
+              mockEllipseElement({
+                kind: 'rectangle',
+                text: 'Rectangle',
+                textFontFamily: 'Inter',
+              }),
             ],
             [
               'element-rectangle-text',
@@ -57,6 +61,7 @@ describe('createWhiteboardPdfDefinition', () => {
                 kind: 'rectangle',
                 text: 'Rectangle Text',
                 fillColor: 'transparent',
+                textFontFamily: 'Inter',
               }),
             ],
             [
@@ -65,15 +70,24 @@ describe('createWhiteboardPdfDefinition', () => {
                 kind: 'circle',
                 text: 'Circle ✅',
                 textAlignment: 'right',
+                textFontFamily: 'Inter',
               }),
             ],
             [
               'element-ellipse',
-              mockEllipseElement({ kind: 'ellipse', text: 'Ellipse' }),
+              mockEllipseElement({
+                kind: 'ellipse',
+                text: 'Ellipse',
+                textFontFamily: 'Inter',
+              }),
             ],
             [
               'element-triangle',
-              mockEllipseElement({ kind: 'triangle', text: 'Triangle 👍' }),
+              mockEllipseElement({
+                kind: 'triangle',
+                text: 'Triangle 👍',
+                textFontFamily: 'Inter',
+              }),
             ],
           ],
         ],

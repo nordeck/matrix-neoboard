@@ -92,6 +92,7 @@ describe('useElementOverride', () => {
       type: 'shape',
       kind: 'ellipse',
       fillColor: '#ffffff',
+      textFontFamily: 'Inter',
       text: 'Element 1',
       position: { x: 0, y: 1 },
       height: 100,
@@ -110,6 +111,7 @@ describe('useElementOverride', () => {
         type: 'shape',
         kind: 'ellipse',
         fillColor: '#ffffff',
+        textFontFamily: 'Inter',
         text: 'Element 1',
         position: { x: 0, y: 1 },
         height: 100,
@@ -143,6 +145,7 @@ describe('useElementOverride', () => {
       type: 'shape',
       kind: 'ellipse',
       fillColor: '#ffffff',
+      textFontFamily: 'Inter',
       text: 'Element 1',
       position: { x: 50, y: 51 },
       height: 100,
@@ -189,6 +192,7 @@ describe('useElementOverride', () => {
         type: 'shape',
         kind: 'ellipse',
         fillColor: '#ffffff',
+        textFontFamily: 'Inter',
         text: 'Element 1',
         position: { x: 50, y: 51 },
         height: 100,
@@ -198,6 +202,7 @@ describe('useElementOverride', () => {
         type: 'shape',
         kind: 'ellipse',
         fillColor: '#ffffff',
+        textFontFamily: 'Inter',
         text: 'Element 2',
         position: { x: 50, y: 251 },
         height: 100,
@@ -282,6 +287,7 @@ describe('useElementOverride', () => {
       type: 'shape',
       kind: 'ellipse',
       fillColor: '#ffffff',
+      textFontFamily: 'Inter',
       text: 'Element 1',
       position: { x: 0, y: 1 },
       height: 125,
@@ -312,6 +318,7 @@ describe('useElementOverride', () => {
       type: 'shape',
       kind: 'ellipse',
       fillColor: '#ffffff',
+      textFontFamily: 'Inter',
       text: 'Element 1',
       position: { x: 0, y: 1 },
       height: 10,
@@ -331,6 +338,7 @@ describe('useElementOverride', () => {
       type: 'shape',
       kind: 'ellipse',
       fillColor: '#ffffff',
+      textFontFamily: 'Inter',
       text: 'Element 1',
       position: { x: 0, y: 1 },
       height: 100,
@@ -366,6 +374,7 @@ describe('useElementOverride', () => {
         type: 'shape',
         kind: 'ellipse',
         fillColor: '#ffffff',
+        textFontFamily: 'Inter',
         text: 'Element 1',
         position: { x: 0, y: 1 },
         height: 10,
@@ -375,6 +384,7 @@ describe('useElementOverride', () => {
         type: 'shape',
         kind: 'ellipse',
         fillColor: '#ffffff',
+        textFontFamily: 'Inter',
         text: 'Element 2',
         position: { x: 0, y: 201 },
         height: 100,
@@ -393,6 +403,7 @@ describe('useElementOverride', () => {
         type: 'shape',
         kind: 'ellipse',
         fillColor: '#ffffff',
+        textFontFamily: 'Inter',
         text: 'Element 1',
         position: { x: 0, y: 1 },
         height: 100,
@@ -402,6 +413,81 @@ describe('useElementOverride', () => {
         type: 'shape',
         kind: 'ellipse',
         fillColor: '#ffffff',
+        textFontFamily: 'Inter',
+        text: 'Element 2',
+        position: { x: 0, y: 201 },
+        height: 100,
+        width: 50,
+      },
+    });
+  });
+
+  it('should clean all the overrides', () => {
+    const { result } = renderHook(
+      () => {
+        const elements = useElementOverrides(['element-1', 'element-2']);
+        const setElementOverride = useSetElementOverride();
+        return { elements, setElementOverride };
+      },
+      { wrapper: Wrapper },
+    );
+
+    act(() => {
+      result.current.setElementOverride([
+        {
+          elementId: 'element-1',
+          elementOverride: { height: 10 },
+        },
+        {
+          elementId: 'element-2',
+          elementOverride: { width: 10 },
+        },
+      ]);
+    });
+
+    expect(result.current.elements).toEqual({
+      'element-1': {
+        type: 'shape',
+        kind: 'ellipse',
+        fillColor: '#ffffff',
+        textFontFamily: 'Inter',
+        text: 'Element 1',
+        position: { x: 0, y: 1 },
+        height: 10,
+        width: 50,
+      },
+      'element-2': {
+        type: 'shape',
+        kind: 'ellipse',
+        fillColor: '#ffffff',
+        textFontFamily: 'Inter',
+        text: 'Element 2',
+        position: { x: 0, y: 201 },
+        height: 100,
+        width: 10,
+      },
+    });
+
+    act(() => {
+      result.current.setElementOverride(undefined);
+    });
+
+    expect(result.current.elements).toEqual({
+      'element-1': {
+        type: 'shape',
+        kind: 'ellipse',
+        fillColor: '#ffffff',
+        textFontFamily: 'Inter',
+        text: 'Element 1',
+        position: { x: 0, y: 1 },
+        height: 100,
+        width: 50,
+      },
+      'element-2': {
+        type: 'shape',
+        kind: 'ellipse',
+        fillColor: '#ffffff',
+        textFontFamily: 'Inter',
         text: 'Element 2',
         position: { x: 0, y: 201 },
         height: 100,

@@ -21,7 +21,6 @@ import {
   WidgetApiActionError,
   convertBlobToBase64,
   convertMxcToHttpUrl,
-  isDefined,
 } from '../../lib';
 import {
   Element,
@@ -34,6 +33,7 @@ import {
 } from '../crdt';
 import { SharedMap } from '../crdt/y';
 import {
+  ElementExport,
   WhiteboardDocumentExport,
   WhiteboardFileExport,
 } from './whiteboardDocumentExport';
@@ -57,16 +57,69 @@ export async function exportWhiteboard(
   return {
     version: 'net.nordeck.whiteboard@v1',
     whiteboard: {
-      slides: getNormalizedSlideIds(doc).map((slideId) => ({
-        elements: getNormalizedElementIds(doc, slideId)
-          .map((elementId) => getElement(doc, slideId, elementId)?.toJSON())
-          .filter(isDefined),
-        lock: getSlideLock(doc, slideId) ? {} : undefined,
-      })),
+      slides: getNormalizedSlideIds(doc).map((slideId) => {
+        const elements: [string, Element][] = [];
+        for (const elementId of getNormalizedElementIds(doc, slideId)) {
+          const element = getElement(doc, slideId, elementId)?.toJSON();
+          if (element) {
+            elements.push([elementId, element]);
+          }
+        }
+
+        return {
+          elements: getExportElements(elements),
+          lock: getSlideLock(doc, slideId) ? {} : undefined,
+        };
+      }),
       // Only add files if there is at least one
       ...(files.length > 0 ? { files } : {}),
     },
   };
+}
+
+function getExportElements(elements: [string, Element][]): ElementExport[] {
+  const elementIdSet = new Set<string>();
+
+  for (const [_, element] of elements) {
+    let ids: string[] | undefined;
+    if (element.type === 'shape' && element.connectedPaths) {
+      ids = element.connectedPaths;
+    } else if (element.type === 'path') {
+      ids = [element.connectedElementStart, element.connectedElementEnd].filter(
+        (v) => v !== undefined,
+      );
+    }
+
+    if (ids) {
+      for (const id of ids) {
+        elementIdSet.add(id);
+      }
+    }
+  }
+
+  return elements.map(([elementId, element]) => {
+    let newElement: Element;
+    if (Object.hasOwn(element, 'id')) {
+      newElement = {
+        ...element,
+      };
+      delete (newElement as Record<string, unknown>).id;
+    } else {
+      newElement = element;
+    }
+
+    let exportElement: ElementExport;
+    if (elementIdSet.has(elementId)) {
+      exportElement = {
+        id: elementId,
+        ...newElement,
+      };
+    } else {
+      exportElement = newElement;
+    }
+
+    return exportElement;
+  });
 }
 
 async function exportFiles(
