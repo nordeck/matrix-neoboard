@@ -15,6 +15,7 @@
  */
 
 export * from './discovery';
+export { MatrixRtcCommunicationChannel } from './matrixRtcCommunicationChannel';
 export * from './messages';
 export * from './signaling';
 export type {
