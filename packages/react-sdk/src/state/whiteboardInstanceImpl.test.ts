@@ -33,7 +33,7 @@ import {
   generateRemoveSlide,
   WhiteboardDocument,
 } from './crdt';
-import { SynchronizedDocument } from './types';
+import { PresentationState, SynchronizedDocument } from './types';
 import {
   findNewActiveSlideId,
   WhiteboardInstanceImpl,
@@ -631,12 +631,13 @@ describe('WhiteboardInstanceImpl', () => {
     const undoRedoState = firstValueFrom(
       whiteboardInstance.observeUndoRedoState().pipe(toArray()),
     );
-    const presentationState = firstValueFrom(
-      whiteboardInstance
-        .getPresentationManager()
-        .observePresentationState()
-        .pipe(toArray()),
-    );
+    const presentationManager = whiteboardInstance.getPresentationManager();
+
+    const presentationState: Promise<PresentationState[]> = presentationManager
+      ? firstValueFrom(
+          presentationManager?.observePresentationState().pipe(toArray()),
+        )
+      : Promise.resolve([]);
 
     whiteboardInstance.destroy();
 

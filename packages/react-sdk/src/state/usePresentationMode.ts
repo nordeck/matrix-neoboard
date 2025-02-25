@@ -16,6 +16,7 @@
 
 import { useMemo } from 'react';
 import { useObservable } from 'react-use';
+import { Subject } from 'rxjs';
 import { PresentationState } from './types';
 import { useActiveWhiteboardInstance } from './useActiveWhiteboardInstance';
 
@@ -32,7 +33,7 @@ export function usePresentationMode(): UsePresentationMode {
     () =>
       activeWhiteboardInstance
         .getPresentationManager()
-        .observePresentationState(),
+        ?.observePresentationState() ?? new Subject<PresentationState>(),
     [activeWhiteboardInstance],
   );
 
@@ -42,16 +43,18 @@ export function usePresentationMode(): UsePresentationMode {
     () => ({
       state: presentationState,
       toggleEditMode: () => {
-        activeWhiteboardInstance.getPresentationManager().toggleEditMode();
+        activeWhiteboardInstance.getPresentationManager()?.toggleEditMode();
       },
       togglePresentation: () => {
         if (presentationState.type === 'idle') {
-          activeWhiteboardInstance.getPresentationManager().startPresentation();
+          activeWhiteboardInstance
+            .getPresentationManager()
+            ?.startPresentation();
         } else if (
           presentationState.type === 'presenting' ||
           presentationState.type === 'presentation'
         ) {
-          activeWhiteboardInstance.getPresentationManager().stopPresentation();
+          activeWhiteboardInstance.getPresentationManager()?.stopPresentation();
         }
       },
     }),

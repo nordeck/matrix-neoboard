@@ -136,7 +136,7 @@ export type WhiteboardInstance = {
   observeUndoRedoState(): Observable<{ canUndo: boolean; canRedo: boolean }>;
 
   /** Get access to the presentation manager */
-  getPresentationManager(): PresentationManager;
+  getPresentationManager(): PresentationManager | undefined;
 
   /** Clear the undo manager */
   clearUndoManager(): void;
