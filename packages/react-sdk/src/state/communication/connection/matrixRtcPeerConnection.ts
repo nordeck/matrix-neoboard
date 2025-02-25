@@ -14,13 +14,22 @@
  * limitations under the License.
  */
 
-import { ConnectionState, Room } from 'livekit-client';
+import { ConnectionState, Room, RoomEvent } from 'livekit-client';
 import { clone } from 'lodash';
 import { getLogger } from 'loglevel';
-import { concat, Observable, of, Subject } from 'rxjs';
+import {
+  concat,
+  interval,
+  Observable,
+  of,
+  Subject,
+  switchMap,
+  takeUntil,
+} from 'rxjs';
 import { Session } from '../discovery';
 import { SFUConfig } from '../matrixRtcCommunicationChannel';
 import { Message, PeerConnection, PeerConnectionStatistics } from './types';
+import { extractPeerConnectionStatistics } from './utils';
 
 // The label for a data channel is a version, that way we can detect if two
 // WebRTC peers are using the same protocol.
@@ -33,6 +42,7 @@ export class MatrixRtcPeerConnection implements PeerConnection {
   private readonly statisticsSubject = new Subject<PeerConnectionStatistics>();
   private readonly statistics: PeerConnectionStatistics;
   private encoder: TextEncoder = new TextEncoder();
+  private decoder: TextDecoder = new TextDecoder();
   private readonly connectionId: string;
   public readonly room = new Room();
 
@@ -61,6 +71,42 @@ export class MatrixRtcPeerConnection implements PeerConnection {
       iceGatheringState: 'undefined',
       dataChannelState: 'undefined',
     };
+
+    // In LiveKit, we have two peer connections, one for publishing and one for subscribing.
+    // We need to gather statistics for both.
+    interval(1000)
+      .pipe(
+        takeUntil(this.destroySubject),
+        switchMap(async () => {
+          const connection =
+            this.room.localParticipant.engine?.pcManager?.publisher ?? null;
+          if (connection !== null) {
+            await connection.getStats();
+          }
+        }),
+      )
+      .subscribe((report) => {
+        if (report !== undefined) {
+          this.updateStatistics(extractPeerConnectionStatistics(report));
+        }
+      });
+
+    interval(1000)
+      .pipe(
+        takeUntil(this.destroySubject),
+        switchMap(async () => {
+          const connection =
+            this.room.localParticipant.engine?.pcManager?.subscriber ?? null;
+          if (connection !== null) {
+            await connection.getStats();
+          }
+        }),
+      )
+      .subscribe((report) => {
+        if (report !== undefined) {
+          this.updateStatistics(extractPeerConnectionStatistics(report));
+        }
+      });
 
     this.initializeChannel(sfuConfig);
   }
@@ -120,33 +166,36 @@ export class MatrixRtcPeerConnection implements PeerConnection {
       .catch((error) => {
         this.logger.error(`Failed to initialize connection: ${error.message}`);
       });
-    /*
-    fromEvent(this.channel, 'message', (e: MessageEvent) => e.data)
-      .pipe(takeUntil(this.destroySubject))
-      .subscribe((data) => {
-        try {
-          const message = JSON.parse(data);
 
-          if (typeof message.type === 'string' && message.content) {
-            this.messageSubject.next({
-              senderSessionId: this.session.sessionId,
-              senderUserId: this.session.userId,
-              ...message,
-            });
-          } else {
-            this.logger.warn(
-              `Received invalid message for connection ${this.connectionId}`,
-              message,
-            );
-          }
-        } catch {
+    this.room.on(RoomEvent.DataReceived, (payload, participant) => {
+      try {
+        const message = JSON.parse(this.decoder.decode(payload));
+
+        if (
+          typeof message.type === 'string' &&
+          message.content &&
+          participant
+        ) {
+          this.messageSubject.next({
+            senderSessionId: this.session.sessionId,
+            senderUserId: participant.identity,
+            ...message,
+          });
+        } else {
           this.logger.warn(
-            `Received invalid message JSON for connection ${this.connectionId}`,
-            data,
+            `Received invalid message for connection ${this.connectionId}`,
+            message,
           );
         }
-      });
+      } catch {
+        this.logger.warn(
+          `Received invalid message JSON for connection ${this.connectionId}`,
+          payload,
+        );
+      }
+    });
 
+    /*
     for (const event of ['open', 'closing', 'close']) {
       fromEvent(this.channel, event)
         .pipe(takeUntil(this.destroySubject))
