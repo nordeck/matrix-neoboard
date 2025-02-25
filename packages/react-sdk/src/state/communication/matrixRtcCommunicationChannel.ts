@@ -15,7 +15,6 @@
  */
 
 import { WidgetApi } from '@matrix-widget-toolkit/api';
-import { Room, RoomEvent } from 'livekit-client';
 import { cloneDeep } from 'lodash';
 import { getLogger } from 'loglevel';
 import { IOpenIDCredentials } from 'matrix-widget-api';
@@ -29,6 +28,7 @@ import {
   takeUntil,
 } from 'rxjs';
 import { LivekitFocus } from '../../model';
+import { PeerConnection } from './connection';
 import { MatrixRtcPeerConnection } from './connection/matrixRtcPeerConnection';
 import { Session, SessionManager } from './discovery';
 import { SessionState } from './discovery/matrixRtcSessionManagerImpl';
@@ -62,10 +62,8 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
     peerConnections: {},
     sessions: [],
   };
-  private peerConnection: MatrixRtcPeerConnection | undefined;
-  private decoder: TextDecoder = new TextDecoder();
+  private readonly peerConnections: PeerConnection[] = [];
   private sfuConfig: SFUConfig | undefined;
-  private liveKitRoom: Room | undefined;
 
   constructor(
     private readonly widgetApiPromise: Promise<WidgetApi> | WidgetApi,
@@ -92,6 +90,33 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
       .observeSessionJoined()
       .pipe(takeUntil(this.destroySubject))
       .subscribe(this.handleSessionJoined.bind(this));
+
+    this.sessionManager
+      .observeSessionLeft()
+      .pipe(
+        takeUntil(
+          // Wait with unsubscribing the session left events till we processed
+          // all of then, which is after completing the disconnect
+          this.destroySubject.pipe(
+            mergeMap(async () => {
+              this.logger.log(
+                'Communication channel destroyed, disconnecting…',
+              );
+              await this.disconnect();
+            }),
+          ),
+        ),
+      )
+      .subscribe((session) => {
+        const index = this.peerConnections.findIndex(
+          (c) => c.getRemoteSessionId() === session.sessionId,
+        );
+
+        if (index >= 0) {
+          this.peerConnections[index].close();
+          this.peerConnections.splice(index, 1);
+        }
+      });
 
     // If the tab is in the background, we want to disconnect from the room to
     // save resources. We reconnect once the tab is active again.
@@ -133,16 +158,7 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
   }
 
   broadcastMessage<T = unknown>(type: string, content: T): void {
-    if (this.peerConnection) {
-      console.error('LiveKit: broadcast message', JSON.stringify(content));
-      this.peerConnection.sendMessage(type, content);
-    }
-    /*
-    if (this.liveKitRoom) {
-      const message = { type, content };
-      const data = JSON.stringify(message);
-      this.liveKitRoom.localParticipant.publishData(this.encoder.encode(data));
-    }*/
+    this.peerConnections.forEach((c) => c.sendMessage(type, content));
   }
 
   observeMessages(): Observable<Message> {
@@ -199,7 +215,7 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
 
   private async initLiveKitServer(session: Session): Promise<void> {
     console.log('LiveKit: initLiveKitServer');
-    if (this.sfuConfig !== undefined && this.liveKitRoom !== undefined) {
+    if (this.sfuConfig !== undefined) {
       console.error('LiveKit: already initialized');
       // LiveKit servers already known
       return;
@@ -241,11 +257,13 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
 
     if (this.sfuConfig) {
       console.error('LiveKit: setting up peer connection');
-      this.peerConnection = new MatrixRtcPeerConnection(
+      const peerConnection = new MatrixRtcPeerConnection(
         session,
         this.sfuConfig,
       );
+      this.peerConnections.push(peerConnection);
 
+      /*
       this.peerConnection.room!.on(
         RoomEvent.DataReceived,
         (payload, participant) => {
@@ -255,21 +273,37 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
         },
       );
 
-      this.peerConnection
+      this.peerConnection.room!.on(RoomEvent.ParticipantConnected, (p) => {
+          console.error('LiveKit: participant connected', p.identity);
+          this.addPeerConnectionStatistics(p.identity, {
+            remoteUserId: p.identity,
+            remoteSessionId: '',
+            impolite: false,
+            packetsReceived: 0,
+            bytesReceived: 0,
+            packetsSent: 0,
+            bytesSent: 0,
+            connectionState: '',
+            signalingState: '',
+            iceConnectionState: '',
+            iceGatheringState: ''
+          });
+        }
+      );*/
+
+      peerConnection
         .observeMessages()
         .subscribe((m) => this.messagesSubject.next(m));
 
-      this.peerConnection.observeStatistics().subscribe({
+      peerConnection.observeStatistics().subscribe({
         next: (peerConnectionStatistics) => {
           this.addPeerConnectionStatistics(
-            this.peerConnection!.getConnectionId(),
+            peerConnection.getConnectionId(),
             peerConnectionStatistics,
           );
         },
         complete: () => {
-          this.addPeerConnectionStatistics(
-            this.peerConnection!.getConnectionId(),
-          );
+          this.addPeerConnectionStatistics(peerConnection.getConnectionId());
         },
       });
     }
