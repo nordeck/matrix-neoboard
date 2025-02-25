@@ -53,7 +53,11 @@ export const documentSnapshotApi = baseApi.injectEndpoints({
         event: RoomEvent<DocumentSnapshot>;
         data: string;
       },
-      { documentId: string; validator?: DocumentSnapshotValidator }
+      {
+        documentId: string;
+        validator?: DocumentSnapshotValidator;
+        roomId?: string;
+      }
     >({
       // don't include the validator in the cache key. this is also added in
       // the serializableCheck of the getDefaultMiddleware.
@@ -68,14 +72,21 @@ export const documentSnapshotApi = baseApi.injectEndpoints({
       },
 
       // do the initial loading
-      async queryFn({ documentId, validator }, { extra }) {
+      async queryFn({ documentId, validator, roomId }, { extra }) {
         const widgetApi = await (extra as ThunkExtraArgument).widgetApi;
 
         try {
+          // sets room id if it is different to widget parameter to avoid capability request
+          const roomIdParameter: string | undefined =
+            roomId && roomId !== widgetApi.widgetParameters.roomId
+              ? roomId
+              : undefined;
+
           const snapshotResult = await findLatestSnapshot(
             widgetApi,
             documentId,
             validator,
+            roomIdParameter,
           );
 
           if (!snapshotResult) {
@@ -106,7 +117,7 @@ export const documentSnapshotApi = baseApi.injectEndpoints({
       },
 
       async onCacheEntryAdded(
-        { documentId, validator },
+        { documentId, validator, roomId },
         { cacheEntryRemoved, extra, getCacheEntry, dispatch },
       ) {
         const widgetApi = await (extra as ThunkExtraArgument).widgetApi;
@@ -117,8 +128,14 @@ export const documentSnapshotApi = baseApi.injectEndpoints({
           validator,
         );
 
+        // sets options with room id if different to widget parameter to avoid capability request
+        const options =
+          roomId && roomId !== widgetApi.widgetParameters.roomId
+            ? { roomIds: [roomId] }
+            : undefined;
+
         const snapshotSubscription = widgetApi
-          .observeRoomEvents(ROOM_EVENT_DOCUMENT_SNAPSHOT)
+          .observeRoomEvents(ROOM_EVENT_DOCUMENT_SNAPSHOT, options)
           .pipe(filter(isValidDocumentSnapshotRoomEvent))
           .subscribe((snapshot) => {
             snapshotBacklog.registerSnapshot(snapshot);
@@ -136,7 +153,7 @@ export const documentSnapshotApi = baseApi.injectEndpoints({
           });
 
         const chunkSubscription = widgetApi
-          .observeRoomEvents(ROOM_EVENT_DOCUMENT_CHUNK)
+          .observeRoomEvents(ROOM_EVENT_DOCUMENT_CHUNK, options)
           .pipe(filter(isValidDocumentChunkRoomEvent))
           .subscribe((chunk) => {
             snapshotBacklog.registerChunk(chunk);
@@ -270,6 +287,7 @@ export async function findLatestSnapshot(
   widgetApi: WidgetApi,
   documentId: string,
   validator?: DocumentSnapshotValidator,
+  roomId?: string,
 ): Promise<
   | undefined
   | {
@@ -282,6 +300,7 @@ export async function findLatestSnapshot(
 
   do {
     const result = await widgetApi.readEventRelations(documentId, {
+      roomId,
       limit: 50,
       relationType: 'm.reference',
       eventType: ROOM_EVENT_DOCUMENT_SNAPSHOT,
@@ -298,7 +317,12 @@ export async function findLatestSnapshot(
       );
       backlog.registerSnapshot(snapshot);
 
-      for await (const chunk of findChunks(widgetApi, documentId, snapshot)) {
+      for await (const chunk of findChunks(
+        widgetApi,
+        documentId,
+        snapshot,
+        roomId,
+      )) {
         backlog.registerChunk(chunk);
 
         const result = backlog.findCompleteSnapshot();
@@ -325,11 +349,13 @@ async function* findChunks(
   widgetApi: WidgetApi,
   _documentId: string,
   snapshotEvent: RoomEvent<DocumentSnapshot>,
+  roomId?: string,
 ): AsyncGenerator<RoomEvent<DocumentChunk>> {
   let fromChunk: string | undefined = undefined;
 
   do {
     const result = await widgetApi.readEventRelations(snapshotEvent.event_id, {
+      roomId,
       limit: Math.min(50, snapshotEvent.content.chunkCount),
       relationType: 'm.reference',
       eventType: ROOM_EVENT_DOCUMENT_CHUNK,
