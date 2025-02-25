@@ -23,6 +23,10 @@ import {
   mockDocumentSnapshot,
   mockWhiteboardDocumentSnapshot,
 } from '../../lib/testUtils/matrixTestUtils';
+import {
+  ROOM_EVENT_DOCUMENT_CHUNK,
+  ROOM_EVENT_DOCUMENT_SNAPSHOT,
+} from '../../model';
 import { createStore } from '../store';
 import { documentSnapshotApi, findLatestSnapshot } from './documentSnapshotApi';
 
@@ -63,6 +67,66 @@ describe('getDocumentSnapshot', () => {
       event: snapshotEvent,
       data: chunks[0].content.data,
     });
+
+    expect(widgetApi.readEventRelations).toHaveBeenCalledWith('$document-0', {
+      limit: 50,
+      relationType: 'm.reference',
+      eventType: ROOM_EVENT_DOCUMENT_SNAPSHOT,
+    });
+
+    expect(widgetApi.readEventRelations).toHaveBeenCalledWith(
+      '$document-snapshot-0',
+      {
+        limit: 1,
+        relationType: 'm.reference',
+        eventType: ROOM_EVENT_DOCUMENT_CHUNK,
+      },
+    );
+  });
+
+  it('should return a document snapshot from another room', async () => {
+    widgetApi.mockSendRoomEvent(mockDocumentCreate());
+
+    const document = mockWhiteboardDocumentSnapshot();
+    const { snapshot: snapshotEvent, chunks } = mockDocumentSnapshot({
+      document,
+      room_id: '!room-id-1',
+    });
+    widgetApi.mockSendRoomEvent(snapshotEvent);
+    chunks.forEach(widgetApi.mockSendRoomEvent);
+
+    const store = createStore({ widgetApi });
+
+    await expect(
+      store
+        .dispatch(
+          documentSnapshotApi.endpoints.getDocumentSnapshot.initiate({
+            documentId: '$document-0',
+            roomId: '!room-id-1',
+          }),
+        )
+        .unwrap(),
+    ).resolves.toEqual({
+      event: snapshotEvent,
+      data: chunks[0].content.data,
+    });
+
+    expect(widgetApi.readEventRelations).toHaveBeenCalledWith('$document-0', {
+      roomId: '!room-id-1',
+      limit: 50,
+      relationType: 'm.reference',
+      eventType: ROOM_EVENT_DOCUMENT_SNAPSHOT,
+    });
+
+    expect(widgetApi.readEventRelations).toHaveBeenCalledWith(
+      '$document-snapshot-0',
+      {
+        roomId: '!room-id-1',
+        limit: 1,
+        relationType: 'm.reference',
+        eventType: ROOM_EVENT_DOCUMENT_CHUNK,
+      },
+    );
   });
 
   it('should fail if no document snapshot exists', async () => {
@@ -196,6 +260,15 @@ describe('getDocumentSnapshot', () => {
       }),
     );
 
+    expect(widgetApi.observeRoomEvents).toHaveBeenCalledWith(
+      ROOM_EVENT_DOCUMENT_SNAPSHOT,
+      undefined,
+    );
+    expect(widgetApi.observeRoomEvents).toHaveBeenCalledWith(
+      ROOM_EVENT_DOCUMENT_CHUNK,
+      undefined,
+    );
+
     const document2 = mockWhiteboardDocumentSnapshot();
     const { snapshot: snapshotEvent2, chunks: chunks2 } = mockDocumentSnapshot({
       document: document2,
@@ -209,6 +282,75 @@ describe('getDocumentSnapshot', () => {
       expect(
         documentSnapshotApi.endpoints.getDocumentSnapshot.select({
           documentId: '$document-0',
+        })(store.getState()).data,
+      ).toEqual({
+        event: snapshotEvent2,
+        data: chunks2[0].content.data,
+      }),
+    );
+  });
+
+  it('should observe document snapshots (chunk event completes snapshot) from another room', async () => {
+    widgetApi.mockSendRoomEvent(mockDocumentCreate());
+
+    const document1 = mockWhiteboardDocumentSnapshot();
+    const { snapshot: snapshotEvent1, chunks: chunks1 } = mockDocumentSnapshot({
+      document: document1,
+      origin_server_ts: 1000,
+      room_id: '!room-id-1',
+    });
+    widgetApi.mockSendRoomEvent(snapshotEvent1);
+    chunks1.forEach(widgetApi.mockSendRoomEvent);
+
+    const store = createStore({ widgetApi });
+
+    store.dispatch(
+      documentSnapshotApi.endpoints.getDocumentSnapshot.initiate({
+        documentId: '$document-0',
+        roomId: '!room-id-1',
+      }),
+    );
+
+    await waitFor(() =>
+      expect(
+        documentSnapshotApi.endpoints.getDocumentSnapshot.select({
+          documentId: '$document-0',
+          roomId: '!room-id-1',
+        })(store.getState()).data,
+      ).toEqual({
+        event: snapshotEvent1,
+        data: chunks1[0].content.data,
+      }),
+    );
+
+    expect(widgetApi.observeRoomEvents).toHaveBeenCalledWith(
+      ROOM_EVENT_DOCUMENT_SNAPSHOT,
+      {
+        roomIds: ['!room-id-1'],
+      },
+    );
+    expect(widgetApi.observeRoomEvents).toHaveBeenCalledWith(
+      ROOM_EVENT_DOCUMENT_CHUNK,
+      {
+        roomIds: ['!room-id-1'],
+      },
+    );
+
+    const document2 = mockWhiteboardDocumentSnapshot();
+    const { snapshot: snapshotEvent2, chunks: chunks2 } = mockDocumentSnapshot({
+      document: document2,
+      origin_server_ts: 2000,
+      room_id: '!room-id-1',
+    });
+    // send snapshot first
+    widgetApi.mockSendRoomEvent(snapshotEvent2);
+    chunks2.forEach(widgetApi.mockSendRoomEvent);
+
+    await waitFor(() =>
+      expect(
+        documentSnapshotApi.endpoints.getDocumentSnapshot.select({
+          documentId: '$document-0',
+          roomId: '!room-id-1',
         })(store.getState()).data,
       ).toEqual({
         event: snapshotEvent2,

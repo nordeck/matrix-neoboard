@@ -207,6 +207,7 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
         documentValidator: isValidWhiteboardDocument,
         snapshotValidator: isValidWhiteboardDocumentSnapshot,
       },
+      whiteboardEvent.room_id,
     );
 
     return new WhiteboardInstanceImpl(

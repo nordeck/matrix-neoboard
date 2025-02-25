@@ -78,6 +78,7 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
       snapshotValidator: DocumentSnapshotValidator;
       documentValidator: DocumentValidator<T>;
     },
+    private roomId?: string,
   ) {
     communicationChannel
       .observeMessages()
@@ -241,6 +242,8 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
     documentId: string,
     validator?: DocumentSnapshotValidator,
   ) {
+    const roomId = this.roomId;
+
     return new Observable<string>((observer) => {
       const unsubscribe = this.store.subscribe(() => {
         const state = this.store.getState();
@@ -249,6 +252,7 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
           {
             documentId,
             validator,
+            roomId,
           },
         )(state);
 
@@ -283,6 +287,7 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
         documentSnapshotApi.endpoints.getDocumentSnapshot.initiate({
           documentId,
           validator,
+          roomId,
         }),
       );
 
