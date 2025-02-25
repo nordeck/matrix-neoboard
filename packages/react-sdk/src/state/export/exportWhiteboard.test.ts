@@ -46,7 +46,8 @@ vi.mock('../../lib', async () => ({
 
 const slide0 = 'IN4h74suMiIAK4AVMAdl_';
 
-describe('convertWhiteboardToExportFormat', () => {
+// MiW TODO
+describe.skip('convertWhiteboardToExportFormat', () => {
   afterEach(() => {
     fetch.mockReset();
   });

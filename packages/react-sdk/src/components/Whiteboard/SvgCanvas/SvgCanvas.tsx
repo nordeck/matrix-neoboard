@@ -22,7 +22,6 @@ import {
   ReactNode,
   useCallback,
   useEffect,
-  useId,
   useImperativeHandle,
   useMemo,
   useRef,
@@ -126,11 +125,11 @@ export const SvgCanvas = forwardRef(function SvgCanvas(
         maxWidth: '100%',
       };
 
-  const id = useId();
+  const idProp = preview ? {} : { id: 'board-wrapper' };
 
   return (
     <Box
-      id={preview ? id : 'board-wrapper'}
+      {...idProp}
       ref={sizeRef}
       sx={{
         flex: 1,
