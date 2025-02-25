@@ -14,7 +14,16 @@
  * limitations under the License.
  */
 
-export const whiteboardWidth = 1920;
-export const whiteboardHeight = 1080;
+import { infiniteCanvasMode } from '../../model';
+
+export const initialWhiteboardWidth = 1920;
+export const initialWhiteboardHeight = 1080;
+
+export const whiteboardWidth = infiniteCanvasMode ? 19200 : 1920;
+export const whiteboardHeight = infiniteCanvasMode ? 10800 : 1080;
 
 export const gridCellSize = 20;
+
+export const zoomStep = 0.1;
+export const zoomMax = 1;
+export const zoomMin = 0.05;

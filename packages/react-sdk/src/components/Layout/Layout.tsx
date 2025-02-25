@@ -18,6 +18,7 @@ import { TabPanel } from '@mui/base';
 import { Box, Collapse, Slide, Stack, styled } from '@mui/material';
 import { ReactElement, useCallback } from 'react';
 import { useMeasure } from '../../lib';
+import { infiniteCanvasMode } from '../../model';
 import {
   SlideProvider,
   useActiveWhiteboardInstanceSlideIds,
@@ -41,6 +42,8 @@ import { SlideOverviewBar } from '../SlideOverviewBar';
 import { ToolsBar } from '../ToolsBar';
 import { UndoRedoBar } from '../UndoRedoBar';
 import { WhiteboardHost } from '../Whiteboard';
+import { SvgScaleContextProvider } from '../Whiteboard/SvgScaleContext';
+import { ZoomBar } from '../ZoomBar';
 import { PageLoader } from '../common/PageLoader';
 import { SlidesProvider } from './SlidesProvider';
 import { ToolbarCanvasContainer } from './ToolbarCanvasContainer';
@@ -95,6 +98,8 @@ export function Layout({ height = '100vh' }: LayoutProps) {
             height={!isFullscreenMode ? height : '100vh'}
             direction="row"
             bgcolor="background.paper"
+            zIndex="100"
+            position="absolute"
           >
             <AnimatedSidebar
               visible={isSlideOverviewVisible && !isViewingPresentation}
@@ -161,7 +166,7 @@ function ContentArea() {
   const [sizeRef, { width: toolbarWidth }] = useMeasure<HTMLDivElement>();
 
   return (
-    <>
+    <SvgScaleContextProvider>
       <Shortcuts />
 
       <ToolbarContainer
@@ -187,7 +192,12 @@ function ContentArea() {
 
       {(!isViewingPresentation || isViewingPresentationInEditMode) && (
         <ToolbarCanvasContainer ref={sizeRef}>
-          <ToolbarContainer bottom={(theme) => theme.spacing(1)}>
+          <ToolbarContainer
+            position="fixed"
+            bottom={(theme) => theme.spacing(5)}
+          >
+            {infiniteCanvasMode && <ZoomBar />}
+
             <Box flex="1" />
 
             <ToolsBar />
@@ -199,6 +209,6 @@ function ContentArea() {
           </ToolbarContainer>
         </ToolbarCanvasContainer>
       )}
-    </>
+    </SvgScaleContextProvider>
   );
 }

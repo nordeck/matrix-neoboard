@@ -21,6 +21,7 @@ import { Fragment, PropsWithChildren, useState } from 'react';
 import { Provider } from 'react-redux';
 import { BehaviorSubject, NEVER, Subject, of } from 'rxjs';
 import { Mocked, vi } from 'vitest';
+import { SvgScaleContextProvider } from '../../components/Whiteboard/SvgScaleContext';
 import {
   Element,
   ImageElement,
@@ -191,13 +192,15 @@ export function WhiteboardTestingContextProvider({
 }>) {
   const [store] = useState(() => createStore({ widgetApi }));
   return (
-    <WidgetApiMockProvider value={widgetApi}>
-      <Provider store={store}>
-        <WhiteboardManagerProvider whiteboardManager={whiteboardManager}>
-          <ProvideActiveSlide>{children}</ProvideActiveSlide>
-        </WhiteboardManagerProvider>
-      </Provider>
-    </WidgetApiMockProvider>
+    <SvgScaleContextProvider>
+      <WidgetApiMockProvider value={widgetApi}>
+        <Provider store={store}>
+          <WhiteboardManagerProvider whiteboardManager={whiteboardManager}>
+            <ProvideActiveSlide>{children}</ProvideActiveSlide>
+          </WhiteboardManagerProvider>
+        </Provider>
+      </WidgetApiMockProvider>
+    </SvgScaleContextProvider>
   );
 }
 

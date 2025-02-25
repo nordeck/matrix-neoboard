@@ -18,8 +18,8 @@ import { styled, useTheme } from '@mui/material';
 import { CSSProperties, forwardRef } from 'react';
 import { getUserColor } from '../../../lib';
 import { Point } from '../../../state';
-import { useSvgCanvasContext } from '../SvgCanvas';
 import { useMeasure } from '../SvgCanvas/useMeasure';
+import { useSvgScaleContext } from '../SvgScaleContext';
 
 const CursorRoot = styled('g')(({ theme }) => ({
   transition: theme.transitions.create('transform', {
@@ -38,7 +38,7 @@ export const Cursor = forwardRef<
   }
 >(({ userId, position, displayName, style }, ref) => {
   const color = getUserColor(userId);
-  const { scale } = useSvgCanvasContext();
+  const { scale } = useSvgScaleContext();
   const transform = `translate(${position.x}px, ${position.y}px) scale(${
     1 / scale
   })`;

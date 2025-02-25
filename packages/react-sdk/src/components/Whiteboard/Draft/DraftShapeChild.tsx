@@ -15,6 +15,7 @@
  */
 
 import { ComponentType, useCallback, useMemo, useState } from 'react';
+import { defaultTextSize } from '../../../model';
 import {
   Point,
   ShapeElement,
@@ -103,6 +104,7 @@ export const DraftShapeChild = ({
           rounded: activeTool === 'rounded-rectangle' ? true : false,
           textColor,
           textFontFamily: activeFontFamily,
+          textSize: defaultTextSize,
         }),
       );
       setActiveTool('select');
@@ -135,6 +137,7 @@ export const DraftShapeChild = ({
           rounded,
           textColor,
           textFontFamily: activeFontFamily,
+          textSize: defaultTextSize,
         }),
       );
       setActiveTool('select');

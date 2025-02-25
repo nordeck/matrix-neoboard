@@ -79,14 +79,14 @@ describe('<UnSelectElementHandler/>', () => {
     Wrapper = ({ children }) => (
       <LayoutStateProvider>
         <LayoutStateExtractor />
-        <SvgCanvas viewportWidth={200} viewportHeight={200}>
-          <WhiteboardTestingContextProvider
-            whiteboardManager={whiteboardManager}
-            widgetApi={widgetApi}
-          >
+        <WhiteboardTestingContextProvider
+          whiteboardManager={whiteboardManager}
+          widgetApi={widgetApi}
+        >
+          <SvgCanvas viewportWidth={200} viewportHeight={200}>
             {children}
-          </WhiteboardTestingContextProvider>
-        </SvgCanvas>
+          </SvgCanvas>
+        </WhiteboardTestingContextProvider>
       </LayoutStateProvider>
     );
   });

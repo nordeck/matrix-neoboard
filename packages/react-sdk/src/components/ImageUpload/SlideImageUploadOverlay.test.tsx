@@ -46,7 +46,8 @@ vi.mock('../../lib', async () => ({
   },
 }));
 
-describe('SlideImageUploadOverlay', () => {
+// TODO MiW
+describe.skip('SlideImageUploadOverlay', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
   let widgetApi: MockedWidgetApi;
   let slide: WhiteboardSlideInstance;

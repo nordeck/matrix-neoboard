@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Nordeck IT + Consulting GmbH
+ * Copyright 2025 Nordeck IT + Consulting GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,9 @@
  * limitations under the License.
  */
 
-export * from './api';
-export {
-  connectionInfoReducer,
-  setSnapshotLoadFailed,
-  setSnapshotLoadSuccessful,
-  setSnapshotSaveFailed,
-  setSnapshotSaveSuccessful,
-} from './connectionInfoSlice';
+import { getEnvironment } from '@matrix-widget-toolkit/mui';
 
-export { useAppDispatch } from './reduxToolkitHooks';
-export { shapeSizesReducer } from './shapeSizesSlide';
-export { createStore } from './store';
-export type {
-  AppDispatch,
-  RootState,
-  StoreType,
-  ThunkExtraArgument,
-} from './store';
+export const infiniteCanvasMode =
+  getEnvironment('REACT_APP_INFINITE_CANVAS') === 'true';
+
+export const defaultTextSize = infiniteCanvasMode ? 16 : undefined;
