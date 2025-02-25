@@ -20,6 +20,7 @@ export * from './components/connection-state';
 export * from './components/GuidedTour';
 export * from './components/Layout';
 export * from './components/Snackbar';
+export * from './components/Whiteboard';
 export { DraggableStyles } from './components/Whiteboard/ElementBehaviors/Moveable';
 export * from './components/WhiteboardHotkeysProvider';
 export * from './i18n';

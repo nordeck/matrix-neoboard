@@ -34,6 +34,7 @@ import {
   CURSOR_UPDATE_MESSAGE,
   CommunicationChannel,
   CursorUpdate,
+  Message,
   isValidCursorUpdateMessage,
 } from './communication';
 import {
@@ -85,7 +86,9 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
   private readonly cursorPositionSubject = new Subject<Point>();
   private readonly cursorPositionObservable: Observable<Record<string, Point>> =
     combineLatest([
-      this.communicationChannel.observeMessages().pipe(
+      (
+        this.communicationChannel?.observeMessages() ?? new Subject<Message>()
+      ).pipe(
         filter(isValidCursorUpdateMessage),
         filter((m) => m.content.slideId === this.slideId),
         scan(
@@ -115,7 +118,7 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
     );
 
   constructor(
-    private readonly communicationChannel: CommunicationChannel,
+    private readonly communicationChannel: CommunicationChannel | undefined,
     private readonly slideId: string,
     private readonly document: Document<WhiteboardDocument>,
     private readonly userId: string,
@@ -126,20 +129,22 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
         this.activeElementIdsSubject.next(this.getActiveElementIds());
       });
 
-    this.cursorPositionSubject
-      .pipe(
-        takeUntil(this.destroySubject),
-        throttleTime(100, undefined, { leading: true, trailing: true }),
-      )
-      .subscribe((position) => {
-        this.communicationChannel.broadcastMessage<CursorUpdate>(
-          CURSOR_UPDATE_MESSAGE,
-          {
-            slideId: this.slideId,
-            position,
-          },
-        );
-      });
+    if (this.communicationChannel) {
+      this.cursorPositionSubject
+        .pipe(
+          takeUntil(this.destroySubject),
+          throttleTime(100, undefined, { leading: true, trailing: true }),
+        )
+        .subscribe((position) => {
+          this.communicationChannel?.broadcastMessage<CursorUpdate>(
+            CURSOR_UPDATE_MESSAGE,
+            {
+              slideId: this.slideId,
+              position,
+            },
+          );
+        });
+    }
   }
 
   lockSlide() {

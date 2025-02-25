@@ -147,7 +147,7 @@ describe('<PresentBar/>', () => {
     whiteboardManager
       .getActiveWhiteboardInstance()
       ?.getPresentationManager()
-      .startPresentation();
+      ?.startPresentation();
 
     render(<PresentBar />, { wrapper: Wrapper });
 
@@ -258,7 +258,7 @@ describe('<PresentBar/>', () => {
     whiteboardManager
       .getActiveWhiteboardInstance()
       ?.getPresentationManager()
-      .startPresentation();
+      ?.startPresentation();
 
     render(<PresentBar />, { wrapper: Wrapper });
 

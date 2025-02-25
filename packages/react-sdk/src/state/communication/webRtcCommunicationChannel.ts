@@ -43,7 +43,11 @@ import {
 import { Session, SessionManager } from './discovery';
 import { SessionState } from './discovery/sessionManagerImpl';
 import { SignalingChannel } from './signaling';
-import { CommunicationChannel, CommunicationChannelStatistics } from './types';
+import {
+  CommunicationChannel,
+  CommunicationChannelStatistics,
+  emptyCommunicationChannelStatistics,
+} from './types';
 import { observeVisibilityState } from './visibilityState';
 
 export class WebRtcCommunicationChannel implements CommunicationChannel {
@@ -52,10 +56,8 @@ export class WebRtcCommunicationChannel implements CommunicationChannel {
   private readonly messagesSubject = new Subject<Message>();
   private readonly statisticsSubject =
     new Subject<CommunicationChannelStatistics>();
-  private readonly statistics: CommunicationChannelStatistics = {
-    peerConnections: {},
-    sessions: [],
-  };
+  private readonly statistics: CommunicationChannelStatistics =
+    emptyCommunicationChannelStatistics();
   private readonly peerConnections: PeerConnection[] = [];
   private turnServers: TurnServer | undefined;
 

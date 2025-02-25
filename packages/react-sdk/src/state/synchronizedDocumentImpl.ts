@@ -71,16 +71,17 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
   constructor(
     private readonly document: Document<T>,
     private readonly store: StoreType,
-    communicationChannel: CommunicationChannel,
+    communicationChannel: CommunicationChannel | undefined,
     storage: DocumentStorage,
     private documentId: string,
     validation?: {
       snapshotValidator: DocumentSnapshotValidator;
       documentValidator: DocumentValidator<T>;
     },
+    private roomId?: string,
   ) {
     communicationChannel
-      .observeMessages()
+      ?.observeMessages()
       .pipe(
         takeUntil(this.destroySubject),
         filter(isValidDocumentUpdateMessage),
@@ -94,18 +95,20 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
         }
       });
 
-    this.document
-      .observePublish()
-      .pipe(takeUntil(this.destroySubject))
-      .subscribe((change) => {
-        communicationChannel.broadcastMessage<DocumentUpdate>(
-          DOCUMENT_UPDATE_MESSAGE,
-          {
-            documentId,
-            data: Base64.fromUint8Array(change),
-          },
-        );
-      });
+    if (communicationChannel) {
+      this.document
+        .observePublish()
+        .pipe(takeUntil(this.destroySubject))
+        .subscribe((change) => {
+          communicationChannel.broadcastMessage<DocumentUpdate>(
+            DOCUMENT_UPDATE_MESSAGE,
+            {
+              documentId,
+              data: Base64.fromUint8Array(change),
+            },
+          );
+        });
+    }
 
     const storageObservable = from(storage.load(documentId)).pipe(
       filter(isDefined),
@@ -241,6 +244,8 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
     documentId: string,
     validator?: DocumentSnapshotValidator,
   ) {
+    const roomId = this.roomId;
+
     return new Observable<string>((observer) => {
       const unsubscribe = this.store.subscribe(() => {
         const state = this.store.getState();
@@ -249,6 +254,7 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
           {
             documentId,
             validator,
+            roomId,
           },
         )(state);
 
@@ -283,6 +289,7 @@ export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
         documentSnapshotApi.endpoints.getDocumentSnapshot.initiate({
           documentId,
           validator,
+          roomId,
         }),
       );
 
