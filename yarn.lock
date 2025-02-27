@@ -901,7 +901,7 @@
     globby "^11.0.0"
     read-yaml-file "^1.1.0"
 
-"@matrix-widget-toolkit/api@^4.0.0":
+"@matrix-widget-toolkit/api@4.0.0", "@matrix-widget-toolkit/api@^4.0.0":
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/@matrix-widget-toolkit/api/-/api-4.0.0.tgz#12586b353f52eccc13be9708351c76bcf8bb444c"
   integrity sha512-A6VaQw5shEWMoM1qKr+400lTpM13qWnwujS/htftEBV93caKHf3zHfgYcLq55miYgVFrPafaTTnNPxSpHGGPIQ==
@@ -910,7 +910,7 @@
     qs "6.13.1"
     rxjs "7.8.1"
 
-"@matrix-widget-toolkit/mui@^2.1.1":
+"@matrix-widget-toolkit/mui@2.1.1":
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/@matrix-widget-toolkit/mui/-/mui-2.1.1.tgz#12485160d5059ecbd83a3c5ce931ea8784446220"
   integrity sha512-nk9BQvWc9h/NxDY6b19Vgo12JH9VphgTDupLi8e+Z7ufx5/trkPliYUeLjIyyhNiY30/GxiBpR11ZFW56z1K3A==
@@ -931,7 +931,7 @@
     react-i18next "15.1.3"
     react-use "17.5.1"
 
-"@matrix-widget-toolkit/react@^2.0.4":
+"@matrix-widget-toolkit/react@2.0.4", "@matrix-widget-toolkit/react@^2.0.4":
   version "2.0.4"
   resolved "https://registry.yarnpkg.com/@matrix-widget-toolkit/react/-/react-2.0.4.tgz#98d4c71e20242c61ab1f677b6d1df5d40e315e20"
   integrity sha512-CFwY/nF5l3uAYTdLFtpbbCCqO/eGexKAxVUG8ERJ3w0xOZ301eJflrwYpOrBLJXWR3EzxE3u5IH9PNqHPDNqSA==
@@ -941,7 +941,7 @@
     react-error-boundary "4.1.2"
     react-use "17.5.1"
 
-"@matrix-widget-toolkit/testing@^3.0.3":
+"@matrix-widget-toolkit/testing@3.0.3":
   version "3.0.3"
   resolved "https://registry.yarnpkg.com/@matrix-widget-toolkit/testing/-/testing-3.0.3.tgz#a84a0b55ba3e495b2db2f36ed55331ecabe389ed"
   integrity sha512-jc3uFw3qCL/zwICctCeOwbH9R5NhN6oCTvLq6wXK87pz1Gq+cL1b7qeHuzkihGBuLpSWvqX7iA0HcNVPlUs7qw==
@@ -1813,10 +1813,10 @@
   dependencies:
     "@swc/core" "^1.10.15"
 
-"@vitest/coverage-v8@^2.1.8":
-  version "2.1.8"
-  resolved "https://registry.yarnpkg.com/@vitest/coverage-v8/-/coverage-v8-2.1.8.tgz#738527e6e79cef5004248452527e272e0df12284"
-  integrity sha512-2Y7BPlKH18mAZYAW1tYByudlCYrQyl5RGvnnDYJKW5tCiO5qg3KSAy3XAxcxKz900a0ZXxWtKrMuZLe3lKBpJw==
+"@vitest/coverage-v8@^2.1.9":
+  version "2.1.9"
+  resolved "https://registry.yarnpkg.com/@vitest/coverage-v8/-/coverage-v8-2.1.9.tgz#060bebfe3705c1023bdc220e17fdea4bd9e2b24d"
+  integrity sha512-Z2cOr0ksM00MpEfyVE8KXIYPEcBFxdbLSs56L8PO0QQMxt/6bDj45uQfxoc96v05KW3clk7vvgP0qfDit9DmfQ==
   dependencies:
     "@ampproject/remapping" "^2.3.0"
     "@bcoe/v8-coverage" "^0.2.3"
@@ -5053,10 +5053,18 @@ math-intrinsics@^1.1.0:
   resolved "https://registry.yarnpkg.com/math-intrinsics/-/math-intrinsics-1.1.0.tgz#a0dd74be81e2aa5c2f27e65ce283605ee4e2b7f9"
   integrity sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g==
 
-matrix-widget-api@1.10.0, matrix-widget-api@^1.9.0:
+matrix-widget-api@1.10.0:
   version "1.10.0"
   resolved "https://registry.yarnpkg.com/matrix-widget-api/-/matrix-widget-api-1.10.0.tgz#d31ea073a5871a1fb1a511ef900b0c125a37bf55"
   integrity sha512-rkAJ29briYV7TJnfBVLVSKtpeBrBju15JZFSDP6wj8YdbCu1bdmlplJayQ+vYaw1x4fzI49Q+Nz3E85s46sRDw==
+  dependencies:
+    "@types/events" "^3.0.0"
+    events "^3.2.0"
+
+matrix-widget-api@^1.13.0:
+  version "1.13.1"
+  resolved "https://registry.yarnpkg.com/matrix-widget-api/-/matrix-widget-api-1.13.1.tgz#5b1caeed2fc58148bcd2984e0546d2d06a1713ad"
+  integrity sha512-mkOHUVzaN018TCbObfGOSaMW2GoUxOfcxNNlTVx5/HeMk3OSQPQM0C9oEME5Liiv/dBUoSrEB64V8wF7e/gb1w==
   dependencies:
     "@types/events" "^3.0.0"
     events "^3.2.0"
@@ -5776,10 +5784,10 @@ react-i18next@15.1.3:
     "@babel/runtime" "^7.25.0"
     html-parse-stringify "^3.0.1"
 
-react-i18next@^15.4.0:
-  version "15.4.0"
-  resolved "https://registry.yarnpkg.com/react-i18next/-/react-i18next-15.4.0.tgz#87c755fb6d7a567eec134e4759b022a0baacb19e"
-  integrity sha512-Py6UkX3zV08RTvL6ZANRoBh9sL/ne6rQq79XlkHEdd82cZr2H9usbWpUNVadJntIZP2pu3M2rL1CN+5rQYfYFw==
+react-i18next@^15.4.1:
+  version "15.4.1"
+  resolved "https://registry.yarnpkg.com/react-i18next/-/react-i18next-15.4.1.tgz#33f3e89c2f6c68e2bfcbf9aa59986ad42fe78758"
+  integrity sha512-ahGab+IaSgZmNPYXdV1n+OYky95TGpFwnKRflX/16dY04DsYYKHtVLjeny7sBSCREEcoMbAgSkFiGLF5g5Oofw==
   dependencies:
     "@babel/runtime" "^7.25.0"
     html-parse-stringify "^3.0.1"

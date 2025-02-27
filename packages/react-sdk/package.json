@@ -15,9 +15,9 @@
   "type": "module",
   "dependencies": {
     "@fontsource/noto-emoji": "^5.1.1",
-    "@matrix-widget-toolkit/api": "^4.0.0",
-    "@matrix-widget-toolkit/mui": "^2.1.1",
-    "@matrix-widget-toolkit/react": "^2.0.4",
+    "@matrix-widget-toolkit/api": "4.0.0",
+    "@matrix-widget-toolkit/mui": "2.1.1",
+    "@matrix-widget-toolkit/react": "2.0.4",
     "@mui/base": "^5.0.0-beta.68",
     "@mui/icons-material": "^6.3.1",
     "@mui/lab": "^6.0.0-beta.22",
@@ -30,7 +30,7 @@
     "localforage": "^1.10.0",
     "lodash": "^4.17.21",
     "loglevel": "^1.9.2",
-    "matrix-widget-api": "^1.9.0",
+    "matrix-widget-api": "^1.13.0",
     "pdfmake": "^0.2.18",
     "react-beautiful-dnd": "^13.1.1",
     "react-draggable": "^4.4.6",
@@ -45,13 +45,13 @@
     "yjs": "^13.6.23"
   },
   "peerDependencies": {
-    "i18next": "^24.2.1",
+    "i18next": "^24.2.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-i18next": "^15.4.0"
+    "react-i18next": "^15.4.1"
   },
   "devDependencies": {
-    "@matrix-widget-toolkit/testing": "^3.0.3",
+    "@matrix-widget-toolkit/testing": "3.0.3",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
     "@testing-library/user-event": "^14.6.1",
@@ -65,7 +65,7 @@
     "@types/react-redux": "^7.1.34",
     "@types/react-transition-group": "^4.4.12",
     "@types/tinycolor2": "^1.4.6",
-    "@vitest/coverage-v8": "^2.1.8",
+    "@vitest/coverage-v8": "^2.1.9",
     "axe-core": "^4.10.2",
     "depcheck": "^1.4.7",
     "eslint": "^8.57.1",
@@ -75,7 +75,7 @@
     "jsdom": "^25.0.1",
     "pdfjs-dist": "^4.6.82",
     "prettier": "^3.5.2",
-    "react-i18next": "^15.4.0",
+    "react-i18next": "^15.4.1",
     "typescript": "^5.7.3",
     "vite": "^5.4.12",
     "vitest": "^2.1.9",
