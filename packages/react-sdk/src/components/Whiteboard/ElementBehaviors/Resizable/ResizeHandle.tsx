@@ -195,7 +195,7 @@ export type DragEvent = {
 };
 
 export type DragConnectData = {
-  resizePositionName: LineElementHandlePositionName;
+  lineHandlePositionName: LineElementHandlePositionName;
   connectToElementId?: string;
 };
 
@@ -282,7 +282,7 @@ export function ResizeHandle(props: ResizeHandleProps) {
         const connectData = findConnectData(data, scale);
 
         dragConnectData = {
-          resizePositionName: name,
+          lineHandlePositionName: name,
           connectToElementId:
             connectData?.connectElementId && connectData?.connectPoint
               ? connectData?.connectElementId
