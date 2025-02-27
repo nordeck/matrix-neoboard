@@ -57,7 +57,7 @@ describe('lineResizeUpdates', () => {
     } as WhiteboardSlideInstance;
   });
 
-  it('should provide updates when line is resized and no connection point', () => {
+  it('should provide updates when line is resized', () => {
     const element: PathElement = mockLineElement({
       position: { x: 400, y: 400 },
       points: [
@@ -87,7 +87,7 @@ describe('lineResizeUpdates', () => {
     ]);
   });
 
-  it('should provide updates when line is resized and has connection point', () => {
+  it('should provide updates when line is resized to connection point', () => {
     const element: PathElement = mockLineElement({
       position: { x: 300, y: 300 },
       points: [
@@ -124,7 +124,37 @@ describe('lineResizeUpdates', () => {
     ]);
   });
 
-  it('should provide updates when line is resized and no connection point but line and shape are connected', () => {
+  it('should provide updates when line is resized to connection point but shape is not found', () => {
+    const element: PathElement = mockLineElement({
+      position: { x: 300, y: 300 },
+      points: [
+        { x: 0, y: 0 },
+        { x: 400, y: 400 },
+      ],
+    });
+    expect(
+      lineResizeUpdates(
+        slideInstance,
+        'line-id-1',
+        element,
+        'start',
+        'rectangle-id-other',
+      ),
+    ).toStrictEqual([
+      {
+        elementId: 'line-id-1',
+        patch: {
+          position: { x: 300, y: 300 },
+          points: [
+            { x: 0, y: 0 },
+            { x: 400, y: 400 },
+          ],
+        },
+      },
+    ]);
+  });
+
+  it('should provide updates when line is resized by connected position', () => {
     slideElements = {
       ['rectangle-id']: mockRectangleElement({
         position: { x: 100, y: 100 },
@@ -146,7 +176,7 @@ describe('lineResizeUpdates', () => {
       position: { x: 200, y: 200 },
       points: [
         { x: 0, y: 0 },
-        { x: 300, y: 300 },
+        { x: 500, y: 500 },
       ],
       connectedElementStart: 'rectangle-id',
     });
@@ -165,7 +195,7 @@ describe('lineResizeUpdates', () => {
           position: { x: 200, y: 200 },
           points: [
             { x: 0, y: 0 },
-            { x: 300, y: 300 },
+            { x: 500, y: 500 },
           ],
           connectedElementStart: undefined,
         },
@@ -174,6 +204,344 @@ describe('lineResizeUpdates', () => {
         elementId: 'rectangle-id',
         patch: {
           connectedPaths: undefined,
+        },
+      },
+    ]);
+  });
+
+  it('should provide updates when line is resized by connected position to connection point of another shape', () => {
+    slideElements = {
+      ['rectangle-id']: mockRectangleElement({
+        position: { x: 100, y: 100 },
+        width: 200,
+        height: 200,
+        connectedPaths: ['line-id-1'],
+      }),
+      ['rectangle-id-2']: mockRectangleElement({
+        position: { x: 200, y: 200 },
+        width: 200,
+        height: 200,
+      }),
+      ['line-id-1']: mockLineElement({
+        position: { x: 300, y: 300 },
+        points: [
+          { x: 0, y: 0 },
+          { x: 400, y: 400 },
+        ],
+        connectedElementStart: 'rectangle-id',
+      }),
+    };
+
+    const element: PathElement = mockLineElement({
+      position: { x: 200, y: 200 },
+      points: [
+        { x: 0, y: 0 },
+        { x: 500, y: 500 },
+      ],
+      connectedElementStart: 'rectangle-id',
+    });
+    expect(
+      lineResizeUpdates(
+        slideInstance,
+        'line-id-1',
+        element,
+        'start',
+        'rectangle-id-2',
+      ),
+    ).toStrictEqual([
+      {
+        elementId: 'line-id-1',
+        patch: {
+          position: { x: 200, y: 200 },
+          points: [
+            { x: 0, y: 0 },
+            { x: 500, y: 500 },
+          ],
+          connectedElementStart: 'rectangle-id-2',
+        },
+      },
+      {
+        elementId: 'rectangle-id-2',
+        patch: {
+          connectedPaths: ['line-id-1'],
+        },
+      },
+      {
+        elementId: 'rectangle-id',
+        patch: {
+          connectedPaths: undefined,
+        },
+      },
+    ]);
+  });
+
+  it('should provide updates when line is resized by connected position to connection point of the same shape', () => {
+    slideElements = {
+      ['rectangle-id']: mockRectangleElement({
+        position: { x: 100, y: 100 },
+        width: 200,
+        height: 200,
+        connectedPaths: ['line-id-1'],
+      }),
+      ['line-id-1']: mockLineElement({
+        position: { x: 300, y: 300 },
+        points: [
+          { x: 0, y: 0 },
+          { x: 400, y: 400 },
+        ],
+        connectedElementStart: 'rectangle-id',
+      }),
+    };
+
+    const element: PathElement = mockLineElement({
+      position: { x: 100, y: 100 },
+      points: [
+        { x: 0, y: 0 },
+        { x: 600, y: 600 },
+      ],
+      connectedElementStart: 'rectangle-id',
+    });
+    expect(
+      lineResizeUpdates(
+        slideInstance,
+        'line-id-1',
+        element,
+        'start',
+        'rectangle-id',
+      ),
+    ).toStrictEqual([
+      {
+        elementId: 'line-id-1',
+        patch: {
+          position: { x: 100, y: 100 },
+          points: [
+            { x: 0, y: 0 },
+            { x: 600, y: 600 },
+          ],
+        },
+      },
+    ]);
+  });
+
+  it('should provide updates when connected line is resized to connection point of the same connected shape using not connected position', () => {
+    slideElements = {
+      ['rectangle-id']: mockRectangleElement({
+        position: { x: 100, y: 100 },
+        width: 200,
+        height: 200,
+        connectedPaths: ['line-id-1'],
+      }),
+      ['line-id-1']: mockLineElement({
+        position: { x: 100, y: 100 },
+        points: [
+          { x: 0, y: 0 },
+          { x: 600, y: 600 },
+        ],
+        connectedElementStart: 'rectangle-id',
+      }),
+    };
+
+    const element: PathElement = mockLineElement({
+      position: { x: 100, y: 100 },
+      points: [
+        { x: 0, y: 0 },
+        { x: 300, y: 300 },
+      ],
+      connectedElementStart: 'rectangle-id',
+    });
+    expect(
+      lineResizeUpdates(
+        slideInstance,
+        'line-id-1',
+        element,
+        'end',
+        'rectangle-id',
+      ),
+    ).toStrictEqual([
+      {
+        elementId: 'line-id-1',
+        patch: {
+          position: { x: 100, y: 100 },
+          points: [
+            { x: 0, y: 0 },
+            { x: 300, y: 300 },
+          ],
+          connectedElementEnd: 'rectangle-id',
+        },
+      },
+      {
+        elementId: 'rectangle-id',
+        patch: {
+          connectedPaths: ['line-id-1', 'line-id-1'],
+        },
+      },
+    ]);
+  });
+
+  it('should provide updates when connected with both positions to same shape line is resized', () => {
+    slideElements = {
+      ['rectangle-id']: mockRectangleElement({
+        position: { x: 100, y: 100 },
+        width: 200,
+        height: 200,
+        connectedPaths: ['line-id-1', 'line-id-1'],
+      }),
+      ['line-id-1']: mockLineElement({
+        position: { x: 100, y: 100 },
+        points: [
+          { x: 0, y: 0 },
+          { x: 300, y: 300 },
+        ],
+        connectedElementStart: 'rectangle-id',
+        connectedElementEnd: 'rectangle-id',
+      }),
+    };
+
+    const element: PathElement = mockLineElement({
+      position: { x: 100, y: 100 },
+      points: [
+        { x: 0, y: 0 },
+        { x: 600, y: 600 },
+      ],
+      connectedElementStart: 'rectangle-id',
+      connectedElementEnd: 'rectangle-id',
+    });
+    expect(
+      lineResizeUpdates(slideInstance, 'line-id-1', element, 'end', undefined),
+    ).toStrictEqual([
+      {
+        elementId: 'line-id-1',
+        patch: {
+          position: { x: 100, y: 100 },
+          points: [
+            { x: 0, y: 0 },
+            { x: 600, y: 600 },
+          ],
+          connectedElementEnd: undefined,
+        },
+      },
+      {
+        elementId: 'rectangle-id',
+        patch: {
+          connectedPaths: ['line-id-1'],
+        },
+      },
+    ]);
+  });
+
+  it('should provide updates when connected with both positions to same shape line is resized to connection point of another shape', () => {
+    slideElements = {
+      ['rectangle-id']: mockRectangleElement({
+        position: { x: 100, y: 100 },
+        width: 200,
+        height: 200,
+        connectedPaths: ['line-id-1', 'line-id-1'],
+      }),
+      ['line-id-1']: mockLineElement({
+        position: { x: 100, y: 100 },
+        points: [
+          { x: 0, y: 0 },
+          { x: 300, y: 300 },
+        ],
+        connectedElementStart: 'rectangle-id',
+        connectedElementEnd: 'rectangle-id',
+      }),
+      ['rectangle-id-2']: mockRectangleElement({
+        position: { x: 200, y: 200 },
+        width: 200,
+        height: 200,
+      }),
+    };
+
+    const element: PathElement = mockLineElement({
+      position: { x: 100, y: 100 },
+      points: [
+        { x: 0, y: 0 },
+        { x: 100, y: 100 },
+      ],
+      connectedElementStart: 'rectangle-id',
+      connectedElementEnd: 'rectangle-id',
+    });
+    expect(
+      lineResizeUpdates(
+        slideInstance,
+        'line-id-1',
+        element,
+        'end',
+        'rectangle-id-2',
+      ),
+    ).toStrictEqual([
+      {
+        elementId: 'line-id-1',
+        patch: {
+          position: { x: 100, y: 100 },
+          points: [
+            { x: 0, y: 0 },
+            { x: 100, y: 100 },
+          ],
+          connectedElementEnd: 'rectangle-id-2',
+        },
+      },
+      {
+        elementId: 'rectangle-id-2',
+        patch: {
+          connectedPaths: ['line-id-1'],
+        },
+      },
+      {
+        elementId: 'rectangle-id',
+        patch: {
+          connectedPaths: ['line-id-1'],
+        },
+      },
+    ]);
+  });
+
+  it('should provide updates when connected with both positions to same shape line is resized to connection point of the same shape', () => {
+    slideElements = {
+      ['rectangle-id']: mockRectangleElement({
+        position: { x: 100, y: 100 },
+        width: 200,
+        height: 200,
+        connectedPaths: ['line-id-1', 'line-id-1'],
+      }),
+      ['line-id-1']: mockLineElement({
+        position: { x: 100, y: 100 },
+        points: [
+          { x: 0, y: 0 },
+          { x: 300, y: 300 },
+        ],
+        connectedElementStart: 'rectangle-id',
+        connectedElementEnd: 'rectangle-id',
+      }),
+    };
+
+    const element: PathElement = mockLineElement({
+      position: { x: 100, y: 100 },
+      points: [
+        { x: 0, y: 0 },
+        { x: 0, y: 300 },
+      ],
+      connectedElementStart: 'rectangle-id',
+      connectedElementEnd: 'rectangle-id',
+    });
+    expect(
+      lineResizeUpdates(
+        slideInstance,
+        'line-id-1',
+        element,
+        'end',
+        'rectangle-id',
+      ),
+    ).toStrictEqual([
+      {
+        elementId: 'line-id-1',
+        patch: {
+          position: { x: 100, y: 100 },
+          points: [
+            { x: 0, y: 0 },
+            { x: 0, y: 300 },
+          ],
         },
       },
     ]);
