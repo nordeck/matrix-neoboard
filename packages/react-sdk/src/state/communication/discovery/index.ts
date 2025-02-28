@@ -14,5 +14,7 @@
  * limitations under the License.
  */
 
+export { RTCSessionManagerImpl } from './matrixRtcSessionManagerImpl';
+
 export { SessionManagerImpl } from './sessionManagerImpl';
 export type { Session, SessionManager } from './types';
