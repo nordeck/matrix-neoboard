@@ -12,7 +12,7 @@
     "@eslint/js": "^9.21.0",
     "depcheck": "^1.4.7",
     "eslint": "^8.57.1",
-    "eslint-config-prettier": "^9.1.0",
+    "eslint-config-prettier": "^10.0.2",
     "eslint-plugin-notice": "^1.0.0",
     "eslint-plugin-promise": "^7.2.1",
     "eslint-plugin-react": "^7.37.4",
@@ -25,7 +25,7 @@
     "prettier-plugin-organize-imports": "^4.1.0",
     "typescript-eslint": "^8.25.0",
     "typescript": "^5.7.3",
-    "vitest": "^2.1.9",
+    "vitest": "^3.0.7",
     "yarn-deduplicate": "^6.0.2"
   },
   "resolutions": {
