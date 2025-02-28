@@ -24,7 +24,7 @@ jobs:
         with:
           ref: dev
           sparse-checkout: |
-            /cluster/neotoolsuite-dev/neoboard/values-neotoolsuite-dev.yaml
+            /cluster/neotoolsuite-stage/neoboard/values-neotoolsuite-stage.yaml
           sparse-checkout-cone-mode: false
           repository: nordeck/valhalla
           token: ${{ secrets.PACKAGE_TOKEN }}
@@ -44,7 +44,7 @@ jobs:
           KUBE_CONFIG_DATA: ${{ secrets.KUBECONFIG_NEOTOOLSUITE_STAGE }}
         with:
           args: |
-            helm upgrade --install neoboard ./charts/matrix-neoboard-widget -f ./valhalla/cluster/neotoolsuite-dev/neoboard/values-neotoolsuite-dev.yaml -n matrix -set image.tag=${{ github.event.inputs.image_tag }}
+            helm upgrade --install neoboard ./charts/matrix-neoboard-widget -f ./valhalla/cluster/neotoolsuite-stage/neoboard/values-neotoolsuite-stage.yaml -n matrix -set image.tag=${{ github.event.inputs.image_tag }}
 
       - name: restart rollout
         uses: wahyd4/kubectl-helm-action@master
