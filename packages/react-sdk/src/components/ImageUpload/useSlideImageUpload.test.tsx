@@ -37,8 +37,7 @@ import { readFileAsFile } from './imageTestUtils';
 import { ImageUploadProvider } from './ImageUploadProvider';
 import { useSlideImageUpload } from './useSlideImageUpload';
 
-vi.mock('../../lib', async () => ({
-  ...(await vi.importActual<typeof import('../../lib')>('../../lib')),
+vi.mock('../../lib/determineImageSize', async () => ({
   determineImageSize: () => {
     // Always return a static value here, because js-dom doesn't implement Image.
     return Promise.resolve({ width: 40, height: 20 });

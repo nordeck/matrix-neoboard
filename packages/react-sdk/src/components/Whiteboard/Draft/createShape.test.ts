@@ -308,4 +308,29 @@ describe('createShapeFromPoints', () => {
       textFontFamily: 'Inter',
     });
   });
+
+  it('should create a shape with a text size', () => {
+    const result = createShape({
+      kind: 'rectangle',
+      startCoords: { x: 10, y: 20 },
+      endCoords: { x: 30, y: 40 },
+      fillColor: '#ffffff',
+      textColor: '#ff0000',
+      textFontFamily: 'Inter',
+      textSize: 23,
+    });
+
+    expect(result).toEqual({
+      width: 20,
+      height: 20,
+      position: { x: 10, y: 20 },
+      type: 'shape',
+      kind: 'rectangle',
+      text: '',
+      fillColor: '#ffffff',
+      textColor: '#ff0000',
+      textFontFamily: 'Inter',
+      textSize: 23,
+    });
+  });
 });

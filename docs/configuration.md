@@ -20,6 +20,9 @@ REACT_APP_DEVTOOLS=true
 
 # Indicate if the widget is embedded in standalone mode to hide the about button
 REACT_APP_EMBEDDED=false
+
+# Whether to use infinite canvas (under development)
+REACT_APP_INFINITE_CANVAS=false
 ```
 
 ### Customization

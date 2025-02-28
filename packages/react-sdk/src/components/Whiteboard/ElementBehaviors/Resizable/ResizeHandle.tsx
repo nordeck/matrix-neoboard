@@ -19,6 +19,7 @@ import { DraggableCore, DraggableData, DraggableEvent } from 'react-draggable';
 import { Point } from '../../../../state';
 import { useConnectionPoint } from '../../../ConnectionPointProvider';
 import { useSvgCanvasContext } from '../../SvgCanvas';
+import { useSvgScaleContext } from '../../SvgScaleContext';
 import { HandlePosition, LineElementHandlePositionName } from './types';
 import { isLineElementHandlePosition } from './utils';
 
@@ -208,9 +209,10 @@ export type ResizeHandleProps = {
 
 export function ResizeHandle(props: ResizeHandleProps) {
   const nodeRef = useRef<SVGRectElement>(null);
-  const { scale, calculateSvgCoords } = useSvgCanvasContext();
   const { isHandleDragging, setIsHandleDragging, setConnectElementId } =
     useConnectionPoint();
+  const { calculateSvgCoords } = useSvgCanvasContext();
+  const { scale } = useSvgScaleContext();
 
   const {
     position: { name },

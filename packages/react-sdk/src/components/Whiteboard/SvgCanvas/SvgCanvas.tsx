@@ -16,17 +16,27 @@
 
 import { Box, styled } from '@mui/material';
 import {
+  forwardRef,
   MouseEventHandler,
   PropsWithChildren,
   ReactNode,
   useCallback,
+  useEffect,
+  useImperativeHandle,
   useMemo,
   useRef,
+  WheelEventHandler,
 } from 'react';
 import { Point } from '../../../state';
+import {
+  infiniteCanvasMode,
+  whiteboardHeight,
+  whiteboardWidth,
+} from '../constants';
+import { useSvgScaleContext } from '../SvgScaleContext';
 import { SvgCanvasContext, SvgCanvasContextType } from './context';
 import { useMeasure } from './useMeasure';
-import { calculateScale, calculateSvgCoords } from './utils';
+import { calculateSvgCoords } from './utils';
 
 const Canvas = styled('svg', {
   shouldForwardProp: (p) => p !== 'rounded' && p !== 'sx',
@@ -43,23 +53,35 @@ export type SvgCanvasProps = PropsWithChildren<{
   rounded?: boolean;
   additionalChildren?: ReactNode;
   withOutline?: boolean;
+  preview?: boolean;
 
   onMouseDown?: MouseEventHandler<SVGSVGElement> | undefined;
   onMouseMove?: (position: Point) => void | undefined;
+  onWheel?: WheelEventHandler;
 }>;
 
-export function SvgCanvas({
-  viewportHeight,
-  viewportWidth,
-  children,
-  rounded,
-  additionalChildren,
-  withOutline,
-  onMouseDown,
-  onMouseMove,
-}: SvgCanvasProps) {
+export const SvgCanvas = forwardRef(function SvgCanvas(
+  {
+    viewportHeight,
+    viewportWidth,
+    children,
+    rounded,
+    additionalChildren,
+    withOutline,
+    onMouseDown,
+    onMouseMove,
+    preview,
+    onWheel,
+  }: SvgCanvasProps,
+  forwardedRef,
+) {
   const [sizeRef, { width, height }] = useMeasure<HTMLDivElement>();
   const svgRef = useRef<SVGSVGElement>(null);
+  const { scale, translation, setContainerDimensions } = useSvgScaleContext();
+
+  // by that svgRef can be used here, while also forwarding the ref
+  useImperativeHandle(forwardedRef, () => svgRef.current);
+
   const calculateSvgCoordsFunc = useCallback(
     (position: Point) => {
       if (!svgRef.current) {
@@ -77,11 +99,14 @@ export function SvgCanvas({
       height,
       viewportWidth,
       viewportHeight,
-      scale: calculateScale(width, height, viewportWidth, viewportHeight),
       calculateSvgCoords: calculateSvgCoordsFunc,
     }),
     [calculateSvgCoordsFunc, height, viewportHeight, viewportWidth, width],
   );
+
+  useEffect(() => {
+    setContainerDimensions({ width, height });
+  }, [width, height, setContainerDimensions]);
 
   const handleMouseMove: MouseEventHandler<SVGSVGElement> = useCallback(
     (e) => {
@@ -98,20 +123,31 @@ export function SvgCanvas({
 
   const aspectRatio = `${viewportWidth} / ${viewportHeight}`;
 
+  const boxSx = preview
+    ? {}
+    : {
+        maxWidth: '100%',
+      };
+
+  const idProp = preview ? {} : { id: 'board-wrapper' };
+
   return (
     <Box
+      {...idProp}
+      ref={sizeRef}
       sx={{
         flex: 1,
-        maxWidth: '100%',
         aspectRatio,
         position: 'relative',
+        ...boxSx,
+        ...(infiniteCanvasMode ? {} : { overflow: 'hidden' }),
       }}
     >
       <Box
-        ref={sizeRef}
         sx={
           withOutline
             ? {
+                overflow: 'hidden',
                 '&::after': {
                   content: '""',
                   position: 'absolute',
@@ -126,17 +162,38 @@ export function SvgCanvas({
                   pointerEvents: 'none',
                 },
               }
-            : {}
+            : preview
+              ? {}
+              : {
+                  position: 'relative',
+                  top: `-${whiteboardHeight / 2}px`,
+                  left: `-${whiteboardWidth / 2}px`,
+                }
         }
       >
         <SvgCanvasContext.Provider value={value}>
           <Canvas
             ref={svgRef}
             rounded={rounded}
-            sx={{ aspectRatio }}
+            sx={{
+              aspectRatio,
+              ...(preview
+                ? {}
+                : {
+                    width: `${whiteboardWidth}px`,
+                    height: `${whiteboardHeight}px`,
+                  }),
+            }}
             viewBox={`0 0 ${viewportWidth} ${viewportHeight}`}
             onMouseDown={onMouseDown}
             onMouseMove={handleMouseMove}
+            onWheel={onWheel}
+            transform-origin="center center"
+            transform={
+              !preview
+                ? `translate(${translation.x}, ${translation.y}) scale(${scale})`
+                : ''
+            }
           >
             {children}
           </Canvas>
@@ -145,4 +202,4 @@ export function SvgCanvas({
       </Box>
     </Box>
   );
-}
+});
