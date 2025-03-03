@@ -87,16 +87,16 @@ describe('<DragSelect/>', () => {
     Wrapper = ({ children }) => (
       <LayoutStateProvider>
         <LayoutStateExtractor />
-        <SvgCanvas viewportWidth={200} viewportHeight={200}>
-          <WhiteboardHotkeysProvider>
-            <WhiteboardTestingContextProvider
-              whiteboardManager={whiteboardManager}
-              widgetApi={widgetApi}
-            >
+        <WhiteboardHotkeysProvider>
+          <WhiteboardTestingContextProvider
+            whiteboardManager={whiteboardManager}
+            widgetApi={widgetApi}
+          >
+            <SvgCanvas viewportWidth={200} viewportHeight={200}>
               {children}
-            </WhiteboardTestingContextProvider>
-          </WhiteboardHotkeysProvider>
-        </SvgCanvas>
+            </SvgCanvas>
+          </WhiteboardTestingContextProvider>
+        </WhiteboardHotkeysProvider>
       </LayoutStateProvider>
     );
   });

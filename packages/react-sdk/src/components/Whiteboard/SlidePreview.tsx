@@ -16,10 +16,11 @@
 
 import { Box } from '@mui/material';
 import { useIsWhiteboardLoading, useSlideElementIds } from '../../state';
+import { whiteboardHeight, whiteboardWidth } from './constants';
 import { ConnectedElement } from './Element';
 import { SlideSkeleton } from './SlideSkeleton';
 import { SvgCanvas } from './SvgCanvas';
-import { whiteboardHeight, whiteboardWidth } from './constants';
+import { SvgScaleContextProvider } from './SvgScaleContext';
 
 export function SlidePreview() {
   const { loading } = useIsWhiteboardLoading();
@@ -30,14 +31,17 @@ export function SlidePreview() {
       {loading ? (
         <SlideSkeleton />
       ) : (
-        <SvgCanvas
-          viewportHeight={whiteboardHeight}
-          viewportWidth={whiteboardWidth}
-        >
-          {elementIds.map((e) => {
-            return <ConnectedElement id={e} key={e} readOnly />;
-          })}
-        </SvgCanvas>
+        <SvgScaleContextProvider>
+          <SvgCanvas
+            viewportHeight={whiteboardHeight}
+            viewportWidth={whiteboardWidth}
+            preview={true}
+          >
+            {elementIds.map((e) => {
+              return <ConnectedElement id={e} key={e} readOnly />;
+            })}
+          </SvgCanvas>
+        </SvgScaleContextProvider>
       )}
     </Box>
   );

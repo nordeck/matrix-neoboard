@@ -39,8 +39,7 @@ import { exportWhiteboard } from './exportWhiteboard';
 const fetch = global.fetch as FetchMock;
 
 // mock convertBlobToBase64 because testing with FileReader is painful
-vi.mock('../../lib', async () => ({
-  ...(await vi.importActual<typeof import('../../lib')>('../../lib')),
+vi.mock('../../lib/convertBlobToBase64', async () => ({
   convertBlobToBase64: vi.fn(),
 }));
 

@@ -342,5 +342,11 @@
   "uploadBar": {
     "title": "Upload",
     "upload": "Upload"
+  },
+  "zoomBar": {
+    "reset": "Reset zoom to 100 %",
+    "title": "Zoom controls",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out"
   }
 }

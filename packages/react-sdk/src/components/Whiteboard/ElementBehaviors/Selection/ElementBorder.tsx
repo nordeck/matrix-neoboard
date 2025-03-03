@@ -19,7 +19,7 @@ import { calculateBoundingRectForElements } from '../../../../state';
 import { useElementOverrides } from '../../../ElementOverridesProvider';
 import { useLayoutState } from '../../../Layout';
 import { getRenderProperties } from '../../../elements/line/getRenderProperties';
-import { useSvgCanvasContext } from '../../SvgCanvas';
+import { useSvgScaleContext } from '../../SvgScaleContext';
 
 function SelectionAnchor({
   x,
@@ -31,7 +31,7 @@ function SelectionAnchor({
   borderWidth: number;
 }) {
   const theme = useTheme();
-  const { scale } = useSvgCanvasContext();
+  const { scale } = useSvgScaleContext();
   const selectionAnchorFill = 'white';
   const selectionAnchorCornerRadius = 3 / scale;
   const selectionAnchorSize = 10 / scale;
@@ -60,8 +60,7 @@ export function ElementBorder({ elementIds, padding = 1 }: ElementBorderProps) {
   const theme = useTheme();
   const { activeTool } = useLayoutState();
   const isInSelectionMode = activeTool === 'select';
-  const { scale } = useSvgCanvasContext();
-
+  const { scale } = useSvgScaleContext();
   const elements = Object.values(useElementOverrides(elementIds));
   const {
     offsetX: x,

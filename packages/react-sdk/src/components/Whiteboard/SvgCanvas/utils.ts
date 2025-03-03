@@ -26,14 +26,3 @@ export function calculateSvgCoords(position: Point, svg: SVGSVGElement) {
     y: floats.y,
   };
 }
-
-export function calculateScale(
-  width: number,
-  height: number,
-  viewportWidth: number,
-  viewportHeight: number,
-): number {
-  const widthRatio = width / viewportWidth;
-  const heightRatio = height / viewportHeight;
-  return Math.max(widthRatio, heightRatio);
-}

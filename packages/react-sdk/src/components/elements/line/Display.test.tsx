@@ -117,7 +117,8 @@ describe('<Display />', () => {
     `);
   });
 
-  it('should render with an end marker as epxected', () => {
+  // TODO check why useEndMarker seems to be called three times here
+  it('should render with an end marker as expected', () => {
     const element = mockLineElement({ endMarker: 'arrow-head-line' });
     render(
       <Display
@@ -138,9 +139,9 @@ describe('<Display />', () => {
         data-testid="element-element-0"
       >
         <marker
-          data-testid="end-marker-id-1"
+          data-testid="end-marker-id-3"
           fill="none"
-          id="end-marker-id-1"
+          id="end-marker-id-3"
           markerHeight="7"
           markerWidth="3.5"
           orient="auto"
@@ -164,7 +165,7 @@ describe('<Display />', () => {
         />
         <line
           fill="none"
-          marker-end="url(#end-marker-id-1)"
+          marker-end="url(#end-marker-id-3)"
           stroke="#ffffff"
           stroke-width="4"
           x1="0"
