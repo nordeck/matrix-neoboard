@@ -92,7 +92,7 @@ export function createWhiteboardManager(
   const signalingChannel = new ToDeviceMessageSignalingChannel(
     widgetApiPromise,
   );
-  const matrixrtc = getEnvironment('REACT_APP_RTC') === 'matrixrtc';
+  const matrixrtc = getEnvironment('REACT_APP_RTC') === 'matrixrtc' || true; // TODO: Change this upon PR review, only used for PR deployment testing
 
   const sessionManager = new SessionManagerImpl(widgetApiPromise);
   const rtcSessionManager = new RTCSessionManagerImpl(widgetApiPromise);
