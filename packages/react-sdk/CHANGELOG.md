@@ -1,5 +1,13 @@
 # @nordeck/matrix-neoboard-react-sdk
 
+## 1.2.0
+
+### Minor Changes
+
+- a523436: Use room id of selected whiteboard event to load document snapshots.
+- c8348bd: Provide option to create whiteboard manager with disabled RTC communication.
+- d9a5026: Export SlideSkeleton component.
+
 ## 1.1.0
 
 ### Minor Changes

@@ -1,5 +1,14 @@
 # @nordeck/matrix-neoboard-widget
 
+## 2.1.1
+
+### Patch Changes
+
+- Updated dependencies [a523436]
+- Updated dependencies [c8348bd]
+- Updated dependencies [d9a5026]
+  - @nordeck/matrix-neoboard-react-sdk@1.2.0
+
 ## 2.1.0
 
 ### Minor Changes
