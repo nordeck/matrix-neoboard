@@ -1,5 +1,31 @@
 # @nordeck/matrix-neoboard-react-sdk
 
+## 1.1.0
+
+### Minor Changes
+
+- a9e09e2: Add placeholder for PDF export when image is not available
+- eb347cf: Show information dialog when snapshot loading fails
+- 535f498: Users can now select from six new shape fonts (Abel, Actor, Adamina, Chewy, Gwendolyn and Pirata One), in addition to the default "Inter" one.
+- 44de4fb: Connect shapes with lines / arrows. Move and resize connected elements.
+- 59be7de: Images can now be added by pasting them from the clipboard
+
+### Patch Changes
+
+- ce6d2a7: Implement relative padding for shapes with width/height below 40px and ensure text elements remain visible on small sizes.
+- 6590bb1: Pasting text creates a rectangle with a transparent instead of a white background
+- 6b4db98: Images no longer disappear when presentation mode is activated. This often happened with Chromium-based browsers, but sometimes also with others.
+- f7b18f2: Duplicate shape or selection with hotkey (CTRL+D / CMD+D)
+- 33a2830: Fix line resize to disconnect from the connected shape when connect to another shape.
+- 2c29529: On PDF export texts do no longer overflow shapes. Lines, that would be cut off are not printed at all.
+- d9092fc: If selecting a tool, the current elements become unselected, so that they do not disturb creation of new elements
+- b82d827: Pins cross-spawn and nanoid packages to latest verisons to fix CVE-2024-21538 and CVE-2024-55565
+- b7c6995: Enhance the interactivity of arrows and lines by increasing the clickable area around them
+- e1004fe: Only show text tools when applicable
+- a2043c9: Minor and patch dependencies updated. Widget Server updated to latest 1.1.1"
+- fb092da: Show cursors of collaborators by default
+- cd8480b: Shapes now have a minimum size enforced when creating or loading
+
 ## 1.0.0
 
 ### Major Changes

@@ -149,14 +149,13 @@ export function ResizeElement({ elementIds }: ResizeElementProps) {
         const elementId = Object.keys(elements)[0];
         const element = Object.values(elements)[0] as PathElement;
 
-        const position = connectData.resizePositionName;
-        const connectToElementId = connectData.connectToElementId;
+        const { lineHandlePositionName, connectToElementId } = connectData;
 
         updates = lineResizeUpdates(
           slideInstance,
           elementId,
           element,
-          position,
+          lineHandlePositionName,
           connectToElementId,
         );
       } else {
