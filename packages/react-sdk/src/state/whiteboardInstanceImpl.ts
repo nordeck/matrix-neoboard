@@ -192,7 +192,7 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
     whiteboardEvent: StateEvent<Whiteboard>,
     userId: string,
   ): WhiteboardInstanceImpl {
-    const matrixrtc = getEnvironment('REACT_APP_RTC') === 'matrixrtc';
+    const matrixrtc = getEnvironment('REACT_APP_RTC') === 'matrixrtc' || true; // TODO: Change this upon PR review, only used for PR deployment testing
 
     const enableObserveVisibilityStateSubject = new BehaviorSubject(true);
 
