@@ -107,7 +107,7 @@ export const widgetCapabilities = [
   WidgetApiFromWidgetAction.MSC4039DownloadFileAction,
 ];
 
-const matrixrtc = getEnvironment('REACT_APP_RTC') === 'matrixrtc';
+const matrixrtc = getEnvironment('REACT_APP_RTC') === 'matrixrtc' || true; // TODO: Change this upon PR review, only used for PR deployment testing
 
 if (matrixrtc) {
   widgetCapabilities.push(
