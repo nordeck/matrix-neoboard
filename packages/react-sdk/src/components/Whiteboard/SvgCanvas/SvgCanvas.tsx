@@ -131,6 +131,23 @@ export const SvgCanvas = forwardRef(function SvgCanvas(
 
   const idProp = preview ? {} : { id: 'board-wrapper' };
 
+  const innerBoxSx = preview
+    ? {}
+    : {
+        position: 'relative',
+        top: `-${whiteboardHeight / 2}px`,
+        left: `-${whiteboardWidth / 2}px`,
+      };
+
+  const outlineSx = withOutline
+    ? {
+        borderWidth: 2,
+        borderStyle: 'solid',
+        borderColor: 'primary.main',
+        borderRadius: 1,
+      }
+    : {};
+
   return (
     <Box
       {...idProp}
@@ -143,40 +160,14 @@ export const SvgCanvas = forwardRef(function SvgCanvas(
         ...(infiniteCanvasMode ? {} : { overflow: 'hidden' }),
       }}
     >
-      <Box
-        sx={
-          withOutline
-            ? {
-                overflow: 'hidden',
-                '&::after': {
-                  content: '""',
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  width,
-                  height,
-                  borderWidth: 2,
-                  borderStyle: 'solid',
-                  borderColor: 'primary.main',
-                  borderRadius: 1,
-                  pointerEvents: 'none',
-                },
-              }
-            : preview
-              ? {}
-              : {
-                  position: 'relative',
-                  top: `-${whiteboardHeight / 2}px`,
-                  left: `-${whiteboardWidth / 2}px`,
-                }
-        }
-      >
+      <Box sx={innerBoxSx}>
         <SvgCanvasContext.Provider value={value}>
           <Canvas
             ref={svgRef}
             rounded={rounded}
             sx={{
               aspectRatio,
+              ...outlineSx,
               ...(preview
                 ? {}
                 : {
