@@ -73,7 +73,7 @@ describe('PresentationShortcuts', () => {
   );
 
   it('when presenting, it should change the slides by arrow keys and space', async () => {
-    activeWhiteboardInstance.getPresentationManager().startPresentation();
+    activeWhiteboardInstance.getPresentationManager()?.startPresentation();
     render(<PresentationShortcuts />, { wrapper: Wrapper });
 
     // Navigate forward with right arrow key

@@ -198,7 +198,7 @@ describe('<WhiteboardHost/>', () => {
 
   it('should show the grid for the presenter in presentation mode if it is enabled', () => {
     setShowGrid(true);
-    activeWhiteboard.getPresentationManager().startPresentation();
+    activeWhiteboard.getPresentationManager()?.startPresentation();
 
     render(<WhiteboardHost />, { wrapper: Wrapper });
 

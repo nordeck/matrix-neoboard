@@ -39,8 +39,8 @@ export class WhiteboardManagerImpl implements WhiteboardManager {
   constructor(
     private readonly store: StoreType,
     private readonly widgetApiPromise: Promise<WidgetApi>,
-    private readonly sessionManager: SessionManager,
-    private readonly signalingChannel: SignalingChannel,
+    private readonly sessionManager: SessionManager | undefined,
+    private readonly signalingChannel: SignalingChannel | undefined,
   ) {}
 
   selectActiveWhiteboardInstance(
@@ -84,12 +84,16 @@ export class WhiteboardManagerImpl implements WhiteboardManager {
 export function createWhiteboardManager(
   store: StoreType,
   widgetApiPromise: Promise<WidgetApi>,
+  disableRtc?: boolean,
 ): WhiteboardManager {
   // We never destroy these, but this is fine
-  const signalingChannel = new ToDeviceMessageSignalingChannel(
-    widgetApiPromise,
-  );
-  const sessionManager = new SessionManagerImpl(widgetApiPromise);
+  const signalingChannel = !disableRtc
+    ? new ToDeviceMessageSignalingChannel(widgetApiPromise)
+    : undefined;
+
+  const sessionManager = !disableRtc
+    ? new SessionManagerImpl(widgetApiPromise)
+    : undefined;
 
   return new WhiteboardManagerImpl(
     store,
