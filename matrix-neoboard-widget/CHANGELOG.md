@@ -1,5 +1,19 @@
 # @nordeck/matrix-neoboard-widget
 
+## 2.2.0
+
+### Minor Changes
+
+- d050272: There is now an infinite canvas mode exist which can be enabled with the `REACT_APP_INFINITE_CANVAS` environment variable.
+
+### Patch Changes
+
+- Updated dependencies [a523436]
+- Updated dependencies [d050272]
+- Updated dependencies [c8348bd]
+- Updated dependencies [d9a5026]
+  - @nordeck/matrix-neoboard-react-sdk@1.2.0
+
 ## 2.1.0
 
 ### Minor Changes
