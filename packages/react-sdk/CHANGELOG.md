@@ -1,5 +1,14 @@
 # @nordeck/matrix-neoboard-react-sdk
 
+## 1.2.0
+
+### Minor Changes
+
+- a523436: Use room id of selected whiteboard event to load document snapshots.
+- d050272: There is now an infinite canvas mode exist which can be enabled with the `REACT_APP_INFINITE_CANVAS` environment variable.
+- c8348bd: Provide option to create whiteboard manager with disabled RTC communication.
+- d9a5026: Export SlideSkeleton component.
+
 ## 1.1.0
 
 ### Minor Changes
