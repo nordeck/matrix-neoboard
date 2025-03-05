@@ -24,15 +24,14 @@ import { useMeasure } from '../../SvgCanvas';
 import { useSvgScaleContext } from '../../SvgScaleContext';
 import { whiteboardHeight, whiteboardWidth } from '../../constants';
 
+type ElementBarWrapperProps = PropsWithChildren<{ elementIds: string[] }>;
+
 export function ElementBarWrapper({
   children,
   elementIds,
-}: PropsWithChildren<{ elementIds: string[] }>) {
+}: ElementBarWrapperProps) {
   const isLocked = useSlideIsLocked();
-  const elements = Object.values(useElementOverrides(elementIds));
-  const [sizeRef, { width: elementBarWidth, height: elementBarHeight }] =
-    useMeasure<HTMLDivElement>();
-  const { containerDimensions } = useSvgScaleContext();
+  useMeasure<HTMLDivElement>();
 
   if (
     // no elements selected
@@ -43,6 +42,25 @@ export function ElementBarWrapper({
     return null;
   }
 
+  return (
+    <ElementBarWrapperPositionedWrapper elementIds={elementIds}>
+      {children}
+    </ElementBarWrapperPositionedWrapper>
+  );
+}
+
+/**
+ * This component handles the actual positioning of the ElementBar.
+ */
+const ElementBarWrapperPositionedWrapper: React.FC<ElementBarWrapperProps> = ({
+  children,
+  elementIds,
+}) => {
+  const elements = Object.values(useElementOverrides(elementIds));
+  const [sizeRef, { width: elementBarWidth, height: elementBarHeight }] =
+    useMeasure<HTMLDivElement>();
+  const { containerDimensions } = useSvgScaleContext();
+
   const {
     offsetX: x,
     offsetY: y,
@@ -51,10 +69,8 @@ export function ElementBarWrapper({
   } = calculateBoundingRectForElements(elements);
 
   const offsetOnDiv = 10;
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const { scale, transformPointSvgToContainer } = useSvgScaleContext();
 
-  // eslint-disable-next-line
   const position = useMemo(() => {
     const pointOnSvg = { x, y };
     const elementOnContainer = transformPointSvgToContainer(pointOnSvg);
@@ -71,7 +87,7 @@ export function ElementBarWrapper({
      * because when rendering the SVG everything is shifted half a width.
      * {@see SvgCanvas}
      */
-    const minX = 0 + whiteboardWidth / 2;
+    const minX = whiteboardWidth / 2;
     const maxX =
       containerDimensions.width - elementBarWidth + whiteboardWidth / 2;
     const clampedPositionX = clamp(elementBarCenterOnDivX, minX, maxX);
@@ -123,4 +139,4 @@ export function ElementBarWrapper({
       {children}
     </Box>
   );
-}
+};
