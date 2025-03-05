@@ -28,7 +28,7 @@ import {
 import { selectShapeSizes, setShapeSize } from '../../../store/shapeSizesSlide';
 import { useLayoutState } from '../../Layout';
 import { WithExtendedSelectionProps } from '../ElementBehaviors';
-import { gridCellSize } from '../constants';
+import { defaultTextSize, gridCellSize } from '../constants';
 import { DraftMouseHandler } from './DraftMouseHandler';
 import { calculateShapeCoords } from './calculateShapeCoords';
 import { createShape } from './createShape';
@@ -103,6 +103,7 @@ export const DraftShapeChild = ({
           rounded: activeTool === 'rounded-rectangle' ? true : false,
           textColor,
           textFontFamily: activeFontFamily,
+          textSize: defaultTextSize,
         }),
       );
       setActiveTool('select');
@@ -135,6 +136,7 @@ export const DraftShapeChild = ({
           rounded,
           textColor,
           textFontFamily: activeFontFamily,
+          textSize: defaultTextSize,
         }),
       );
       setActiveTool('select');

@@ -15,6 +15,7 @@
  */
 
 import { useCallback } from 'react';
+import { defaultTextSize } from '../../components/Whiteboard/constants';
 import {
   useActiveElements,
   useElements,
@@ -33,7 +34,7 @@ export function useFontSize(): UseFontSizeResult {
   const activeElements = useElements(activeElementIds);
   const elements = Object.values(activeElements);
 
-  let fontSize = undefined;
+  let fontSize = defaultTextSize;
 
   for (const element of elements) {
     if (element.type === 'shape') {
