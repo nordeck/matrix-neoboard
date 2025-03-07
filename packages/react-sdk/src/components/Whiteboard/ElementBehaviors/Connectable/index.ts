@@ -15,3 +15,4 @@
  */
 
 export { ConnectableElement } from './ConnectableElement';
+export type { ConnectableElementProps } from './ConnectableElement';

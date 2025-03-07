@@ -19,7 +19,6 @@ import { useCallback, useRef, useState } from 'react';
 import {
   includesShapeWithText,
   includesTextShape,
-  isShapeElementPair,
   type Point,
   useActiveElements,
   useIsWhiteboardLoading,
@@ -28,7 +27,6 @@ import {
   useSlideIsLocked,
   useWhiteboardSlideInstance,
 } from '../../state';
-import { useConnectionPoint } from '../ConnectionPointProvider';
 import { ElementBar } from '../ElementBar';
 import { useElementOverrides } from '../ElementOverridesProvider';
 import { useLayoutState } from '../Layout';
@@ -41,7 +39,6 @@ import { CursorRenderer } from './CursorRenderer';
 import { DraftPicker } from './Draft/DraftPicker';
 import { ConnectedElement } from './Element';
 import {
-  ConnectableElement,
   ElementBarWrapper,
   ElementBorder,
   ElementOutline,
@@ -74,7 +71,6 @@ const WhiteboardHost = ({
     useLayoutState();
   const { activeElementIds } = useActiveElements();
   const overrides = useElementOverrides(activeElementIds);
-  const { isHandleDragging } = useConnectionPoint();
 
   const [textToolsEnabled, setTextToolsEnabled] = useState(false);
 
@@ -155,19 +151,6 @@ const WhiteboardHost = ({
             )}
           </>
         )}
-
-        {isHandleDragging &&
-          Object.entries(
-            slideInstance.getElements(slideInstance.getElementIds()),
-          )
-            .filter(isShapeElementPair)
-            .map(([elementId, element]) => (
-              <ConnectableElement
-                key={elementId}
-                elementId={elementId}
-                element={element}
-              />
-            ))}
 
         {isShowCollaboratorsCursors && !hideCursors && <CursorRenderer />}
       </SvgCanvas>

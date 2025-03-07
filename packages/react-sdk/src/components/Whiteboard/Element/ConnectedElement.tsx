@@ -15,7 +15,9 @@
  */
 
 import { useWidgetApi } from '@matrix-widget-toolkit/react';
-import { Elements } from '../../../state/types';
+import { JSX } from 'react';
+import { Elements } from '../../../state';
+import { useConnectionPoint } from '../../ConnectionPointProvider';
 import { useElementOverride } from '../../ElementOverridesProvider';
 import EllipseDisplay from '../../elements/ellipse/Display';
 import ImageDisplay from '../../elements/image/ImageDisplay';
@@ -23,6 +25,10 @@ import LineDisplay from '../../elements/line/Display';
 import PolylineDisplay from '../../elements/polyline/Display';
 import RectangleDisplay from '../../elements/rectangle/Display';
 import TriangleDisplay from '../../elements/triangle/Display';
+import {
+  ConnectableElement,
+  ConnectableElementProps,
+} from '../ElementBehaviors';
 
 export const ConnectedElement = ({
   id,
@@ -39,6 +45,7 @@ export const ConnectedElement = ({
 }) => {
   const widgetApi = useWidgetApi();
   const element = useElementOverride(id);
+
   const isActive =
     !readOnly && id
       ? activeElementIds.length === 1 && activeElementIds[0] === id
@@ -60,8 +67,10 @@ export const ConnectedElement = ({
         return <PolylineDisplay {...element} {...otherProps} />;
       }
     } else if (element.type === 'shape') {
+      let shapeChild: JSX.Element;
+
       if (element.kind === 'circle' || element.kind === 'ellipse') {
-        return (
+        shapeChild = (
           <EllipseDisplay
             {...element}
             {...otherProps}
@@ -69,7 +78,7 @@ export const ConnectedElement = ({
           />
         );
       } else if (element.kind === 'rectangle') {
-        return (
+        shapeChild = (
           <RectangleDisplay
             {...element}
             {...otherProps}
@@ -77,14 +86,25 @@ export const ConnectedElement = ({
           />
         );
       } else if (element.kind === 'triangle') {
-        return (
+        shapeChild = (
           <TriangleDisplay
             {...element}
             {...otherProps}
             setTextToolsEnabled={setTextToolsEnabled}
           />
         );
+      } else {
+        throw new Error('unexpected shape kind', element.kind);
       }
+
+      return (
+        <>
+          {shapeChild}
+          {!readOnly && (
+            <ConnectableElementWrapper elementId={id} element={element} />
+          )}
+        </>
+      );
     } else if (element.type === 'image') {
       if (widgetApi.widgetParameters.baseUrl === undefined) {
         console.error('Image cannot be rendered due to missing base URL');
@@ -103,3 +123,16 @@ export const ConnectedElement = ({
 
   return null;
 };
+
+function ConnectableElementWrapper({
+  elementId,
+  element,
+}: ConnectableElementProps) {
+  const { isHandleDragging } = useConnectionPoint();
+
+  if (!isHandleDragging) {
+    return null;
+  }
+
+  return <ConnectableElement elementId={elementId} element={element} />;
+}
