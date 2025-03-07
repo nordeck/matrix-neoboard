@@ -16,7 +16,10 @@
 
 /// <reference types="vitest" />
 
+import path from 'path';
 import { defineConfig } from 'vite';
+
+const __dirname = path.dirname(__filename);
 
 export default defineConfig({
   resolve: {
@@ -31,7 +34,7 @@ export default defineConfig({
   },
   test: {
     environment: 'jsdom',
-    setupFiles: ['./src/setupTests.ts'],
+    setupFiles: [path.resolve(__dirname, './src/setupTests.ts')],
     exclude: ['build', 'lib'],
     server: {
       deps: {
