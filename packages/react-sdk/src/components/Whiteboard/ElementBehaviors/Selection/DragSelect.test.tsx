@@ -25,6 +25,7 @@ import {
   mockWhiteboardManager,
 } from '../../../../lib/testUtils/documentTestUtils';
 import { Point, WhiteboardSlideInstance } from '../../../../state';
+import { ConnectionPointProvider } from '../../../ConnectionPointProvider';
 import { LayoutStateProvider, useLayoutState } from '../../../Layout';
 import { WhiteboardHotkeysProvider } from '../../../WhiteboardHotkeysProvider';
 import { SvgCanvas } from '../../SvgCanvas';
@@ -103,9 +104,11 @@ describe('<DragSelect/>', () => {
             whiteboardManager={whiteboardManager}
             widgetApi={widgetApi}
           >
-            <SvgCanvas viewportWidth={200} viewportHeight={200}>
-              {children}
-            </SvgCanvas>
+            <ConnectionPointProvider>
+              <SvgCanvas viewportWidth={200} viewportHeight={200}>
+                {children}
+              </SvgCanvas>
+            </ConnectionPointProvider>
           </WhiteboardTestingContextProvider>
         </WhiteboardHotkeysProvider>
       </LayoutStateProvider>

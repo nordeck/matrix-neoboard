@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { isEqual } from 'lodash';
 import {
   createContext,
   PropsWithChildren,
@@ -30,10 +31,10 @@ type ConnectionPointContextType = {
   setIsHandleDragging: (value: boolean) => void;
 
   /**
-   * Is an element id when handle is over element's connection point, undefined otherwise.
+   * Elements to activate connection to.
    */
-  connectElementId: string | undefined;
-  setConnectElementId: (value: string | undefined) => void;
+  connectElementIds: string[];
+  setConnectElementIds: (value: string[]) => void;
 };
 
 const ConnectionPointContext = createContext<
@@ -42,16 +43,18 @@ const ConnectionPointContext = createContext<
 
 export function ConnectionPointProvider({ children }: PropsWithChildren) {
   const [isHandleDragging, setIsHandleDragging] = useState(false);
-  const [connectElementId, setConnectElementId] = useState<string>();
+  const [connectElementIds, setConnectElementIds] = useState<string[]>([]);
 
   const context = useMemo(
     () => ({
       isHandleDragging,
       setIsHandleDragging,
-      connectElementId,
-      setConnectElementId,
+      connectElementIds,
+      setConnectElementIds: (value: string[]) => {
+        setConnectElementIds((old) => (isEqual(old, value) ? old : value));
+      },
     }),
-    [connectElementId, isHandleDragging],
+    [connectElementIds, isHandleDragging],
   );
 
   return (

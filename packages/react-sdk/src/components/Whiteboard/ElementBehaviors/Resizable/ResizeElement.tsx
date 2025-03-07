@@ -61,7 +61,8 @@ export function ResizeHandleWrapper({
 }: ResizeHandleWrapperProps) {
   const { isShowGrid } = useLayoutState();
   const { viewportWidth, viewportHeight } = useSvgCanvasContext();
-  const { connectElementId } = useConnectionPoint();
+  const { connectElementIds } = useConnectionPoint();
+  const hasConnectElementId = connectElementIds.length > 0;
 
   const handleDrag = useCallback(
     (event: DragEvent) => {
@@ -72,7 +73,7 @@ export function ResizeHandleWrapper({
           viewportWidth,
           viewportHeight,
           invertLockAspectRatio,
-          isShowGrid && !connectElementId ? gridCellSize : undefined,
+          isShowGrid && !hasConnectElementId ? gridCellSize : undefined,
           resizableProperties,
         ),
       );
@@ -85,7 +86,7 @@ export function ResizeHandleWrapper({
       resizableProperties,
       viewportHeight,
       viewportWidth,
-      connectElementId,
+      hasConnectElementId,
     ],
   );
 
