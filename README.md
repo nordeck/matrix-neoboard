@@ -3,7 +3,7 @@
 ![Build](https://github.com/nordeck/matrix-neoboard/workflows/CI/badge.svg)
 [![Matrix](https://img.shields.io/matrix/nordeck%3Amatrix.org)](https://matrix.to/#/#nordeck:matrix.org)
 
-A collaborative whiteboard widget for Element, based on [Matrix](https://matrix.org).
+A collaborative whiteboard widget for Element, based on [Matrix](https://matrix.org). Hello
 Use it to collaborate in real-time with your peers, by keeping full control of your data and keep it secure with end-to-end encryption.
 
 <table>
