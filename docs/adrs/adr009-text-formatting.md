@@ -1,4 +1,4 @@
-# ADR008: Text formatting
+# ADR009: Text formatting
 
 Status: accepted
 
