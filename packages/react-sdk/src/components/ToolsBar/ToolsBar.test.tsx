@@ -191,7 +191,7 @@ describe('<ToolsBar/>', () => {
     expect(slide?.getActiveElementIds()).toEqual([]);
   });
 
-  it('should not show the create frame button per default', () => {
+  it('should not show the create frame button by default', () => {
     render(<ToolsBar />, { wrapper: Wrapper });
 
     expect(

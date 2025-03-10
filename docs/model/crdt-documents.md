@@ -271,7 +271,7 @@ An image element
 
 (Only with feature flag `REACT_APP_INFINITE_CANVAS`).
 
-A frame element. Used to group elements and run structured presentations.
+A frame element is used to group elements and run structured presentations.
 
 #### Fields
 
