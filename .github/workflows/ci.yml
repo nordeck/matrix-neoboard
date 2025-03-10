@@ -338,7 +338,7 @@ jobs:
               inputs: {
                 environment: '${{ secrets.GITOPS_DEPLOY_ENVIRONMENT}}',
                 application: 'matrix-neoboard',
-                tag: '${{ github.sha }}'
+                tag: 'argo-${{ env.ARGOCD_SHA }}'
               }
             })
 
@@ -380,7 +380,7 @@ jobs:
           KUBE_CONFIG_DATA: ${{ secrets.KUBECONFIG_NEOTOOLSUITE_DEV }}
         with:
           args: |
-            helm upgrade --install matrix-neoboard ./charts/matrix-neoboard-widget -f ./valhalla/cluster/neotoolsuite-dev/neoboard/values-neotoolsuite-dev.yaml -n matrix --set image.tag="${{ github.sha }}"
+            helm upgrade --install matrix-neoboard ./charts/matrix-neoboard-widget -f ./valhalla/cluster/neotoolsuite-dev/neoboard/values-neotoolsuite-dev.yaml -n matrix --set image.tag="argo-${{ env.ARGOCD_SHA }}"
 
       - name: Restart rollout
         uses: wahyd4/kubectl-helm-action@master
