@@ -305,7 +305,7 @@ describe('duplicate', () => {
 
 describe('<DuplicateActiveElementButton />', () => {
   let widgetApi: MockedWidgetApi;
-  let Wrapper: ComponentType<PropsWithChildren<{}>>;
+  let Wrapper: ComponentType<PropsWithChildren<Record<never, never>>>;
   let slide: WhiteboardSlideInstance;
 
   beforeEach(() => {
