@@ -380,7 +380,7 @@ jobs:
           KUBE_CONFIG_DATA: ${{ secrets.KUBECONFIG_NEOTOOLSUITE_DEV }}
         with:
           args: |
-            helm upgrade --install neoboard ./charts/matrix-neoboard-widget -f ./valhalla/cluster/neotoolsuite-dev/neoboard/values-neotoolsuite-dev.yaml -n matrix --set image.tag="${{ github.sha }}"
+            helm upgrade --install matrix-neoboard ./charts/matrix-neoboard-widget -f ./valhalla/cluster/neotoolsuite-dev/neoboard/values-neotoolsuite-dev.yaml -n matrix --set image.tag="${{ github.sha }}"
 
       - name: Restart rollout
         uses: wahyd4/kubectl-helm-action@master
@@ -388,4 +388,4 @@ jobs:
           KUBE_CONFIG_DATA: ${{ secrets.KUBECONFIG_NEOTOOLSUITE_DEV }}
         with:
           args: |
-            kubectl rollout restart deployment neoboard -n matrix
+            kubectl rollout restart deployment matrix-neoboard -n matrix
