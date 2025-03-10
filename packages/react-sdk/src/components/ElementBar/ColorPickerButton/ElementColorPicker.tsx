@@ -45,7 +45,9 @@ export function ElementColorPicker() {
 
   const hasShape = activeElements.some((e) => e.type === 'shape');
   const hasOther = activeElements.some((e) => e.type !== 'shape');
-  const hasOnlyImages = activeElements.every((e) => e.type === 'image');
+  const hasOnlyNonColoredElements = activeElements.every(
+    (e) => e.type !== 'shape' && e.type !== 'path',
+  );
 
   const defaultColor = hasShape ? activeShapeColor : activeColor;
   const defaultShade = hasShape ? activeShapeShade : activeShade;
@@ -88,7 +90,7 @@ export function ElementColorPicker() {
     ],
   );
 
-  if (hasOnlyImages) {
+  if (hasOnlyNonColoredElements) {
     return null;
   }
 

@@ -21,6 +21,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   WhiteboardTestingContextProvider,
   mockEllipseElement,
+  mockFrameElement,
   mockWhiteboardManager,
 } from '../../../../lib/testUtils/documentTestUtils';
 import { Point, WhiteboardSlideInstance } from '../../../../state';
@@ -70,6 +71,16 @@ describe('<DragSelect/>', () => {
                 position: { x: 101, y: 101 },
                 width: 50,
                 height: 50,
+              }),
+            ],
+            // Draw a frame above some other elements.
+            // This should never be selected.
+            [
+              'element-3',
+              mockFrameElement({
+                position: { x: 0, y: 0 },
+                width: 200,
+                height: 200,
               }),
             ],
           ],
@@ -170,5 +181,8 @@ describe('<DragSelect/>', () => {
       'element-1',
       'element-0',
     ]);
+
+    // It should not select the frame
+    expect(activeSlide.getActiveElementIds()).not.toContain('element-3');
   });
 });

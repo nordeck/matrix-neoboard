@@ -36,21 +36,18 @@ import { WhiteboardManager } from '../../state';
 import { ImageUploadProvider } from '../ImageUpload';
 import { LayoutStateProvider } from '../Layout';
 import { SnackbarProvider } from '../Snackbar';
+import * as whiteboardConstants from '../Whiteboard/constants';
 import { ToolsBar } from './ToolsBar';
-
-vi.mock('@matrix-widget-toolkit/mui', async () => ({
-  ...(await vi.importActual<typeof import('@matrix-widget-toolkit/mui')>(
-    '@matrix-widget-toolkit/mui',
-  )),
-  getEnvironment: vi.fn(),
-}));
 
 let widgetApi: MockedWidgetApi;
 
-afterEach(() => widgetApi.stop());
-
 beforeEach(() => {
   widgetApi = mockWidgetApi();
+});
+
+afterEach(() => {
+  widgetApi.stop();
+  vi.restoreAllMocks();
 });
 
 describe('<ToolsBar/>', () => {
@@ -192,5 +189,25 @@ describe('<ToolsBar/>', () => {
 
     expect(penTool).toBeChecked();
     expect(slide?.getActiveElementIds()).toEqual([]);
+  });
+
+  it('should not show the create frame button per default', () => {
+    render(<ToolsBar />, { wrapper: Wrapper });
+
+    expect(
+      screen.queryByRole('button', { name: 'Create frame' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('should show the create frame button, if infinite canvas is enabled', () => {
+    vi.spyOn(whiteboardConstants, 'infiniteCanvasMode', 'get').mockReturnValue(
+      true,
+    );
+
+    render(<ToolsBar />, { wrapper: Wrapper });
+
+    expect(
+      screen.getByRole('button', { name: 'Create frame' }),
+    ).toBeInTheDocument();
   });
 });
