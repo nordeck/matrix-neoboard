@@ -14,10 +14,22 @@
  * limitations under the License.
  */
 
-import { describe, expect, it } from 'vitest';
-import { Element } from '../../../state';
+import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
+import { render, screen } from '@testing-library/react';
+import { ComponentType, PropsWithChildren } from 'react';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import {
+  mockFrameElement,
+  mockWhiteboardManager,
+  WhiteboardTestingContextProvider,
+} from '../../../lib/testUtils';
+import { Element, WhiteboardSlideInstance } from '../../../state';
 import { calculateBoundingRectForElements } from '../../../state/crdt/documents/elements';
-import { duplicate } from './DuplicateActiveElementButton';
+import { Toolbar } from '../../common/Toolbar';
+import {
+  duplicate,
+  DuplicateActiveElementButton,
+} from './DuplicateActiveElementButton';
 
 describe('duplicate', () => {
   it('should duplicate a points element', async () => {
@@ -288,5 +300,43 @@ describe('duplicate', () => {
       // 80 is the width
       position: { x: 1920 - 80, y: 20 },
     });
+  });
+});
+
+describe('<DuplicateActiveElementButton />', () => {
+  let widgetApi: MockedWidgetApi;
+  let Wrapper: ComponentType<PropsWithChildren<Record<never, never>>>;
+  let slide: WhiteboardSlideInstance;
+
+  beforeEach(() => {
+    widgetApi = mockWidgetApi();
+
+    const { whiteboardManager } = mockWhiteboardManager({
+      slides: [['slide-0', [['element-0', mockFrameElement()]]]],
+    });
+    slide = whiteboardManager
+      .getActiveWhiteboardInstance()!
+      .getSlide('slide-0');
+
+    Wrapper = ({ children }) => (
+      <WhiteboardTestingContextProvider
+        whiteboardManager={whiteboardManager}
+        widgetApi={widgetApi}
+      >
+        <Toolbar>{children}</Toolbar>
+      </WhiteboardTestingContextProvider>
+    );
+  });
+
+  afterEach(() => widgetApi.stop());
+
+  it('if only frames are selected it should not be shown', () => {
+    slide.setActiveElementIds(['element-0']);
+
+    render(<DuplicateActiveElementButton />, { wrapper: Wrapper });
+
+    expect(
+      screen.queryByRole('button', { name: 'Duplicate the active element' }),
+    ).not.toBeInTheDocument();
   });
 });

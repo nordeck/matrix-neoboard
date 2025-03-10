@@ -118,6 +118,20 @@ const pathElementSchema = elementBaseSchema
   })
   .required();
 
+export type FrameElement = ElementBase & {
+  type: 'frame';
+  width: number;
+  height: number;
+};
+
+const frameElementSchema = elementBaseSchema
+  .append<FrameElement>({
+    type: Joi.string().valid('frame').required(),
+    width: Joi.number().strict().empty(emptyCoordinateSchema).default(1),
+    height: Joi.number().strict().empty(emptyCoordinateSchema).default(1),
+  })
+  .required();
+
 export type ImageMimeType =
   | 'image/gif'
   | 'image/jpeg'
@@ -157,11 +171,12 @@ const imageElementSchema = elementBaseSchema
   })
   .required();
 
-export type Element = ShapeElement | PathElement | ImageElement;
+export type Element = ShapeElement | PathElement | ImageElement | FrameElement;
 export type ElementKind = ShapeKind | PathKind;
 
 export const elementSchema = Joi.alternatives<Element>().conditional('.type', [
   { is: 'shape', then: shapeElementSchema },
+  { is: 'frame', then: frameElementSchema },
   { is: 'path', then: pathElementSchema },
   { is: 'image', then: imageElementSchema },
 ]);
