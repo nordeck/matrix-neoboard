@@ -14,6 +14,7 @@ jobs:
       DOCKER_IMAGE: ghcr.io/nordeck/matrix-neoboard-widget
     outputs:
       docker-tag: ${{ steps.meta.outputs.version }}
+      ARGOCD_SHA: ${{ steps.get_argo_cd_sha.outputs.ARGOCD_SHA }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -68,6 +69,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: get argo-cd type of sha
+        id: get_argo_cd_sha
         run: |
           COMMIT_SHA=${{ github.sha }}
           if [[ '${{ github.event_name }}' == 'pull_request' ]]
