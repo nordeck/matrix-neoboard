@@ -15,9 +15,16 @@
  */
 
 import { beforeEach, describe, expect, it } from 'vitest';
-import { mockEllipseElement } from '../../../../lib/testUtils/documentTestUtils';
-import { Elements } from '../../../../state/types';
-import { calculateElementOverrideUpdates } from './utils';
+import {
+  mockEllipseElement,
+  mockLineElement,
+  mockRectangleElement,
+} from '../../../../lib/testUtils';
+import { Elements } from '../../../../state';
+import {
+  calculateElementOverrideUpdates,
+  snapToGridElementOverrideUpdates,
+} from './utils';
 
 describe('calculateElementOverrideUpdates', () => {
   const whiteboardWidth = 1920;
@@ -158,6 +165,455 @@ describe('calculateElementOverrideUpdates', () => {
         elementId: 'element-2',
         elementOverride: {
           position: { x: 40, y: whiteboardHeight - 100 - 1 },
+        },
+      },
+    ]);
+  });
+});
+
+describe('snapToGridElementOverrideUpdates', () => {
+  it('should snap to a grid a shape', () => {
+    expect(
+      snapToGridElementOverrideUpdates(
+        [
+          {
+            elementId: 'rectangle-id-1',
+            elementOverride: {
+              position: {
+                x: 35,
+                y: 38,
+              },
+            },
+          },
+        ],
+        {
+          ['rectangle-id-1']: mockRectangleElement({
+            position: { x: 35, y: 38 },
+          }),
+        },
+        {},
+      ),
+    ).toStrictEqual([
+      {
+        elementId: 'rectangle-id-1',
+        elementOverride: {
+          position: {
+            x: 40,
+            y: 40,
+          },
+        },
+      },
+    ]);
+  });
+
+  it('should snap to a grid a line', () => {
+    expect(
+      snapToGridElementOverrideUpdates(
+        [
+          {
+            elementId: 'line-id-1',
+            elementOverride: {
+              position: {
+                x: 35,
+                y: 38,
+              },
+            },
+          },
+        ],
+        {
+          ['line-id-1']: mockLineElement({
+            position: { x: 35, y: 38 },
+          }),
+        },
+        {},
+      ),
+    ).toStrictEqual([
+      {
+        elementId: 'line-id-1',
+        elementOverride: {
+          position: {
+            x: 40,
+            y: 40,
+          },
+        },
+      },
+    ]);
+  });
+
+  it('should snap to a grid a shape and a line', () => {
+    expect(
+      snapToGridElementOverrideUpdates(
+        [
+          {
+            elementId: 'rectangle-id-1',
+            elementOverride: {
+              position: {
+                x: 35,
+                y: 38,
+              },
+            },
+          },
+          {
+            elementId: 'line-id-1',
+            elementOverride: {
+              position: {
+                x: 75,
+                y: 38,
+              },
+            },
+          },
+        ],
+        {
+          ['rectangle-id-1']: mockRectangleElement({
+            position: { x: 35, y: 38 },
+          }),
+          ['line-id-1']: mockLineElement({
+            position: { x: 75, y: 38 },
+          }),
+        },
+        {},
+      ),
+    ).toStrictEqual([
+      {
+        elementId: 'rectangle-id-1',
+        elementOverride: {
+          position: {
+            x: 40,
+            y: 40,
+          },
+        },
+      },
+      {
+        elementId: 'line-id-1',
+        elementOverride: {
+          position: {
+            x: 80,
+            y: 40,
+          },
+        },
+      },
+    ]);
+  });
+
+  it('should snap to a grid a shape connected to a line', () => {
+    expect(
+      snapToGridElementOverrideUpdates(
+        [
+          {
+            elementId: 'rectangle-id-1',
+            elementOverride: {
+              position: {
+                x: 35,
+                y: 38,
+              },
+            },
+          },
+          {
+            elementId: 'line-id-1',
+            elementOverride: {
+              position: {
+                x: 85,
+                y: 138,
+              },
+              points: [
+                { x: 0, y: 0 },
+                { x: 50, y: 50 },
+              ],
+            },
+          },
+        ],
+        {
+          ['rectangle-id-1']: mockRectangleElement({
+            position: { x: 35, y: 38 },
+            connectedPaths: ['line-id-1'],
+          }),
+        },
+        {
+          ['line-id-1']: mockLineElement({
+            position: { x: 60, y: 110 },
+            points: [
+              { x: 0, y: 0 },
+              { x: 75, y: 78 },
+            ],
+            connectedElementStart: 'rectangle-id-1',
+          }),
+        },
+      ),
+    ).toStrictEqual([
+      {
+        elementId: 'rectangle-id-1',
+        elementOverride: {
+          position: {
+            x: 40,
+            y: 40,
+          },
+        },
+      },
+      {
+        elementId: 'line-id-1',
+        elementOverride: {
+          position: {
+            x: 90,
+            y: 140,
+          },
+          points: [
+            { x: 0, y: 0 },
+            { x: 45, y: 48 },
+          ],
+        },
+      },
+    ]);
+  });
+
+  it('should snap to a grid a shape and line connected', () => {
+    expect(
+      snapToGridElementOverrideUpdates(
+        [
+          {
+            elementId: 'rectangle-id-1',
+            elementOverride: {
+              position: {
+                x: 35,
+                y: 38,
+              },
+            },
+          },
+          {
+            elementId: 'line-id-1',
+            elementOverride: {
+              position: {
+                x: 85,
+                y: 138,
+              },
+              points: [
+                { x: 0, y: 0 },
+                { x: 50, y: 50 },
+              ],
+            },
+          },
+        ],
+        {
+          ['rectangle-id-1']: mockRectangleElement({
+            position: { x: 35, y: 38 },
+            connectedPaths: ['line-id-1'],
+          }),
+          ['line-id-1']: mockLineElement({
+            position: { x: 85, y: 138 },
+            points: [
+              { x: 0, y: 0 },
+              { x: 50, y: 50 },
+            ],
+            connectedElementStart: 'rectangle-id-1',
+          }),
+        },
+        {},
+      ),
+    ).toStrictEqual([
+      {
+        elementId: 'rectangle-id-1',
+        elementOverride: {
+          position: {
+            x: 40,
+            y: 40,
+          },
+        },
+      },
+      {
+        elementId: 'line-id-1',
+        elementOverride: {
+          position: {
+            x: 90,
+            y: 140,
+          },
+          points: [
+            { x: 0, y: 0 },
+            { x: 50, y: 50 },
+          ],
+        },
+      },
+    ]);
+  });
+
+  it('should snap to a grid two shapes connected with line', () => {
+    expect(
+      snapToGridElementOverrideUpdates(
+        [
+          {
+            elementId: 'rectangle-id-1',
+            elementOverride: {
+              position: {
+                x: 35,
+                y: 38,
+              },
+            },
+          },
+          {
+            elementId: 'line-id-1',
+            elementOverride: {
+              position: {
+                x: 85,
+                y: 138,
+              },
+              points: [
+                { x: 0, y: 0 },
+                { x: 50, y: 50 },
+              ],
+            },
+          },
+          {
+            elementId: 'rectangle-id-2',
+            elementOverride: {
+              position: {
+                x: 135,
+                y: 188,
+              },
+            },
+          },
+        ],
+        {
+          ['rectangle-id-1']: mockRectangleElement({
+            position: { x: 35, y: 38 },
+            connectedPaths: ['line-id-1'],
+          }),
+          ['rectangle-id-2']: mockRectangleElement({
+            position: { x: 135, y: 188 },
+            connectedPaths: ['line-id-1'],
+          }),
+        },
+        {
+          ['line-id-1']: mockLineElement({
+            position: { x: 60, y: 110 },
+            points: [
+              { x: 0, y: 0 },
+              { x: 75, y: 78 },
+            ],
+            connectedElementStart: 'rectangle-id-1',
+            connectedElementEnd: 'rectangle-id-2',
+          }),
+        },
+      ),
+    ).toStrictEqual([
+      {
+        elementId: 'rectangle-id-1',
+        elementOverride: {
+          position: {
+            x: 40,
+            y: 40,
+          },
+        },
+      },
+      {
+        elementId: 'line-id-1',
+        elementOverride: {
+          position: {
+            x: 90,
+            y: 140,
+          },
+          points: [
+            { x: 0, y: 0 },
+            { x: 50, y: 40 },
+          ],
+        },
+      },
+      {
+        elementId: 'rectangle-id-2',
+        elementOverride: {
+          position: {
+            x: 140,
+            y: 180,
+          },
+        },
+      },
+    ]);
+  });
+
+  it('should snap to a grid two shapes and line connecting these shapes', () => {
+    expect(
+      snapToGridElementOverrideUpdates(
+        [
+          {
+            elementId: 'rectangle-id-1',
+            elementOverride: {
+              position: {
+                x: 35,
+                y: 38,
+              },
+            },
+          },
+          {
+            elementId: 'line-id-1',
+            elementOverride: {
+              position: {
+                x: 85,
+                y: 138,
+              },
+              points: [
+                { x: 0, y: 0 },
+                { x: 50, y: 50 },
+              ],
+            },
+          },
+          {
+            elementId: 'rectangle-id-2',
+            elementOverride: {
+              position: {
+                x: 135,
+                y: 188,
+              },
+            },
+          },
+        ],
+        {
+          ['rectangle-id-1']: mockRectangleElement({
+            position: { x: 35, y: 38 },
+            connectedPaths: ['line-id-1'],
+          }),
+          ['line-id-1']: mockLineElement({
+            position: { x: 85, y: 138 },
+            points: [
+              { x: 0, y: 0 },
+              { x: 50, y: 50 },
+            ],
+            connectedElementStart: 'rectangle-id-1',
+            connectedElementEnd: 'rectangle-id-2',
+          }),
+          ['rectangle-id-2']: mockRectangleElement({
+            position: { x: 135, y: 188 },
+            connectedPaths: ['line-id-1'],
+          }),
+        },
+        {},
+      ),
+    ).toStrictEqual([
+      {
+        elementId: 'rectangle-id-1',
+        elementOverride: {
+          position: {
+            x: 40,
+            y: 40,
+          },
+        },
+      },
+      {
+        elementId: 'line-id-1',
+        elementOverride: {
+          position: {
+            x: 90,
+            y: 140,
+          },
+          points: [
+            { x: 0, y: 0 },
+            { x: 50, y: 40 },
+          ],
+        },
+      },
+      {
+        elementId: 'rectangle-id-2',
+        elementOverride: {
+          position: {
+            x: 140,
+            y: 180,
+          },
         },
       },
     ]);

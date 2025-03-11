@@ -18,10 +18,11 @@ import { clamp } from 'lodash';
 import { isDefined } from '../../../../lib';
 import {
   calculateBoundingRectForElements,
+  Element,
+  Elements,
   PathElement,
-} from '../../../../state/crdt/documents/elements';
+} from '../../../../state';
 import { BoundingRect, Point } from '../../../../state/crdt/documents/point';
-import { Elements } from '../../../../state/types';
 import { ElementOverrideUpdate } from '../../../ElementOverridesProvider';
 import { ElementOverride } from '../../../ElementOverridesProvider/ElementOverridesProvider';
 import { snapToGrid } from '../../Grid';
@@ -95,6 +96,15 @@ export function calculateElementOverrideUpdates(
   return overrides;
 }
 
+/**
+ * Changes elements overrides to snap to the grid.
+ * Connected path elements are resized to follow snapping changes of connected elements.
+ *
+ * @param elementOverrideUpdates elements overrides
+ * @param elements selected elements with overrides
+ * @param connectingPathElements not selected connecting paths
+ * @return elements overrides with snapping applied
+ */
 export function snapToGridElementOverrideUpdates(
   elementOverrideUpdates: ElementOverrideUpdate[],
   elements: Elements,
@@ -102,8 +112,11 @@ export function snapToGridElementOverrideUpdates(
 ): ElementOverrideUpdate[] {
   return elementOverrideUpdates.map(({ elementId, elementOverride }) => {
     let pathElement: PathElement | undefined;
+    let isPathElementSelected: boolean = false;
+
     if (elements[elementId]?.type === 'path') {
       pathElement = elements[elementId];
+      isPathElementSelected = true;
     } else if (connectingPathElements[elementId]) {
       pathElement = connectingPathElements[elementId];
     }
@@ -125,14 +138,24 @@ export function snapToGridElementOverrideUpdates(
           ? elements[connectedElementId]
           : undefined;
 
+        let elementToFollow: Element | undefined;
         if (connectedElement) {
+          elementToFollow = connectedElement;
+        } else if (isPathElementSelected) {
+          // find and use another connected selected element if any
+          elementToFollow = connectedElements
+            .map((elementId) => (elementId ? elements[elementId] : undefined))
+            .find(isDefined);
+        }
+
+        if (elementToFollow) {
           deltaPoints.push({
             x:
-              snapToGrid(connectedElement.position.x, gridCellSize) -
-              connectedElement.position.x,
+              snapToGrid(elementToFollow.position.x, gridCellSize) -
+              elementToFollow.position.x,
             y:
-              snapToGrid(connectedElement.position.y, gridCellSize) -
-              connectedElement.position.y,
+              snapToGrid(elementToFollow.position.y, gridCellSize) -
+              elementToFollow.position.y,
           });
         } else {
           deltaPoints.push(undefined);
