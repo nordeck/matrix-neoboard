@@ -14,6 +14,7 @@ jobs:
       DOCKER_IMAGE: ghcr.io/nordeck/matrix-neoboard-widget
     outputs:
       docker-tag: ${{ steps.meta.outputs.version }}
+      ARGOCD_SHA: ${{ steps.get_argo_cd_sha.outputs.ARGOCD_SHA }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -67,6 +68,17 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: get argo-cd type of sha
+        id: get_argo_cd_sha
+        run: |
+          COMMIT_SHA=${{ github.sha }}
+          if [[ '${{ github.event_name }}' == 'pull_request' ]]
+          then
+            COMMIT_SHA=${{ github.event.pull_request.head.sha }}
+          fi
+          echo "ARGOCD_SHA=$(echo $COMMIT_SHA | cut -c1-8)" >> $GITHUB_ENV
+          echo "ARGOCD_SHA=$(echo $COMMIT_SHA | cut -c1-8)" >> $GITHUB_OUTPUT
+
       - name: Generate Docker metadata
         id: meta
         uses: docker/metadata-action@v5
@@ -80,6 +92,7 @@ jobs:
             org.opencontainers.image.vendor=Nordeck IT + Consulting GmbH
           tags: |
             type=sha,prefix=
+            type=raw,value=argo-${{ env.ARGOCD_SHA }}
 
       - name: Build and push
         id: build_and_push
@@ -328,6 +341,54 @@ jobs:
               inputs: {
                 environment: '${{ secrets.GITOPS_DEPLOY_ENVIRONMENT}}',
                 application: 'matrix-neoboard',
-                tag: '${{ github.sha }}'
+                tag: 'argo-${{ needs.build.outputs.ARGOCD_SHA }}'
               }
             })
+
+  deploy-on-neotoolsuite-dev:
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    name: Deploy to Neotoolsuite Dev
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: '0'
+          persist-credentials: false
+
+      - name: Checkout valhalla for values
+        uses: actions/checkout@v4
+        with:
+          ref: dev
+          sparse-checkout: |
+            /cluster/neotoolsuite-dev/neoboard/values-neotoolsuite-dev.yaml
+          sparse-checkout-cone-mode: false
+          repository: nordeck/valhalla
+          token: ${{ secrets.PACKAGE_TOKEN }}
+          path: valhalla
+          persist-credentials: false
+
+      - name: Create Kubeconfig
+        run: |
+          # Extract the base64 encoded config data and write this to the KUBECONFIG
+          echo "${{ secrets.KUBECONFIG_NEOTOOLSUITE_DEV }}" | base64 -d > /tmp/config
+          chmod 600 /tmp/config
+          echo "KUBECONFIG=/tmp/config" >> $GITHUB_ENV
+
+      - name: Deploy k8s to cluster
+        uses: wahyd4/kubectl-helm-action@master
+        env:
+          KUBE_CONFIG_DATA: ${{ secrets.KUBECONFIG_NEOTOOLSUITE_DEV }}
+        with:
+          args: |
+            helm upgrade --install matrix-neoboard ./charts/matrix-neoboard-widget -f ./valhalla/cluster/neotoolsuite-dev/neoboard/values-neotoolsuite-dev.yaml -n matrix --set image.tag="argo-${{ needs.build.outputs.ARGOCD_SHA }}"
+
+      - name: Restart rollout
+        uses: wahyd4/kubectl-helm-action@master
+        env:
+          KUBE_CONFIG_DATA: ${{ secrets.KUBECONFIG_NEOTOOLSUITE_DEV }}
+        with:
+          args: |
+            kubectl rollout restart deployment matrix-neoboard -n matrix
