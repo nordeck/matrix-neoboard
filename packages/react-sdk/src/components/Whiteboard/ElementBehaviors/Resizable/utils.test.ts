@@ -17,6 +17,7 @@
 import { beforeEach, describe, expect, it, test } from 'vitest';
 import {
   mockEllipseElement,
+  mockFrameElement,
   mockLineElement,
 } from '../../../../lib/testUtils/documentTestUtils';
 import { Element } from '../../../../state';
@@ -646,4 +647,51 @@ describe('computeResizing', () => {
       ]);
     },
   );
+
+  /**
+   * Only one test to resize a frame.
+   * There are other detailed tests for the different cases (resize dragging the different borders etc.).
+   */
+  it('should resize a frame', () => {
+    const frameElement = mockFrameElement({
+      position: { x: 0, y: 20 },
+      width: 20,
+      height: 40,
+    });
+
+    expect(
+      // Drag bottom right by 20 px on the x-axis and 40 px on the y-axis.
+      computeResizing(
+        { name: 'bottomRight', containerWidth: 200, containerHeight: 200 },
+        {
+          ...event,
+          x: 20,
+          y: 40,
+        },
+        viewportWidth,
+        viewportHeight,
+        false,
+        gridCellSize,
+        {
+          x: 0,
+          y: 20,
+          width: 20,
+          height: 40,
+          elements: { frameElement },
+        },
+      ),
+    ).toEqual([
+      {
+        elementId: 'frameElement',
+        elementOverride: {
+          position: {
+            x: 10,
+            y: 20,
+          },
+          width: 40,
+          height: 160,
+        },
+      },
+    ]);
+  });
 });
