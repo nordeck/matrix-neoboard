@@ -139,9 +139,9 @@ describe('<Display />', () => {
         data-testid="element-element-0"
       >
         <marker
-          data-testid="end-marker-id-3"
+          data-testid="end-marker-id-2"
           fill="none"
-          id="end-marker-id-3"
+          id="end-marker-id-2"
           markerHeight="7"
           markerWidth="3.5"
           orient="auto"
@@ -165,7 +165,7 @@ describe('<Display />', () => {
         />
         <line
           fill="none"
-          marker-end="url(#end-marker-id-3)"
+          marker-end="url(#end-marker-id-2)"
           stroke="#ffffff"
           stroke-width="4"
           x1="0"
