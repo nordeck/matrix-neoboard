@@ -25,7 +25,7 @@ import {
 } from '../../../lib/testUtils';
 import { LayoutStateProvider } from '../../Layout';
 import { SvgCanvas } from '../../Whiteboard/SvgCanvas';
-import { FrameDisplay } from './FrameDisplay';
+import FrameDisplay from './Display';
 
 describe('<FrameDisplay />', () => {
   let widgetApi: MockedWidgetApi;

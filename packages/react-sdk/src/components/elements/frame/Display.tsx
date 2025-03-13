@@ -23,9 +23,9 @@ import {
   WithExtendedSelectionProps,
 } from '../../Whiteboard';
 
-type FrameDisplayProps = FrameElement & WithExtendedSelectionProps;
+type DisplayProps = FrameElement & WithExtendedSelectionProps;
 
-export const FrameDisplay: React.FC<FrameDisplayProps> = ({
+export const Display: React.FC<DisplayProps> = ({
   elementId,
   active,
   readOnly,
@@ -64,3 +64,5 @@ export const FrameDisplay: React.FC<FrameDisplayProps> = ({
     </SelectableElement>
   );
 };
+
+export default React.memo(Display);

@@ -18,7 +18,7 @@ import { useWidgetApi } from '@matrix-widget-toolkit/react';
 import { Elements } from '../../../state/types';
 import { useElementOverride } from '../../ElementOverridesProvider';
 import EllipseDisplay from '../../elements/ellipse/Display';
-import { FrameDisplay } from '../../elements/frame';
+import FrameDisplay from '../../elements/frame/Display';
 import ImageDisplay from '../../elements/image/ImageDisplay';
 import LineDisplay from '../../elements/line/Display';
 import PolylineDisplay from '../../elements/polyline/Display';
