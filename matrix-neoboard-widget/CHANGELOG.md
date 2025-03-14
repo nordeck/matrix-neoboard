@@ -1,5 +1,24 @@
 # @nordeck/matrix-neoboard-widget
 
+## 2.2.0
+
+### Minor Changes
+
+- d050272: There is now an infinite canvas mode exist which can be enabled with the `REACT_APP_INFINITE_CANVAS` environment variable.
+- 7964ca0: There is now a the new frame tool, that places frames on the canvas (only with feature flag `REACT_APP_INFINITE_CANVAS`)
+
+### Patch Changes
+
+- 176b3da: Fix selected connected line direction change when moved and snap to grid is enabled
+- Updated dependencies [a523436]
+- Updated dependencies [d050272]
+- Updated dependencies [7964ca0]
+- Updated dependencies [c8348bd]
+- Updated dependencies [d9a5026]
+- Updated dependencies [176b3da]
+- Updated dependencies [3d7c3bf]
+  - @nordeck/matrix-neoboard-react-sdk@1.2.0
+
 ## 2.1.0
 
 ### Minor Changes
