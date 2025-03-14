@@ -132,11 +132,12 @@ An Element that has a shape attached, that has a text and a fill color.
 | `borderRadius`   | `number \| undefined`                                                                              | The border radius of the shape in pixels.                                  |
 | `text`           | `YText` / `string`                                                                                 | Text that is displayed in the shape.                                       |
 | `textAlignment`  | `'left' \| 'center' \| 'right' \| undefined`                                                       | The alignment of the text in the shape.                                    |
-| `textColor`      | `string \| undefined`                                                                              | The text color of the shape as [CSS color value][csscolor].                |
 | `textBold`       | `boolean \| undefined`                                                                             | Should the text have a bold formatting?                                    |
+| `textColor`      | `string \| undefined`                                                                              | The text color of the shape as [CSS color value][csscolor].                |
+| `textFontFamily` | `'Inter' \| 'Abel' \| 'Actor' \| 'Adamina' \| 'Chewy' \| 'Gwendolyn' \| 'Pirata One' \| undefined` | The font family of the text. Defaults to `"Inter"`.                        |
+| `textFormat`     | `'custom.html' \| undefined`                                                                       | The formatting of the text.                                                |
 | `textItalic`     | `boolean \| undefined`                                                                             | Should the text have an italic formatting?                                 |
 | `textSize`       | `number \| undefined`                                                                              | Font size of the text in CSS pixel unit, `undefined` for auto text size.   |
-| `textFontFamily` | `'Inter' \| 'Abel' \| 'Actor' \| 'Adamina' \| 'Chewy' \| 'Gwendolyn' \| 'Pirata One' \| undefined` | The font family of the text. Defaults to `"Inter"`.                        |
 | `connectedPaths` | `string[] \| undefined`                                                                            | The IDs of connected path elements. Currently only lines can be connected. |
 
 #### Example
