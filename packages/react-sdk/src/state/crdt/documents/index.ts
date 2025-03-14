@@ -29,6 +29,7 @@ export type {
   Element,
   ElementBase,
   ElementKind,
+  FrameElement,
   ImageElement,
   ImageMimeType,
   PathElement,

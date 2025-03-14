@@ -24,6 +24,7 @@ import { Mocked, vi } from 'vitest';
 import { SvgScaleContextProvider } from '../../components/Whiteboard/SvgScaleContext';
 import {
   Element,
+  FrameElement,
   ImageElement,
   PathElement,
   ShapeElement,
@@ -339,6 +340,18 @@ export function mockImageElement(
     width: 200,
     height: 100,
     ...image,
+  };
+}
+
+export function mockFrameElement(
+  frame: Partial<FrameElement> = {},
+): FrameElement {
+  return {
+    type: 'frame',
+    position: { x: 10, y: 20 },
+    width: 200,
+    height: 100,
+    ...frame,
   };
 }
 

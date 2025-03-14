@@ -16,6 +16,7 @@
 
 export { convertBlobToBase64 } from './convertBlobToBase64';
 export { determineImageSize } from './determineImageSize';
+export { filterRecord } from './filterRecord';
 export { findForegroundColor } from './findForegroundColor';
 export { isDefined } from './isDefined';
 export { setLocale } from './locale';

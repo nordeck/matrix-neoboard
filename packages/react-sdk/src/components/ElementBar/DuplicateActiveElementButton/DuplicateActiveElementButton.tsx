@@ -20,6 +20,7 @@ import { useTranslation } from 'react-i18next';
 import {
   Element,
   useActiveElements,
+  useElements,
   useWhiteboardSlideInstance,
 } from '../../../state';
 import { calculateBoundingRectForElements } from '../../../state/crdt/documents/elements';
@@ -63,6 +64,8 @@ export function DuplicateActiveElementButton() {
   const { t } = useTranslation('neoboard');
   const slideInstance = useWhiteboardSlideInstance();
   const { activeElementIds } = useActiveElements();
+  const activeElementsObject = useElements(activeElementIds);
+  const activeElements = Object.values(activeElementsObject);
 
   const handleDuplicate = useCallback(() => {
     const sortedActiveElementIds =
@@ -70,8 +73,11 @@ export function DuplicateActiveElementButton() {
     const elements = Object.values(
       slideInstance.getElements(sortedActiveElementIds),
     );
-    const boundingRect = calculateBoundingRectForElements(elements);
-    const duplicatedElements = elements.map((element) =>
+    const elementsWithoutFrames = elements.filter((e) => e.type !== 'frame');
+    const boundingRect = calculateBoundingRectForElements(
+      elementsWithoutFrames,
+    );
+    const duplicatedElements = elementsWithoutFrames.map((element) =>
       duplicate(element, gridCellSize, boundingRect),
     );
 
@@ -83,6 +89,12 @@ export function DuplicateActiveElementButton() {
     'Duplicate the active element',
     { count: activeElementIds.length },
   );
+
+  const onlyFramesSelected = activeElements.every((e) => e.type === 'frame');
+
+  if (onlyFramesSelected) {
+    return null;
+  }
 
   return (
     <ToolbarButton
