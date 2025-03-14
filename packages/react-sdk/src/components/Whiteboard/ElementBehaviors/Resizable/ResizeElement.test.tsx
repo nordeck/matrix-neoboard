@@ -68,7 +68,7 @@ vi.mock('../../SvgCanvas/useMeasure', () => {
 });
 
 beforeAll(() => {
-  document.elementFromPoint = vi.fn();
+  document.elementsFromPoint = vi.fn().mockReturnValue([]);
 });
 
 describe('<ResizeElement />', () => {
