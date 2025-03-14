@@ -97,7 +97,7 @@ const WhiteboardHost = ({
       position="relative"
       data-guided-tour-target="canvas"
       {...(infiniteCanvasMode
-        ? { width: 'calc(100vw - 50px)', overflow: 'hidden' }
+        ? { width: 'calc(100vw - 5px)', overflow: 'hidden' }
         : {})}
     >
       <SvgCanvas
