@@ -207,6 +207,22 @@ export const SvgScaleContextProvider: React.FC<PropsWithChildren> = ({
     [stateValues.scale, stateValues.translation.x, stateValues.translation.y],
   );
 
+  const viewportCanvasCenter = useMemo(() => {
+    const x =
+      whiteboardWidth / 2 -
+      stateValues.translation.x / stateValues.scale +
+      containerDimensions.width / stateValues.scale / 2;
+    const y =
+      whiteboardHeight / 2 -
+      stateValues.translation.y / stateValues.scale +
+      containerDimensions.height / stateValues.scale / 2;
+
+    return {
+      x,
+      y,
+    };
+  }, [containerDimensions, stateValues]);
+
   const state: SvgScaleContextType = useMemo(() => {
     return {
       scale: stateValues.scale,
@@ -217,6 +233,7 @@ export const SvgScaleContextProvider: React.FC<PropsWithChildren> = ({
       containerDimensions,
       setContainerDimensions,
       transformPointSvgToContainer,
+      viewportCanvasCenter,
     };
   }, [
     containerDimensions,
@@ -227,6 +244,7 @@ export const SvgScaleContextProvider: React.FC<PropsWithChildren> = ({
     transformPointSvgToContainer,
     updateScale,
     updateTranslation,
+    viewportCanvasCenter,
   ]);
 
   return (

@@ -35,6 +35,7 @@ import { Mocked, afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
   WhiteboardTestingContextProvider,
   mockEllipseElement,
+  mockFrameElement,
   mockImageElement,
   mockLineElement,
   mockTextElement,
@@ -402,6 +403,17 @@ describe('<ElementColorPicker/>', () => {
 
   it('should be hidden when only image elements are selected', async () => {
     const element = mockImageElement();
+    const elementId = activeSlide.addElement(element);
+    activeSlide.setActiveElementIds([elementId]);
+
+    render(<ElementColorPicker />, { wrapper: Wrapper });
+
+    const colorButton = screen.queryByRole('button', { name: 'Pick a color' });
+    expect(colorButton).not.toBeInTheDocument();
+  });
+
+  it('should be hidden when only frame elements are selected', async () => {
+    const element = mockFrameElement();
     const elementId = activeSlide.addElement(element);
     activeSlide.setActiveElementIds([elementId]);
 

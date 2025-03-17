@@ -14,5 +14,24 @@
  * limitations under the License.
  */
 
-export { ConnectableElement } from './ConnectableElement';
-export type { ConnectableElementProps } from './ConnectableElement';
+/**
+ * Filter a record.
+ *
+ * @param items - items to filter
+ * @param filterFunc - filter function
+ * @returns record with all props for which the filter function returned true
+ */
+export const filterRecord = <V>(
+  items: Record<string, V>,
+  filterFunc: (item: V) => boolean,
+) => {
+  const filtered: Record<string, V> = {};
+
+  Object.entries(items).forEach(([key, item]) => {
+    if (filterFunc(item)) {
+      filtered[key] = item;
+    }
+  });
+
+  return filtered;
+};

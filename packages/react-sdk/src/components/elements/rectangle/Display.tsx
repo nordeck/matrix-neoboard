@@ -44,6 +44,7 @@ const RectangleDisplay = ({
   const renderedChild = (
     <g data-testid={dataTestid}>
       <rect
+        data-connect-type={`connectable-element`}
         x={shape.position.x}
         y={shape.position.y}
         fill={shape.fillColor}

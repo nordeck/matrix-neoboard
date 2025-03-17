@@ -324,6 +324,7 @@
   "toolsBar": {
     "arrowTool": "Arrow",
     "ellipseTool": "Ellipse",
+    "frameTool": "Create frame",
     "imageUploadTool": "Upload image",
     "lineTool": "Line",
     "penTool": "Pen",
