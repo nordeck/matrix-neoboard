@@ -408,4 +408,4 @@ jobs:
           KUBE_CONFIG_DATA: ${{ secrets.KUBECONFIG_NEOTOOLSUITE_DEV }}
         with:
           args: |
-            kubectl rollout restart deployment matrix-neoboard-infinite-canvas -n matrix
+            kubectl rollout restart deployment matrix-neoboard-widget-infinite-canvas -n matrix
