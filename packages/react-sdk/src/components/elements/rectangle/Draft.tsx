@@ -21,11 +21,13 @@ import RectangleDisplay from './Display';
 type RectangleDraftProps = {
   fixedColor?: string;
   rounded?: boolean;
+  stickyNote?: boolean;
 };
 
 const RectangleDraft: React.FC<RectangleDraftProps> = ({
   fixedColor,
   rounded,
+  stickyNote,
 }) => {
   return (
     <DraftShapeChild
@@ -33,6 +35,7 @@ const RectangleDraft: React.FC<RectangleDraftProps> = ({
       kind="rectangle"
       fixedColor={fixedColor}
       rounded={rounded}
+      stickyNote={stickyNote}
     />
   );
 };

@@ -29,6 +29,7 @@ import { useFullscreenMode } from './useFullscreenMode';
 
 export type ActiveTool =
   | 'select'
+  | 'sticky-note'
   | 'text'
   | 'rectangle'
   | 'rounded-rectangle'

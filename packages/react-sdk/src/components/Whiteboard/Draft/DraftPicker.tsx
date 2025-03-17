@@ -52,5 +52,8 @@ export const DraftPicker = (): ReactElement | null => {
 
     case 'triangle':
       return <TriangleDraft />;
+
+    case 'sticky-note':
+      return <RectangleDraft />;
   }
 };

@@ -331,6 +331,7 @@
     "rectangleTool": "Rectangle",
     "roundedRectangleTool": "Rounded rectangle",
     "selectTool": "Select",
+    "stickyNote": "Sticky note",
     "textTool": "Text",
     "title": "Tools",
     "triangleTool": "Triangle"

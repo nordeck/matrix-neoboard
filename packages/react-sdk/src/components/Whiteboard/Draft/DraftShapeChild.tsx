@@ -43,6 +43,7 @@ export type DraftShapeChildProps = {
    */
   fixedColor?: string;
   rounded?: boolean;
+  stickyNote?: boolean;
 };
 
 export const DraftShapeChild = ({
@@ -51,6 +52,7 @@ export const DraftShapeChild = ({
   sameLength,
   fixedColor,
   rounded,
+  stickyNote,
 }: DraftShapeChildProps) => {
   const { isShowGrid } = useLayoutState();
   const [startCoords, setStartCoords] = useState<Point>();
@@ -96,7 +98,9 @@ export const DraftShapeChild = ({
         createShape({
           kind,
           startCoords,
-          endCoords,
+          endCoords: stickyNote
+            ? { x: point.x + 160, y: point.y + 160 }
+            : endCoords,
           fillColor: fixedColor || fillColor,
           gridCellSize: isShowGrid ? gridCellSize : undefined,
           sameLength,
@@ -120,6 +124,7 @@ export const DraftShapeChild = ({
       activeTool,
       fillColor,
       activeFontFamily,
+      stickyNote,
     ],
   );
 
