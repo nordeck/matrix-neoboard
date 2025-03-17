@@ -101,11 +101,12 @@ export const DraftShapeChild = ({
           endCoords: stickyNote
             ? { x: point.x + 160, y: point.y + 160 }
             : endCoords,
-          fillColor: fixedColor || fillColor,
+          fillColor: stickyNote ? '#ffefc1' : fixedColor || fillColor,
           gridCellSize: isShowGrid ? gridCellSize : undefined,
           sameLength,
           rounded: activeTool === 'rounded-rectangle' ? true : false,
           textColor,
+          stickyNote,
           textFontFamily: activeFontFamily,
           textSize: defaultTextSize,
         }),
@@ -190,6 +191,7 @@ export const DraftShapeChild = ({
             sameLength,
             rounded,
             textColor,
+            stickyNote,
             textFontFamily: activeFontFamily,
           })
         : undefined,
@@ -202,6 +204,7 @@ export const DraftShapeChild = ({
       fixedColor,
       rounded,
       textColor,
+      stickyNote,
       fillColor,
       activeFontFamily,
     ],

@@ -85,10 +85,12 @@ export function DraftMouseHandler({
     (ev: MouseEvent<SVGRectElement>) => {
       if (onMouseDown) {
         const point = calculateSvgCoords({ x: ev.clientX, y: ev.clientY });
-        onMouseDown(point);
+        if (activeTool !== 'sticky-note') {
+          onMouseDown(point);
+        }
       }
     },
-    [onMouseDown, calculateSvgCoords],
+    [onMouseDown, calculateSvgCoords, activeTool],
   );
 
   const handleMouseMove = useCallback(

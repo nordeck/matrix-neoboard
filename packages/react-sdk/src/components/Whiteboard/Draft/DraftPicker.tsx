@@ -54,6 +54,6 @@ export const DraftPicker = (): ReactElement | null => {
       return <TriangleDraft />;
 
     case 'sticky-note':
-      return <RectangleDraft />;
+      return <RectangleDraft stickyNote={true} />;
   }
 };

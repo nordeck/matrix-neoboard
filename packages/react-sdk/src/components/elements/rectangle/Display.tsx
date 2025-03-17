@@ -40,9 +40,20 @@ const RectangleDisplay = ({
   ...shape
 }: RectangleElementProps) => {
   const { rx, strokeColor, strokeWidth, text } = getRenderProperties(shape);
+  const stickyNote = shape.stickyNote;
+
+  const shadowFilter = (
+    <filter id="bottom-shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="black" />
+    </filter>
+  );
 
   const renderedChild = (
-    <g data-testid={dataTestid}>
+    <g
+      data-testid={dataTestid}
+      style={stickyNote ? { filter: 'url(#bottom-shadow)' } : {}}
+    >
+      {stickyNote && shadowFilter}
       <rect
         data-connect-type={`connectable-element`}
         x={shape.position.x}

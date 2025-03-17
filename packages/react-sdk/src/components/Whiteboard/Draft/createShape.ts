@@ -40,6 +40,7 @@ export function createShape({
   textColor,
   textFontFamily,
   textSize,
+  stickyNote,
 }: {
   kind: ShapeKind;
   startCoords: Point;
@@ -51,6 +52,7 @@ export function createShape({
   textColor?: string;
   textFontFamily: TextFontFamily;
   textSize?: number;
+  stickyNote?: boolean;
 }): ShapeElement {
   const normalizedStart =
     gridCellSize === undefined
@@ -116,6 +118,7 @@ export function createShape({
     text: '',
     textColor,
     textFontFamily,
+    stickyNote,
     textSize,
     borderRadius: rounded ? 20 : undefined,
   };

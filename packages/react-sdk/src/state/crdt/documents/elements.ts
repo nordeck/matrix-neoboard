@@ -62,6 +62,7 @@ export type ShapeElement = ElementBase & {
   textColor?: string;
   textBold?: boolean;
   textItalic?: boolean;
+  stickyNote?: boolean;
   textSize?: number;
   textFontFamily: TextFontFamily;
   connectedPaths?: string[];
@@ -86,6 +87,7 @@ const shapeElementSchema = elementBaseSchema
     textColor: Joi.string().strict(),
     textBold: Joi.boolean(),
     textItalic: Joi.boolean(),
+    stickyNote: Joi.boolean(),
     textSize: Joi.number().strict(),
     textFontFamily: Joi.string().strict().default('Inter'),
     connectedPaths: Joi.array().items(Joi.string()),
