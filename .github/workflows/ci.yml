@@ -364,6 +364,7 @@ jobs:
           ref: dev
           sparse-checkout: |
             /cluster/neotoolsuite-dev/neoboard/values-neotoolsuite-dev.yaml
+            /cluster/neotoolsuite-dev/neoboard/values-neotoolsuite-dev.infinite-canvas.yaml
           sparse-checkout-cone-mode: false
           repository: nordeck/valhalla
           token: ${{ secrets.PACKAGE_TOKEN }}
@@ -377,6 +378,7 @@ jobs:
           chmod 600 /tmp/config
           echo "KUBECONFIG=/tmp/config" >> $GITHUB_ENV
 
+      # Deploy dev
       - name: Deploy k8s to cluster
         uses: wahyd4/kubectl-helm-action@master
         env:
@@ -384,7 +386,6 @@ jobs:
         with:
           args: |
             helm upgrade --install matrix-neoboard ./charts/matrix-neoboard-widget -f ./valhalla/cluster/neotoolsuite-dev/neoboard/values-neotoolsuite-dev.yaml -n matrix --set image.tag="argo-${{ needs.build.outputs.ARGOCD_SHA }}"
-
       - name: Restart rollout
         uses: wahyd4/kubectl-helm-action@master
         env:
@@ -392,3 +393,19 @@ jobs:
         with:
           args: |
             kubectl rollout restart deployment matrix-neoboard -n matrix
+            #
+      # Deploy infinite canvas
+      - name: Deploy k8s to cluster (infinite canvas)
+        uses: wahyd4/kubectl-helm-action@master
+        env:
+          KUBE_CONFIG_DATA: ${{ secrets.KUBECONFIG_NEOTOOLSUITE_DEV }}
+        with:
+          args: |
+            helm upgrade --install matrix-neoboard-infinite-canvas ./charts/matrix-neoboard-widget -f ./valhalla/cluster/neotoolsuite-dev/neoboard/values-neotoolsuite-dev.infinite-canvas.yaml -n matrix --set image.tag="argo-${{ needs.build.outputs.ARGOCD_SHA }}"
+      - name: Restart rollout (infinite canvas)
+        uses: wahyd4/kubectl-helm-action@master
+        env:
+          KUBE_CONFIG_DATA: ${{ secrets.KUBECONFIG_NEOTOOLSUITE_DEV }}
+        with:
+          args: |
+            kubectl rollout restart deployment matrix-neoboard-infinite-canvas -n matrix
