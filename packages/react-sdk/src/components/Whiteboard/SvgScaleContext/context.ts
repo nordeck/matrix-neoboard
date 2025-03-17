@@ -54,11 +54,6 @@ export type SvgScaleContextType = {
   updateTranslation: (changeX: number, changeY: number) => void;
 
   /**
-   * Recalculate values of the current canvas after container changes.
-   */
-  refreshCanvas: () => void;
-
-  /**
    * Dimensions of the container holing the SVG
    */
   containerDimensions: ContainerDimensions;
