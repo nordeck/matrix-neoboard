@@ -72,6 +72,9 @@ export async function createWhiteboardPdfDefinition({
       )
     ).filter(isDefined),
     version: '1.5',
+    defaultStyle: {
+      font: 'Inter',
+    },
     styles: {
       emoji: {
         font: 'Noto Emoji',
