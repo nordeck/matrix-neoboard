@@ -48,6 +48,7 @@ const EllipseDisplay = ({
   const renderedChild = (
     <g>
       <ellipse
+        data-connect-type={`connectable-element`}
         cx={shape.position.x + cx}
         cy={shape.position.y + cy}
         fill={shape.fillColor}

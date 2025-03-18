@@ -16,6 +16,7 @@
 
 import { styled, useTheme } from '@mui/material';
 import { PointerEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import { filterRecord } from '../../../../lib';
 import {
   Point,
   ShapeElement,
@@ -75,10 +76,15 @@ export function DragSelect() {
 
   useEffect(() => {
     if (shape) {
-      const activeElementIds = calculateIntersect(
-        shape,
-        slideInstance.getElements(slideInstance.getElementIds()),
+      const allElements = slideInstance.getElements(
+        slideInstance.getElementIds(),
       );
+      const nonFrameElements = filterRecord(
+        allElements,
+        (e) => e.type !== 'frame',
+      );
+
+      const activeElementIds = calculateIntersect(shape, nonFrameElements);
 
       // Add active elements in the order of their selection
       const sortedActiveElementIds: string[] = [];

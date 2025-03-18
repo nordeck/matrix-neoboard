@@ -42,7 +42,13 @@ The central collaboration model is a whiteboard.
                      │
                      │  ┌──────────────┐
                      │  │              │
-                     └──┤ PathElement  │
+                     ├──┤ PathElement  │
+                     │  │              │
+                     │  └──────────────┘
+                     │
+                     │  ┌──────────────┐
+                     │  │              │
+                     └──┤ FrameElement │
                         │              │
                         └──────────────┘
 ```
@@ -256,6 +262,32 @@ An image element
   "type": "image",
   "mxc": "mxc://example.com/test1234",
   "fileName": "example.jpg",
+  "position": { "x": 50, "y": 100 },
+  "width": 100,
+  "height": 200
+}
+```
+
+### `FrameElement`
+
+(Only with feature flag `REACT_APP_INFINITE_CANVAS`).
+
+A frame element is used to group elements and run structured presentations.
+
+#### Fields
+
+| Field      | Type      | Description                                           |
+| ---------- | --------- | ----------------------------------------------------- |
+| `type`     | `'frame'` | Identifies the element as a frame.                    |
+| `position` | `Point`   | The position of the element on the whiteboard canvas. |
+| `width`    | `number`  | Scaling of the element on the x-axis.                 |
+| `height`   | `number`  | Scaling of the element on the y-axis.                 |
+
+#### Example
+
+```json
+{
+  "type": "frame",
   "position": { "x": 50, "y": 100 },
   "width": 100,
   "height": 200
