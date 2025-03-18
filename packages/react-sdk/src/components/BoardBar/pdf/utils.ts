@@ -167,7 +167,7 @@ export function textContent(
     fontSize,
     lineHeight: 1,
     margin: 0,
-    font: element.textFontFamily,
+    font: element.textFontFamily ?? 'Inter',
     // Set maxHeight to prevent text overflows.
     // This is not optimal, because it does not clip the text.
     // Instead it does not draw lines, that would not fit into the shape.
