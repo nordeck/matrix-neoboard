@@ -20,7 +20,7 @@ import { useSvgScaleContext } from '../SvgScaleContext';
 import { calculateSvgCoords } from './utils';
 
 type UseWheelZoomResult = {
-  handleWheelZoom: WheelEventHandler;
+  handleWheelZoom: WheelEventHandler<SVGSVGElement>;
 };
 
 export const useWheelZoom = (
