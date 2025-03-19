@@ -348,6 +348,9 @@ exports[`createWhiteboardPdfDefinition > should generate a pdf header and table 
       ],
     },
   ],
+  "defaultStyle": {
+    font: 'Inter',
+  },
   "info": {
     "author": "Alice",
     "title": "My Room",
