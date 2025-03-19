@@ -28,6 +28,7 @@ import {
 import { selectShapeSizes, setShapeSize } from '../../../store/shapeSizesSlice';
 import { useLayoutState } from '../../Layout';
 import { WithExtendedSelectionProps } from '../ElementBehaviors';
+import { useSvgScaleContext } from '../SvgScaleContext';
 import { defaultTextSize, gridCellSize } from '../constants';
 import { DraftMouseHandler } from './DraftMouseHandler';
 import { calculateShapeCoords } from './calculateShapeCoords';
@@ -67,6 +68,9 @@ export const DraftShapeChild = ({
   const { setActiveTool, activeFontFamily } = useLayoutState();
   const shapeSizes = useAppSelector((state) => selectShapeSizes(state));
   const dispatch = useAppDispatch();
+  const { scale } = useSvgScaleContext();
+  const adjustedScale = scale === 0 ? 1 : scale;
+  const stickyNoteSize = 160 / adjustedScale;
 
   const fillColor = activeShapeColor;
   // Text fields are identified by a transparent background color
@@ -99,7 +103,7 @@ export const DraftShapeChild = ({
           kind,
           startCoords,
           endCoords: stickyNote
-            ? { x: point.x + 160, y: point.y + 160 }
+            ? { x: point.x + stickyNoteSize, y: point.y + stickyNoteSize }
             : endCoords,
           fillColor: stickyNote ? '#ffefc1' : fixedColor || fillColor,
           gridCellSize: isShowGrid ? gridCellSize : undefined,
@@ -126,6 +130,7 @@ export const DraftShapeChild = ({
       fillColor,
       activeFontFamily,
       stickyNote,
+      stickyNoteSize,
     ],
   );
 
