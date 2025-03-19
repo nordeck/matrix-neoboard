@@ -15,13 +15,7 @@
  */
 
 import { clamp, isEqual } from 'lodash';
-import {
-  PropsWithChildren,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import { PropsWithChildren, useCallback, useMemo, useState } from 'react';
 import { Point } from '../../../state';
 import {
   infiniteCanvasMode,
@@ -157,20 +151,21 @@ export const SvgScaleContextProvider: React.FC<PropsWithChildren> = ({
     [setScale, stateValues.scale],
   );
 
-  const refreshCanvas = useCallback(() => {
-    const fittedState = fitFunc(stateValues, containerDimensions);
-    if (!isEqual(fittedState, stateValues)) {
-      setStateValues(fittedState);
-    }
-  }, [containerDimensions, stateValues]);
-
   const setContainerDimensions = useCallback(
     (dimensions: ContainerDimensions) => {
       if (!isEqual(dimensions, containerDimensions)) {
         setContainerDimensionsState(dimensions);
       }
+
+      // Update state directly after setting the container dimensions to prevent an extra effect run.
+      // This happens outside of the if block, e.g. for handling initial set of the container dimensions.
+      const fittedState = fitFunc(stateValues, dimensions);
+
+      if (!isEqual(fittedState, stateValues)) {
+        setStateValues(fittedState);
+      }
     },
-    [containerDimensions],
+    [containerDimensions, stateValues],
   );
 
   const updateTranslation = useCallback(
@@ -212,9 +207,21 @@ export const SvgScaleContextProvider: React.FC<PropsWithChildren> = ({
     [stateValues.scale, stateValues.translation.x, stateValues.translation.y],
   );
 
-  useEffect(() => {
-    refreshCanvas();
-  }, [containerDimensions, refreshCanvas]);
+  const viewportCanvasCenter = useMemo(() => {
+    const x =
+      whiteboardWidth / 2 -
+      stateValues.translation.x / stateValues.scale +
+      containerDimensions.width / stateValues.scale / 2;
+    const y =
+      whiteboardHeight / 2 -
+      stateValues.translation.y / stateValues.scale +
+      containerDimensions.height / stateValues.scale / 2;
+
+    return {
+      x,
+      y,
+    };
+  }, [containerDimensions, stateValues]);
 
   const state: SvgScaleContextType = useMemo(() => {
     return {
@@ -223,14 +230,13 @@ export const SvgScaleContextProvider: React.FC<PropsWithChildren> = ({
       updateScale,
       translation: stateValues.translation,
       updateTranslation,
-      refreshCanvas,
       containerDimensions,
       setContainerDimensions,
       transformPointSvgToContainer,
+      viewportCanvasCenter,
     };
   }, [
     containerDimensions,
-    refreshCanvas,
     setContainerDimensions,
     setScale,
     stateValues.scale,
@@ -238,6 +244,7 @@ export const SvgScaleContextProvider: React.FC<PropsWithChildren> = ({
     transformPointSvgToContainer,
     updateScale,
     updateTranslation,
+    viewportCanvasCenter,
   ]);
 
   return (

@@ -22,7 +22,7 @@ import { useConnectionPoint } from '../../../ConnectionPointProvider';
 import { useSvgScaleContext } from '../../SvgScaleContext';
 import { ActivationArea } from './ActivationArea';
 
-type ConnectableElementProps = {
+export type ConnectableElementProps = {
   elementId: string;
   element: ShapeElement;
 };
@@ -48,11 +48,11 @@ export function ConnectableElement({
   const connectionAnchorSize = 5 / scale;
   const connectionAnchorCornerRadius = 3 / 2 / scale;
 
-  const { connectElementId } = useConnectionPoint();
+  const { connectElementIds } = useConnectionPoint();
 
   useEffect(() => {
-    setShowConnectionAnchors(elementId === connectElementId);
-  }, [connectElementId, elementId]);
+    setShowConnectionAnchors(connectElementIds.includes(elementId));
+  }, [connectElementIds, elementId]);
 
   const points = useMemo(
     () =>

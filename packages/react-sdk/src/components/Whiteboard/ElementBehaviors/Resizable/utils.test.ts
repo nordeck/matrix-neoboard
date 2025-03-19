@@ -17,6 +17,7 @@
 import { beforeEach, describe, expect, it, test } from 'vitest';
 import {
   mockEllipseElement,
+  mockFrameElement,
   mockLineElement,
 } from '../../../../lib/testUtils/documentTestUtils';
 import { Element } from '../../../../state';
@@ -457,6 +458,12 @@ describe('computeResizing', () => {
     height: 40,
   });
 
+  const frame: Element = mockFrameElement({
+    position: { x: 120, y: 120 },
+    width: 40,
+    height: 40,
+  });
+
   it('should return no updates when resizableProperties are undefined', () => {
     expect(
       computeResizing(
@@ -530,19 +537,28 @@ describe('computeResizing', () => {
   });
 
   test.each`
-    name             | dragX  | dragY  | expectedX | expectedY | expectedWidth | expectedHeight
-    ${'top'}         | ${120} | ${80}  | ${120}    | ${80}     | ${40}         | ${80}
-    ${'topRight'}    | ${200} | ${80}  | ${120}    | ${80}     | ${80}         | ${80}
-    ${'right'}       | ${200} | ${120} | ${120}    | ${120}    | ${80}         | ${40}
-    ${'bottomRight'} | ${200} | ${200} | ${120}    | ${120}    | ${80}         | ${80}
-    ${'bottom'}      | ${120} | ${200} | ${120}    | ${120}    | ${40}         | ${80}
-    ${'bottomLeft'}  | ${80}  | ${200} | ${80}     | ${120}    | ${80}         | ${80}
-    ${'left'}        | ${80}  | ${120} | ${80}     | ${120}    | ${80}         | ${40}
-    ${'topLeft'}     | ${80}  | ${80}  | ${80}     | ${80}     | ${80}         | ${80}
+    name             | element    | dragX  | dragY  | expectedX | expectedY | expectedWidth | expectedHeight
+    ${'top'}         | ${ellipse} | ${120} | ${80}  | ${120}    | ${80}     | ${40}         | ${80}
+    ${'topRight'}    | ${ellipse} | ${200} | ${80}  | ${120}    | ${80}     | ${80}         | ${80}
+    ${'right'}       | ${ellipse} | ${200} | ${120} | ${120}    | ${120}    | ${80}         | ${40}
+    ${'bottomRight'} | ${ellipse} | ${200} | ${200} | ${120}    | ${120}    | ${80}         | ${80}
+    ${'bottom'}      | ${ellipse} | ${120} | ${200} | ${120}    | ${120}    | ${40}         | ${80}
+    ${'bottomLeft'}  | ${ellipse} | ${80}  | ${200} | ${80}     | ${120}    | ${80}         | ${80}
+    ${'left'}        | ${ellipse} | ${80}  | ${120} | ${80}     | ${120}    | ${80}         | ${40}
+    ${'topLeft'}     | ${ellipse} | ${80}  | ${80}  | ${80}     | ${80}     | ${80}         | ${80}
+    ${'top'}         | ${frame}   | ${120} | ${80}  | ${120}    | ${80}     | ${40}         | ${80}
+    ${'topRight'}    | ${frame}   | ${200} | ${80}  | ${120}    | ${80}     | ${80}         | ${80}
+    ${'right'}       | ${frame}   | ${200} | ${120} | ${120}    | ${120}    | ${80}         | ${40}
+    ${'bottomRight'} | ${frame}   | ${200} | ${200} | ${120}    | ${120}    | ${80}         | ${80}
+    ${'bottom'}      | ${frame}   | ${120} | ${200} | ${120}    | ${120}    | ${40}         | ${80}
+    ${'bottomLeft'}  | ${frame}   | ${80}  | ${200} | ${80}     | ${120}    | ${80}         | ${80}
+    ${'left'}        | ${frame}   | ${80}  | ${120} | ${80}     | ${120}    | ${80}         | ${40}
+    ${'topLeft'}     | ${frame}   | ${80}  | ${80}  | ${80}     | ${80}     | ${80}         | ${80}
   `(
-    'should compute resizing of shape when dragging handle $name',
+    'should compute resizing of shape when dragging handle $name for a $element.type',
     ({
       name,
+      element,
       dragX,
       dragY,
       expectedX,
@@ -563,12 +579,12 @@ describe('computeResizing', () => {
             y: 120,
             width: 40,
             height: 40,
-            elements: { ellipse },
+            elements: { element },
           },
         ),
       ).toEqual([
         {
-          elementId: 'ellipse',
+          elementId: 'element',
           elementOverride: {
             position: { x: expectedX, y: expectedY },
             width: expectedWidth,

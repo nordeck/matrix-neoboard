@@ -21,8 +21,8 @@ import {
   PropsWithChildren,
   ReactNode,
   useCallback,
-  useEffect,
   useImperativeHandle,
+  useLayoutEffect,
   useMemo,
   useRef,
   WheelEventHandler,
@@ -104,7 +104,7 @@ export const SvgCanvas = forwardRef(function SvgCanvas(
     [calculateSvgCoordsFunc, height, viewportHeight, viewportWidth, width],
   );
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     setContainerDimensions({ width, height });
   }, [width, height, setContainerDimensions]);
 

@@ -14,5 +14,24 @@
  * limitations under the License.
  */
 
-export { ConnectableElement } from './ConnectableElement';
-export type { ConnectableElementProps } from './ConnectableElement';
+import { describe, expect, it } from 'vitest';
+import { filterRecord } from './filterRecord';
+
+describe('filterRecord', () => {
+  it('should work for empty objects', () => {
+    expect(filterRecord({}, () => true)).toEqual({});
+  });
+
+  it('should filter a record', () => {
+    expect(
+      filterRecord(
+        {
+          a: true,
+          b: false,
+          c: true,
+        },
+        (i) => i === true,
+      ),
+    ).toEqual({ a: true, c: true });
+  });
+});

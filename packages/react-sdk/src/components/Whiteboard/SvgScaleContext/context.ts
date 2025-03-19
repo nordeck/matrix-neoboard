@@ -54,11 +54,6 @@ export type SvgScaleContextType = {
   updateTranslation: (changeX: number, changeY: number) => void;
 
   /**
-   * Recalculate values of the current canvas after container changes.
-   */
-  refreshCanvas: () => void;
-
-  /**
    * Dimensions of the container holing the SVG
    */
   containerDimensions: ContainerDimensions;
@@ -71,6 +66,11 @@ export type SvgScaleContextType = {
    * Transform a point from the SVG coordinate system to pixels on the container.
    */
   transformPointSvgToContainer: (point: Point) => Point;
+
+  /**
+   * Center point of the canvas on the current viewport.
+   */
+  viewportCanvasCenter: Point;
 };
 
 export const SvgScaleContext = createContext<SvgScaleContextType | undefined>(
