@@ -108,7 +108,15 @@ const WhiteboardHost = ({
       alignContent="space-around"
       position="relative"
       data-guided-tour-target="canvas"
-      {...(infiniteCanvasMode ? { width: '100vw', overflow: 'hidden' } : {})}
+      {...(infiniteCanvasMode
+        ? {
+            sx: {
+              touchAction: 'none',
+            },
+            overflow: 'hidden',
+            width: '100vw',
+          }
+        : {})}
     >
       <SvgCanvas
         ref={svgRef}
