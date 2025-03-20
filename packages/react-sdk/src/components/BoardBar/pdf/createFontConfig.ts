@@ -32,12 +32,6 @@ export function createFontConfig(): FontConfig {
     fonts: {},
   };
 
-  config.fonts['Roboto'] = {
-    normal: 'Roboto-Regular.ttf',
-    bold: 'Roboto-Medium.ttf',
-    italics: 'Roboto-Italic.ttf',
-    bolditalics: 'Roboto-MediumItalic.ttf',
-  };
   config.fonts['Abel'] = {
     normal: 'Inter-400.woff2',
   };
