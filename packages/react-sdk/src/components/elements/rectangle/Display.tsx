@@ -46,10 +46,10 @@ const RectangleDisplay = ({
     <filter id="bottom-shadow" x="-50%" y="-50%" width="200%" height="200%">
       <feDropShadow
         dx="0"
-        dy="3"
-        stdDeviation="3"
+        dy="6"
+        stdDeviation="5"
         floodColor="black"
-        floodOpacity="0.14"
+        floodOpacity="0.33"
       />
     </filter>
   );
