@@ -43,7 +43,6 @@ export const useWheelZoom = (
           return;
         }
 
-        // TODO This does not seem to prevent the browser's zoom.
         event.preventDefault();
         event.stopPropagation();
 
@@ -64,7 +63,7 @@ export const useWheelZoom = (
       } else {
         // Wheel's deltaX is often a multiple of 20.
         // Wheel's deltaY is often a multiple of 120.
-        updateTranslation(-event.deltaX, -event.deltaY / 6);
+        updateTranslation(-event.deltaX, -event.deltaY);
       }
     },
     [svgRef, updateScale, updateTranslation],
