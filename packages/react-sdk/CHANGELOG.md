@@ -1,5 +1,23 @@
 # @nordeck/matrix-neoboard-react-sdk
 
+## 1.2.0
+
+### Minor Changes
+
+- a523436: Use room id of selected whiteboard event to load document snapshots.
+- 0a9bc50: Add sticky notes feature with toolbar button, default styling, and resize behavior
+- f24412d: Fix PDF export for older boards where the font of shapes with text wasn't specified
+- d050272: There is now an infinite canvas mode exist which can be enabled with the `REACT_APP_INFINITE_CANVAS` environment variable.
+- 7964ca0: There is now a the new frame tool, that places frames on the canvas (only with feature flag `REACT_APP_INFINITE_CANVAS`)
+- c8348bd: Provide option to create whiteboard manager with disabled RTC communication.
+- d9a5026: Export SlideSkeleton component.
+- 3d7c3bf: Fix PDF export, if the new fonts are used. Use the Inter font for all text.
+
+### Patch Changes
+
+- 176b3da: Fix selected connected line direction change when moved and snap to grid is enabled
+- 42e391b: Improve the behavior of connecting a line to a shape
+
 ## 1.1.0
 
 ### Minor Changes
