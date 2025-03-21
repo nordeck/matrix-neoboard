@@ -16,7 +16,7 @@
 
 import { describe, expect, it } from 'vitest';
 import { Point, ShapeKind } from '../../../state';
-import { ShapeSizesState } from '../../../store/shapeSizesSlide';
+import { ShapeSizesState } from '../../../store/shapeSizesSlice';
 import { calculateShapeCoords } from './calculateShapeCoords';
 
 const shapeSizes: ShapeSizesState = {

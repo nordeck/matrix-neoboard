@@ -24,7 +24,7 @@ import {
 } from '../../../../state';
 import { ElementUpdate } from '../../../../state/types';
 import { useAppDispatch } from '../../../../store';
-import { setShapeSize } from '../../../../store/shapeSizesSlide';
+import { setShapeSize } from '../../../../store/shapeSizesSlice';
 import { useConnectionPoint } from '../../../ConnectionPointProvider';
 import {
   createResetElementOverrides,

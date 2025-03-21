@@ -25,7 +25,7 @@ import {
   useAppDispatch,
   useAppSelector,
 } from '../../../store/reduxToolkitHooks';
-import { selectShapeSizes, setShapeSize } from '../../../store/shapeSizesSlide';
+import { selectShapeSizes, setShapeSize } from '../../../store/shapeSizesSlice';
 import { useLayoutState } from '../../Layout';
 import { WithExtendedSelectionProps } from '../ElementBehaviors';
 import { defaultTextSize, gridCellSize } from '../constants';

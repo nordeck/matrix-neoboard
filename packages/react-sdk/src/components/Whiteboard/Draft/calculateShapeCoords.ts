@@ -16,7 +16,7 @@
 
 import { Point } from 'pdfmake/interfaces';
 import { ShapeKind } from '../../../state';
-import { ShapeSizesState } from '../../../store/shapeSizesSlide';
+import { ShapeSizesState } from '../../../store/shapeSizesSlice';
 import { whiteboardHeight, whiteboardWidth } from '../constants';
 
 type UseCalculateShapeCoordsResult = {
