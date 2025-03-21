@@ -103,7 +103,10 @@ export const DraftShapeChild = ({
           kind,
           startCoords,
           endCoords: stickyNote
-            ? { x: point.x + stickyNoteSize, y: point.y + stickyNoteSize }
+            ? {
+                x: startCoords.x + stickyNoteSize,
+                y: startCoords.y + stickyNoteSize,
+              }
             : endCoords,
           fillColor: stickyNote ? '#ffefc1' : fixedColor || fillColor,
           gridCellSize: isShowGrid ? gridCellSize : undefined,
