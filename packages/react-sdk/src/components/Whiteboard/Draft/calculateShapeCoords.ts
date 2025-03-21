@@ -17,7 +17,7 @@
 import { Point } from 'pdfmake/interfaces';
 import { ShapeKind } from '../../../state';
 import { ShapeSizesState } from '../../../store/shapeSizesSlice';
-import { whiteboardHeight, whiteboardWidth } from '../constants';
+import { gridCellSize, whiteboardHeight, whiteboardWidth } from '../constants';
 
 type UseCalculateShapeCoordsResult = {
   startCoords: Point;
@@ -28,11 +28,27 @@ export function calculateShapeCoords(
   kind: ShapeKind,
   point: Point,
   shapeSizes: ShapeSizesState,
+  overrideShapeSize?: number,
+  scale: number = 1,
 ): UseCalculateShapeCoordsResult {
-  const { xOffset, yOffset } = {
-    xOffset: Math.floor(shapeSizes[kind].width / 2),
-    yOffset: Math.floor(shapeSizes[kind].height / 2),
-  };
+  let xOffset,
+    yOffset = 0;
+
+  // calculate the offset based on the override size
+  if (overrideShapeSize !== undefined) {
+    const adjustedScale = scale === 0 ? 1 : scale;
+    // make it a multiple of the grid cell size
+    const adjustedSize =
+      Math.round(overrideShapeSize / adjustedScale / gridCellSize) *
+      gridCellSize;
+
+    xOffset = Math.floor(adjustedSize / 2);
+    yOffset = Math.floor(adjustedSize / 2);
+  } else {
+    // otherwise, use the default sizes slice for shapes
+    xOffset = Math.floor(shapeSizes[kind].width / 2);
+    yOffset = Math.floor(shapeSizes[kind].height / 2);
+  }
 
   const shapeCoords: UseCalculateShapeCoordsResult = {
     startCoords: { x: point.x - xOffset, y: point.y - yOffset },

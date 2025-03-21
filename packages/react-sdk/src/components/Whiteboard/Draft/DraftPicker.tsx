@@ -21,6 +21,7 @@ import LineDraft from '../../elements/line/Draft';
 import PolylineDraft from '../../elements/polyline/Draft';
 import RectangleDraft from '../../elements/rectangle/Draft';
 import TriangleDraft from '../../elements/triangle/Draft';
+import { stickyColor } from '../constants';
 
 export const DraftPicker = (): ReactElement | null => {
   const { activeTool } = useLayoutState();
@@ -54,6 +55,6 @@ export const DraftPicker = (): ReactElement | null => {
       return <TriangleDraft />;
 
     case 'sticky-note':
-      return <RectangleDraft stickyNote={true} />;
+      return <RectangleDraft fixedColor={stickyColor} stickyNote={true} />;
   }
 };

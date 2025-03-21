@@ -98,6 +98,9 @@ describe('<ToolsBar/>', () => {
       within(radiogroup).getByRole('radio', { name: 'Rounded rectangle' }),
     ).not.toBeChecked();
     expect(
+      within(radiogroup).getByRole('radio', { name: 'Sticky note' }),
+    ).not.toBeChecked();
+    expect(
       within(radiogroup).getByRole('radio', { name: 'Triangle' }),
     ).not.toBeChecked();
     expect(
@@ -143,6 +146,7 @@ describe('<ToolsBar/>', () => {
     expect(
       screen.getByRole('radio', { name: 'Rounded rectangle' }),
     ).toBeDisabled();
+    expect(screen.getByRole('radio', { name: 'Sticky note' })).toBeDisabled();
     expect(screen.getByRole('radio', { name: 'Triangle' })).toBeDisabled();
     expect(screen.getByRole('radio', { name: 'Line' })).toBeDisabled();
     expect(screen.getByRole('radio', { name: 'Arrow' })).toBeDisabled();
@@ -155,6 +159,9 @@ describe('<ToolsBar/>', () => {
     expect(screen.getByRole('radio', { name: 'Rectangle' })).not.toBeChecked();
     expect(
       screen.getByRole('radio', { name: 'Rounded rectangle' }),
+    ).not.toBeChecked();
+    expect(
+      screen.getByRole('radio', { name: 'Sticky note' }),
     ).not.toBeChecked();
     expect(screen.getByRole('radio', { name: 'Triangle' })).not.toBeChecked();
     expect(screen.getByRole('radio', { name: 'Line' })).not.toBeChecked();

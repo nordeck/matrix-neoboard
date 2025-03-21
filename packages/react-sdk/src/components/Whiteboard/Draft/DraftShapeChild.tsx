@@ -29,7 +29,7 @@ import { selectShapeSizes, setShapeSize } from '../../../store/shapeSizesSlice';
 import { useLayoutState } from '../../Layout';
 import { WithExtendedSelectionProps } from '../ElementBehaviors';
 import { useSvgScaleContext } from '../SvgScaleContext';
-import { defaultTextSize, gridCellSize } from '../constants';
+import { defaultTextSize, gridCellSize, stickySize } from '../constants';
 import { DraftMouseHandler } from './DraftMouseHandler';
 import { calculateShapeCoords } from './calculateShapeCoords';
 import { createShape } from './createShape';
@@ -58,19 +58,13 @@ export const DraftShapeChild = ({
   const { isShowGrid } = useLayoutState();
   const [startCoords, setStartCoords] = useState<Point>();
   const [endCoords, setEndCoords] = useState<Point>();
-  const {
-    activeTextColor,
-    activeShapeTextColor,
-    activeShapeColor,
-    activeTool,
-  } = useLayoutState();
+  const { activeTextColor, activeShapeTextColor, activeShapeColor } =
+    useLayoutState();
   const slideInstance = useWhiteboardSlideInstance();
   const { setActiveTool, activeFontFamily } = useLayoutState();
   const shapeSizes = useAppSelector((state) => selectShapeSizes(state));
   const dispatch = useAppDispatch();
   const { scale } = useSvgScaleContext();
-  const adjustedScale = scale === 0 ? 1 : scale;
-  const stickyNoteSize = 160 / adjustedScale;
 
   const fillColor = activeShapeColor;
   // Text fields are identified by a transparent background color
@@ -92,26 +86,25 @@ export const DraftShapeChild = ({
 
   const handleClick = useCallback(
     (point: Point) => {
+      // Sticky notes have a fixed size, so we need to override the shape size defaults
+      const overrideShapeSize = stickyNote ? stickySize : undefined;
       const { startCoords, endCoords } = calculateShapeCoords(
         kind,
         point,
         shapeSizes,
+        overrideShapeSize,
+        scale,
       );
 
       slideInstance.addElement(
         createShape({
           kind,
           startCoords,
-          endCoords: stickyNote
-            ? {
-                x: startCoords.x + stickyNoteSize,
-                y: startCoords.y + stickyNoteSize,
-              }
-            : endCoords,
-          fillColor: stickyNote ? '#ffefc1' : fixedColor || fillColor,
+          endCoords,
+          fillColor: fixedColor || fillColor,
           gridCellSize: isShowGrid ? gridCellSize : undefined,
           sameLength,
-          rounded: activeTool === 'rounded-rectangle' ? true : false,
+          rounded,
           textColor,
           stickyNote,
           textFontFamily: activeFontFamily,
@@ -121,19 +114,19 @@ export const DraftShapeChild = ({
       setActiveTool('select');
     },
     [
-      fixedColor,
-      isShowGrid,
       kind,
-      sameLength,
-      setActiveTool,
       shapeSizes,
+      scale,
       slideInstance,
-      textColor,
-      activeTool,
+      fixedColor,
       fillColor,
-      activeFontFamily,
+      isShowGrid,
+      sameLength,
+      rounded,
+      textColor,
       stickyNote,
-      stickyNoteSize,
+      activeFontFamily,
+      setActiveTool,
     ],
   );
 
