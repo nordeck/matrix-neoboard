@@ -34,7 +34,7 @@ export type SetShapeSizePayload = {
   size: Size;
 };
 
-export const shapeSizesSlide = createSlice({
+export const shapeSizesSlice = createSlice({
   name: 'shapeSizes',
   initialState,
   reducers: {
@@ -47,8 +47,8 @@ export const shapeSizesSlide = createSlice({
   },
 });
 
-export const { setShapeSize } = shapeSizesSlide.actions;
+export const { setShapeSize } = shapeSizesSlice.actions;
 
 export const selectShapeSizes = (state: RootState) => state.shapeSizesReducer;
 
-export const shapeSizesReducer = shapeSizesSlide.reducer;
+export const shapeSizesReducer = shapeSizesSlice.reducer;

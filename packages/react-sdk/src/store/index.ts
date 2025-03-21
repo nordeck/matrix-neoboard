@@ -23,7 +23,7 @@ export {
   setSnapshotSaveSuccessful,
 } from './connectionInfoSlice';
 export { useAppDispatch } from './reduxToolkitHooks';
-export { shapeSizesReducer } from './shapeSizesSlide';
+export { shapeSizesReducer } from './shapeSizesSlice';
 export { createStore } from './store';
 export type {
   AppDispatch,
