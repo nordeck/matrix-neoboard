@@ -15,6 +15,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
+import { stickyColor, stickySize } from '../constants';
 import { createShape, createShapeFromPoints } from './createShape';
 
 describe('createShape', () => {
@@ -27,7 +28,6 @@ describe('createShape', () => {
       textColor: '#ff0000',
       textFontFamily: 'Inter',
     });
-
     expect(result).toEqual({
       width: 20,
       height: 20,
@@ -50,7 +50,6 @@ describe('createShape', () => {
       textFontFamily: 'Inter',
       rounded: true,
     });
-
     expect(result).toEqual({
       width: 20,
       height: 20,
@@ -61,6 +60,31 @@ describe('createShape', () => {
       fillColor: '#ffffff',
       textFontFamily: 'Inter',
       borderRadius: 20,
+    });
+  });
+
+  it('should create a sticky note', () => {
+    const result = createShape({
+      kind: 'rectangle',
+      startCoords: { x: 10, y: 20 },
+      endCoords: { x: 10 + stickySize, y: 20 + stickySize },
+      fillColor: stickyColor,
+      textFontFamily: 'Inter',
+      stickyNote: true,
+    });
+    expect(result).toEqual({
+      width: stickySize,
+      height: stickySize,
+      position: { x: 10, y: 20 },
+      type: 'shape',
+      kind: 'rectangle',
+      text: '',
+      fillColor: stickyColor,
+      textFontFamily: 'Inter',
+      borderRadius: undefined,
+      stickyNote: true,
+      textColor: undefined,
+      textSize: undefined,
     });
   });
 
@@ -319,7 +343,6 @@ describe('createShapeFromPoints', () => {
       textFontFamily: 'Inter',
       textSize: 23,
     });
-
     expect(result).toEqual({
       width: 20,
       height: 20,

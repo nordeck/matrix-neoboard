@@ -17,9 +17,23 @@
 import { styled } from '@mui/material';
 import { Dispatch, MouseEvent, PropsWithChildren, useCallback } from 'react';
 import { Point } from '../../../state';
-import { useLayoutState } from '../../Layout';
+import { ActiveTool, useLayoutState } from '../../Layout';
 import { useSvgCanvasContext } from '../SvgCanvas';
 import editRoundedUrl from './editRounded.svg?url';
+
+const StickyNoteIconBase64 =
+  'data:image/svg+xml;base64,CiAgPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0Ij4KICAgIDxwYXRoIGQ9Ik0xOSA1djloLTV2NUg1VjV6bTAtMkg1Yy0xLjEgMC0yIC45LTIgMnYxNGMwIDEuMS45IDIgMiAyaDEwbDYtNlY1YzAtMS4xLS45LTItMi0ybS03IDExSDd2LTJoNXptNS00SDdWOGgxMHoiLz4KICA8L3N2Zz4K';
+
+const getCursorStyle = (tool: ActiveTool) => {
+  switch (tool) {
+    case 'polyline':
+      return `url("${editRoundedUrl}") 3 21, crosshair`;
+    case 'sticky-note':
+      return `url("${StickyNoteIconBase64}") 16 16, auto`;
+    default:
+      return 'crosshair';
+  }
+};
 
 const NoInteraction = styled('g')({
   pointerEvents: 'none',
@@ -43,10 +57,7 @@ export function DraftMouseHandler({
 }: DraftMouseHandlerProps) {
   const { calculateSvgCoords } = useSvgCanvasContext();
   const { activeTool } = useLayoutState();
-  const shapeCursor =
-    activeTool === 'polyline'
-      ? `url("${editRoundedUrl}") 3 21, crosshair`
-      : 'crosshair';
+  const shapeCursor = getCursorStyle(activeTool);
 
   const handleClick = useCallback(
     (ev: MouseEvent<SVGRectElement>) => {
@@ -72,10 +83,12 @@ export function DraftMouseHandler({
     (ev: MouseEvent<SVGRectElement>) => {
       if (onMouseDown) {
         const point = calculateSvgCoords({ x: ev.clientX, y: ev.clientY });
-        onMouseDown(point);
+        if (activeTool !== 'sticky-note') {
+          onMouseDown(point);
+        }
       }
     },
-    [onMouseDown, calculateSvgCoords],
+    [onMouseDown, calculateSvgCoords, activeTool],
   );
 
   const handleMouseMove = useCallback(
