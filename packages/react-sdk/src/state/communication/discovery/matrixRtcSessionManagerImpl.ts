@@ -313,7 +313,9 @@ export class RTCSessionManagerImpl implements SessionManager {
         ? clone(sessionEvent.content)
         : newRTCSession(userId, deviceId, whiteboardId);
 
-    session.call_id = '';
+    // TODO: this needs to go
+    session.call_id = whiteboardId;
+
     if (isRTCSessionNotExpired(session)) {
       const updatedSession = patchFn({
         userId: session.user_id,
