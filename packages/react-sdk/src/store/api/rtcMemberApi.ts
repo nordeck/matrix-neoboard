@@ -41,7 +41,7 @@ export const rtcMemberApi = baseApi.injectEndpoints({
     /**
      * Return the RTC member events from the current room.
      */
-    getRTCMembers: builder.query<
+    getRtcMembers: builder.query<
       EntityState<StateEvent<RTCSessionEventContent>, string>,
       void
     >({
@@ -106,7 +106,7 @@ export const rtcMemberApi = baseApi.injectEndpoints({
   }),
 });
 
-export const { selectAll: selectRTCMembers, selectById: selectRTCMember } =
+export const { selectAll: selectRtcMembers, selectById: selectRtcMember } =
   rtcMembershipEventEntityAdapter.getSelectors();
 
-export const { useGetRTCMembersQuery } = rtcMemberApi;
+export const { useGetRtcMembersQuery } = rtcMemberApi;
