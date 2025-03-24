@@ -78,7 +78,8 @@ export function newRTCSession(
   whiteboardId: string,
 ): RTCSessionEventContent {
   return {
-    call_id: '',
+    // TODO: unsure what to do about call id
+    call_id: whiteboardId, // if empty, it will be picked up by the JS SDK for calls
     scope: 'm.room',
     application: 'net.nordeck.whiteboard',
     session_id: `_${userId}_${deviceId}`,

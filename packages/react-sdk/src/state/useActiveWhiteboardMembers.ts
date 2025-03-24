@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
+import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { useMemo } from 'react';
+import { useGetRtcMembersQuery } from '../store';
+import { selectRtcMembers } from '../store/api/rtcMemberApi';
 import { isPeerConnected } from './communication/connection';
 import { useActiveWhiteboardInstanceStatistics } from './useActiveWhiteboardInstance';
 
@@ -23,21 +26,35 @@ export type ActiveWhiteboardMember = {
 };
 
 export function useActiveWhiteboardMembers(): ActiveWhiteboardMember[] {
+  const matrixrtc = getEnvironment('REACT_APP_RTC') === 'matrixrtc' || true; // TODO: Change this upon PR review, only used for PR deployment testing
   const statistics = useActiveWhiteboardInstanceStatistics();
+  const { data: rtcMembers } = useGetRtcMembersQuery();
 
   return useMemo(() => {
     const activeWhiteboardMembers = new Map<string, ActiveWhiteboardMember>();
 
-    Object.values(statistics.communicationChannel.peerConnections).forEach(
-      (p) => {
-        if (isPeerConnected(p)) {
-          activeWhiteboardMembers.set(p.remoteUserId, {
-            userId: p.remoteUserId,
-          });
-        }
-      },
-    );
+    if (matrixrtc) {
+      const allRtcMembers = rtcMembers
+        ? selectRtcMembers(rtcMembers)
+        : undefined;
 
-    return Array.from(activeWhiteboardMembers.values());
-  }, [statistics]);
+      allRtcMembers?.forEach((m) => {
+        activeWhiteboardMembers.set(m.sender, {
+          userId: m.sender,
+        });
+      });
+      return Array.from(activeWhiteboardMembers.values());
+    } else {
+      Object.values(statistics.communicationChannel.peerConnections).forEach(
+        (p) => {
+          if (isPeerConnected(p)) {
+            activeWhiteboardMembers.set(p.remoteUserId, {
+              userId: p.remoteUserId,
+            });
+          }
+        },
+      );
+      return Array.from(activeWhiteboardMembers.values());
+    }
+  }, [matrixrtc, rtcMembers, statistics.communicationChannel.peerConnections]);
 }
