@@ -15,7 +15,6 @@
  */
 
 import { StateEvent, WidgetApi } from '@matrix-widget-toolkit/api';
-import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { cloneDeep, isEqual } from 'lodash';
 import {
   BehaviorSubject,
@@ -32,6 +31,7 @@ import {
   takeUntil,
   tap,
 } from 'rxjs';
+import { matrixRtcMode } from '../components/Whiteboard/constants';
 import { Whiteboard } from '../model';
 import { StoreType } from '../store';
 import {
@@ -192,19 +192,17 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
     whiteboardEvent: StateEvent<Whiteboard>,
     userId: string,
   ): WhiteboardInstanceImpl {
-    const matrixrtc = getEnvironment('REACT_APP_RTC') === 'matrixrtc' || true; // TODO: Change this upon PR review, only used for PR deployment testing
-
     const enableObserveVisibilityStateSubject = new BehaviorSubject(true);
 
-    let communicationChannel: CommunicationChannel;
-    if (matrixrtc) {
+    let communicationChannel: CommunicationChannel | undefined = undefined;
+    if (matrixRtcMode && sessionManager) {
       communicationChannel = new MatrixRtcCommunicationChannel(
         widgetApiPromise,
         sessionManager,
         whiteboardEvent.event_id,
         enableObserveVisibilityStateSubject,
       );
-    } else {
+    } else if (!matrixRtcMode && sessionManager && signalingChannel) {
       communicationChannel = new WebRtcCommunicationChannel(
         widgetApiPromise,
         sessionManager,

@@ -21,7 +21,6 @@ import {
   mockConnectionSignalingCandidates,
   mockConnectionSignalingDescription,
 } from '../../../lib/testUtils/matrixTestUtils';
-import { MockRTCIceCandidate } from '../../../lib/testUtils/webRtcMock';
 import { ToDeviceMessageSignalingChannel } from './toDeviceMessageSignalingChannel';
 
 let widgetApi: MockedWidgetApi;
@@ -46,8 +45,20 @@ describe('ToDeviceMessageSignalingChannel', () => {
         '@peer-session-id',
         '@connection-id',
         [
-          new RTCIceCandidate({ candidate: 'candidate-0' }),
-          new RTCIceCandidate({ candidate: 'candidate-1' }),
+          new RTCIceCandidate({
+            candidate:
+              'candidate:702786350 2 udp 41819902 8.8.8.8 60769 typ relay raddr 8.8.8.8',
+            sdpMLineIndex: null,
+            sdpMid: null,
+            usernameFragment: null,
+          }),
+          new RTCIceCandidate({
+            candidate:
+              'candidate:635070278 2 udp 99024181 8.8.8.8 60769 typ relay raddr 8.8.8.8',
+            sdpMLineIndex: null,
+            sdpMid: null,
+            usernameFragment: null,
+          }),
           null,
         ],
       );
@@ -100,10 +111,22 @@ describe('ToDeviceMessageSignalingChannel', () => {
 
       widgetApi.mockSendToDeviceMessage(mockConnectionSignalingCandidates());
 
-      await expect(signalingPromise).resolves.toEqual({
+      await expect(signalingPromise).resolves.toMatchObject({
         candidates: [
-          new MockRTCIceCandidate({ candidate: 'candidate-0' }),
-          new MockRTCIceCandidate({ candidate: 'candidate-1' }),
+          expect.objectContaining({
+            candidate:
+              'candidate:702786350 2 udp 41819902 8.8.8.8 60769 typ relay raddr 8.8.8.8',
+            sdpMLineIndex: null,
+            sdpMid: null,
+            usernameFragment: null,
+          }),
+          expect.objectContaining({
+            candidate:
+              'candidate:635070278 2 udp 99024181 8.8.8.8 60769 typ relay raddr 8.8.8.8',
+            sdpMLineIndex: null,
+            sdpMid: null,
+            usernameFragment: null,
+          }),
           null,
         ],
         description: undefined,

@@ -27,10 +27,9 @@ import {
   switchMap,
   takeUntil,
 } from 'rxjs';
-import { LivekitFocus } from '../../model';
 import { PeerConnection } from './connection';
 import { MatrixRtcPeerConnection } from './connection/matrixRtcPeerConnection';
-import { Session, SessionManager } from './discovery';
+import { LivekitFocus, Session, SessionManager } from './discovery';
 import { SessionState } from './discovery/matrixRtcSessionManagerImpl';
 import {
   CommunicationChannel,
