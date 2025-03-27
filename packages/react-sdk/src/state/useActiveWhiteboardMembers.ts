@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { useMemo } from 'react';
+import { matrixRtcMode } from '../components/Whiteboard/constants';
+import { isRTCSessionNotExpired } from '../model';
 import { useGetRtcMembersQuery } from '../store';
 import { selectRtcMembers } from '../store/api/rtcMemberApi';
 import { isPeerConnected } from './communication/connection';
@@ -26,16 +27,17 @@ export type ActiveWhiteboardMember = {
 };
 
 export function useActiveWhiteboardMembers(): ActiveWhiteboardMember[] {
-  const matrixrtc = getEnvironment('REACT_APP_RTC') === 'matrixrtc' || true; // TODO: Change this upon PR review, only used for PR deployment testing
   const statistics = useActiveWhiteboardInstanceStatistics();
   const { data: rtcMembers } = useGetRtcMembersQuery();
 
   return useMemo(() => {
     const activeWhiteboardMembers = new Map<string, ActiveWhiteboardMember>();
 
-    if (matrixrtc) {
+    if (matrixRtcMode) {
       const allRtcMembers = rtcMembers
-        ? selectRtcMembers(rtcMembers)
+        ? selectRtcMembers(rtcMembers).filter((m) =>
+            isRTCSessionNotExpired(m.content),
+          )
         : undefined;
 
       allRtcMembers?.forEach((m) => {
@@ -56,5 +58,5 @@ export function useActiveWhiteboardMembers(): ActiveWhiteboardMember[] {
       );
       return Array.from(activeWhiteboardMembers.values());
     }
-  }, [matrixrtc, rtcMembers, statistics.communicationChannel.peerConnections]);
+  }, [rtcMembers, statistics.communicationChannel.peerConnections]);
 }
