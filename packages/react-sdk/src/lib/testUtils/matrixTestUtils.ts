@@ -29,16 +29,18 @@ import {
   DocumentCreate,
   DocumentSnapshot,
   RoomNameEvent,
+  RTCSessionEventContent,
+  STATE_EVENT_RTC_MEMBER,
   Whiteboard,
   WhiteboardSession,
   WhiteboardSessions,
 } from '../../model';
 import {
-  Document,
-  WhiteboardDocument,
   createWhiteboardDocument,
+  Document,
   generateAddElement,
   generateAddSlide,
+  WhiteboardDocument,
 } from '../../state';
 import { createChunks } from '../../store/api/documentSnapshotApi';
 
@@ -291,8 +293,20 @@ export function mockDocumentChunk({
  */
 export function mockConnectionSignalingCandidates({
   candidates = [
-    { candidate: 'candidate-0' },
-    { candidate: 'candidate-1' },
+    {
+      candidate:
+        'candidate:702786350 2 udp 41819902 8.8.8.8 60769 typ relay raddr 8.8.8.8',
+      sdpMLineIndex: null,
+      sdpMid: null,
+      usernameFragment: null,
+    },
+    {
+      candidate:
+        'candidate:635070278 2 udp 99024181 8.8.8.8 60769 typ relay raddr 8.8.8.8',
+      sdpMLineIndex: null,
+      sdpMid: null,
+      usernameFragment: null,
+    },
     null,
   ],
   sender = '@peer-user-id',
@@ -376,6 +390,43 @@ export function mockWhiteboardSessions({
     content: {
       sessions,
     },
+    state_key,
+    origin_server_ts,
+    event_id: '$event-id-0',
+    room_id: '!room-id',
+  };
+}
+
+/**
+ * Create a whiteboard membership state event.
+ *
+ * @remarks Only use for tests
+ */
+export function mockWhiteboardMembership({
+  content = {
+    application: 'net.nordeck.whiteboard',
+    call_id: 'whiteboard-id',
+    createdTs: new Date('2023-02-01T10:11:12.345Z').getTime(),
+    device_id: 'DEVICEID',
+    expires: +new Date('2050-01-12T11:25:20.143Z').getTime(),
+    foci_preferred: [],
+    focus_active: { type: 'livekit', livekit_service_url: '' },
+    scope: 'm.room',
+    user_id: '@user-id',
+    whiteboard_id: 'whiteboard-id',
+    session_id: 'session-id',
+  },
+  state_key = '_@user-id_DEVICEID',
+  origin_server_ts = 0,
+}: {
+  content?: RTCSessionEventContent | Partial<RTCSessionEventContent>;
+  state_key?: string;
+  origin_server_ts?: number;
+} = {}): StateEvent<RTCSessionEventContent> {
+  return {
+    type: STATE_EVENT_RTC_MEMBER,
+    sender: '@user-id',
+    content: content as RTCSessionEventContent,
     state_key,
     origin_server_ts,
     event_id: '$event-id-0',
