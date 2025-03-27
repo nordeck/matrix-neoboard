@@ -17,6 +17,7 @@
 import { Box, Table, TableBody, TableRow, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { PeerConnectionStatistics } from '../../state/communication';
+import { matrixRtcMode } from '../Whiteboard/constants';
 import { StyledDevtoolsTableCell } from './StyledDevtoolsTable';
 
 export function PeerConnectionDetail({
@@ -57,22 +58,24 @@ export function PeerConnectionDetail({
               {peerConnection.remoteUserId}
             </StyledDevtoolsTableCell>
           </TableRow>
-          <TableRow>
-            <StyledDevtoolsTableCell>
-              {t(
-                'boardBar.developerToolsDialog.communicationChannelStatistics.impolite',
-                'Impolite',
-              )}
-            </StyledDevtoolsTableCell>
-            <StyledDevtoolsTableCell>
-              {peerConnection.impolite
-                ? t(
-                    'boardBar.developerToolsDialog.communicationChannelStatistics.true',
-                    'true',
-                  )
-                : t('peerConnectionDetail.false', 'false')}
-            </StyledDevtoolsTableCell>
-          </TableRow>
+          {!matrixRtcMode && (
+            <TableRow>
+              <StyledDevtoolsTableCell>
+                {t(
+                  'boardBar.developerToolsDialog.communicationChannelStatistics.impolite',
+                  'Impolite',
+                )}
+              </StyledDevtoolsTableCell>
+              <StyledDevtoolsTableCell>
+                {peerConnection.impolite
+                  ? t(
+                      'boardBar.developerToolsDialog.communicationChannelStatistics.true',
+                      'true',
+                    )
+                  : t('peerConnectionDetail.false', 'false')}
+              </StyledDevtoolsTableCell>
+            </TableRow>
+          )}
           <TableRow>
             <StyledDevtoolsTableCell>
               {t(
@@ -127,26 +130,34 @@ export function PeerConnectionDetail({
             </StyledDevtoolsTableCell>
             <StyledDevtoolsTableCell>
               <Box>
-                ICE: {peerConnection.iceConnectionState} /{' '}
-                {peerConnection.iceGatheringState}
-                <br />
-                {t(
-                  'boardBar.developerToolsDialog.communicationChannelStatistics.signaling',
-                  'Signaling',
+                {!matrixRtcMode && (
+                  <>
+                    ICE: {peerConnection.iceConnectionState} /{' '}
+                    {peerConnection.iceGatheringState}
+                    <br />
+                    {t(
+                      'boardBar.developerToolsDialog.communicationChannelStatistics.signaling',
+                      'Signaling',
+                    )}
+                    : {peerConnection.signalingState}
+                    <br />
+                  </>
                 )}
-                : {peerConnection.signalingState}
-                <br />
                 {t(
                   'boardBar.developerToolsDialog.communicationChannelStatistics.connection',
                   'Connection',
                 )}
                 : {peerConnection.connectionState}
                 <br />
-                {t(
-                  'boardBar.developerToolsDialog.communicationChannelStatistics.dataChannel',
-                  'Data Channel',
+                {!matrixRtcMode && (
+                  <>
+                    {t(
+                      'boardBar.developerToolsDialog.communicationChannelStatistics.dataChannel',
+                      'Data Channel',
+                    )}
+                    : {peerConnection.dataChannelState}
+                  </>
                 )}
-                : {peerConnection.dataChannelState}
               </Box>
             </StyledDevtoolsTableCell>
           </TableRow>

@@ -40,6 +40,15 @@ export class MockRTCIceCandidate implements RTCIceCandidate {
     if (init?.candidate) {
       this.candidate = init.candidate;
     }
+    if (init?.sdpMLineIndex) {
+      this.sdpMLineIndex = init.sdpMLineIndex;
+    }
+    if (init?.sdpMid) {
+      this.sdpMid = init.sdpMid;
+    }
+    if (init?.usernameFragment) {
+      this.usernameFragment = init.usernameFragment;
+    }
   }
 
   toJSON(): RTCIceCandidateInit {

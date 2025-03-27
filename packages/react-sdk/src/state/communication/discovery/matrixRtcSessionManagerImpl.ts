@@ -33,6 +33,7 @@ import {
   isValidRTCSessionStateEvent,
   newRTCSession,
 } from '../../../model';
+import { DEFAULT_RTC_EXPIRE_DURATION } from '../../../model/matrixRtcSessions';
 import { Session, SessionManager } from './types';
 
 export type SessionState = {
@@ -54,7 +55,7 @@ export class RTCSessionManagerImpl implements SessionManager {
 
   constructor(
     private readonly widgetApiPromise: Promise<WidgetApi> | WidgetApi,
-    private readonly sessionTimeout = 30 * 60 * 1000,
+    private readonly sessionTimeout = DEFAULT_RTC_EXPIRE_DURATION,
     private readonly cleanupInterval = 10 * 1000,
   ) {}
 
@@ -84,7 +85,7 @@ export class RTCSessionManagerImpl implements SessionManager {
   async join(whiteboardId: string): Promise<{ sessionId: string }> {
     console.error('LiveKit: join called', whiteboardId);
     if (this.joinState) {
-      console.error('LiveKit: already joined!');
+      console.error('LiveKit: already joined a room, must leave first.');
       await this.leave();
     }
 
@@ -93,6 +94,7 @@ export class RTCSessionManagerImpl implements SessionManager {
     const sessionId = `_${userId}_${deviceId}`;
 
     this.joinState = { sessionId, whiteboardId };
+    console.error('LiveKit: preparing join state...');
 
     this.logger.log(
       `Joining whiteboard ${whiteboardId} as session ${sessionId}`,
@@ -113,6 +115,7 @@ export class RTCSessionManagerImpl implements SessionManager {
         this.handleRTCSessionEvent(rtcSession);
       });
 
+    /*
     // Cleanup expired sessions
     interval(this.cleanupInterval)
       .pipe(takeUntil(this.destroySubject), takeUntil(this.leaveSubject))
@@ -123,10 +126,10 @@ export class RTCSessionManagerImpl implements SessionManager {
             this.logger.log(
               `Session ${session.session_id} by ${session.user_id} expired from whiteboard ${session.whiteboard_id}`,
             );
-            this.removeSession(session);
+            this.removeSession({state_key: session.session_id, sender: session.user_id });
           });
       });
-
+      */
     // Handle keeping the own session fresh or removing the session on leave /
     // switching to another whiteboard.
     interval(this.sessionTimeout * 0.75)
@@ -138,6 +141,7 @@ export class RTCSessionManagerImpl implements SessionManager {
       .subscribe();
 
     // Write session initially
+    console.error('LiveKit: refreshing own session...');
     await this.refreshOwnSession(whiteboardId, sessionId);
 
     return { sessionId };
@@ -147,8 +151,12 @@ export class RTCSessionManagerImpl implements SessionManager {
     if (!this.joinState) {
       return;
     }
-
     const { sessionId, whiteboardId } = this.joinState;
+    console.error(
+      'LiveKit: leaving whiteboard sesion...',
+      sessionId,
+      whiteboardId,
+    );
 
     this.joinState = undefined;
     this.leaveSubject.next();
@@ -157,10 +165,13 @@ export class RTCSessionManagerImpl implements SessionManager {
       `Leaving whiteboard ${whiteboardId} as session ${sessionId}`,
     );
 
-    while (this.sessions.length > 0) {
-      this.removeSession(this.sessions[0]);
-    }
+    const widgetApi = await this.widgetApiPromise;
+    const { userId } = widgetApi.widgetParameters;
 
+    console.error('LiveKit: removing session...');
+    this.removeSession({ state_key: sessionId, sender: userId });
+
+    console.error('LiveKit: removing own session...');
     await this.removeOwnSession(whiteboardId, sessionId);
   }
 
@@ -175,34 +186,21 @@ export class RTCSessionManagerImpl implements SessionManager {
     event: StateEvent<RTCSessionEventContent>,
   ): void {
     const sessionId = event.state_key;
-    const sessions = this.sessions.filter((s) => s.session_id === sessionId);
+    const sessions = this.sessions.filter(isRTCSessionNotExpired);
+    sessions.push(event.content);
 
     console.error('LiveKit: handling RTC event', JSON.stringify(event));
 
-    sessions.forEach((session) => {
-      this.sessionSubject.next({
-        userId: event.sender,
-        sessionId: session.session_id,
-        expiresTs: session.expires ?? Date.now() + this.sessionTimeout,
-        whiteboardId: session.whiteboard_id,
-      });
+    this.sessionSubject.next({
+      sessionId,
+      userId: event.sender,
+      expiresTs: event.content.expires!,
+      whiteboardId: event.content.whiteboard_id,
     });
 
-    // @todo sessions should be removed with delayed events
-    // Remove sessions
-    const sessionsToRemove = this.sessions.filter(
-      (existingSession) =>
-        existingSession.session_id === sessionId &&
-        !sessions.find(
-          (s) =>
-            s.session_id === existingSession.session_id &&
-            s.whiteboard_id === existingSession.whiteboard_id,
-        ),
-    );
-
-    sessionsToRemove
-      .filter(({ session_id }) => session_id !== this.getSessionId())
-      .forEach((session) => this.removeSession(session));
+    if (Object.keys(event.content).length === 0) {
+      this.removeSession(event);
+    }
 
     // Update sessions
     this.sessions = this.sessions.map((existingSession) => {
@@ -228,6 +226,8 @@ export class RTCSessionManagerImpl implements SessionManager {
       );
     });
 
+    console.error('LiveKit: sessions to add', JSON.stringify(sessionsToAdd));
+
     sessionsToAdd
       .filter(({ session_id }) => session_id !== this.getSessionId())
       .forEach((newSession) =>
@@ -235,6 +235,8 @@ export class RTCSessionManagerImpl implements SessionManager {
           ...newSession,
         }),
       );
+
+    console.error('LiveKit: sessions updated', JSON.stringify(this.sessions));
   }
 
   private addSession(session: RTCSessionEventContent): void {
@@ -250,15 +252,20 @@ export class RTCSessionManagerImpl implements SessionManager {
     this.sessionJoinedSubject.next({ sessionId: session_id, userId: user_id });
   }
 
-  private removeSession(session: RTCSessionEventContent): void {
-    const { user_id, session_id, whiteboard_id } = session;
+  private removeSession(
+    event: Partial<StateEvent<RTCSessionEventContent>>,
+  ): void {
+    console.error('LiveKit: removeSession', JSON.stringify(event.state_key));
 
-    this.logger.log(
-      `Session ${session_id} by ${user_id} left whiteboard ${whiteboard_id}`,
+    this.logger.log(`Session ${event.state_key} left whiteboard`);
+
+    this.sessions = this.sessions.filter(
+      (s) => s.session_id !== event.state_key,
     );
-
-    this.sessions = this.sessions.filter((s) => s !== session);
-    this.sessionLeftSubject.next({ sessionId: session_id, userId: user_id });
+    this.sessionLeftSubject.next({
+      sessionId: event.state_key!,
+      userId: event.sender!,
+    });
   }
 
   private async removeOwnSession(
@@ -269,10 +276,8 @@ export class RTCSessionManagerImpl implements SessionManager {
       `Removing own session ${sessionId} from whiteboard ${whiteboardId}`,
     );
 
-    await this.patchOwnSession((rtcSession) => ({
-      ...rtcSession,
-      expires: -1, // @todo fix this
-    }));
+    console.error('LiveKit: patching own session to remove it', whiteboardId);
+    await this.endRtcSession(sessionId);
   }
 
   private async refreshOwnSession(
@@ -282,13 +287,36 @@ export class RTCSessionManagerImpl implements SessionManager {
     this.logger.log(
       `Updating own session ${sessionId} for whiteboard ${whiteboardId}`,
     );
-
+    const expires = Date.now() + this.sessionTimeout;
     await this.patchOwnSession((rtcSession) => ({
       ...rtcSession,
       sessionId,
       whiteboardId,
-      expiresTs: Date.now() + this.sessionTimeout,
+      expires: expires,
+      expiresTs: expires,
     }));
+  }
+
+  private async endRtcSession(sessionId: string): Promise<void> {
+    const widgetApi = await this.widgetApiPromise;
+    const { userId, deviceId } = widgetApi.widgetParameters;
+
+    console.error(
+      'LiveKit: ending RTC session...',
+      userId,
+      deviceId,
+      sessionId,
+    );
+
+    try {
+      await widgetApi.sendStateEvent(
+        STATE_EVENT_RTC_MEMBER,
+        {},
+        { stateKey: `_${userId}_${deviceId}` },
+      );
+    } catch (ex) {
+      this.logger.error('Error while sending RTC session', ex);
+    }
   }
 
   private async patchOwnSession(
@@ -298,18 +326,27 @@ export class RTCSessionManagerImpl implements SessionManager {
     const { userId, deviceId } = widgetApi.widgetParameters;
     const { whiteboardId, sessionId } = this.joinState ?? {};
 
+    console.error(
+      'LiveKit: patching own session...',
+      userId,
+      deviceId,
+      whiteboardId,
+    );
+
     if (!userId || !deviceId || !whiteboardId) {
       // @todo this needs to be handled better so it bubbles up to the user
       throw new Error('Unknown user id or device id or whiteboard id');
     }
 
-    const sessionEvent = await widgetApi.receiveSingleStateEvent(
+    const sessionEvent = (await widgetApi.receiveSingleStateEvent(
       STATE_EVENT_RTC_MEMBER,
       sessionId,
-    );
+    )) as StateEvent<RTCSessionEventContent>;
 
     const session =
-      sessionEvent && isValidRTCSessionStateEvent(sessionEvent)
+      sessionEvent &&
+      Object.keys(sessionEvent.content).length !== 0 &&
+      isValidRTCSessionStateEvent(sessionEvent)
         ? clone(sessionEvent.content)
         : newRTCSession(userId, deviceId, whiteboardId);
 
@@ -330,7 +367,10 @@ export class RTCSessionManagerImpl implements SessionManager {
             updatedSession,
             { stateKey: `_${userId}_${deviceId}` },
           );
-          // console.error("LiveKit: session refresh", JSON.stringify(updatedSession));
+          console.error(
+            'LiveKit: session refresh',
+            JSON.stringify(updatedSession),
+          );
         } catch (ex) {
           this.logger.error('Error while sending RTC session', ex);
         }

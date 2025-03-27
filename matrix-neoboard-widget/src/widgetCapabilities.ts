@@ -19,7 +19,6 @@ import {
   STATE_EVENT_POWER_LEVELS,
   STATE_EVENT_ROOM_MEMBER,
 } from '@matrix-widget-toolkit/api';
-import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import {
   ROOM_EVENT_DOCUMENT_CHUNK,
   ROOM_EVENT_DOCUMENT_CREATE,
@@ -30,6 +29,7 @@ import {
   STATE_EVENT_WHITEBOARD_SESSIONS,
   TO_DEVICE_MESSAGE_CONNECTION_SIGNALING,
 } from '@nordeck/matrix-neoboard-react-sdk';
+import { matrixRtcMode } from '@nordeck/matrix-neoboard-react-sdk/src/components/Whiteboard/constants';
 import {
   EventDirection,
   MatrixCapabilities,
@@ -107,9 +107,7 @@ export const widgetCapabilities = [
   WidgetApiFromWidgetAction.MSC4039DownloadFileAction,
 ];
 
-const matrixrtc = getEnvironment('REACT_APP_RTC') === 'matrixrtc' || true; // TODO: Change this upon PR review, only used for PR deployment testing
-
-if (matrixrtc) {
+if (matrixRtcMode) {
   widgetCapabilities.push(
     WidgetEventCapability.forStateEvent(
       EventDirection.Send,

@@ -14,7 +14,12 @@
  * limitations under the License.
  */
 
-import { ConnectionState, Room, RoomEvent } from 'livekit-client';
+import {
+  ConnectionState,
+  RemoteParticipant,
+  Room,
+  RoomEvent,
+} from 'livekit-client';
 import { clone } from 'lodash';
 import { getLogger } from 'loglevel';
 import {
@@ -65,7 +70,7 @@ export class MatrixRtcPeerConnection implements PeerConnection {
       bytesSent: 0,
       packetsReceived: 0,
       packetsSent: 0,
-      connectionState: 'undefined',
+      connectionState: ConnectionState.Disconnected,
       signalingState: 'undefined',
       iceConnectionState: 'undefined',
       iceGatheringState: 'undefined',
@@ -77,13 +82,10 @@ export class MatrixRtcPeerConnection implements PeerConnection {
     interval(1000)
       .pipe(
         takeUntil(this.destroySubject),
-        switchMap(async () => {
-          const connection =
-            this.room.localParticipant.engine?.pcManager?.publisher ?? null;
-          if (connection !== null) {
-            await connection.getStats();
-          }
-        }),
+        switchMap(
+          async () =>
+            await this.room.localParticipant.engine?.pcManager?.publisher.getStats(),
+        ),
       )
       .subscribe((report) => {
         if (report !== undefined) {
@@ -94,13 +96,10 @@ export class MatrixRtcPeerConnection implements PeerConnection {
     interval(1000)
       .pipe(
         takeUntil(this.destroySubject),
-        switchMap(async () => {
-          const connection =
-            this.room.localParticipant.engine?.pcManager?.subscriber ?? null;
-          if (connection !== null) {
-            await connection.getStats();
-          }
-        }),
+        switchMap(
+          async () =>
+            await this.room.localParticipant.engine?.pcManager?.subscriber.getStats(),
+        ),
       )
       .subscribe((report) => {
         if (report !== undefined) {
@@ -145,7 +144,7 @@ export class MatrixRtcPeerConnection implements PeerConnection {
     return concat(of(this.statistics), this.statisticsSubject);
   }
 
-  private updateStatistics(update: Partial<PeerConnectionStatistics>): void {
+  updateStatistics(update: Partial<PeerConnectionStatistics>): void {
     if (Object.keys(update).length > 0) {
       Object.assign(this.statistics, update);
 
@@ -168,41 +167,43 @@ export class MatrixRtcPeerConnection implements PeerConnection {
       });
 
     this.room.on(RoomEvent.DataReceived, (payload, participant) => {
-      try {
-        const message = JSON.parse(this.decoder.decode(payload));
-
-        if (
-          typeof message.type === 'string' &&
-          message.content &&
-          participant
-        ) {
-          this.messageSubject.next({
-            senderSessionId: this.session.sessionId,
-            senderUserId: participant.identity,
-            ...message,
-          });
-        } else {
-          this.logger.warn(
-            `Received invalid message for connection ${this.connectionId}`,
-            message,
-          );
-        }
-      } catch {
-        this.logger.warn(
-          `Received invalid message JSON for connection ${this.connectionId}`,
-          payload,
-        );
-      }
+      this.handleDataReceived(payload, participant);
     });
 
-    /*
-    for (const event of ['open', 'closing', 'close']) {
-      fromEvent(this.channel, event)
-        .pipe(takeUntil(this.destroySubject))
-        .subscribe(() => {
-          this.updateStatistics({ dataChannelState: this.channel?.readyState });
+    this.room.on(RoomEvent.ConnectionStateChanged, (state) => {
+      this.logger.log(
+        `Connection state of connection ${this.connectionId} changed: ${state}`,
+      );
+      this.updateStatistics({
+        connectionState: state,
+      });
+    });
+  }
+
+  handleDataReceived(
+    payload: Uint8Array,
+    participant: RemoteParticipant | undefined,
+  ): void {
+    try {
+      const message = JSON.parse(this.decoder.decode(payload));
+
+      if (typeof message.type === 'string' && message.content && participant) {
+        this.messageSubject.next({
+          senderSessionId: this.session.sessionId,
+          senderUserId: participant.identity,
+          ...message,
         });
+      } else {
+        this.logger.warn(
+          `Received invalid message for connection ${this.connectionId}`,
+          message,
+        );
+      }
+    } catch {
+      this.logger.warn(
+        `Received invalid message JSON for connection ${this.connectionId}`,
+        payload,
+      );
     }
-  }*/
   }
 }

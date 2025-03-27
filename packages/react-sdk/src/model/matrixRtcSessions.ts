@@ -16,7 +16,7 @@
 
 import { StateEvent } from '@matrix-widget-toolkit/api';
 import Joi from 'joi';
-import { RTCFocus } from './rtcFocus';
+import { RTCFocus } from '../../src/state/communication/discovery';
 import { isValidEvent } from './validation';
 
 export const DEFAULT_RTC_EXPIRE_DURATION = 1000 * 60 * 60 * 4;
@@ -42,19 +42,25 @@ export type RTCSessions = {
   sessions: RTCSessionEventContent[];
 };
 
-const rtcSessionEventContentSchema = Joi.object<RTCSessionEventContent, true>({
-  call_id: Joi.string().required(),
-  scope: Joi.string().optional(),
-  application: Joi.string().required(),
-  session_id: Joi.string().required(),
-  whiteboard_id: Joi.string().required(),
-  user_id: Joi.string().required(),
-  device_id: Joi.string().required(),
-  createdTs: Joi.number().optional(),
-  expires: Joi.number().optional(),
-  focus_active: Joi.object().required(),
-  foci_preferred: Joi.array().items(Joi.object()).required(),
-}).unknown();
+const rtcSessionEventContentSchema = Joi.alternatives().try(
+  // Empty object option
+  Joi.object().max(0),
+
+  // Full object option with all the requirements
+  Joi.object<RTCSessionEventContent, true>({
+    call_id: Joi.string().required(),
+    scope: Joi.string().optional(),
+    application: Joi.string().required(),
+    session_id: Joi.string().required(),
+    whiteboard_id: Joi.string().required(),
+    user_id: Joi.string().required(),
+    device_id: Joi.string().required(),
+    createdTs: Joi.number().optional(),
+    expires: Joi.number().optional(),
+    focus_active: Joi.object().required(),
+    foci_preferred: Joi.array().items(Joi.object()).required(),
+  }).unknown(),
+);
 
 export function isValidRTCSessionStateEvent(
   event: StateEvent<unknown>,
@@ -63,13 +69,17 @@ export function isValidRTCSessionStateEvent(
     event,
     STATE_EVENT_RTC_MEMBER,
     rtcSessionEventContentSchema,
+    true,
   );
 }
 
 export function isRTCSessionNotExpired(
   member: RTCSessionEventContent,
 ): boolean {
-  return member.expires === undefined || member.expires > Date.now();
+  if (Object.keys(member).length === 0) {
+    return false;
+  }
+  return member.expires !== undefined && member.expires > Date.now();
 }
 
 export function newRTCSession(

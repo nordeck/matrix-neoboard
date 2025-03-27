@@ -19,6 +19,8 @@ import { getEnvironment } from '@matrix-widget-toolkit/mui';
 export const infiniteCanvasMode =
   getEnvironment('REACT_APP_INFINITE_CANVAS') === 'true';
 
+export const matrixRtcMode = getEnvironment('REACT_APP_RTC') === 'matrixrtc';
+
 export const defaultTextSize = infiniteCanvasMode ? 16 : undefined;
 
 export const whiteboardWidth = infiniteCanvasMode ? 19200 : 1920;
