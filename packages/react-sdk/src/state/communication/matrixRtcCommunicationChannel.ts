@@ -81,7 +81,7 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
       .observeSession()
       .pipe(takeUntil(this.destroySubject))
       .subscribe((session) => {
-        console.error('LiveKit: new session', session);
+        console.error('LiveKit: add session statistics', session);
         this.addSessionStatistics(session);
       });
 
@@ -231,7 +231,7 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
       );
 
       if (!this.sfuConfig) {
-        this.logger.warn('Failed to get LiveKit JWT');
+        this.logger.error('Failed to get LiveKit JWT');
         throw new Error('Failed to get LiveKit JWT');
       }
     } catch (error) {
@@ -261,34 +261,6 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
         this.sfuConfig,
       );
       this.peerConnections.push(peerConnection);
-
-      /*
-      this.peerConnection.room!.on(
-        RoomEvent.DataReceived,
-        (payload, participant) => {
-          const message = JSON.parse(this.decoder.decode(payload)) as Message;
-          message.senderUserId = participant!.identity;
-          this.messagesSubject.next(message);
-        },
-      );
-
-      this.peerConnection.room!.on(RoomEvent.ParticipantConnected, (p) => {
-          console.error('LiveKit: participant connected', p.identity);
-          this.addPeerConnectionStatistics(p.identity, {
-            remoteUserId: p.identity,
-            remoteSessionId: '',
-            impolite: false,
-            packetsReceived: 0,
-            bytesReceived: 0,
-            packetsSent: 0,
-            bytesSent: 0,
-            connectionState: '',
-            signalingState: '',
-            iceConnectionState: '',
-            iceGatheringState: ''
-          });
-        }
-      );*/
 
       peerConnection
         .observeMessages()
@@ -351,7 +323,7 @@ async function makePreferredLivekitFoci(
   rtcSession: Session,
   livekitAlias: string = 'livekit',
 ): Promise<LivekitFocus[]> {
-  console.log('Start building foci_preferred list: ', rtcSession.sessionId);
+  console.log('LiveKit: building foci_preferred list: ', rtcSession.sessionId);
 
   const preferredFoci: LivekitFocus[] = [];
 
@@ -366,7 +338,7 @@ async function makePreferredLivekitFoci(
   return preferredFoci;
 }
 
-async function getSFUConfigWithOpenID(
+export async function getSFUConfigWithOpenID(
   widgetApi: WidgetApi,
   activeFocus: LivekitFocus,
 ): Promise<SFUConfig | undefined> {
