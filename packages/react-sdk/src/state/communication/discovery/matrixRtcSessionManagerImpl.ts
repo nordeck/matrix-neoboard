@@ -56,7 +56,6 @@ export class RTCSessionManagerImpl implements SessionManager {
   constructor(
     private readonly widgetApiPromise: Promise<WidgetApi> | WidgetApi,
     private readonly sessionTimeout = DEFAULT_RTC_EXPIRE_DURATION,
-    private readonly cleanupInterval = 10 * 1000,
   ) {}
 
   getSessionId(): string | undefined {
@@ -236,6 +235,7 @@ export class RTCSessionManagerImpl implements SessionManager {
         }),
       );
 
+    this.logger.error('LiveKit: THIS MESSAGE IS FROM LOGGER');
     console.error('LiveKit: sessions updated', JSON.stringify(this.sessions));
   }
 
@@ -287,6 +287,7 @@ export class RTCSessionManagerImpl implements SessionManager {
     this.logger.log(
       `Updating own session ${sessionId} for whiteboard ${whiteboardId}`,
     );
+    console.error('LiveKit: refreshOwnSession', sessionId);
     const expires = Date.now() + this.sessionTimeout;
     await this.patchOwnSession((rtcSession) => ({
       ...rtcSession,
@@ -319,6 +320,7 @@ export class RTCSessionManagerImpl implements SessionManager {
     }
   }
 
+  /*
   private async patchOwnSession(
     patchFn: (patchOwnSession: Session) => Session,
   ): Promise<void> {
@@ -350,7 +352,7 @@ export class RTCSessionManagerImpl implements SessionManager {
         ? clone(sessionEvent.content)
         : newRTCSession(userId, deviceId, whiteboardId);
 
-    // TODO: this needs to go
+    // @todo this needs to be cleared up
     session.call_id = whiteboardId;
 
     if (isRTCSessionNotExpired(session)) {
@@ -372,9 +374,111 @@ export class RTCSessionManagerImpl implements SessionManager {
             JSON.stringify(updatedSession),
           );
         } catch (ex) {
+          console.error("LiveKit: session refresh error while sending RTC session", ex);
           this.logger.error('Error while sending RTC session', ex);
         }
       }
+    }
+  }*/
+
+  private async patchOwnSession(
+    patchFn: (patchOwnSession: Session) => Session,
+  ): Promise<void> {
+    const widgetApi = await this.widgetApiPromise;
+    const { userId, deviceId } = widgetApi.widgetParameters;
+    const { whiteboardId, sessionId } = this.joinState ?? {};
+
+    console.error(
+      'LiveKit: patching own session...',
+      userId,
+      deviceId,
+      whiteboardId,
+    );
+
+    if (!userId || !deviceId || !whiteboardId) {
+      // @todo this needs to be handled better so it bubbles up to the user
+      throw new Error('Unknown user id or device id or whiteboard id');
+    }
+
+    try {
+      // Get the existing session event, if any
+      const sessionEvent = (await widgetApi.receiveSingleStateEvent(
+        STATE_EVENT_RTC_MEMBER,
+        sessionId,
+      )) as StateEvent<RTCSessionEventContent>;
+
+      // Determine the base session object
+      let baseSession: RTCSessionEventContent & {
+        sessionId?: string;
+        userId?: string;
+      };
+
+      if (
+        sessionEvent &&
+        Object.keys(sessionEvent.content).length !== 0 &&
+        isValidRTCSessionStateEvent(sessionEvent)
+      ) {
+        // If a valid session exists, clone it
+        baseSession = clone(sessionEvent.content);
+      } else {
+        // Otherwise create a new session
+        baseSession = newRTCSession(userId, deviceId, whiteboardId);
+      }
+
+      // Always ensure call_id is set correctly
+      baseSession.call_id = whiteboardId;
+
+      // Convert to Session format for the patch function
+      const sessionForPatch: Session = {
+        userId: baseSession.user_id,
+        sessionId: baseSession.session_id,
+        ...baseSession, // Include any additional fields
+      };
+
+      // Apply the patch function to get updated values
+      const patchedSession = patchFn(sessionForPatch);
+
+      // Merge the patched fields back into the base session
+      // This ensures all fields from the patch are applied
+      const updatedSession = {
+        ...baseSession,
+        ...patchedSession,
+        // Explicitly ensure critical fields remain correct
+        user_id: userId,
+        device_id: deviceId,
+        whiteboard_id: whiteboardId,
+        session_id: sessionId,
+      };
+
+      // Check if session has been modified compared to the original
+      if (!isEqual(updatedSession, sessionEvent?.content)) {
+        const finalSession: RTCSessionEventContent = {
+          call_id: updatedSession.call_id,
+          scope: updatedSession.scope,
+          application: updatedSession.application,
+          session_id: updatedSession.session_id!,
+          whiteboard_id: updatedSession.whiteboard_id,
+          user_id: updatedSession.user_id,
+          device_id: updatedSession.device_id,
+          createdTs: updatedSession.createdTs,
+          expires: updatedSession.expires,
+          focus_active: updatedSession.focus_active,
+          foci_preferred: updatedSession.foci_preferred,
+          // Include any additional fields that were patched
+          ...(updatedSession as unknown as Record<string, unknown>),
+        };
+
+        await widgetApi.sendStateEvent(STATE_EVENT_RTC_MEMBER, finalSession, {
+          stateKey: `_${userId}_${deviceId}`,
+        });
+        console.error('LiveKit: session refresh', JSON.stringify(finalSession));
+      }
+    } catch (ex) {
+      console.error(
+        'LiveKit: session refresh error while sending RTC session',
+        ex,
+      );
+      this.logger.error('Error while sending RTC session', ex);
     }
   }
 }
