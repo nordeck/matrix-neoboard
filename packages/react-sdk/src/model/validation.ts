@@ -35,11 +35,16 @@ export function isValidEvent(
     return false;
   }
 
-  if (
-    !event.content || typeof event.content !== 'object' || allowEmptyContent
-      ? false
-      : Object.keys(event.content).length === 0
-  ) {
+  const isContentEmpty =
+    !event.content || typeof event.content !== 'object'
+      ? true
+      : Object.keys(event.content).length === 0;
+
+  if (isContentEmpty && allowEmptyContent) {
+    return true;
+  }
+
+  if (isContentEmpty) {
     return false;
   }
 
