@@ -20,13 +20,13 @@ import { useSvgScaleContext } from '../SvgScaleContext';
 import { calculateSvgCoords } from './utils';
 
 type UseWheelZoomResult = {
-  handleWheelZoom: WheelEventHandler;
+  handleWheelZoom: WheelEventHandler<SVGSVGElement>;
 };
 
 export const useWheelZoom = (
   svgRef: RefObject<SVGSVGElement>,
 ): UseWheelZoomResult => {
-  const { updateScale } = useSvgScaleContext();
+  const { updateScale, updateTranslation } = useSvgScaleContext();
 
   const handleWheelZoom = useCallback(
     (event: WheelEvent) => {
@@ -38,23 +38,35 @@ export const useWheelZoom = (
         return;
       }
 
-      if (event.deltaY === 0) {
-        return;
+      if (event.ctrlKey) {
+        if (event.deltaY === 0) {
+          return;
+        }
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        // calculateSvgCoords from SvgCanvasContext cannot be used here,
+        // because this hook is most likely being used outside of a context.
+        const zoomOriginOnCanvas = calculateSvgCoords(
+          {
+            x: event.clientX,
+            y: event.clientY,
+          },
+          svgRef.current,
+        );
+
+        updateScale(
+          event.deltaY < 0 ? zoomStep : -zoomStep,
+          zoomOriginOnCanvas,
+        );
+      } else {
+        // Wheel's deltaX is often a multiple of 20.
+        // Wheel's deltaY is often a multiple of 120.
+        updateTranslation(-event.deltaX, -event.deltaY);
       }
-
-      // calculateSvgCoords from SvgCanvasContext cannot be used here,
-      // because this hook is most likely being used outside of a context.
-      const zoomOriginOnCanvas = calculateSvgCoords(
-        {
-          x: event.clientX,
-          y: event.clientY,
-        },
-        svgRef.current,
-      );
-
-      updateScale(event.deltaY < 0 ? zoomStep : -zoomStep, zoomOriginOnCanvas);
     },
-    [svgRef, updateScale],
+    [svgRef, updateScale, updateTranslation],
   );
 
   return {
