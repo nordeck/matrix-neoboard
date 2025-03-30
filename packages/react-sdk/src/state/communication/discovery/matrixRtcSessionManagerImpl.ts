@@ -289,7 +289,7 @@ export class RTCSessionManagerImpl implements SessionManager {
     );
     console.error('LiveKit: refreshOwnSession', sessionId);
     const expires = Date.now() + this.sessionTimeout;
-    await this.patchOwnSession((rtcSession) => ({
+    await this.patchOwnSessionX((rtcSession) => ({
       ...rtcSession,
       sessionId,
       whiteboardId,
@@ -320,7 +320,6 @@ export class RTCSessionManagerImpl implements SessionManager {
     }
   }
 
-  /*
   private async patchOwnSession(
     patchFn: (patchOwnSession: Session) => Session,
   ): Promise<void> {
@@ -374,14 +373,17 @@ export class RTCSessionManagerImpl implements SessionManager {
             JSON.stringify(updatedSession),
           );
         } catch (ex) {
-          console.error("LiveKit: session refresh error while sending RTC session", ex);
+          console.error(
+            'LiveKit: session refresh error while sending RTC session',
+            ex,
+          );
           this.logger.error('Error while sending RTC session', ex);
         }
       }
     }
-  }*/
+  }
 
-  private async patchOwnSession(
+  private async patchOwnSessionX(
     patchFn: (patchOwnSession: Session) => Session,
   ): Promise<void> {
     const widgetApi = await this.widgetApiPromise;
