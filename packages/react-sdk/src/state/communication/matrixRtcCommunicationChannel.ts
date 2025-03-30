@@ -75,13 +75,11 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
   ) {
     this.logger.log('Creating communication channel');
 
-    console.error('LiveKit: MatrixRtcCommunicationChannel init');
-
     this.sessionManager
       .observeSession()
       .pipe(takeUntil(this.destroySubject))
       .subscribe((session) => {
-        console.error('LiveKit: add session statistics', session);
+        this.logger.debug('Adding session statistics', session);
         this.addSessionStatistics(session);
       });
 
@@ -181,16 +179,13 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
   }
 
   private async connect() {
-    console.error('LiveKit: MatrixRtcCommunicationChannel connect');
     if (this.statistics.localSessionId) {
-      this.logger.log('Communication channel is already open');
-      console.error('LiveKit: already connected');
+      this.logger.debug('Communication channel is already open');
       return;
     }
 
-    this.logger.log('Connecting communication channel');
+    this.logger.debug('Connecting communication channel');
     const { sessionId } = await this.sessionManager.join(this.whiteboardId);
-    console.error('LiveKit: connected to whiteboard', sessionId);
 
     const widgetApi = await Promise.resolve(this.widgetApiPromise);
     await this.handleSessionJoined({
@@ -203,8 +198,7 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
   }
 
   private async disconnect(): Promise<void> {
-    this.logger.log('Disconnecting communication channel');
-    console.error('LiveKit: MatrixRtcCommunicationChannel disconnect');
+    this.logger.debug('Disconnecting communication channel');
 
     await this.sessionManager.leave();
 
@@ -213,9 +207,8 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
   }
 
   private async initLiveKitServer(session: Session): Promise<void> {
-    console.log('LiveKit: initLiveKitServer');
     if (this.sfuConfig !== undefined) {
-      console.error('LiveKit: already initialized');
+      this.logger.debug('LiveKit config already set, skipping init');
       // LiveKit servers already known
       return;
     }
@@ -225,17 +218,15 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
 
       const focus = (await makePreferredLivekitFoci(session))[0];
       this.sfuConfig = await getSFUConfigWithOpenID(widgetApi, focus);
-      console.error(
-        'LiveKit: getSFUConfigWithOpenID',
-        JSON.stringify(this.sfuConfig),
-      );
+
+      this.logger.debug('Got SFU config', JSON.stringify(this.sfuConfig));
 
       if (!this.sfuConfig) {
-        this.logger.error('Failed to get LiveKit JWT');
+        this.logger.warn('Failed to get LiveKit JWT');
         throw new Error('Failed to get LiveKit JWT');
       }
     } catch (error) {
-      this.logger.warn('LiveKit SFU setup timed out', error);
+      this.logger.error('LiveKit SFU setup timed out', error);
     }
   }
 
@@ -243,11 +234,10 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
     const sessionId = this.sessionManager.getSessionId();
 
     this.logger.log('joined', session.sessionId, session.userId);
-    console.error('LiveKit: handleSessionJoined');
 
     if (!sessionId) {
-      console.error('LiveKit: Unknown session id');
-      throw new Error('Unknown session id');
+      this.logger.error('Unknown session id on session join');
+      throw new Error('Unknown session id on session join');
     }
 
     // Wait for the Widget API and LiveKit servers to be ready
@@ -255,7 +245,12 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
     await this.initLiveKitServer(session);
 
     if (this.sfuConfig && session.sessionId) {
-      console.error('LiveKit: setting up peer connection');
+      this.logger.debug(
+        'Creating peer connection with SFU config',
+        JSON.stringify(this.sfuConfig),
+        'for session',
+        session.sessionId,
+      );
       const peerConnection = new MatrixRtcPeerConnection(
         session,
         this.sfuConfig,
@@ -263,7 +258,6 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
       this.peerConnections.push(peerConnection);
 
       peerConnection.observeMessages().subscribe((m) => {
-        console.error('FUCK RECEIVED MESSAGE');
         return this.messagesSubject.next(m);
       });
 
@@ -318,13 +312,14 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
 }
 
 /*
- * @todo this is hardcoded, needs to load from well-known and user session
+ * @todo this is hardcoded, needs to be implemented
  */
 async function makePreferredLivekitFoci(
   rtcSession: Session,
   livekitAlias: string = 'livekit',
 ): Promise<LivekitFocus[]> {
-  console.log('LiveKit: building foci_preferred list: ', rtcSession.sessionId);
+  const logger = getLogger('makePreferredLivekitFoci');
+  logger.debug('Building preferred foci list for', rtcSession.sessionId);
 
   const preferredFoci: LivekitFocus[] = [];
 
@@ -376,6 +371,8 @@ async function getLiveKitJWT(
   roomName: string,
   openIDToken: IOpenIDCredentials,
 ): Promise<SFUConfig> {
+  const logger = getLogger('getLiveKitJWT');
+
   try {
     const res = await fetch(livekitServiceURL + '/sfu/get', {
       method: 'POST',
@@ -389,17 +386,19 @@ async function getLiveKitJWT(
       }),
     });
     if (!res.ok) {
+      logger.error('SFU Config fetch failed with status code', res.status);
       throw new Error('SFU Config fetch failed with status code ' + res.status);
     }
     const sfuConfig = await res.json();
-    console.log(
-      'get SFU config: \nurl:',
+    logger.debug(
+      'Get SFU config: \nurl:',
       sfuConfig.url,
       '\njwt',
       sfuConfig.jwt,
     );
     return sfuConfig;
   } catch (e) {
+    logger.error('SFU Config fetch failed with exception', e);
     throw new Error('SFU Config fetch failed with exception ' + e);
   }
 }
