@@ -36,10 +36,6 @@ import { SFUConfig } from '../matrixRtcCommunicationChannel';
 import { Message, PeerConnection, PeerConnectionStatistics } from './types';
 import { extractPeerConnectionStatistics } from './utils';
 
-// The label for a data channel is a version, that way we can detect if two
-// WebRTC peers are using the same protocol.
-const _DATA_CHANNEL_VERSION = '0';
-
 export class MatrixRtcPeerConnection implements PeerConnection {
   private readonly logger = getLogger('PeerConnection');
   private readonly destroySubject = new Subject<void>();
