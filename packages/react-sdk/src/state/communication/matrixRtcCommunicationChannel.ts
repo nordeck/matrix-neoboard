@@ -254,7 +254,7 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
     await this.widgetApiPromise;
     await this.initLiveKitServer(session);
 
-    if (this.sfuConfig) {
+    if (this.sfuConfig && session.sessionId) {
       console.error('LiveKit: setting up peer connection');
       const peerConnection = new MatrixRtcPeerConnection(
         session,
@@ -262,9 +262,10 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
       );
       this.peerConnections.push(peerConnection);
 
-      peerConnection
-        .observeMessages()
-        .subscribe((m) => this.messagesSubject.next(m));
+      peerConnection.observeMessages().subscribe((m) => {
+        console.error('FUCK RECEIVED MESSAGE');
+        return this.messagesSubject.next(m);
+      });
 
       peerConnection.observeStatistics().subscribe({
         next: (peerConnectionStatistics) => {

@@ -27,20 +27,10 @@ import {
   vi,
 } from 'vitest';
 import { mockDocumentVisibilityState } from '../../lib/testUtils/domTestUtils';
-import {
-  MatrixRtcPeerConnection,
-  Message,
-  PeerConnection,
-  PeerConnectionStatistics,
-} from './connection';
+import { PeerConnection, PeerConnectionStatistics } from './connection';
 import { Session, SessionManager } from './discovery';
 import { SessionState } from './discovery/sessionManagerImpl';
 import { MatrixRtcCommunicationChannel } from './matrixRtcCommunicationChannel';
-
-vi.mock('./connection', async () => ({
-  ...(await vi.importActual<typeof import('./connection')>('./connection')),
-  MatrixRtcPeerConnection: vi.fn(),
-}));
 
 let widgetApi: MockedWidgetApi;
 
@@ -59,7 +49,22 @@ describe('MatrixRtcCommunicationChannel', () => {
     sessionId: 'another-session-id',
     userId: '@another-user-id',
   };
-  const peerConnectionStatistics = {
+  const ownConnectionStatistics = {
+    bytesReceived: 0,
+    bytesSent: 0,
+    packetsReceived: 0,
+    packetsSent: 0,
+    connectionState: 'disconnected',
+    dataChannelState: 'undefined',
+    iceConnectionState: 'undefined',
+    iceGatheringState: 'undefined',
+    signalingState: 'undefined',
+    impolite: false,
+    remoteSessionId: 'session-id',
+    remoteUserId: '@user-id',
+  };
+
+  const otherPeerConnectionStatistics = {
     bytesReceived: 0,
     bytesSent: 0,
     packetsReceived: 0,
@@ -80,7 +85,6 @@ describe('MatrixRtcCommunicationChannel', () => {
   let joinedSubject: Subject<Session>;
   let leftSubject: Subject<Session>;
   let statisticsSubject: Subject<PeerConnectionStatistics>;
-  let messageSubject: Subject<Message>;
   let enableObserveVisibilityStateSubject: Subject<boolean>;
 
   beforeEach(() => {
@@ -110,22 +114,16 @@ describe('MatrixRtcCommunicationChannel', () => {
     };
 
     statisticsSubject = new Subject();
-    messageSubject = new Subject();
     enableObserveVisibilityStateSubject = new BehaviorSubject(true);
+
     peerConnection = {
+      sendMessage: vi.fn(),
+      close: vi.fn(),
+      observeMessages: vi.fn().mockReturnValue(new Subject()),
+      observeStatistics: vi.fn().mockReturnValue(statisticsSubject),
       getRemoteSessionId: vi.fn().mockReturnValue('another-session-id'),
       getConnectionId: vi.fn().mockReturnValue('connection-id'),
-      close: vi.fn(() => {
-        statisticsSubject.complete();
-        messageSubject.complete();
-      }),
-      sendMessage: vi.fn(),
-      observeMessages: vi.fn().mockReturnValue(messageSubject),
-      observeStatistics: vi.fn().mockReturnValue(statisticsSubject),
-    };
-    vi.mocked(MatrixRtcPeerConnection).mockReturnValue(
-      peerConnection as unknown as MatrixRtcPeerConnection,
-    );
+    } as unknown as Mocked<PeerConnection>;
 
     createChannel();
   });
@@ -175,21 +173,13 @@ describe('MatrixRtcCommunicationChannel', () => {
     joinedSubject.next(anotherSession);
     await waitForSessionExists();
 
-    const statisticsPromise = firstValueFrom(channel.observeStatistics());
-
-    statisticsSubject.next(peerConnectionStatistics);
+    statisticsSubject.next(otherPeerConnectionStatistics);
 
     expect(channel.getStatistics()).toEqual({
       localSessionId: 'session-id',
       peerConnections: {
-        'another-session-id': peerConnectionStatistics,
-      },
-      sessions: [],
-    });
-    await expect(statisticsPromise).resolves.toEqual({
-      localSessionId: 'session-id',
-      peerConnections: {
-        'another-session-id': peerConnectionStatistics,
+        'another-session-id': otherPeerConnectionStatistics,
+        'session-id': ownConnectionStatistics,
       },
       sessions: [],
     });
@@ -201,7 +191,8 @@ describe('MatrixRtcCommunicationChannel', () => {
 
     const messagesPromise = firstValueFrom(channel.observeMessages());
 
-    messageSubject.next({
+    // @ts-ignore
+    channel.messagesSubject.next({
       type: 'example_type',
       content: { key: 'value' },
       senderSessionId: 'another-session-id',
@@ -220,6 +211,8 @@ describe('MatrixRtcCommunicationChannel', () => {
     joinedSubject.next(anotherSession);
     await waitForSessionExists();
 
+    // @ts-ignore
+    channel.peerConnections = [peerConnection];
     channel.broadcastMessage('example_type', { key: 'value' });
 
     expect(peerConnection.sendMessage).toHaveBeenCalledWith('example_type', {
@@ -249,6 +242,13 @@ describe('MatrixRtcCommunicationChannel', () => {
 
   it('should add peer connection when joining session', async () => {
     expect(sessionManager.join).toHaveBeenCalledWith('whiteboard-id');
+    await waitFor(() => {
+      statisticsSubject.next(otherPeerConnectionStatistics);
+      expect(
+        Object.values(channel.getStatistics().peerConnections).length,
+      ).toBe(1);
+    });
+
     expect(channel.getStatistics()).toMatchObject({
       localSessionId: 'session-id',
     });
@@ -256,7 +256,7 @@ describe('MatrixRtcCommunicationChannel', () => {
 
   async function waitForSessionExists() {
     await waitFor(() => {
-      statisticsSubject.next(peerConnectionStatistics);
+      statisticsSubject.next(otherPeerConnectionStatistics);
       expect(
         Object.values(channel.getStatistics().peerConnections).length,
       ).toBe(2);
