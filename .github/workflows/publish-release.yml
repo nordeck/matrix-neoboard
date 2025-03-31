@@ -82,7 +82,7 @@ jobs:
       - name: Run Trivy to get an SBOM report of the container
         env:
           IMAGE_REF: ${{ env.DOCKER_IMAGE }}@${{ steps.build_and_push.outputs.digest }}
-        uses: aquasecurity/trivy-action@0.29.0
+        uses: aquasecurity/trivy-action@0.30.0
         with:
           scan-type: 'image'
           scanners: 'license'
