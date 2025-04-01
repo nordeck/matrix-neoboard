@@ -15,13 +15,13 @@
  */
 
 import { getEnvironment } from '@matrix-widget-toolkit/mui';
+import HelpCenterIcon from '@mui/icons-material/HelpCenter';
 import { Link, ListItemText, Menu, MenuItem } from '@mui/material';
 import { unstable_useId as useId } from '@mui/utils';
 import { MouseEvent, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useGuidedTour } from '../GuidedTour';
 import { ToolbarSubMenu } from '../common/Toolbar';
-import { HelpIcon } from '../icons/HelpIcon';
 import { InfoDialog } from './InfoDialog';
 
 export function HelpMenu() {
@@ -71,7 +71,7 @@ export function HelpMenu() {
         onClick={handleClick}
         aria-label={menuTitle}
       >
-        <HelpIcon />
+        <HelpCenterIcon />
       </ToolbarSubMenu>
 
       <Menu
