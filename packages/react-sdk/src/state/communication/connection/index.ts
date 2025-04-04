@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+export { MatrixRtcPeerConnection } from './matrixRtcPeerConnection';
 export type {
   Message,
   PeerConnection,

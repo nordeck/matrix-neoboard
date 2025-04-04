@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Nordeck IT + Consulting GmbH
+ * Copyright 2025 Nordeck IT + Consulting GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,21 @@
  * limitations under the License.
  */
 
-export * from './discovery';
-export { MatrixRtcCommunicationChannel } from './matrixRtcCommunicationChannel';
-export * from './messages';
-export * from './signaling';
-export type {
-  CommunicationChannel,
-  CommunicationChannelStatistics,
-  Message,
-  PeerConnectionStatistics,
-} from './types';
-export { WebRtcCommunicationChannel } from './webRtcCommunicationChannel';
+export type RTCFocus = {
+  type: string;
+  [key: string]: unknown;
+};
+
+export interface LivekitFocusConfig extends RTCFocus {
+  type: 'livekit';
+  livekit_service_url: string;
+}
+
+export interface LivekitFocus extends LivekitFocusConfig {
+  livekit_alias: string;
+}
+
+export interface LivekitFocusActive extends RTCFocus {
+  type: 'livekit';
+  focus_selection: 'oldest_membership';
+}

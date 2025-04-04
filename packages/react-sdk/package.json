@@ -27,6 +27,7 @@
     "emoji-regex": "^10.3.0",
     "joi": "^17.13.3",
     "js-base64": "^3.7.7",
+    "livekit-client": "^2.9.3",
     "localforage": "^1.10.0",
     "lodash": "^4.17.21",
     "loglevel": "^1.9.2",
@@ -40,7 +41,7 @@
     "react-redux": "^9.2.0",
     "react-transition-group": "^4.4.5",
     "react-use": "^17.6.0",
-    "rxjs": "^7.8.1",
+    "rxjs": "^7.8.2",
     "tinycolor2": "^1.6.0",
     "yjs": "^13.6.23"
   },
@@ -51,7 +52,8 @@
     "react-i18next": "^15.4.1"
   },
   "devDependencies": {
-    "@matrix-widget-toolkit/testing": "3.0.4",
+    "@matrix-widget-toolkit/testing": "^3.0.4",
+    "@testing-library/dom": ">=7.21.4",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
     "@testing-library/user-event": "^14.6.1",
