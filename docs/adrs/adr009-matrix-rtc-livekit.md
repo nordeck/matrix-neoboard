@@ -10,11 +10,11 @@ When MatrixRTC was evaluated previously, there were a number of issues that have
 
 Matrix RTC also aims to define a set of generic state event primitives that support many types of realtime collaboration apps besides group video, by specificying a baseline realtime session management concept, which then can be extended to support specific application features, like ringing, answering and rejecting a call, for video and audio calls.
 
-With the introduction of [LiveKit](MSC4145) as a backend for [cascading SFUs](MSC3898), Element Call was able to provide a E2EE group call experience that can scale to hundreds of realtime participants.
+With the introduction of [LiveKit](MSC4195) as a backend for [cascading SFUs](MSC3898), Element Call was able to provide a E2EE group call experience that can scale to hundreds of realtime participants.
 
 ## Decision
 
-We will use Matrix RTC with a LiveKit backend to provide the realtime data exchange between NeoBoard users. This is fundamentally different from the peer-to-peer connection mesh that was established before. Now, each whiteboard participant will only establish two WebRTC data channels to the LiveKit backend, one for publishing data, the other for receiving data.
+We will use Matrix RTC with a LiveKit backend ([MSC4195](MSC4195)) to provide the realtime data exchange between NeoBoard users. This is fundamentally different from the peer-to-peer connection mesh that was established before. Now, each whiteboard participant will only establish two WebRTC data channels to the LiveKit backend, one for publishing data, the other for receiving data.
 
 Data is forwarded to the LiveKit backend and then routed by the backend to the other participants. We do not use media streams, only data channels within the context of a Livekit room.
 
@@ -81,18 +81,20 @@ We use [delayed events](MSC4140) with a 5 second refresh while the widget is act
 
 Two new backend services are required: the LiveKit Server and the LiveKit JWT Service. This increases the complexity of deploying the widget but as these components are also a requirement for Element Call, we are positive that they will become a standard and will be available on most Matrix deployments.
 
-### Multiple active RTC apps
+### Multiple RTC apps
 
 The currently proposed specification allows for having RTC membership state events for different applications, by using the `application` property. For example, this is `m.call` for Element Call and `net.nordeck.whiteboard` for NeoBoard.
 
 This is fine if you are using a single RTC app within a matrix room but there is currently no specification of the expected behaviour if a user adds more than one MatrixRTC-based application to the same room and tries to use them at the same time. They will be racing to update the same membership state event, which is obviosuly not desirable.
+
+This also exposes other RTC app's metadata to this widget and vice-versa, allowing them to read every RTC session membership state event regardless of which application originated them.
 
 ### Relevant MSCs
 
 - [MSC3898: Native Matrix VoIP signalling for cascaded SFUs](MSC3898)
 - [MSC4143: MatrixRTC](MSC4143)
 - [MSC4140: Cancellable delayed events](MSC4140)
-- [MSC4195: MatrixRTC using LiveKit backend](MSC4145)
+- [MSC4195: MatrixRTC using LiveKit backend](MSC4195)
 - [MSC4196: MatrixRTC voice and video conferencing application m.call](MSC4196)
 
 also related:
@@ -109,7 +111,7 @@ also related:
 [MSC4143]: https://github.com/matrix-org/matrix-spec-proposals/blob/toger5/matrixRTC/proposals/4143-matrix-rtc.md
 [MSC3898]: https://github.com/matrix-org/matrix-spec-proposals/blob/SimonBrandner/msc/sfu/proposals/3898-sfu.md
 [MSC4140]: https://github.com/matrix-org/matrix-spec-proposals/blob/toger5/expiring-events-keep-alive/proposals/4140-delayed-events-futures.md
-[MSC4145]: https://github.com/hughns/matrix-spec-proposals/blob/hughns/matrixrtc-livekit/proposals/4195-matrixrtc-livekit.md
+[MSC4195]: https://github.com/hughns/matrix-spec-proposals/blob/hughns/matrixrtc-livekit/proposals/4195-matrixrtc-livekit.md
 [MSC4196]: https://github.com/matrix-org/matrix-spec-proposals/blob/hughns/matrixrtc-m-call/proposals/4196-matrixrtc-m-call.md
 [MSC2746]: https://github.com/matrix-org/matrix-spec-proposals/blob/dbkr/msc2746/proposals/2746-reliable-voip.md
 [MSC3401]: https://github.com/matrix-org/matrix-spec-proposals/blob/matthew/group-voip/proposals/3401-group-voip.md
