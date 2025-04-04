@@ -43,7 +43,6 @@ export function useActiveWhiteboardMembers(): ActiveWhiteboardMember[] {
           userId: m.sender,
         });
       });
-      return Array.from(activeWhiteboardMembers.values());
     } else {
       Object.values(statistics.communicationChannel.peerConnections).forEach(
         (p) => {
@@ -54,7 +53,7 @@ export function useActiveWhiteboardMembers(): ActiveWhiteboardMember[] {
           }
         },
       );
-      return Array.from(activeWhiteboardMembers.values());
     }
+    return Array.from(activeWhiteboardMembers.values());
   }, [rtcMembers, statistics.communicationChannel.peerConnections]);
 }
