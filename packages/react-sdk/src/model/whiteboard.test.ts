@@ -15,7 +15,10 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { isValidWhiteboardStateEvent } from './whiteboard';
+import {
+  isValidWhiteboardStateEvent,
+  STATE_EVENT_WHITEBOARD,
+} from './whiteboard';
 
 describe('isValidWhiteboardStateEvent', () => {
   it('should accept event', () => {
@@ -29,7 +32,7 @@ describe('isValidWhiteboardStateEvent', () => {
         room_id: '!room-id',
         state_key: '',
         sender: '@user-id',
-        type: 'net.nordeck.whiteboard',
+        type: STATE_EVENT_WHITEBOARD,
       }),
     ).toBe(true);
   });
@@ -46,7 +49,7 @@ describe('isValidWhiteboardStateEvent', () => {
         room_id: '!room-id',
         state_key: '',
         sender: '@user-id',
-        type: 'net.nordeck.whiteboard',
+        type: STATE_EVENT_WHITEBOARD,
       }),
     ).toBe(true);
   });
@@ -68,7 +71,7 @@ describe('isValidWhiteboardStateEvent', () => {
         room_id: '!room-id',
         state_key: '',
         sender: '@user-id',
-        type: 'net.nordeck.whiteboard',
+        type: STATE_EVENT_WHITEBOARD,
       }),
     ).toBe(false);
   });

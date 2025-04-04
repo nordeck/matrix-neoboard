@@ -27,7 +27,7 @@ import { RTCSessionManagerImpl } from './matrixRtcSessionManagerImpl';
 
 describe('RTCSessionManagerImpl', () => {
   const fixedDate = 1742832000;
-  let expectedExpiresTs: number;
+  let expectedExpires: number;
   let widgetApi: MockedWidgetApi;
   let rtcSessionManager: RTCSessionManagerImpl;
 
@@ -40,7 +40,7 @@ describe('RTCSessionManagerImpl', () => {
 
     vi.stubEnv('REACT_APP_RTC', 'matrixrtc');
     vi.spyOn(Date, 'now').mockImplementation(() => fixedDate);
-    expectedExpiresTs = fixedDate + DEFAULT_RTC_EXPIRE_DURATION;
+    expectedExpires = fixedDate + DEFAULT_RTC_EXPIRE_DURATION;
 
     rtcSessionManager = new RTCSessionManagerImpl(widgetApi);
   });
@@ -61,53 +61,42 @@ describe('RTCSessionManagerImpl', () => {
       {
         application: 'net.nordeck.whiteboard',
         call_id: 'whiteboard-id',
-        createdTs: Date.now(),
+        created_ts: Date.now(),
         device_id: 'DEVICEID',
-        expires: expectedExpiresTs,
-        expiresTs: expectedExpiresTs,
+        expires: expectedExpires,
         foci_preferred: [],
         focus_active: { type: 'livekit', livekit_service_url: '' },
         scope: 'm.room',
-        session_id: sessionId,
-        sessionId: sessionId,
-        user_id: '@user-id',
-        userId: '@user-id',
-        whiteboard_id: 'whiteboard-id',
-        whiteboardId: 'whiteboard-id',
       },
       { stateKey: '_@user-id_DEVICEID' },
     );
-    expect(rtcSessionManager.getSessions()).toEqual([]);
+    expect(rtcSessionManager.getSessions()).toEqual([
+      {
+        sessionId: sessionId,
+        userId: '@user-id',
+      },
+    ]);
   });
 
   it('should join another whiteboard', async () => {
-    const { sessionId: firstSessionId } =
-      await rtcSessionManager.join('whiteboard-id-0');
+    await rtcSessionManager.join('whiteboard-id-0');
 
     expect(widgetApi.sendStateEvent).toHaveBeenCalledWith(
       STATE_EVENT_RTC_MEMBER,
       {
         application: 'net.nordeck.whiteboard',
         call_id: 'whiteboard-id-0',
-        createdTs: Date.now(),
+        created_ts: Date.now(),
         device_id: 'DEVICEID',
-        expires: expectedExpiresTs,
-        expiresTs: expectedExpiresTs,
+        expires: expectedExpires,
         foci_preferred: [],
         focus_active: { type: 'livekit', livekit_service_url: '' },
         scope: 'm.room',
-        session_id: firstSessionId,
-        sessionId: firstSessionId,
-        user_id: '@user-id',
-        userId: '@user-id',
-        whiteboard_id: 'whiteboard-id-0',
-        whiteboardId: 'whiteboard-id-0',
       },
       { stateKey: '_@user-id_DEVICEID' },
     );
 
-    const { sessionId: secondSessionId } =
-      await rtcSessionManager.join('whiteboard-id-1');
+    await rtcSessionManager.join('whiteboard-id-1');
 
     expect(widgetApi.sendStateEvent).toHaveBeenCalledWith(
       STATE_EVENT_RTC_MEMBER,
@@ -120,45 +109,31 @@ describe('RTCSessionManagerImpl', () => {
       {
         application: 'net.nordeck.whiteboard',
         call_id: 'whiteboard-id-1',
-        createdTs: Date.now(),
+        created_ts: Date.now(),
         device_id: 'DEVICEID',
-        expires: expectedExpiresTs,
-        expiresTs: expectedExpiresTs,
+        expires: expectedExpires,
         foci_preferred: [],
         focus_active: { type: 'livekit', livekit_service_url: '' },
         scope: 'm.room',
-        session_id: secondSessionId,
-        sessionId: secondSessionId,
-        user_id: '@user-id',
-        userId: '@user-id',
-        whiteboard_id: 'whiteboard-id-1',
-        whiteboardId: 'whiteboard-id-1',
       },
       { stateKey: '_@user-id_DEVICEID' },
     );
   });
 
   it('should create a new membership when joining from a new device', async () => {
-    const { sessionId } = await rtcSessionManager.join('whiteboard-id');
+    await rtcSessionManager.join('whiteboard-id');
 
     expect(widgetApi.sendStateEvent).toHaveBeenCalledWith(
       STATE_EVENT_RTC_MEMBER,
       {
         application: 'net.nordeck.whiteboard',
         call_id: 'whiteboard-id',
-        createdTs: Date.now(),
+        created_ts: Date.now(),
         device_id: 'DEVICEID',
-        expires: expectedExpiresTs,
-        expiresTs: expectedExpiresTs,
+        expires: expectedExpires,
         foci_preferred: [],
         focus_active: { type: 'livekit', livekit_service_url: '' },
         scope: 'm.room',
-        session_id: sessionId,
-        sessionId: sessionId,
-        user_id: '@user-id',
-        userId: '@user-id',
-        whiteboard_id: 'whiteboard-id',
-        whiteboardId: 'whiteboard-id',
       },
       { stateKey: '_@user-id_DEVICEID' },
     );
@@ -166,26 +141,19 @@ describe('RTCSessionManagerImpl', () => {
     // @ts-ignore forcefully set for tests
     widgetApi.widgetParameters.deviceId = 'OTHERDEVICEID';
     const otherRtcSessionManager = new RTCSessionManagerImpl(widgetApi);
-    const { sessionId: otherSessionId } =
-      await otherRtcSessionManager.join('whiteboard-id');
+
+    await otherRtcSessionManager.join('whiteboard-id');
     expect(widgetApi.sendStateEvent).toHaveBeenCalledWith(
       STATE_EVENT_RTC_MEMBER,
       {
         application: 'net.nordeck.whiteboard',
         call_id: 'whiteboard-id',
-        createdTs: Date.now(),
+        created_ts: Date.now(),
         device_id: 'OTHERDEVICEID',
-        expires: expectedExpiresTs,
-        expiresTs: expectedExpiresTs,
+        expires: expectedExpires,
         foci_preferred: [],
         focus_active: { type: 'livekit', livekit_service_url: '' },
         scope: 'm.room',
-        session_id: otherSessionId,
-        sessionId: otherSessionId,
-        user_id: '@user-id',
-        userId: '@user-id',
-        whiteboard_id: 'whiteboard-id',
-        whiteboardId: 'whiteboard-id',
       },
       { stateKey: '_@user-id_OTHERDEVICEID' },
     );
@@ -196,7 +164,7 @@ describe('RTCSessionManagerImpl', () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2023-02-01T10:11:12.345Z'));
 
-    const { sessionId } = await rtcSessionManager.join('whiteboard-id');
+    await rtcSessionManager.join('whiteboard-id');
 
     expect(widgetApi.sendStateEvent).toHaveBeenCalledTimes(1);
 
@@ -212,48 +180,40 @@ describe('RTCSessionManagerImpl', () => {
       {
         application: 'net.nordeck.whiteboard',
         call_id: 'whiteboard-id',
-        createdTs: new Date('2023-02-01T10:11:12.345Z').getTime(),
+        created_ts: new Date('2023-02-01T10:11:12.345Z').getTime(),
         device_id: 'DEVICEID',
         expires: expect.any(Number),
-        expiresTs: expect.any(Number),
         foci_preferred: [],
         focus_active: { type: 'livekit', livekit_service_url: '' },
         scope: 'm.room',
-        session_id: sessionId,
-        sessionId: sessionId,
-        user_id: '@user-id',
-        userId: '@user-id',
-        whiteboard_id: 'whiteboard-id',
-        whiteboardId: 'whiteboard-id',
       },
       { stateKey: '_@user-id_DEVICEID' },
     );
   });
 
   it('should handle new members joining a whiteboard', async () => {
+    await rtcSessionManager.join('whiteboard-id');
+
     const joinedPromise = firstValueFrom(
       rtcSessionManager.observeSessionJoined().pipe(take(1), toArray()),
     );
-    await rtcSessionManager.join('whiteboard-id');
 
     widgetApi.mockSendStateEvent(
       mockWhiteboardMembership({
         content: {
-          session_id: '_@another-user_ANOTHERDEVICEID',
           call_id: 'whiteboard-id',
           scope: 'm.room',
           application: 'net.nordeck.whiteboard',
-          whiteboard_id: 'whiteboard-id',
-          user_id: '@another-user',
           device_id: 'ANOTHERDEVICEID',
-          createdTs: Date.now(),
-          expires: expectedExpiresTs,
+          created_ts: Date.now(),
+          expires: expectedExpires,
           focus_active: {
             type: '',
           },
           foci_preferred: [],
         },
         state_key: '_@another-user_ANOTHERDEVICEID',
+        sender: '@another-user',
       }),
     );
 
@@ -270,15 +230,12 @@ describe('RTCSessionManagerImpl', () => {
     widgetApi.mockSendStateEvent(
       mockWhiteboardMembership({
         content: {
-          session_id: '_@another-user_ANOTHERDEVICEID',
           call_id: 'whiteboard-id',
           scope: 'm.room',
           application: 'net.nordeck.whiteboard',
-          whiteboard_id: 'whiteboard-id',
-          user_id: '@user-id',
           device_id: 'ANOTHERDEVICEID',
-          createdTs: Date.now(),
-          expires: expectedExpiresTs,
+          created_ts: Date.now(),
+          expires: expectedExpires,
           focus_active: {
             type: '',
           },

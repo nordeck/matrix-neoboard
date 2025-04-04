@@ -16,12 +16,6 @@
 
 export { RTCSessionManagerImpl } from './matrixRtcSessionManagerImpl';
 
-export {
-  isLivekitFocus,
-  isLivekitFocusActive,
-  isLivekitFocusConfig,
-} from './matrixRtcFocus';
-
 export type {
   LivekitFocus,
   LivekitFocusActive,

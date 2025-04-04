@@ -24,27 +24,11 @@ export interface LivekitFocusConfig extends RTCFocus {
   livekit_service_url: string;
 }
 
-export const isLivekitFocusConfig = (
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  object: any,
-): object is LivekitFocusConfig =>
-  object.type === 'livekit' && 'livekit_service_url' in object;
-
 export interface LivekitFocus extends LivekitFocusConfig {
   livekit_alias: string;
 }
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const isLivekitFocus = (object: any): object is LivekitFocus =>
-  isLivekitFocusConfig(object) && 'livekit_alias' in object;
 
 export interface LivekitFocusActive extends RTCFocus {
   type: 'livekit';
   focus_selection: 'oldest_membership';
 }
-
-export const isLivekitFocusActive = (
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  object: any,
-): object is LivekitFocusActive =>
-  object.type === 'livekit' && 'focus_selection' in object;

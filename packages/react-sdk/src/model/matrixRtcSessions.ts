@@ -24,18 +24,17 @@ export const DEFAULT_RTC_EXPIRE_DURATION = 1000 * 60 * 60 * 4;
 // unstable prefix for m.rtc.member in MSC4143
 export const STATE_EVENT_RTC_MEMBER = 'org.matrix.msc3401.call.member';
 
+// Folowing Matrix JS SDK's SessionMembershipData
+// see https://github.com/matrix-org/matrix-js-sdk/blob/d6ede767c929f7be179d456b5a0433be21ccaf7c/src/matrixrtc/CallMembership.ts#L35
 export type RTCSessionEventContent = {
-  call_id: string;
-  scope: string | undefined;
   application: string;
-  session_id: string;
-  whiteboard_id: string;
-  user_id: string;
+  call_id: string;
   device_id: string;
-  createdTs: number | undefined;
-  expires: number | undefined;
   focus_active: RTCFocus;
   foci_preferred: RTCFocus[];
+  created_ts: number | undefined;
+  scope: string | undefined;
+  expires: number | undefined;
 };
 
 export type RTCSessions = {
@@ -48,17 +47,14 @@ const rtcSessionEventContentSchema = Joi.alternatives().try(
 
   // Full object option with all the requirements
   Joi.object<RTCSessionEventContent, true>({
-    call_id: Joi.string().required(),
-    scope: Joi.string().optional(),
     application: Joi.string().required(),
-    session_id: Joi.string().required(),
-    whiteboard_id: Joi.string().required(),
-    user_id: Joi.string().required(),
+    call_id: Joi.string().required(),
     device_id: Joi.string().required(),
-    createdTs: Joi.number().optional(),
-    expires: Joi.number().optional(),
     focus_active: Joi.object().required(),
     foci_preferred: Joi.array().items(Joi.object()).required(),
+    created_ts: Joi.number().optional(),
+    scope: Joi.string().optional(),
+    expires: Joi.number().optional(),
   }).unknown(),
 );
 
@@ -73,32 +69,39 @@ export function isValidRTCSessionStateEvent(
   );
 }
 
+export function isWhiteboardRTCSessionStateEvent(
+  event: StateEvent<unknown>,
+): event is StateEvent<RTCSessionEventContent> {
+  return (
+    isValidRTCSessionStateEvent(event) &&
+    (event.content.application === 'net.nordeck.whiteboard' ||
+      Object.keys(event.content).length === 0)
+  );
+}
+
 export function isRTCSessionNotExpired(
-  member: RTCSessionEventContent,
+  event: StateEvent<RTCSessionEventContent>,
 ): boolean {
-  if (Object.keys(member).length === 0) {
+  if (!event.content || Object.keys(event.content).length === 0) {
     return false;
   }
-  return member.expires !== undefined && member.expires > Date.now();
+  return (
+    event.content.expires !== undefined && event.content.expires > Date.now()
+  );
 }
 
 export function newRTCSession(
-  userId: string,
   deviceId: string,
   whiteboardId: string,
 ): RTCSessionEventContent {
   return {
-    // TODO: unsure what to do about call id
-    call_id: whiteboardId, // if empty, it will be picked up by the JS SDK for calls
-    scope: 'm.room',
     application: 'net.nordeck.whiteboard',
-    session_id: `_${userId}_${deviceId}`,
-    whiteboard_id: whiteboardId,
-    user_id: userId,
+    call_id: whiteboardId, // if empty, it will be picked up by the JS SDK for calls
     device_id: deviceId,
-    createdTs: Date.now(),
-    expires: Date.now() + DEFAULT_RTC_EXPIRE_DURATION,
     focus_active: { type: 'livekit', livekit_service_url: '' },
     foci_preferred: [],
+    created_ts: Date.now(),
+    scope: 'm.room',
+    expires: Date.now() + DEFAULT_RTC_EXPIRE_DURATION,
   };
 }

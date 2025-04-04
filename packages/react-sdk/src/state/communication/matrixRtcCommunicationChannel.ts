@@ -30,7 +30,7 @@ import {
 import { PeerConnection } from './connection';
 import { MatrixRtcPeerConnection } from './connection/matrixRtcPeerConnection';
 import { LivekitFocus, Session, SessionManager } from './discovery';
-import { SessionState } from './discovery/matrixRtcSessionManagerImpl';
+import { SessionState } from './discovery/sessionManagerImpl';
 import {
   CommunicationChannel,
   CommunicationChannelStatistics,
