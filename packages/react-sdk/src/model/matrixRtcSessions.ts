@@ -16,7 +16,7 @@
 
 import { StateEvent } from '@matrix-widget-toolkit/api';
 import Joi from 'joi';
-import { RTCFocus } from '../../src/state/communication/discovery';
+import { RTCFocus } from '../state/communication';
 import { isValidEvent } from './validation';
 
 export const DEFAULT_RTC_EXPIRE_DURATION = 1000 * 60 * 60 * 4;

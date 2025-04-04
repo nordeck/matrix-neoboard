@@ -27,8 +27,7 @@ import {
   switchMap,
   takeUntil,
 } from 'rxjs';
-import { PeerConnection } from './connection';
-import { MatrixRtcPeerConnection } from './connection/matrixRtcPeerConnection';
+import { MatrixRtcPeerConnection, PeerConnection } from './connection';
 import { LivekitFocus, Session, SessionManager } from './discovery';
 import { SessionState } from './discovery/sessionManagerImpl';
 import {
@@ -42,13 +41,6 @@ import { observeVisibilityState } from './visibilityState';
 export interface SFUConfig {
   url: string;
   jwt: string;
-}
-
-export function sfuConfigEquals(a?: SFUConfig, b?: SFUConfig): boolean {
-  if (a === undefined && b === undefined) return true;
-  if (a === undefined || b === undefined) return false;
-
-  return a.jwt === b.jwt && a.url === b.url;
 }
 
 export class MatrixRtcCommunicationChannel implements CommunicationChannel {
@@ -180,11 +172,11 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
 
   private async connect() {
     if (this.statistics.localSessionId) {
-      this.logger.debug('Communication channel is already open');
+      this.logger.log('Communication channel is already open');
       return;
     }
 
-    this.logger.debug('Connecting communication channel');
+    this.logger.log('Connecting communication channel');
     const { sessionId } = await this.sessionManager.join(this.whiteboardId);
 
     const widgetApi = await Promise.resolve(this.widgetApiPromise);
@@ -198,7 +190,7 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
   }
 
   private async disconnect(): Promise<void> {
-    this.logger.debug('Disconnecting communication channel');
+    this.logger.log('Disconnecting communication channel');
 
     await this.sessionManager.leave();
 
