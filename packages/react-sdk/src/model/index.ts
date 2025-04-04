@@ -39,6 +39,7 @@ export {
   STATE_EVENT_RTC_MEMBER,
   isRTCSessionNotExpired,
   isValidRTCSessionStateEvent,
+  isWhiteboardRTCSessionStateEvent,
   newRTCSession,
 } from './matrixRtcSessions';
 export type { RTCSessionEventContent } from './matrixRtcSessions';
