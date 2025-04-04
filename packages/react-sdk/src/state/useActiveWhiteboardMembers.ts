@@ -35,9 +35,7 @@ export function useActiveWhiteboardMembers(): ActiveWhiteboardMember[] {
 
     if (matrixRtcMode) {
       const allRtcMembers = rtcMembers
-        ? selectRtcMembers(rtcMembers).filter((m) =>
-            isRTCSessionNotExpired(m.content),
-          )
+        ? selectRtcMembers(rtcMembers).filter((m) => isRTCSessionNotExpired(m))
         : undefined;
 
       allRtcMembers?.forEach((m) => {

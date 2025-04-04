@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
+import { StateEvent } from '@matrix-widget-toolkit/api';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   DEFAULT_RTC_EXPIRE_DURATION,
   isRTCSessionNotExpired,
   isValidRTCSessionStateEvent,
+  isWhiteboardRTCSessionStateEvent,
   newRTCSession,
+  RTCSessionEventContent,
 } from './matrixRtcSessions';
 
 describe('isValidRTCSessionStateEvent', () => {
@@ -40,11 +43,70 @@ describe('isValidRTCSessionStateEvent', () => {
           call_id: 'call-id',
           scope: 'm.room',
           application: 'net.nordeck.whiteboard',
-          session_id: '_@user-id_DEVICEID',
-          whiteboard_id: 'whiteboard-id',
-          user_id: '@user-id',
           device_id: 'DEVICEID',
-          createdTs: 100000000,
+          created_ts: 100000000,
+          expires: 100000000,
+          focus_active: {
+            type: 'livekit',
+            livekit_service_url: 'https://livekit.example.com',
+          },
+          foci_preferred: [
+            {
+              type: 'livekit',
+              livekit_service_url: 'https://livekit.example.com',
+            },
+          ],
+        },
+        event_id: '$event-id',
+        origin_server_ts: 0,
+        room_id: '!room-id',
+        state_key: '_@user-id_DEVICEID',
+        sender: '@user-id',
+        type: 'org.matrix.msc3401.call.member',
+      }),
+    ).toBe(true);
+  });
+
+  it('should ignore other apps RTC membership events', () => {
+    expect(
+      isWhiteboardRTCSessionStateEvent({
+        content: {
+          call_id: 'call-id',
+          scope: 'm.room',
+          application: 'm.call',
+          device_id: 'DEVICEID',
+          created_ts: 100000000,
+          expires: 100000000,
+          focus_active: {
+            type: 'livekit',
+            livekit_service_url: 'https://livekit.example.com',
+          },
+          foci_preferred: [
+            {
+              type: 'livekit',
+              livekit_service_url: 'https://livekit.example.com',
+            },
+          ],
+        },
+        event_id: '$event-id',
+        origin_server_ts: 0,
+        room_id: '!room-id',
+        state_key: '_@user-id_DEVICEID',
+        sender: '@user-id',
+        type: 'org.matrix.msc3401.call.member',
+      }),
+    ).toBe(false);
+  });
+
+  it('should accept NeoBoard RTC membership events', () => {
+    expect(
+      isWhiteboardRTCSessionStateEvent({
+        content: {
+          call_id: 'call-id',
+          scope: 'm.room',
+          application: 'net.nordeck.whiteboard',
+          device_id: 'DEVICEID',
+          created_ts: 100000000,
           expires: 100000000,
           focus_active: {
             type: 'livekit',
@@ -68,16 +130,13 @@ describe('isValidRTCSessionStateEvent', () => {
   });
 
   it('should recognize expired sessions', () => {
-    const event = {
+    const event: StateEvent<RTCSessionEventContent> = {
       content: {
         call_id: 'call-id',
         scope: 'm.room',
         application: 'net.nordeck.whiteboard',
-        session_id: '_@user-id_DEVICEID',
-        whiteboard_id: 'whiteboard-id',
-        user_id: '@user-id',
         device_id: 'DEVICEID',
-        createdTs: fixedDate,
+        created_ts: fixedDate,
         expires: fixedDate + DEFAULT_RTC_EXPIRE_DURATION,
         focus_active: {
           type: 'livekit',
@@ -97,20 +156,17 @@ describe('isValidRTCSessionStateEvent', () => {
       sender: '@user-id',
       type: 'org.matrix.msc3401.call.member',
     };
-    expect(isRTCSessionNotExpired(event.content)).toBe(true);
+    expect(isRTCSessionNotExpired(event)).toBe(true);
   });
 
   it('should create a new RTC session', () => {
-    const event = newRTCSession('@user-id', 'DEVICEID', 'whiteboard-id');
+    const event = newRTCSession('DEVICEID', 'whiteboard-id');
     expect(event).toEqual({
       call_id: 'whiteboard-id',
       scope: 'm.room',
       application: 'net.nordeck.whiteboard',
-      session_id: '_@user-id_DEVICEID',
-      whiteboard_id: 'whiteboard-id',
-      user_id: '@user-id',
       device_id: 'DEVICEID',
-      createdTs: fixedDate,
+      created_ts: fixedDate,
       expires: fixedDate + DEFAULT_RTC_EXPIRE_DURATION,
       focus_active: { type: 'livekit', livekit_service_url: '' },
       foci_preferred: [],

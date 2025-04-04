@@ -30,16 +30,14 @@ import {
   RTCSessionEventContent,
   STATE_EVENT_RTC_MEMBER,
   isRTCSessionNotExpired,
-  isValidRTCSessionStateEvent,
   newRTCSession,
 } from '../../../model';
-import { DEFAULT_RTC_EXPIRE_DURATION } from '../../../model/matrixRtcSessions';
+import {
+  DEFAULT_RTC_EXPIRE_DURATION,
+  isWhiteboardRTCSessionStateEvent,
+} from '../../../model/matrixRtcSessions';
+import { SessionState } from './sessionManagerImpl';
 import { Session, SessionManager } from './types';
-
-export type SessionState = {
-  whiteboardId: string;
-  expiresTs: number;
-} & Session;
 
 export class RTCSessionManagerImpl implements SessionManager {
   private readonly logger = getLogger('RTCSessionManager');
@@ -50,7 +48,7 @@ export class RTCSessionManagerImpl implements SessionManager {
   // This subject is used to track the state of all sessions, allowing us to
   // detect sessions and manage their lifecycle, including adding expiration dates.
   private readonly sessionSubject = new Subject<SessionState>();
-  private sessions: RTCSessionEventContent[] = [];
+  private sessions: StateEvent<RTCSessionEventContent>[] = [];
   private joinState: { whiteboardId: string; sessionId: string } | undefined;
 
   constructor(
@@ -63,9 +61,9 @@ export class RTCSessionManagerImpl implements SessionManager {
   }
 
   getSessions(): Session[] {
-    return this.sessions.map(({ session_id, user_id }) => ({
-      sessionId: session_id,
-      userId: user_id,
+    return this.sessions.map(({ state_key, sender }) => ({
+      sessionId: state_key,
+      userId: sender,
     }));
   }
 
@@ -103,7 +101,7 @@ export class RTCSessionManagerImpl implements SessionManager {
         switchMap((widgetApi) =>
           widgetApi.observeStateEvents(STATE_EVENT_RTC_MEMBER),
         ),
-        filter(isValidRTCSessionStateEvent),
+        filter(isWhiteboardRTCSessionStateEvent),
         takeUntil(this.destroySubject),
         takeUntil(this.leaveSubject),
       )
@@ -115,11 +113,11 @@ export class RTCSessionManagerImpl implements SessionManager {
       .pipe(
         takeUntil(this.destroySubject),
         takeUntil(this.leaveSubject),
-        switchMap(() => this.refreshOwnSession(whiteboardId, sessionId)),
+        switchMap(() => this.refreshOwnSession(sessionId)),
       )
       .subscribe();
 
-    await this.refreshOwnSession(whiteboardId, sessionId);
+    await this.refreshOwnSession(sessionId);
 
     return { sessionId };
   }
@@ -140,7 +138,9 @@ export class RTCSessionManagerImpl implements SessionManager {
     const widgetApi = await this.widgetApiPromise;
     const { userId } = widgetApi.widgetParameters;
 
-    this.removeSession({ state_key: sessionId, sender: userId });
+    if (userId) {
+      this.removeSession(sessionId, userId);
+    }
 
     await this.removeOwnSession(whiteboardId, sessionId);
   }
@@ -156,81 +156,59 @@ export class RTCSessionManagerImpl implements SessionManager {
     event: StateEvent<RTCSessionEventContent>,
   ): void {
     const sessionId = event.state_key;
-    const sessions = this.sessions.filter(isRTCSessionNotExpired);
-    sessions.push(event.content);
+    const whiteboardId = event.content.call_id;
 
-    this.logger.debug('handling RTC event', JSON.stringify(event));
+    this.logger.debug('Handling RTC event', JSON.stringify(event));
 
     this.sessionSubject.next({
       sessionId,
       userId: event.sender,
-      expiresTs: event.content.expires!,
-      whiteboardId: event.content.whiteboard_id,
+      expiresTs: this.getExpiresTs(event),
+      whiteboardId,
     });
 
     if (Object.keys(event.content).length === 0) {
-      this.removeSession(event);
+      this.removeSession(sessionId, event.sender);
+      return;
     }
 
-    // Update sessions
-    this.sessions = this.sessions.map((existingSession) => {
-      if (existingSession.session_id === sessionId) {
-        const updatedSession = sessions.find(
-          (s) =>
-            s.session_id === existingSession.session_id &&
-            s.whiteboard_id === existingSession.whiteboard_id,
-        );
-        if (updatedSession) {
-          return { ...updatedSession };
-        }
+    this.sessions = this.sessions.filter(isRTCSessionNotExpired);
+
+    const existingSessionIndex = this.sessions.findIndex(
+      (s) => s.state_key === sessionId && s.content.call_id === whiteboardId,
+    );
+
+    if (existingSessionIndex >= 0) {
+      this.sessions[existingSessionIndex] = event;
+    } else {
+      if (sessionId !== this.getSessionId()) {
+        this.addSession(event);
+      } else {
+        this.sessions.push(event);
       }
-      return existingSession;
-    });
-
-    // Add sessions
-    const sessionsToAdd = sessions.filter((newSession) => {
-      return !this.sessions.find(
-        (s) =>
-          s.session_id === newSession.session_id &&
-          s.whiteboard_id === newSession.whiteboard_id,
-      );
-    });
-
-    this.logger.debug('Sessions to add', JSON.stringify(sessionsToAdd));
-
-    sessionsToAdd
-      .filter(({ session_id }) => session_id !== this.getSessionId())
-      .forEach((newSession) =>
-        this.addSession({
-          ...newSession,
-        }),
-      );
+    }
 
     this.logger.debug('Sessions updated', JSON.stringify(this.sessions));
   }
 
-  private addSession(session: RTCSessionEventContent): void {
-    const { user_id, session_id, whiteboard_id } = session;
+  private addSession(session: StateEvent<RTCSessionEventContent>): void {
+    const { sender, state_key } = session;
 
     this.logger.debug(
-      `Session ${session_id} by ${user_id} joined whiteboard ${whiteboard_id}`,
+      `Session ${state_key} by ${sender} joined whiteboard ${session.content.call_id}`,
     );
 
     this.sessions = [...this.sessions, session];
-    this.sessionJoinedSubject.next({ sessionId: session_id, userId: user_id });
+    this.sessionJoinedSubject.next({ sessionId: state_key, userId: sender });
   }
 
-  private removeSession(
-    event: Partial<StateEvent<RTCSessionEventContent>>,
-  ): void {
-    this.logger.debug(`Session ${event.state_key} left whiteboard`);
+  private removeSession(sessionId: string, userId: string): void {
+    this.logger.debug(`Session ${sessionId} left whiteboard`);
 
-    this.sessions = this.sessions.filter(
-      (s) => s.session_id !== event.state_key,
-    );
+    this.sessions = this.sessions.filter((s) => s.state_key !== sessionId);
     this.sessionLeftSubject.next({
-      sessionId: event.state_key!,
-      userId: event.sender!,
+      sessionId,
+      userId,
     });
   }
 
@@ -239,27 +217,65 @@ export class RTCSessionManagerImpl implements SessionManager {
     sessionId: string,
   ): Promise<void> {
     this.logger.debug(
-      `Removing own session ${sessionId} from whiteboard ${whiteboardId}`,
+      `Removing own session ${sessionId} for whiteboard ${whiteboardId}`,
     );
 
     await this.endRtcSession(sessionId);
   }
 
-  private async refreshOwnSession(
-    whiteboardId: string,
-    sessionId: string,
-  ): Promise<void> {
-    this.logger.debug(
-      `Refreshing session ${sessionId} for whiteboard ${whiteboardId}`,
-    );
+  private async refreshOwnSession(sessionId: string): Promise<void> {
     const expires = Date.now() + this.sessionTimeout;
-    await this.patchOwnSession((rtcSession) => ({
-      ...rtcSession,
-      sessionId,
-      whiteboardId,
-      expires: expires,
-      expiresTs: expires,
-    }));
+    const widgetApi = await this.widgetApiPromise;
+    const { userId, deviceId } = widgetApi.widgetParameters;
+    const { whiteboardId } = this.joinState ?? {};
+
+    this.logger.debug(`Refreshing session ${sessionId}`);
+
+    if (!userId || !deviceId || !whiteboardId) {
+      // @todo this needs to be handled better so it bubbles up to the user
+      this.logger.error(
+        'Unknown user id or device id or whiteboard id when patching RTC session',
+      );
+      throw new Error('Unknown user id or device id or whiteboard id');
+    }
+
+    try {
+      // Get the existing session event, if any
+      const sessionEvent = (await widgetApi.receiveSingleStateEvent(
+        STATE_EVENT_RTC_MEMBER,
+        sessionId,
+      )) as StateEvent<RTCSessionEventContent>;
+
+      // Determine the base session object
+      let baseSession: RTCSessionEventContent;
+
+      if (
+        sessionEvent &&
+        Object.keys(sessionEvent.content).length !== 0 &&
+        isWhiteboardRTCSessionStateEvent(sessionEvent)
+      ) {
+        // If a valid session exists, clone it
+        baseSession = clone(sessionEvent.content);
+      } else {
+        // Otherwise create a new session event content
+        baseSession = newRTCSession(deviceId, whiteboardId);
+      }
+
+      const updatedSession: RTCSessionEventContent = {
+        ...baseSession,
+        expires,
+      };
+
+      // Check if session has been modified compared to the original
+      if (!isEqual(updatedSession, sessionEvent)) {
+        await widgetApi.sendStateEvent(STATE_EVENT_RTC_MEMBER, updatedSession, {
+          stateKey: `_${userId}_${deviceId}`,
+        });
+        this.logger.debug('RTC session sent', JSON.stringify(updatedSession));
+      }
+    } catch (ex) {
+      this.logger.error('Error while sending RTC session', ex);
+    }
   }
 
   private async endRtcSession(sessionId: string): Promise<void> {
@@ -284,103 +300,15 @@ export class RTCSessionManagerImpl implements SessionManager {
     }
   }
 
-  private async patchOwnSession(
-    patchFn: (patchOwnSession: Session) => Session,
-  ): Promise<void> {
-    const widgetApi = await this.widgetApiPromise;
-    const { userId, deviceId } = widgetApi.widgetParameters;
-    const { whiteboardId, sessionId } = this.joinState ?? {};
-
-    this.logger.debug(
-      'Patching own RTC session',
-      userId,
-      deviceId,
-      whiteboardId,
-    );
-
-    if (!userId || !deviceId || !whiteboardId) {
-      // @todo this needs to be handled better so it bubbles up to the user
-      this.logger.error(
-        'Unknown user id or device id or whiteboard id when patching RTC session',
-      );
-      throw new Error('Unknown user id or device id or whiteboard id');
+  private getExpiresTs(event: StateEvent<RTCSessionEventContent>): number {
+    if (event.content.expires) {
+      return event.content.expires;
     }
 
-    try {
-      // Get the existing session event, if any
-      const sessionEvent = (await widgetApi.receiveSingleStateEvent(
-        STATE_EVENT_RTC_MEMBER,
-        sessionId,
-      )) as StateEvent<RTCSessionEventContent>;
-
-      // Determine the base session object
-      let baseSession: RTCSessionEventContent & {
-        sessionId?: string;
-        userId?: string;
-      };
-
-      if (
-        sessionEvent &&
-        Object.keys(sessionEvent.content).length !== 0 &&
-        isValidRTCSessionStateEvent(sessionEvent)
-      ) {
-        // If a valid session exists, clone it
-        baseSession = clone(sessionEvent.content);
-      } else {
-        // Otherwise create a new session
-        baseSession = newRTCSession(userId, deviceId, whiteboardId);
-      }
-
-      // @todo should call id be empty?
-      baseSession.call_id = whiteboardId;
-
-      // Convert to Session format for the patch function
-      const sessionForPatch: Session = {
-        userId: baseSession.user_id,
-        sessionId: baseSession.session_id,
-        ...baseSession, // Include any additional fields
-      };
-
-      // Apply the patch function to get updated values
-      const patchedSession = patchFn(sessionForPatch);
-
-      // Merge the patched fields back into the base session
-      // This ensures all fields from the patch are applied
-      const updatedSession = {
-        ...baseSession,
-        ...patchedSession,
-        // Explicitly ensure critical fields remain correct
-        user_id: userId,
-        device_id: deviceId,
-        whiteboard_id: whiteboardId,
-        session_id: sessionId,
-      };
-
-      // Check if session has been modified compared to the original
-      if (!isEqual(updatedSession, sessionEvent?.content)) {
-        const finalSession: RTCSessionEventContent = {
-          call_id: updatedSession.call_id,
-          scope: updatedSession.scope,
-          application: updatedSession.application,
-          session_id: updatedSession.session_id!,
-          whiteboard_id: updatedSession.whiteboard_id,
-          user_id: updatedSession.user_id,
-          device_id: updatedSession.device_id,
-          createdTs: updatedSession.createdTs,
-          expires: updatedSession.expires,
-          focus_active: updatedSession.focus_active,
-          foci_preferred: updatedSession.foci_preferred,
-          // Include any additional fields that were patched
-          ...(updatedSession as unknown as Record<string, unknown>),
-        };
-
-        await widgetApi.sendStateEvent(STATE_EVENT_RTC_MEMBER, finalSession, {
-          stateKey: `_${userId}_${deviceId}`,
-        });
-        this.logger.debug('RTC session sent', JSON.stringify(finalSession));
-      }
-    } catch (ex) {
-      this.logger.error('Error while sending RTC session', ex);
+    if (event.content.created_ts) {
+      return event.content.created_ts + this.sessionTimeout;
     }
+
+    return event.origin_server_ts + this.sessionTimeout;
   }
 }

@@ -406,26 +406,25 @@ export function mockWhiteboardMembership({
   content = {
     application: 'net.nordeck.whiteboard',
     call_id: 'whiteboard-id',
-    createdTs: new Date('2023-02-01T10:11:12.345Z').getTime(),
     device_id: 'DEVICEID',
-    expires: +new Date('2050-01-12T11:25:20.143Z').getTime(),
     foci_preferred: [],
     focus_active: { type: 'livekit', livekit_service_url: '' },
+    created_ts: new Date('2023-02-01T10:11:12.345Z').getTime(),
     scope: 'm.room',
-    user_id: '@user-id',
-    whiteboard_id: 'whiteboard-id',
-    session_id: 'session-id',
+    expires: +new Date('2050-01-12T11:25:20.143Z').getTime(),
   },
   state_key = '_@user-id_DEVICEID',
+  sender = '@user-id',
   origin_server_ts = 0,
 }: {
   content?: RTCSessionEventContent | Partial<RTCSessionEventContent>;
   state_key?: string;
+  sender?: string;
   origin_server_ts?: number;
 } = {}): StateEvent<RTCSessionEventContent> {
   return {
     type: STATE_EVENT_RTC_MEMBER,
-    sender: '@user-id',
+    sender,
     content: content as RTCSessionEventContent,
     state_key,
     origin_server_ts,

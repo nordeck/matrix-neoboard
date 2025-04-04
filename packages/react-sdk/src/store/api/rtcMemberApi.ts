@@ -19,7 +19,7 @@ import { createEntityAdapter, EntityState } from '@reduxjs/toolkit';
 import { isError } from 'lodash';
 import { bufferTime, filter } from 'rxjs';
 import {
-  isValidRTCSessionStateEvent,
+  isWhiteboardRTCSessionStateEvent,
   RTCSessionEventContent,
   STATE_EVENT_RTC_MEMBER,
 } from '../../model';
@@ -56,11 +56,10 @@ export const rtcMemberApi = baseApi.injectEndpoints({
             STATE_EVENT_RTC_MEMBER,
           );
 
-          // @todo filter by application id
           return {
             data: rtcMembershipEventEntityAdapter.addMany(
               initialState,
-              events.filter(isValidRTCSessionStateEvent),
+              events.filter(isWhiteboardRTCSessionStateEvent),
             ),
           };
         } catch (e) {
@@ -87,7 +86,7 @@ export const rtcMemberApi = baseApi.injectEndpoints({
         const subscription = widgetApi
           .observeStateEvents(STATE_EVENT_RTC_MEMBER)
           .pipe(
-            filter(isValidRTCSessionStateEvent),
+            filter(isWhiteboardRTCSessionStateEvent),
             bufferTime(0),
             filter((list) => list.length > 0),
           )
