@@ -118,14 +118,9 @@ export function Layout({ height = '100vh' }: LayoutProps) {
               display="flex"
               position="relative"
               onDragEnter={handleUploadDragEnter}
-              sx={{ minWidth: 0 }}
             >
               {slideIds.map((slideId) => (
-                <TabPanelStyled
-                  value={slideId}
-                  key={slideId}
-                  sx={{ minWidth: 0 }}
-                >
+                <TabPanelStyled value={slideId} key={slideId}>
                   <SlideProvider slideId={slideId}>
                     <ElementOverridesProvider>
                       <ConnectionPointProvider>
@@ -202,10 +197,8 @@ function ContentArea() {
       {(!isViewingPresentation || isViewingPresentationInEditMode) && (
         <ToolbarCanvasContainer ref={sizeRef}>
           <ToolbarContainer
-            position="fixed"
-            bottom={(theme) => theme.spacing(5)}
-            left={(theme) => theme.spacing(4)}
-            right={(theme) => theme.spacing(4)}
+            bottom={(theme) => theme.spacing(1)}
+            {...(infiniteCanvasMode ? { position: 'fixed' } : undefined)}
           >
             {infiniteCanvasMode && <ZoomBar />}
 
