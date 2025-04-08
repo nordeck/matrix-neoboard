@@ -17,6 +17,7 @@
 import { Box, styled } from '@mui/material';
 import React, {
   forwardRef,
+  KeyboardEvent,
   MouseEventHandler,
   PropsWithChildren,
   ReactNode,
@@ -26,10 +27,10 @@ import React, {
   useLayoutEffect,
   useMemo,
   useRef,
-  WheelEventHandler,
 } from 'react';
 import { Point } from '../../../state';
 import {
+  gridCellSize,
   infiniteCanvasMode,
   whiteboardHeight,
   whiteboardWidth,
@@ -58,7 +59,6 @@ export type SvgCanvasProps = PropsWithChildren<{
 
   onMouseDown?: MouseEventHandler<SVGSVGElement> | undefined;
   onMouseMove?: (position: Point) => void | undefined;
-  onWheel?: WheelEventHandler;
 }>;
 
 export const SvgCanvas = forwardRef(function SvgCanvas(
@@ -72,13 +72,14 @@ export const SvgCanvas = forwardRef(function SvgCanvas(
     onMouseDown,
     onMouseMove,
     preview,
-    onWheel,
   }: SvgCanvasProps,
   forwardedRef,
 ) {
   const [sizeRef, { width, height }] = useMeasure<HTMLDivElement>();
   const svgRef = useRef<SVGSVGElement>(null);
-  const { scale, translation, setContainerDimensions } = useSvgScaleContext();
+  const { scale, translation, setContainerDimensions, updateTranslation } =
+    useSvgScaleContext();
+  const pressedKeys = useRef<Set<string>>(new Set());
 
   // by that svgRef can be used here, while also forwarding the ref
   useImperativeHandle(forwardedRef, () => svgRef.current);
@@ -108,6 +109,71 @@ export const SvgCanvas = forwardRef(function SvgCanvas(
   useLayoutEffect(() => {
     setContainerDimensions({ width, height });
   }, [width, height, setContainerDimensions]);
+
+  const handleCanvasClick = useCallback(() => {
+    if (svgRef.current) {
+      svgRef.current.focus();
+    }
+  }, []);
+
+  const getKeyboardOffset = useCallback(() => {
+    const scrollStep = gridCellSize * scale;
+    let dx = 0;
+    let dy = 0;
+
+    if (pressedKeys.current.has('ArrowUp')) dy += scrollStep;
+    if (pressedKeys.current.has('ArrowDown')) dy -= scrollStep;
+    if (pressedKeys.current.has('ArrowLeft')) dx += scrollStep;
+    if (pressedKeys.current.has('ArrowRight')) dx -= scrollStep;
+
+    return { dx, dy };
+  }, [scale]);
+
+  // Apply keyboard navigation offset if needed
+  const applyKeyboardNavigation = useCallback(() => {
+    const { dx, dy } = getKeyboardOffset();
+    if (dx !== 0 || dy !== 0) {
+      updateTranslation(dx, dy);
+    }
+  }, [getKeyboardOffset, updateTranslation]);
+
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent<SVGSVGElement>) => {
+      const isArrowKey = [
+        'ArrowUp',
+        'ArrowDown',
+        'ArrowLeft',
+        'ArrowRight',
+      ].includes(e.key);
+
+      if (isArrowKey) {
+        if (!pressedKeys.current.has(e.key)) {
+          pressedKeys.current.add(e.key);
+        }
+        e.preventDefault();
+        applyKeyboardNavigation();
+      }
+    },
+    [applyKeyboardNavigation],
+  );
+
+  const handleKeyUp = useCallback(
+    (e: KeyboardEvent<SVGSVGElement>) => {
+      const isArrowKey = [
+        'ArrowUp',
+        'ArrowDown',
+        'ArrowLeft',
+        'ArrowRight',
+      ].includes(e.key);
+
+      if (isArrowKey) {
+        pressedKeys.current.delete(e.key);
+        e.preventDefault();
+        applyKeyboardNavigation();
+      }
+    },
+    [applyKeyboardNavigation],
+  );
 
   const handleMouseMove: MouseEventHandler<SVGSVGElement> = useCallback(
     (e) => {
@@ -270,7 +336,40 @@ const InfiniteCanvasWrapper: React.FC<CanvasWrapperProps> = ({
         ...(infiniteCanvasMode ? {} : { overflow: 'hidden' }),
       }}
     >
-      <Box sx={innerBoxSx}>{children}</Box>
+      <Box sx={innerBoxSx}>
+        <SvgCanvasContext.Provider value={value}>
+          <Canvas
+            ref={svgRef}
+            rounded={rounded}
+            sx={{
+              aspectRatio,
+              ...outlineSx,
+              ...(preview
+                ? {}
+                : {
+                    width: `${whiteboardWidth}px`,
+                    height: `${whiteboardHeight}px`,
+                  }),
+            }}
+            viewBox={`0 0 ${viewportWidth} ${viewportHeight}`}
+            onClick={handleCanvasClick}
+            onMouseDown={onMouseDown}
+            onMouseMove={handleMouseMove}
+            onKeyDown={handleKeyDown}
+            onKeyUp={handleKeyUp}
+            tabIndex={0}
+            transform-origin="center center"
+            transform={
+              !preview
+                ? `translate(${translation.x}, ${translation.y}) scale(${scale})`
+                : ''
+            }
+          >
+            {children}
+          </Canvas>
+          {additionalChildren}
+        </SvgCanvasContext.Provider>
+      </Box>
     </Box>
   );
 };
