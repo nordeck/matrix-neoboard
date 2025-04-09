@@ -16,13 +16,19 @@
 
 import { Box } from '@mui/material';
 import { clamp } from 'lodash';
-import { PropsWithChildren, useMemo } from 'react';
-import { useSlideIsLocked } from '../../../../state';
-import { calculateBoundingRectForElements } from '../../../../state/crdt/documents/elements';
+import React, { PropsWithChildren, useMemo } from 'react';
+import {
+  calculateBoundingRectForElements,
+  useSlideIsLocked,
+} from '../../../../state';
 import { useElementOverrides } from '../../../ElementOverridesProvider';
 import { useMeasure } from '../../SvgCanvas';
 import { useSvgScaleContext } from '../../SvgScaleContext';
-import { whiteboardHeight, whiteboardWidth } from '../../constants';
+import {
+  infiniteCanvasMode,
+  whiteboardHeight,
+  whiteboardWidth,
+} from '../../constants';
 
 type ElementBarWrapperProps = PropsWithChildren<{ elementIds: string[] }>;
 
@@ -31,7 +37,6 @@ export function ElementBarWrapper({
   elementIds,
 }: ElementBarWrapperProps) {
   const isLocked = useSlideIsLocked();
-  useMeasure<HTMLDivElement>();
 
   if (
     // no elements selected
@@ -42,12 +47,66 @@ export function ElementBarWrapper({
     return null;
   }
 
-  return (
-    <ElementBarWrapperPositionedWrapper elementIds={elementIds}>
-      {children}
-    </ElementBarWrapperPositionedWrapper>
-  );
+  const Wrapper: React.FC<ElementBarWrapperProps> = !infiniteCanvasMode
+    ? ElementBarWrapperWrapper
+    : ElementBarWrapperPositionedWrapper;
+
+  return <Wrapper elementIds={elementIds}>{children}</Wrapper>;
 }
+
+const ElementBarWrapperWrapper: React.FC<ElementBarWrapperProps> = ({
+  children,
+  elementIds,
+}) => {
+  const elements = Object.values(useElementOverrides(elementIds));
+  const [sizeRef, { width: elementBarWidth, height: elementBarHeight }] =
+    useMeasure<HTMLDivElement>();
+  const {
+    scale,
+    containerDimensions: { width: canvasWidth, height: canvasHeight },
+  } = useSvgScaleContext();
+
+  const {
+    offsetX: x,
+    offsetY: y,
+    width,
+    height,
+  } = calculateBoundingRectForElements(elements);
+
+  const offset = 10;
+
+  function calculateTopPosition() {
+    const position = y * scale;
+    const positionAbove = position - elementBarHeight - offset;
+    const positionBelow = position + height * scale + offset;
+    const positionInElement = position + offset;
+
+    if (positionAbove >= 0) {
+      return positionAbove;
+    } else if (positionBelow + elementBarHeight < canvasHeight) {
+      return positionBelow;
+    } else {
+      return positionInElement;
+    }
+  }
+
+  function calculateLeftPosition() {
+    const position = (x + width / 2) * scale - elementBarWidth / 2;
+    return clamp(position, 0, canvasWidth - elementBarWidth);
+  }
+
+  return (
+    <Box
+      ref={sizeRef}
+      position="absolute"
+      zIndex={(theme) => theme.zIndex.appBar}
+      left={calculateLeftPosition()}
+      top={calculateTopPosition()}
+    >
+      {children}
+    </Box>
+  );
+};
 
 /**
  * This component handles the actual positioning of the ElementBar.
