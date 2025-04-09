@@ -15,7 +15,7 @@
  */
 
 import { getEnvironment } from '@matrix-widget-toolkit/mui';
-import HelpCenterIcon from '@mui/icons-material/HelpCenter';
+import HelpIcon from '@mui/icons-material/Help';
 import { Link, ListItemText, Menu, MenuItem } from '@mui/material';
 import { unstable_useId as useId } from '@mui/utils';
 import { MouseEvent, useCallback, useMemo, useState } from 'react';
@@ -71,7 +71,7 @@ export function HelpMenu() {
         onClick={handleClick}
         aria-label={menuTitle}
       >
-        <HelpCenterIcon />
+        <HelpIcon />
       </ToolbarSubMenu>
 
       <Menu
