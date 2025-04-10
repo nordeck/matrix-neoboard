@@ -26,7 +26,7 @@ type UseWheelZoomResult = {
 export const useWheelZoom = (
   svgRef: RefObject<SVGSVGElement>,
 ): UseWheelZoomResult => {
-  const { updateScale, updateTranslation } = useSvgScaleContext();
+  const { scale, updateScale, updateTranslation } = useSvgScaleContext();
 
   const handleWheelZoom = useCallback(
     (event: WheelEvent) => {
@@ -43,9 +43,6 @@ export const useWheelZoom = (
           return;
         }
 
-        event.preventDefault();
-        event.stopPropagation();
-
         // calculateSvgCoords from SvgCanvasContext cannot be used here,
         // because this hook is most likely being used outside of a context.
         const zoomOriginOnCanvas = calculateSvgCoords(
@@ -56,8 +53,9 @@ export const useWheelZoom = (
           svgRef.current,
         );
 
-        // smoother zooming when using wheel
-        const wheelZoomStep = zoomStep / 2;
+        // smoother zooming when using wheel and also take scale into account
+        // so that zooming out from a high scale is faster
+        const wheelZoomStep = zoomStep * scale;
         updateScale(
           event.deltaY < 0 ? wheelZoomStep : -wheelZoomStep,
           zoomOriginOnCanvas,
@@ -67,8 +65,11 @@ export const useWheelZoom = (
         // Wheel's deltaY is often a multiple of 120.
         updateTranslation(-event.deltaX, -event.deltaY);
       }
+
+      event.preventDefault();
+      event.stopPropagation();
     },
-    [svgRef, updateScale, updateTranslation],
+    [svgRef, scale, updateScale, updateTranslation],
   );
 
   return {

@@ -85,17 +85,21 @@ const WhiteboardHost = ({
   useEffect(() => {
     const element = svgRef.current;
 
-    // We cannot use the onWheel prop to prevent the event handler from being passive.
-    // In non-passive mode, we can prevent the browser's zooming behaviour.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    element?.addEventListener('wheel', handleWheelZoom as any, {
-      passive: false,
-    });
+    if (element) {
+      const wheelHandler = (event: WheelEvent) => {
+        handleWheelZoom(event as unknown as React.WheelEvent<SVGSVGElement>);
+      };
 
-    return () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      element?.removeEventListener('wheel', handleWheelZoom as any);
-    };
+      // We cannot use the onWheel prop to prevent the event handler from being passive.
+      // In non-passive mode, we can prevent the browser's zooming behaviour.
+      element.addEventListener('wheel', wheelHandler, {
+        passive: false,
+      });
+
+      return () => {
+        element.removeEventListener('wheel', wheelHandler);
+      };
+    }
   }, [handleWheelZoom]);
 
   return (
