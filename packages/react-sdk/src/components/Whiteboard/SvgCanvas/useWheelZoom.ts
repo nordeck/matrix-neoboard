@@ -56,8 +56,10 @@ export const useWheelZoom = (
           svgRef.current,
         );
 
+        // smoother zooming when using wheel
+        const wheelZoomStep = zoomStep / 2;
         updateScale(
-          event.deltaY < 0 ? zoomStep : -zoomStep,
+          event.deltaY < 0 ? wheelZoomStep : -wheelZoomStep,
           zoomOriginOnCanvas,
         );
       } else {

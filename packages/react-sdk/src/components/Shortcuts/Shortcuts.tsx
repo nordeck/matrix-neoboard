@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { infiniteCanvasMode } from '../Whiteboard/constants';
 import { ClipboardShortcuts } from './ClipboardShortcuts';
 import { DeleteShortcut } from './DeleteShortcut';
 import { DuplicateShortcut } from './DuplicateShortcut';
@@ -21,6 +22,7 @@ import { PresentationShortcuts } from './PresentationShortcuts';
 import { ReorderElementsShortcuts } from './ReorderElementShortcuts';
 import { TextFormattingShortcuts } from './TextFormattingShortcuts';
 import { UndoRedoShortcuts } from './UndoRedoShortcuts';
+import { ZoomShortcuts } from './ZoomShortcuts';
 
 export function Shortcuts() {
   // Place to register all global shortcuts that are related to a slide
@@ -33,6 +35,7 @@ export function Shortcuts() {
       <DuplicateShortcut />
       <PresentationShortcuts />
       <TextFormattingShortcuts />
+      {infiniteCanvasMode && <ZoomShortcuts />}
     </>
   );
 }
