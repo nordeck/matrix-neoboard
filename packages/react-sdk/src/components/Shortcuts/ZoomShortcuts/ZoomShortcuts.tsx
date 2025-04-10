@@ -29,11 +29,13 @@ export const ZoomShortcuts: React.FC = function () {
         (keyboardEvent.ctrlKey || keyboardEvent.metaKey) &&
         keyboardEvent.key === '+'
       ) {
+        keyboardEvent.preventDefault();
         updateScale(zoomStep);
       } else if (
         (keyboardEvent.ctrlKey || keyboardEvent.metaKey) &&
         keyboardEvent.key === '-'
       ) {
+        keyboardEvent.preventDefault();
         updateScale(-zoomStep);
       }
     },
@@ -44,7 +46,7 @@ export const ZoomShortcuts: React.FC = function () {
     '*',
     handleZoom,
     {
-      preventDefault: true,
+      preventDefault: false,
       enableOnContentEditable: true,
       scopes: HOTKEY_SCOPE_WHITEBOARD,
     },
