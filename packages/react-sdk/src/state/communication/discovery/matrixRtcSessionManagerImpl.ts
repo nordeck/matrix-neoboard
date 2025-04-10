@@ -39,7 +39,7 @@ import {
 import { SessionState } from './sessionManagerImpl';
 import { Session, SessionManager } from './types';
 
-export class RTCSessionManagerImpl implements SessionManager {
+export class MatrixRtcSessionManagerImpl implements SessionManager {
   private readonly logger = getLogger('RTCSessionManager');
   private readonly destroySubject = new Subject<void>();
   private readonly leaveSubject = new Subject<void>();

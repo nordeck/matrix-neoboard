@@ -17,19 +17,19 @@
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { firstValueFrom, take, toArray } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import {
-  mockWhiteboardMembership,
-  mockWhiteboardSessions,
-} from '../../../lib/testUtils/matrixTestUtils';
+import { mockWhiteboardMembership } from '../../../lib/testUtils/matrixTestUtils';
 import { STATE_EVENT_RTC_MEMBER } from '../../../model';
-import { DEFAULT_RTC_EXPIRE_DURATION } from '../../../model/matrixRtcSessions';
-import { RTCSessionManagerImpl } from './matrixRtcSessionManagerImpl';
+import {
+  DEFAULT_RTC_EXPIRE_DURATION,
+  RTC_WHITEBOARD_APPID,
+} from '../../../model/matrixRtcSessions';
+import { MatrixRtcSessionManagerImpl } from './matrixRtcSessionManagerImpl';
 
-describe('RTCSessionManagerImpl', () => {
+describe('MatrixRtcSessionManagerImpl', () => {
   const fixedDate = 1742832000;
   let expectedExpires: number;
   let widgetApi: MockedWidgetApi;
-  let rtcSessionManager: RTCSessionManagerImpl;
+  let rtcSessionManager: MatrixRtcSessionManagerImpl;
 
   beforeEach(() => {
     widgetApi = mockWidgetApi();
@@ -42,7 +42,7 @@ describe('RTCSessionManagerImpl', () => {
     vi.spyOn(Date, 'now').mockImplementation(() => fixedDate);
     expectedExpires = fixedDate + DEFAULT_RTC_EXPIRE_DURATION;
 
-    rtcSessionManager = new RTCSessionManagerImpl(widgetApi);
+    rtcSessionManager = new MatrixRtcSessionManagerImpl(widgetApi);
   });
 
   afterEach(() => {
@@ -59,7 +59,7 @@ describe('RTCSessionManagerImpl', () => {
     expect(widgetApi.sendStateEvent).toHaveBeenCalledWith(
       STATE_EVENT_RTC_MEMBER,
       {
-        application: 'net.nordeck.whiteboard',
+        application: RTC_WHITEBOARD_APPID,
         call_id: 'whiteboard-id',
         created_ts: Date.now(),
         device_id: 'DEVICEID',
@@ -84,7 +84,7 @@ describe('RTCSessionManagerImpl', () => {
     expect(widgetApi.sendStateEvent).toHaveBeenCalledWith(
       STATE_EVENT_RTC_MEMBER,
       {
-        application: 'net.nordeck.whiteboard',
+        application: RTC_WHITEBOARD_APPID,
         call_id: 'whiteboard-id-0',
         created_ts: Date.now(),
         device_id: 'DEVICEID',
@@ -107,7 +107,7 @@ describe('RTCSessionManagerImpl', () => {
     expect(widgetApi.sendStateEvent).toHaveBeenCalledWith(
       STATE_EVENT_RTC_MEMBER,
       {
-        application: 'net.nordeck.whiteboard',
+        application: RTC_WHITEBOARD_APPID,
         call_id: 'whiteboard-id-1',
         created_ts: Date.now(),
         device_id: 'DEVICEID',
@@ -126,7 +126,7 @@ describe('RTCSessionManagerImpl', () => {
     expect(widgetApi.sendStateEvent).toHaveBeenCalledWith(
       STATE_EVENT_RTC_MEMBER,
       {
-        application: 'net.nordeck.whiteboard',
+        application: RTC_WHITEBOARD_APPID,
         call_id: 'whiteboard-id',
         created_ts: Date.now(),
         device_id: 'DEVICEID',
@@ -140,13 +140,13 @@ describe('RTCSessionManagerImpl', () => {
 
     // @ts-ignore forcefully set for tests
     widgetApi.widgetParameters.deviceId = 'OTHERDEVICEID';
-    const otherRtcSessionManager = new RTCSessionManagerImpl(widgetApi);
+    const otherRtcSessionManager = new MatrixRtcSessionManagerImpl(widgetApi);
 
     await otherRtcSessionManager.join('whiteboard-id');
     expect(widgetApi.sendStateEvent).toHaveBeenCalledWith(
       STATE_EVENT_RTC_MEMBER,
       {
-        application: 'net.nordeck.whiteboard',
+        application: RTC_WHITEBOARD_APPID,
         call_id: 'whiteboard-id',
         created_ts: Date.now(),
         device_id: 'OTHERDEVICEID',
@@ -178,7 +178,7 @@ describe('RTCSessionManagerImpl', () => {
       2,
       STATE_EVENT_RTC_MEMBER,
       {
-        application: 'net.nordeck.whiteboard',
+        application: RTC_WHITEBOARD_APPID,
         call_id: 'whiteboard-id',
         created_ts: new Date('2023-02-01T10:11:12.345Z').getTime(),
         device_id: 'DEVICEID',
@@ -203,7 +203,7 @@ describe('RTCSessionManagerImpl', () => {
         content: {
           call_id: 'whiteboard-id',
           scope: 'm.room',
-          application: 'net.nordeck.whiteboard',
+          application: RTC_WHITEBOARD_APPID,
           device_id: 'ANOTHERDEVICEID',
           created_ts: Date.now(),
           expires: expectedExpires,
@@ -232,7 +232,7 @@ describe('RTCSessionManagerImpl', () => {
         content: {
           call_id: 'whiteboard-id',
           scope: 'm.room',
-          application: 'net.nordeck.whiteboard',
+          application: RTC_WHITEBOARD_APPID,
           device_id: 'ANOTHERDEVICEID',
           created_ts: Date.now(),
           expires: expectedExpires,
@@ -260,8 +260,6 @@ describe('RTCSessionManagerImpl', () => {
   });
 
   it('should leave a whiteboard', async () => {
-    widgetApi.mockSendStateEvent(mockWhiteboardSessions());
-
     await rtcSessionManager.join('whiteboard-id');
 
     const leftPromise = firstValueFrom(

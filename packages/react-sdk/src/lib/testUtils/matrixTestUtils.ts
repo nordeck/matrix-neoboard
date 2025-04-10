@@ -35,6 +35,7 @@ import {
   WhiteboardSession,
   WhiteboardSessions,
 } from '../../model';
+import { RTC_WHITEBOARD_APPID } from '../../model/matrixRtcSessions';
 import {
   createWhiteboardDocument,
   Document,
@@ -404,7 +405,7 @@ export function mockWhiteboardSessions({
  */
 export function mockWhiteboardMembership({
   content = {
-    application: 'net.nordeck.whiteboard',
+    application: RTC_WHITEBOARD_APPID,
     call_id: 'whiteboard-id',
     device_id: 'DEVICEID',
     foci_preferred: [],

@@ -19,12 +19,14 @@ import Joi from 'joi';
 import { RTCFocus } from '../state/communication';
 import { isValidEvent } from './validation';
 
+export const RTC_WHITEBOARD_APPID = 'net.nordeck.whiteboard.application';
+
 export const DEFAULT_RTC_EXPIRE_DURATION = 1000 * 60 * 60 * 4;
 
 // unstable prefix for m.rtc.member in MSC4143
 export const STATE_EVENT_RTC_MEMBER = 'org.matrix.msc3401.call.member';
 
-// Folowing Matrix JS SDK's SessionMembershipData
+// Following Matrix JS SDK's SessionMembershipData
 // see https://github.com/matrix-org/matrix-js-sdk/blob/d6ede767c929f7be179d456b5a0433be21ccaf7c/src/matrixrtc/CallMembership.ts#L35
 export type RTCSessionEventContent = {
   application: string;
@@ -74,7 +76,7 @@ export function isWhiteboardRTCSessionStateEvent(
 ): event is StateEvent<RTCSessionEventContent> {
   return (
     isValidRTCSessionStateEvent(event) &&
-    (event.content.application === 'net.nordeck.whiteboard' ||
+    (event.content.application === RTC_WHITEBOARD_APPID ||
       Object.keys(event.content).length === 0)
   );
 }
@@ -95,7 +97,7 @@ export function newRTCSession(
   whiteboardId: string,
 ): RTCSessionEventContent {
   return {
-    application: 'net.nordeck.whiteboard',
+    application: RTC_WHITEBOARD_APPID,
     call_id: whiteboardId, // if empty, it will be picked up by the JS SDK for calls
     device_id: deviceId,
     focus_active: { type: 'livekit', livekit_service_url: '' },

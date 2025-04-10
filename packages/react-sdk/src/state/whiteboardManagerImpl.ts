@@ -20,7 +20,7 @@ import { matrixRtcMode } from '../components/Whiteboard/constants';
 import { Whiteboard } from '../model';
 import { StoreType } from '../store';
 import {
-  RTCSessionManagerImpl,
+  MatrixRtcSessionManagerImpl,
   SessionManager,
   SessionManagerImpl,
   SignalingChannel,
@@ -93,7 +93,7 @@ export function createWhiteboardManager(
     : undefined;
 
   const sessionManager = matrixRtcMode
-    ? new RTCSessionManagerImpl(widgetApiPromise)
+    ? new MatrixRtcSessionManagerImpl(widgetApiPromise)
     : new SessionManagerImpl(widgetApiPromise);
 
   const sessionManagerToUse = disableRtc ? undefined : sessionManager;
