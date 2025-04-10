@@ -22,6 +22,7 @@ import {
   isValidRTCSessionStateEvent,
   isWhiteboardRTCSessionStateEvent,
   newRTCSession,
+  RTC_WHITEBOARD_APPID,
   RTCSessionEventContent,
 } from './matrixRtcSessions';
 
@@ -42,7 +43,7 @@ describe('isValidRTCSessionStateEvent', () => {
         content: {
           call_id: 'call-id',
           scope: 'm.room',
-          application: 'net.nordeck.whiteboard',
+          application: RTC_WHITEBOARD_APPID,
           device_id: 'DEVICEID',
           created_ts: 100000000,
           expires: 100000000,
@@ -104,7 +105,7 @@ describe('isValidRTCSessionStateEvent', () => {
         content: {
           call_id: 'call-id',
           scope: 'm.room',
-          application: 'net.nordeck.whiteboard',
+          application: RTC_WHITEBOARD_APPID,
           device_id: 'DEVICEID',
           created_ts: 100000000,
           expires: 100000000,
@@ -134,7 +135,7 @@ describe('isValidRTCSessionStateEvent', () => {
       content: {
         call_id: 'call-id',
         scope: 'm.room',
-        application: 'net.nordeck.whiteboard',
+        application: RTC_WHITEBOARD_APPID,
         device_id: 'DEVICEID',
         created_ts: fixedDate,
         expires: fixedDate + DEFAULT_RTC_EXPIRE_DURATION,
@@ -164,7 +165,7 @@ describe('isValidRTCSessionStateEvent', () => {
     expect(event).toEqual({
       call_id: 'whiteboard-id',
       scope: 'm.room',
-      application: 'net.nordeck.whiteboard',
+      application: RTC_WHITEBOARD_APPID,
       device_id: 'DEVICEID',
       created_ts: fixedDate,
       expires: fixedDate + DEFAULT_RTC_EXPIRE_DURATION,

@@ -179,7 +179,7 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
     this.logger.log('Connecting communication channel');
     const { sessionId } = await this.sessionManager.join(this.whiteboardId);
 
-    const widgetApi = await Promise.resolve(this.widgetApiPromise);
+    const widgetApi = await this.widgetApiPromise;
     await this.handleSessionJoined({
       sessionId,
       userId: widgetApi.widgetParameters.userId!,
@@ -206,9 +206,11 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
     }
 
     try {
-      const widgetApi = await Promise.resolve(this.widgetApiPromise);
+      const widgetApi = await this.widgetApiPromise;
 
-      const focus = (await makePreferredLivekitFoci(session))[0];
+      const focus = (
+        await makePreferredLivekitFoci(session, widgetApi.widgetId)
+      )[0];
       this.sfuConfig = await getSFUConfigWithOpenID(widgetApi, focus);
 
       this.logger.debug('Got SFU config', JSON.stringify(this.sfuConfig));
@@ -308,7 +310,7 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
  */
 async function makePreferredLivekitFoci(
   rtcSession: Session,
-  livekitAlias: string = 'livekit',
+  livekitAlias: string,
 ): Promise<LivekitFocus[]> {
   const logger = getLogger('makePreferredLivekitFoci');
   logger.debug('Building preferred foci list for', rtcSession.sessionId);
