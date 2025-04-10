@@ -65,6 +65,7 @@ export function UnSelectElementHandler() {
         }
 
         setPanEnabled(true);
+        document.body.style.cursor = 'grabbing';
         setPreviousPanCoordinates({ x: event.clientX, y: event.clientY });
       }
     },
@@ -104,6 +105,7 @@ export function UnSelectElementHandler() {
       }
 
       setPanEnabled(false);
+      document.body.style.cursor = 'default';
     }
   }, []);
 

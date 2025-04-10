@@ -15,7 +15,7 @@
  */
 
 import { Box } from '@mui/material';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   includesShapeWithText,
   includesTextShape,
@@ -82,6 +82,26 @@ const WhiteboardHost = ({
 
   const { handleWheelZoom } = useWheelZoom(svgRef);
 
+  useEffect(() => {
+    const element = svgRef.current;
+
+    if (element) {
+      const wheelHandler = (event: WheelEvent) => {
+        handleWheelZoom(event as unknown as React.WheelEvent<SVGSVGElement>);
+      };
+
+      // We cannot use the onWheel prop to prevent the event handler from being passive.
+      // In non-passive mode, we can prevent the browser's zooming behaviour.
+      element.addEventListener('wheel', wheelHandler, {
+        passive: false,
+      });
+
+      return () => {
+        element.removeEventListener('wheel', wheelHandler);
+      };
+    }
+  }, [handleWheelZoom]);
+
   return (
     <Box
       flex={1}
@@ -92,7 +112,15 @@ const WhiteboardHost = ({
       alignContent="space-around"
       position="relative"
       data-guided-tour-target="canvas"
-      {...(infiniteCanvasMode ? { width: '100vw', overflow: 'hidden' } : {})}
+      {...(infiniteCanvasMode
+        ? {
+            sx: {
+              touchAction: 'none',
+            },
+            overflow: 'hidden',
+            width: '100vw',
+          }
+        : {})}
     >
       <SvgCanvas
         ref={svgRef}
@@ -115,7 +143,6 @@ const WhiteboardHost = ({
           },
           [slideInstance],
         )}
-        onWheel={handleWheelZoom}
       >
         {!hideDotGrid && <DotGrid />}
         {!readOnly && <UnSelectElementHandler />}
