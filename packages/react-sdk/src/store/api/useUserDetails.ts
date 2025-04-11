@@ -16,6 +16,7 @@
 
 import { getRoomMemberDisplayName } from '@matrix-widget-toolkit/api';
 import { useCallback } from 'react';
+import { matrixRtcMode } from '../../components/Whiteboard/constants';
 import {
   selectRoomMember,
   selectRoomMembers,
@@ -35,6 +36,14 @@ export function useUserDetails(): UseUserDetailsReturn {
 
   const getUserDisplayName = useCallback(
     (userId: string) => {
+      if (matrixRtcMode) {
+        // in MatrixRTC mode, the userId has an additional livekit session component
+        // so we remove it (ie. @user:domain:sessionId -> @user:domain)
+        const parts = userId.split(':');
+        if (parts.length === 3) {
+          userId = parts[0] + ':' + parts[1];
+        }
+      }
       const memberEvent = roomMembers
         ? selectRoomMember(roomMembers, userId)
         : undefined;

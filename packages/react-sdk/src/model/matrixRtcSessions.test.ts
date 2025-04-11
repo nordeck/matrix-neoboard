@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-import { StateEvent } from '@matrix-widget-toolkit/api';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { mockWhiteboardMembership } from '../lib/testUtils/matrixTestUtils';
 import {
   DEFAULT_RTC_EXPIRE_DURATION,
   isRTCSessionNotExpired,
   isValidRTCSessionStateEvent,
   isWhiteboardRTCSessionStateEvent,
   newRTCSession,
-  RTC_WHITEBOARD_APPID,
-  RTCSessionEventContent,
+  RTC_APPLICATION_WHITEBOARD,
 } from './matrixRtcSessions';
 
 describe('isValidRTCSessionStateEvent', () => {
@@ -38,49 +37,21 @@ describe('isValidRTCSessionStateEvent', () => {
   });
 
   it('should accept event', () => {
-    expect(
-      isValidRTCSessionStateEvent({
-        content: {
-          call_id: 'call-id',
-          scope: 'm.room',
-          application: RTC_WHITEBOARD_APPID,
-          device_id: 'DEVICEID',
-          created_ts: 100000000,
-          expires: 100000000,
-          focus_active: {
-            type: 'livekit',
-            livekit_service_url: 'https://livekit.example.com',
-          },
-          foci_preferred: [
-            {
-              type: 'livekit',
-              livekit_service_url: 'https://livekit.example.com',
-            },
-          ],
-        },
-        event_id: '$event-id',
-        origin_server_ts: 0,
-        room_id: '!room-id',
-        state_key: '_@user-id_DEVICEID',
-        sender: '@user-id',
-        type: 'org.matrix.msc3401.call.member',
-      }),
-    ).toBe(true);
+    expect(isValidRTCSessionStateEvent(mockWhiteboardMembership())).toBe(true);
   });
 
   it('should ignore other apps RTC membership events', () => {
     expect(
       isWhiteboardRTCSessionStateEvent({
         content: {
-          call_id: 'call-id',
+          call_id: 'whiteboard-id',
           scope: 'm.room',
           application: 'm.call',
           device_id: 'DEVICEID',
-          created_ts: 100000000,
           expires: 100000000,
           focus_active: {
             type: 'livekit',
-            livekit_service_url: 'https://livekit.example.com',
+            focus_selection: 'oldest_membership',
           },
           foci_preferred: [
             {
@@ -100,64 +71,18 @@ describe('isValidRTCSessionStateEvent', () => {
   });
 
   it('should accept NeoBoard RTC membership events', () => {
-    expect(
-      isWhiteboardRTCSessionStateEvent({
-        content: {
-          call_id: 'call-id',
-          scope: 'm.room',
-          application: RTC_WHITEBOARD_APPID,
-          device_id: 'DEVICEID',
-          created_ts: 100000000,
-          expires: 100000000,
-          focus_active: {
-            type: 'livekit',
-            livekit_service_url: 'https://livekit.example.com',
-          },
-          foci_preferred: [
-            {
-              type: 'livekit',
-              livekit_service_url: 'https://livekit.example.com',
-            },
-          ],
-        },
-        event_id: '$event-id',
-        origin_server_ts: 0,
-        room_id: '!room-id',
-        state_key: '_@user-id_DEVICEID',
-        sender: '@user-id',
-        type: 'org.matrix.msc3401.call.member',
-      }),
-    ).toBe(true);
+    expect(isWhiteboardRTCSessionStateEvent(mockWhiteboardMembership())).toBe(
+      true,
+    );
   });
 
   it('should recognize expired sessions', () => {
-    const event: StateEvent<RTCSessionEventContent> = {
-      content: {
-        call_id: 'call-id',
-        scope: 'm.room',
-        application: RTC_WHITEBOARD_APPID,
-        device_id: 'DEVICEID',
-        created_ts: fixedDate,
-        expires: fixedDate + DEFAULT_RTC_EXPIRE_DURATION,
-        focus_active: {
-          type: 'livekit',
-          livekit_service_url: 'https://livekit.example.com',
-        },
-        foci_preferred: [
-          {
-            type: 'livekit',
-            livekit_service_url: 'https://livekit.example.com',
-          },
-        ],
-      },
-      event_id: '$event-id',
-      origin_server_ts: 0,
-      room_id: '!room-id',
-      state_key: '_@user-id_DEVICEID',
-      sender: '@user-id',
-      type: 'org.matrix.msc3401.call.member',
-    };
+    const event = mockWhiteboardMembership();
+    event.content.expires = fixedDate + DEFAULT_RTC_EXPIRE_DURATION;
     expect(isRTCSessionNotExpired(event)).toBe(true);
+
+    event.content.expires = fixedDate - 1;
+    expect(isRTCSessionNotExpired(event)).toBe(false);
   });
 
   it('should create a new RTC session', () => {
@@ -165,11 +90,10 @@ describe('isValidRTCSessionStateEvent', () => {
     expect(event).toEqual({
       call_id: 'whiteboard-id',
       scope: 'm.room',
-      application: RTC_WHITEBOARD_APPID,
+      application: RTC_APPLICATION_WHITEBOARD,
       device_id: 'DEVICEID',
-      created_ts: fixedDate,
       expires: fixedDate + DEFAULT_RTC_EXPIRE_DURATION,
-      focus_active: { type: 'livekit', livekit_service_url: '' },
+      focus_active: { type: 'livekit', focus_selection: 'oldest_membership' },
       foci_preferred: [],
     });
   });

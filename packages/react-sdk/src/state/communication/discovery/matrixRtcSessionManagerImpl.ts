@@ -163,7 +163,7 @@ export class MatrixRtcSessionManagerImpl implements SessionManager {
     this.sessionSubject.next({
       sessionId,
       userId: event.sender,
-      expiresTs: this.getExpiresTs(event),
+      expiresTs: event.content.expires,
       whiteboardId,
     });
 
@@ -298,17 +298,5 @@ export class MatrixRtcSessionManagerImpl implements SessionManager {
     } catch (ex) {
       this.logger.error('Error while sending RTC session', ex);
     }
-  }
-
-  private getExpiresTs(event: StateEvent<RTCSessionEventContent>): number {
-    if (event.content.expires) {
-      return event.content.expires;
-    }
-
-    if (event.content.created_ts) {
-      return event.content.created_ts + this.sessionTimeout;
-    }
-
-    return event.origin_server_ts + this.sessionTimeout;
   }
 }

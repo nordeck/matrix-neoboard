@@ -199,7 +199,7 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
       communicationChannel = new MatrixRtcCommunicationChannel(
         widgetApiPromise,
         sessionManager,
-        whiteboardEvent.event_id,
+        whiteboardEvent.state_key,
         enableObserveVisibilityStateSubject,
       );
     } else if (!matrixRtcMode && sessionManager && signalingChannel) {
@@ -207,7 +207,7 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
         widgetApiPromise,
         sessionManager,
         signalingChannel,
-        whiteboardEvent.event_id,
+        whiteboardEvent.state_key,
         enableObserveVisibilityStateSubject,
       );
     }
