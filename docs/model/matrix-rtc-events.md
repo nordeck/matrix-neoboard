@@ -1,16 +1,17 @@
 # MatrixRTC Events Data Model
 
 Having the option to use MatrixRTC as an alternative to WebRTC introduces some
-changes to the datal model.
+changes to the data model.
 
-Specifically, we replace the `net.nordeck.whiteboard.sessions` with MatrixRTC
-membership state events and no longer have the need to use To Device Messages
-for broadcasting ICE candidates between room members, as all signaling is
-now performed by the LiveKit Client SDK and LiveKit Server backend.
+Specifically, we replace the `net.nordeck.whiteboard.sessions`events with the
+`m.rtc.member` MatrixRTC membership state events (or the unstable `org.matrix.msc3401.call.member`)
+and no longer need to use To Device Messages for establishing peer connections,
+as all signaling and connection logic is now handled by the LiveKit Client SDK
+and LiveKit Server backend.
 
 ## Room Messages
 
-The whiteboard state is stored using the following events in a Matrix room:
+The whiteboard state and RTC session membership is stored using the following events in a Matrix room:
 
 ```
 ┌────────────────────────────────┐                  ┌────────────────────────────────────┐
@@ -31,56 +32,7 @@ The whiteboard state is stored using the following events in a Matrix room:
 └────────────────────────────────────────┘    ...
 ```
 
-Each whiteboard document is using the following events in a Matrix room:
-
-```
-┌────────────────────────────────────────┐
-│                                        │
-│ net.nordeck.whiteboard.document.create │
-│ event_id ≙ documentId                  │
-│                                        │
-└────────────────────────────────────────┘
-   ▲
-   │ m.relates_to: m.reference <documentId>
-   └──┬───────────────────────────────────────────────────────────┐...
-      │                                                           │
-      │                                                           │
-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx      xxxxxxxxxxxxxx...
-x     │                                              x      x     │
-x     │       "Encoded Whiteboard CRDT"              x      x     │
-x     │                                              x      x     │
-x  ┌──┴───────────────────────────────────────┐      x      x  ┌──┴───────...
-x  │                                          │      x      x  │
-x  │ net.nordeck.whiteboard.document.snapshot │      x      x  │ net.norde...
-x  │ event_id ≙ snapshotId                    │      x      x  │ ...
-x  │ content.chunkCount: N                    │      x      x  │ ...
-x  │                                          │      x      x  │
-x  └──────────────────────────────────────────┘      x      x  └──────────...
-x     ▲                                              x      x     ▲
-x     │                                              x      x     │
-x     │ m.relates_to: m.reference <snapshotId>       x      x     │
-x     │                                              x      x     .
-x     │   ┌───────────────────────────────────────┐  x      x     .
-x     │   │                                       │  x      x     .
-x     │   │ net.nordeck.whiteboard.document.chunk │  x      x
-x     ├───┤ content.documentId: documentId        │  x      x
-x     │   │ content.sequenceNumber: 0             │  x      x
-x     │   │ content.data: hW9Kg69...              │  x      x
-x     │   │                                       │  x      x
-x     │   └───────────────────────────────────────┘  x      x
-x     │                                              x      x
-x     │   ┌───────────────────────────────────────┐  x      x
-x     │   │                                       │  x      x
-x     │   │ net.nordeck.whiteboard.document.chunk │  x      x
-x     ├───┤ content.documentId: documentId        │  x      x
-x     │   │ content.sequenceNumber: 1             │  x      x
-x     .   │ content.data: hW9Kg/l...              │  x      x
-x     .   │                                       │  x      x
-x     .   └───────────────────────────────────────┘  x      x
-x                                                    x      x
-x                                                    x      x
-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx      xxxxxxxxxxxxxx...
-```
+All other events and relations remain as described in [Matrix Events](matrix-events.md)
 
 ### `org.matrix.msc3401.call.member` (State Event)
 
@@ -94,19 +46,19 @@ The termination of a RTC session is signaled by clearing the state event's `cont
 
 #### Content
 
-| Field                                  | Type     | Description                                                                                        |
-| -------------------------------------- | -------- | -------------------------------------------------------------------------------------------------- |
-| `application`                          | `string` | The NeoBoard application identifier, which is `net.nordeck.whiteboard`.                            |
-| `call_id`                              | `string` | The ID of the Whiteboard for this session, which matches the Widget ID.                            |
-| `device_id`                            | `string` | The Device ID of the user's client.                                                                |
-| `focus_active`                         | `object` | The currently active backend focus, based on the preferred focus of the oldest RTC session member. |
-| `focus_active.type`                    | `array`  | The type of the focus, `livekit` for LiveKit.                                                      |
-| `focus_active.livekit_service_url`     | `array`  | The URL of the LiveKit MatrixRTC backend to use for the session.                                   |
-| `foci_preferred[]`                     | `array`  | A list                                                                                             |
-| `foci_preferred[].type`                | `array`  | The type of the focus, `livekit` for LiveKit.                                                      |
-| `foci_preferred[].livekit_service_url` | `array`  | The URL of the LiveKit MatrixRTC backend to use for the session.                                   |
-| `scope`                                | `string` | The Device ID of the user's client.                                                                |
-| `expires`                              | `number` | The Device ID of the user's client.                                                                |
+| Field                                  | Type     | Description                                                                |
+| -------------------------------------- | -------- | -------------------------------------------------------------------------- |
+| `application`                          | `string` | The NeoBoard application identifier, which is `net.nordeck.whiteboard`.    |
+| `call_id`                              | `string` | The ID of the Whiteboard for this session, which matches the Widget ID.    |
+| `device_id`                            | `string` | The Device ID of the user's client.                                        |
+| `focus_active`                         | `object` | The currently active backend focus type and focus selection strategy.      |
+| `focus_active.type`                    | `string` | The type of the focus, `livekit` for LiveKit.                              |
+| `focus_active.focus_selection`         | `string` | The focus selection strategy. Currently only supports `oldest_membership`. |
+| `foci_preferred[]`                     | `array`  | A list of possible foci this user knows about.                             |
+| `foci_preferred[].type`                | `string` | The type of the focus, `livekit` for LiveKit.                              |
+| `foci_preferred[].livekit_service_url` | `string` | The URL of the LiveKit MatrixRTC backend to use for the session.           |
+| `scope`                                | `string` | The scope of the RTC session. Only supported value is 'm.room'.            |
+| `expires`                              | `number` | The expiration timestamp for this session membership.                      |
 
 #### Example
 
@@ -141,8 +93,6 @@ The termination of a RTC session is signaled by clearing the state event's `cont
   "room_id": "!BWCjlIjHYWgJyZySxE:matrix.internal"
 }
 ```
-
-All other events remain as described in [Matrix Events](matrix-events.md)
 
 [matrix-events]: ./matrix-events.md
 [MSC4143]: https://github.com/matrix-org/matrix-spec-proposals/blob/toger5/matrixRTC/proposals/4143-matrix-rtc.md
