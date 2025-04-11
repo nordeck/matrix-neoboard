@@ -35,7 +35,7 @@ import {
   WhiteboardSession,
   WhiteboardSessions,
 } from '../../model';
-import { RTC_WHITEBOARD_APPID } from '../../model/matrixRtcSessions';
+import { RTC_APPLICATION_WHITEBOARD } from '../../model/matrixRtcSessions';
 import {
   createWhiteboardDocument,
   Document,
@@ -405,12 +405,19 @@ export function mockWhiteboardSessions({
  */
 export function mockWhiteboardMembership({
   content = {
-    application: RTC_WHITEBOARD_APPID,
+    application: RTC_APPLICATION_WHITEBOARD,
     call_id: 'whiteboard-id',
     device_id: 'DEVICEID',
-    foci_preferred: [],
-    focus_active: { type: 'livekit', livekit_service_url: '' },
-    created_ts: new Date('2023-02-01T10:11:12.345Z').getTime(),
+    focus_active: {
+      type: 'livekit',
+      focus_selection: 'oldest_membership',
+    },
+    foci_preferred: [
+      {
+        type: 'livekit',
+        livekit_service_url: 'https://livekit.example.com',
+      },
+    ],
     scope: 'm.room',
     expires: +new Date('2050-01-12T11:25:20.143Z').getTime(),
   },

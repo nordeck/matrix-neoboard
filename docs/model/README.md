@@ -45,5 +45,6 @@ Each of these protocols uses its own set of models:
 
 - [CRDT Documents](./crdt-documents.md)
 - [Matrix Events](./matrix-events.md)
+- [Matrix Events when using MatrixRTC](./matrix-rtc-events.md)
 - [Real-Time WebRTC Messages](./webrtc-messages.md)
 - [Export Data Format](./export-format.md)

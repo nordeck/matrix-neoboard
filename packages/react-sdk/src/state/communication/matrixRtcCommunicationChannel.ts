@@ -180,9 +180,15 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
     const { sessionId } = await this.sessionManager.join(this.whiteboardId);
 
     const widgetApi = await this.widgetApiPromise;
+
+    if (!widgetApi.widgetParameters.userId) {
+      this.logger.error('User ID not found in widget parameters');
+      throw new Error('User ID not found in widget parameters');
+    }
+
     await this.handleSessionJoined({
       sessionId,
-      userId: widgetApi.widgetParameters.userId!,
+      userId: widgetApi.widgetParameters.userId,
     });
 
     this.statistics.localSessionId = sessionId;
@@ -208,8 +214,16 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
     try {
       const widgetApi = await this.widgetApiPromise;
 
+      if (!widgetApi.widgetParameters.roomId) {
+        this.logger.error('Room ID not found in widget parameters');
+        throw new Error('Room ID not found in widget parameters');
+      }
+
       const focus = (
-        await makePreferredLivekitFoci(session, widgetApi.widgetId)
+        await makePreferredLivekitFoci(
+          session,
+          widgetApi.widgetParameters.roomId,
+        )
       )[0];
       this.sfuConfig = await getSFUConfigWithOpenID(widgetApi, focus);
 

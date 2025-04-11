@@ -21,7 +21,7 @@ import { mockWhiteboardMembership } from '../../../lib/testUtils/matrixTestUtils
 import { STATE_EVENT_RTC_MEMBER } from '../../../model';
 import {
   DEFAULT_RTC_EXPIRE_DURATION,
-  RTC_WHITEBOARD_APPID,
+  RTC_APPLICATION_WHITEBOARD,
 } from '../../../model/matrixRtcSessions';
 import { MatrixRtcSessionManagerImpl } from './matrixRtcSessionManagerImpl';
 
@@ -59,13 +59,12 @@ describe('MatrixRtcSessionManagerImpl', () => {
     expect(widgetApi.sendStateEvent).toHaveBeenCalledWith(
       STATE_EVENT_RTC_MEMBER,
       {
-        application: RTC_WHITEBOARD_APPID,
+        application: RTC_APPLICATION_WHITEBOARD,
         call_id: 'whiteboard-id',
-        created_ts: Date.now(),
         device_id: 'DEVICEID',
         expires: expectedExpires,
-        foci_preferred: [],
-        focus_active: { type: 'livekit', livekit_service_url: '' },
+        foci_preferred: expect.any(Array),
+        focus_active: { type: 'livekit', focus_selection: 'oldest_membership' },
         scope: 'm.room',
       },
       { stateKey: '_@user-id_DEVICEID' },
@@ -84,13 +83,12 @@ describe('MatrixRtcSessionManagerImpl', () => {
     expect(widgetApi.sendStateEvent).toHaveBeenCalledWith(
       STATE_EVENT_RTC_MEMBER,
       {
-        application: RTC_WHITEBOARD_APPID,
+        application: RTC_APPLICATION_WHITEBOARD,
         call_id: 'whiteboard-id-0',
-        created_ts: Date.now(),
         device_id: 'DEVICEID',
         expires: expectedExpires,
-        foci_preferred: [],
-        focus_active: { type: 'livekit', livekit_service_url: '' },
+        foci_preferred: expect.any(Array),
+        focus_active: { type: 'livekit', focus_selection: 'oldest_membership' },
         scope: 'm.room',
       },
       { stateKey: '_@user-id_DEVICEID' },
@@ -107,13 +105,12 @@ describe('MatrixRtcSessionManagerImpl', () => {
     expect(widgetApi.sendStateEvent).toHaveBeenCalledWith(
       STATE_EVENT_RTC_MEMBER,
       {
-        application: RTC_WHITEBOARD_APPID,
+        application: RTC_APPLICATION_WHITEBOARD,
         call_id: 'whiteboard-id-1',
-        created_ts: Date.now(),
         device_id: 'DEVICEID',
         expires: expectedExpires,
-        foci_preferred: [],
-        focus_active: { type: 'livekit', livekit_service_url: '' },
+        foci_preferred: expect.any(Array),
+        focus_active: { type: 'livekit', focus_selection: 'oldest_membership' },
         scope: 'm.room',
       },
       { stateKey: '_@user-id_DEVICEID' },
@@ -126,13 +123,12 @@ describe('MatrixRtcSessionManagerImpl', () => {
     expect(widgetApi.sendStateEvent).toHaveBeenCalledWith(
       STATE_EVENT_RTC_MEMBER,
       {
-        application: RTC_WHITEBOARD_APPID,
+        application: RTC_APPLICATION_WHITEBOARD,
         call_id: 'whiteboard-id',
-        created_ts: Date.now(),
         device_id: 'DEVICEID',
         expires: expectedExpires,
-        foci_preferred: [],
-        focus_active: { type: 'livekit', livekit_service_url: '' },
+        foci_preferred: expect.any(Array),
+        focus_active: { type: 'livekit', focus_selection: 'oldest_membership' },
         scope: 'm.room',
       },
       { stateKey: '_@user-id_DEVICEID' },
@@ -146,13 +142,12 @@ describe('MatrixRtcSessionManagerImpl', () => {
     expect(widgetApi.sendStateEvent).toHaveBeenCalledWith(
       STATE_EVENT_RTC_MEMBER,
       {
-        application: RTC_WHITEBOARD_APPID,
+        application: RTC_APPLICATION_WHITEBOARD,
         call_id: 'whiteboard-id',
-        created_ts: Date.now(),
         device_id: 'OTHERDEVICEID',
         expires: expectedExpires,
-        foci_preferred: [],
-        focus_active: { type: 'livekit', livekit_service_url: '' },
+        foci_preferred: expect.any(Array),
+        focus_active: { type: 'livekit', focus_selection: 'oldest_membership' },
         scope: 'm.room',
       },
       { stateKey: '_@user-id_OTHERDEVICEID' },
@@ -178,13 +173,12 @@ describe('MatrixRtcSessionManagerImpl', () => {
       2,
       STATE_EVENT_RTC_MEMBER,
       {
-        application: RTC_WHITEBOARD_APPID,
+        application: RTC_APPLICATION_WHITEBOARD,
         call_id: 'whiteboard-id',
-        created_ts: new Date('2023-02-01T10:11:12.345Z').getTime(),
         device_id: 'DEVICEID',
         expires: expect.any(Number),
-        foci_preferred: [],
-        focus_active: { type: 'livekit', livekit_service_url: '' },
+        foci_preferred: expect.any(Array),
+        focus_active: { type: 'livekit', focus_selection: 'oldest_membership' },
         scope: 'm.room',
       },
       { stateKey: '_@user-id_DEVICEID' },
@@ -203,14 +197,14 @@ describe('MatrixRtcSessionManagerImpl', () => {
         content: {
           call_id: 'whiteboard-id',
           scope: 'm.room',
-          application: RTC_WHITEBOARD_APPID,
+          application: RTC_APPLICATION_WHITEBOARD,
           device_id: 'ANOTHERDEVICEID',
-          created_ts: Date.now(),
           expires: expectedExpires,
-          focus_active: {
-            type: '',
-          },
           foci_preferred: [],
+          focus_active: {
+            type: 'livekit',
+            focus_selection: 'oldest_membership',
+          },
         },
         state_key: '_@another-user_ANOTHERDEVICEID',
         sender: '@another-user',
@@ -230,16 +224,8 @@ describe('MatrixRtcSessionManagerImpl', () => {
     widgetApi.mockSendStateEvent(
       mockWhiteboardMembership({
         content: {
-          call_id: 'whiteboard-id',
-          scope: 'm.room',
-          application: RTC_WHITEBOARD_APPID,
           device_id: 'ANOTHERDEVICEID',
-          created_ts: Date.now(),
           expires: expectedExpires,
-          focus_active: {
-            type: '',
-          },
-          foci_preferred: [],
         },
         state_key: '_@another-user_ANOTHERDEVICEID',
       }),

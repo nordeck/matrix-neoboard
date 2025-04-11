@@ -12,7 +12,7 @@ since been resolved. Widgets now [have access to the user's own device id](widge
 and since the introduction of initial support for [MSC4143](MSC4143) in Element Web,
 via the Group Calls feature, data-only calls are no longer displayed in the timeline.
 
-Matrix RTC also aims to define a set of generic state event primitives that
+MatrixRTC also aims to define a set of generic state event primitives that
 support many types of realtime collaboration apps besides group video, by
 specifying a baseline realtime session management concept, which then can be
 extended to support specific application features, like ringing, answering and
@@ -24,7 +24,7 @@ of realtime participants.
 
 ## Decision
 
-We will use Matrix RTC with a LiveKit backend ([MSC4195](MSC4195)) to provide the
+We will use MatrixRTC with a LiveKit backend ([MSC4195](MSC4195)) to provide the
 realtime data exchange between NeoBoard users. This is fundamentally different from
 the peer-to-peer connection mesh that was established before. Now, each whiteboard
 participant will only establish two WebRTC data channels to the LiveKit backend, one
@@ -40,27 +40,29 @@ channels, with minimal impact to other whiteboard components.
 
 ### Discovery
 
-Discovery is about finding the active participants of a whiteboard. In Matrix RTC
+Discovery is about finding the active participants of a whiteboard. In MatrixRTC
 this becomes simpler, as for each combination of user and device, there is a
 [RTC membership state event](rtc-member) with the participant's metadata.
 
 Instead of the `net.nordeck.whiteboard.sessions` state event with the user's MXID
 as the `state_key`, we keep track of realtime session memberships via the
 `m.rtc.member` (or the unstable `org.matrix.msc3401.call.member`), with a `state_key`
-that matches the following format: `_{mxid}_{deviceid}`, which allows for the same
+that matches the following format: `_{user_id}_{device_id}`, which allows for the same
 participant to collaborate in the same whiteboard from multiple devices.
+
+Check the [MatrixRTC model docs](matrix-rtc-events) for additional details.
 
 ```json
 {
   "type": "org.matrix.msc3401.call.member",
   "sender": "@alice:matrix.internal",
   "content": {
-    "application": "net.nordeck.whiteboard.application",
-    "call_id": "$a3pqYnak-jP54Mi69BP1YW4PtA70842U-GjFMg4XTtY",
+    "application": "net.nordeck.whiteboard",
+    "call_id": "whiteboard-id",
     "device_id": "SDXDZRNDJA",
     "focus_active": {
       "type": "livekit",
-      "livekit_service_url": "https//livekit-jwt.matrix.internal"
+      "focus_selection": "oldest_membership"
     },
     "foci_preferred": [
       {
@@ -68,7 +70,6 @@ participant to collaborate in the same whiteboard from multiple devices.
         "livekit_service_url": "https//livekit-jwt.matrix.internal"
       }
     ],
-    "created_ts": 1743764236004,
     "scope": "m.room",
     "expires": 1743778636001
   },
@@ -177,3 +178,4 @@ also related:
 [livekit-room]: https://docs.livekit.io/home/client/connect/#connecting-to-a-room
 [livekit-jwt]: https://github.com/element-hq/lk-jwt-service
 [rtc-member]: https://github.com/matrix-org/matrix-js-sdk/blob/d6ede767c929f7be179d456b5a0433be21ccaf7c/src/matrixrtc/CallMembership.ts#L35
+[matrix-rtc-events]: ../model/matrix-rtc-events.md
