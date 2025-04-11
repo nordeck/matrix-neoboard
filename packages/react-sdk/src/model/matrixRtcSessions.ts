@@ -19,7 +19,7 @@ import Joi from 'joi';
 import { RTCFocus } from '../state/communication';
 import { isValidEvent } from './validation';
 
-export const RTC_WHITEBOARD_APPID = 'net.nordeck.whiteboard.application';
+export const RTC_APPLICATION_WHITEBOARD = 'net.nordeck.whiteboard';
 
 export const DEFAULT_RTC_EXPIRE_DURATION = 1000 * 60 * 60 * 4;
 
