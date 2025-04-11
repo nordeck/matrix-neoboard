@@ -14,5 +14,14 @@
  * limitations under the License.
  */
 
+export { MatrixRtcSessionManagerImpl } from './matrixRtcSessionManagerImpl';
+
+export type {
+  LivekitFocus,
+  LivekitFocusActive,
+  LivekitFocusConfig,
+  RTCFocus,
+} from './matrixRtcFocus';
+
 export { SessionManagerImpl } from './sessionManagerImpl';
 export type { Session, SessionManager } from './types';
