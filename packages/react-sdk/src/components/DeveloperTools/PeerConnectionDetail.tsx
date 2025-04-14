@@ -17,7 +17,7 @@
 import { Box, Table, TableBody, TableRow, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { PeerConnectionStatistics } from '../../state/communication';
-import { matrixRtcMode } from '../Whiteboard/constants';
+import { matrixRtcMode } from '../Whiteboard';
 import { StyledDevtoolsTableCell } from './StyledDevtoolsTable';
 
 export function PeerConnectionDetail({

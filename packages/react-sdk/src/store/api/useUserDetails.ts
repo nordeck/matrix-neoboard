@@ -16,7 +16,7 @@
 
 import { getRoomMemberDisplayName } from '@matrix-widget-toolkit/api';
 import { useCallback } from 'react';
-import { matrixRtcMode } from '../../components/Whiteboard/constants';
+import { matrixRtcMode } from '../../components/Whiteboard';
 import {
   selectRoomMember,
   selectRoomMembers,

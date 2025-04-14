@@ -64,20 +64,6 @@ describe('MatrixRtcCommunicationChannel', () => {
     remoteUserId: '@user-id',
   };
 
-  const otherPeerConnectionStatistics = {
-    bytesReceived: 0,
-    bytesSent: 0,
-    packetsReceived: 0,
-    packetsSent: 0,
-    connectionState: expect.any(String),
-    dataChannelState: 'undefined',
-    iceConnectionState: 'undefined',
-    iceGatheringState: 'undefined',
-    signalingState: 'undefined',
-    impolite: false,
-    remoteSessionId: 'another-session-id',
-    remoteUserId: '@another-user-id',
-  };
   let sessionManager: Mocked<SessionManager>;
   let peerConnection: Mocked<PeerConnection>;
   let channel: MatrixRtcCommunicationChannel;
@@ -169,22 +155,6 @@ describe('MatrixRtcCommunicationChannel', () => {
     expect(sessionManager.leave).not.toHaveBeenCalled();
   });
 
-  it('should forward statistics from peer connections', async () => {
-    joinedSubject.next(anotherSession);
-    await waitForSessionExists();
-
-    statisticsSubject.next(otherPeerConnectionStatistics);
-
-    expect(channel.getStatistics()).toEqual({
-      localSessionId: 'session-id',
-      peerConnections: {
-        'another-session-id': otherPeerConnectionStatistics,
-        'session-id': ownConnectionStatistics,
-      },
-      sessions: [],
-    });
-  });
-
   it('should handle messages from peer connections', async () => {
     joinedSubject.next(anotherSession);
     await waitForSessionExists();
@@ -243,7 +213,7 @@ describe('MatrixRtcCommunicationChannel', () => {
   it('should add peer connection when joining session', async () => {
     expect(sessionManager.join).toHaveBeenCalledWith('whiteboard-id');
     await waitFor(() => {
-      statisticsSubject.next(otherPeerConnectionStatistics);
+      statisticsSubject.next(ownConnectionStatistics);
       expect(
         Object.values(channel.getStatistics().peerConnections).length,
       ).toBe(1);
@@ -256,10 +226,10 @@ describe('MatrixRtcCommunicationChannel', () => {
 
   async function waitForSessionExists() {
     await waitFor(() => {
-      statisticsSubject.next(otherPeerConnectionStatistics);
+      statisticsSubject.next(ownConnectionStatistics);
       expect(
         Object.values(channel.getStatistics().peerConnections).length,
-      ).toBe(2);
+      ).toBe(1);
     });
   }
 

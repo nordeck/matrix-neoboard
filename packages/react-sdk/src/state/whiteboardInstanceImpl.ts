@@ -31,7 +31,7 @@ import {
   takeUntil,
   tap,
 } from 'rxjs';
-import { matrixRtcMode } from '../components/Whiteboard/constants';
+import { matrixRtcMode } from '../components/Whiteboard';
 import { Whiteboard } from '../model';
 import { StoreType } from '../store';
 import {

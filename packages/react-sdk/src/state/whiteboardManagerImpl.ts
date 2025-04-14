@@ -16,7 +16,7 @@
 
 import { StateEvent, WidgetApi } from '@matrix-widget-toolkit/api';
 import { BehaviorSubject } from 'rxjs';
-import { matrixRtcMode } from '../components/Whiteboard/constants';
+import { matrixRtcMode } from '../components/Whiteboard';
 import { Whiteboard } from '../model';
 import { StoreType } from '../store';
 import {

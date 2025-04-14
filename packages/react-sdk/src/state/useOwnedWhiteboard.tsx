@@ -19,7 +19,7 @@ import { useWidgetApi } from '@matrix-widget-toolkit/react';
 import { first } from 'lodash';
 import loglevel from 'loglevel';
 import { useAsync } from 'react-use';
-import { matrixRtcMode } from '../components/Whiteboard/constants';
+import { matrixRtcMode } from '../components/Whiteboard';
 import {
   STATE_EVENT_RTC_MEMBER,
   STATE_EVENT_WHITEBOARD_SESSIONS,

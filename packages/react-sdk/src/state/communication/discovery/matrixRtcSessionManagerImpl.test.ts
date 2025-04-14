@@ -17,7 +17,7 @@
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { firstValueFrom, take, toArray } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { mockWhiteboardMembership } from '../../../lib/testUtils/matrixTestUtils';
+import { mockWhiteboardMembership } from '../../../lib/testUtils/matrixRtcMock';
 import { STATE_EVENT_RTC_MEMBER } from '../../../model';
 import {
   DEFAULT_RTC_EXPIRE_DURATION,
@@ -234,10 +234,13 @@ describe('MatrixRtcSessionManagerImpl', () => {
     await rtcSessionManager.join('whiteboard-id');
 
     widgetApi.mockSendStateEvent(
-      mockWhiteboardMembership({
-        state_key: '_@another-user_ANOTHERDEVICEID',
-        content: {},
-      }),
+      mockWhiteboardMembership(
+        {
+          state_key: '_@another-user_ANOTHERDEVICEID',
+          content: {},
+        },
+        true,
+      ),
     );
 
     await expect(leftPromise).resolves.toEqual([

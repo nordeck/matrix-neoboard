@@ -234,7 +234,7 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
         throw new Error('Failed to get LiveKit JWT');
       }
     } catch (error) {
-      this.logger.error('LiveKit SFU setup timed out', error);
+      this.logger.error('Error getting the LiveKit SFU config', error);
     }
   }
 
@@ -252,7 +252,9 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
     await this.widgetApiPromise;
     await this.initLiveKitServer(session);
 
-    if (this.sfuConfig && session.sessionId) {
+    // only start peer connection for the current session
+    // because matrix rtc is not peer to peer
+    if (this.sfuConfig && session.sessionId == sessionId) {
       this.logger.debug(
         'Creating peer connection with SFU config',
         JSON.stringify(this.sfuConfig),
@@ -280,6 +282,10 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
           this.addPeerConnectionStatistics(peerConnection.getConnectionId());
         },
       });
+    } else {
+      this.logger.warn(
+        'No LiveKit SFU config or session id, unable to create peer connection',
+      );
     }
   }
 

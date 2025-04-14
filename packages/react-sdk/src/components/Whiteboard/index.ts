@@ -14,7 +14,12 @@
  * limitations under the License.
  */
 
-export { gridCellSize, whiteboardHeight, whiteboardWidth } from './constants';
+export {
+  gridCellSize,
+  matrixRtcMode,
+  whiteboardHeight,
+  whiteboardWidth,
+} from './constants';
 export * from './Draft';
 export * from './ElementBehaviors';
 export * from './Grid';

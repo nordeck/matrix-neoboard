@@ -29,7 +29,7 @@ import {
   STATE_EVENT_WHITEBOARD_SESSIONS,
   TO_DEVICE_MESSAGE_CONNECTION_SIGNALING,
 } from '@nordeck/matrix-neoboard-react-sdk';
-import { matrixRtcMode } from '@nordeck/matrix-neoboard-react-sdk/src/components/Whiteboard/constants';
+import { matrixRtcMode } from '@nordeck/matrix-neoboard-react-sdk/src/components/Whiteboard';
 import {
   EventDirection,
   MatrixCapabilities,

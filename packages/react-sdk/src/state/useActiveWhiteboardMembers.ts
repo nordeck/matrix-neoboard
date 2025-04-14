@@ -15,7 +15,7 @@
  */
 
 import { useMemo } from 'react';
-import { matrixRtcMode } from '../components/Whiteboard/constants';
+import { matrixRtcMode } from '../components/Whiteboard';
 import { isRTCSessionNotExpired } from '../model';
 import { useGetRtcMembersQuery } from '../store';
 import { selectRtcMembers } from '../store/api/rtcMemberApi';

@@ -15,7 +15,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { mockWhiteboardMembership } from '../lib/testUtils/matrixTestUtils';
+import { mockWhiteboardMembership } from '../lib/testUtils/matrixRtcMock';
 import {
   DEFAULT_RTC_EXPIRE_DURATION,
   isRTCSessionNotExpired,
@@ -36,37 +36,19 @@ describe('isValidRTCSessionStateEvent', () => {
     vi.spyOn(Date, 'now').mockRestore();
   });
 
-  it('should accept event', () => {
+  it('should accept RTC session event', () => {
     expect(isValidRTCSessionStateEvent(mockWhiteboardMembership())).toBe(true);
   });
 
   it('should ignore other apps RTC membership events', () => {
     expect(
-      isWhiteboardRTCSessionStateEvent({
-        content: {
-          call_id: 'whiteboard-id',
-          scope: 'm.room',
-          application: 'm.call',
-          device_id: 'DEVICEID',
-          expires: 100000000,
-          focus_active: {
-            type: 'livekit',
-            focus_selection: 'oldest_membership',
+      isWhiteboardRTCSessionStateEvent(
+        mockWhiteboardMembership({
+          content: {
+            application: 'other-app',
           },
-          foci_preferred: [
-            {
-              type: 'livekit',
-              livekit_service_url: 'https://livekit.example.com',
-            },
-          ],
-        },
-        event_id: '$event-id',
-        origin_server_ts: 0,
-        room_id: '!room-id',
-        state_key: '_@user-id_DEVICEID',
-        sender: '@user-id',
-        type: 'org.matrix.msc3401.call.member',
-      }),
+        }),
+      ),
     ).toBe(false);
   });
 
@@ -77,12 +59,19 @@ describe('isValidRTCSessionStateEvent', () => {
   });
 
   it('should recognize expired sessions', () => {
-    const event = mockWhiteboardMembership();
-    event.content.expires = fixedDate + DEFAULT_RTC_EXPIRE_DURATION;
-    expect(isRTCSessionNotExpired(event)).toBe(true);
+    const notExpiredEvent = mockWhiteboardMembership({
+      content: {
+        expires: fixedDate + DEFAULT_RTC_EXPIRE_DURATION,
+      },
+    });
+    expect(isRTCSessionNotExpired(notExpiredEvent)).toBe(true);
 
-    event.content.expires = fixedDate - 1;
-    expect(isRTCSessionNotExpired(event)).toBe(false);
+    const expiredEvent = mockWhiteboardMembership({
+      content: {
+        expires: fixedDate - 1,
+      },
+    });
+    expect(isRTCSessionNotExpired(expiredEvent)).toBe(false);
   });
 
   it('should create a new RTC session', () => {
