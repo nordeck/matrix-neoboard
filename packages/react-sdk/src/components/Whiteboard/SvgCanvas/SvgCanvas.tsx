@@ -15,11 +15,12 @@
  */
 
 import { Box, styled } from '@mui/material';
-import {
+import React, {
   forwardRef,
   MouseEventHandler,
   PropsWithChildren,
   ReactNode,
+  Ref,
   useCallback,
   useImperativeHandle,
   useLayoutEffect,
@@ -123,13 +124,132 @@ export const SvgCanvas = forwardRef(function SvgCanvas(
 
   const aspectRatio = `${viewportWidth} / ${viewportHeight}`;
 
+  const CanvasWrapper: React.FC<CanvasWrapperProps> = infiniteCanvasMode
+    ? InfiniteCanvasWrapper
+    : FiniteCanvasWrapper;
+
+  return (
+    <CanvasWrapper
+      aspectRatio={aspectRatio}
+      sizeRef={sizeRef}
+      withOutline={withOutline}
+      width={width}
+      height={height}
+      preview={preview}
+    >
+      <SvgCanvasContext.Provider value={value}>
+        <Canvas
+          ref={svgRef}
+          rounded={rounded}
+          sx={
+            !infiniteCanvasMode
+              ? {
+                  aspectRatio,
+                }
+              : {
+                  aspectRatio,
+                  ...(withOutline
+                    ? {
+                        borderWidth: 2,
+                        borderStyle: 'solid',
+                        borderColor: 'primary.main',
+                        borderRadius: 1,
+                      }
+                    : {}),
+                  ...(preview
+                    ? {}
+                    : {
+                        width: `${whiteboardWidth}px`,
+                        height: `${whiteboardHeight}px`,
+                      }),
+                }
+          }
+          viewBox={`0 0 ${viewportWidth} ${viewportHeight}`}
+          onMouseDown={onMouseDown}
+          onMouseMove={handleMouseMove}
+          onWheel={onWheel}
+          transform-origin={infiniteCanvasMode ? 'center center' : undefined}
+          transform={
+            infiniteCanvasMode
+              ? !preview
+                ? `translate(${translation.x}, ${translation.y}) scale(${scale})`
+                : ''
+              : undefined
+          }
+        >
+          {children}
+        </Canvas>
+        {additionalChildren}
+      </SvgCanvasContext.Provider>
+    </CanvasWrapper>
+  );
+});
+
+type CanvasWrapperProps = PropsWithChildren<{
+  aspectRatio: string;
+  sizeRef: Ref<unknown>;
+  withOutline?: boolean;
+  width: number;
+  height: number;
+  preview?: boolean;
+}>;
+
+const FiniteCanvasWrapper: React.FC<CanvasWrapperProps> = ({
+  aspectRatio,
+  sizeRef,
+  withOutline,
+  width,
+  height,
+  children,
+}) => {
+  return (
+    <Box
+      sx={{
+        flex: 1,
+        maxWidth: '100%',
+        aspectRatio,
+        position: 'relative',
+      }}
+    >
+      <Box
+        ref={sizeRef}
+        sx={
+          withOutline
+            ? {
+                '&::after': {
+                  content: '""',
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width,
+                  height,
+                  borderWidth: 2,
+                  borderStyle: 'solid',
+                  borderColor: 'primary.main',
+                  borderRadius: 1,
+                  pointerEvents: 'none',
+                },
+              }
+            : {}
+        }
+      >
+        {children}
+      </Box>
+    </Box>
+  );
+};
+
+const InfiniteCanvasWrapper: React.FC<CanvasWrapperProps> = ({
+  aspectRatio,
+  sizeRef,
+  preview,
+  children,
+}) => {
   const boxSx = preview
     ? {}
     : {
         maxWidth: '100%',
       };
-
-  const idProp = preview ? {} : { id: 'board-wrapper' };
 
   const innerBoxSx = preview
     ? {}
@@ -139,18 +259,8 @@ export const SvgCanvas = forwardRef(function SvgCanvas(
         left: `-${whiteboardWidth / 2}px`,
       };
 
-  const outlineSx = withOutline
-    ? {
-        borderWidth: 2,
-        borderStyle: 'solid',
-        borderColor: 'primary.main',
-        borderRadius: 1,
-      }
-    : {};
-
   return (
     <Box
-      {...idProp}
       ref={sizeRef}
       sx={{
         flex: 1,
@@ -160,37 +270,7 @@ export const SvgCanvas = forwardRef(function SvgCanvas(
         ...(infiniteCanvasMode ? {} : { overflow: 'hidden' }),
       }}
     >
-      <Box sx={innerBoxSx}>
-        <SvgCanvasContext.Provider value={value}>
-          <Canvas
-            ref={svgRef}
-            rounded={rounded}
-            sx={{
-              aspectRatio,
-              ...outlineSx,
-              ...(preview
-                ? {}
-                : {
-                    width: `${whiteboardWidth}px`,
-                    height: `${whiteboardHeight}px`,
-                  }),
-            }}
-            viewBox={`0 0 ${viewportWidth} ${viewportHeight}`}
-            onMouseDown={onMouseDown}
-            onMouseMove={handleMouseMove}
-            onWheel={onWheel}
-            transform-origin="center center"
-            transform={
-              !preview
-                ? `translate(${translation.x}, ${translation.y}) scale(${scale})`
-                : ''
-            }
-          >
-            {children}
-          </Canvas>
-          {additionalChildren}
-        </SvgCanvasContext.Provider>
-      </Box>
+      <Box sx={innerBoxSx}>{children}</Box>
     </Box>
   );
-});
+};
