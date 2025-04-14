@@ -124,9 +124,9 @@ export const SvgCanvas = forwardRef(function SvgCanvas(
 
   const aspectRatio = `${viewportWidth} / ${viewportHeight}`;
 
-  const CanvasWrapper: React.FC<CanvasWrapperProps> = !infiniteCanvasMode
-    ? CanvasFiniteWrapper
-    : CanvasInfiniteWrapper;
+  const CanvasWrapper: React.FC<CanvasWrapperProps> = infiniteCanvasMode
+    ? InfiniteCanvasWrapper
+    : FiniteCanvasWrapper;
 
   return (
     <CanvasWrapper
@@ -194,7 +194,7 @@ type CanvasWrapperProps = PropsWithChildren<{
   preview?: boolean;
 }>;
 
-const CanvasFiniteWrapper: React.FC<CanvasWrapperProps> = ({
+const FiniteCanvasWrapper: React.FC<CanvasWrapperProps> = ({
   aspectRatio,
   sizeRef,
   withOutline,
@@ -239,7 +239,7 @@ const CanvasFiniteWrapper: React.FC<CanvasWrapperProps> = ({
   );
 };
 
-const CanvasInfiniteWrapper: React.FC<CanvasWrapperProps> = ({
+const InfiniteCanvasWrapper: React.FC<CanvasWrapperProps> = ({
   aspectRatio,
   sizeRef,
   preview,

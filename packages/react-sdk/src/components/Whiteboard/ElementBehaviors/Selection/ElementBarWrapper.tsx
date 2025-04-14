@@ -47,14 +47,14 @@ export function ElementBarWrapper({
     return null;
   }
 
-  const Wrapper: React.FC<ElementBarWrapperProps> = !infiniteCanvasMode
-    ? ElementBarWrapperWrapper
-    : ElementBarWrapperPositionedWrapper;
+  const Wrapper: React.FC<ElementBarWrapperProps> = infiniteCanvasMode
+    ? InfiniteElementBarWrapper
+    : FiniteElementBarWrapper;
 
   return <Wrapper elementIds={elementIds}>{children}</Wrapper>;
 }
 
-const ElementBarWrapperWrapper: React.FC<ElementBarWrapperProps> = ({
+const FiniteElementBarWrapper: React.FC<ElementBarWrapperProps> = ({
   children,
   elementIds,
 }) => {
@@ -111,7 +111,7 @@ const ElementBarWrapperWrapper: React.FC<ElementBarWrapperProps> = ({
 /**
  * This component handles the actual positioning of the ElementBar.
  */
-const ElementBarWrapperPositionedWrapper: React.FC<ElementBarWrapperProps> = ({
+const InfiniteElementBarWrapper: React.FC<ElementBarWrapperProps> = ({
   children,
   elementIds,
 }) => {
