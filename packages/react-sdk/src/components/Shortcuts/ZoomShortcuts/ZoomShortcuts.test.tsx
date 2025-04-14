@@ -76,10 +76,10 @@ describe('ZoomShortcuts', () => {
   it('should zoom in on modifier + plus shortcut', async () => {
     render(<ZoomShortcuts />, { wrapper: Wrapper });
 
-    await userEvent.keyboard('{Meta>}+');
+    await userEvent.keyboard('{Meta>}{Plus}');
     expect(mockUpdateScale).toHaveBeenCalledWith(zoomStep);
 
-    await userEvent.keyboard('{Control>}+');
+    await userEvent.keyboard('{Control>}{Plus}');
     expect(mockUpdateScale).toHaveBeenCalledWith(zoomStep);
     expect(mockUpdateScale).toHaveBeenCalledTimes(2);
   });
@@ -87,10 +87,10 @@ describe('ZoomShortcuts', () => {
   it('should zoom out on modifier + minus shortcut', async () => {
     render(<ZoomShortcuts />, { wrapper: Wrapper });
 
-    await userEvent.keyboard('{Meta>}-');
+    await userEvent.keyboard('{Meta>}{Minus}');
     expect(mockUpdateScale).toHaveBeenCalledWith(-zoomStep);
 
-    await userEvent.keyboard('{Control>}-');
+    await userEvent.keyboard('{Control>}{Minus}');
     expect(mockUpdateScale).toHaveBeenCalledWith(-zoomStep);
     expect(mockUpdateScale).toHaveBeenCalledTimes(2);
   });
