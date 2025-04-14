@@ -23,34 +23,34 @@ import { HOTKEY_SCOPE_WHITEBOARD } from '../../WhiteboardHotkeysProvider';
 export const ZoomShortcuts: React.FC = function () {
   const { updateScale } = useSvgScaleContext();
 
-  const handleZoom = useCallback(
-    (keyboardEvent: KeyboardEvent) => {
-      if (
-        (keyboardEvent.ctrlKey || keyboardEvent.metaKey) &&
-        keyboardEvent.key === '+'
-      ) {
-        keyboardEvent.preventDefault();
-        updateScale(zoomStep);
-      } else if (
-        (keyboardEvent.ctrlKey || keyboardEvent.metaKey) &&
-        keyboardEvent.key === '-'
-      ) {
-        keyboardEvent.preventDefault();
-        updateScale(-zoomStep);
-      }
-    },
-    [updateScale],
-  );
+  const handleZoomIn = useCallback(() => {
+    updateScale(zoomStep);
+  }, [updateScale]);
+
+  const handleZoomOut = useCallback(() => {
+    updateScale(-zoomStep);
+  }, [updateScale]);
 
   useHotkeys(
-    '*',
-    handleZoom,
+    ['ctrl+=', 'meta+=', 'ctrl+equal', 'meta+equal', 'ctrl+plus', 'meta+plus'],
+    handleZoomIn,
     {
-      preventDefault: false,
+      preventDefault: true,
       enableOnContentEditable: true,
       scopes: HOTKEY_SCOPE_WHITEBOARD,
     },
-    [handleZoom],
+    [handleZoomIn],
+  );
+
+  useHotkeys(
+    ['ctrl+minus', 'meta+minus', 'ctrl+-', 'meta+-'],
+    handleZoomOut,
+    {
+      preventDefault: true,
+      enableOnContentEditable: true,
+      scopes: HOTKEY_SCOPE_WHITEBOARD,
+    },
+    [handleZoomOut],
   );
 
   return null;
