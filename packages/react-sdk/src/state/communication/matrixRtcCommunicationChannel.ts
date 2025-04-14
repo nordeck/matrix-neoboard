@@ -254,7 +254,7 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
 
     // only start peer connection for the current session
     // because matrix rtc is not peer to peer
-    if (this.sfuConfig && session.sessionId == sessionId) {
+    if (this.sfuConfig && session.sessionId === sessionId) {
       this.logger.debug(
         'Creating peer connection with SFU config',
         JSON.stringify(this.sfuConfig),
