@@ -341,7 +341,7 @@ jobs:
               inputs: {
                 environment: '${{ secrets.GITOPS_DEPLOY_ENVIRONMENT}}',
                 application: 'matrix-neoboard',
-                tag: 'argo-${{ needs.build.outputs.ARGOCD_SHA }}'
+                tag: '${{ github.sha }}'
               }
             })
 
