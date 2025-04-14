@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Nordeck IT + Consulting GmbH
+ * Copyright 2025 Nordeck IT + Consulting GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,21 @@
  * limitations under the License.
  */
 
-export {
-  gridCellSize,
-  matrixRtcMode,
-  whiteboardHeight,
-  whiteboardWidth,
-} from './constants';
-export * from './Draft';
-export * from './ElementBehaviors';
-export * from './Grid';
-export { SlidePreview } from './SlidePreview';
-export { SlideSkeleton } from './SlideSkeleton';
-export type { ElementRenderProperties } from './types';
-export { WhiteboardHostConnected as WhiteboardHost } from './WhiteboardHost';
+export type RTCFocus = {
+  type: string;
+  [key: string]: unknown;
+};
+
+export interface LivekitFocusConfig extends RTCFocus {
+  type: 'livekit';
+  livekit_service_url: string;
+}
+
+export interface LivekitFocus extends LivekitFocusConfig {
+  livekit_alias: string;
+}
+
+export interface LivekitFocusActive extends RTCFocus {
+  type: 'livekit';
+  focus_selection: 'oldest_membership';
+}

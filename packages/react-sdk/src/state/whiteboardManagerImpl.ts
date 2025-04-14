@@ -16,9 +16,11 @@
 
 import { StateEvent, WidgetApi } from '@matrix-widget-toolkit/api';
 import { BehaviorSubject } from 'rxjs';
+import { matrixRtcMode } from '../components/Whiteboard';
 import { Whiteboard } from '../model';
 import { StoreType } from '../store';
 import {
+  MatrixRtcSessionManagerImpl,
   SessionManager,
   SessionManagerImpl,
   SignalingChannel,
@@ -86,19 +88,22 @@ export function createWhiteboardManager(
   widgetApiPromise: Promise<WidgetApi>,
   disableRtc?: boolean,
 ): WhiteboardManager {
-  // We never destroy these, but this is fine
   const signalingChannel = !disableRtc
     ? new ToDeviceMessageSignalingChannel(widgetApiPromise)
     : undefined;
 
-  const sessionManager = !disableRtc
-    ? new SessionManagerImpl(widgetApiPromise)
-    : undefined;
+  const sessionManager = matrixRtcMode
+    ? new MatrixRtcSessionManagerImpl(widgetApiPromise)
+    : new SessionManagerImpl(widgetApiPromise);
+
+  const sessionManagerToUse = disableRtc ? undefined : sessionManager;
+  const signalingChannelToUse =
+    disableRtc || matrixRtcMode ? undefined : signalingChannel;
 
   return new WhiteboardManagerImpl(
     store,
     widgetApiPromise,
-    sessionManager,
-    signalingChannel,
+    sessionManagerToUse,
+    signalingChannelToUse,
   );
 }

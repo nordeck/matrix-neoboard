@@ -19,7 +19,12 @@ import { useWidgetApi } from '@matrix-widget-toolkit/react';
 import { first } from 'lodash';
 import loglevel from 'loglevel';
 import { useAsync } from 'react-use';
-import { STATE_EVENT_WHITEBOARD_SESSIONS, Whiteboard } from '../model';
+import { matrixRtcMode } from '../components/Whiteboard';
+import {
+  STATE_EVENT_RTC_MEMBER,
+  STATE_EVENT_WHITEBOARD_SESSIONS,
+  Whiteboard,
+} from '../model';
 import { useAppDispatch } from '../store';
 import {
   documentSnapshotApi,
@@ -78,10 +83,13 @@ export function useOwnedWhiteboard(): UseOwnedWhiteboardResponse {
         // TODO: We only set the power level once, if it's later changed we can't
         // handle it. It would be better to show a UI to a moderator to repair
         // the power level setting if it is wrong.
+        const sessionStateEvent = matrixRtcMode
+          ? STATE_EVENT_RTC_MEMBER
+          : STATE_EVENT_WHITEBOARD_SESSIONS;
         await patchPowerLevels({
           changes: {
             events: {
-              [STATE_EVENT_WHITEBOARD_SESSIONS]: 0,
+              [sessionStateEvent]: 0,
             },
           },
         }).unwrap();

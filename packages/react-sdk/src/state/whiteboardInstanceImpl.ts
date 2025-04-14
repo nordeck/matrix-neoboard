@@ -31,6 +31,7 @@ import {
   takeUntil,
   tap,
 } from 'rxjs';
+import { matrixRtcMode } from '../components/Whiteboard';
 import { Whiteboard } from '../model';
 import { StoreType } from '../store';
 import {
@@ -42,6 +43,7 @@ import {
   WebRtcCommunicationChannel,
   isValidFocusOnMessage,
 } from './communication';
+import { MatrixRtcCommunicationChannel } from './communication/matrixRtcCommunicationChannel';
 import { emptyCommunicationChannelStatistics } from './communication/types';
 import {
   WhiteboardDocument,
@@ -191,16 +193,25 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
     userId: string,
   ): WhiteboardInstanceImpl {
     const enableObserveVisibilityStateSubject = new BehaviorSubject(true);
-    const communicationChannel =
-      sessionManager && signalingChannel
-        ? new WebRtcCommunicationChannel(
-            widgetApiPromise,
-            sessionManager,
-            signalingChannel,
-            whiteboardEvent.event_id,
-            enableObserveVisibilityStateSubject,
-          )
-        : undefined;
+
+    let communicationChannel: CommunicationChannel | undefined = undefined;
+    if (matrixRtcMode && sessionManager) {
+      communicationChannel = new MatrixRtcCommunicationChannel(
+        widgetApiPromise,
+        sessionManager,
+        whiteboardEvent.state_key,
+        enableObserveVisibilityStateSubject,
+      );
+    } else if (!matrixRtcMode && sessionManager && signalingChannel) {
+      communicationChannel = new WebRtcCommunicationChannel(
+        widgetApiPromise,
+        sessionManager,
+        signalingChannel,
+        whiteboardEvent.state_key,
+        enableObserveVisibilityStateSubject,
+      );
+    }
+
     const storage = new LocalForageDocumentStorage();
 
     const document = new SynchronizedDocumentImpl(

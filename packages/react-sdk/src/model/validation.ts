@@ -29,16 +29,22 @@ export function isValidEvent(
     | ToDeviceMessageEvent<unknown>,
   eventType: string,
   schema: Joi.AnySchema,
+  allowEmptyContent = false,
 ): boolean {
   if (event.type !== eventType) {
     return false;
   }
 
-  if (
-    !event.content ||
-    typeof event.content !== 'object' ||
-    Object.keys(event.content).length === 0
-  ) {
+  const isContentEmpty =
+    !event.content || typeof event.content !== 'object'
+      ? true
+      : Object.keys(event.content).length === 0;
+
+  if (isContentEmpty && allowEmptyContent) {
+    return true;
+  }
+
+  if (isContentEmpty) {
     return false;
   }
 

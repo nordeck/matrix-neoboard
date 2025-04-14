@@ -34,11 +34,11 @@ import {
   WhiteboardSessions,
 } from '../../model';
 import {
-  Document,
-  WhiteboardDocument,
   createWhiteboardDocument,
+  Document,
   generateAddElement,
   generateAddSlide,
+  WhiteboardDocument,
 } from '../../state';
 import { createChunks } from '../../store/api/documentSnapshotApi';
 
@@ -291,8 +291,20 @@ export function mockDocumentChunk({
  */
 export function mockConnectionSignalingCandidates({
   candidates = [
-    { candidate: 'candidate-0' },
-    { candidate: 'candidate-1' },
+    {
+      candidate:
+        'candidate:702786350 2 udp 41819902 8.8.8.8 60769 typ relay raddr 8.8.8.8',
+      sdpMLineIndex: null,
+      sdpMid: null,
+      usernameFragment: null,
+    },
+    {
+      candidate:
+        'candidate:635070278 2 udp 99024181 8.8.8.8 60769 typ relay raddr 8.8.8.8',
+      sdpMLineIndex: null,
+      sdpMid: null,
+      usernameFragment: null,
+    },
     null,
   ],
   sender = '@peer-user-id',
