@@ -26,8 +26,8 @@ import {
 import { usePauseHotkeysScope } from './usePauseHotkeysScope';
 
 function EnabledScopes() {
-  const { enabledScopes } = useHotkeysContext();
-  return <div data-testid="enabled-scopes">{enabledScopes.join(',')}</div>;
+  const { activeScopes } = useHotkeysContext();
+  return <div data-testid="enabled-scopes">{activeScopes.join(',')}</div>;
 }
 
 function PauseScope({ scope, pause }: { scope: string; pause?: boolean }) {

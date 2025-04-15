@@ -74,38 +74,32 @@ describe('ZoomShortcuts', () => {
     vi.restoreAllMocks();
   });
 
-  it.each([['{Control>}{Plus}'], ['{Control>}{Equal}']])(
-    '%s should zoom in',
-    async (shortcut) => {
-      render(<ZoomShortcuts />, { wrapper: Wrapper });
+  it.each([['{Control>}{+}']])('%s should zoom in', async (shortcut) => {
+    render(<ZoomShortcuts />, { wrapper: Wrapper });
 
-      await userEvent.keyboard(shortcut);
-      expect(mockUpdateScale).toHaveBeenCalledWith(zoomStep);
-    },
-  );
+    await userEvent.keyboard(shortcut);
+    expect(mockUpdateScale).toHaveBeenCalledWith(zoomStep);
+  });
 
-  it.each([['{Meta>}{Plus}'], ['{Meta>}{Equal}']])(
-    '%s should zoom in on mac os',
-    async (shortcut) => {
-      vi.spyOn(window.navigator, 'userAgent', 'get').mockReturnValue(
-        'Mac OS (jsdom)',
-      );
+  it.each([['{Meta>}{+}']])('%s should zoom in on mac os', async (shortcut) => {
+    vi.spyOn(window.navigator, 'userAgent', 'get').mockReturnValue(
+      'Mac OS (jsdom)',
+    );
 
-      render(<ZoomShortcuts />, { wrapper: Wrapper });
+    render(<ZoomShortcuts />, { wrapper: Wrapper });
 
-      await userEvent.keyboard(shortcut);
-      expect(mockUpdateScale).toHaveBeenCalledWith(zoomStep);
-    },
-  );
+    await userEvent.keyboard(shortcut);
+    expect(mockUpdateScale).toHaveBeenCalledWith(zoomStep);
+  });
 
-  it.each([['{Control>}{Minus}']])('%s should zoom out', async (shortcut) => {
+  it.each([['{Control>}{-}']])('%s should zoom out', async (shortcut) => {
     render(<ZoomShortcuts />, { wrapper: Wrapper });
 
     await userEvent.keyboard(shortcut);
     expect(mockUpdateScale).toHaveBeenCalledWith(-zoomStep);
   });
 
-  it.each([['{Meta>}{Minus}']])(
+  it.each([['{Meta>}{-}']])(
     '%s should zoom out on mac os',
     async (shortcut) => {
       vi.spyOn(window.navigator, 'userAgent', 'get').mockReturnValue(

@@ -95,7 +95,7 @@ describe('PresentationShortcuts', () => {
     expect(activeWhiteboardInstance.getActiveSlideId()).toBe('slide-0');
 
     // Navigate forward with space key
-    await userEvent.keyboard(' ');
+    await userEvent.keyboard('{space}');
     expect(activeWhiteboardInstance.getActiveSlideId()).toBe('slide-1');
   });
 });

@@ -33,7 +33,7 @@ export const PresentationShortcuts: React.FC = function () {
         return;
       }
 
-      if (['ArrowRight', ' '].includes(event.key)) {
+      if (['ArrowRight', 'space'].includes(event.key)) {
         const slideIds = whiteboardInstance.getSlideIds();
         const activeSlideIndex = slideIds.indexOf(activeSlideId);
 
@@ -58,8 +58,9 @@ export const PresentationShortcuts: React.FC = function () {
     [activeSlideId, whiteboardInstance],
   );
 
-  useHotkeys(['ArrowLeft', 'ArrowRight', ' '], handleHotkey, {
+  useHotkeys(['ArrowLeft', 'ArrowRight', 'space'], handleHotkey, {
     enabled: state.type === 'presenting',
+    useKey: true,
   });
 
   return null;

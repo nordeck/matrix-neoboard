@@ -33,27 +33,27 @@ export const ZoomShortcuts: React.FC = function () {
   }, [updateScale]);
 
   useHotkeys(
-    isMacOS()
-      ? ['meta+equal', 'meta+=', 'meta+plus']
-      : ['ctrl+equal', 'ctrl+=', 'ctrl+plus'],
-    handleZoomIn,
-    {
-      preventDefault: true,
-      enableOnContentEditable: true,
-      scopes: HOTKEY_SCOPE_WHITEBOARD,
-    },
-    [handleZoomIn],
-  );
+    '*',
+    (event: KeyboardEvent) => {
+      const modifier = isMacOS() ? event.metaKey : event.ctrlKey;
 
-  useHotkeys(
-    isMacOS() ? ['meta+minus', 'meta+-'] : ['ctrl+minus', 'ctrl+-'],
-    handleZoomOut,
+      if (event.key === '+' && modifier) {
+        event.preventDefault();
+        handleZoomIn();
+      }
+
+      if (event.key === '-' && modifier) {
+        event.preventDefault();
+        handleZoomOut();
+      }
+    },
     {
-      preventDefault: true,
+      preventDefault: false,
       enableOnContentEditable: true,
       scopes: HOTKEY_SCOPE_WHITEBOARD,
+      useKey: true,
     },
-    [handleZoomOut],
+    [handleZoomIn, handleZoomOut],
   );
 
   return null;

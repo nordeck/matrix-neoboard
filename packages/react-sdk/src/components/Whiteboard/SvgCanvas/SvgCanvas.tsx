@@ -23,6 +23,7 @@ import React, {
   ReactNode,
   Ref,
   useCallback,
+  useEffect,
   useImperativeHandle,
   useLayoutEffect,
   useMemo,
@@ -167,6 +168,13 @@ export const SvgCanvas = forwardRef(function SvgCanvas(
     },
     [calculateSvgCoordsFunc, onMouseMove],
   );
+
+  // Focus the canvas element when it is mounted
+  useEffect(() => {
+    if (svgRef.current) {
+      svgRef.current.focus();
+    }
+  }, [svgRef]);
 
   const aspectRatio = `${viewportWidth} / ${viewportHeight}`;
 
@@ -334,8 +342,8 @@ const InfiniteCanvasWrapper: React.FC<CanvasWrapperProps> = ({
             viewBox={`0 0 ${viewportWidth} ${viewportHeight}`}
             onMouseDown={onMouseDown}
             onMouseMove={handleMouseMove}
-            onKeyDown={handleKeyDown}
-            onKeyUp={handleKeyUp}
+            onKeyDown={infiniteCanvasMode ? handleKeyDown : undefined}
+            onKeyUp={infiniteCanvasMode ? handleKeyUp : undefined}
             tabIndex={0}
             transform-origin="center center"
             transform={

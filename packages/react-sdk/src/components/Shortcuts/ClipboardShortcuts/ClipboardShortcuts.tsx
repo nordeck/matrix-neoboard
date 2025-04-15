@@ -47,8 +47,8 @@ import {
 export function ClipboardShortcuts() {
   // Do avoid issues where users are interacting the the content editable part
   // of the whiteboard canvas, we should disable our listeners.
-  const { enabledScopes } = useHotkeysContext();
-  const enableShortcuts = enabledScopes.includes(HOTKEY_SCOPE_WHITEBOARD);
+  const { activeScopes } = useHotkeysContext();
+  const enableShortcuts = activeScopes.includes(HOTKEY_SCOPE_WHITEBOARD);
   const slideInstance = useWhiteboardSlideInstance();
   const { state: presentationState } = usePresentationMode();
   const isViewingPresentation = presentationState.type === 'presentation';
