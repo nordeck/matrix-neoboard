@@ -19,6 +19,7 @@ import { useHotkeys } from 'react-hotkeys-hook';
 import { useSvgScaleContext } from '../../Whiteboard/SvgScaleContext';
 import { zoomStep } from '../../Whiteboard/constants';
 import { HOTKEY_SCOPE_WHITEBOARD } from '../../WhiteboardHotkeysProvider';
+import { isMacOS } from '../../common/platform';
 
 export const ZoomShortcuts: React.FC = function () {
   const { updateScale } = useSvgScaleContext();
@@ -32,7 +33,9 @@ export const ZoomShortcuts: React.FC = function () {
   }, [updateScale]);
 
   useHotkeys(
-    ['ctrl+=', 'meta+=', 'ctrl+equal', 'meta+equal', 'ctrl+plus', 'meta+plus'],
+    isMacOS()
+      ? ['meta+equal', 'meta+=', 'meta+plus']
+      : ['ctrl+equal', 'ctrl+=', 'ctrl+plus'],
     handleZoomIn,
     {
       preventDefault: true,
@@ -43,7 +46,7 @@ export const ZoomShortcuts: React.FC = function () {
   );
 
   useHotkeys(
-    ['ctrl+minus', 'meta+minus', 'ctrl+-', 'meta+-'],
+    isMacOS() ? ['meta+minus', 'meta+-'] : ['ctrl+minus', 'ctrl+-'],
     handleZoomOut,
     {
       preventDefault: true,

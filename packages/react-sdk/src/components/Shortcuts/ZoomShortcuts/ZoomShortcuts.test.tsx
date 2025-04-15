@@ -70,28 +70,52 @@ describe('ZoomShortcuts', () => {
 
   afterEach(() => {
     widgetApi.stop();
-    vi.clearAllMocks();
+    // restore the mock on window.navigator.userAgent
+    vi.restoreAllMocks();
   });
 
-  it('should zoom in on modifier + plus shortcut', async () => {
+  it.each([['{Control>}{Plus}'], ['{Control>}{Equal}']])(
+    '%s should zoom in',
+    async (shortcut) => {
+      render(<ZoomShortcuts />, { wrapper: Wrapper });
+
+      await userEvent.keyboard(shortcut);
+      expect(mockUpdateScale).toHaveBeenCalledWith(zoomStep);
+    },
+  );
+
+  it.each([['{Meta>}{Plus}'], ['{Meta>}{Equal}']])(
+    '%s should zoom in on mac os',
+    async (shortcut) => {
+      vi.spyOn(window.navigator, 'userAgent', 'get').mockReturnValue(
+        'Mac OS (jsdom)',
+      );
+
+      render(<ZoomShortcuts />, { wrapper: Wrapper });
+
+      await userEvent.keyboard(shortcut);
+      expect(mockUpdateScale).toHaveBeenCalledWith(zoomStep);
+    },
+  );
+
+  it.each([['{Control>}{Minus}']])('%s should zoom out', async (shortcut) => {
     render(<ZoomShortcuts />, { wrapper: Wrapper });
 
-    await userEvent.keyboard('{Meta>}{Plus}');
-    expect(mockUpdateScale).toHaveBeenCalledWith(zoomStep);
-
-    await userEvent.keyboard('{Control>}{Plus}');
-    expect(mockUpdateScale).toHaveBeenCalledWith(zoomStep);
-    expect(mockUpdateScale).toHaveBeenCalledTimes(2);
+    await userEvent.keyboard(shortcut);
+    expect(mockUpdateScale).toHaveBeenCalledWith(-zoomStep);
   });
 
-  it('should zoom out on modifier + minus shortcut', async () => {
-    render(<ZoomShortcuts />, { wrapper: Wrapper });
+  it.each([['{Meta>}{Minus}']])(
+    '%s should zoom out on mac os',
+    async (shortcut) => {
+      vi.spyOn(window.navigator, 'userAgent', 'get').mockReturnValue(
+        'Mac OS (jsdom)',
+      );
 
-    await userEvent.keyboard('{Meta>}{Minus}');
-    expect(mockUpdateScale).toHaveBeenCalledWith(-zoomStep);
+      render(<ZoomShortcuts />, { wrapper: Wrapper });
 
-    await userEvent.keyboard('{Control>}{Minus}');
-    expect(mockUpdateScale).toHaveBeenCalledWith(-zoomStep);
-    expect(mockUpdateScale).toHaveBeenCalledTimes(2);
-  });
+      await userEvent.keyboard(shortcut);
+      expect(mockUpdateScale).toHaveBeenCalledWith(-zoomStep);
+    },
+  );
 });
