@@ -110,12 +110,6 @@ export const SvgCanvas = forwardRef(function SvgCanvas(
     setContainerDimensions({ width, height });
   }, [width, height, setContainerDimensions]);
 
-  const handleCanvasClick = useCallback(() => {
-    if (svgRef.current) {
-      svgRef.current.focus();
-    }
-  }, []);
-
   const getKeyboardOffset = useCallback(() => {
     const scrollStep = gridCellSize * scale;
     let dx = 0;
@@ -338,7 +332,6 @@ const InfiniteCanvasWrapper: React.FC<CanvasWrapperProps> = ({
                   }),
             }}
             viewBox={`0 0 ${viewportWidth} ${viewportHeight}`}
-            onClick={handleCanvasClick}
             onMouseDown={onMouseDown}
             onMouseMove={handleMouseMove}
             onKeyDown={handleKeyDown}
