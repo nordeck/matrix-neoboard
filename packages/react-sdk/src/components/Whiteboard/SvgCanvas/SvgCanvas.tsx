@@ -139,14 +139,7 @@ export const SvgCanvas = forwardRef(function SvgCanvas(
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent<SVGSVGElement>) => {
-      const isArrowKey = [
-        'ArrowUp',
-        'ArrowDown',
-        'ArrowLeft',
-        'ArrowRight',
-      ].includes(e.key);
-
-      if (isArrowKey) {
+      if (isArrowKey(e.key)) {
         if (!pressedKeys.current.has(e.key)) {
           pressedKeys.current.add(e.key);
         }
@@ -159,14 +152,7 @@ export const SvgCanvas = forwardRef(function SvgCanvas(
 
   const handleKeyUp = useCallback(
     (e: KeyboardEvent<SVGSVGElement>) => {
-      const isArrowKey = [
-        'ArrowUp',
-        'ArrowDown',
-        'ArrowLeft',
-        'ArrowRight',
-      ].includes(e.key);
-
-      if (isArrowKey) {
+      if (isArrowKey(e.key)) {
         pressedKeys.current.delete(e.key);
         e.preventDefault();
         applyKeyboardNavigation();
@@ -372,4 +358,8 @@ const InfiniteCanvasWrapper: React.FC<CanvasWrapperProps> = ({
       </Box>
     </Box>
   );
-};
+});
+
+function isArrowKey(key: string): boolean {
+  return ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(key);
+}
