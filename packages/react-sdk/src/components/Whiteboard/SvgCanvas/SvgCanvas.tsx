@@ -111,6 +111,13 @@ export const SvgCanvas = forwardRef(function SvgCanvas(
     setContainerDimensions({ width, height });
   }, [width, height, setContainerDimensions]);
 
+  // Focus the canvas element when it is mounted
+  useEffect(() => {
+    if (infiniteCanvasMode && svgRef.current) {
+      svgRef.current.focus();
+    }
+  }, [svgRef]);
+
   const getKeyboardOffset = useCallback(() => {
     const scrollStep = gridCellSize * scale;
     let dx = 0;
@@ -168,13 +175,6 @@ export const SvgCanvas = forwardRef(function SvgCanvas(
     },
     [calculateSvgCoordsFunc, onMouseMove],
   );
-
-  // Focus the canvas element when it is mounted
-  useEffect(() => {
-    if (infiniteCanvasMode && svgRef.current) {
-      svgRef.current.focus();
-    }
-  }, [svgRef]);
 
   const aspectRatio = `${viewportWidth} / ${viewportHeight}`;
 
