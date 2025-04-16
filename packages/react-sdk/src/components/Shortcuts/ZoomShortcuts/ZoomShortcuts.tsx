@@ -24,7 +24,7 @@ import { isMacOS } from '../../common/platform';
 export const ZoomShortcuts: React.FC = function () {
   const { updateScale, setScale } = useSvgScaleContext();
 
-  const resetZoom = useCallback(() => {
+  const handleResetZoom = useCallback(() => {
     setScale(1.0);
   }, [setScale]);
 
@@ -37,42 +37,46 @@ export const ZoomShortcuts: React.FC = function () {
   }, [updateScale]);
 
   useHotkeys(
-    '*',
-    (event: KeyboardEvent) => {
-      const modifier = isMacOS() ? event.metaKey : event.ctrlKey;
-
-      if ((event.key === '+' || event.key === '=') && modifier) {
-        event.preventDefault();
-        handleZoomIn();
-      }
-
-      if (event.key === '-' && modifier) {
-        event.preventDefault();
-        handleZoomOut();
-      }
+    isMacOS() ? ['meta_+', 'meta_='] : ['ctrl_+', 'ctrl_='],
+    () => {
+      handleZoomIn();
     },
     {
-      preventDefault: false,
+      preventDefault: true,
+      enableOnContentEditable: true,
+      scopes: HOTKEY_SCOPE_WHITEBOARD,
+      useKey: true,
+      splitKey: '_',
+    },
+    [handleZoomIn],
+  );
+
+  useHotkeys(
+    isMacOS() ? 'meta+-' : 'ctrl+-',
+    () => {
+      handleZoomOut();
+    },
+    {
+      preventDefault: true,
       enableOnContentEditable: true,
       scopes: HOTKEY_SCOPE_WHITEBOARD,
       useKey: true,
     },
-    [handleZoomIn, handleZoomOut],
+    [handleZoomOut],
   );
 
   useHotkeys(
     isMacOS() ? 'meta+0' : 'ctrl+0',
-    (event: KeyboardEvent) => {
-      event.preventDefault();
-      resetZoom();
+    () => {
+      handleResetZoom();
     },
     {
-      preventDefault: false,
+      preventDefault: true,
       enableOnContentEditable: true,
       scopes: HOTKEY_SCOPE_WHITEBOARD,
       useKey: true,
     },
-    [resetZoom],
+    [handleResetZoom],
   );
 
   return null;
