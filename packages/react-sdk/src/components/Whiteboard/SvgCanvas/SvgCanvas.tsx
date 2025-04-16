@@ -171,7 +171,7 @@ export const SvgCanvas = forwardRef(function SvgCanvas(
 
   // Focus the canvas element when it is mounted
   useEffect(() => {
-    if (svgRef.current) {
+    if (infiniteCanvasMode && svgRef.current) {
       svgRef.current.focus();
     }
   }, [svgRef]);
@@ -221,7 +221,9 @@ export const SvgCanvas = forwardRef(function SvgCanvas(
           viewBox={`0 0 ${viewportWidth} ${viewportHeight}`}
           onMouseDown={onMouseDown}
           onMouseMove={handleMouseMove}
-          onWheel={onWheel}
+          onKeyDown={infiniteCanvasMode ? handleKeyDown : undefined}
+          onKeyUp={infiniteCanvasMode ? handleKeyUp : undefined}
+          tabIndex={infiniteCanvasMode ? 0 : undefined}
           transform-origin={infiniteCanvasMode ? 'center center' : undefined}
           transform={
             infiniteCanvasMode
@@ -324,42 +326,10 @@ const InfiniteCanvasWrapper: React.FC<CanvasWrapperProps> = ({
         ...(infiniteCanvasMode ? {} : { overflow: 'hidden' }),
       }}
     >
-      <Box sx={innerBoxSx}>
-        <SvgCanvasContext.Provider value={value}>
-          <Canvas
-            ref={svgRef}
-            rounded={rounded}
-            sx={{
-              aspectRatio,
-              ...outlineSx,
-              ...(preview
-                ? {}
-                : {
-                    width: `${whiteboardWidth}px`,
-                    height: `${whiteboardHeight}px`,
-                  }),
-            }}
-            viewBox={`0 0 ${viewportWidth} ${viewportHeight}`}
-            onMouseDown={onMouseDown}
-            onMouseMove={handleMouseMove}
-            onKeyDown={infiniteCanvasMode ? handleKeyDown : undefined}
-            onKeyUp={infiniteCanvasMode ? handleKeyUp : undefined}
-            tabIndex={0}
-            transform-origin="center center"
-            transform={
-              !preview
-                ? `translate(${translation.x}, ${translation.y}) scale(${scale})`
-                : ''
-            }
-          >
-            {children}
-          </Canvas>
-          {additionalChildren}
-        </SvgCanvasContext.Provider>
-      </Box>
+      <Box sx={innerBoxSx}>{children}</Box>
     </Box>
   );
-});
+};
 
 function isArrowKey(key: string): boolean {
   return ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(key);
