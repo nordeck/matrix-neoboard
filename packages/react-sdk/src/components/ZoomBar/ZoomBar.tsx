@@ -58,7 +58,6 @@ export const ZoomBar: React.FC = () => {
           fontSize: '12px',
           height: '34px',
           minWidth: '56px',
-          width: '56px',
           paddingLeft: theme.spacing(1),
           paddingRight: theme.spacing(1),
         }}

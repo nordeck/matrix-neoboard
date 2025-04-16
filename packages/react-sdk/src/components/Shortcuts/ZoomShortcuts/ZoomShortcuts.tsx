@@ -22,7 +22,11 @@ import { HOTKEY_SCOPE_WHITEBOARD } from '../../WhiteboardHotkeysProvider';
 import { isMacOS } from '../../common/platform';
 
 export const ZoomShortcuts: React.FC = function () {
-  const { updateScale } = useSvgScaleContext();
+  const { updateScale, setScale } = useSvgScaleContext();
+
+  const resetZoom = useCallback(() => {
+    setScale(1.0);
+  }, [setScale]);
 
   const handleZoomIn = useCallback(() => {
     updateScale(zoomStep);
@@ -37,7 +41,7 @@ export const ZoomShortcuts: React.FC = function () {
     (event: KeyboardEvent) => {
       const modifier = isMacOS() ? event.metaKey : event.ctrlKey;
 
-      if (event.key === '+' && modifier) {
+      if ((event.key === '+' || event.key === '=') && modifier) {
         event.preventDefault();
         handleZoomIn();
       }
@@ -54,6 +58,21 @@ export const ZoomShortcuts: React.FC = function () {
       useKey: true,
     },
     [handleZoomIn, handleZoomOut],
+  );
+
+  useHotkeys(
+    isMacOS() ? 'meta+0' : 'ctrl+0',
+    (event: KeyboardEvent) => {
+      event.preventDefault();
+      resetZoom();
+    },
+    {
+      preventDefault: false,
+      enableOnContentEditable: true,
+      scopes: HOTKEY_SCOPE_WHITEBOARD,
+      useKey: true,
+    },
+    [resetZoom],
   );
 
   return null;

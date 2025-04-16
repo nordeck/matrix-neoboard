@@ -37,12 +37,14 @@ import { WhiteboardHotkeysProvider } from '../../WhiteboardHotkeysProvider';
 import { ZoomShortcuts } from './ZoomShortcuts';
 
 const mockUpdateScale = vi.fn();
+const mockSetScale = vi.fn();
 
 vi.mock('../../Whiteboard/SvgScaleContext', () => {
   return {
     SvgScaleContextProvider: vi.fn(({ children }) => children),
     useSvgScaleContext: vi.fn(() => ({
       updateScale: mockUpdateScale,
+      setScale: mockSetScale,
     })),
   };
 });
@@ -74,33 +76,18 @@ describe('ZoomShortcuts', () => {
     vi.restoreAllMocks();
   });
 
-  it.each([['{Control>}{+}']])('%s should zoom in', async (shortcut) => {
-    render(<ZoomShortcuts />, { wrapper: Wrapper });
+  it.each([['{Control>}+'], ['{Control>}=']])(
+    '%s should zoom in',
+    async (shortcut) => {
+      render(<ZoomShortcuts />, { wrapper: Wrapper });
 
-    await userEvent.keyboard(shortcut);
-    expect(mockUpdateScale).toHaveBeenCalledWith(zoomStep);
-  });
+      await userEvent.keyboard(shortcut);
+      expect(mockUpdateScale).toHaveBeenCalledWith(zoomStep);
+    },
+  );
 
-  it.each([['{Meta>}{+}']])('%s should zoom in on mac os', async (shortcut) => {
-    vi.spyOn(window.navigator, 'userAgent', 'get').mockReturnValue(
-      'Mac OS (jsdom)',
-    );
-
-    render(<ZoomShortcuts />, { wrapper: Wrapper });
-
-    await userEvent.keyboard(shortcut);
-    expect(mockUpdateScale).toHaveBeenCalledWith(zoomStep);
-  });
-
-  it.each([['{Control>}{-}']])('%s should zoom out', async (shortcut) => {
-    render(<ZoomShortcuts />, { wrapper: Wrapper });
-
-    await userEvent.keyboard(shortcut);
-    expect(mockUpdateScale).toHaveBeenCalledWith(-zoomStep);
-  });
-
-  it.each([['{Meta>}{-}']])(
-    '%s should zoom out on mac os',
+  it.each([['{Meta>}+'], ['{Meta>}=']])(
+    '%s should zoom in on mac os',
     async (shortcut) => {
       vi.spyOn(window.navigator, 'userAgent', 'get').mockReturnValue(
         'Mac OS (jsdom)',
@@ -109,7 +96,43 @@ describe('ZoomShortcuts', () => {
       render(<ZoomShortcuts />, { wrapper: Wrapper });
 
       await userEvent.keyboard(shortcut);
-      expect(mockUpdateScale).toHaveBeenCalledWith(-zoomStep);
+      expect(mockUpdateScale).toHaveBeenCalledWith(zoomStep);
     },
   );
+
+  it.each([['{Control>}-']])('%s should zoom out', async (shortcut) => {
+    render(<ZoomShortcuts />, { wrapper: Wrapper });
+
+    await userEvent.keyboard(shortcut);
+    expect(mockUpdateScale).toHaveBeenCalledWith(-zoomStep);
+  });
+
+  it.each([['{Meta>}-']])('%s should zoom out on mac os', async (shortcut) => {
+    vi.spyOn(window.navigator, 'userAgent', 'get').mockReturnValue(
+      'Mac OS (jsdom)',
+    );
+
+    render(<ZoomShortcuts />, { wrapper: Wrapper });
+
+    await userEvent.keyboard(shortcut);
+    expect(mockUpdateScale).toHaveBeenCalledWith(-zoomStep);
+  });
+
+  it.each([['{Control>}0']])('%s should reset zoom', async (shortcut) => {
+    render(<ZoomShortcuts />, { wrapper: Wrapper });
+
+    await userEvent.keyboard(shortcut);
+    expect(mockSetScale).toHaveBeenCalledWith(1.0);
+  });
+
+  it.each([['{Meta>}0']])('%s should reset zoomon mac os', async (shortcut) => {
+    vi.spyOn(window.navigator, 'userAgent', 'get').mockReturnValue(
+      'Mac OS (jsdom)',
+    );
+
+    render(<ZoomShortcuts />, { wrapper: Wrapper });
+
+    await userEvent.keyboard(shortcut);
+    expect(mockSetScale).toHaveBeenCalledWith(1.0);
+  });
 });
