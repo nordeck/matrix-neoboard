@@ -56,6 +56,7 @@ export type SvgCanvasProps = PropsWithChildren<{
   rounded?: boolean;
   additionalChildren?: ReactNode;
   withOutline?: boolean;
+  withFocus?: boolean;
   preview?: boolean;
 
   onMouseDown?: MouseEventHandler<SVGSVGElement> | undefined;
@@ -70,6 +71,7 @@ export const SvgCanvas = forwardRef(function SvgCanvas(
     rounded,
     additionalChildren,
     withOutline,
+    withFocus,
     onMouseDown,
     onMouseMove,
     preview,
@@ -113,10 +115,10 @@ export const SvgCanvas = forwardRef(function SvgCanvas(
 
   // Focus the canvas element when it is mounted
   useEffect(() => {
-    if (infiniteCanvasMode && svgRef.current) {
+    if (infiniteCanvasMode && withFocus && svgRef.current) {
       svgRef.current.focus();
     }
-  }, [svgRef]);
+  }, [svgRef, withFocus]);
 
   const getKeyboardOffset = useCallback(() => {
     const scrollStep = gridCellSize * scale;
@@ -209,7 +211,9 @@ export const SvgCanvas = forwardRef(function SvgCanvas(
                         borderColor: 'primary.main',
                         borderRadius: 1,
                       }
-                    : {}),
+                    : {
+                        outline: 'none',
+                      }),
                   ...(preview
                     ? {}
                     : {
@@ -223,7 +227,7 @@ export const SvgCanvas = forwardRef(function SvgCanvas(
           onMouseMove={handleMouseMove}
           onKeyDown={infiniteCanvasMode ? handleKeyDown : undefined}
           onKeyUp={infiniteCanvasMode ? handleKeyUp : undefined}
-          tabIndex={infiniteCanvasMode ? 0 : undefined}
+          tabIndex={infiniteCanvasMode ? -1 : undefined}
           transform-origin={infiniteCanvasMode ? 'center center' : undefined}
           transform={
             infiniteCanvasMode
