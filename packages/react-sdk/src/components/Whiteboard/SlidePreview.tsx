@@ -36,7 +36,6 @@ export function SlidePreview() {
             viewportHeight={whiteboardHeight}
             viewportWidth={whiteboardWidth}
             preview={true}
-            withFocus={false}
           >
             {elementIds.map((e) => {
               return <ConnectedElement id={e} key={e} readOnly />;

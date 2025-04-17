@@ -137,7 +137,6 @@ const WhiteboardHost = ({
         }
         rounded
         withOutline={withOutline}
-        withFocus={infiniteCanvasMode ? true : false}
         onMouseMove={useCallback(
           (position: Point) => {
             slideInstance.publishCursorPosition(position);
