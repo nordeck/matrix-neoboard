@@ -38,12 +38,13 @@ export const ZoomShortcuts: React.FC = function () {
 
   useHotkeys(
     isMacOS() ? ['meta_+', 'meta_='] : ['ctrl_+', 'ctrl_='],
-    () => {
-      handleZoomIn();
+    (event: KeyboardEvent) => {
+      if (event.ctrlKey || event.metaKey) {
+        handleZoomIn();
+      }
     },
     {
       preventDefault: true,
-      enableOnContentEditable: true,
       scopes: HOTKEY_SCOPE_WHITEBOARD,
       useKey: true,
       splitKey: '_',
@@ -53,12 +54,13 @@ export const ZoomShortcuts: React.FC = function () {
 
   useHotkeys(
     isMacOS() ? 'meta+-' : 'ctrl+-',
-    () => {
-      handleZoomOut();
+    (event: KeyboardEvent) => {
+      if (event.ctrlKey || event.metaKey) {
+        handleZoomOut();
+      }
     },
     {
       preventDefault: true,
-      enableOnContentEditable: true,
       scopes: HOTKEY_SCOPE_WHITEBOARD,
       useKey: true,
     },
@@ -67,12 +69,13 @@ export const ZoomShortcuts: React.FC = function () {
 
   useHotkeys(
     isMacOS() ? 'meta+0' : 'ctrl+0',
-    () => {
-      handleResetZoom();
+    (event: KeyboardEvent) => {
+      if (event.ctrlKey || event.metaKey) {
+        handleResetZoom();
+      }
     },
     {
       preventDefault: true,
-      enableOnContentEditable: true,
       scopes: HOTKEY_SCOPE_WHITEBOARD,
       useKey: true,
     },
