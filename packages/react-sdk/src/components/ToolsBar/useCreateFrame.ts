@@ -25,9 +25,8 @@ import {
   whiteboardWidth,
 } from '../Whiteboard';
 import { useSvgScaleContext } from '../Whiteboard/SvgScaleContext';
+import { frameHeight, frameWidth } from '../Whiteboard/constants';
 
-const frameWidth = 1920;
-const frameHeight = 1080;
 const frameGap = gridCellSize;
 
 type UseCreateFrameResult = {
