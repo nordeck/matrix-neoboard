@@ -33,7 +33,7 @@ import { ElementOverridesProvider } from '../ElementOverridesProvider';
 import { FullscreenModeBar } from '../FullscreenModeBar';
 import { GuidedTour } from '../GuidedTour';
 import { HelpCenterBar } from '../HelpCenterBar';
-import { ImageUploadProvider, useSlideImageDropUpload } from '../ImageUpload';
+import { ImageUploadProvider } from '../ImageUpload';
 import { ImportWhiteboardDialogProvider } from '../ImportWhiteboardDialog/ImportWhiteboardDialogProvider';
 import { PresentBar } from '../PresentBar';
 import { Shortcuts } from '../Shortcuts';
@@ -77,9 +77,6 @@ export function Layout({ height = '100vh' }: LayoutProps) {
   const { state: presentationState } = usePresentationMode();
   const isViewingPresentation = presentationState.type === 'presentation';
 
-  const { handleUploadDragEnter, uploadDragOverlay } =
-    useSlideImageDropUpload();
-
   const handleClose = useCallback(() => {
     setDeveloperToolsVisible(false);
   }, [setDeveloperToolsVisible]);
@@ -112,20 +109,13 @@ export function Layout({ height = '100vh' }: LayoutProps) {
               <SlideOverviewBar />
             </AnimatedSidebar>
 
-            <Box
-              component="main"
-              flex={1}
-              display="flex"
-              position="relative"
-              onDragEnter={handleUploadDragEnter}
-            >
+            <Box component="main" flex={1} display="flex" position="relative">
               {slideIds.map((slideId) => (
                 <TabPanelStyled value={slideId} key={slideId}>
                   <SlideProvider slideId={slideId}>
                     <ElementOverridesProvider>
                       <ConnectionPointProvider>
                         <ContentArea />
-                        {uploadDragOverlay}
                       </ConnectionPointProvider>
                     </ElementOverridesProvider>
                   </SlideProvider>

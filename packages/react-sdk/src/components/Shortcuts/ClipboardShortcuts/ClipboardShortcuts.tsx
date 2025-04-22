@@ -18,12 +18,20 @@ import { useWidgetApi } from '@matrix-widget-toolkit/react';
 import { useCallback, useEffect } from 'react';
 import { useHotkeysContext } from 'react-hotkeys-hook';
 import {
+  calculateBoundingRectForElements,
+  clampElementPosition,
+  Point,
   usePresentationMode,
   useWhiteboardSlideInstance,
 } from '../../../state';
 import { useImageUpload } from '../../ImageUpload';
 import { addImagesToSlide } from '../../ImageUpload/addImagesToSlide';
 import { defaultAcceptedImageTypesArray } from '../../ImageUpload/consts';
+import {
+  useSvgScaleContext,
+  whiteboardHeight,
+  whiteboardWidth,
+} from '../../Whiteboard';
 import { HOTKEY_SCOPE_WHITEBOARD } from '../../WhiteboardHotkeysProvider';
 import {
   ClipboardContent,
@@ -54,6 +62,7 @@ export function ClipboardShortcuts() {
   const isViewingPresentation = presentationState.type === 'presentation';
   const widgetApi = useWidgetApi();
   const { handleDrop } = useImageUpload();
+  const { viewportCanvasCenter } = useSvgScaleContext();
 
   // Copy event is triggered by the default keyboard shortcut for copying in the
   // browser, usually Ctrl/Meta+C
@@ -135,13 +144,14 @@ export function ClipboardShortcuts() {
   }, [enableShortcuts, isViewingPresentation, slideInstance]);
 
   const handlePasteImages = useCallback(
-    async (files: File[]) => {
-      const results = await handleDrop(Array.from(files));
+    async (files: File[], centerPosition: Point) => {
+      const results = await handleDrop(files);
 
       const images = results
         .filter((result) => result.status === 'fulfilled')
         .map((result) => result.value);
-      addImagesToSlide(slideInstance, images);
+
+      addImagesToSlide(slideInstance, images, centerPosition);
     },
     [handleDrop, slideInstance],
   );
@@ -161,8 +171,29 @@ export function ClipboardShortcuts() {
       const content = readFromClipboardData(event.clipboardData);
       const { elements } = deserializeFromClipboard(content);
 
+      const centerPosition =
+        slideInstance.getCursorPosition() ?? viewportCanvasCenter;
+
       if (elements && elements.length > 0) {
-        const pastedElementIds = slideInstance.addElements(elements);
+        const { offsetX, offsetY, width, height } =
+          calculateBoundingRectForElements(elements);
+        const position: Point = {
+          x: centerPosition.x - width / 2,
+          y: centerPosition.y - height / 2,
+        };
+        const positionClamp = clampElementPosition(
+          position,
+          { width, height },
+          { width: whiteboardWidth, height: whiteboardHeight },
+        );
+        const newElements = elements.map((element) => ({
+          ...element,
+          position: {
+            x: positionClamp.x + (element.position.x - offsetX),
+            y: positionClamp.y + (element.position.y - offsetY),
+          },
+        }));
+        const pastedElementIds = slideInstance.addElements(newElements);
         slideInstance.setActiveElementIds(pastedElementIds);
       }
 
@@ -174,8 +205,7 @@ export function ClipboardShortcuts() {
         );
 
         if (imageFiles.length > 0) {
-          handlePasteImages(Array.from(imageFiles));
-          // slideInstance.setActiveElementIds(pastedImageIds);
+          handlePasteImages(imageFiles, centerPosition);
         }
       }
     };
@@ -188,6 +218,7 @@ export function ClipboardShortcuts() {
     isViewingPresentation,
     slideInstance,
     widgetApi,
+    viewportCanvasCenter,
   ]);
 
   return null;

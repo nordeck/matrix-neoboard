@@ -116,6 +116,7 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
       distinctUntilChanged(isEqual),
       takeUntil(this.destroySubject),
     );
+  private cursorPosition: Point | undefined;
 
   constructor(
     private readonly communicationChannel: CommunicationChannel | undefined,
@@ -330,6 +331,14 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
 
   observeElementIds(): Observable<string[]> {
     return this.elementIdsObservable;
+  }
+
+  setCursorPosition(position: Point | undefined) {
+    this.cursorPosition = position;
+  }
+
+  getCursorPosition(): Point | undefined {
+    return this.cursorPosition;
   }
 
   observeCursorPositions(): Observable<Record<string, Point>> {

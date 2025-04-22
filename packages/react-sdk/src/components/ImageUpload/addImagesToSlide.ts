@@ -15,9 +15,10 @@
  */
 
 import {
-  calculateCentredPosition,
   calculateFittedElementSize,
+  clampElementPosition,
   ImageElement,
+  Point,
   WhiteboardSlideInstance,
 } from '../../state';
 import { whiteboardHeight, whiteboardWidth } from '../Whiteboard';
@@ -26,28 +27,40 @@ import { ImageUploadResult } from './ImageUploadProvider';
 /**
  * Fit and centre and add images to a slide.
  *
+ * @param slide - slide instance
  * @param uploadResult - Information from the image upload
  * @param uploadResult[].mxc - MXC URI of the image {@link https://spec.matrix.org/v1.9/client-server-api/#matrix-content-mxc-uris}
  * @param uploadResult[].fileName - File name
  * @param uploadResult[].imageSize - Image size
+ * @param centerPosition - Image center position
  */
 export function addImagesToSlide(
   slide: WhiteboardSlideInstance,
   uploadResults: ImageUploadResult[],
+  centerPosition: Point,
 ): void {
   const images: ImageElement[] = uploadResults.map((uploadResult) => {
     const fittedSize = calculateFittedElementSize(uploadResult.size, {
       width: whiteboardWidth,
       height: whiteboardHeight,
     });
-    const centredPosition = calculateCentredPosition(fittedSize, {
-      width: whiteboardWidth,
-      height: whiteboardHeight,
-    });
+
+    const position: Point = {
+      x: centerPosition.x - fittedSize.width / 2,
+      y: centerPosition.y - fittedSize.height / 2,
+    };
+
+    const positionClamp = clampElementPosition(
+      position,
+      { width: fittedSize.width, height: fittedSize.height },
+      { width: whiteboardWidth, height: whiteboardHeight },
+    );
+
     return {
       type: 'image',
-      position: centredPosition,
-      ...fittedSize,
+      width: fittedSize.width,
+      height: fittedSize.height,
+      position: positionClamp,
       mxc: uploadResult.mxc,
       fileName: uploadResult.fileName,
     };

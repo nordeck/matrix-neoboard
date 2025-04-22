@@ -59,3 +59,10 @@ export const useSvgCanvasContext = (): SvgCanvasContextType => {
 
   return context;
 };
+
+/**
+ * Provides a custom instance of the `SvgCanvas` to the context.
+ *
+ * @remarks Should only be used in tests.
+ */
+export const SvgCanvasMockProvider = SvgCanvasContext.Provider;

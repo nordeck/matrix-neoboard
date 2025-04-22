@@ -17,6 +17,7 @@
 import Joi from 'joi';
 import loglevel from 'loglevel';
 // Do not import from the index file to prevent cyclic dependencies
+import { clamp } from 'lodash';
 import { defaultAcceptedImageTypes } from '../../../components/ImageUpload/consts';
 import {
   BoundingRect,
@@ -237,6 +238,23 @@ export type Size = {
 };
 
 /**
+ * Clamp element position to fit into the container
+ * @param position element position
+ * @param elementSize element size
+ * @param containerSize container size
+ */
+export function clampElementPosition(
+  position: Point,
+  elementSize: Size,
+  containerSize: Size,
+): Point {
+  return {
+    x: clamp(position.x, 0, containerSize.width - elementSize.width - 1),
+    y: clamp(position.y, 0, containerSize.height - elementSize.height - 1),
+  };
+}
+
+/**
  * Calculate the size of an element so that it fits into a container.
  * Maintain the aspect ratio.
  *
@@ -263,23 +281,6 @@ export function calculateFittedElementSize(
   }
 
   return resultSize;
-}
-
-/**
- * Calculate the position of an element so that it is centred inside a container.
- *
- * @param element - Element containing bounding rectangle size
- * @param containerSize - Container size to centre the element inside
- * @returns Centred top left position
- */
-export function calculateCentredPosition(
-  element: Size,
-  containerSize: Size,
-): Point {
-  return {
-    x: Math.round((containerSize.width - element.width) / 2),
-    y: Math.round((containerSize.height - element.height) / 2),
-  };
 }
 
 /**
