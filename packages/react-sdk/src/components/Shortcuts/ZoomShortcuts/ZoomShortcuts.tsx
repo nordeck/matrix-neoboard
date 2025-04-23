@@ -18,7 +18,6 @@ import React, { useCallback, useMemo } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { useSvgScaleContext } from '../../Whiteboard/SvgScaleContext';
 import { zoomStep } from '../../Whiteboard/constants';
-import { HOTKEY_SCOPE_WHITEBOARD } from '../../WhiteboardHotkeysProvider';
 import { isMacOS } from '../../common/platform';
 
 export const ZoomShortcuts: React.FC = function () {
@@ -53,7 +52,7 @@ export const ZoomShortcuts: React.FC = function () {
     },
     {
       preventDefault: true,
-      scopes: HOTKEY_SCOPE_WHITEBOARD,
+      enableOnContentEditable: true,
       useKey: true,
       splitKey: '_', // needed, otherwise '+' is not applied
     },
@@ -69,7 +68,7 @@ export const ZoomShortcuts: React.FC = function () {
     },
     {
       preventDefault: true,
-      scopes: HOTKEY_SCOPE_WHITEBOARD,
+      enableOnContentEditable: true,
       useKey: true,
     },
     [handleZoomOut, isEventToApply],
@@ -84,7 +83,7 @@ export const ZoomShortcuts: React.FC = function () {
     },
     {
       preventDefault: true,
-      scopes: HOTKEY_SCOPE_WHITEBOARD,
+      enableOnContentEditable: true,
       useKey: true,
     },
     [handleResetZoom, isEventToApply],
