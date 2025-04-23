@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { useSvgScaleContext } from '../../Whiteboard/SvgScaleContext';
 import { zoomStep } from '../../Whiteboard/constants';
@@ -36,10 +36,18 @@ export const ZoomShortcuts: React.FC = function () {
     updateScale(-zoomStep);
   }, [updateScale]);
 
+  const macOs = useMemo(() => isMacOS(), []);
+
+  const isEventToApply = useCallback(
+    (event: KeyboardEvent) =>
+      (macOs && event.metaKey) || (!macOs && event.ctrlKey),
+    [macOs],
+  );
+
   useHotkeys(
-    isMacOS() ? ['meta_+', 'meta_='] : ['ctrl_+', 'ctrl_='],
+    ['+', '='],
     (event: KeyboardEvent) => {
-      if (event.ctrlKey || event.metaKey) {
+      if (isEventToApply(event)) {
         handleZoomIn();
       }
     },
@@ -47,15 +55,15 @@ export const ZoomShortcuts: React.FC = function () {
       preventDefault: true,
       scopes: HOTKEY_SCOPE_WHITEBOARD,
       useKey: true,
-      splitKey: '_',
+      splitKey: '_', // needed, otherwise '+' is not applied
     },
-    [handleZoomIn],
+    [handleZoomIn, isEventToApply],
   );
 
   useHotkeys(
-    isMacOS() ? 'meta+-' : 'ctrl+-',
+    '-',
     (event: KeyboardEvent) => {
-      if (event.ctrlKey || event.metaKey) {
+      if (isEventToApply(event)) {
         handleZoomOut();
       }
     },
@@ -64,13 +72,13 @@ export const ZoomShortcuts: React.FC = function () {
       scopes: HOTKEY_SCOPE_WHITEBOARD,
       useKey: true,
     },
-    [handleZoomOut],
+    [handleZoomOut, isEventToApply],
   );
 
   useHotkeys(
-    isMacOS() ? 'meta+0' : 'ctrl+0',
+    ['0'],
     (event: KeyboardEvent) => {
-      if (event.ctrlKey || event.metaKey) {
+      if (isEventToApply(event)) {
         handleResetZoom();
       }
     },
@@ -79,7 +87,7 @@ export const ZoomShortcuts: React.FC = function () {
       scopes: HOTKEY_SCOPE_WHITEBOARD,
       useKey: true,
     },
-    [handleResetZoom],
+    [handleResetZoom, isEventToApply],
   );
 
   return null;
