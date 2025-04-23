@@ -30,7 +30,7 @@ import React, {
   useRef,
 } from 'react';
 import { useHotkeysContext } from 'react-hotkeys-hook';
-import { Point } from '../../../state';
+import { Point, usePresentationMode } from '../../../state';
 import { HOTKEY_SCOPE_WHITEBOARD } from '../../WhiteboardHotkeysProvider';
 import {
   gridCellSize,
@@ -82,10 +82,13 @@ export const SvgCanvas = forwardRef(function SvgCanvas(
   const svgRef = useRef<SVGSVGElement>(null);
   const { scale, translation, setContainerDimensions, updateTranslation } =
     useSvgScaleContext();
+  const { state } = usePresentationMode();
+  const isPresenting = state.type === 'presenting';
   // Do avoid issues where users are interacting the content editable part
   // of the whiteboard canvas, we should disable our listeners.
   const { activeScopes } = useHotkeysContext();
-  const enableShortcuts = activeScopes.includes(HOTKEY_SCOPE_WHITEBOARD);
+  const enableShortcuts =
+    activeScopes.includes(HOTKEY_SCOPE_WHITEBOARD) && !isPresenting;
   const pressedKeys = useRef<Set<string>>(new Set());
 
   // by that svgRef can be used here, while also forwarding the ref

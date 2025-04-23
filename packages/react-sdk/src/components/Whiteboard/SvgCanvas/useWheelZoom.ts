@@ -38,7 +38,7 @@ export const useWheelZoom = (
         return;
       }
 
-      if (event.ctrlKey) {
+      if (event.ctrlKey || event.metaKey) {
         if (event.deltaY === 0) {
           return;
         }

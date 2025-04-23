@@ -33,7 +33,7 @@ export const PresentationShortcuts: React.FC = function () {
         return;
       }
 
-      if (['ArrowRight', 'space'].includes(event.key)) {
+      if (['ArrowRight', ' '].includes(event.key)) {
         const slideIds = whiteboardInstance.getSlideIds();
         const activeSlideIndex = slideIds.indexOf(activeSlideId);
 
