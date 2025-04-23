@@ -28,7 +28,7 @@ import {
   infiniteCanvasMode,
   whiteboardHeight,
   whiteboardWidth,
-} from '../Whiteboard/constants';
+} from '../Whiteboard';
 
 /**
  * Initializes the PDF.js library by dynamically importing the PDF.js worker script.
