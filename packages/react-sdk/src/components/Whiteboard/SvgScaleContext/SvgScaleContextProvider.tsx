@@ -15,7 +15,12 @@
  */
 
 import { clamp, isEqual } from 'lodash';
-import { PropsWithChildren, useCallback, useMemo, useState } from 'react';
+import React, {
+  PropsWithChildren,
+  useCallback,
+  useMemo,
+  useState,
+} from 'react';
 import { Point } from '../../../state';
 import {
   infiniteCanvasMode,
@@ -28,14 +33,15 @@ import {
   ContainerDimensions,
   SvgScaleContext,
   SvgScaleContextType,
+  Translation,
 } from './context';
 
 type SvgScaleContextValues = Pick<SvgScaleContextType, 'scale' | 'translation'>;
 
-const fitFunc = (
+function fitFunc(
   state: SvgScaleContextValues,
   containerDimensions: ContainerDimensions,
-): SvgScaleContextValues => {
+): SvgScaleContextValues {
   if (!infiniteCanvasMode) {
     // Fit canvas into container
 
@@ -48,7 +54,6 @@ const fitFunc = (
       const scale = containerDimensions.height / whiteboardHeight;
 
       return {
-        ...state,
         scale,
         translation: {
           x: containerDimensions.width / 2,
@@ -59,7 +64,6 @@ const fitFunc = (
 
     // Fit width
     return {
-      ...state,
       scale: containerDimensions.width / whiteboardWidth,
       translation: {
         x: containerDimensions.width / 2,
@@ -80,19 +84,18 @@ const fitFunc = (
     containerDimensions.height - (whiteboardHeight / 2) * fittedScale;
 
   return {
-    ...state,
     scale: fittedScale,
     translation: {
       x: clamp(state.translation.x, clampXEnd, clampXStart),
       y: clamp(state.translation.y, clampYEnd, clampYStart),
     },
   };
-};
+}
 
 export const SvgScaleContextProvider: React.FC<PropsWithChildren> = ({
   children,
 }) => {
-  const [stateValues, setStateValues] = useState({
+  const [stateValues, setStateValues] = useState<SvgScaleContextValues>({
     scale: 1,
     translation: {
       x: 0,
@@ -106,41 +109,46 @@ export const SvgScaleContextProvider: React.FC<PropsWithChildren> = ({
 
   const setScale = useCallback(
     (newScale: number, origin?: Point) => {
-      // Limit zoom levels
-      if (newScale > zoomMax) {
-        newScale = zoomMax;
-      } else if (newScale <= zoomMin) {
-        newScale = zoomMin;
-      }
+      setStateValues((old) => {
+        // Limit zoom levels
+        if (newScale > zoomMax) {
+          newScale = zoomMax;
+        } else if (newScale <= zoomMin) {
+          newScale = zoomMin;
+        }
 
-      const newState = {
-        ...stateValues,
-        scale: newScale,
-      };
+        let newTranslation: Translation | undefined;
+        if (origin !== undefined) {
+          // Origin needs to be translated to the canvas origin, which is center
+          const translatedOriginX = origin.x - whiteboardWidth / 2;
+          const translatedOriginY = origin.y - whiteboardHeight / 2;
 
-      if (origin !== undefined) {
-        // Origin needs to be translated to the canvas origin, which is centre
-        const translatedOriginX = origin.x - whiteboardWidth / 2;
-        const translatedOriginY = origin.y - whiteboardHeight / 2;
+          // Calculate offset to keep the origin at the same point on the viewport after scale
+          const scaleChange = newScale - old.scale;
+          const offsetX = -(translatedOriginX * scaleChange);
+          const offsetY = -(translatedOriginY * scaleChange);
 
-        // Calculate offset to keep the origin at the same point on the viewport after scale
-        const scaleChange = newScale - stateValues.scale;
-        const offsetX = -(translatedOriginX * scaleChange);
-        const offsetY = -(translatedOriginY * scaleChange);
+          newTranslation = {
+            x: old.translation.x + offsetX,
+            y: old.translation.y + offsetY,
+          };
+        }
 
-        newState.translation = {
-          x: stateValues.translation.x + offsetX,
-          y: stateValues.translation.y + offsetY,
+        const newState: SvgScaleContextValues = {
+          scale: newScale,
+          translation: newTranslation ?? old.translation,
         };
-      }
 
-      const fittedState = fitFunc(newState, containerDimensions);
+        const fittedNewState = fitFunc(newState, containerDimensions);
 
-      if (!isEqual(fittedState, stateValues)) {
-        setStateValues(fittedState);
-      }
+        if (!isEqual(fittedNewState, old)) {
+          return fittedNewState;
+        }
+
+        return old;
+      });
     },
-    [containerDimensions, stateValues],
+    [containerDimensions],
   );
 
   const updateScale = useCallback(
@@ -170,21 +178,25 @@ export const SvgScaleContextProvider: React.FC<PropsWithChildren> = ({
 
   const updateTranslation = useCallback(
     (changeX: number, changeY: number) => {
-      const newState = {
-        ...stateValues,
-        translation: {
-          x: stateValues.translation.x + changeX,
-          y: stateValues.translation.y + changeY,
-        },
-      };
+      setStateValues((old) => {
+        const newState = {
+          scale: old.scale,
+          translation: {
+            x: old.translation.x + changeX,
+            y: old.translation.y + changeY,
+          },
+        };
 
-      const fittedState = fitFunc(newState, containerDimensions);
+        const fittedNewState = fitFunc(newState, containerDimensions);
 
-      if (!isEqual(fittedState, stateValues)) {
-        setStateValues(fittedState);
-      }
+        if (!isEqual(fittedNewState, old)) {
+          return fittedNewState;
+        }
+
+        return old;
+      });
     },
-    [containerDimensions, stateValues],
+    [containerDimensions],
   );
 
   const transformPointSvgToContainer = useCallback(
@@ -201,8 +213,7 @@ export const SvgScaleContextProvider: React.FC<PropsWithChildren> = ({
         whiteboardWidth / 2,
         whiteboardHeight / 2,
       );
-      const elementOnDiv = matrix.transformPoint(point);
-      return elementOnDiv;
+      return matrix.transformPoint(point);
     },
     [stateValues.scale, stateValues.translation.x, stateValues.translation.y],
   );
