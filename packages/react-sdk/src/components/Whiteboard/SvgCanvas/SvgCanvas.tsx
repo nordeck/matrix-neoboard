@@ -29,7 +29,9 @@ import React, {
   useMemo,
   useRef,
 } from 'react';
+import { useHotkeysContext } from 'react-hotkeys-hook';
 import { Point } from '../../../state';
+import { HOTKEY_SCOPE_WHITEBOARD } from '../../WhiteboardHotkeysProvider';
 import {
   gridCellSize,
   infiniteCanvasMode,
@@ -80,6 +82,10 @@ export const SvgCanvas = forwardRef(function SvgCanvas(
   const svgRef = useRef<SVGSVGElement>(null);
   const { scale, translation, setContainerDimensions, updateTranslation } =
     useSvgScaleContext();
+  // Do avoid issues where users are interacting the content editable part
+  // of the whiteboard canvas, we should disable our listeners.
+  const { activeScopes } = useHotkeysContext();
+  const enableShortcuts = activeScopes.includes(HOTKEY_SCOPE_WHITEBOARD);
   const pressedKeys = useRef<Set<string>>(new Set());
 
   // by that svgRef can be used here, while also forwarding the ref
@@ -141,7 +147,7 @@ export const SvgCanvas = forwardRef(function SvgCanvas(
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent<SVGSVGElement>) => {
-      if (isArrowKey(e.key)) {
+      if (enableShortcuts && isArrowKey(e.key)) {
         if (!pressedKeys.current.has(e.key)) {
           pressedKeys.current.add(e.key);
         }
@@ -149,18 +155,18 @@ export const SvgCanvas = forwardRef(function SvgCanvas(
         applyKeyboardNavigation();
       }
     },
-    [applyKeyboardNavigation],
+    [applyKeyboardNavigation, enableShortcuts],
   );
 
   const handleKeyUp = useCallback(
     (e: KeyboardEvent<SVGSVGElement>) => {
-      if (isArrowKey(e.key)) {
+      if (enableShortcuts && isArrowKey(e.key)) {
         pressedKeys.current.delete(e.key);
         e.preventDefault();
         applyKeyboardNavigation();
       }
     },
-    [applyKeyboardNavigation],
+    [applyKeyboardNavigation, enableShortcuts],
   );
 
   const handleMouseMove: MouseEventHandler<SVGSVGElement> = useCallback(
