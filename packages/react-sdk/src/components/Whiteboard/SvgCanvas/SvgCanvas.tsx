@@ -53,11 +53,13 @@ export type SvgCanvasProps = PropsWithChildren<{
   viewportHeight: number;
   rounded?: boolean;
   additionalChildren?: ReactNode;
+  topLevelChildren?: ReactNode;
   withOutline?: boolean;
   preview?: boolean;
 
   onMouseDown?: MouseEventHandler<SVGSVGElement> | undefined;
   onMouseMove?: (position: Point) => void | undefined;
+  onMouseLeave?: MouseEventHandler<SVGSVGElement>;
   onWheel?: WheelEventHandler;
 }>;
 
@@ -68,9 +70,11 @@ export const SvgCanvas = forwardRef(function SvgCanvas(
     children,
     rounded,
     additionalChildren,
+    topLevelChildren,
     withOutline,
     onMouseDown,
     onMouseMove,
+    onMouseLeave,
     preview,
     onWheel,
   }: SvgCanvasProps,
@@ -129,15 +133,15 @@ export const SvgCanvas = forwardRef(function SvgCanvas(
     : FiniteCanvasWrapper;
 
   return (
-    <CanvasWrapper
-      aspectRatio={aspectRatio}
-      sizeRef={sizeRef}
-      withOutline={withOutline}
-      width={width}
-      height={height}
-      preview={preview}
-    >
-      <SvgCanvasContext.Provider value={value}>
+    <SvgCanvasContext.Provider value={value}>
+      <CanvasWrapper
+        aspectRatio={aspectRatio}
+        sizeRef={sizeRef}
+        withOutline={withOutline}
+        width={width}
+        height={height}
+        preview={preview}
+      >
         <Canvas
           ref={svgRef}
           rounded={rounded}
@@ -167,6 +171,7 @@ export const SvgCanvas = forwardRef(function SvgCanvas(
           viewBox={`0 0 ${viewportWidth} ${viewportHeight}`}
           onMouseDown={onMouseDown}
           onMouseMove={handleMouseMove}
+          onMouseLeave={onMouseLeave}
           onWheel={onWheel}
           transform-origin={infiniteCanvasMode ? 'center center' : undefined}
           transform={
@@ -180,8 +185,9 @@ export const SvgCanvas = forwardRef(function SvgCanvas(
           {children}
         </Canvas>
         {additionalChildren}
-      </SvgCanvasContext.Provider>
-    </CanvasWrapper>
+      </CanvasWrapper>
+      {topLevelChildren}
+    </SvgCanvasContext.Provider>
   );
 });
 

@@ -16,8 +16,8 @@
 
 export {
   calculateBoundingRectForElements,
-  calculateCentredPosition,
   calculateFittedElementSize,
+  clampElementPosition,
   includesShapeWithText,
   includesTextShape,
   isShapeElementPair,

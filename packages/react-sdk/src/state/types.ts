@@ -208,6 +208,10 @@ export type WhiteboardSlideInstance = {
   getElementIds(): string[];
   /** Observe the element ids to react to changes */
   observeElementIds(): Observable<string[]>;
+  /** Set cursor position */
+  setCursorPosition(position: Point | undefined): void;
+  /** Get cursor position */
+  getCursorPosition(): Point | undefined;
   /** Returns the cursors for each connected user. */
   observeCursorPositions(): Observable<Record<string, Point>>;
   /** Broadcast the position of the own user in to all other connected users. */

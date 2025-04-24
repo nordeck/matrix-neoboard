@@ -16,7 +16,7 @@
 
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { fireEvent, render } from '@testing-library/react';
-import { ComponentType, PropsWithChildren } from 'react';
+import { ComponentType, PropsWithChildren, useEffect } from 'react';
 import {
   Mocked,
   afterEach,
@@ -30,17 +30,20 @@ import {
   WhiteboardTestingContextProvider,
   mockEllipseElement,
   mockLineElement,
+  mockRectangleElement,
   mockWhiteboardManager,
 } from '../../../lib/testUtils/documentTestUtils';
 import { WhiteboardInstance, WhiteboardManager } from '../../../state';
 import { ImageUploadProvider } from '../../ImageUpload';
 import { SnackbarProvider } from '../../Snackbar';
+import { useSvgScaleContext } from '../../Whiteboard';
 import {
   HOTKEY_SCOPE_WHITEBOARD,
   WhiteboardHotkeysProvider,
   usePauseHotkeysScope,
 } from '../../WhiteboardHotkeysProvider';
 import { ClipboardShortcuts } from './ClipboardShortcuts';
+import { serializeToClipboard } from './serialization';
 
 let widgetApi: MockedWidgetApi;
 
@@ -76,6 +79,17 @@ describe('<CopyAndPasteShortcuts>', () => {
     // Copy/cut should copy in the order of the elements on the board instead.
     activeSlide.setActiveElementIds(['element-2', 'element-1']);
 
+    function SvgCanvasMock() {
+      const { setContainerDimensions } = useSvgScaleContext();
+
+      // set container dimensions as SvgCanvas does to have scale, translation applied
+      useEffect(() => {
+        setContainerDimensions({ width: 960, height: 540 });
+      }, [setContainerDimensions]);
+
+      return null;
+    }
+
     Wrapper = ({ children }) => (
       <WhiteboardHotkeysProvider>
         <WhiteboardTestingContextProvider
@@ -83,7 +97,10 @@ describe('<CopyAndPasteShortcuts>', () => {
           widgetApi={widgetApi}
         >
           <SnackbarProvider>
-            <ImageUploadProvider>{children}</ImageUploadProvider>
+            <ImageUploadProvider>
+              <SvgCanvasMock />
+              {children}
+            </ImageUploadProvider>
           </SnackbarProvider>
         </WhiteboardTestingContextProvider>
       </WhiteboardHotkeysProvider>
@@ -204,7 +221,7 @@ describe('<CopyAndPasteShortcuts>', () => {
     expect(clipboardData.setData).not.toHaveBeenCalled();
   });
 
-  it('should paste content', () => {
+  it('should paste content to viewport center', () => {
     const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
 
     render(<ClipboardShortcuts />, { wrapper: Wrapper });
@@ -225,6 +242,94 @@ describe('<CopyAndPasteShortcuts>', () => {
       position: {
         x: 660,
         y: 390,
+      },
+      text: 'Bye Bye',
+      type: 'shape',
+      width: 600,
+    });
+  });
+
+  it('should paste element to viewport center', () => {
+    const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
+
+    render(<ClipboardShortcuts />, { wrapper: Wrapper });
+
+    fireClipboardEvent(
+      'paste',
+      serializeToClipboard({
+        elements: [mockRectangleElement({ width: 600, height: 300 })],
+      }),
+    );
+
+    const activeElementId = activeSlide.getActiveElementId();
+    expect(activeElementId).not.toBe('element-1');
+    const activeElement = activeSlide.getElement(activeElementId!);
+    expect(activeElement).toEqual({
+      fillColor: '#ffffff',
+      textFontFamily: 'Inter',
+      height: 300,
+      kind: 'rectangle',
+      position: {
+        x: 660,
+        y: 390,
+      },
+      text: '',
+      type: 'shape',
+      width: 600,
+    });
+  });
+
+  it('should paste content to cursor position', () => {
+    const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
+    activeSlide.setCursorPosition({ x: 400, y: 200 });
+
+    render(<ClipboardShortcuts />, { wrapper: Wrapper });
+
+    fireClipboardEvent('paste', {
+      'text/plain': 'Bye Bye',
+      'text/html': '<span>Invalid HTML</span>',
+    });
+
+    const activeElementId = activeSlide.getActiveElementId();
+    expect(activeElementId).not.toBe('element-1');
+    const activeElement = activeSlide.getElement(activeElementId!);
+    expect(activeElement).toEqual({
+      fillColor: 'transparent',
+      textFontFamily: 'Inter',
+      height: 300,
+      kind: 'rectangle',
+      position: {
+        x: 100,
+        y: 50,
+      },
+      text: 'Bye Bye',
+      type: 'shape',
+      width: 600,
+    });
+  });
+
+  it('should paste content to cursor position and keep within canvas', () => {
+    const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
+    activeSlide.setCursorPosition({ x: 100, y: 50 });
+
+    render(<ClipboardShortcuts />, { wrapper: Wrapper });
+
+    fireClipboardEvent('paste', {
+      'text/plain': 'Bye Bye',
+      'text/html': '<span>Invalid HTML</span>',
+    });
+
+    const activeElementId = activeSlide.getActiveElementId();
+    expect(activeElementId).not.toBe('element-1');
+    const activeElement = activeSlide.getElement(activeElementId!);
+    expect(activeElement).toEqual({
+      fillColor: 'transparent',
+      textFontFamily: 'Inter',
+      height: 300,
+      kind: 'rectangle',
+      position: {
+        x: 0,
+        y: 0,
       },
       text: 'Bye Bye',
       type: 'shape',

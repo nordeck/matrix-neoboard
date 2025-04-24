@@ -17,6 +17,7 @@
 import { Box, styled } from '@mui/material';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSvgCanvasContext } from '../Whiteboard/SvgCanvas';
 import { useSlideImageUpload } from './useSlideImageUpload';
 
 type SlideImageUploadOverlayProps = {
@@ -26,8 +27,10 @@ type SlideImageUploadOverlayProps = {
 export const SlideImageUploadOverlay: React.FC<SlideImageUploadOverlayProps> =
   function ({ onDragLeave }) {
     const { t } = useTranslation('neoboard');
+    const { calculateSvgCoords } = useSvgCanvasContext();
     const { getRootProps, getInputProps } = useSlideImageUpload({
       noClick: true,
+      calculateSvgCoords,
     });
 
     return (
