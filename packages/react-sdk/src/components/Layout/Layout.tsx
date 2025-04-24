@@ -75,6 +75,7 @@ export function Layout({ height = '100vh' }: LayoutProps) {
   const slideIds = useActiveWhiteboardInstanceSlideIds();
   const { state: presentationState } = usePresentationMode();
   const isViewingPresentation = presentationState.type === 'presentation';
+  const contentAreaRef = useRef<HTMLDivElement>(null);
 
   const handleClose = useCallback(() => {
     setDeveloperToolsVisible(false);
@@ -108,13 +109,19 @@ export function Layout({ height = '100vh' }: LayoutProps) {
               <SlideOverviewBar />
             </AnimatedSidebar>
 
-            <Box component="main" flex={1} display="flex" position="relative">
+            <Box
+              ref={contentAreaRef}
+              component="main"
+              flex={1}
+              display="flex"
+              position="relative"
+            >
               {slideIds.map((slideId) => (
                 <TabPanelStyled value={slideId} key={slideId}>
                   <SlideProvider slideId={slideId}>
                     <ElementOverridesProvider>
                       <ConnectionPointProvider>
-                        <ContentArea />
+                        <ContentArea contentAreaRef={contentAreaRef} />
                       </ConnectionPointProvider>
                     </ElementOverridesProvider>
                   </SlideProvider>
@@ -150,61 +157,62 @@ function AnimatedSidebar({
   );
 }
 
-function ContentArea() {
+function ContentArea({
+  contentAreaRef,
+}: {
+  contentAreaRef: React.RefObject<HTMLDivElement>;
+}) {
   const { state: presentationState } = usePresentationMode();
   const isViewingPresentation = presentationState.type === 'presentation';
   const isViewingPresentationInEditMode =
     isViewingPresentation && presentationState.isEditMode;
   const { canStopPresentation } = usePowerLevels();
   const [sizeRef, { width: toolbarWidth }] = useMeasure<HTMLDivElement>();
-  const contentAreaRef = useRef<HTMLDivElement>(null);
 
   return (
-    <div ref={contentAreaRef}>
-      <SvgScaleContextProvider>
-        <Shortcuts />
+    <SvgScaleContextProvider>
+      <Shortcuts />
 
+      <ToolbarContainer
+        alignItems="flex-start"
+        justifyContent="end"
+        top={(theme) => theme.spacing(1)}
+      >
+        {!isViewingPresentation && <BoardBar />}
+        <CollaborationBar />
         <ToolbarContainer
-          alignItems="flex-start"
-          justifyContent="end"
-          top={(theme) => theme.spacing(1)}
+          direction="column"
+          gap={(theme) => theme.spacing(1)}
+          position="relative"
+          left={0}
+          right={0}
         >
-          {!isViewingPresentation && <BoardBar />}
-          <CollaborationBar />
-          <ToolbarContainer
-            direction="column"
-            gap={(theme) => theme.spacing(1)}
-            position="relative"
-            left={0}
-            right={0}
-          >
-            <FullscreenModeBar />
-            {(!isViewingPresentation || canStopPresentation) && <PresentBar />}
-          </ToolbarContainer>
+          <FullscreenModeBar />
+          {(!isViewingPresentation || canStopPresentation) && <PresentBar />}
         </ToolbarContainer>
+      </ToolbarContainer>
 
-        <WhiteboardHost contentAreaRef={contentAreaRef} />
+      <WhiteboardHost contentAreaRef={contentAreaRef} />
 
-        {(!isViewingPresentation || isViewingPresentationInEditMode) && (
-          <ToolbarCanvasContainer ref={sizeRef}>
-            <ToolbarContainer
-              bottom={(theme) => theme.spacing(1)}
-              {...(infiniteCanvasMode ? { position: 'fixed' } : undefined)}
-            >
-              {infiniteCanvasMode && <ZoomBar />}
+      {(!isViewingPresentation || isViewingPresentationInEditMode) && (
+        <ToolbarCanvasContainer ref={sizeRef}>
+          <ToolbarContainer
+            bottom={(theme) => theme.spacing(1)}
+            {...(infiniteCanvasMode ? { position: 'fixed' } : undefined)}
+          >
+            {infiniteCanvasMode && <ZoomBar />}
 
-              <Box flex="1" />
+            <Box flex="1" />
 
-              <ToolsBar />
-              {toolbarWidth > 515 && <UndoRedoBar />}
+            <ToolsBar />
+            {toolbarWidth > 515 && <UndoRedoBar />}
 
-              <Box display="flex" justifyContent="flex-end" flex="1">
-                {toolbarWidth > 600 && <HelpCenterBar />}
-              </Box>
-            </ToolbarContainer>
-          </ToolbarCanvasContainer>
-        )}
-      </SvgScaleContextProvider>
-    </div>
+            <Box display="flex" justifyContent="flex-end" flex="1">
+              {toolbarWidth > 600 && <HelpCenterBar />}
+            </Box>
+          </ToolbarContainer>
+        </ToolbarCanvasContainer>
+      )}
+    </SvgScaleContextProvider>
   );
 }

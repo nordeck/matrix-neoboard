@@ -90,7 +90,7 @@ export const useWheelZoom = (
           svgRef.current,
         );
 
-        const wheelZoomStep = (zoomStep * scale) / 2;
+        const wheelZoomStep = zoomStep * scale;
 
         updateScale(
           event.deltaY < 0 ? wheelZoomStep : -wheelZoomStep,
