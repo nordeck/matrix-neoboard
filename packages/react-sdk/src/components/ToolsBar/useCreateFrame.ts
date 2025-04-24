@@ -20,14 +20,14 @@ import { filterRecord } from '../../lib';
 import { FrameElement, useWhiteboardSlideInstance } from '../../state';
 import {
   calculateIntersect,
+  frameHeight,
+  frameWidth,
   gridCellSize,
   whiteboardHeight,
   whiteboardWidth,
 } from '../Whiteboard';
 import { useSvgScaleContext } from '../Whiteboard/SvgScaleContext';
 
-const frameWidth = 1920;
-const frameHeight = 1080;
 const frameGap = gridCellSize;
 
 type UseCreateFrameResult = {

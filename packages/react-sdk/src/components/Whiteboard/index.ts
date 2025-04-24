@@ -15,7 +15,10 @@
  */
 
 export {
+  frameHeight,
+  frameWidth,
   gridCellSize,
+  infiniteCanvasMode,
   matrixRtcMode,
   whiteboardHeight,
   whiteboardWidth,
