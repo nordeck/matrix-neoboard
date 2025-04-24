@@ -16,28 +16,15 @@
 
 import React, { useCallback, useMemo } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
-import { useSvgScaleContext } from '../../Whiteboard/SvgScaleContext';
-import { zoomStep } from '../../Whiteboard/constants';
+import { useZoomControls } from '../../../lib';
 import { isMacOS } from '../../common/platform';
 
 export const ZoomShortcuts: React.FC = function () {
-  const { updateScale, setScale } = useSvgScaleContext();
-
-  const handleResetZoom = useCallback(() => {
-    setScale(1.0);
-  }, [setScale]);
-
-  const handleZoomIn = useCallback(() => {
-    updateScale(zoomStep);
-  }, [updateScale]);
-
-  const handleZoomOut = useCallback(() => {
-    updateScale(-zoomStep);
-  }, [updateScale]);
+  const { resetZoom, zoomIn, zoomOut } = useZoomControls();
 
   const macOs = useMemo(() => isMacOS(), []);
 
-  const isEventToApply = useCallback(
+  const hasKeyModifier = useCallback(
     (event: KeyboardEvent) =>
       (macOs && event.metaKey) || (!macOs && event.ctrlKey),
     [macOs],
@@ -46,8 +33,8 @@ export const ZoomShortcuts: React.FC = function () {
   useHotkeys(
     ['+', '='],
     (event: KeyboardEvent) => {
-      if (isEventToApply(event)) {
-        handleZoomIn();
+      if (hasKeyModifier(event)) {
+        zoomIn();
       }
     },
     {
@@ -56,14 +43,14 @@ export const ZoomShortcuts: React.FC = function () {
       useKey: true,
       splitKey: '_', // needed, otherwise '+' is not applied
     },
-    [handleZoomIn, isEventToApply],
+    [zoomIn, hasKeyModifier],
   );
 
   useHotkeys(
     '-',
     (event: KeyboardEvent) => {
-      if (isEventToApply(event)) {
-        handleZoomOut();
+      if (hasKeyModifier(event)) {
+        zoomOut();
       }
     },
     {
@@ -71,14 +58,14 @@ export const ZoomShortcuts: React.FC = function () {
       enableOnContentEditable: true,
       useKey: true,
     },
-    [handleZoomOut, isEventToApply],
+    [zoomOut, hasKeyModifier],
   );
 
   useHotkeys(
     ['0'],
     (event: KeyboardEvent) => {
-      if (isEventToApply(event)) {
-        handleResetZoom();
+      if (hasKeyModifier(event)) {
+        resetZoom();
       }
     },
     {
@@ -86,7 +73,7 @@ export const ZoomShortcuts: React.FC = function () {
       enableOnContentEditable: true,
       useKey: true,
     },
-    [handleResetZoom, isEventToApply],
+    [resetZoom, hasKeyModifier],
   );
 
   return null;

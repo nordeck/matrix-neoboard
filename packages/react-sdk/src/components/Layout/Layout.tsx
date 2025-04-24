@@ -16,7 +16,7 @@
 
 import { TabPanel } from '@mui/base';
 import { Box, Collapse, Slide, Stack, styled } from '@mui/material';
-import { ReactElement, useCallback } from 'react';
+import { ReactElement, useCallback, useRef } from 'react';
 import { useMeasure } from '../../lib';
 import {
   SlideProvider,
@@ -168,51 +168,54 @@ function ContentArea() {
     isViewingPresentation && presentationState.isEditMode;
   const { canStopPresentation } = usePowerLevels();
   const [sizeRef, { width: toolbarWidth }] = useMeasure<HTMLDivElement>();
+  const contentAreaRef = useRef<HTMLDivElement>(null);
 
   return (
-    <SvgScaleContextProvider>
-      <Shortcuts />
+    <div ref={contentAreaRef}>
+      <SvgScaleContextProvider>
+        <Shortcuts />
 
-      <ToolbarContainer
-        alignItems="flex-start"
-        justifyContent="end"
-        top={(theme) => theme.spacing(1)}
-      >
-        {!isViewingPresentation && <BoardBar />}
-        <CollaborationBar />
         <ToolbarContainer
-          direction="column"
-          gap={(theme) => theme.spacing(1)}
-          position="relative"
-          left={0}
-          right={0}
+          alignItems="flex-start"
+          justifyContent="end"
+          top={(theme) => theme.spacing(1)}
         >
-          <FullscreenModeBar />
-          {(!isViewingPresentation || canStopPresentation) && <PresentBar />}
-        </ToolbarContainer>
-      </ToolbarContainer>
-
-      <WhiteboardHost />
-
-      {(!isViewingPresentation || isViewingPresentationInEditMode) && (
-        <ToolbarCanvasContainer ref={sizeRef}>
+          {!isViewingPresentation && <BoardBar />}
+          <CollaborationBar />
           <ToolbarContainer
-            bottom={(theme) => theme.spacing(1)}
-            {...(infiniteCanvasMode ? { position: 'fixed' } : undefined)}
+            direction="column"
+            gap={(theme) => theme.spacing(1)}
+            position="relative"
+            left={0}
+            right={0}
           >
-            {infiniteCanvasMode && <ZoomBar />}
-
-            <Box flex="1" />
-
-            <ToolsBar />
-            {toolbarWidth > 515 && <UndoRedoBar />}
-
-            <Box display="flex" justifyContent="flex-end" flex="1">
-              {toolbarWidth > 600 && <HelpCenterBar />}
-            </Box>
+            <FullscreenModeBar />
+            {(!isViewingPresentation || canStopPresentation) && <PresentBar />}
           </ToolbarContainer>
-        </ToolbarCanvasContainer>
-      )}
-    </SvgScaleContextProvider>
+        </ToolbarContainer>
+
+        <WhiteboardHost contentAreaRef={contentAreaRef} />
+
+        {(!isViewingPresentation || isViewingPresentationInEditMode) && (
+          <ToolbarCanvasContainer ref={sizeRef}>
+            <ToolbarContainer
+              bottom={(theme) => theme.spacing(1)}
+              {...(infiniteCanvasMode ? { position: 'fixed' } : undefined)}
+            >
+              {infiniteCanvasMode && <ZoomBar />}
+
+              <Box flex="1" />
+
+              <ToolsBar />
+              {toolbarWidth > 515 && <UndoRedoBar />}
+
+              <Box display="flex" justifyContent="flex-end" flex="1">
+                {toolbarWidth > 600 && <HelpCenterBar />}
+              </Box>
+            </ToolbarContainer>
+          </ToolbarCanvasContainer>
+        )}
+      </SvgScaleContextProvider>
+    </div>
   );
 }

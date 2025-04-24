@@ -15,7 +15,7 @@
  */
 
 import { Box } from '@mui/material';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { RefObject, useCallback, useEffect, useRef, useState } from 'react';
 import {
   includesShapeWithText,
   includesTextShape,
@@ -53,12 +53,14 @@ import { SvgCanvas } from './SvgCanvas';
 import { useWheelZoom } from './SvgCanvas/useWheelZoom';
 
 const WhiteboardHost = ({
+  contentAreaRef,
   elementIds,
   readOnly = false,
   hideCursors = false,
   hideDotGrid = false,
   withOutline = false,
 }: {
+  contentAreaRef: RefObject<HTMLDivElement> | undefined;
   elementIds: string[];
   readOnly?: boolean;
   hideCursors?: boolean;
@@ -83,24 +85,24 @@ const WhiteboardHost = ({
   const { handleWheelZoom } = useWheelZoom(svgRef);
 
   useEffect(() => {
-    const element = svgRef.current;
+    const contentArea = contentAreaRef?.current;
 
-    if (element) {
+    if (contentArea) {
       const wheelHandler = (event: WheelEvent) => {
         handleWheelZoom(event as unknown as React.WheelEvent<SVGSVGElement>);
       };
 
       // We cannot use the onWheel prop to prevent the event handler from being passive.
       // In non-passive mode, we can prevent the browser's zooming behaviour.
-      element.addEventListener('wheel', wheelHandler, {
+      contentArea.addEventListener('wheel', wheelHandler, {
         passive: false,
       });
 
       return () => {
-        element.removeEventListener('wheel', wheelHandler);
+        contentArea.removeEventListener('wheel', wheelHandler);
       };
     }
-  }, [handleWheelZoom]);
+  }, [handleWheelZoom, contentAreaRef]);
 
   return (
     <Box
@@ -183,7 +185,11 @@ const WhiteboardHost = ({
   );
 };
 
-export const WhiteboardHostConnected = () => {
+export const WhiteboardHostConnected = ({
+  contentAreaRef,
+}: {
+  contentAreaRef?: RefObject<HTMLDivElement>;
+}) => {
   const { loading } = useIsWhiteboardLoading();
   const isLocked = useSlideIsLocked();
   const elementIds = useSlideElementIds();
@@ -199,6 +205,7 @@ export const WhiteboardHostConnected = () => {
 
   return (
     <WhiteboardHost
+      contentAreaRef={contentAreaRef}
       elementIds={elementIds}
       readOnly={isLocked || (isViewingPresentation && !isEditEnabled)}
       hideCursors={!isEditEnabled}
