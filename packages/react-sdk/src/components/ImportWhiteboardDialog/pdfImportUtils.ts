@@ -22,7 +22,13 @@ import {
 } from 'pdfjs-dist';
 import * as pdfJSWorker from 'pdfjs-dist/build/pdf.worker.mjs?url';
 import { RenderParameters } from 'pdfjs-dist/types/src/display/api';
-import { whiteboardHeight, whiteboardWidth } from '../Whiteboard/constants';
+import {
+  frameHeight,
+  frameWidth,
+  infiniteCanvasMode,
+  whiteboardHeight,
+  whiteboardWidth,
+} from '../Whiteboard';
 
 /**
  * Initializes the PDF.js library by dynamically importing the PDF.js worker script.
@@ -81,8 +87,8 @@ export async function loadPDF(file: ArrayBuffer): Promise<PDFDocumentProxy> {
  */
 export async function renderPDFToImages(
   pdf: PDFDocumentProxy,
-  desiredWidth: number = whiteboardWidth,
-  desiredHeight: number = whiteboardHeight,
+  desiredWidth: number = infiniteCanvasMode ? frameWidth : whiteboardWidth,
+  desiredHeight: number = infiniteCanvasMode ? frameHeight : whiteboardHeight,
 ): Promise<PDFImportResult[]> {
   const images = [];
   for (let i = 1; i <= pdf.numPages; i++) {

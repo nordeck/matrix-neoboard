@@ -32,7 +32,7 @@ import { TriangleIcon } from '../icons/TriangleIcon';
 import { UploadIcon } from '../icons/UploadIcon';
 import { useSlideImageUpload } from '../ImageUpload';
 import { ActiveTool, useLayoutState } from '../Layout';
-import { infiniteCanvasMode } from '../Whiteboard/constants';
+import { infiniteCanvasMode } from '../Whiteboard';
 import { FrameButton } from './FrameButton';
 
 export function ToolsBar() {

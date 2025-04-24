@@ -29,6 +29,7 @@ import {
 } from '../../state';
 import { ElementBar } from '../ElementBar';
 import { useElementOverrides } from '../ElementOverridesProvider';
+import { useSlideImageDropUpload } from '../ImageUpload';
 import { useLayoutState } from '../Layout';
 import {
   infiniteCanvasMode,
@@ -74,6 +75,9 @@ const WhiteboardHost = ({
   const { activeElementIds } = useActiveElements();
   const overrides = useElementOverrides(activeElementIds);
 
+  const { handleUploadDragEnter, uploadDragOverlay } =
+    useSlideImageDropUpload();
+
   const [textToolsEnabled, setTextToolsEnabled] = useState(false);
 
   const hasElementWithText =
@@ -114,6 +118,7 @@ const WhiteboardHost = ({
       alignContent="space-around"
       position="relative"
       data-guided-tour-target="canvas"
+      onDragEnter={handleUploadDragEnter}
       {...(infiniteCanvasMode
         ? {
             sx: {
@@ -137,14 +142,19 @@ const WhiteboardHost = ({
             </ElementBarWrapper>
           )
         }
+        topLevelChildren={uploadDragOverlay}
         rounded
         withOutline={withOutline}
         onMouseMove={useCallback(
           (position: Point) => {
+            slideInstance.setCursorPosition(position);
             slideInstance.publishCursorPosition(position);
           },
           [slideInstance],
         )}
+        onMouseLeave={useCallback(() => {
+          slideInstance.setCursorPosition(undefined);
+        }, [slideInstance])}
       >
         {!hideDotGrid && <DotGrid />}
         {!readOnly && <UnSelectElementHandler />}

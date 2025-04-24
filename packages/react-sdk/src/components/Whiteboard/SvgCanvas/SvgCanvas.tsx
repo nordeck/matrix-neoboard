@@ -57,11 +57,13 @@ export type SvgCanvasProps = PropsWithChildren<{
   viewportHeight: number;
   rounded?: boolean;
   additionalChildren?: ReactNode;
+  topLevelChildren?: ReactNode;
   withOutline?: boolean;
   preview?: boolean;
 
   onMouseDown?: MouseEventHandler<SVGSVGElement> | undefined;
   onMouseMove?: (position: Point) => void | undefined;
+  onMouseLeave?: MouseEventHandler<SVGSVGElement>;
 }>;
 
 export const SvgCanvas = forwardRef(function SvgCanvas(
@@ -71,9 +73,11 @@ export const SvgCanvas = forwardRef(function SvgCanvas(
     children,
     rounded,
     additionalChildren,
+    topLevelChildren,
     withOutline,
     onMouseDown,
     onMouseMove,
+    onMouseLeave,
     preview,
   }: SvgCanvasProps,
   forwardedRef,
@@ -192,15 +196,15 @@ export const SvgCanvas = forwardRef(function SvgCanvas(
     : FiniteCanvasWrapper;
 
   return (
-    <CanvasWrapper
-      aspectRatio={aspectRatio}
-      sizeRef={sizeRef}
-      withOutline={withOutline}
-      width={width}
-      height={height}
-      preview={preview}
-    >
-      <SvgCanvasContext.Provider value={value}>
+    <SvgCanvasContext.Provider value={value}>
+      <CanvasWrapper
+        aspectRatio={aspectRatio}
+        sizeRef={sizeRef}
+        withOutline={withOutline}
+        width={width}
+        height={height}
+        preview={preview}
+      >
         <Canvas
           ref={svgRef}
           rounded={rounded}
@@ -235,6 +239,7 @@ export const SvgCanvas = forwardRef(function SvgCanvas(
           onKeyDown={infiniteCanvasMode ? handleKeyDown : undefined}
           onKeyUp={infiniteCanvasMode ? handleKeyUp : undefined}
           tabIndex={infiniteCanvasMode ? -1 : undefined}
+          onMouseLeave={onMouseLeave}
           transform-origin={infiniteCanvasMode ? 'center center' : undefined}
           transform={
             infiniteCanvasMode
@@ -247,8 +252,9 @@ export const SvgCanvas = forwardRef(function SvgCanvas(
           {children}
         </Canvas>
         {additionalChildren}
-      </SvgCanvasContext.Provider>
-    </CanvasWrapper>
+      </CanvasWrapper>
+      {topLevelChildren}
+    </SvgCanvasContext.Provider>
   );
 });
 
