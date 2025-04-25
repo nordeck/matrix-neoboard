@@ -55,7 +55,7 @@ export function UnSelectElementHandler() {
           slideInstance.setActiveElementId(undefined);
           window.getSelection()?.empty();
         }
-      } else if (event.button > 0) {
+      } else if (event.button === 1 || event.button === 2) {
         // Middle or Right click
         event.preventDefault();
         event.stopPropagation();
@@ -95,7 +95,7 @@ export function UnSelectElementHandler() {
   );
 
   const handleMouseUp = useCallback((event: MouseEvent<SVGRectElement>) => {
-    if (event.button > 0) {
+    if (event.button === 1 || event.button === 2) {
       // Middle and Right click
       event.preventDefault();
       event.stopPropagation();
