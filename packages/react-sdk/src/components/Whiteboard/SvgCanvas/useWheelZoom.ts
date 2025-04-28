@@ -17,12 +17,13 @@
 import {
   RefObject,
   useCallback,
+  useEffect,
   useRef,
   useState,
   WheelEvent,
   WheelEventHandler,
 } from 'react';
-import { infiniteCanvasMode, zoomStep } from '../constants';
+import { zoomStep } from '../constants';
 import { useSvgScaleContext } from '../SvgScaleContext';
 import { calculateSvgCoords } from './utils';
 
@@ -31,17 +32,20 @@ type UseWheelZoomResult = {
   wheelZoomInProgress: boolean;
 };
 
+type Timeout = ReturnType<typeof setTimeout>;
+
 export const useWheelZoom = (
   svgRef: RefObject<SVGSVGElement>,
 ): UseWheelZoomResult => {
   const { scale, updateScale, updateTranslation } = useSvgScaleContext();
   const [wheelZoomInProgress, setWheelZoomInProgress] =
     useState<boolean>(false);
-  const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
+
+  const wheelZoomTimeoutRef = useRef<Timeout>();
 
   const lastTimeRef = useRef<number>(0);
   const interactionModeRef = useRef<'none' | 'zooming' | 'panning'>('none');
-  const interactionTimeoutRef = useRef<number | null>(null);
+  const interactionTimeoutRef = useRef<Timeout | null>(null);
 
   // Reset interaction mode after a period of inactivity
   const resetInteractionMode = useCallback(() => {
@@ -50,16 +54,16 @@ export const useWheelZoom = (
 
   const handleWheelZoom = useCallback(
     (event: WheelEvent) => {
-      if (!infiniteCanvasMode || !svgRef.current) {
+      if (!svgRef.current) {
         return;
       }
 
       setWheelZoomInProgress(true);
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-        timeoutRef.current = undefined;
+      if (wheelZoomTimeoutRef.current) {
+        clearTimeout(wheelZoomTimeoutRef.current);
+        wheelZoomTimeoutRef.current = undefined;
       }
-      timeoutRef.current = setTimeout(() => {
+      wheelZoomTimeoutRef.current = setTimeout(() => {
         setWheelZoomInProgress(false);
       }, 300);
 
@@ -68,12 +72,12 @@ export const useWheelZoom = (
 
       // Clear any existing timeout to reset interaction mode
       if (interactionTimeoutRef.current !== null) {
-        window.clearTimeout(interactionTimeoutRef.current);
+        clearTimeout(interactionTimeoutRef.current);
       }
 
-      // we need a faste timeout for touchpads, as interactions change faster between zooming and panning
+      // we need a fast timeout for touchpads, as interactions change faster between zooming and panning
       const isLikelyTouchpad = Math.abs(event.deltaY) < 4;
-      interactionTimeoutRef.current = window.setTimeout(
+      interactionTimeoutRef.current = setTimeout(
         resetInteractionMode,
         isLikelyTouchpad ? 50 : 200,
       );
@@ -124,10 +128,13 @@ export const useWheelZoom = (
   );
 
   // Clean up timeout on unmount
-  useCallback(() => {
+  useEffect(() => {
     return () => {
+      if (wheelZoomTimeoutRef.current) {
+        clearTimeout(wheelZoomTimeoutRef.current);
+      }
       if (interactionTimeoutRef.current !== null) {
-        window.clearTimeout(interactionTimeoutRef.current);
+        clearTimeout(interactionTimeoutRef.current);
       }
     };
   }, []);

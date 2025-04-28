@@ -96,7 +96,7 @@ export const SvgCanvas = function ({
   useEffect(() => {
     const element = svgRef.current;
 
-    if (element) {
+    if (infiniteCanvasMode && element) {
       const wheelHandler = (event: WheelEvent) => {
         handleWheelZoom(event as unknown as React.WheelEvent<SVGSVGElement>);
       };
