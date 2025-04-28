@@ -24,6 +24,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import { isInfiniteCanvasMode } from '../../../lib';
 import { ToolbarState, ToolbarStateContext } from './useToolbarItem';
 import {
   findParentRadioGroup,
@@ -57,7 +58,6 @@ export type ToolbarProps = PropsWithChildren<
 export function Toolbar({
   children,
   orientation = 'horizontal',
-  preventWheelEvents,
   ...props
 }: ToolbarProps) {
   const ref = useRef<HTMLDivElement>(null);
@@ -68,7 +68,7 @@ export function Toolbar({
   useEffect(() => {
     const element = ref.current;
 
-    if (preventWheelEvents && element) {
+    if (isInfiniteCanvasMode() && element) {
       const wheelHandler = (event: WheelEvent) => {
         event.preventDefault();
       };
@@ -77,7 +77,7 @@ export function Toolbar({
 
       return () => element.removeEventListener('wheel', wheelHandler);
     }
-  }, [preventWheelEvents]);
+  }, []);
 
   const context = useMemo<ToolbarState>(
     () => ({

@@ -17,7 +17,6 @@
 import { PropsWithChildren } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Toolbar } from '../common/Toolbar';
-import { infiniteCanvasMode } from '../Whiteboard';
 import { ElementColorPicker } from './ColorPickerButton/ElementColorPicker';
 import { TextColorPicker } from './ColorPickerButton/TextColorPicker';
 import { DeleteActiveElementButton } from './DeleteActiveElementButton/DeleteActiveElementButton';
@@ -35,7 +34,7 @@ export function ElementBar({
   const toolbarTitle = t('elementBar.title', 'Element');
 
   return (
-    <Toolbar aria-label={toolbarTitle} preventWheelEvents={infiniteCanvasMode}>
+    <Toolbar aria-label={toolbarTitle}>
       {showTextTools && (
         <>
           <FontFamilyButton />

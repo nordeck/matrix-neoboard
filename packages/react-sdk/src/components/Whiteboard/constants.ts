@@ -15,9 +15,9 @@
  */
 
 import { getEnvironment } from '@matrix-widget-toolkit/mui';
+import { isInfiniteCanvasMode } from '../../lib';
 
-export const infiniteCanvasMode =
-  getEnvironment('REACT_APP_INFINITE_CANVAS') === 'true';
+export const infiniteCanvasMode = isInfiniteCanvasMode();
 
 export const matrixRtcMode = getEnvironment('REACT_APP_RTC') === 'matrixrtc';
 
