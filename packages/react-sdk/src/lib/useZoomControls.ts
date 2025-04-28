@@ -15,8 +15,8 @@
  */
 
 import { useCallback } from 'react';
+import { useSvgScaleContext } from '../components/Whiteboard';
 import { zoomStep } from '../components/Whiteboard/constants';
-import { useSvgScaleContext } from '../components/Whiteboard/SvgScaleContext';
 
 /**
  * Hook that provides zoom control functionality
