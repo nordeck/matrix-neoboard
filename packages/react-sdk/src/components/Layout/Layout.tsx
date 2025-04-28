@@ -16,7 +16,7 @@
 
 import { TabPanel } from '@mui/base';
 import { Box, Collapse, Slide, Stack, styled } from '@mui/material';
-import { ReactElement, useCallback, useRef } from 'react';
+import { ReactElement, useCallback } from 'react';
 import { useMeasure } from '../../lib';
 import {
   SlideProvider,
@@ -75,7 +75,6 @@ export function Layout({ height = '100vh' }: LayoutProps) {
   const slideIds = useActiveWhiteboardInstanceSlideIds();
   const { state: presentationState } = usePresentationMode();
   const isViewingPresentation = presentationState.type === 'presentation';
-  const contentAreaRef = useRef<HTMLDivElement>(null);
 
   const handleClose = useCallback(() => {
     setDeveloperToolsVisible(false);
@@ -109,19 +108,13 @@ export function Layout({ height = '100vh' }: LayoutProps) {
               <SlideOverviewBar />
             </AnimatedSidebar>
 
-            <Box
-              ref={contentAreaRef}
-              component="main"
-              flex={1}
-              display="flex"
-              position="relative"
-            >
+            <Box component="main" flex={1} display="flex" position="relative">
               {slideIds.map((slideId) => (
                 <TabPanelStyled value={slideId} key={slideId}>
                   <SlideProvider slideId={slideId}>
                     <ElementOverridesProvider>
                       <ConnectionPointProvider>
-                        <ContentArea contentAreaRef={contentAreaRef} />
+                        <ContentArea />
                       </ConnectionPointProvider>
                     </ElementOverridesProvider>
                   </SlideProvider>
@@ -157,11 +150,7 @@ function AnimatedSidebar({
   );
 }
 
-function ContentArea({
-  contentAreaRef,
-}: {
-  contentAreaRef: React.RefObject<HTMLDivElement>;
-}) {
+function ContentArea() {
   const { state: presentationState } = usePresentationMode();
   const isViewingPresentation = presentationState.type === 'presentation';
   const isViewingPresentationInEditMode =
@@ -192,7 +181,7 @@ function ContentArea({
         </ToolbarContainer>
       </ToolbarContainer>
 
-      <WhiteboardHost contentAreaRef={contentAreaRef} />
+      <WhiteboardHost />
 
       {(!isViewingPresentation || isViewingPresentationInEditMode) && (
         <ToolbarCanvasContainer ref={sizeRef}>

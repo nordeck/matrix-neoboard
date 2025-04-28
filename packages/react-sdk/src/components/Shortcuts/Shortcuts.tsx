@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { infiniteCanvasMode } from '../Whiteboard/constants';
+import { infiniteCanvasMode } from '../Whiteboard';
 import { ClipboardShortcuts } from './ClipboardShortcuts';
 import { DeleteShortcut } from './DeleteShortcut';
 import { DuplicateShortcut } from './DuplicateShortcut';

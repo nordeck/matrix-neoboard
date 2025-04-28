@@ -15,7 +15,7 @@
  */
 
 import { Box } from '@mui/material';
-import { RefObject, useCallback, useState } from 'react';
+import { useCallback, useState } from 'react';
 import {
   includesShapeWithText,
   includesTextShape,
@@ -59,7 +59,6 @@ const WhiteboardHost = ({
   hideDotGrid = false,
   withOutline = false,
 }: {
-  contentAreaRef: RefObject<HTMLDivElement> | undefined;
   elementIds: string[];
   readOnly?: boolean;
   hideCursors?: boolean;
@@ -169,11 +168,7 @@ const WhiteboardHost = ({
   );
 };
 
-export const WhiteboardHostConnected = ({
-  contentAreaRef,
-}: {
-  contentAreaRef?: RefObject<HTMLDivElement>;
-}) => {
+export const WhiteboardHostConnected = () => {
   const { loading } = useIsWhiteboardLoading();
   const isLocked = useSlideIsLocked();
   const elementIds = useSlideElementIds();
@@ -189,7 +184,6 @@ export const WhiteboardHostConnected = ({
 
   return (
     <WhiteboardHost
-      contentAreaRef={contentAreaRef}
       elementIds={elementIds}
       readOnly={isLocked || (isViewingPresentation && !isEditEnabled)}
       hideCursors={!isEditEnabled}
