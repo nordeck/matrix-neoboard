@@ -16,7 +16,6 @@
 
 import { Box, styled } from '@mui/material';
 import React, {
-  forwardRef,
   KeyboardEvent,
   MouseEventHandler,
   PropsWithChildren,
@@ -24,7 +23,6 @@ import React, {
   Ref,
   useCallback,
   useEffect,
-  useImperativeHandle,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -41,6 +39,7 @@ import {
 import { useSvgScaleContext } from '../SvgScaleContext';
 import { SvgCanvasContext, SvgCanvasContextType } from './context';
 import { useMeasure } from './useMeasure';
+import { useWheelZoom } from './useWheelZoom';
 import { calculateSvgCoords } from './utils';
 
 const Canvas = styled('svg', {
@@ -66,22 +65,19 @@ export type SvgCanvasProps = PropsWithChildren<{
   onMouseLeave?: MouseEventHandler<SVGSVGElement>;
 }>;
 
-export const SvgCanvas = forwardRef(function SvgCanvas(
-  {
-    viewportHeight,
-    viewportWidth,
-    children,
-    rounded,
-    additionalChildren,
-    topLevelChildren,
-    withOutline,
-    onMouseDown,
-    onMouseMove,
-    onMouseLeave,
-    preview,
-  }: SvgCanvasProps,
-  forwardedRef,
-) {
+export const SvgCanvas = function ({
+  viewportHeight,
+  viewportWidth,
+  children,
+  rounded,
+  additionalChildren,
+  topLevelChildren,
+  withOutline,
+  onMouseDown,
+  onMouseMove,
+  onMouseLeave,
+  preview,
+}: SvgCanvasProps) {
   const [sizeRef, { width, height }] = useMeasure<HTMLDivElement>();
   const svgRef = useRef<SVGSVGElement>(null);
   const { scale, translation, setContainerDimensions, updateTranslation } =
@@ -95,8 +91,27 @@ export const SvgCanvas = forwardRef(function SvgCanvas(
     activeScopes.includes(HOTKEY_SCOPE_WHITEBOARD) && !isPresenting;
   const pressedKeys = useRef<Set<string>>(new Set());
 
-  // by that svgRef can be used here, while also forwarding the ref
-  useImperativeHandle(forwardedRef, () => svgRef.current);
+  const { handleWheelZoom, wheelZoomInProgress } = useWheelZoom(svgRef);
+
+  useEffect(() => {
+    const element = svgRef.current;
+
+    if (element) {
+      const wheelHandler = (event: WheelEvent) => {
+        handleWheelZoom(event as unknown as React.WheelEvent<SVGSVGElement>);
+      };
+
+      // We cannot use the onWheel prop to prevent the event handler from being passive.
+      // In non-passive mode, we can prevent the browser's zooming behaviour.
+      element.addEventListener('wheel', wheelHandler, {
+        passive: false,
+      });
+
+      return () => {
+        element.removeEventListener('wheel', wheelHandler);
+      };
+    }
+  }, [handleWheelZoom]);
 
   const calculateSvgCoordsFunc = useCallback(
     (position: Point) => {
@@ -251,12 +266,12 @@ export const SvgCanvas = forwardRef(function SvgCanvas(
         >
           {children}
         </Canvas>
-        {additionalChildren}
+        {!wheelZoomInProgress && additionalChildren}
       </CanvasWrapper>
       {topLevelChildren}
     </SvgCanvasContext.Provider>
   );
-});
+};
 
 type CanvasWrapperProps = PropsWithChildren<{
   aspectRatio: string;

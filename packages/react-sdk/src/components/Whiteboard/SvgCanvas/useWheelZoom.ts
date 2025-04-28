@@ -18,6 +18,7 @@ import {
   RefObject,
   useCallback,
   useRef,
+  useState,
   WheelEvent,
   WheelEventHandler,
 } from 'react';
@@ -27,12 +28,17 @@ import { calculateSvgCoords } from './utils';
 
 type UseWheelZoomResult = {
   handleWheelZoom: WheelEventHandler<SVGSVGElement>;
+  wheelZoomInProgress: boolean;
 };
 
 export const useWheelZoom = (
   svgRef: RefObject<SVGSVGElement>,
 ): UseWheelZoomResult => {
   const { scale, updateScale, updateTranslation } = useSvgScaleContext();
+  const [wheelZoomInProgress, setWheelZoomInProgress] =
+    useState<boolean>(false);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
+
   const lastTimeRef = useRef<number>(0);
   const interactionModeRef = useRef<'none' | 'zooming' | 'panning'>('none');
   const interactionTimeoutRef = useRef<number | null>(null);
@@ -47,6 +53,15 @@ export const useWheelZoom = (
       if (!infiniteCanvasMode || !svgRef.current) {
         return;
       }
+
+      setWheelZoomInProgress(true);
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = undefined;
+      }
+      timeoutRef.current = setTimeout(() => {
+        setWheelZoomInProgress(false);
+      }, 300);
 
       const now = Date.now();
       const timeDiff = now - lastTimeRef.current;
@@ -119,5 +134,6 @@ export const useWheelZoom = (
 
   return {
     handleWheelZoom,
+    wheelZoomInProgress,
   };
 };

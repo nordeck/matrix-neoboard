@@ -15,7 +15,7 @@
  */
 
 import { Box } from '@mui/material';
-import { RefObject, useCallback, useEffect, useRef, useState } from 'react';
+import { RefObject, useCallback, useState } from 'react';
 import {
   includesShapeWithText,
   includesTextShape,
@@ -51,10 +51,8 @@ import { DragSelect } from './ElementBehaviors/Selection/DragSelect';
 import { DotGrid } from './Grid';
 import { SlideSkeleton } from './SlideSkeleton';
 import { SvgCanvas } from './SvgCanvas';
-import { useWheelZoom } from './SvgCanvas/useWheelZoom';
 
 const WhiteboardHost = ({
-  contentAreaRef,
   elementIds,
   readOnly = false,
   hideCursors = false,
@@ -68,7 +66,6 @@ const WhiteboardHost = ({
   hideDotGrid?: boolean;
   withOutline?: boolean;
 }) => {
-  const svgRef = useRef<SVGSVGElement>(null);
   const slideInstance = useWhiteboardSlideInstance();
   const { isShowCollaboratorsCursors, dragSelectStartCoords } =
     useLayoutState();
@@ -85,28 +82,6 @@ const WhiteboardHost = ({
     includesShapeWithText(Object.values(overrides));
 
   const showTextTools = textToolsEnabled || hasElementWithText;
-
-  const { handleWheelZoom } = useWheelZoom(svgRef);
-
-  useEffect(() => {
-    const contentArea = contentAreaRef?.current;
-
-    if (contentArea) {
-      const wheelHandler = (event: WheelEvent) => {
-        handleWheelZoom(event as unknown as React.WheelEvent<SVGSVGElement>);
-      };
-
-      // We cannot use the onWheel prop to prevent the event handler from being passive.
-      // In non-passive mode, we can prevent the browser's zooming behaviour.
-      contentArea.addEventListener('wheel', wheelHandler, {
-        passive: false,
-      });
-
-      return () => {
-        contentArea.removeEventListener('wheel', wheelHandler);
-      };
-    }
-  }, [handleWheelZoom, contentAreaRef]);
 
   return (
     <Box
@@ -130,7 +105,6 @@ const WhiteboardHost = ({
         : {})}
     >
       <SvgCanvas
-        ref={svgRef}
         viewportHeight={whiteboardHeight}
         viewportWidth={whiteboardWidth}
         additionalChildren={

@@ -19,6 +19,7 @@ import React, {
   KeyboardEvent,
   PropsWithChildren,
   useCallback,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -49,18 +50,34 @@ export type ToolbarProps = PropsWithChildren<
   Partial<React.ComponentPropsWithRef<'div'>> & {
     sx?: SxProps<Theme>;
     orientation?: 'vertical' | 'horizontal';
+    preventWheelEvents?: boolean;
   }
 >;
 
 export function Toolbar({
   children,
   orientation = 'horizontal',
+  preventWheelEvents,
   ...props
 }: ToolbarProps) {
   const ref = useRef<HTMLDivElement>(null);
   const [focusedToolbarKey, setFocusedToolbarKey] = useState<
     string | undefined
   >();
+
+  useEffect(() => {
+    const element = ref.current;
+
+    if (preventWheelEvents && element) {
+      const wheelHandler = (event: WheelEvent) => {
+        event.preventDefault();
+      };
+
+      element.addEventListener('wheel', wheelHandler, { passive: false });
+
+      return () => element.removeEventListener('wheel', wheelHandler);
+    }
+  }, [preventWheelEvents]);
 
   const context = useMemo<ToolbarState>(
     () => ({
