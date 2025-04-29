@@ -254,12 +254,12 @@ export const SvgCanvas = function ({
           onKeyUp={infiniteCanvasMode ? handleKeyUp : undefined}
           tabIndex={infiniteCanvasMode ? -1 : undefined}
           onMouseLeave={onMouseLeave}
-          transform-origin={infiniteCanvasMode ? 'center center' : undefined}
+          transform-origin={
+            infiniteCanvasMode && !preview ? 'center center' : undefined
+          }
           transform={
-            infiniteCanvasMode
-              ? !preview
-                ? `translate(${translation.x}, ${translation.y}) scale(${scale})`
-                : ''
+            infiniteCanvasMode && !preview
+              ? `translate(${translation.x}, ${translation.y}) scale(${scale})`
               : undefined
           }
         >
@@ -331,19 +331,9 @@ const InfiniteCanvasWrapper: React.FC<CanvasWrapperProps> = ({
   preview,
   children,
 }) => {
-  const boxSx = preview
-    ? {}
-    : {
-        maxWidth: '100%',
-      };
-
-  const innerBoxSx = preview
-    ? {}
-    : {
-        position: 'relative',
-        top: `-${whiteboardHeight / 2}px`,
-        left: `-${whiteboardWidth / 2}px`,
-      };
+  if (preview) {
+    return children;
+  }
 
   return (
     <Box
@@ -351,12 +341,18 @@ const InfiniteCanvasWrapper: React.FC<CanvasWrapperProps> = ({
       sx={{
         flex: 1,
         height: '100%',
-        position: 'relative',
-        ...boxSx,
-        ...(infiniteCanvasMode ? {} : { overflow: 'hidden' }),
+        maxWidth: '100%',
       }}
     >
-      <Box sx={innerBoxSx}>{children}</Box>
+      <Box
+        sx={{
+          position: 'relative',
+          top: `-${whiteboardHeight / 2}px`,
+          left: `-${whiteboardWidth / 2}px`,
+        }}
+      >
+        {children}
+      </Box>
     </Box>
   );
 };
