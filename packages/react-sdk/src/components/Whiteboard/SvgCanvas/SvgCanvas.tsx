@@ -229,7 +229,6 @@ export const SvgCanvas = function ({
                   aspectRatio,
                 }
               : {
-                  aspectRatio,
                   ...(withOutline
                     ? {
                         borderWidth: 2,
@@ -328,7 +327,6 @@ const FiniteCanvasWrapper: React.FC<CanvasWrapperProps> = ({
 };
 
 const InfiniteCanvasWrapper: React.FC<CanvasWrapperProps> = ({
-  aspectRatio,
   sizeRef,
   preview,
   children,
@@ -352,7 +350,7 @@ const InfiniteCanvasWrapper: React.FC<CanvasWrapperProps> = ({
       ref={sizeRef}
       sx={{
         flex: 1,
-        aspectRatio,
+        height: '100%',
         position: 'relative',
         ...boxSx,
         ...(infiniteCanvasMode ? {} : { overflow: 'hidden' }),
