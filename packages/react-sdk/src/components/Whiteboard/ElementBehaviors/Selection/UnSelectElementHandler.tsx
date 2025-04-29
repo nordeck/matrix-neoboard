@@ -55,8 +55,8 @@ export function UnSelectElementHandler() {
           slideInstance.setActiveElementId(undefined);
           window.getSelection()?.empty();
         }
-      } else if (event.button === 2) {
-        // Right click
+      } else if (event.button === 1 || event.button === 2) {
+        // Middle or Right click
         event.preventDefault();
         event.stopPropagation();
 
@@ -65,6 +65,7 @@ export function UnSelectElementHandler() {
         }
 
         setPanEnabled(true);
+        document.body.style.cursor = 'grabbing';
         setPreviousPanCoordinates({ x: event.clientX, y: event.clientY });
       }
     },
@@ -94,8 +95,8 @@ export function UnSelectElementHandler() {
   );
 
   const handleMouseUp = useCallback((event: MouseEvent<SVGRectElement>) => {
-    if (event.button === 2) {
-      // Right click
+    if (event.button === 1 || event.button === 2) {
+      // Middle and Right click
       event.preventDefault();
       event.stopPropagation();
 
@@ -104,6 +105,7 @@ export function UnSelectElementHandler() {
       }
 
       setPanEnabled(false);
+      document.body.style.cursor = 'default';
     }
   }, []);
 

@@ -17,46 +17,34 @@
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import { useTheme } from '@mui/material';
-import React, { useCallback } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { useZoomControls } from '../../lib';
 import { Toolbar, ToolbarButton } from '../common/Toolbar';
-import { zoomStep } from '../Whiteboard/constants';
-import { useSvgScaleContext } from '../Whiteboard/SvgScaleContext';
 
 export const ZoomBar: React.FC = () => {
   const { t } = useTranslation('neoboard');
   const theme = useTheme();
   const toolbarTitle = t('zoomBar.title', 'Zoom controls');
-  const { scale, setScale, updateScale } = useSvgScaleContext();
+  const { scale, resetZoom, zoomOut, zoomIn } = useZoomControls();
 
   const scalePercentage = Math.floor(100 * scale);
-
-  const handleResetZoom = useCallback(() => {
-    setScale(1);
-  }, [setScale]);
-
-  const handleZoomOut = useCallback(() => {
-    updateScale(-zoomStep);
-  }, [updateScale]);
-
-  const handleZoomIn = useCallback(() => {
-    updateScale(zoomStep);
-  }, [updateScale]);
 
   return (
     <Toolbar aria-label={toolbarTitle} sx={{ pointerEvents: 'initial' }}>
       <ToolbarButton
         aria-label={t('zoomBar.zoomOut', 'Zoom out')}
-        onClick={handleZoomOut}
+        onClick={zoomOut}
       >
         <RemoveIcon />
       </ToolbarButton>
       <ToolbarButton
         aria-label={t('zoomBar.reset', 'Reset zoom to 100 %')}
-        onClick={handleResetZoom}
+        onClick={resetZoom}
         sx={{
           fontSize: '12px',
           height: '34px',
+          minWidth: '56px',
           paddingLeft: theme.spacing(1),
           paddingRight: theme.spacing(1),
         }}
@@ -65,7 +53,7 @@ export const ZoomBar: React.FC = () => {
       </ToolbarButton>
       <ToolbarButton
         aria-label={t('zoomBar.zoomIn', 'Zoom in')}
-        onClick={handleZoomIn}
+        onClick={zoomIn}
       >
         <AddIcon />
       </ToolbarButton>

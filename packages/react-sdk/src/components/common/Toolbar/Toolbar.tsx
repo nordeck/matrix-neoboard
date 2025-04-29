@@ -19,10 +19,12 @@ import React, {
   KeyboardEvent,
   PropsWithChildren,
   useCallback,
+  useEffect,
   useMemo,
   useRef,
   useState,
 } from 'react';
+import { isInfiniteCanvasMode } from '../../../lib';
 import { ToolbarState, ToolbarStateContext } from './useToolbarItem';
 import {
   findParentRadioGroup,
@@ -49,6 +51,7 @@ export type ToolbarProps = PropsWithChildren<
   Partial<React.ComponentPropsWithRef<'div'>> & {
     sx?: SxProps<Theme>;
     orientation?: 'vertical' | 'horizontal';
+    preventWheelEvents?: boolean;
   }
 >;
 
@@ -61,6 +64,20 @@ export function Toolbar({
   const [focusedToolbarKey, setFocusedToolbarKey] = useState<
     string | undefined
   >();
+
+  useEffect(() => {
+    const element = ref.current;
+
+    if (isInfiniteCanvasMode() && element) {
+      const wheelHandler = (event: WheelEvent) => {
+        event.preventDefault();
+      };
+
+      element.addEventListener('wheel', wheelHandler, { passive: false });
+
+      return () => element.removeEventListener('wheel', wheelHandler);
+    }
+  }, []);
 
   const context = useMemo<ToolbarState>(
     () => ({

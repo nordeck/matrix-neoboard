@@ -15,9 +15,9 @@
  */
 
 import { getEnvironment } from '@matrix-widget-toolkit/mui';
+import { isInfiniteCanvasMode } from '../../lib';
 
-export const infiniteCanvasMode =
-  getEnvironment('REACT_APP_INFINITE_CANVAS') === 'true';
+export const infiniteCanvasMode = isInfiniteCanvasMode();
 
 export const matrixRtcMode = getEnvironment('REACT_APP_RTC') === 'matrixrtc';
 
@@ -35,5 +35,5 @@ export const frameWidth = 1920;
 export const frameHeight = 1080;
 
 export const zoomStep = 0.1;
-export const zoomMax = 1;
+export const zoomMax = 4;
 export const zoomMin = 0.05;

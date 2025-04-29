@@ -15,7 +15,7 @@
  */
 
 import { Box } from '@mui/material';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useState } from 'react';
 import {
   includesShapeWithText,
   includesTextShape,
@@ -51,7 +51,6 @@ import { DragSelect } from './ElementBehaviors/Selection/DragSelect';
 import { DotGrid } from './Grid';
 import { SlideSkeleton } from './SlideSkeleton';
 import { SvgCanvas } from './SvgCanvas';
-import { useWheelZoom } from './SvgCanvas/useWheelZoom';
 
 const WhiteboardHost = ({
   elementIds,
@@ -66,7 +65,6 @@ const WhiteboardHost = ({
   hideDotGrid?: boolean;
   withOutline?: boolean;
 }) => {
-  const svgRef = useRef<SVGSVGElement>(null);
   const slideInstance = useWhiteboardSlideInstance();
   const { isShowCollaboratorsCursors, dragSelectStartCoords } =
     useLayoutState();
@@ -84,8 +82,6 @@ const WhiteboardHost = ({
 
   const showTextTools = textToolsEnabled || hasElementWithText;
 
-  const { handleWheelZoom } = useWheelZoom(svgRef);
-
   return (
     <Box
       flex={1}
@@ -97,10 +93,17 @@ const WhiteboardHost = ({
       position="relative"
       data-guided-tour-target="canvas"
       onDragEnter={handleUploadDragEnter}
-      {...(infiniteCanvasMode ? { width: '100vw', overflow: 'hidden' } : {})}
+      {...(infiniteCanvasMode
+        ? {
+            sx: {
+              touchAction: 'none',
+            },
+            overflow: 'hidden',
+            width: '100vw',
+          }
+        : {})}
     >
       <SvgCanvas
-        ref={svgRef}
         viewportHeight={whiteboardHeight}
         viewportWidth={whiteboardWidth}
         additionalChildren={
@@ -125,7 +128,6 @@ const WhiteboardHost = ({
         onMouseLeave={useCallback(() => {
           slideInstance.setCursorPosition(undefined);
         }, [slideInstance])}
-        onWheel={handleWheelZoom}
       >
         {!hideDotGrid && <DotGrid />}
         {!readOnly && <UnSelectElementHandler />}

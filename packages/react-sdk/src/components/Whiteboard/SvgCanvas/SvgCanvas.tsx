@@ -16,20 +16,22 @@
 
 import { Box, styled } from '@mui/material';
 import React, {
-  forwardRef,
+  KeyboardEvent,
   MouseEventHandler,
   PropsWithChildren,
   ReactNode,
   Ref,
   useCallback,
-  useImperativeHandle,
+  useEffect,
   useLayoutEffect,
   useMemo,
   useRef,
-  WheelEventHandler,
 } from 'react';
-import { Point } from '../../../state';
+import { useHotkeysContext } from 'react-hotkeys-hook';
+import { Point, usePresentationMode } from '../../../state';
+import { HOTKEY_SCOPE_WHITEBOARD } from '../../WhiteboardHotkeysProvider';
 import {
+  gridCellSize,
   infiniteCanvasMode,
   whiteboardHeight,
   whiteboardWidth,
@@ -37,6 +39,7 @@ import {
 import { useSvgScaleContext } from '../SvgScaleContext';
 import { SvgCanvasContext, SvgCanvasContextType } from './context';
 import { useMeasure } from './useMeasure';
+import { useWheelZoom } from './useWheelZoom';
 import { calculateSvgCoords } from './utils';
 
 const Canvas = styled('svg', {
@@ -60,32 +63,55 @@ export type SvgCanvasProps = PropsWithChildren<{
   onMouseDown?: MouseEventHandler<SVGSVGElement> | undefined;
   onMouseMove?: (position: Point) => void | undefined;
   onMouseLeave?: MouseEventHandler<SVGSVGElement>;
-  onWheel?: WheelEventHandler;
 }>;
 
-export const SvgCanvas = forwardRef(function SvgCanvas(
-  {
-    viewportHeight,
-    viewportWidth,
-    children,
-    rounded,
-    additionalChildren,
-    topLevelChildren,
-    withOutline,
-    onMouseDown,
-    onMouseMove,
-    onMouseLeave,
-    preview,
-    onWheel,
-  }: SvgCanvasProps,
-  forwardedRef,
-) {
+export const SvgCanvas = function ({
+  viewportHeight,
+  viewportWidth,
+  children,
+  rounded,
+  additionalChildren,
+  topLevelChildren,
+  withOutline,
+  onMouseDown,
+  onMouseMove,
+  onMouseLeave,
+  preview,
+}: SvgCanvasProps) {
   const [sizeRef, { width, height }] = useMeasure<HTMLDivElement>();
   const svgRef = useRef<SVGSVGElement>(null);
-  const { scale, translation, setContainerDimensions } = useSvgScaleContext();
+  const { scale, translation, setContainerDimensions, updateTranslation } =
+    useSvgScaleContext();
+  const { state } = usePresentationMode();
+  const isPresenting = state.type === 'presenting';
+  // Do avoid issues where users are interacting the content editable part
+  // of the whiteboard canvas, we should disable our listeners.
+  const { activeScopes } = useHotkeysContext();
+  const enableShortcuts =
+    activeScopes.includes(HOTKEY_SCOPE_WHITEBOARD) && !isPresenting;
+  const pressedKeys = useRef<Set<string>>(new Set());
 
-  // by that svgRef can be used here, while also forwarding the ref
-  useImperativeHandle(forwardedRef, () => svgRef.current);
+  const { handleWheelZoom, wheelZoomInProgress } = useWheelZoom(svgRef);
+
+  useEffect(() => {
+    const element = svgRef.current;
+
+    if (infiniteCanvasMode && element) {
+      const wheelHandler = (event: WheelEvent) => {
+        handleWheelZoom(event as unknown as React.WheelEvent<SVGSVGElement>);
+      };
+
+      // We cannot use the onWheel prop to prevent the event handler from being passive.
+      // In non-passive mode, we can prevent the browser's zooming behaviour.
+      element.addEventListener('wheel', wheelHandler, {
+        passive: false,
+      });
+
+      return () => {
+        element.removeEventListener('wheel', wheelHandler);
+      };
+    }
+  }, [handleWheelZoom]);
 
   const calculateSvgCoordsFunc = useCallback(
     (position: Point) => {
@@ -112,6 +138,58 @@ export const SvgCanvas = forwardRef(function SvgCanvas(
   useLayoutEffect(() => {
     setContainerDimensions({ width, height });
   }, [width, height, setContainerDimensions]);
+
+  // Focus the canvas element when it is mounted
+  useEffect(() => {
+    if (infiniteCanvasMode && !preview && svgRef.current) {
+      svgRef.current.focus();
+    }
+  }, [svgRef, preview]);
+
+  const getKeyboardOffset = useCallback(() => {
+    const scrollStep = gridCellSize * scale;
+    let dx = 0;
+    let dy = 0;
+
+    if (pressedKeys.current.has('ArrowUp')) dy += scrollStep;
+    if (pressedKeys.current.has('ArrowDown')) dy -= scrollStep;
+    if (pressedKeys.current.has('ArrowLeft')) dx += scrollStep;
+    if (pressedKeys.current.has('ArrowRight')) dx -= scrollStep;
+
+    return { dx, dy };
+  }, [scale]);
+
+  // Apply keyboard navigation offset if needed
+  const applyKeyboardNavigation = useCallback(() => {
+    const { dx, dy } = getKeyboardOffset();
+    if (dx !== 0 || dy !== 0) {
+      updateTranslation(dx, dy);
+    }
+  }, [getKeyboardOffset, updateTranslation]);
+
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent<SVGSVGElement>) => {
+      if (enableShortcuts && isArrowKey(e.key)) {
+        if (!pressedKeys.current.has(e.key)) {
+          pressedKeys.current.add(e.key);
+        }
+        e.preventDefault();
+        applyKeyboardNavigation();
+      }
+    },
+    [applyKeyboardNavigation, enableShortcuts],
+  );
+
+  const handleKeyUp = useCallback(
+    (e: KeyboardEvent<SVGSVGElement>) => {
+      if (enableShortcuts && isArrowKey(e.key)) {
+        pressedKeys.current.delete(e.key);
+        e.preventDefault();
+        applyKeyboardNavigation();
+      }
+    },
+    [applyKeyboardNavigation, enableShortcuts],
+  );
 
   const handleMouseMove: MouseEventHandler<SVGSVGElement> = useCallback(
     (e) => {
@@ -159,7 +237,9 @@ export const SvgCanvas = forwardRef(function SvgCanvas(
                         borderColor: 'primary.main',
                         borderRadius: 1,
                       }
-                    : {}),
+                    : {
+                        outline: 'none',
+                      }),
                   ...(preview
                     ? {}
                     : {
@@ -171,8 +251,10 @@ export const SvgCanvas = forwardRef(function SvgCanvas(
           viewBox={`0 0 ${viewportWidth} ${viewportHeight}`}
           onMouseDown={onMouseDown}
           onMouseMove={handleMouseMove}
+          onKeyDown={infiniteCanvasMode ? handleKeyDown : undefined}
+          onKeyUp={infiniteCanvasMode ? handleKeyUp : undefined}
+          tabIndex={infiniteCanvasMode ? -1 : undefined}
           onMouseLeave={onMouseLeave}
-          onWheel={onWheel}
           transform-origin={infiniteCanvasMode ? 'center center' : undefined}
           transform={
             infiniteCanvasMode
@@ -184,12 +266,12 @@ export const SvgCanvas = forwardRef(function SvgCanvas(
         >
           {children}
         </Canvas>
-        {additionalChildren}
+        {!wheelZoomInProgress && additionalChildren}
       </CanvasWrapper>
       {topLevelChildren}
     </SvgCanvasContext.Provider>
   );
-});
+};
 
 type CanvasWrapperProps = PropsWithChildren<{
   aspectRatio: string;
@@ -280,3 +362,7 @@ const InfiniteCanvasWrapper: React.FC<CanvasWrapperProps> = ({
     </Box>
   );
 };
+
+function isArrowKey(key: string): boolean {
+  return ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(key);
+}
