@@ -8,8 +8,8 @@ This ADR supersedes and deprecates [ADR006][adr006] because of the scalability
 and stability issues we encountered when using the peer-to-peer full-mesh approach.
 
 When MatrixRTC was evaluated previously, there were a number of issues that have
-since been resolved. Widgets now [have access to the user's own device id](widget-api-device-id)
-and since the introduction of initial support for [MSC4143](MSC4143) in Element Web,
+since been resolved. Widgets now [have access to the user's own device id][widget-api-device-id]
+and since the introduction of initial support for [MSC4143][MSC4143] in Element Web,
 via the Group Calls feature, data-only calls are no longer displayed in the timeline.
 
 MatrixRTC also aims to define a set of generic state event primitives that
@@ -18,13 +18,13 @@ specifying a baseline realtime session management concept, which then can be
 extended to support specific application features, like ringing, answering and
 rejecting a call, for video and audio calls.
 
-With the introduction of [LiveKit](MSC4195) as a backend for [cascading SFUs](MSC3898),
+With the introduction of [LiveKit][MSC4195] as a backend for [cascading SFUs][MSC3898],
 Element Call was able to provide a E2EE group call experience that can scale to hundreds
 of realtime participants.
 
 ## Decision
 
-We will use MatrixRTC with a LiveKit backend ([MSC4195](MSC4195)) to provide the
+We will use MatrixRTC with a LiveKit backend ([MSC4195][MSC4195]) to provide the
 realtime data exchange between NeoBoard users. This is fundamentally different from
 the peer-to-peer connection mesh that was established before. Now, each whiteboard
 participant will only establish two WebRTC data channels to the LiveKit backend, one
@@ -42,7 +42,7 @@ channels, with minimal impact to other whiteboard components.
 
 Discovery is about finding the active participants of a whiteboard. In MatrixRTC
 this becomes simpler, as for each combination of user and device, there is a
-[RTC membership state event](rtc-member) with the participant's metadata.
+[RTC membership state event][rtc-member] with the participant's metadata.
 
 Instead of the `net.nordeck.whiteboard.sessions` state event with the user's MXID
 as the `state_key`, we keep track of realtime session memberships via the
@@ -50,7 +50,7 @@ as the `state_key`, we keep track of realtime session memberships via the
 that matches the following format: `_{user_id}_{device_id}`, which allows for the same
 participant to collaborate in the same whiteboard from multiple devices.
 
-Check the [MatrixRTC model docs](matrix-rtc-events) for additional details.
+Check the [MatrixRTC model docs][matrix-rtc-events] for additional details.
 
 ```json
 {
@@ -92,7 +92,7 @@ intentionally or not).
 
 Thanks to the LiveKit [Client JS SDK][livekit-js-sdk], we don't have to handle
 establishing WebRTC peer connections to every participant. This is now done by
-the SDK itself, abstracted away by having a [server-side room](livekit-room) to
+the SDK itself, abstracted away by having a [server-side room][livekit-room] to
 which each participant connects to. There is still a WebRTC negotiation process
 that establishes the two data connections to the LiveKit backend but that is
 completely opaque and we only have to monitor a single connection status.
@@ -110,13 +110,13 @@ changes should have clients adjust their focus accordingly.
 
 Access to the LiveKit backend's resources requires a JWT token, obtained by first
 getting an OpenID access token from user's homeserver and then providing it to the
-[LiveKit JWT service](livekit-jwt). If the access token is valid, the JWT service
+[LiveKit JWT service][livekit-jwt]. If the access token is valid, the JWT service
 replies with a secure web socket endpoint for the livekit backend and a JWT token,
 both of which are then used to establish the realtime data channels.
 
 ### Session Termination
 
-We use [delayed events](MSC4140) with a 5 second refresh while the widget is
+We use [delayed events][MSC4140] with a 5 second refresh while the widget is
 active, so that when it becomes inactive, a "hangup" event is applied in the
 room, by clearing the `content` of the RTC membership state event of that client
 and effectively terminating his session.
@@ -148,18 +148,18 @@ originated them.
 
 ### Relevant MSCs
 
-- [MSC3898: Native Matrix VoIP signalling for cascaded SFUs](MSC3898)
-- [MSC4143: MatrixRTC](MSC4143)
-- [MSC4140: Cancellable delayed events](MSC4140)
-- [MSC4195: MatrixRTC using LiveKit backend](MSC4195)
-- [MSC4196: MatrixRTC voice and video conferencing application m.call](MSC4196)
+- [MSC3898: Native Matrix VoIP signalling for cascaded SFUs][MSC3898]
+- [MSC4143: MatrixRTC][MSC4143]
+- [MSC4140: Cancellable delayed events][MSC4140]
+- [MSC4195: MatrixRTC using LiveKit backend][MSC4195]
+- [MSC4196: MatrixRTC voice and video conferencing application m.call][MSC4196]
 
 also related:
 
-- [MSC2746: Improved Signalling for 1:1 VoIP](MSC2746)
-- [MSC3401: Native Group VoIP Signalling](MSC3401)
-- [MSC3419: Guest State Events](MSC3419)
-- [MSC3757: Restricting who can overwrite a state event](MSC3757)
+- [MSC2746: Improved Signalling for 1:1 VoIP][MSC2746]
+- [MSC3401: Native Group VoIP Signalling][MSC3401]
+- [MSC3419: Guest State Events][MSC3419]
+- [MSC3757: Restricting who can overwrite a state event][MSC3757]
 
 <!-- references -->
 
