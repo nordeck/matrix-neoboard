@@ -36,7 +36,7 @@ All other events and relations remain as described in [Matrix Events](matrix-eve
 
 ### `org.matrix.msc3401.call.member` (State Event)
 
-According to [MSC4143: MatrixRTC](MSC4143), a RTC application must keep it's session state in
+According to [MSC4143: MatrixRTC][MSC4143], a RTC application must keep it's session state in
 a state event of type `m.rtc.member` (or the unstable `org.matrix.msc3401.call.member`),
 with a state key composed of the user's Matrix ID and the user's Device ID.
 
