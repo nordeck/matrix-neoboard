@@ -36,6 +36,7 @@ import {
   DEFAULT_RTC_EXPIRE_DURATION,
   isWhiteboardRTCSessionStateEvent,
 } from '../../../model/matrixRtcSessions';
+import { LivekitFocusConfig } from './matrixRtcFocus';
 import { SessionState } from './sessionManagerImpl';
 import { Session, SessionManager } from './types';
 
@@ -145,6 +146,15 @@ export class MatrixRtcSessionManagerImpl implements SessionManager {
     await this.removeOwnSession(whiteboardId, sessionId);
   }
 
+  async updateSessionSFU(
+    sessionId: string,
+    sfuConfig: LivekitFocusConfig,
+  ): Promise<void> {
+    this.refreshOwnSession(sessionId, {
+      foci_preferred: [sfuConfig],
+    });
+  }
+
   destroy(): void {
     this.destroySubject.next();
     this.sessionJoinedSubject.complete();
@@ -223,7 +233,10 @@ export class MatrixRtcSessionManagerImpl implements SessionManager {
     await this.endRtcSession(sessionId);
   }
 
-  private async refreshOwnSession(sessionId: string): Promise<void> {
+  private async refreshOwnSession(
+    sessionId: string,
+    content?: Partial<RTCSessionEventContent>,
+  ): Promise<void> {
     const expires = Date.now() + this.sessionTimeout;
     const widgetApi = await this.widgetApiPromise;
     const { userId, deviceId } = widgetApi.widgetParameters;
@@ -264,6 +277,7 @@ export class MatrixRtcSessionManagerImpl implements SessionManager {
       const updatedSession: RTCSessionEventContent = {
         ...baseSession,
         expires,
+        ...content,
       };
 
       // Check if session has been modified compared to the original
