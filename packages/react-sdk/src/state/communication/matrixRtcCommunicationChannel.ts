@@ -28,7 +28,15 @@ import {
   takeUntil,
 } from 'rxjs';
 import { MatrixRtcPeerConnection, PeerConnection } from './connection';
-import { LivekitFocus, Session, SessionManager } from './discovery';
+import {
+  LivekitFocus,
+  MatrixRtcSessionManagerImpl,
+  Session,
+} from './discovery';
+import {
+  LivekitFocusConfig,
+  makePreferredLivekitFoci,
+} from './discovery/matrixRtcFocus';
 import { SessionState } from './discovery/sessionManagerImpl';
 import {
   CommunicationChannel,
@@ -58,7 +66,7 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
 
   constructor(
     private readonly widgetApiPromise: Promise<WidgetApi> | WidgetApi,
-    private readonly sessionManager: SessionManager,
+    private readonly sessionManager: MatrixRtcSessionManagerImpl,
     private readonly whiteboardId: string,
     onEnableObserveVisibilityState: Observable<boolean> = new BehaviorSubject(
       true,
@@ -204,7 +212,7 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
     this.statisticsSubject.next(cloneDeep(this.statistics));
   }
 
-  private async initLiveKitServer(session: Session): Promise<void> {
+  private async initLiveKitServer(): Promise<void> {
     if (this.sfuConfig !== undefined) {
       this.logger.debug('LiveKit config already set, skipping init');
       // LiveKit servers already known
@@ -221,7 +229,7 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
 
       const focus = (
         await makePreferredLivekitFoci(
-          session,
+          widgetApi.widgetParameters.baseUrl,
           widgetApi.widgetParameters.roomId,
         )
       )[0];
@@ -250,7 +258,7 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
 
     // Wait for the Widget API and LiveKit servers to be ready
     await this.widgetApiPromise;
-    await this.initLiveKitServer(session);
+    await this.initLiveKitServer();
 
     // only start peer connection for the current session
     // because matrix rtc is not peer to peer
@@ -261,6 +269,11 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
         'for session',
         session.sessionId,
       );
+      const focus: LivekitFocusConfig = {
+        type: 'livekit',
+        livekit_service_url: this.sfuConfig.url,
+      };
+      this.sessionManager.updateSessionSFU(session.sessionId, focus);
       const peerConnection = new MatrixRtcPeerConnection(
         session,
         this.sfuConfig,
@@ -323,29 +336,6 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
       this.statistics.sessions.push(session);
     }
   }
-}
-
-/*
- * @todo this is hardcoded, needs to be implemented
- */
-async function makePreferredLivekitFoci(
-  rtcSession: Session,
-  livekitAlias: string,
-): Promise<LivekitFocus[]> {
-  const logger = getLogger('makePreferredLivekitFoci');
-  logger.debug('Building preferred foci list for', rtcSession.sessionId);
-
-  const preferredFoci: LivekitFocus[] = [];
-
-  const livekit_config: LivekitFocus = {
-    type: 'livekit',
-    livekit_service_url: 'https://livekit-jwt.matrix.internal',
-    livekit_alias: livekitAlias,
-  };
-
-  preferredFoci.push(livekit_config);
-
-  return preferredFoci;
 }
 
 export async function getSFUConfigWithOpenID(
