@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+import { getLogger } from 'loglevel';
+import AutoDiscovery, { FOCI_WK_KEY } from './autodiscovery';
+import { getEnvironment } from '@matrix-widget-toolkit/mui';
+
 export type RTCFocus = {
   type: string;
   [key: string]: unknown;
@@ -32,3 +36,52 @@ export interface LivekitFocusActive extends RTCFocus {
   type: 'livekit';
   focus_selection: 'oldest_membership';
 }
+
+export async function makePreferredLivekitFoci(
+  baseUrl: string | undefined,
+  livekitAlias: string,
+): Promise<LivekitFocus[]> {
+  const logger = getLogger('makePreferredLivekitFoci');
+  logger.debug('Building preferred foci list for', baseUrl, livekitAlias);
+
+  const preferredFoci: LivekitFocus[] = [];
+
+  if (baseUrl) {
+    logger.debug(
+      'Trying to fetch .well-known/matrix/client from baseUrl',
+      baseUrl,
+    );
+    const clientConfig = await AutoDiscovery.getRawClientConfig(baseUrl);
+    const wellKnownFoci = clientConfig ? clientConfig[FOCI_WK_KEY] : undefined;
+    if (Array.isArray(wellKnownFoci)) {
+      preferredFoci.push(
+        ...wellKnownFoci
+          .filter((f) => !!f)
+          .filter(isLivekitFocusConfig)
+          .map((wellKnownFocus) => {
+            logger.log(
+              'Adding livekit focus from well known: ',
+              wellKnownFocus,
+            );
+            return { ...wellKnownFocus, livekit_alias: livekitAlias };
+          }),
+      );
+    }
+  }
+
+  const envFoci = getEnvironment('REACT_APP_RTC_LIVEKIT_SERVICE_URL');
+  if (envFoci) {
+    logger.debug('Using environment variable for LiveKit service URL', envFoci);
+    const livekit_config: LivekitFocus = {
+      type: 'livekit',
+      livekit_service_url: envFoci,
+      livekit_alias: livekitAlias,
+    };
+    preferredFoci.push(livekit_config);
+  }
+
+  return preferredFoci;
+}
+
+const isLivekitFocusConfig = (object: RTCFocus): object is LivekitFocusConfig =>
+  object.type === 'livekit' && 'livekit_service_url' in object;

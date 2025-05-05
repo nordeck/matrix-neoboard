@@ -38,6 +38,7 @@ import {
   CommunicationChannel,
   FOCUS_ON_MESSAGE,
   FocusOn,
+  MatrixRtcSessionManagerImpl,
   SessionManager,
   SignalingChannel,
   WebRtcCommunicationChannel,
@@ -198,7 +199,7 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
     if (matrixRtcMode && sessionManager) {
       communicationChannel = new MatrixRtcCommunicationChannel(
         widgetApiPromise,
-        sessionManager,
+        sessionManager as MatrixRtcSessionManagerImpl,
         whiteboardEvent.state_key,
         enableObserveVisibilityStateSubject,
       );

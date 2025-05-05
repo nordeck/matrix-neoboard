@@ -36,7 +36,7 @@ import {
   mockWhiteboardManager,
 } from '../../../../lib/testUtils/documentTestUtils';
 import { WhiteboardSlideInstance } from '../../../../state';
-import { StoreType } from '../../../../store';
+import { RootState, StoreType } from '../../../../store';
 import { ConnectionPointProvider } from '../../../ConnectionPointProvider';
 import { ElementOverridesProvider } from '../../../ElementOverridesProvider';
 import { LayoutStateProvider } from '../../../Layout';
@@ -117,7 +117,7 @@ describe('<ResizeElement />', () => {
     activeSlide = activeWhiteboard.getSlide('slide-0');
 
     const ExtractStore = () => {
-      store = useStore();
+      store = useStore<RootState>();
       return null;
     };
 

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { WidgetApi } from '@matrix-widget-toolkit/api';
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { waitFor } from '@testing-library/react';
 import { BehaviorSubject, Subject, firstValueFrom, toArray } from 'rxjs';
@@ -28,7 +29,7 @@ import {
 } from 'vitest';
 import { mockDocumentVisibilityState } from '../../lib/testUtils/domTestUtils';
 import { PeerConnection, PeerConnectionStatistics } from './connection';
-import { Session, SessionManager } from './discovery';
+import { MatrixRtcSessionManagerImpl, Session } from './discovery';
 import { SessionState } from './discovery/sessionManagerImpl';
 import { MatrixRtcCommunicationChannel } from './matrixRtcCommunicationChannel';
 
@@ -64,7 +65,7 @@ describe('MatrixRtcCommunicationChannel', () => {
     remoteUserId: '@user-id',
   };
 
-  let sessionManager: Mocked<SessionManager>;
+  let sessionManager: Mocked<MatrixRtcSessionManagerImpl>;
   let peerConnection: Mocked<PeerConnection>;
   let channel: MatrixRtcCommunicationChannel;
   let sessionSubject: Subject<SessionState>;
@@ -81,23 +82,26 @@ describe('MatrixRtcCommunicationChannel', () => {
     sessionSubject = new Subject();
     joinedSubject = new Subject();
     leftSubject = new Subject();
-    sessionManager = {
-      getSessionId: vi.fn(() => currentSessionId),
-      getSessions: vi.fn().mockReturnValue([]),
-      observeSession: vi.fn().mockReturnValue(sessionSubject),
-      observeSessionJoined: vi.fn().mockReturnValue(joinedSubject),
-      observeSessionLeft: vi.fn().mockReturnValue(leftSubject),
-      join: vi.fn().mockImplementation(async () => {
-        const sessionId = 'session-id';
-        currentSessionId = sessionId;
-        return { sessionId };
+    sessionManager = vi.mocked(
+      Object.assign(new MatrixRtcSessionManagerImpl({} as WidgetApi), {
+        getSessionId: vi.fn(() => currentSessionId),
+        getSessions: vi.fn().mockReturnValue([]),
+        observeSession: vi.fn().mockReturnValue(sessionSubject),
+        observeSessionJoined: vi.fn().mockReturnValue(joinedSubject),
+        observeSessionLeft: vi.fn().mockReturnValue(leftSubject),
+        join: vi.fn().mockImplementation(async () => {
+          const sessionId = 'session-id';
+          currentSessionId = sessionId;
+          return { sessionId };
+        }),
+        leave: vi.fn().mockImplementation(async () => {
+          leftSubject.next(anotherSession);
+          currentSessionId = undefined;
+        }),
+        destroy: vi.fn(),
+        updateSessionSFU: vi.fn(),
       }),
-      leave: vi.fn().mockImplementation(async () => {
-        leftSubject.next(anotherSession);
-        currentSessionId = undefined;
-      }),
-      destroy: vi.fn(),
-    };
+    );
 
     statisticsSubject = new Subject();
     enableObserveVisibilityStateSubject = new BehaviorSubject(true);
@@ -236,7 +240,7 @@ describe('MatrixRtcCommunicationChannel', () => {
   function createChannel() {
     channel = new MatrixRtcCommunicationChannel(
       widgetApi,
-      sessionManager,
+      sessionManager as MatrixRtcSessionManagerImpl,
       'whiteboard-id',
       enableObserveVisibilityStateSubject,
       250,
