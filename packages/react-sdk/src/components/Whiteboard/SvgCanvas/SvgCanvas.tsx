@@ -229,7 +229,6 @@ export const SvgCanvas = function ({
                   aspectRatio,
                 }
               : {
-                  aspectRatio,
                   ...(withOutline
                     ? {
                         borderWidth: 2,
@@ -255,12 +254,12 @@ export const SvgCanvas = function ({
           onKeyUp={infiniteCanvasMode ? handleKeyUp : undefined}
           tabIndex={infiniteCanvasMode ? -1 : undefined}
           onMouseLeave={onMouseLeave}
-          transform-origin={infiniteCanvasMode ? 'center center' : undefined}
+          transform-origin={
+            infiniteCanvasMode && !preview ? 'center center' : undefined
+          }
           transform={
-            infiniteCanvasMode
-              ? !preview
-                ? `translate(${translation.x}, ${translation.y}) scale(${scale})`
-                : ''
+            infiniteCanvasMode && !preview
+              ? `translate(${translation.x}, ${translation.y}) scale(${scale})`
               : undefined
           }
         >
@@ -328,37 +327,32 @@ const FiniteCanvasWrapper: React.FC<CanvasWrapperProps> = ({
 };
 
 const InfiniteCanvasWrapper: React.FC<CanvasWrapperProps> = ({
-  aspectRatio,
   sizeRef,
   preview,
   children,
 }) => {
-  const boxSx = preview
-    ? {}
-    : {
-        maxWidth: '100%',
-      };
-
-  const innerBoxSx = preview
-    ? {}
-    : {
-        position: 'relative',
-        top: `-${whiteboardHeight / 2}px`,
-        left: `-${whiteboardWidth / 2}px`,
-      };
+  if (preview) {
+    return children;
+  }
 
   return (
     <Box
       ref={sizeRef}
       sx={{
         flex: 1,
-        aspectRatio,
-        position: 'relative',
-        ...boxSx,
-        ...(infiniteCanvasMode ? {} : { overflow: 'hidden' }),
+        height: '100%',
+        maxWidth: '100%',
       }}
     >
-      <Box sx={innerBoxSx}>{children}</Box>
+      <Box
+        sx={{
+          position: 'relative',
+          top: `-${whiteboardHeight / 2}px`,
+          left: `-${whiteboardWidth / 2}px`,
+        }}
+      >
+        {children}
+      </Box>
     </Box>
   );
 };
