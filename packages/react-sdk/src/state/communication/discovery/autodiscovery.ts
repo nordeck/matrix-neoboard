@@ -26,19 +26,8 @@ import { IOpenIDCredentials } from 'matrix-widget-api';
 import { SFUConfig } from '../matrixRtcCommunicationChannel';
 import { LivekitFocus } from './matrixRtcFocus';
 
-export enum AutoDiscoveryAction {
-  SUCCESS = 'SUCCESS',
-  IGNORE = 'IGNORE',
-  PROMPT = 'PROMPT',
-  FAIL_PROMPT = 'FAIL_PROMPT',
-  FAIL_ERROR = 'FAIL_ERROR',
-}
-
 export interface IWellKnownConfig<T = IClientWellKnown> {
   raw?: T;
-  action?: AutoDiscoveryAction;
-  reason?: string;
-  error?: Error | string;
   base_url?: string | null;
   server_name?: string;
 }
@@ -47,13 +36,6 @@ export interface IClientWellKnown {
   [key: string]: unknown;
   'm.homeserver'?: IWellKnownConfig;
   'm.identity_server'?: IWellKnownConfig;
-}
-
-export enum AutoDiscoveryError {
-  Invalid = 'Invalid homeserver discovery response',
-  MissingWellknown = 'No .well-known JSON file found',
-  InvalidJson = 'Invalid JSON',
-  GeneralFailure = 'General failure',
 }
 
 export const FOCI_WK_KEY = 'org.matrix.msc4143.rtc_foci';
@@ -86,19 +68,10 @@ export default class AutoDiscovery {
 
   /**
    * Fetches a JSON object from a given URL, as expected by all .well-known
-   * related lookups. If the server gives a 404 then the `action` will be
-   * IGNORE. If the server returns something that isn't JSON, the `action`
-   * will be FAIL_PROMPT. For any other failure the `action` will be FAIL_PROMPT.
+   * related lookups.
    *
-   * The returned object will be a result of the call in object form with
-   * the following properties:
-   *   raw: The JSON object returned by the server.
-   *   action: One of SUCCESS, IGNORE, or FAIL_PROMPT.
-   *   reason: Relatively human-readable description of what went wrong.
-   *   error: The actual Error, if one exists.
    * @param url - The URL to fetch a JSON object from.
    * @returns Promise which resolves to the returned state.
-   * @internal
    */
   private static async fetchWellKnownObject<T = IWellKnownConfig>(
     url: string,
@@ -111,57 +84,18 @@ export default class AutoDiscovery {
         signal: AbortSignal.timeout(5000),
       });
 
-      if (response.status === 404) {
+      if (response.status === 404 || !response.ok) {
         return {
           raw: {},
-          action: AutoDiscoveryAction.IGNORE,
-          reason: AutoDiscoveryError.MissingWellknown,
         };
       }
 
-      if (!response.ok) {
-        return {
-          raw: {},
-          action: AutoDiscoveryAction.FAIL_PROMPT,
-          reason: AutoDiscoveryError.GeneralFailure,
-        };
-      }
-    } catch (err) {
-      const error = err as AutoDiscoveryError | string | undefined;
-      let reason = '';
-      if (typeof error === 'object' && error !== null) {
-        const errorObj = <Error>error;
-        reason =
-          errorObj.message !== undefined
-            ? errorObj.message
-            : AutoDiscoveryError.GeneralFailure;
-      }
-
-      return {
-        error,
-        raw: {},
-        action: AutoDiscoveryAction.FAIL_PROMPT,
-        reason: reason || AutoDiscoveryError.GeneralFailure,
-      };
-    }
-
-    try {
       return {
         raw: await response.json(),
-        action: AutoDiscoveryAction.SUCCESS,
       };
-    } catch (err) {
-      const error = err as Error;
+    } catch {
       return {
-        error,
         raw: {},
-        action: AutoDiscoveryAction.FAIL_PROMPT,
-        reason:
-          error !== null &&
-          typeof error === 'object' &&
-          (error as Error).name === 'SyntaxError'
-            ? AutoDiscoveryError.InvalidJson
-            : AutoDiscoveryError.Invalid,
       };
     }
   }
