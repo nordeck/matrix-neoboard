@@ -99,7 +99,7 @@ describe('MatrixRtcCommunicationChannel', () => {
           currentSessionId = undefined;
         }),
         destroy: vi.fn(),
-        updateSessionSFU: vi.fn(),
+        updateSessionFoci: vi.fn(),
       }),
     );
 

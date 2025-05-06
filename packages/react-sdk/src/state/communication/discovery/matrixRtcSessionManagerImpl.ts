@@ -146,7 +146,7 @@ export class MatrixRtcSessionManagerImpl implements SessionManager {
     await this.removeOwnSession(whiteboardId, sessionId);
   }
 
-  async updateSessionSFU(sessionId: string, foci: RTCFocus[]): Promise<void> {
+  async updateSessionFoci(sessionId: string, foci: RTCFocus[]): Promise<void> {
     this.refreshOwnSession(sessionId, {
       foci_preferred: foci,
     });

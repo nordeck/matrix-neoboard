@@ -288,7 +288,7 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
         // TODO: this will need to be changed when implementing the focus change & selection algorithm
         const sessionId = this.sessionManager.getSessionId();
         if (sessionId) {
-          this.sessionManager.updateSessionSFU(sessionId, foci);
+          this.sessionManager.updateSessionFoci(sessionId, foci);
         }
       });
   }
