@@ -274,9 +274,14 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
             this.logger.error('Room ID not found in widget parameters');
             throw new Error('Room ID not found in widget parameters');
           }
+          if (!widgetApi.widgetParameters.userId) {
+            this.logger.error('User ID not found in widget parameters');
+            throw new Error('User ID not found in widget parameters');
+          }
 
+          const domain = widgetApi.widgetParameters.userId.replace(/^.*?:/, '');
           return makePreferredLivekitFoci(
-            widgetApi.widgetParameters.baseUrl,
+            domain,
             widgetApi.widgetParameters.roomId,
           );
         }),

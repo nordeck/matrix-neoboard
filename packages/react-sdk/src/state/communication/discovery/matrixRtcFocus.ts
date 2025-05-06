@@ -38,20 +38,20 @@ export interface LivekitFocusActive extends RTCFocus {
 }
 
 export async function makePreferredLivekitFoci(
-  baseUrl: string | undefined,
+  domain: string | undefined,
   livekitAlias: string,
 ): Promise<LivekitFocus[]> {
   const logger = getLogger('makePreferredLivekitFoci');
-  logger.debug('Building preferred foci list for', baseUrl, livekitAlias);
+  logger.debug('Building preferred foci list for', domain, livekitAlias);
 
   const preferredFoci: LivekitFocus[] = [];
 
-  if (baseUrl) {
+  if (domain) {
     logger.debug(
-      'Trying to fetch .well-known/matrix/client from baseUrl',
-      baseUrl,
+      'Trying to fetch .well-known/matrix/client from domain',
+      domain,
     );
-    const clientConfig = await AutoDiscovery.getRawClientConfig(baseUrl);
+    const clientConfig = await AutoDiscovery.getRawClientConfig(domain);
     const wellKnownFoci = clientConfig ? clientConfig[FOCI_WK_KEY] : undefined;
     if (Array.isArray(wellKnownFoci)) {
       preferredFoci.push(
