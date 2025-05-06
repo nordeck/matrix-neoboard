@@ -58,7 +58,7 @@ describe('AutoDiscovery', () => {
 
     it('should throw error for invalid domain', async () => {
       await expect(AutoDiscovery.getRawClientConfig('')).rejects.toThrow(
-        "'baseUrl' must be a string of non-zero length",
+        "'domain' must be a string of non-zero length",
       );
     });
 
