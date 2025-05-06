@@ -47,20 +47,19 @@ export const FOCI_WK_KEY = 'org.matrix.msc4143.rtc_foci';
 
 export default class AutoDiscovery {
   /**
-   * Gets the raw discovery client configuration for the given base URL.
-   * @param baseUrl - The base URL to get the client config for.
-   * @returns Promise which resolves to the domain's client config. Can
-   * be an empty object.
+   * Gets the raw discovery client configuration for the given domain.
+   * @param domain - The homeserver domain to get the client config for, without the protocol prefix.
+   * @returns Promise which resolves to the domain's client config. Can be an empty object.
    */
   public static async getRawClientConfig(
-    baseUrl: string | undefined,
+    domain: string | undefined,
   ): Promise<IClientWellKnown> {
-    if (!baseUrl || typeof baseUrl !== 'string' || baseUrl.length === 0) {
-      throw new Error("'baseUrl' must be a string of non-zero length");
+    if (!domain || typeof domain !== 'string' || domain.length === 0) {
+      throw new Error("'domain' must be a string of non-zero length");
     }
 
     const response = await this.fetchWellKnownObject(
-      `${baseUrl}/.well-known/matrix/client`,
+      `https://${domain}/.well-known/matrix/client`,
     );
     if (!response) return {};
     return response.raw !== undefined ? response.raw : {};
