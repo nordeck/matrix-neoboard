@@ -36,7 +36,7 @@ import {
   DEFAULT_RTC_EXPIRE_DURATION,
   isWhiteboardRTCSessionStateEvent,
 } from '../../../model/matrixRtcSessions';
-import { LivekitFocusConfig } from './matrixRtcFocus';
+import { RTCFocus } from './matrixRtcFocus';
 import { SessionState } from './sessionManagerImpl';
 import { Session, SessionManager } from './types';
 
@@ -146,12 +146,9 @@ export class MatrixRtcSessionManagerImpl implements SessionManager {
     await this.removeOwnSession(whiteboardId, sessionId);
   }
 
-  async updateSessionSFU(
-    sessionId: string,
-    sfuConfig: LivekitFocusConfig,
-  ): Promise<void> {
+  async updateSessionSFU(sessionId: string, foci: RTCFocus[]): Promise<void> {
     this.refreshOwnSession(sessionId, {
-      foci_preferred: [sfuConfig],
+      foci_preferred: foci,
     });
   }
 
