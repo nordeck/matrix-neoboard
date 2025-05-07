@@ -20,6 +20,8 @@ import { useHotkeysContext } from 'react-hotkeys-hook';
 import {
   calculateBoundingRectForElements,
   clampElementPosition,
+  Element,
+  Elements,
   Point,
   usePresentationMode,
   useWhiteboardSlideInstance,
@@ -91,7 +93,7 @@ export function ClipboardShortcuts() {
       }
 
       const content = serializeToClipboard({
-        elements: Object.values(activeElements),
+        elements: activeElements,
       });
       writeIntoClipboardData(event.clipboardData, content);
       event.preventDefault();
@@ -132,7 +134,7 @@ export function ClipboardShortcuts() {
       }
 
       const content = serializeToClipboard({
-        elements: Object.values(activeElements),
+        elements: activeElements,
       });
       writeIntoClipboardData(event.clipboardData, content);
       slideInstance.removeElements(activeElementIds);
@@ -174,9 +176,13 @@ export function ClipboardShortcuts() {
       const centerPosition =
         slideInstance.getCursorPosition() ?? viewportCanvasCenter;
 
-      if (elements && elements.length > 0) {
+      if (elements) {
+        const elementsArray: Element[] | undefined = Array.isArray(elements)
+          ? elements
+          : Object.values(elements);
+
         const { offsetX, offsetY, width, height } =
-          calculateBoundingRectForElements(elements);
+          calculateBoundingRectForElements(elementsArray);
         const position: Point = {
           x: centerPosition.x - width / 2,
           y: centerPosition.y - height / 2,
@@ -186,14 +192,25 @@ export function ClipboardShortcuts() {
           { width, height },
           { width: whiteboardWidth, height: whiteboardHeight },
         );
-        const newElements = elements.map((element) => ({
-          ...element,
-          position: {
-            x: positionClamp.x + (element.position.x - offsetX),
-            y: positionClamp.y + (element.position.y - offsetY),
-          },
-        }));
-        const pastedElementIds = slideInstance.addElements(newElements);
+        let pastedElementIds: string[];
+        if (Array.isArray(elements)) {
+          const newElements: Element[] = elementsArray.map((element) =>
+            modifyElementPosition(element, positionClamp, offsetX, offsetY),
+          );
+          pastedElementIds = slideInstance.addElements(newElements);
+        } else {
+          const newElements: Elements = {};
+          for (const [elementId, element] of Object.entries(elements)) {
+            newElements[elementId] = modifyElementPosition(
+              element,
+              positionClamp,
+              offsetX,
+              offsetY,
+            );
+          }
+          pastedElementIds =
+            slideInstance.addElementsWithConnections(newElements);
+        }
         slideInstance.setActiveElementIds(pastedElementIds);
       }
 
@@ -247,5 +264,20 @@ function readFromClipboardData(
   return {
     'text/plain': clipboardData.getData('text/plain'),
     'text/html': clipboardData.getData('text/html'),
+  };
+}
+
+function modifyElementPosition(
+  element: Element,
+  positionClamp: Point,
+  offsetX: number,
+  offsetY: number,
+): Element {
+  return {
+    ...element,
+    position: {
+      x: positionClamp.x + (element.position.x - offsetX),
+      y: positionClamp.y + (element.position.y - offsetY),
+    },
   };
 }

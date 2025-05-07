@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { nanoid } from '@reduxjs/toolkit';
 import { first, isEqual } from 'lodash';
 import {
   Observable,
@@ -30,6 +31,7 @@ import {
   throttleTime,
   timer,
 } from 'rxjs';
+import { isDefined } from '../lib';
 import {
   CURSOR_UPDATE_MESSAGE,
   CommunicationChannel,
@@ -180,6 +182,78 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
     );
 
     // set the active element IDs first, so it is captured in the undomanager
+    this.setActiveElementIds(elementIds);
+
+    this.document.performChange(changeFn);
+
+    return elementIds;
+  }
+
+  addElementsWithConnections(elements: Elements): string[] {
+    this.assertLocked();
+
+    // Generate new id for each element
+    const newElementIdsMap = new Map<string, string>();
+    for (const elementId of Object.keys(elements)) {
+      newElementIdsMap.set(elementId, nanoid());
+    }
+
+    /**
+     * Modify elements with new ids.
+     * Update element ids in connections.
+     * Remove connections to unknown elements.
+     * */
+    const newElements: Elements = {};
+    for (const [elementId, element] of Object.entries(elements)) {
+      let newElement: Element;
+      if (element.type === 'shape') {
+        const { connectedPaths } = element;
+
+        let newConnectedPaths: string[] | undefined;
+        if (connectedPaths) {
+          newConnectedPaths = connectedPaths
+            .map((connectedElementId) =>
+              newElementIdsMap.get(connectedElementId),
+            )
+            .filter(isDefined);
+          newConnectedPaths =
+            newConnectedPaths.length == 0 ? undefined : newConnectedPaths;
+        }
+        newElement = {
+          ...element,
+          connectedPaths: newConnectedPaths,
+        };
+      } else if (element.type === 'path') {
+        const { connectedElementStart, connectedElementEnd } = element;
+
+        newElement = {
+          ...element,
+          connectedElementStart: connectedElementStart
+            ? newElementIdsMap.get(connectedElementStart)
+            : undefined,
+          connectedElementEnd: connectedElementEnd
+            ? newElementIdsMap.get(connectedElementEnd)
+            : undefined,
+        };
+      } else {
+        newElement = element;
+      }
+
+      const newElementId = newElementIdsMap.get(elementId);
+      if (!newElementId) {
+        throw new Error('New element id must be defined');
+      }
+
+      newElements[newElementId] = newElement;
+    }
+
+    const [changeFn, elementIds] = generateAddElements(
+      this.slideId,
+      Object.values(newElements),
+      Object.keys(newElements),
+    );
+
+    // set the active element IDs first, so it is captured in the undo manager
     this.setActiveElementIds(elementIds);
 
     this.document.performChange(changeFn);

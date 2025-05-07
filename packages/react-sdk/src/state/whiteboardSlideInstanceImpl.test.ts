@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { nanoid } from '@reduxjs/toolkit';
 import { waitFor } from '@testing-library/react';
 import { last } from 'lodash';
 import { firstValueFrom, skip, Subject, take, toArray } from 'rxjs';
@@ -44,9 +45,22 @@ import {
   getSlideLock,
   WhiteboardDocument,
 } from './crdt';
+import { Elements } from './types';
 import { WhiteboardSlideInstanceImpl } from './whiteboardSlideInstanceImpl';
 
 const slide0 = 'IN4h74suMiIAK4AVMAdl_';
+
+vi.mock('@reduxjs/toolkit', async () => ({
+  ...(await vi.importActual<typeof import('@reduxjs/toolkit')>(
+    '@reduxjs/toolkit',
+  )),
+  nanoid: vi.fn(),
+}));
+
+beforeEach(() => {
+  let count = 0;
+  vi.mocked(nanoid).mockImplementation(() => `mock-nanoid-${count++}`);
+});
 
 afterEach(() => {
   vi.useRealTimers();
@@ -171,6 +185,123 @@ describe('WhiteboardSlideInstanceImpl', () => {
 
     expect(slideInstance.getElement(elementIds[0])).toEqual(element0);
     expect(slideInstance.getElement(elementIds[1])).toEqual(element1);
+    expect(slideInstance.getActiveElementIds()).toEqual(elementIds);
+  });
+
+  it('should add elements without connections and select them as active elements', () => {
+    const slideInstance = new WhiteboardSlideInstanceImpl(
+      communicationChannel,
+      slide0,
+      document,
+      '@user-id',
+    );
+
+    const element0 = mockEllipseElement();
+    const element1 = mockLineElement();
+
+    const elements: Elements = {
+      [`element-id-0`]: element0,
+      [`element-id-1`]: element1,
+    };
+
+    const elementIds = slideInstance.addElementsWithConnections(elements);
+    expect(elementIds).toEqual(['mock-nanoid-0', 'mock-nanoid-1']);
+
+    expect(slideInstance.getElements(elementIds)).toEqual({
+      [`mock-nanoid-0`]: element0,
+      [`mock-nanoid-1`]: element1,
+    });
+    expect(slideInstance.getActiveElementIds()).toEqual(elementIds);
+  });
+
+  it('should add connected elements and select them as active elements', () => {
+    const slideInstance = new WhiteboardSlideInstanceImpl(
+      communicationChannel,
+      slide0,
+      document,
+      '@user-id',
+    );
+
+    const element0 = mockEllipseElement();
+    const element1 = mockLineElement({
+      connectedElementStart: 'element-id-2',
+      connectedElementEnd: 'element-id-3',
+    });
+    const element2 = mockEllipseElement({ connectedPaths: ['element-id-1'] });
+    const element3 = mockEllipseElement({ connectedPaths: ['element-id-1'] });
+
+    const elements: Elements = {
+      [`element-id-0`]: element0,
+      [`element-id-1`]: element1,
+      [`element-id-2`]: element2,
+      [`element-id-3`]: element3,
+    };
+
+    const elementIds = slideInstance.addElementsWithConnections(elements);
+    expect(elementIds).toEqual([
+      'mock-nanoid-0',
+      'mock-nanoid-1',
+      'mock-nanoid-2',
+      'mock-nanoid-3',
+    ]);
+
+    expect(slideInstance.getElements(elementIds)).toEqual({
+      [`mock-nanoid-0`]: element0,
+      [`mock-nanoid-1`]: mockLineElement({
+        connectedElementStart: 'mock-nanoid-2',
+        connectedElementEnd: 'mock-nanoid-3',
+      }),
+      [`mock-nanoid-2`]: mockEllipseElement({
+        connectedPaths: ['mock-nanoid-1'],
+      }),
+      [`mock-nanoid-3`]: mockEllipseElement({
+        connectedPaths: ['mock-nanoid-1'],
+      }),
+    });
+    expect(slideInstance.getActiveElementIds()).toEqual(elementIds);
+  });
+
+  it('should add connected elements and filter out unknown connection data and select them as active elements', () => {
+    const slideInstance = new WhiteboardSlideInstanceImpl(
+      communicationChannel,
+      slide0,
+      document,
+      '@user-id',
+    );
+
+    const element0 = mockEllipseElement();
+    const element1 = mockLineElement({
+      connectedElementStart: 'unknown-id-1',
+      connectedElementEnd: 'element-id-3',
+    });
+    const element2 = mockEllipseElement({ connectedPaths: ['unknown-id-2'] });
+    const element3 = mockEllipseElement({ connectedPaths: ['element-id-1'] });
+
+    const elements: Elements = {
+      [`element-id-0`]: element0,
+      [`element-id-1`]: element1,
+      [`element-id-2`]: element2,
+      [`element-id-3`]: element3,
+    };
+
+    const elementIds = slideInstance.addElementsWithConnections(elements);
+    expect(elementIds).toEqual([
+      'mock-nanoid-0',
+      'mock-nanoid-1',
+      'mock-nanoid-2',
+      'mock-nanoid-3',
+    ]);
+
+    expect(slideInstance.getElements(elementIds)).toEqual({
+      [`mock-nanoid-0`]: element0,
+      [`mock-nanoid-1`]: mockLineElement({
+        connectedElementEnd: 'mock-nanoid-3',
+      }),
+      [`mock-nanoid-2`]: mockEllipseElement(),
+      [`mock-nanoid-3`]: mockEllipseElement({
+        connectedPaths: ['mock-nanoid-1'],
+      }),
+    });
     expect(slideInstance.getActiveElementIds()).toEqual(elementIds);
   });
 
