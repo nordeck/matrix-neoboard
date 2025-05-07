@@ -20,7 +20,12 @@ import {
   isValidWhiteboardExportDocument,
   WhiteboardDocumentExport,
 } from '../../state';
-import { whiteboardHeight, whiteboardWidth } from '../Whiteboard/constants';
+import { SlideExport } from '../../state/export/whiteboardDocumentExport';
+import {
+  infiniteCanvasMode,
+  whiteboardHeight,
+  whiteboardWidth,
+} from '../Whiteboard/constants';
 import { initPDFJs, loadPDF, renderPDFToImages } from './pdfImportUtils';
 
 /**
@@ -68,26 +73,93 @@ export async function readPDF(file: File): Promise<WhiteboardDocumentExport> {
     });
   }
 
+  /**
+   * We have distinct behaviours when laying out the imported PDF pages:
+   *
+   * - In infinite canvas mode, we fill a single slide with a grid layout of
+   * the PDF pages that fit it. Pages that do not fit are discarded.
+   *
+   * - In normal mode, each PDF page is centered on a slide
+   */
+  const slideContent: SlideExport[] = [];
+  if (infiniteCanvasMode) {
+    const margin = 10;
+    const maxWidth = whiteboardWidth - margin;
+    const maxHeight = whiteboardHeight - margin;
+
+    let currentX = margin;
+    let currentY = margin;
+    let rowMaxHeight = 0;
+
+    const elementsForSlide = [];
+
+    for (let i = 0; i < imageData.length; i++) {
+      const data = imageData[i];
+
+      // are we exceeding the whiteboard height?
+      if (currentY + data.height > maxHeight) {
+        break;
+      }
+
+      if (currentX + data.width > maxWidth) {
+        currentX = margin;
+        currentY += rowMaxHeight + margin;
+        rowMaxHeight = 0;
+
+        // Check again after moving to new row if we'd exceed vertical space
+        if (currentY + data.height > maxHeight) {
+          break;
+        }
+      }
+
+      const element = {
+        type: 'image',
+        mxc: 'placeholder' + i,
+        width: data.width,
+        height: data.height,
+        fileName: `${file.name}_${i}`,
+        mimeType: data.mimeType,
+        position: {
+          x: currentX,
+          y: currentY,
+        },
+      } as ImageElement;
+
+      elementsForSlide.push(element);
+
+      currentX += data.width + margin;
+      rowMaxHeight = Math.max(rowMaxHeight, data.height);
+    }
+
+    // Add all elements to a single slide
+    slideContent.push({
+      elements: elementsForSlide,
+    });
+  } else {
+    const slideData = imageData.map((data, i) => ({
+      elements: [
+        {
+          type: 'image',
+          mxc: 'placeholder' + i,
+          width: data.width,
+          height: data.height,
+          fileName: `${file.name}_${i}`,
+          mimeType: data.mimeType,
+          position: {
+            x: (whiteboardWidth - data.width) / 2,
+            y: (whiteboardHeight - data.height) / 2,
+          },
+        } as ImageElement,
+      ],
+    }));
+    slideContent.push(...slideData);
+  }
+
   const whiteboardData: WhiteboardDocumentExport = {
     version: 'net.nordeck.whiteboard@v1',
     whiteboard: {
       // Each image is a slide
-      slides: imageData.map((data, i) => ({
-        elements: [
-          {
-            type: 'image',
-            mxc: 'placeholder' + i,
-            width: data.width,
-            height: data.height,
-            fileName: `${file.name}_${i}`,
-            mimeType: data.mimeType,
-            position: {
-              x: (whiteboardWidth - data.width) / 2,
-              y: (whiteboardHeight - data.height) / 2,
-            },
-          } as ImageElement,
-        ],
-      })),
+      slides: slideContent,
       files: imageData.map((data, i) => ({
         mxc: 'placeholder' + i,
         data: data.base64,
