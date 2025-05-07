@@ -32,8 +32,6 @@ import { TriangleIcon } from '../icons/TriangleIcon';
 import { UploadIcon } from '../icons/UploadIcon';
 import { useSlideImageUpload } from '../ImageUpload';
 import { ActiveTool, useLayoutState } from '../Layout';
-import { infiniteCanvasMode } from '../Whiteboard';
-import { FrameButton } from './FrameButton';
 
 export function ToolsBar() {
   const { t } = useTranslation('neoboard');
@@ -131,7 +129,7 @@ export function ToolsBar() {
               onChange={handleRadioClick}
             />
           ))}
-          {infiniteCanvasMode && <FrameButton />}
+          {/*infiniteCanvasMode && <FrameButton />*/}
           <ToolbarButton
             aria-label={t('toolsBar.imageUploadTool', 'Upload image')}
             disabled={isLocked}
