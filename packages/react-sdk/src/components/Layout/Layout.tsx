@@ -177,7 +177,8 @@ function ContentArea() {
           right={0}
         >
           <FullscreenModeBar />
-          {(!isViewingPresentation || canStopPresentation) && <PresentBar />}
+          {!infiniteCanvasMode &&
+            (!isViewingPresentation || canStopPresentation) && <PresentBar />}
         </ToolbarContainer>
       </ToolbarContainer>
 
