@@ -257,7 +257,9 @@ describe('<CopyAndPasteShortcuts>', () => {
     fireClipboardEvent(
       'paste',
       serializeToClipboard({
-        elements: [mockRectangleElement({ width: 600, height: 300 })],
+        elements: {
+          ['element-id-0']: mockRectangleElement({ width: 600, height: 300 }),
+        },
       }),
     );
 
@@ -277,6 +279,7 @@ describe('<CopyAndPasteShortcuts>', () => {
       type: 'shape',
       width: 600,
     });
+    expect(activeSlide.getElement('element-id-0')).toBeUndefined();
   });
 
   it('should paste content to cursor position', () => {

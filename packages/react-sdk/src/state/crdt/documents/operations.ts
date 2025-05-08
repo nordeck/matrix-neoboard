@@ -273,8 +273,9 @@ export function generateAddElement(
 export function generateAddElements(
   slideId: string,
   elements: Array<Element>,
+  elementIds?: Array<string>,
 ): [ChangeFn<WhiteboardDocument>, Array<string>] {
-  const elementIds = elements.map(() => nanoid());
+  const newElementIds = elementIds ?? elements.map(() => nanoid());
 
   const changeFn = (doc: SharedMap<WhiteboardDocument>) => {
     const slide = getSlide(doc, slideId);
@@ -290,12 +291,12 @@ export function generateAddElements(
         Object.entries(element),
       ) as SharedMap<Element>;
 
-      slide.get('elements').set(elementIds[index], elementMap);
-      slide.get('elementIds').push([elementIds[index]]);
+      slide.get('elements').set(newElementIds[index], elementMap);
+      slide.get('elementIds').push([newElementIds[index]]);
     });
   };
 
-  return [changeFn, elementIds];
+  return [changeFn, newElementIds];
 }
 
 /** Move an element identified by its id to a different position */

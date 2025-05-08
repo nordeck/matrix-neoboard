@@ -171,11 +171,18 @@ export type WhiteboardSlideInstance = {
    */
   addElement(element: Element): string;
   /**
-   * Add new elements to the slide.
+   * Add new elements to the slide. All connection data is ignored.
    * @param elements - the specification of the elements.
    * @returns the IDs of the created elements.
    */
   addElements(elements: Array<Element>): string[];
+  /**
+   * Add new elements with connections data.
+   * Each element will get a new id in the document.
+   * Connection data (ids) for elements not included in the passed elements is ignored.
+   * @param elements
+   */
+  addElementsWithConnections(elements: Elements): string[];
   /** Remove the elements by their IDs */
   removeElements(elementIds: string[]): void;
   /**

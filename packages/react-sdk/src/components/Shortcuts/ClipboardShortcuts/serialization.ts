@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
+import Joi from 'joi';
 import { Base64 } from 'js-base64';
-import { Element, isValidElement } from '../../../state';
+import { Element, Elements, isValidElement } from '../../../state';
+import { elementSchema } from '../../../state/crdt/documents/elements';
 import { whiteboardHeight, whiteboardWidth } from '../../Whiteboard';
 
 export type ClipboardContent = Partial<
@@ -23,8 +25,20 @@ export type ClipboardContent = Partial<
 >;
 
 export type WhiteboardClipboardContent = {
-  elements?: Element[];
+  elements?: Elements;
 };
+
+export type IncomingWhiteboardClipboardContent = {
+  elements?: Element[] | Elements;
+};
+
+const elementsSchema = Joi.object()
+  .pattern(Joi.string(), elementSchema)
+  .required();
+
+function isValidElementsObject(elements: unknown): elements is Elements {
+  return !elementsSchema.validate(elements).error;
+}
 
 export function serializeToClipboard(
   content: WhiteboardClipboardContent,
@@ -37,7 +51,7 @@ export function serializeToClipboard(
 
 export function deserializeFromClipboard(
   content: ClipboardContent,
-): WhiteboardClipboardContent {
+): IncomingWhiteboardClipboardContent {
   if (content['text/html']) {
     const { elements } = deserializeFromHtml(content['text/html']);
 
@@ -66,7 +80,7 @@ export function serializeAsPlainText({
     return '';
   }
 
-  return elements
+  return Object.values(elements)
     .map((element) => {
       if (element.type !== 'shape') {
         return '';
@@ -80,7 +94,7 @@ export function serializeAsPlainText({
 
 export function deserializeFromPlainText(
   text: string,
-): WhiteboardClipboardContent {
+): IncomingWhiteboardClipboardContent {
   const width = 600;
   const height = 300;
 
@@ -110,10 +124,15 @@ const HTML_METADATA_START = '<--(net.nordeck.whiteboard)';
 const HTML_METADATA_END = '(/net.nordeck.whiteboard)-->';
 
 export function serializeAsHtml(content: WhiteboardClipboardContent): string {
+  const elementsArray = content.elements
+    ? Object.entries(content.elements)
+    : undefined;
   const elementsText =
-    content.elements
-      ?.map((element) =>
-        escapeTextAsHtml(serializeAsPlainText({ elements: [element] })),
+    elementsArray
+      ?.map(([elementId, element]) =>
+        escapeTextAsHtml(
+          serializeAsPlainText({ elements: { [elementId]: element } }),
+        ),
       )
       .filter((text) => text.length > 0)
       .map((text) => `<div>${text}</div>`)
@@ -128,7 +147,7 @@ export function serializeAsHtml(content: WhiteboardClipboardContent): string {
 
 export function deserializeFromHtml(
   content: string,
-): WhiteboardClipboardContent {
+): IncomingWhiteboardClipboardContent {
   const metadataStartIndex = content.indexOf(HTML_METADATA_START);
 
   if (metadataStartIndex < 0) {
@@ -155,6 +174,9 @@ export function deserializeFromHtml(
 
     if (Array.isArray(data.elements)) {
       const elements = data.elements.filter(isValidElement);
+      return { elements };
+    } else if (isValidElementsObject(data.elements)) {
+      const elements = data.elements;
       return { elements };
     }
 
