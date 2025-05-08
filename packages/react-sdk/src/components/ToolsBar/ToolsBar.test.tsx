@@ -206,7 +206,8 @@ describe('<ToolsBar/>', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('should show the create frame button, if Infinite Ianvas is enabled', () => {
+  // TODO: enable test when adding frames back in
+  it.skip('should show the create frame button, if Infinite Ianvas is enabled', () => {
     vi.spyOn(whiteboardConstants, 'infiniteCanvasMode', 'get').mockReturnValue(
       true,
     );
