@@ -85,3 +85,12 @@ export async function makePreferredLivekitFoci(
 
 const isLivekitFocusConfig = (object: RTCFocus): object is LivekitFocusConfig =>
   object.type === 'livekit' && 'livekit_service_url' in object;
+
+export function areLiveKitFociEqual(a: LivekitFocus, b: LivekitFocus): boolean {
+  return (
+    isLivekitFocusConfig(a) &&
+    isLivekitFocusConfig(a) &&
+    a.livekit_service_url === b.livekit_service_url &&
+    a.type === b.type
+  );
+}
