@@ -1,5 +1,44 @@
 # @nordeck/matrix-neoboard-widget
 
+## 2.2.0
+
+### Minor Changes
+
+- 0a9bc50: Add sticky notes feature with toolbar button, default styling, and resize behavior
+- d050272: There is now an infinite canvas mode exist which can be enabled with the `REACT_APP_INFINITE_CANVAS` environment variable.
+- 7964ca0: There is now a the new frame tool, that places frames on the canvas (only with feature flag `REACT_APP_INFINITE_CANVAS`)
+- 5aa6fad: Adds baseline MatrixRTC implementation as an alternative to peer-to-peer WebRTC
+
+### Patch Changes
+
+- f88782b: Fix the canvas being unable to display visible area when infinite canvas mode is activated
+- 241f6dc: Improve drag and drop, copy and paste behaviours to add elements to the mouse cursor position
+- 57e222d: Keep the elements connections during copy and paste, duplicate operations
+- 17be86c: Update the help center button icon to look less like an error
+- 3e0cbf7: Fix regressions in fitting a widget into a frame and a canvas moving off-screen
+- 176b3da: Fix selected connected line direction change when moved and snap to grid is enabled
+- 42e391b: Improve the behavior of connecting a line to a shape
+- Updated dependencies [f88782b]
+- Updated dependencies [a523436]
+- Updated dependencies [0a9bc50]
+- Updated dependencies [f24412d]
+- Updated dependencies [d050272]
+- Updated dependencies [241f6dc]
+- Updated dependencies [7964ca0]
+- Updated dependencies [5aa6fad]
+- Updated dependencies [aca78bb]
+- Updated dependencies [c8348bd]
+- Updated dependencies [57e222d]
+- Updated dependencies [17be86c]
+- Updated dependencies [3e0cbf7]
+- Updated dependencies [d9a5026]
+- Updated dependencies [176b3da]
+- Updated dependencies [42e391b]
+- Updated dependencies [b384065]
+- Updated dependencies [fd1538e]
+- Updated dependencies [3d7c3bf]
+  - @nordeck/matrix-neoboard-react-sdk@1.2.0
+
 ## 2.1.0
 
 ### Minor Changes

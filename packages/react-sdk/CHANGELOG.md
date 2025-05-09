@@ -1,5 +1,34 @@
 # @nordeck/matrix-neoboard-react-sdk
 
+## 1.2.0
+
+### Minor Changes
+
+- a523436: Use room id of selected whiteboard event to load document snapshots.
+- 0a9bc50: Add sticky notes feature with toolbar button, default styling, and resize behavior
+- f24412d: Fix PDF export for older boards where the font of shapes with text wasn't specified
+- d050272: There is now an infinite canvas mode exist which can be enabled with the `REACT_APP_INFINITE_CANVAS` environment variable.
+- 7964ca0: There is now a the new frame tool, that places frames on the canvas (only with feature flag `REACT_APP_INFINITE_CANVAS`)
+- 5aa6fad: Adds baseline MatrixRTC implementation as an alternative to peer-to-peer WebRTC
+- c8348bd: Provide option to create whiteboard manager with disabled RTC communication.
+- d9a5026: Export SlideSkeleton component.
+- fd1538e: Improve zooming and panning with trackpad, mouse and keyboard
+- 3d7c3bf: Fix PDF export, if the new fonts are used. Use the Inter font for all text.
+
+### Patch Changes
+
+- f88782b: Fix the canvas being unable to display visible area when infinite canvas mode is activated
+- 241f6dc: Improve drag and drop, copy and paste behaviours to add elements to the mouse cursor position
+- aca78bb: Hide Slide Overview and Presentation Mode toggles, disable Frames tool
+- 57e222d: Keep the elements connections during copy and paste, duplicate operations
+- 17be86c: Update the help center button icon to look less like an error
+- 3e0cbf7: Fix regressions in fitting a widget into a frame and a canvas moving off-screen
+- 176b3da: Fix selected connected line direction change when moved and snap to grid is enabled
+- 42e391b: Improve the behavior of connecting a line to a shape
+- b384065: Ensure that pdf imports on infinite canvas mode work.
+
+  We import pdf pages on infinite canvas now in the size of a frame instead.
+
 ## 1.1.0
 
 ### Minor Changes
