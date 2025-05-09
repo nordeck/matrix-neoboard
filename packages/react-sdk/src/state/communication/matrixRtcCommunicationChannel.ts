@@ -22,7 +22,6 @@ import {
   distinctUntilChanged,
   filter,
   firstValueFrom,
-  from,
   interval,
   map,
   mergeMap,
@@ -35,12 +34,12 @@ import {
 import { raceWith, timeout } from 'rxjs/operators';
 import { MatrixRtcPeerConnection, PeerConnection } from './connection';
 import {
+  areLiveKitFociEqual,
   LivekitFocus,
   MatrixRtcSessionManagerImpl,
   Session,
 } from './discovery';
 import AutoDiscovery from './discovery/autodiscovery';
-import { makePreferredLivekitFoci } from './discovery/matrixRtcFocus';
 import { SessionState } from './discovery/sessionManagerImpl';
 import {
   CommunicationChannel,
@@ -67,6 +66,7 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
   };
   private readonly peerConnections: PeerConnection[] = [];
   private sfuConfig: SFUConfig | undefined;
+  private activeFocus: LivekitFocus | undefined;
   private livekitFoci: LivekitFocus[] | undefined;
 
   constructor(
@@ -77,20 +77,25 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
       true,
     ),
     visibilityTimeout = 30 * 1000,
-    private readonly fociPollingInterval = 60 * 1000,
   ) {
     this.logger.log('Creating communication channel');
 
-    this.updateLivekitFoci();
-
-    interval(this.fociPollingInterval)
-      .pipe(
-        takeUntil(this.destroySubject),
-        filter(() => document.visibilityState === 'visible'),
-      )
-      .subscribe(() => {
-        this.logger.debug('Polling for updated LiveKit foci');
-        this.updateLivekitFoci();
+    this.sessionManager
+      .observeFoci()
+      .pipe(takeUntil(this.destroySubject))
+      .subscribe((foci) => {
+        this.livekitFoci = foci;
+        this.logger.debug('LiveKit foci updated', foci[0]);
+        // Check for focus change and restart backend
+        if (
+          this.activeFocus &&
+          foci.length > 0 &&
+          areLiveKitFociEqual(this.activeFocus, foci[0])
+        ) {
+          this.logger.debug('LiveKit focus changed, restarting backend');
+          this.activeFocus = this.sfuConfig = undefined;
+          this.initLiveKitBackend();
+        }
       });
 
     this.sessionManager
@@ -266,39 +271,7 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
     }
   }
 
-  private updateLivekitFoci(): void {
-    from(Promise.resolve(this.widgetApiPromise))
-      .pipe(
-        switchMap(async (widgetApi) => {
-          if (!widgetApi.widgetParameters.roomId) {
-            this.logger.error('Room ID not found in widget parameters');
-            throw new Error('Room ID not found in widget parameters');
-          }
-          if (!widgetApi.widgetParameters.userId) {
-            this.logger.error('User ID not found in widget parameters');
-            throw new Error('User ID not found in widget parameters');
-          }
-
-          const domain = widgetApi.widgetParameters.userId.replace(/^.*?:/, '');
-          return makePreferredLivekitFoci(
-            domain,
-            widgetApi.widgetParameters.roomId,
-          );
-        }),
-        takeUntil(this.destroySubject),
-      )
-      .subscribe((foci) => {
-        this.logger.log('Received new LiveKit foci', foci);
-        this.livekitFoci = foci;
-        // TODO: this will need to be changed when implementing the focus change & selection algorithm
-        const sessionId = this.sessionManager.getSessionId();
-        if (sessionId) {
-          this.sessionManager.updateSessionFoci(sessionId, foci);
-        }
-      });
-  }
-
-  private async initLiveKitServer(): Promise<void> {
+  private async initLiveKitBackend(): Promise<void> {
     if (this.sfuConfig !== undefined) {
       this.logger.debug('LiveKit config already set, skipping init');
       return;
@@ -321,10 +294,10 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
       }
 
       // Use the first focus from the list
-      const focus = this.livekitFoci[0];
+      this.activeFocus = this.livekitFoci[0];
       this.sfuConfig = await AutoDiscovery.getSFUConfigWithOpenID(
         widgetApi,
-        focus,
+        this.activeFocus,
       );
 
       this.logger.debug('Got SFU config', JSON.stringify(this.sfuConfig));
@@ -351,7 +324,7 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
 
     // Wait for the Widget API and LiveKit servers to be ready
     await this.widgetApiPromise;
-    await this.initLiveKitServer();
+    await this.initLiveKitBackend();
 
     // only start peer connection for the current session
     // because matrix rtc is not peer to peer
