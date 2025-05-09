@@ -46,6 +46,8 @@ export const FOCI_WK_KEY = 'org.matrix.msc4143.rtc_foci';
  */
 
 export default class AutoDiscovery {
+  private static logger = getLogger('AutoDiscovery');
+
   /**
    * Gets the raw discovery client configuration for the given domain.
    * @param domain - The homeserver domain to get the client config for, without the protocol prefix.
@@ -127,13 +129,12 @@ export default class AutoDiscovery {
     widgetApi: WidgetApi,
     activeFocus: LivekitFocus,
   ): Promise<SFUConfig | undefined> {
-    const logger = getLogger('getSFUConfigWithOpenID');
     const openIdToken = await widgetApi.requestOpenIDConnectToken();
 
-    logger.debug('Got openID token', openIdToken);
+    AutoDiscovery.logger.debug('Got openID token', openIdToken);
 
     try {
-      logger.info(
+      AutoDiscovery.logger.info(
         `Trying to get JWT from call's active focus URL of ${activeFocus.livekit_service_url}...`,
       );
       const sfuConfig = await AutoDiscovery.getLiveKitJWT(
@@ -142,11 +143,11 @@ export default class AutoDiscovery {
         activeFocus.livekit_alias,
         openIdToken,
       );
-      logger.info(`Got JWT from call's active focus URL.`);
+      AutoDiscovery.logger.info(`Got JWT from call's active focus URL.`);
 
       return sfuConfig;
     } catch (e) {
-      logger.warn(
+      AutoDiscovery.logger.warn(
         `Failed to get JWT from RTC session's active focus URL of ${activeFocus.livekit_service_url}.`,
         e,
       );
@@ -169,8 +170,6 @@ export default class AutoDiscovery {
     roomName: string,
     openIDToken: IOpenIDCredentials,
   ): Promise<SFUConfig> {
-    const logger = getLogger('getLiveKitJWT');
-
     try {
       const res = await fetch(livekitServiceURL + '/sfu/get', {
         method: 'POST',
@@ -184,13 +183,16 @@ export default class AutoDiscovery {
         }),
       });
       if (!res.ok) {
-        logger.error('SFU Config fetch failed with status code', res.status);
+        AutoDiscovery.logger.error(
+          'SFU Config fetch failed with status code',
+          res.status,
+        );
         throw new Error(
           'SFU Config fetch failed with status code ' + res.status,
         );
       }
       const sfuConfig = await res.json();
-      logger.debug(
+      AutoDiscovery.logger.debug(
         'Get SFU config: \nurl:',
         sfuConfig.url,
         '\njwt',
@@ -198,7 +200,7 @@ export default class AutoDiscovery {
       );
       return sfuConfig;
     } catch (e) {
-      logger.error('SFU Config fetch failed with exception', e);
+      AutoDiscovery.logger.error('SFU Config fetch failed with exception', e);
       throw new Error('SFU Config fetch failed with exception ' + e);
     }
   }
