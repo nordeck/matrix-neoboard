@@ -39,7 +39,7 @@ export const ZoomShortcuts: React.FC = function () {
     },
     {
       preventDefault: true,
-      enableOnContentEditable: true,
+      enableOnContentEditable: false,
       useKey: true,
       splitKey: '_', // needed, otherwise '+' is not applied
     },
@@ -55,7 +55,7 @@ export const ZoomShortcuts: React.FC = function () {
     },
     {
       preventDefault: true,
-      enableOnContentEditable: true,
+      enableOnContentEditable: false,
       useKey: true,
     },
     [zoomOut, hasKeyModifier],
@@ -70,7 +70,7 @@ export const ZoomShortcuts: React.FC = function () {
     },
     {
       preventDefault: true,
-      enableOnContentEditable: true,
+      enableOnContentEditable: false,
       useKey: true,
     },
     [resetZoom, hasKeyModifier],
