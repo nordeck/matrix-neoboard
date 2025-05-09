@@ -17,10 +17,10 @@
 import { WidgetApi } from '@matrix-widget-toolkit/api';
 import { cloneDeep } from 'lodash';
 import { getLogger } from 'loglevel';
-import { IOpenIDCredentials } from 'matrix-widget-api';
 import {
   BehaviorSubject,
   distinctUntilChanged,
+  firstValueFrom,
   mergeMap,
   Observable,
   Subject,
@@ -28,7 +28,13 @@ import {
   takeUntil,
 } from 'rxjs';
 import { MatrixRtcPeerConnection, PeerConnection } from './connection';
-import { LivekitFocus, Session, SessionManager } from './discovery';
+import {
+  areLiveKitFociEqual,
+  LivekitFocus,
+  MatrixRtcSessionManagerImpl,
+  Session,
+} from './discovery';
+import AutoDiscovery from './discovery/autodiscovery';
 import { SessionState } from './discovery/sessionManagerImpl';
 import {
   CommunicationChannel,
@@ -55,10 +61,12 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
   };
   private readonly peerConnections: PeerConnection[] = [];
   private sfuConfig: SFUConfig | undefined;
+  private activeFocus: LivekitFocus | undefined;
+  private livekitFoci: LivekitFocus[] | undefined;
 
   constructor(
     private readonly widgetApiPromise: Promise<WidgetApi> | WidgetApi,
-    private readonly sessionManager: SessionManager,
+    private readonly sessionManager: MatrixRtcSessionManagerImpl,
     private readonly whiteboardId: string,
     onEnableObserveVisibilityState: Observable<boolean> = new BehaviorSubject(
       true,
@@ -66,6 +74,24 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
     visibilityTimeout = 30 * 1000,
   ) {
     this.logger.log('Creating communication channel');
+
+    this.sessionManager
+      .observeFoci()
+      .pipe(takeUntil(this.destroySubject))
+      .subscribe((foci) => {
+        this.livekitFoci = foci;
+        this.logger.debug('LiveKit foci updated', foci[0]);
+        // Check for focus change and restart backend
+        if (
+          this.activeFocus &&
+          foci.length > 0 &&
+          areLiveKitFociEqual(this.activeFocus, foci[0])
+        ) {
+          this.logger.debug('LiveKit focus changed, restarting backend');
+          this.activeFocus = this.sfuConfig = undefined;
+          this.initLiveKitBackend();
+        }
+      });
 
     this.sessionManager
       .observeSession()
@@ -204,11 +230,39 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
     this.statisticsSubject.next(cloneDeep(this.statistics));
   }
 
-  private async initLiveKitServer(session: Session): Promise<void> {
+  /**
+   * If there are already known LiveKit foci, this uses them.
+   * Otherwise wait for LiveKit foci to be loaded until a timeout.
+   */
+  private async initLiveKitFoci(): Promise<void> {
+    if (this.livekitFoci !== undefined && this.livekitFoci.length > 0) {
+      this.logger.debug('LiveKit foci already known, skipping init');
+      return;
+    }
+
+    this.logger.debug('Waiting for LiveKit foci...');
+    const source = this.sessionManager.observeFoci();
+
+    try {
+      await firstValueFrom(source);
+      this.logger.debug('LiveKit foci retrieved', this.livekitFoci);
+    } catch (error) {
+      this.logger.warn('Loading LiveKit foci timed out', error);
+    }
+  }
+
+  private async initLiveKitBackend(): Promise<void> {
     if (this.sfuConfig !== undefined) {
       this.logger.debug('LiveKit config already set, skipping init');
-      // LiveKit servers already known
       return;
+    }
+
+    // Initialize and wait for LiveKit foci first
+    await this.initLiveKitFoci();
+
+    if (!this.livekitFoci || this.livekitFoci.length === 0) {
+      this.logger.error('No LiveKit foci available');
+      throw new Error('No LiveKit foci available');
     }
 
     try {
@@ -219,13 +273,12 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
         throw new Error('Room ID not found in widget parameters');
       }
 
-      const focus = (
-        await makePreferredLivekitFoci(
-          session,
-          widgetApi.widgetParameters.roomId,
-        )
-      )[0];
-      this.sfuConfig = await getSFUConfigWithOpenID(widgetApi, focus);
+      // Use the first focus from the list
+      this.activeFocus = this.livekitFoci[0];
+      this.sfuConfig = await AutoDiscovery.getSFUConfigWithOpenID(
+        widgetApi,
+        this.activeFocus,
+      );
 
       this.logger.debug('Got SFU config', JSON.stringify(this.sfuConfig));
 
@@ -235,6 +288,7 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
       }
     } catch (error) {
       this.logger.error('Error getting the LiveKit SFU config', error);
+      throw error;
     }
   }
 
@@ -250,7 +304,7 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
 
     // Wait for the Widget API and LiveKit servers to be ready
     await this.widgetApiPromise;
-    await this.initLiveKitServer(session);
+    await this.initLiveKitBackend();
 
     // only start peer connection for the current session
     // because matrix rtc is not peer to peer
@@ -322,97 +376,5 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
       // If session does not exist, add it
       this.statistics.sessions.push(session);
     }
-  }
-}
-
-/*
- * @todo this is hardcoded, needs to be implemented
- */
-async function makePreferredLivekitFoci(
-  rtcSession: Session,
-  livekitAlias: string,
-): Promise<LivekitFocus[]> {
-  const logger = getLogger('makePreferredLivekitFoci');
-  logger.debug('Building preferred foci list for', rtcSession.sessionId);
-
-  const preferredFoci: LivekitFocus[] = [];
-
-  const livekit_config: LivekitFocus = {
-    type: 'livekit',
-    livekit_service_url: 'https://livekit-jwt.matrix.internal',
-    livekit_alias: livekitAlias,
-  };
-
-  preferredFoci.push(livekit_config);
-
-  return preferredFoci;
-}
-
-export async function getSFUConfigWithOpenID(
-  widgetApi: WidgetApi,
-  activeFocus: LivekitFocus,
-): Promise<SFUConfig | undefined> {
-  const logger = getLogger('getSFUConfigWithOpenID');
-  const openIdToken = await widgetApi.requestOpenIDConnectToken();
-
-  logger.debug('Got openID token', openIdToken);
-
-  try {
-    logger.info(
-      `Trying to get JWT from call's active focus URL of ${activeFocus.livekit_service_url}...`,
-    );
-    const sfuConfig = await getLiveKitJWT(
-      widgetApi,
-      activeFocus.livekit_service_url,
-      activeFocus.livekit_alias,
-      openIdToken,
-    );
-    logger.info(`Got JWT from call's active focus URL.`);
-
-    return sfuConfig;
-  } catch (e) {
-    logger.warn(
-      `Failed to get JWT from RTC session's active focus URL of ${activeFocus.livekit_service_url}.`,
-      e,
-    );
-    return undefined;
-  }
-}
-
-async function getLiveKitJWT(
-  widgetApi: WidgetApi,
-  livekitServiceURL: string,
-  roomName: string,
-  openIDToken: IOpenIDCredentials,
-): Promise<SFUConfig> {
-  const logger = getLogger('getLiveKitJWT');
-
-  try {
-    const res = await fetch(livekitServiceURL + '/sfu/get', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        room: roomName,
-        openid_token: openIDToken,
-        device_id: widgetApi.widgetParameters.deviceId,
-      }),
-    });
-    if (!res.ok) {
-      logger.error('SFU Config fetch failed with status code', res.status);
-      throw new Error('SFU Config fetch failed with status code ' + res.status);
-    }
-    const sfuConfig = await res.json();
-    logger.debug(
-      'Get SFU config: \nurl:',
-      sfuConfig.url,
-      '\njwt',
-      sfuConfig.jwt,
-    );
-    return sfuConfig;
-  } catch (e) {
-    logger.error('SFU Config fetch failed with exception', e);
-    throw new Error('SFU Config fetch failed with exception ' + e);
   }
 }
