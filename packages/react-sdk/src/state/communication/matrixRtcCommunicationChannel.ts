@@ -20,18 +20,13 @@ import { getLogger } from 'loglevel';
 import {
   BehaviorSubject,
   distinctUntilChanged,
-  filter,
   firstValueFrom,
-  interval,
-  map,
   mergeMap,
-  NEVER,
   Observable,
   Subject,
   switchMap,
   takeUntil,
 } from 'rxjs';
-import { raceWith, timeout } from 'rxjs/operators';
 import { MatrixRtcPeerConnection, PeerConnection } from './connection';
 import {
   areLiveKitFociEqual,
@@ -252,16 +247,7 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
     }
 
     this.logger.debug('Waiting for LiveKit foci...');
-    const source = NEVER.pipe(timeout(2500)).pipe(
-      raceWith(
-        interval(250).pipe(
-          map(() => {
-            return this.livekitFoci;
-          }),
-          filter((foci) => foci !== undefined && foci.length > 0),
-        ),
-      ),
-    );
+    const source = this.sessionManager.observeFoci();
 
     try {
       await firstValueFrom(source);

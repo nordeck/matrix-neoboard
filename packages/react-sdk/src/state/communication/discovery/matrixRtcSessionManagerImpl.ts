@@ -135,7 +135,9 @@ export class MatrixRtcSessionManagerImpl implements SessionManager {
         takeUntil(this.leaveSubject),
         switchMap(() => this.refreshOwnSession(sessionId)),
       )
-      .subscribe();
+      .subscribe(() => {
+        this.logger.debug('Session refreshed');
+      });
 
     await this.refreshOwnSession(sessionId);
 
@@ -244,7 +246,7 @@ export class MatrixRtcSessionManagerImpl implements SessionManager {
   }
 
   private async refreshOwnSession(
-    sessionId: string,
+    sessionId: string | undefined,
     content?: Partial<RTCSessionEventContent>,
   ): Promise<void> {
     const expires = Date.now() + this.sessionTimeout;
@@ -336,7 +338,6 @@ export class MatrixRtcSessionManagerImpl implements SessionManager {
             this.logger.error('User ID not found in widget parameters');
             throw new Error('User ID not found in widget parameters');
           }
-
           const domain = widgetApi.widgetParameters.userId.replace(/^.*?:/, '');
           return makePreferredLivekitFoci(
             domain,
@@ -353,14 +354,13 @@ export class MatrixRtcSessionManagerImpl implements SessionManager {
           );
           return;
         }
-        const sessionId = this.getSessionId();
-        if (sessionId) {
-          this.activeFoci = foci;
-          this.refreshOwnSession(sessionId, {
-            foci_preferred: foci,
-          });
-          this.fociSubject.next(foci);
-        }
+        // Notify observers of the new foci
+        this.fociSubject.next(foci);
+        // Update the preferred foci in the current session
+        this.activeFoci = foci;
+        this.refreshOwnSession(this.getSessionId(), {
+          foci_preferred: foci,
+        });
       });
   }
 }
