@@ -15,9 +15,6 @@ jobs:
     steps:
       # Clone repo to get the helm charts
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: '0'
-          persist-credentials: false
 
       - name: Checkout valhalla for values
         uses: actions/checkout@v4
@@ -31,6 +28,9 @@ jobs:
           path: valhalla
           persist-credentials: false
 
+      - name: Set up Helm
+        uses: azure/setup-helm@v4.3.0
+
       - name: Create Kubeconfig
         run: |
           # Extract the base64 encoded config data and write this to the KUBECONFIG
@@ -39,17 +39,9 @@ jobs:
           echo "KUBECONFIG=/tmp/config" >> $GITHUB_ENV
 
       - name: deploy k8s to cluster
-        uses: wahyd4/kubectl-helm-action@master
-        env:
-          KUBE_CONFIG_DATA: ${{ secrets.KUBECONFIG_NEOTOOLSUITE_STAGE }}
-        with:
-          args: |
-            helm upgrade --install neoboard ./charts/matrix-neoboard-widget -f ./valhalla/cluster/neotoolsuite-stage/neoboard/values-neotoolsuite-stage.yaml -n matrix -set image.tag=${{ github.event.inputs.image_tag }}
+        run: |
+          helm upgrade --install neoboard ./charts/matrix-neoboard-widget -f ./valhalla/cluster/neotoolsuite-stage/neoboard/values-neotoolsuite-stage.yaml -n matrix -set image.tag=${{ github.event.inputs.image_tag }}
 
       - name: restart rollout
-        uses: wahyd4/kubectl-helm-action@master
-        env:
-          KUBE_CONFIG_DATA: ${{ secrets.KUBECONFIG_NEOTOOLSUITE_STAGE }}
-        with:
-          args: |
-            kubectl rollout restart deployment neoboard -n matrix
+        run: |
+          kubectl rollout restart deployment neoboard -n matrix
