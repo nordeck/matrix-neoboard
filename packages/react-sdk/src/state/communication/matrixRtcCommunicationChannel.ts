@@ -15,6 +15,7 @@
  */
 
 import { WidgetApi } from '@matrix-widget-toolkit/api';
+import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { cloneDeep } from 'lodash';
 import { getLogger } from 'loglevel';
 import { IOpenIDCredentials } from 'matrix-widget-api';
@@ -337,13 +338,16 @@ async function makePreferredLivekitFoci(
 
   const preferredFoci: LivekitFocus[] = [];
 
-  const livekit_config: LivekitFocus = {
-    type: 'livekit',
-    livekit_service_url: 'https://livekit-jwt.matrix.internal',
-    livekit_alias: livekitAlias,
-  };
-
-  preferredFoci.push(livekit_config);
+  const envFoci = getEnvironment('REACT_APP_RTC_LIVEKIT_SERVICE_URL');
+  if (envFoci) {
+    logger.debug('Using environment variable for LiveKit service URL', envFoci);
+    const livekit_config: LivekitFocus = {
+      type: 'livekit',
+      livekit_service_url: envFoci,
+      livekit_alias: livekitAlias,
+    };
+    preferredFoci.push(livekit_config);
+  }
 
   return preferredFoci;
 }
