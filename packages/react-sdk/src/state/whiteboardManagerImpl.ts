@@ -88,8 +88,8 @@ export function createWhiteboardManager(
   widgetApiPromise: Promise<WidgetApi>,
   disableRtc?: boolean,
 ): WhiteboardManager {
-  let sessionManager: SessionManager | undefined = undefined;
-  let signalingChannel: SignalingChannel | undefined = undefined;
+  let sessionManager: SessionManager | undefined;
+  let signalingChannel: SignalingChannel | undefined;
 
   if (!disableRtc) {
     // Initialize signaling channel only for P2P WebRTC mode
