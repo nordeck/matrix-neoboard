@@ -40,7 +40,7 @@ jobs:
 
       - name: deploy k8s to cluster
         run: |
-          helm upgrade --install neoboard ./charts/matrix-neoboard-widget -f ./valhalla/cluster/neotoolsuite-demo/neoboard/values-neotoolsuite-demo.yaml -n matrix -set image.tag=${{ github.event.inputs.image_tag }}
+          helm upgrade --install neoboard ./charts/matrix-neoboard-widget -f ./valhalla/cluster/neotoolsuite-demo/neoboard/values-neotoolsuite-demo.yaml -n matrix --set image.tag=${{ github.event.inputs.image_tag }}
 
       - name: restart rollout
         run: |
