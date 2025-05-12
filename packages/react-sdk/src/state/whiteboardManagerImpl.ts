@@ -88,22 +88,25 @@ export function createWhiteboardManager(
   widgetApiPromise: Promise<WidgetApi>,
   disableRtc?: boolean,
 ): WhiteboardManager {
-  const signalingChannel = !disableRtc
-    ? new ToDeviceMessageSignalingChannel(widgetApiPromise)
-    : undefined;
+  let sessionManager: SessionManager | undefined;
+  let signalingChannel: SignalingChannel | undefined;
 
-  const sessionManager = matrixRtcMode
-    ? new MatrixRtcSessionManagerImpl(widgetApiPromise)
-    : new SessionManagerImpl(widgetApiPromise);
+  if (!disableRtc) {
+    // Initialize signaling channel only for P2P WebRTC mode
+    if (!matrixRtcMode) {
+      signalingChannel = new ToDeviceMessageSignalingChannel(widgetApiPromise);
+    }
 
-  const sessionManagerToUse = disableRtc ? undefined : sessionManager;
-  const signalingChannelToUse =
-    disableRtc || matrixRtcMode ? undefined : signalingChannel;
+    // Initialize session manager based on RTC mode
+    sessionManager = matrixRtcMode
+      ? new MatrixRtcSessionManagerImpl(widgetApiPromise)
+      : new SessionManagerImpl(widgetApiPromise);
+  }
 
   return new WhiteboardManagerImpl(
     store,
     widgetApiPromise,
-    sessionManagerToUse,
-    signalingChannelToUse,
+    sessionManager,
+    signalingChannel,
   );
 }
