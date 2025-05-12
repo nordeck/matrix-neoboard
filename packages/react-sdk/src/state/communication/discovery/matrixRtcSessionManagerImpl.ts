@@ -59,8 +59,6 @@ export class MatrixRtcSessionManagerImpl implements SessionManager {
     private readonly widgetApiPromise: Promise<WidgetApi> | WidgetApi,
     private readonly sessionTimeout = DEFAULT_RTC_EXPIRE_DURATION,
   ) {
-    this.updateLivekitFoci();
-
     interval(this.fociPollingInterval)
       .pipe(
         takeUntil(this.destroySubject),
@@ -104,6 +102,7 @@ export class MatrixRtcSessionManagerImpl implements SessionManager {
       this.logger.debug('Already joined a whiteboard, must leave first.');
       await this.leave();
     }
+    this.updateLivekitFoci();
 
     const widgetApi = await this.widgetApiPromise;
     const { userId, deviceId } = widgetApi.widgetParameters;
@@ -348,14 +347,14 @@ export class MatrixRtcSessionManagerImpl implements SessionManager {
       )
       .subscribe((foci) => {
         this.logger.log('Received new LiveKit foci', foci);
+        // Notify observers of the new foci
+        this.fociSubject.next(foci);
         if (isEqual(this.activeFoci, foci)) {
           this.logger.debug(
             'No changes in LiveKit foci from .well-known/matrix/client',
           );
           return;
         }
-        // Notify observers of the new foci
-        this.fociSubject.next(foci);
         // Update the preferred foci in the current session
         this.activeFoci = foci;
         this.refreshOwnSession(this.getSessionId(), {
