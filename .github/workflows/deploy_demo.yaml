@@ -44,4 +44,4 @@ jobs:
 
       - name: restart rollout
         run: |
-          kubectl rollout restart deployment neoboard -n matrix
+          kubectl rollout restart deployment widget -n matrix
