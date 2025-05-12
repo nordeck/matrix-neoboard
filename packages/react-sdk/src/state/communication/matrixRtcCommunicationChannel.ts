@@ -72,8 +72,12 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
       .observeSession()
       .pipe(takeUntil(this.destroySubject))
       .subscribe((session) => {
-        this.logger.debug('Adding session statistics', session);
-        this.addSessionStatistics(session);
+        this.logger.debug('Observing session', session);
+        if (session.expiresTs !== undefined) {
+          this.addSessionStatistics(session);
+        } else {
+          this.removeSessionStatistics(session);
+        }
       });
 
     this.sessionManager
@@ -310,10 +314,7 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
 
     // Find the index of the session if it already exists
     const existingSessionIndex = this.statistics.sessions.findIndex(
-      (existingSession) =>
-        existingSession.sessionId === session.sessionId &&
-        existingSession.userId === session.userId &&
-        existingSession.whiteboardId === session.whiteboardId,
+      (existingSession) => existingSession.sessionId === session.sessionId,
     );
 
     // If session exists, replace it with the new session
@@ -323,6 +324,17 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
       // If session does not exist, add it
       this.statistics.sessions.push(session);
     }
+  }
+
+  private removeSessionStatistics(session: SessionState) {
+    if (!this.statistics.sessions) {
+      return;
+    }
+
+    // Remove the session from the list
+    this.statistics.sessions = this.statistics.sessions.filter(
+      (s) => s.sessionId !== session.sessionId,
+    );
   }
 }
 
