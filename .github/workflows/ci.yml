@@ -352,11 +352,7 @@ jobs:
     timeout-minutes: 5
     needs: build
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: '0'
-          persist-credentials: false
+      - uses: actions/checkout@v4
 
       - name: Checkout valhalla for values
         uses: actions/checkout@v4
@@ -371,6 +367,9 @@ jobs:
           path: valhalla
           persist-credentials: false
 
+      - name: Set up Helm
+        uses: azure/setup-helm@v4.3.0
+
       - name: Create Kubeconfig
         run: |
           # Extract the base64 encoded config data and write this to the KUBECONFIG
@@ -380,32 +379,18 @@ jobs:
 
       # Deploy dev
       - name: Deploy k8s to cluster
-        uses: wahyd4/kubectl-helm-action@master
-        env:
-          KUBE_CONFIG_DATA: ${{ secrets.KUBECONFIG_NEOTOOLSUITE_DEV }}
-        with:
-          args: |
-            helm upgrade --install matrix-neoboard ./charts/matrix-neoboard-widget -f ./valhalla/cluster/neotoolsuite-dev/neoboard/values-neotoolsuite-dev.yaml -n matrix --set image.tag="argo-${{ needs.build.outputs.ARGOCD_SHA }}"
+        run: |
+          helm upgrade --install matrix-neoboard ./charts/matrix-neoboard-widget -f ./valhalla/cluster/neotoolsuite-dev/neoboard/values-neotoolsuite-dev.yaml -n matrix --set image.tag="argo-${{ needs.build.outputs.ARGOCD_SHA }}"
+
       - name: Restart rollout
-        uses: wahyd4/kubectl-helm-action@master
-        env:
-          KUBE_CONFIG_DATA: ${{ secrets.KUBECONFIG_NEOTOOLSUITE_DEV }}
-        with:
-          args: |
-            kubectl rollout restart deployment matrix-neoboard -n matrix
-            #
+        run: |
+          kubectl rollout restart deployment matrix-neoboard -n matrix
+
       # Deploy infinite canvas
       - name: Deploy k8s to cluster (infinite canvas)
-        uses: wahyd4/kubectl-helm-action@master
-        env:
-          KUBE_CONFIG_DATA: ${{ secrets.KUBECONFIG_NEOTOOLSUITE_DEV }}
-        with:
-          args: |
-            helm upgrade --install matrix-neoboard-infinite-canvas ./charts/matrix-neoboard-widget -f ./valhalla/cluster/neotoolsuite-dev/neoboard/values-neotoolsuite-dev.infinite-canvas.yaml -n matrix --set image.tag="argo-${{ needs.build.outputs.ARGOCD_SHA }}"
+        run: |
+          helm upgrade --install matrix-neoboard-infinite-canvas ./charts/matrix-neoboard-widget -f ./valhalla/cluster/neotoolsuite-dev/neoboard/values-neotoolsuite-dev.infinite-canvas.yaml -n matrix --set image.tag="argo-${{ needs.build.outputs.ARGOCD_SHA }}"
+
       - name: Restart rollout (infinite canvas)
-        uses: wahyd4/kubectl-helm-action@master
-        env:
-          KUBE_CONFIG_DATA: ${{ secrets.KUBECONFIG_NEOTOOLSUITE_DEV }}
-        with:
-          args: |
-            kubectl rollout restart deployment matrix-neoboard-widget-infinite-canvas -n matrix
+        run: |
+          kubectl rollout restart deployment matrix-neoboard-widget-infinite-canvas -n matrix
