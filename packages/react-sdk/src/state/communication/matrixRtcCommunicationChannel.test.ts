@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { WidgetApi } from '@matrix-widget-toolkit/api';
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { waitFor } from '@testing-library/react';
 import { BehaviorSubject, Subject, firstValueFrom, toArray } from 'rxjs';
@@ -28,7 +29,11 @@ import {
 } from 'vitest';
 import { mockDocumentVisibilityState } from '../../lib/testUtils/domTestUtils';
 import { PeerConnection, PeerConnectionStatistics } from './connection';
-import { Session, SessionManager } from './discovery';
+import {
+  LivekitFocus,
+  MatrixRtcSessionManagerImpl,
+  Session,
+} from './discovery';
 import { SessionState } from './discovery/sessionManagerImpl';
 import { MatrixRtcCommunicationChannel } from './matrixRtcCommunicationChannel';
 
@@ -38,6 +43,10 @@ afterEach(() => widgetApi.stop());
 
 beforeEach(() => {
   widgetApi = mockWidgetApi();
+  // @ts-ignore forcefully set for tests
+  widgetApi.widgetParameters.userId = '@user-id';
+  // @ts-ignore forcefully set for tests
+  widgetApi.widgetParameters.deviceId = 'DEVICEID';
 });
 
 afterEach(() => {
@@ -64,12 +73,13 @@ describe('MatrixRtcCommunicationChannel', () => {
     remoteUserId: '@user-id',
   };
 
-  let sessionManager: Mocked<SessionManager>;
+  let sessionManager: Mocked<MatrixRtcSessionManagerImpl>;
   let peerConnection: Mocked<PeerConnection>;
   let channel: MatrixRtcCommunicationChannel;
   let sessionSubject: Subject<SessionState>;
   let joinedSubject: Subject<Session>;
   let leftSubject: Subject<Session>;
+  let fociSubject: Subject<LivekitFocus[]>;
   let statisticsSubject: Subject<PeerConnectionStatistics>;
   let enableObserveVisibilityStateSubject: Subject<boolean>;
 
@@ -81,23 +91,31 @@ describe('MatrixRtcCommunicationChannel', () => {
     sessionSubject = new Subject();
     joinedSubject = new Subject();
     leftSubject = new Subject();
-    sessionManager = {
-      getSessionId: vi.fn(() => currentSessionId),
-      getSessions: vi.fn().mockReturnValue([]),
-      observeSession: vi.fn().mockReturnValue(sessionSubject),
-      observeSessionJoined: vi.fn().mockReturnValue(joinedSubject),
-      observeSessionLeft: vi.fn().mockReturnValue(leftSubject),
-      join: vi.fn().mockImplementation(async () => {
-        const sessionId = 'session-id';
-        currentSessionId = sessionId;
-        return { sessionId };
+    fociSubject = new Subject();
+    sessionManager = vi.mocked(
+      Object.assign(new MatrixRtcSessionManagerImpl(widgetApi as WidgetApi), {
+        getSessionId: vi.fn(() => currentSessionId),
+        getSessions: vi.fn().mockReturnValue([]),
+        observeSession: vi.fn().mockReturnValue(sessionSubject),
+        observeSessionJoined: vi.fn().mockReturnValue(joinedSubject),
+        observeSessionLeft: vi.fn().mockReturnValue(leftSubject),
+        observeFoci: vi.fn().mockReturnValue(fociSubject),
+        join: vi.fn().mockImplementation(async () => {
+          const sessionId = 'session-id';
+          currentSessionId = sessionId;
+          return { sessionId };
+        }),
+        leave: vi.fn().mockImplementation(async () => {
+          leftSubject.next(anotherSession);
+          currentSessionId = undefined;
+        }),
+        destroy: vi.fn(),
+        joinState: {
+          whiteboardId: 'whiteboard-id',
+          sessionId: 'session-id',
+        },
       }),
-      leave: vi.fn().mockImplementation(async () => {
-        leftSubject.next(anotherSession);
-        currentSessionId = undefined;
-      }),
-      destroy: vi.fn(),
-    };
+    );
 
     statisticsSubject = new Subject();
     enableObserveVisibilityStateSubject = new BehaviorSubject(true);
@@ -236,13 +254,13 @@ describe('MatrixRtcCommunicationChannel', () => {
   function createChannel() {
     channel = new MatrixRtcCommunicationChannel(
       widgetApi,
-      sessionManager,
+      sessionManager as MatrixRtcSessionManagerImpl,
       'whiteboard-id',
       enableObserveVisibilityStateSubject,
       250,
     );
 
-    const mockInitLiveKitServer = vi.fn().mockImplementation(function (
+    const mockInitLiveKitBackend = vi.fn().mockImplementation(function (
       this: unknown,
     ) {
       Object.defineProperty(this, 'sfuConfig', {
@@ -252,10 +270,20 @@ describe('MatrixRtcCommunicationChannel', () => {
         },
         writable: true,
       });
+      Object.defineProperty(this, 'livekitFoci', {
+        value: [
+          {
+            type: 'livekit',
+            livekit_service_url: 'http://mock-livekit-server.example.com',
+          },
+        ],
+        writable: true,
+      });
+
       return Promise.resolve();
     });
 
     // @ts-ignore - Overriding private method
-    channel.initLiveKitServer = mockInitLiveKitServer;
+    channel.initLiveKitBackend = mockInitLiveKitBackend;
   }
 });
