@@ -24,6 +24,9 @@ REACT_APP_EMBEDDED=false
 # optional: Select the Realtime Communication (RTC) implementation (defaults to `webrtc`, otherwise `matrixrtc`)
 REACT_APP_RTC=webrtc
 
+# optional: Defines a LiveKit JWT Service URL that is added to the RTC session `foci_preferred` list
+REACT_APP_RTC_LIVEKIT_SERVICE_URL=https://lk-jwt.example.org
+
 # optional: Use infinite canvas instead of slides mode (defaults to `false`)
 REACT_APP_INFINITE_CANVAS=false
 ```
