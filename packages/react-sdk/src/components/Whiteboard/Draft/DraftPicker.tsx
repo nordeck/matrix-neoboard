@@ -40,7 +40,9 @@ export const DraftPicker = (): ReactElement | null => {
       return <LineDraft />;
 
     case 'arrow':
-      return <LineDraft endMarker="arrow-head-line" />;
+      return (
+        <LineDraft startMarker="arrow-head-line" endMarker="arrow-head-line" />
+      );
 
     case 'polyline':
       return <PolylineDraft />;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Nordeck IT + Consulting GmbH
+ * Copyright 2025 Nordeck IT + Consulting GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,8 @@
  * limitations under the License.
  */
 
-import { LineMarker } from '../../../state/crdt/documents/elements';
-import { DraftLineChild } from '../../Whiteboard';
-import LineDisplay from './Display';
+import { describe } from 'vitest';
 
-type LineDraftProps = {
-  startMarker?: LineMarker;
-  endMarker?: LineMarker;
-};
-
-const LineDraft = ({ startMarker, endMarker }: LineDraftProps) => {
-  return (
-    <DraftLineChild
-      display={LineDisplay}
-      onlyStartAndEndPoints
-      kind="line"
-      startMarker={startMarker}
-      endMarker={endMarker}
-    />
-  );
-};
-
-export default LineDraft;
+describe('Testing Arrow Heads', () => {
+  // TODO
+});

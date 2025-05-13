@@ -17,6 +17,7 @@
 import { PropsWithChildren } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Toolbar } from '../common/Toolbar';
+import { ArrowHeadButtons } from './ArrowHeadButtons';
 import { ElementColorPicker } from './ColorPickerButton/ElementColorPicker';
 import { TextColorPicker } from './ColorPickerButton/TextColorPicker';
 import { DeleteActiveElementButton } from './DeleteActiveElementButton/DeleteActiveElementButton';
@@ -35,6 +36,7 @@ export function ElementBar({
 
   return (
     <Toolbar aria-label={toolbarTitle}>
+      <ArrowHeadButtons />
       {showTextTools && (
         <>
           <FontFamilyButton />

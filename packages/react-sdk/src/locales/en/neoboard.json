@@ -152,6 +152,7 @@
     "copy-to-clipboard": "Copy to clipboard"
   },
   "elementBar": {
+    "arrowSwitch": "Arrow Switch",
     "deleteElement_one": "Delete element",
     "deleteElement_other": "Delete elements",
     "duplicateActiveElement_one": "Duplicate the active element",

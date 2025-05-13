@@ -21,7 +21,7 @@ import {
   Point,
   useWhiteboardSlideInstance,
 } from '../../../state';
-import { EndMarker } from '../../../state/crdt/documents/elements';
+import { LineMarker } from '../../../state/crdt/documents/elements';
 import { useLayoutState } from '../../Layout';
 import { WithExtendedSelectionProps } from '../ElementBehaviors';
 import { gridCellSize } from '../constants';
@@ -32,13 +32,15 @@ export type DraftLineChildProps = {
   kind: PathKind;
   display: ComponentType<PathElement & WithExtendedSelectionProps>;
   onlyStartAndEndPoints?: boolean;
-  endMarker?: EndMarker;
+  startMarker?: LineMarker;
+  endMarker?: LineMarker;
 };
 
 export const DraftLineChild = ({
   kind,
   onlyStartAndEndPoints = false,
   display: Display,
+  startMarker,
   endMarker,
 }: DraftLineChildProps) => {
   const { isShowGrid } = useLayoutState();
@@ -57,6 +59,7 @@ export const DraftLineChild = ({
             strokeColor,
             gridCellSize: isShowGrid ? gridCellSize : undefined,
             onlyStartAndEndPoints,
+            startMarker,
             endMarker,
           }),
         );
@@ -74,6 +77,7 @@ export const DraftLineChild = ({
     strokeColor,
     isShowGrid,
     onlyStartAndEndPoints,
+    startMarker,
     endMarker,
   ]);
 
@@ -99,6 +103,7 @@ export const DraftLineChild = ({
             strokeColor,
             gridCellSize: isShowGrid ? gridCellSize : undefined,
             onlyStartAndEndPoints,
+            startMarker,
             endMarker,
           })
         : undefined,
@@ -108,6 +113,7 @@ export const DraftLineChild = ({
       strokeColor,
       isShowGrid,
       onlyStartAndEndPoints,
+      startMarker,
       endMarker,
     ],
   );

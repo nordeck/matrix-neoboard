@@ -152,6 +152,7 @@
     "copy-to-clipboard": "In die Zwischenablage kopieren"
   },
   "elementBar": {
+    "arrowSwitch": "Arrow Switch",
     "deleteElement_one": "Element löschen",
     "deleteElement_other": "Elemente löschen",
     "duplicateActiveElement_one": "Element duplizieren",
