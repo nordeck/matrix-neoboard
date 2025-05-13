@@ -36,6 +36,7 @@ import {
 import { mockRoomMember } from '../../../lib/testUtils/matrixTestUtils';
 import { WhiteboardManager, WhiteboardStatistics } from '../../../state';
 import { Toolbar } from '../../common/Toolbar';
+import * as constants from '../../Whiteboard/constants';
 import { Collaborators } from './Collaborators';
 
 let widgetApi: MockedWidgetApi;
@@ -117,6 +118,50 @@ describe('<Collaborators>', () => {
           'peer-5': mockPeerConnectionStatistics('@user-grace', 'connected'),
           'peer-6': mockPeerConnectionStatistics('@user-heidi', 'connected'),
         },
+        sessions: [
+          {
+            userId: '@user-bob',
+            expiresTs: Date.now() + 1000,
+            sessionId: 'session-0',
+            whiteboardId: 'whiteboard-id',
+          },
+          {
+            userId: '@user-charlie',
+            expiresTs: Date.now() - 1000,
+            sessionId: 'session-1',
+            whiteboardId: 'whiteboard-id',
+          },
+          {
+            userId: '@user-dave',
+            expiresTs: Date.now() - 1000,
+            sessionId: 'session-2',
+            whiteboardId: 'whiteboard-id',
+          },
+          {
+            userId: '@user-erin',
+            expiresTs: Date.now() + 1000,
+            sessionId: 'session-3',
+            whiteboardId: 'whiteboard-id',
+          },
+          {
+            userId: '@user-frank',
+            expiresTs: Date.now() + 1000,
+            sessionId: 'session-4',
+            whiteboardId: 'whiteboard-id',
+          },
+          {
+            userId: '@user-grace',
+            expiresTs: Date.now() + 1000,
+            sessionId: 'session-5',
+            whiteboardId: 'whiteboard-id',
+          },
+          {
+            userId: '@user-heidi',
+            expiresTs: Date.now() + 1000,
+            sessionId: 'session-6',
+            whiteboardId: 'whiteboard-id',
+          },
+        ],
       },
       document: {
         contentSizeInBytes: 0,
@@ -187,87 +232,246 @@ describe('<Collaborators>', () => {
     });
   });
 
-  it('should show active users', async () => {
-    statistics.communicationChannel.peerConnections = {
-      'peer-0': mockPeerConnectionStatistics('@user-bob', 'connected'),
-      'peer-1': mockPeerConnectionStatistics('@user-charlie', 'failed'),
-      'peer-2': mockPeerConnectionStatistics('@user-dave', 'failed'),
-      'peer-3': mockPeerConnectionStatistics('@user-erin', 'connected'),
-    };
+  describe('WebRTC P2P mode', () => {
+    it('should show active users', async () => {
+      statistics.communicationChannel.peerConnections = {
+        'peer-0': mockPeerConnectionStatistics('@user-bob', 'connected'),
+        'peer-1': mockPeerConnectionStatistics('@user-charlie', 'failed'),
+        'peer-2': mockPeerConnectionStatistics('@user-dave', 'failed'),
+        'peer-3': mockPeerConnectionStatistics('@user-erin', 'connected'),
+      };
 
-    render(<Collaborators />, { wrapper: Wrapper });
+      render(<Collaborators />, { wrapper: Wrapper });
 
-    const group = screen.getByRole('group', { name: 'Collaborators' });
+      const group = screen.getByRole('group', { name: 'Collaborators' });
 
-    await waitFor(() => {
+      await waitFor(() => {
+        expect(
+          within(group)
+            .getAllByRole('button')
+            .map((b) => b.getAttribute('aria-label')),
+        ).toEqual(['Alice (You)', 'Bob', 'Erin']);
+      });
+    });
+
+    it('should show more button for more than six users', async () => {
+      render(<Collaborators />, { wrapper: Wrapper });
+
+      const group = screen.getByRole('group', { name: 'Collaborators' });
+      const moreButton = within(group).getByRole('button', {
+        name: 'One further collaborator',
+      });
+
+      expect(moreButton).toHaveTextContent('+1');
+
+      await userEvent.click(moreButton);
+
+      const menu = screen.getByRole('menu', {
+        name: 'One further collaborator',
+      });
+
       expect(
-        within(group)
-          .getAllByRole('button')
-          .map((b) => b.getAttribute('aria-label')),
-      ).toEqual(['Alice (You)', 'Bob', 'Erin']);
+        within(menu).getByRole('menuitem', { name: '@user-heidi' }),
+      ).toBeInTheDocument();
+
+      await userEvent.keyboard('[Space]');
+
+      await waitFor(() => {
+        expect(menu).not.toBeInTheDocument();
+      });
+    });
+
+    it('should show more button for more users', async () => {
+      statistics.communicationChannel.peerConnections = {
+        'peer-0': mockPeerConnectionStatistics('@user-bob', 'connected'),
+        'peer-1': mockPeerConnectionStatistics('@user-charlie', 'failed'),
+        'peer-2': mockPeerConnectionStatistics('@user-dave', 'connected'),
+        'peer-3': mockPeerConnectionStatistics('@user-erin', 'connected'),
+        'peer-4': mockPeerConnectionStatistics('@user-frank', 'connected'),
+        'peer-5': mockPeerConnectionStatistics('@user-grace', 'connected'),
+        'peer-6': mockPeerConnectionStatistics('@user-heidi', 'connected'),
+      };
+
+      render(<Collaborators />, { wrapper: Wrapper });
+
+      const group = screen.getByRole('group', { name: 'Collaborators' });
+      const moreButton = within(group).getByRole('button', {
+        name: '2 further collaborators',
+      });
+
+      expect(moreButton).toHaveTextContent('+2');
+
+      await userEvent.click(moreButton);
+
+      const menu = screen.getByRole('menu', {
+        name: '2 further collaborators',
+      });
+
+      expect(
+        within(menu).getByRole('menuitem', { name: 'Grace' }),
+      ).toBeInTheDocument();
+      expect(
+        within(menu).getByRole('menuitem', { name: '@user-heidi' }),
+      ).toBeInTheDocument();
+
+      await userEvent.keyboard('[Escape]');
+
+      await waitFor(() => {
+        expect(menu).not.toBeInTheDocument();
+      });
     });
   });
 
-  it('should show more button for more than six users', async () => {
-    render(<Collaborators />, { wrapper: Wrapper });
-
-    const group = screen.getByRole('group', { name: 'Collaborators' });
-    const moreButton = within(group).getByRole('button', {
-      name: 'One further collaborator',
+  describe('MatrixRTC mode', () => {
+    beforeEach(() => {
+      vi.spyOn(constants, 'matrixRtcMode', 'get').mockReturnValue(true);
     });
 
-    expect(moreButton).toHaveTextContent('+1');
-
-    await userEvent.click(moreButton);
-
-    const menu = screen.getByRole('menu', { name: 'One further collaborator' });
-
-    expect(
-      within(menu).getByRole('menuitem', { name: '@user-heidi' }),
-    ).toBeInTheDocument();
-
-    await userEvent.keyboard('[Space]');
-
-    await waitFor(() => {
-      expect(menu).not.toBeInTheDocument();
-    });
-  });
-
-  it('should show more button for more users', async () => {
-    statistics.communicationChannel.peerConnections = {
-      'peer-0': mockPeerConnectionStatistics('@user-bob', 'connected'),
-      'peer-1': mockPeerConnectionStatistics('@user-charlie', 'failed'),
-      'peer-2': mockPeerConnectionStatistics('@user-dave', 'connected'),
-      'peer-3': mockPeerConnectionStatistics('@user-erin', 'connected'),
-      'peer-4': mockPeerConnectionStatistics('@user-frank', 'connected'),
-      'peer-5': mockPeerConnectionStatistics('@user-grace', 'connected'),
-      'peer-6': mockPeerConnectionStatistics('@user-heidi', 'connected'),
-    };
-
-    render(<Collaborators />, { wrapper: Wrapper });
-
-    const group = screen.getByRole('group', { name: 'Collaborators' });
-    const moreButton = within(group).getByRole('button', {
-      name: '2 further collaborators',
+    afterEach(() => {
+      vi.restoreAllMocks();
     });
 
-    expect(moreButton).toHaveTextContent('+2');
+    it('should show active users', async () => {
+      statistics.communicationChannel.sessions = [
+        {
+          userId: '@user-bob',
+          expiresTs: Date.now() + 1000,
+          sessionId: 'session-0',
+          whiteboardId: 'whiteboard-id',
+        },
+        {
+          userId: '@user-charlie',
+          expiresTs: Date.now() - 1000,
+          sessionId: 'session-1',
+          whiteboardId: 'whiteboard-id',
+        },
+        {
+          userId: '@user-dave',
+          expiresTs: Date.now() - 1000,
+          sessionId: 'session-2',
+          whiteboardId: 'whiteboard-id',
+        },
+        {
+          userId: '@user-erin',
+          expiresTs: Date.now() + 1000,
+          sessionId: 'session-3',
+          whiteboardId: 'whiteboard-id',
+        },
+      ];
 
-    await userEvent.click(moreButton);
+      render(<Collaborators />, { wrapper: Wrapper });
 
-    const menu = screen.getByRole('menu', { name: '2 further collaborators' });
+      const group = screen.getByRole('group', { name: 'Collaborators' });
 
-    expect(
-      within(menu).getByRole('menuitem', { name: 'Grace' }),
-    ).toBeInTheDocument();
-    expect(
-      within(menu).getByRole('menuitem', { name: '@user-heidi' }),
-    ).toBeInTheDocument();
+      await waitFor(() => {
+        expect(
+          within(group)
+            .getAllByRole('button')
+            .map((b) => b.getAttribute('aria-label')),
+        ).toEqual(['Alice (You)', 'Bob', 'Erin']);
+      });
+    });
 
-    await userEvent.keyboard('[Escape]');
+    it('should show more button for more than six users', async () => {
+      render(<Collaborators />, { wrapper: Wrapper });
 
-    await waitFor(() => {
-      expect(menu).not.toBeInTheDocument();
+      const group = screen.getByRole('group', { name: 'Collaborators' });
+      const moreButton = within(group).getByRole('button', {
+        name: 'One further collaborator',
+      });
+
+      expect(moreButton).toHaveTextContent('+1');
+
+      await userEvent.click(moreButton);
+
+      const menu = screen.getByRole('menu', {
+        name: 'One further collaborator',
+      });
+
+      expect(
+        within(menu).getByRole('menuitem', { name: '@user-heidi' }),
+      ).toBeInTheDocument();
+
+      await userEvent.keyboard('[Space]');
+
+      await waitFor(() => {
+        expect(menu).not.toBeInTheDocument();
+      });
+    });
+
+    it('should show more button for more users', async () => {
+      statistics.communicationChannel.sessions = [
+        {
+          userId: '@user-bob',
+          expiresTs: Date.now() + 1000,
+          sessionId: 'session-0',
+          whiteboardId: 'whiteboard-id',
+        },
+        {
+          userId: '@user-charlie',
+          expiresTs: Date.now() - 1000,
+          sessionId: 'session-1',
+          whiteboardId: 'whiteboard-id',
+        },
+        {
+          userId: '@user-dave',
+          expiresTs: Date.now() + 1000,
+          sessionId: 'session-2',
+          whiteboardId: 'whiteboard-id',
+        },
+        {
+          userId: '@user-erin',
+          expiresTs: Date.now() + 1000,
+          sessionId: 'session-3',
+          whiteboardId: 'whiteboard-id',
+        },
+        {
+          userId: '@user-frank',
+          expiresTs: Date.now() + 1000,
+          sessionId: 'session-4',
+          whiteboardId: 'whiteboard-id',
+        },
+        {
+          userId: '@user-grace',
+          expiresTs: Date.now() + 1000,
+          sessionId: 'session-5',
+          whiteboardId: 'whiteboard-id',
+        },
+        {
+          userId: '@user-heidi',
+          expiresTs: Date.now() + 1000,
+          sessionId: 'session-6',
+          whiteboardId: 'whiteboard-id',
+        },
+      ];
+
+      render(<Collaborators />, { wrapper: Wrapper });
+
+      const group = screen.getByRole('group', { name: 'Collaborators' });
+      const moreButton = within(group).getByRole('button', {
+        name: '2 further collaborators',
+      });
+
+      expect(moreButton).toHaveTextContent('+2');
+
+      await userEvent.click(moreButton);
+
+      const menu = screen.getByRole('menu', {
+        name: '2 further collaborators',
+      });
+
+      expect(
+        within(menu).getByRole('menuitem', { name: 'Grace' }),
+      ).toBeInTheDocument();
+      expect(
+        within(menu).getByRole('menuitem', { name: '@user-heidi' }),
+      ).toBeInTheDocument();
+
+      await userEvent.keyboard('[Escape]');
+
+      await waitFor(() => {
+        expect(menu).not.toBeInTheDocument();
+      });
     });
   });
 });

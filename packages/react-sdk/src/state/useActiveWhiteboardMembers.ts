@@ -16,9 +16,6 @@
 
 import { useMemo } from 'react';
 import { matrixRtcMode } from '../components/Whiteboard';
-import { isRTCSessionNotExpired } from '../model';
-import { useGetRtcMembersQuery } from '../store';
-import { selectRtcMembers } from '../store/api/rtcMemberApi';
 import { isPeerConnected } from './communication/connection';
 import { useActiveWhiteboardInstanceStatistics } from './useActiveWhiteboardInstance';
 
@@ -28,19 +25,20 @@ export type ActiveWhiteboardMember = {
 
 export function useActiveWhiteboardMembers(): ActiveWhiteboardMember[] {
   const statistics = useActiveWhiteboardInstanceStatistics();
-  const { data: rtcMembers } = useGetRtcMembersQuery();
 
   return useMemo(() => {
     const activeWhiteboardMembers = new Map<string, ActiveWhiteboardMember>();
 
     if (matrixRtcMode) {
-      const allRtcMembers = rtcMembers
-        ? selectRtcMembers(rtcMembers).filter((m) => isRTCSessionNotExpired(m))
+      const allRtcMembers = statistics.communicationChannel.sessions
+        ? statistics.communicationChannel.sessions.filter(
+            (s) => s.expiresTs > Date.now(),
+          )
         : undefined;
 
-      allRtcMembers?.forEach((m) => {
-        activeWhiteboardMembers.set(m.sender, {
-          userId: m.sender,
+      allRtcMembers?.forEach((s) => {
+        activeWhiteboardMembers.set(s.userId, {
+          userId: s.userId,
         });
       });
     } else {
@@ -55,5 +53,8 @@ export function useActiveWhiteboardMembers(): ActiveWhiteboardMember[] {
       );
     }
     return Array.from(activeWhiteboardMembers.values());
-  }, [rtcMembers, statistics.communicationChannel.peerConnections]);
+  }, [
+    statistics.communicationChannel.sessions,
+    statistics.communicationChannel.peerConnections,
+  ]);
 }

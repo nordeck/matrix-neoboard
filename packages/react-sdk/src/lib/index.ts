@@ -20,6 +20,7 @@ export { filterRecord } from './filterRecord';
 export { findForegroundColor } from './findForegroundColor';
 export { isDefined } from './isDefined';
 export { isInfiniteCanvasMode } from './isInfiniteCanvasMode';
+export { isMatrixRtcMode } from './isMatrixRtcMode';
 export { setLocale } from './locale';
 export { WidgetApiActionError, convertMxcToHttpUrl } from './matrix';
 export { findColor, useColorPalette } from './useColorPalette';

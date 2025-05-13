@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-import { getEnvironment } from '@matrix-widget-toolkit/mui';
-import { isInfiniteCanvasMode } from '../../lib';
+import { isInfiniteCanvasMode, isMatrixRtcMode } from '../../lib';
 
 export const infiniteCanvasMode = isInfiniteCanvasMode();
 
-export const matrixRtcMode = getEnvironment('REACT_APP_RTC') === 'matrixrtc';
+export const matrixRtcMode = isMatrixRtcMode();
 
 export const defaultTextSize = infiniteCanvasMode ? 16 : undefined;
 

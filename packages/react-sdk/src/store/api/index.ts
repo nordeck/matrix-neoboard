@@ -31,7 +31,6 @@ export {
   useGetRoomMembersQuery,
 } from './roomMemberApi';
 export { roomNameApi, useGetRoomNameQuery } from './roomNameApi';
-export { rtcMemberApi, useGetRtcMembersQuery } from './rtcMemberApi';
 export { useUserDetails } from './useUserDetails';
 export {
   selectAllWhiteboards,
