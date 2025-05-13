@@ -19,4 +19,4 @@ COPY --from=scanner --chown=nginx:nginx /tmp/sbom.spdx.json /usr/share/nginx/htm
 # Allow loading images from all HTTP(s) URLs and blobs
 ENV CSP_IMG_SRC="http: https: blob:"
 # Also with fetch/XMLHttpRequest
-ENV CSP_CONNECT_SRC="http: https: blob:"
+ENV CSP_CONNECT_SRC="http: https: wss: blob:"
