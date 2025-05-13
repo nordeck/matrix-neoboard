@@ -152,13 +152,15 @@
     "copy-to-clipboard": "In die Zwischenablage kopieren"
   },
   "elementBar": {
-    "arrowSwitch": "Arrow Switch",
     "deleteElement_one": "Element löschen",
     "deleteElement_other": "Elemente löschen",
     "duplicateActiveElement_one": "Element duplizieren",
     "duplicateActiveElement_other": "Elemente duplizieren",
     "fontForm": "Schriftart wählen",
     "fontSize": "Schriftgröße wählen",
+    "lineEnd": "Linienende",
+    "lineMarkerSwitch": "Linienmarkierung tauschen",
+    "lineStart": "Linienanfang",
     "textAlignment": "Textausrichtung",
     "textAlignmentCenter": "Zentriert",
     "textAlignmentLeft": "Links",

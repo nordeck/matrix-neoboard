@@ -14,8 +14,13 @@
  * limitations under the License.
  */
 
-import { MenuItem, Select } from '@mui/material';
-import { t } from 'i18next';
+import {
+  InputBaseComponentProps,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
+  Tooltip,
+} from '@mui/material';
 import { createElement } from 'react';
 import {
   LINE_MARKER_TYPES,
@@ -25,50 +30,53 @@ import {
 export function ArrowHeadSelect({
   position = 'start',
   marker = 'none',
+  onChangeMarker = () => {},
+  inputProps = {},
 }: {
   position?: LineMarkerPosition;
   marker?: string;
+  onChangeMarker?: (event: SelectChangeEvent<string>) => void;
+  inputProps?: InputBaseComponentProps;
 }) {
-  const cappedPosition = position.charAt(0).toUpperCase() + position.slice(1);
-
   return (
-    <>
+    <Tooltip title={inputProps['aria-label']}>
       <Select
         size="small"
         variant="standard"
         disableUnderline={true}
         value={marker}
-        inputProps={{
-          'aria-label': t(
-            'elementBar.arrow' + cappedPosition,
-            'Select Arrow ' + cappedPosition,
-          ),
-        }}
+        inputProps={inputProps}
         SelectDisplayProps={{
           style: {
             textAlign: 'center',
-            padding: '4px 8px 8px 8px',
+            padding: '5px 8px 8px 8px',
             height: '20px',
           },
         }}
-        onChange={() => {}}
         IconComponent={() => null}
       >
         {LINE_MARKER_TYPES.filter((m) => m.position === position).map(
-          (marker) => (
+          (markerType) => (
             <MenuItem
-              key={`${marker.value}-${marker.position}`}
-              value={marker.value}
+              key={`${markerType.value}-${markerType.position}`}
+              value={markerType.value}
               sx={{
                 padding: '8px',
                 height: '34px',
               }}
+              onClick={() => {
+                // Create a synthetic event to always trigger onChangeMarker
+                const syntheticEvent = {
+                  target: { value: markerType.value },
+                } as SelectChangeEvent<string>;
+                onChangeMarker(syntheticEvent);
+              }}
             >
-              {createElement(marker.icon)}
+              {createElement(markerType.icon)}
             </MenuItem>
           ),
         )}
       </Select>
-    </>
+    </Tooltip>
   );
 }
