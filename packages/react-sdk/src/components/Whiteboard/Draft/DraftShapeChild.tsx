@@ -30,7 +30,7 @@ import { useLayoutState } from '../../Layout';
 import { WithExtendedSelectionProps } from '../ElementBehaviors';
 import { useSvgScaleContext } from '../SvgScaleContext';
 import { defaultTextSize, gridCellSize, stickySize } from '../constants';
-import { DraftMouseHandler } from './DraftMouseHandler';
+import { DraftEvent, DraftMouseHandler } from './DraftMouseHandler';
 import { calculateShapeCoords } from './calculateShapeCoords';
 import { createShape } from './createShape';
 
@@ -168,7 +168,7 @@ export const DraftShapeChild = ({
   ]);
 
   const handleMouseMove = useCallback(
-    (point: Point) => {
+    ({ point }: DraftEvent) => {
       if (startCoords) {
         setEndCoords(point);
       }
@@ -176,7 +176,7 @@ export const DraftShapeChild = ({
     [startCoords],
   );
 
-  const handleMouseDown = useCallback((point: Point) => {
+  const handleMouseDown = useCallback(({ point }: DraftEvent) => {
     setStartCoords(point);
   }, []);
 

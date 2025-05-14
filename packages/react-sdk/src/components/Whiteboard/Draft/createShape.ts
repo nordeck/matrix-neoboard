@@ -132,6 +132,8 @@ export function createShapeFromPoints({
   onlyStartAndEndPoints = false,
   startMarker,
   endMarker,
+  connectedElementStart,
+  connectedElementEnd,
 }: {
   kind: PathKind;
   cursorPoints: Point[];
@@ -140,15 +142,20 @@ export function createShapeFromPoints({
   onlyStartAndEndPoints?: boolean;
   startMarker?: LineMarker;
   endMarker?: LineMarker;
+  connectedElementStart?: string;
+  connectedElementEnd?: string;
 }): PathElement {
   const points = onlyStartAndEndPoints
-    ? [cursorPoints[0], cursorPoints[cursorPoints.length - 1]].map((e) =>
-        gridCellSize !== undefined
-          ? {
-              x: snapToGrid(e.x, gridCellSize),
-              y: snapToGrid(e.y, gridCellSize),
-            }
-          : e,
+    ? [cursorPoints[0], cursorPoints[cursorPoints.length - 1]].map(
+        (e, index) =>
+          gridCellSize !== undefined &&
+          ((index === 0 && !connectedElementStart) ||
+            (index === 1 && !connectedElementEnd))
+            ? {
+                x: snapToGrid(e.x, gridCellSize),
+                y: snapToGrid(e.y, gridCellSize),
+              }
+            : e,
       )
     : cursorPoints;
   const { offsetX, offsetY } = calculateBoundingRectForPoints(points);
@@ -164,5 +171,7 @@ export function createShapeFromPoints({
       y: e.y - offsetY,
     })),
     strokeColor,
+    connectedElementStart,
+    connectedElementEnd,
   };
 }

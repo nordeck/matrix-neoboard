@@ -39,12 +39,18 @@ const NoInteraction = styled('g')({
   pointerEvents: 'none',
 });
 
+export type DraftEvent = {
+  point: Point;
+  clientX: number;
+  clientY: number;
+};
+
 export type DraftMouseHandlerProps = PropsWithChildren<{
   onClick?: Dispatch<Point>;
-  onMouseDown?: Dispatch<Point>;
-  onMouseLeave?: Dispatch<Point>;
-  onMouseMove?: Dispatch<Point>;
-  onMouseUp?: Dispatch<Point>;
+  onMouseDown?: Dispatch<DraftEvent>;
+  onMouseLeave?: Dispatch<DraftEvent>;
+  onMouseMove?: Dispatch<DraftEvent>;
+  onMouseUp?: Dispatch<DraftEvent>;
 }>;
 
 export function DraftMouseHandler({
@@ -73,7 +79,7 @@ export function DraftMouseHandler({
     (ev: MouseEvent<SVGRectElement>) => {
       if (onMouseUp) {
         const point = calculateSvgCoords({ x: ev.clientX, y: ev.clientY });
-        onMouseUp(point);
+        onMouseUp({ point, clientX: ev.clientX, clientY: ev.clientY });
       }
     },
     [onMouseUp, calculateSvgCoords],
@@ -84,7 +90,7 @@ export function DraftMouseHandler({
       if (onMouseDown) {
         const point = calculateSvgCoords({ x: ev.clientX, y: ev.clientY });
         if (activeTool !== 'sticky-note') {
-          onMouseDown(point);
+          onMouseDown({ point, clientX: ev.clientX, clientY: ev.clientY });
         }
       }
     },
@@ -95,7 +101,7 @@ export function DraftMouseHandler({
     (ev: MouseEvent<SVGRectElement>) => {
       if (onMouseMove) {
         const point = calculateSvgCoords({ x: ev.clientX, y: ev.clientY });
-        onMouseMove(point);
+        onMouseMove({ point, clientX: ev.clientX, clientY: ev.clientY });
       }
     },
     [onMouseMove, calculateSvgCoords],
@@ -105,7 +111,7 @@ export function DraftMouseHandler({
     (ev: MouseEvent<SVGRectElement>) => {
       if (onMouseLeave) {
         const point = calculateSvgCoords({ x: ev.clientX, y: ev.clientY });
-        onMouseLeave(point);
+        onMouseLeave({ point, clientX: ev.clientX, clientY: ev.clientY });
       }
     },
     [onMouseLeave, calculateSvgCoords],

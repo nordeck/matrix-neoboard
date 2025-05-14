@@ -22,6 +22,7 @@ import {
   Document,
   DocumentStatistics,
   Element,
+  PathElement,
   Point,
   UpdateElementPatch,
 } from './crdt';
@@ -170,6 +171,11 @@ export type WhiteboardSlideInstance = {
    * @returns the ID of the created element.
    */
   addElement(element: Element): string;
+  /**
+   * Add a path element and use it's connect start/end data to connect to existing shapes.
+   * @param element element to add
+   */
+  addPathElementAndConnect(element: PathElement): string;
   /**
    * Add new elements to the slide. All connection data is ignored.
    * @param elements - the specification of the elements.
