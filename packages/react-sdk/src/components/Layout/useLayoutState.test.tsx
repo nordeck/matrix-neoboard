@@ -136,6 +136,18 @@ describe('useLayoutState', () => {
     expect(result.current.activeColor).toBe('#f44336');
   });
 
+  it('should change the active start / end line marker', () => {
+    const { result } = renderHook(() => useLayoutState(), { wrapper: Wrapper });
+
+    act(() => {
+      result.current.setActiveStartLineMarker(undefined);
+      result.current.setActiveEndLineMarker('arrow-head-line');
+    });
+
+    expect(result.current.activeStartLineMarker).toBe(undefined);
+    expect(result.current.activeEndLineMarker).toBe('arrow-head-line');
+  });
+
   describe('fullscreen', () => {
     beforeEach(() => {
       mockFullscreenApi();

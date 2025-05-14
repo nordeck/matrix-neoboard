@@ -24,7 +24,8 @@ import TriangleDraft from '../../elements/triangle/Draft';
 import { stickyColor } from '../constants';
 
 export const DraftPicker = (): ReactElement | null => {
-  const { activeTool } = useLayoutState();
+  const { activeTool, activeStartLineMarker, activeEndLineMarker } =
+    useLayoutState();
 
   switch (activeTool) {
     case 'select':
@@ -40,7 +41,12 @@ export const DraftPicker = (): ReactElement | null => {
       return <LineDraft />;
 
     case 'arrow':
-      return <LineDraft endMarker="arrow-head-line" />;
+      return (
+        <LineDraft
+          startMarker={activeStartLineMarker}
+          endMarker={activeEndLineMarker}
+        />
+      );
 
     case 'polyline':
       return <PolylineDraft />;

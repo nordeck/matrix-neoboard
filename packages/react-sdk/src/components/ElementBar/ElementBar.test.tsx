@@ -85,6 +85,24 @@ describe('<ElementBar/>', () => {
 
     expect(
       within(toolbar).getByRole('combobox', {
+        name: 'Line Start',
+      }),
+    ).toBeInTheDocument();
+
+    expect(
+      within(toolbar).getByRole('radio', {
+        name: 'Line Marker Switch',
+      }),
+    ).toBeInTheDocument();
+
+    expect(
+      within(toolbar).getByRole('combobox', {
+        name: 'Line End',
+      }),
+    ).toBeInTheDocument();
+
+    expect(
+      within(toolbar).getByRole('combobox', {
         name: 'Select font family',
       }),
     ).toBeInTheDocument();

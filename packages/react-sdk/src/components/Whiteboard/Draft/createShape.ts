@@ -23,7 +23,7 @@ import {
   ShapeKind,
 } from '../../../state';
 import {
-  EndMarker,
+  LineMarker,
   TextFontFamily,
 } from '../../../state/crdt/documents/elements';
 import { whiteboardHeight, whiteboardWidth } from '../constants';
@@ -130,6 +130,7 @@ export function createShapeFromPoints({
   strokeColor,
   gridCellSize,
   onlyStartAndEndPoints = false,
+  startMarker,
   endMarker,
 }: {
   kind: PathKind;
@@ -137,7 +138,8 @@ export function createShapeFromPoints({
   strokeColor: string;
   gridCellSize?: number;
   onlyStartAndEndPoints?: boolean;
-  endMarker?: EndMarker;
+  startMarker?: LineMarker;
+  endMarker?: LineMarker;
 }): PathElement {
   const points = onlyStartAndEndPoints
     ? [cursorPoints[0], cursorPoints[cursorPoints.length - 1]].map((e) =>
@@ -155,6 +157,7 @@ export function createShapeFromPoints({
     position: { x: offsetX, y: offsetY },
     type: 'path',
     kind,
+    startMarker,
     endMarker,
     points: points.map((e) => ({
       x: e.x - offsetX,

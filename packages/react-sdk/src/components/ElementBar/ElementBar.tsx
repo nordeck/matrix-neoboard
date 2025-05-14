@@ -23,6 +23,7 @@ import { DeleteActiveElementButton } from './DeleteActiveElementButton/DeleteAct
 import { DuplicateActiveElementButton } from './DuplicateActiveElementButton';
 import { FontFamilyButton } from './FontFamilyButton';
 import { FontSizeButton } from './FontSizeButton';
+import { LineMarkerButtons } from './LineMarkerButtons';
 import { TextAlignmentButtons } from './TextAlignmentButtons';
 import { TextBoldButton } from './TextBoldButton';
 import { TextItalicButton } from './TextItalicButton';
@@ -35,6 +36,7 @@ export function ElementBar({
 
   return (
     <Toolbar aria-label={toolbarTitle}>
+      <LineMarkerButtons />
       {showTextTools && (
         <>
           <FontFamilyButton />
