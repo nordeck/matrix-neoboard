@@ -78,6 +78,10 @@ export function LineMarkerSelect({
               sx={{
                 padding: '8px',
                 height: '34px',
+                '&.Mui-focusVisible': {
+                  outline: 'none',
+                  border: 'none',
+                },
               }}
               onClick={() => {
                 // Create a synthetic event to always trigger onChangeMarker
