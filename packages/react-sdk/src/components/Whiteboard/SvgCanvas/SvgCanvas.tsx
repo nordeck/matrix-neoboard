@@ -96,7 +96,7 @@ export const SvgCanvas = function ({
   useEffect(() => {
     const element = svgRef.current;
 
-    if (infiniteCanvasMode && element) {
+    if (infiniteCanvasMode && element && !preview) {
       const wheelHandler = (event: WheelEvent) => {
         handleWheelZoom(event as unknown as React.WheelEvent<SVGSVGElement>);
       };
@@ -111,7 +111,7 @@ export const SvgCanvas = function ({
         element.removeEventListener('wheel', wheelHandler);
       };
     }
-  }, [handleWheelZoom]);
+  }, [handleWheelZoom, preview]);
 
   const calculateSvgCoordsFunc = useCallback(
     (position: Point) => {
