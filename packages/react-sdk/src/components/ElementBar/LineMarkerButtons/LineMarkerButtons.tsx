@@ -26,10 +26,10 @@ import {
 import { LineMarker } from '../../../state/crdt/documents/elements';
 import { ToolbarRadio } from '../../common/Toolbar';
 import { useLayoutState } from '../../Layout';
-import { applyMarkerChanges, applyMarkerSwitch } from './applyMarkerChanges';
-import { ArrowHeadSelect } from './ArrowHeadSelect';
+import { lineMarkerChanges, lineMarkerSwitch } from './lineMarkerChanges';
+import { LineMarkerSelect } from './LineMarkerSelect';
 
-export function ArrowHeadButtons() {
+export function LineMarkerButtons() {
   const { t } = useTranslation('neoboard');
   const { setActiveStartLineMarker, setActiveEndLineMarker } = useLayoutState();
   const { activeElementIds } = useActiveElements();
@@ -38,7 +38,7 @@ export function ArrowHeadButtons() {
 
   const handleSwitchClick = useCallback(
     (startMarker?: LineMarker, endMarker?: LineMarker) => {
-      const updates = applyMarkerSwitch(elements);
+      const updates = lineMarkerSwitch(elements);
 
       if (updates.length > 0) {
         slideInstance.updateElements(updates);
@@ -54,11 +54,7 @@ export function ArrowHeadButtons() {
 
   const handleMarkerChange = useCallback(
     (position: 'start' | 'end', event: SelectChangeEvent<string>) => {
-      const updates = applyMarkerChanges(
-        position,
-        elements,
-        event.target.value,
-      );
+      const updates = lineMarkerChanges(position, elements, event.target.value);
 
       if (updates.length > 0) {
         slideInstance.updateElements(updates);
@@ -99,7 +95,7 @@ export function ArrowHeadButtons() {
 
   return (
     <>
-      <ArrowHeadSelect
+      <LineMarkerSelect
         position="start"
         marker={startMarker}
         onChangeMarker={(event) => handleMarkerChange('start', event)}
@@ -117,7 +113,7 @@ export function ArrowHeadButtons() {
         checked={false}
         disabled={hasManyLines}
       />
-      <ArrowHeadSelect
+      <LineMarkerSelect
         position="end"
         marker={endMarker}
         onChangeMarker={(event) => handleMarkerChange('end', event)}

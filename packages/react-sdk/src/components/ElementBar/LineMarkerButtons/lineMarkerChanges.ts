@@ -18,7 +18,7 @@ import { Elements } from '../../../state';
 import { LineMarker } from '../../../state/crdt/documents/elements';
 import { ElementUpdate } from '../../../state/types';
 
-export function applyMarkerChanges(
+export function lineMarkerChanges(
   position: 'start' | 'end',
   elements: Elements,
   marker: string,
@@ -53,7 +53,7 @@ export function applyMarkerChanges(
   return updates;
 }
 
-export function applyMarkerSwitch(elements: Elements) {
+export function lineMarkerSwitch(elements: Elements) {
   const updates: ElementUpdate[] = [];
 
   for (const [elementId, element] of Object.entries(elements)) {

@@ -21,13 +21,13 @@ import {
   SelectChangeEvent,
   Tooltip,
 } from '@mui/material';
-import { createElement } from 'react';
+import { createElement, useState } from 'react';
 import {
   LINE_MARKER_TYPES,
   LineMarkerPosition,
 } from '../../elements/line/types';
 
-export function ArrowHeadSelect({
+export function LineMarkerSelect({
   position = 'start',
   marker = 'none',
   onChangeMarker = () => {},
@@ -38,8 +38,16 @@ export function ArrowHeadSelect({
   onChangeMarker?: (event: SelectChangeEvent<string>) => void;
   inputProps?: InputBaseComponentProps;
 }) {
+  const [selectOpen, setSelectOpen] = useState(false);
+  const [tooltipOpen, setTooltipOpen] = useState(false);
+
   return (
-    <Tooltip title={inputProps['aria-label']}>
+    <Tooltip
+      title={inputProps['aria-label']}
+      open={tooltipOpen && !selectOpen}
+      onOpen={() => !selectOpen && setTooltipOpen(true)}
+      onClose={() => setTooltipOpen(false)}
+    >
       <Select
         size="small"
         variant="standard"
@@ -54,6 +62,12 @@ export function ArrowHeadSelect({
           },
         }}
         IconComponent={() => null}
+        open={selectOpen}
+        onOpen={() => {
+          setSelectOpen(true);
+          setTooltipOpen(false);
+        }}
+        onClose={() => setSelectOpen(false)}
       >
         {LINE_MARKER_TYPES.filter((m) => m.position === position).map(
           (markerType) => (

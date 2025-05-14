@@ -17,13 +17,13 @@
 import { PropsWithChildren } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Toolbar } from '../common/Toolbar';
-import { ArrowHeadButtons } from './ArrowHeadButtons';
 import { ElementColorPicker } from './ColorPickerButton/ElementColorPicker';
 import { TextColorPicker } from './ColorPickerButton/TextColorPicker';
 import { DeleteActiveElementButton } from './DeleteActiveElementButton/DeleteActiveElementButton';
 import { DuplicateActiveElementButton } from './DuplicateActiveElementButton';
 import { FontFamilyButton } from './FontFamilyButton';
 import { FontSizeButton } from './FontSizeButton';
+import { LineMarkerButtons } from './LineMarkerButtons';
 import { TextAlignmentButtons } from './TextAlignmentButtons';
 import { TextBoldButton } from './TextBoldButton';
 import { TextItalicButton } from './TextItalicButton';
@@ -36,7 +36,7 @@ export function ElementBar({
 
   return (
     <Toolbar aria-label={toolbarTitle}>
-      <ArrowHeadButtons />
+      <LineMarkerButtons />
       {showTextTools && (
         <>
           <FontFamilyButton />

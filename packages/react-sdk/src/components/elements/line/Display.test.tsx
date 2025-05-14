@@ -139,9 +139,9 @@ describe('<Display />', () => {
         data-testid="element-element-0"
       >
         <marker
-          data-testid="end-marker-id-2"
+          data-testid="end-marker-id-4"
           fill="none"
-          id="end-marker-id-2"
+          id="end-marker-id-4"
           markerHeight="7"
           markerWidth="3.5"
           orient="auto"
@@ -165,7 +165,86 @@ describe('<Display />', () => {
         />
         <line
           fill="none"
-          marker-end="url(#end-marker-id-2)"
+          marker-end="url(#end-marker-id-4)"
+          stroke="#ffffff"
+          stroke-width="4"
+          x1="0"
+          x2="2"
+          y1="2"
+          y2="4"
+        />
+      </g>
+    `);
+  });
+
+  it('should render with a start and an end marker as expected', () => {
+    const element = mockLineElement({
+      startMarker: 'arrow-head-line',
+      endMarker: 'arrow-head-line',
+    });
+    render(
+      <Display
+        elementId="element-0"
+        activeElementIds={['element-0']}
+        overrides={{}}
+        {...element}
+        active={false}
+        readOnly={false}
+      />,
+      {
+        wrapper: Wrapper,
+      },
+    );
+
+    expect(screen.getByTestId('element-element-0')).toMatchInlineSnapshot(`
+      <g
+        data-testid="element-element-0"
+      >
+        <marker
+          data-testid="start-marker-id-3"
+          fill="none"
+          id="start-marker-id-3"
+          markerHeight="7"
+          markerWidth="3.5"
+          orient="auto"
+          refX="0"
+          refY="3.5"
+          viewBox="0 0 3.5 7"
+        >
+          <path
+            d="M3.5 0 L0 3.5 M0 3.5 L3.5 7"
+            stroke="#ffffff"
+          />
+        </marker>
+        <marker
+          data-testid="end-marker-id-4"
+          fill="none"
+          id="end-marker-id-4"
+          markerHeight="7"
+          markerWidth="3.5"
+          orient="auto"
+          refX="3.5"
+          refY="3.5"
+          viewBox="0 0 3.5 7"
+        >
+          <path
+            d="M0 0 L3.5 3.5 M3.5 3.5 L0 7"
+            stroke="#ffffff"
+          />
+        </marker>
+        <line
+          fill="none"
+          stroke="transparent"
+          stroke-width="14"
+          x1="0"
+          x2="2"
+          y1="2"
+          y2="4"
+        />
+        <line
+          fill="none"
+          marker-end="url(#end-marker-id-4)"
+          marker-start="url(#start-marker-id-3)"
           stroke="#ffffff"
           stroke-width="4"
           x1="0"

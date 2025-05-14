@@ -14,4 +14,4 @@
  * limitations under the License.
  */
 
-export { ArrowHeadButtons } from './ArrowHeadButtons';
+export { LineMarkerButtons } from './LineMarkerButtons';

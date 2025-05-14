@@ -265,6 +265,34 @@ describe('createShapeFromPoints', () => {
     });
   });
 
+  it('should create basic line with a start and an end marker', () => {
+    const cursorPoints = [
+      { x: 10, y: 20 },
+      { x: 30, y: 40 },
+      { x: 50, y: 60 },
+    ];
+    const result = createShapeFromPoints({
+      kind: 'polyline',
+      cursorPoints,
+      strokeColor: '#000000',
+      startMarker: 'arrow-head-line',
+      endMarker: 'arrow-head-line',
+    });
+    expect(result).toEqual({
+      points: [
+        { x: 0, y: 0 },
+        { x: 20, y: 20 },
+        { x: 40, y: 40 },
+      ],
+      position: { x: 10, y: 20 },
+      strokeColor: '#000000',
+      type: 'path',
+      kind: 'polyline',
+      startMarker: 'arrow-head-line',
+      endMarker: 'arrow-head-line',
+    });
+  });
+
   it('should only use the first and last point to define a simple line', () => {
     const cursorPoints = [
       { x: 10, y: 20 },
