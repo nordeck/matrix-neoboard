@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-import { ReactElement } from 'react';
+import { ReactElement, useEffect } from 'react';
+import { useConnectionPoint } from '../../ConnectionPointProvider';
 import { useLayoutState } from '../../Layout';
 import EllipseDraft from '../../elements/ellipse/Draft';
 import LineDraft from '../../elements/line/Draft';
@@ -26,6 +27,11 @@ import { stickyColor } from '../constants';
 export const DraftPicker = (): ReactElement | null => {
   const { activeTool, activeStartLineMarker, activeEndLineMarker } =
     useLayoutState();
+  const { setIsHandleDragging } = useConnectionPoint();
+
+  useEffect(() => {
+    setIsHandleDragging(activeTool === 'line' || activeTool === 'arrow');
+  }, [activeTool, setIsHandleDragging]);
 
   switch (activeTool) {
     case 'select':

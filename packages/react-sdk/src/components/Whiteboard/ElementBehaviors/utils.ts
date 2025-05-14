@@ -100,12 +100,10 @@ export function lineResizeUpdates(
 
       if (isConnectedElementChanges) {
         const shapePatch = connectShapeElement(shapeElement, pathElementId);
-        if (shapePatch) {
-          patches.push({
-            elementId: connectToElementId,
-            patch: shapePatch,
-          });
-        }
+        patches.push({
+          elementId: connectToElementId,
+          patch: shapePatch,
+        });
 
         const previousShapePatch = disconnectConnectedShapeFromLine(
           slideInstance,

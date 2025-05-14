@@ -133,6 +133,114 @@ describe('WhiteboardSlideInstanceImpl', () => {
     expect(slideInstance.getActiveElementId()).toEqual(element0);
   });
 
+  it('should delete connection data when shape element is added', () => {
+    const slideInstance = new WhiteboardSlideInstanceImpl(
+      communicationChannel,
+      slide0,
+      document,
+      '@user-id',
+    );
+
+    const element = mockEllipseElement({ connectedPaths: ['element-id-1'] });
+    const element0 = slideInstance.addElement(element);
+
+    expect(slideInstance.getElement(element0)).toEqual(mockEllipseElement());
+    expect(slideInstance.getActiveElementId()).toEqual(element0);
+  });
+
+  it('should add line element and connect to existing shape elements', () => {
+    const slideInstance = new WhiteboardSlideInstanceImpl(
+      communicationChannel,
+      slide0,
+      document,
+      '@user-id',
+    );
+
+    const elementShape1 = mockRectangleElement();
+    const elementShapeId1 = slideInstance.addElement(elementShape1);
+    const elementShape2 = mockRectangleElement();
+    const elementShapeId2 = slideInstance.addElement(elementShape2);
+
+    const elementLine = mockLineElement({
+      connectedElementStart: elementShapeId1,
+      connectedElementEnd: elementShapeId2,
+    });
+    const elementLineId = slideInstance.addPathElementAndConnect(elementLine);
+
+    expect(slideInstance.getElement(elementLineId)).toEqual({
+      ...elementLine,
+      connectedElementStart: elementShapeId1,
+      connectedElementEnd: elementShapeId2,
+    });
+    expect(slideInstance.getElement(elementShapeId1)).toEqual({
+      ...elementShape1,
+      connectedPaths: [elementLineId],
+    });
+    expect(slideInstance.getElement(elementShapeId2)).toEqual({
+      ...elementShape2,
+      connectedPaths: [elementLineId],
+    });
+    expect(slideInstance.getActiveElementId()).toEqual(elementLineId);
+  });
+
+  it('should add line element and connect to existing shape element and filter out unknown connection start', () => {
+    const slideInstance = new WhiteboardSlideInstanceImpl(
+      communicationChannel,
+      slide0,
+      document,
+      '@user-id',
+    );
+
+    const elementShape1 = mockRectangleElement();
+    const elementShapeId1 = slideInstance.addElement(elementShape1);
+
+    const elementLine = mockLineElement({
+      connectedElementStart: elementShapeId1,
+      connectedElementEnd: 'unknown-id-1',
+    });
+    const elementLineId = slideInstance.addPathElementAndConnect(elementLine);
+
+    expect(slideInstance.getElement(elementLineId)).toEqual(
+      mockLineElement({
+        connectedElementStart: elementShapeId1,
+      }),
+    );
+    expect(slideInstance.getElement(elementShapeId1)).toEqual({
+      ...elementShape1,
+      connectedPaths: [elementLineId],
+    });
+    expect(slideInstance.getActiveElementId()).toEqual(elementLineId);
+  });
+
+  it('should add line element and connect to existing shape element and filter out unknown connection end', () => {
+    const slideInstance = new WhiteboardSlideInstanceImpl(
+      communicationChannel,
+      slide0,
+      document,
+      '@user-id',
+    );
+
+    const elementShape1 = mockRectangleElement();
+    const elementShapeId1 = slideInstance.addElement(elementShape1);
+
+    const elementLine = mockLineElement({
+      connectedElementStart: 'unknown-id-1',
+      connectedElementEnd: elementShapeId1,
+    });
+    const elementLineId = slideInstance.addPathElementAndConnect(elementLine);
+
+    expect(slideInstance.getElement(elementLineId)).toEqual(
+      mockLineElement({
+        connectedElementEnd: elementShapeId1,
+      }),
+    );
+    expect(slideInstance.getElement(elementShapeId1)).toEqual({
+      ...elementShape1,
+      connectedPaths: [elementLineId],
+    });
+    expect(slideInstance.getActiveElementId()).toEqual(elementLineId);
+  });
+
   it('should add line and shape elements and connect', () => {
     const slideInstance = new WhiteboardSlideInstanceImpl(
       communicationChannel,

@@ -341,6 +341,58 @@ describe('createShapeFromPoints', () => {
     });
   });
 
+  it('should not constrain line start to the grid if connection start is defined', () => {
+    const cursorPoints = [
+      { x: 10, y: 20 },
+      { x: 50, y: 60 },
+    ];
+    const result = createShapeFromPoints({
+      kind: 'line',
+      cursorPoints,
+      strokeColor: '#000000',
+      onlyStartAndEndPoints: true,
+      gridCellSize: 20,
+      connectedElementStart: 'element-id-1',
+    });
+    expect(result).toEqual({
+      points: [
+        { x: 0, y: 0 },
+        { x: 50, y: 40 },
+      ],
+      position: { x: 10, y: 20 },
+      strokeColor: '#000000',
+      type: 'path',
+      kind: 'line',
+      connectedElementStart: 'element-id-1',
+    });
+  });
+
+  it('should not constrain line end to the grid if connection end is defined', () => {
+    const cursorPoints = [
+      { x: 10, y: 20 },
+      { x: 50, y: 60 },
+    ];
+    const result = createShapeFromPoints({
+      kind: 'line',
+      cursorPoints,
+      strokeColor: '#000000',
+      onlyStartAndEndPoints: true,
+      gridCellSize: 20,
+      connectedElementEnd: 'element-id-1',
+    });
+    expect(result).toEqual({
+      points: [
+        { x: 0, y: 0 },
+        { x: 30, y: 40 },
+      ],
+      position: { x: 20, y: 20 },
+      strokeColor: '#000000',
+      type: 'path',
+      kind: 'line',
+      connectedElementEnd: 'element-id-1',
+    });
+  });
+
   it('should create shape with minimum width and height', () => {
     const result = createShape({
       kind: 'circle',

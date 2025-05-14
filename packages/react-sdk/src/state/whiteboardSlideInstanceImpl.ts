@@ -42,7 +42,9 @@ import {
 import {
   Document,
   Element,
+  PathElement,
   Point,
+  ShapeElement,
   UpdateElementPatch,
   WhiteboardDocument,
   generateAddElement,
@@ -59,11 +61,13 @@ import {
 } from './crdt';
 import { generate, generateRemoveElements } from './crdt/documents/operations';
 import {
+  ElementUpdate,
   Elements,
   WhiteboardSlideInstance,
   WhiteboardUndoManagerContext,
 } from './types';
 import {
+  connectShapeElement,
   deleteConnectionData,
   disconnectPathElement,
   disconnectShapeElement,
@@ -168,6 +172,68 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
     this.setActiveElementId(elementId);
 
     this.document.performChange(changeFn);
+
+    return elementId;
+  }
+
+  addPathElementAndConnect(element: PathElement): string {
+    this.assertLocked();
+
+    const { connectedElementStart, connectedElementEnd } = element;
+
+    let startElement: [string, ShapeElement] | undefined;
+    if (connectedElementStart) {
+      const connectedElement = this.getElement(connectedElementStart);
+      if (connectedElement && connectedElement.type === 'shape') {
+        startElement = [connectedElementStart, connectedElement];
+      }
+    }
+    let endElement: [string, ShapeElement] | undefined;
+    if (connectedElementEnd) {
+      const connectedElement = this.getElement(connectedElementEnd);
+      if (connectedElement && connectedElement.type === 'shape') {
+        endElement = [connectedElementEnd, connectedElement];
+      }
+    }
+
+    const newElement: Element = {
+      ...element,
+      connectedElementStart: startElement ? startElement[0] : undefined,
+      connectedElementEnd: endElement ? endElement[0] : undefined,
+    };
+
+    const [addElement, elementId] = generateAddElement(
+      this.slideId,
+      newElement,
+    );
+
+    const updates: ElementUpdate[] = [];
+    if (startElement) {
+      const [startElementId, shapeElement] = startElement;
+      updates.push({
+        elementId: startElementId,
+        patch: connectShapeElement(shapeElement, elementId),
+      });
+    }
+    if (endElement) {
+      const [endElementId, shapeElement] = endElement;
+      updates.push({
+        elementId: endElementId,
+        patch: connectShapeElement(shapeElement, elementId),
+      });
+    }
+
+    // set the active element ID first, so it is captured in the undomanager
+    this.setActiveElementId(elementId);
+
+    this.document.performChange(
+      generate([
+        addElement,
+        ...updates.map(({ elementId, patch }) =>
+          generateUpdateElement(this.slideId, elementId, patch),
+        ),
+      ]),
+    );
 
     return elementId;
   }
