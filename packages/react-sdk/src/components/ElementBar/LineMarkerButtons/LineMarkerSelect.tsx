@@ -72,6 +72,7 @@ export function LineMarkerSelect({
         {LINE_MARKER_TYPES.filter((m) => m.position === position).map(
           (markerType) => (
             <MenuItem
+              aria-label={markerType.name}
               key={`${markerType.value}-${markerType.position}`}
               value={markerType.value}
               sx={{

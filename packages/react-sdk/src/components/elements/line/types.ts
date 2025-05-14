@@ -41,13 +41,13 @@ export const LINE_MARKER_TYPES: LineMarkerType[] = [
     position: 'end',
   },
   {
-    name: 'Arrow Start',
+    name: 'Arrow Back',
     value: 'arrow-head-line',
     icon: ArrowBackIcon,
     position: 'start',
   },
   {
-    name: 'Arrow End',
+    name: 'Arrow Forward',
     value: 'arrow-head-line',
     icon: ArrowForwardIcon,
     position: 'end',
