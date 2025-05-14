@@ -36,6 +36,10 @@ export function LineMarkerButtons() {
   const elements = useElements(activeElementIds);
   const slideInstance = useWhiteboardSlideInstance();
 
+  let startMarker: LineMarker | undefined;
+  let endMarker: LineMarker | undefined;
+  let hasLineElement = false;
+
   const handleSwitchClick = useCallback(
     (startMarker?: LineMarker, endMarker?: LineMarker) => {
       const updates = lineMarkerSwitch(elements);
@@ -54,24 +58,36 @@ export function LineMarkerButtons() {
 
   const handleMarkerChange = useCallback(
     (position: 'start' | 'end', event: SelectChangeEvent<string>) => {
-      const updates = lineMarkerChanges(position, elements, event.target.value);
+      const markerValue = event.target.value as LineMarker;
+      const updates = lineMarkerChanges(position, elements, markerValue);
 
       if (updates.length > 0) {
         slideInstance.updateElements(updates);
       }
 
       if (position === 'start') {
-        setActiveStartLineMarker(event.target.value as LineMarker);
+        setActiveStartLineMarker(markerValue);
+        setActiveEndLineMarker(endMarker);
       } else {
-        setActiveEndLineMarker(event.target.value as LineMarker);
+        setActiveStartLineMarker(startMarker);
+        setActiveEndLineMarker(markerValue);
+      }
+
+      // If both markers are none/undefined, set the default arrow end marker
+      const otherMarker = position === 'start' ? endMarker : startMarker;
+      if (event.target.value === 'none' && otherMarker === undefined) {
+        setActiveEndLineMarker('arrow-head-line');
       }
     },
-    [elements, slideInstance, setActiveStartLineMarker, setActiveEndLineMarker],
+    [
+      elements,
+      slideInstance,
+      setActiveStartLineMarker,
+      setActiveEndLineMarker,
+      startMarker,
+      endMarker,
+    ],
   );
-
-  let startMarker: LineMarker | undefined;
-  let endMarker: LineMarker | undefined;
-  let hasLineElement = false;
 
   // get first selected element markers, if any
   for (const element of Object.values(elements)) {
@@ -86,12 +102,6 @@ export function LineMarkerButtons() {
   if (!hasLineElement) {
     return null;
   }
-
-  // Check if there are more than one line elements selected
-  const hasManyLines =
-    Object.values(elements).filter(
-      (element) => element.type === 'path' && element.kind === 'line',
-    ).length > 1;
 
   return (
     <>
@@ -111,7 +121,6 @@ export function LineMarkerButtons() {
         icon={<AutorenewIcon />}
         value={'center'}
         checked={false}
-        disabled={hasManyLines}
       />
       <LineMarkerSelect
         position="end"

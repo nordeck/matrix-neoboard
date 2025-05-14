@@ -19,9 +19,8 @@ import {
   MenuItem,
   Select,
   SelectChangeEvent,
-  Tooltip,
 } from '@mui/material';
-import { createElement, useState } from 'react';
+import { createElement } from 'react';
 import {
   LINE_MARKER_TYPES,
   LineMarkerPosition,
@@ -38,64 +37,48 @@ export function LineMarkerSelect({
   onChangeMarker?: (event: SelectChangeEvent<string>) => void;
   inputProps?: InputBaseComponentProps;
 }) {
-  const [selectOpen, setSelectOpen] = useState(false);
-  const [tooltipOpen, setTooltipOpen] = useState(false);
-
   return (
-    <Tooltip
-      title={inputProps['aria-label']}
-      open={tooltipOpen && !selectOpen}
-      onOpen={() => !selectOpen && setTooltipOpen(true)}
-      onClose={() => setTooltipOpen(false)}
+    <Select
+      size="small"
+      variant="standard"
+      disableUnderline={true}
+      value={marker}
+      inputProps={inputProps}
+      SelectDisplayProps={{
+        style: {
+          textAlign: 'center',
+          padding: '5px 8px 8px 8px',
+          height: '20px',
+        },
+      }}
+      IconComponent={() => null}
     >
-      <Select
-        size="small"
-        variant="standard"
-        disableUnderline={true}
-        value={marker}
-        inputProps={inputProps}
-        SelectDisplayProps={{
-          style: {
-            textAlign: 'center',
-            padding: '5px 8px 8px 8px',
-            height: '20px',
-          },
-        }}
-        IconComponent={() => null}
-        open={selectOpen}
-        onOpen={() => {
-          setSelectOpen(true);
-          setTooltipOpen(false);
-        }}
-        onClose={() => setSelectOpen(false)}
-      >
-        {LINE_MARKER_TYPES.filter((m) => m.position === position).map(
-          (markerType) => (
-            <MenuItem
-              aria-label={markerType.name}
-              key={`${markerType.value}-${markerType.position}`}
-              value={markerType.value}
-              sx={{
-                padding: '8px',
-                height: '34px',
-                '&.Mui-focusVisible': {
-                  outline: 'none',
-                  border: 'none',
-                },
-              }}
-              onClick={() => {
-                // Create a synthetic event to always trigger onChangeMarker
-                const syntheticEvent = {
-                  target: { value: markerType.value },
-                } as SelectChangeEvent<string>;
-                onChangeMarker(syntheticEvent);
-              }}
-            >
-              {createElement(markerType.icon)}
-            </MenuItem>
-          ),
-        )}
-      </Select>
-    </Tooltip>
+      {LINE_MARKER_TYPES.filter((m) => m.position === position).map(
+        (markerType) => (
+          <MenuItem
+            aria-label={markerType.name}
+            key={`${markerType.value}-${markerType.position}`}
+            value={markerType.value}
+            sx={{
+              padding: '8px',
+              height: '34px',
+              '&.Mui-focusVisible': {
+                outline: 'none',
+                border: 'none',
+              },
+            }}
+            onClick={() => {
+              // Create a synthetic event to always trigger onChangeMarker
+              const syntheticEvent = {
+                target: { value: markerType.value },
+              } as SelectChangeEvent<string>;
+              onChangeMarker(syntheticEvent);
+            }}
+          >
+            {createElement(markerType.icon)}
+          </MenuItem>
+        ),
+      )}
+    </Select>
   );
 }
