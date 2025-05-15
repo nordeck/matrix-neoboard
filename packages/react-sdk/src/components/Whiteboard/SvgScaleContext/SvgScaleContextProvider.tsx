@@ -72,9 +72,7 @@ function fitFunc(
     };
   }
 
-  const minScaleX = containerDimensions.width / whiteboardWidth;
-  const minScaleY = containerDimensions.height / whiteboardHeight;
-  const fittedScale = Math.max(state.scale, minScaleX, minScaleY);
+  const fittedScale = fitScale(state.scale, containerDimensions);
 
   const clampXStart = (whiteboardWidth / 2) * fittedScale;
   const clampXEnd =
@@ -90,6 +88,15 @@ function fitFunc(
       y: clamp(state.translation.y, clampYEnd, clampYStart),
     },
   };
+}
+
+function fitScale(
+  scale: number,
+  containerDimensions: ContainerDimensions,
+): number {
+  const minScaleX = containerDimensions.width / whiteboardWidth;
+  const minScaleY = containerDimensions.height / whiteboardHeight;
+  return Math.max(scale, minScaleX, minScaleY);
 }
 
 export const SvgScaleContextProvider: React.FC<PropsWithChildren> = ({
@@ -110,6 +117,8 @@ export const SvgScaleContextProvider: React.FC<PropsWithChildren> = ({
   const setScale = useCallback(
     (newScale: number, origin?: Point) => {
       setStateValues((old) => {
+        newScale = fitScale(newScale, containerDimensions);
+
         // Limit zoom levels
         if (newScale > zoomMax) {
           newScale = zoomMax;
