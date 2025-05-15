@@ -24,10 +24,7 @@ export function normalizeMatrixUserId(userId: string): string {
   if (isMatrixRtcMode()) {
     // in MatrixRTC mode, the userId has an additional livekit session component
     // so we remove it (ie. @user:domain:sessionId -> @user:domain)
-    const parts = userId.split(':');
-    if (parts.length > 2) {
-      userId = parts[0] + ':' + parts[1];
-    }
+    userId = userId.split(':', 2).join(':');
   }
   return userId;
 }

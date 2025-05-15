@@ -32,6 +32,12 @@ describe('normalizeMatrixUserId', () => {
     vi.resetAllMocks();
   });
 
+  it('returns unchanged if not a valid MXID in MatrixRTC mode', () => {
+    (getEnvironment as Mock).mockReturnValue('matrixrtc');
+
+    expect(normalizeMatrixUserId('@user')).toBe('@user');
+  });
+
   it('returns userId unchanged if not in MatrixRTC mode', () => {
     (getEnvironment as Mock).mockReturnValue('webrtc');
 
