@@ -24,6 +24,7 @@ export {
   isShapeWithText,
   isTextShape,
   isValidElement,
+  modifyElementPosition,
 } from './elements';
 export type {
   Element,

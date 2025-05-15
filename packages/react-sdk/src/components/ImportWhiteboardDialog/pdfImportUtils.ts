@@ -63,6 +63,7 @@ export interface PDFImportResult {
   size: number;
   width: number;
   height: number;
+  blob: Blob;
 }
 
 /**
@@ -158,6 +159,7 @@ async function renderPDFPageToImage(
     size: blob.size,
     width: scaledViewport.width,
     height: scaledViewport.height,
+    blob,
   };
 }
 
