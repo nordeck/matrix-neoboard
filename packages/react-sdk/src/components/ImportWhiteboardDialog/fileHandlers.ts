@@ -17,9 +17,11 @@
 import { getLogger } from 'loglevel';
 import {
   ImageElement,
+  ImageMimeType,
   isValidWhiteboardExportDocument,
   WhiteboardDocumentExport,
 } from '../../state';
+import { BoundingRect } from '../../state/crdt/documents/point';
 import { SlideExport } from '../../state/export/whiteboardDocumentExport';
 import {
   infiniteCanvasMode,
@@ -55,24 +57,6 @@ export async function readPDF(file: File): Promise<WhiteboardDocumentExport> {
 
   logger.debug('PDF rendered to images', images.length);
 
-  const imageData = [];
-  for (const image of images) {
-    const base64 = btoa(
-      new Uint8Array(image.data).reduce(
-        (data, byte) => data + String.fromCharCode(byte),
-        '',
-      ),
-    );
-
-    imageData.push({
-      width: image.width,
-      height: image.height,
-      size: image.size,
-      mimeType: image.mimeType,
-      base64: base64,
-    });
-  }
-
   /**
    * We have distinct behaviours when laying out the imported PDF pages:
    *
@@ -83,90 +67,133 @@ export async function readPDF(file: File): Promise<WhiteboardDocumentExport> {
    */
   const slideContent: SlideExport[] = [];
   if (infiniteCanvasMode) {
-    const margin = 10;
-    const maxWidth = whiteboardWidth - margin;
-    const maxHeight = whiteboardHeight - margin;
+    const newImages: ImageElement[] = [];
 
-    let currentX = margin;
-    let currentY = margin;
-    let rowMaxHeight = 0;
-
-    const elementsForSlide = [];
-
-    for (let i = 0; i < imageData.length; i++) {
-      const data = imageData[i];
-
-      // are we exceeding the whiteboard height?
-      if (currentY + data.height > maxHeight) {
-        break;
-      }
-
-      if (currentX + data.width > maxWidth) {
-        currentX = margin;
-        currentY += rowMaxHeight + margin;
-        rowMaxHeight = 0;
-
-        // Check again after moving to new row if we'd exceed vertical space
-        if (currentY + data.height > maxHeight) {
-          break;
-        }
-      }
-
-      const element = {
+    for (let i = 0; i < images.length; i++) {
+      const data = images[i];
+      newImages.push({
         type: 'image',
         mxc: 'placeholder' + i,
         width: data.width,
         height: data.height,
         fileName: `${file.name}_${i}`,
-        mimeType: data.mimeType,
+        mimeType: data.mimeType as ImageMimeType,
         position: {
-          x: currentX,
-          y: currentY,
+          x: 0,
+          y: 0,
         },
-      } as ImageElement;
-
-      elementsForSlide.push(element);
-
-      currentX += data.width + margin;
-      rowMaxHeight = Math.max(rowMaxHeight, data.height);
+      });
     }
 
     // Add all elements to a single slide
+    const { elements } = positionImageElements(newImages);
     slideContent.push({
-      elements: elementsForSlide,
+      elements,
     });
   } else {
-    const slideData = imageData.map((data, i) => ({
-      elements: [
-        {
-          type: 'image',
-          mxc: 'placeholder' + i,
-          width: data.width,
-          height: data.height,
-          fileName: `${file.name}_${i}`,
-          mimeType: data.mimeType,
-          position: {
-            x: (whiteboardWidth - data.width) / 2,
-            y: (whiteboardHeight - data.height) / 2,
-          },
-        } as ImageElement,
-      ],
-    }));
+    const slideData = images.map((image, i) => {
+      const element: ImageElement = {
+        type: 'image',
+        mxc: 'placeholder' + i,
+        width: image.width,
+        height: image.height,
+        fileName: `${file.name}_${i}`,
+        mimeType: image.mimeType as ImageMimeType,
+        position: {
+          x: (whiteboardWidth - image.width) / 2,
+          y: (whiteboardHeight - image.height) / 2,
+        },
+      };
+      return {
+        elements: [element],
+      };
+    });
     slideContent.push(...slideData);
   }
 
-  const whiteboardData: WhiteboardDocumentExport = {
+  return {
     version: 'net.nordeck.whiteboard@v1',
     whiteboard: {
       // Each image is a slide
       slides: slideContent,
-      files: imageData.map((data, i) => ({
-        mxc: 'placeholder' + i,
-        data: data.base64,
-      })),
+      files: images.map((image, i) => {
+        const base64 = btoa(
+          new Uint8Array(image.data).reduce(
+            (data, byte) => data + String.fromCharCode(byte),
+            '',
+          ),
+        );
+
+        return {
+          mxc: 'placeholder' + i,
+          data: base64,
+        };
+      }),
     },
   };
-  return whiteboardData;
+}
+
+export function positionImageElements(newImages: ImageElement[]): {
+  elements: ImageElement[];
+  rect: BoundingRect;
+} {
+  const margin = 10;
+  const maxWidth = whiteboardWidth - margin;
+  const maxHeight = whiteboardHeight - margin;
+
+  let currentX = margin;
+  let currentY = margin;
+  let rowMaxHeight = 0;
+
+  let rectWidth: number = 0;
+  let rectHeight: number = 0;
+
+  const elements: ImageElement[] = [];
+
+  for (let i = 0; i < newImages.length; i++) {
+    const data = newImages[i];
+
+    // are we exceeding the whiteboard height?
+    if (currentY + data.height > maxHeight) {
+      break;
+    }
+
+    if (currentX + data.width > maxWidth) {
+      currentX = margin;
+      currentY += rowMaxHeight + margin;
+      rowMaxHeight = 0;
+
+      // Check again after moving to new row if we'd exceed vertical space
+      if (currentY + data.height > maxHeight) {
+        break;
+      }
+    }
+
+    const element: ImageElement = {
+      ...data,
+      position: {
+        x: currentX,
+        y: currentY,
+      },
+    };
+    rectWidth = Math.max(rectWidth, currentX + data.width - margin);
+    rectHeight = Math.max(rectHeight, currentY + data.height - margin);
+
+    elements.push(element);
+
+    currentX += data.width + margin;
+    rowMaxHeight = Math.max(rowMaxHeight, data.height);
+  }
+
+  return {
+    elements: elements,
+    rect: {
+      offsetX: margin,
+      offsetY: margin,
+      width: rectWidth,
+      height: rectHeight,
+    },
+  };
 }
 
 /**

@@ -22,6 +22,7 @@ import {
   clampElementPosition,
   Element,
   Elements,
+  modifyElementPosition,
   Point,
   usePresentationMode,
   useWhiteboardSlideInstance,
@@ -29,6 +30,11 @@ import {
 import { useImageUpload } from '../../ImageUpload';
 import { addImagesToSlide } from '../../ImageUpload/addImagesToSlide';
 import { defaultAcceptedImageTypesArray } from '../../ImageUpload/consts';
+import {
+  initPDFJs,
+  loadPDF,
+  renderPDFToImages,
+} from '../../ImportWhiteboardDialog/pdfImportUtils';
 import {
   useSvgScaleContext,
   whiteboardHeight,
@@ -224,6 +230,32 @@ export function ClipboardShortcuts() {
         if (imageFiles.length > 0) {
           handlePasteImages(imageFiles, centerPosition);
         }
+
+        if (Array.from(files).some((file) => file.type === 'application/pdf')) {
+          await initPDFJs();
+        }
+
+        const pdfImageFiles: File[] = [];
+        for (const file of files) {
+          if (file.type === 'application/pdf') {
+            const pdf = await loadPDF(await file.arrayBuffer());
+            const images = await renderPDFToImages(pdf);
+
+            let count = 0;
+            for (const image of images) {
+              count++;
+              pdfImageFiles.push(
+                new File([image.blob], 'pdfSlide' + count, {
+                  type: image.mimeType,
+                }),
+              );
+            }
+          }
+        }
+
+        if (pdfImageFiles.length > 0) {
+          handlePasteImages(pdfImageFiles, centerPosition);
+        }
       }
     };
 
@@ -264,20 +296,5 @@ function readFromClipboardData(
   return {
     'text/plain': clipboardData.getData('text/plain'),
     'text/html': clipboardData.getData('text/html'),
-  };
-}
-
-function modifyElementPosition(
-  element: Element,
-  positionClamp: Point,
-  offsetX: number,
-  offsetY: number,
-): Element {
-  return {
-    ...element,
-    position: {
-      x: positionClamp.x + (element.position.x - offsetX),
-      y: positionClamp.y + (element.position.y - offsetY),
-    },
   };
 }

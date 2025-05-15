@@ -17,6 +17,11 @@
 import { DragEvent, useCallback } from 'react';
 import { DropEvent, FileRejection, useDropzone } from 'react-dropzone';
 import { Point, useWhiteboardSlideInstance } from '../../state';
+import {
+  initPDFJs,
+  loadPDF,
+  renderPDFToImages,
+} from '../ImportWhiteboardDialog/pdfImportUtils';
 import { useSvgScaleContext } from '../Whiteboard';
 import { addImagesToSlide } from './addImagesToSlide';
 import { defaultAcceptedImageTypes } from './consts';
@@ -58,7 +63,32 @@ export function useSlideImageUpload(
 
   const handleDrop = useCallback(
     async (files: File[], rejectedFiles: FileRejection[], event: DropEvent) => {
-      const results = await imageUpload.handleDrop(files, rejectedFiles);
+      const newFiles: File[] = [];
+
+      if (Array.from(files).some((file) => file.type === 'application/pdf')) {
+        await initPDFJs();
+      }
+
+      for (const file of files) {
+        if (file.type !== 'application/pdf') {
+          newFiles.push(file);
+        } else {
+          const pdf = await loadPDF(await file.arrayBuffer());
+          const images = await renderPDFToImages(pdf);
+
+          let count = 0;
+          for (const image of images) {
+            count++;
+            newFiles.push(
+              new File([image.blob], 'pdfSlide' + count, {
+                type: image.mimeType,
+              }),
+            );
+          }
+        }
+      }
+
+      const results = await imageUpload.handleDrop(newFiles, rejectedFiles);
 
       const images = results
         .filter((result) => result.status === 'fulfilled')
@@ -85,7 +115,10 @@ export function useSlideImageUpload(
 
   const { getInputProps, getRootProps } = useDropzone({
     onDrop: handleDrop,
-    accept: defaultAcceptedImageTypes,
+    accept: {
+      ...defaultAcceptedImageTypes,
+      'application/pdf': ['.pdf'],
+    },
     maxSize: imageUpload.maxUploadSizeBytes,
     noClick,
     noDrag,

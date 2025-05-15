@@ -328,3 +328,18 @@ export function isShapeElementPair(
 ): pair is [string, ShapeElement] {
   return pair[1].type === 'shape';
 }
+
+export function modifyElementPosition<T extends Element>(
+  element: T,
+  positionClamp: Point,
+  offsetX: number,
+  offsetY: number,
+): T {
+  return {
+    ...element,
+    position: {
+      x: positionClamp.x + (element.position.x - offsetX),
+      y: positionClamp.y + (element.position.y - offsetY),
+    },
+  };
+}
