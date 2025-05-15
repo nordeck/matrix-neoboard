@@ -19,3 +19,12 @@ import { getEnvironment } from '@matrix-widget-toolkit/mui';
 export function isMatrixRtcMode(): boolean {
   return getEnvironment('REACT_APP_RTC') === 'matrixrtc';
 }
+
+export function normalizeMatrixUserId(userId: string): string {
+  if (isMatrixRtcMode()) {
+    // in MatrixRTC mode, the userId has an additional livekit session component
+    // so we remove it (ie. @user:domain:sessionId -> @user:domain)
+    userId = userId.split(':', 2).join(':');
+  }
+  return userId;
+}
