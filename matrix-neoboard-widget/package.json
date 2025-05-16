@@ -26,6 +26,7 @@
     "fork-ts-checker-webpack-plugin": "^6.5.3"
   },
   "devDependencies": {
+    "@sentry/vite-plugin": "^3.4.0",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
