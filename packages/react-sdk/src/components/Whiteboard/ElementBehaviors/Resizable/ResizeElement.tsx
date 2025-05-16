@@ -24,7 +24,7 @@ import {
 } from '../../../../state';
 import { ElementUpdate } from '../../../../state/types';
 import { useAppDispatch } from '../../../../store';
-import { setShapeSize } from '../../../../store/shapeSizesSlide';
+import { setShapeSize } from '../../../../store/shapeSizesSlice';
 import { useConnectionPoint } from '../../../ConnectionPointProvider';
 import {
   createResetElementOverrides,
@@ -61,7 +61,8 @@ export function ResizeHandleWrapper({
 }: ResizeHandleWrapperProps) {
   const { isShowGrid } = useLayoutState();
   const { viewportWidth, viewportHeight } = useSvgCanvasContext();
-  const { connectElementId } = useConnectionPoint();
+  const { connectElementIds } = useConnectionPoint();
+  const hasConnectElementId = connectElementIds.length > 0;
 
   const handleDrag = useCallback(
     (event: DragEvent) => {
@@ -72,7 +73,7 @@ export function ResizeHandleWrapper({
           viewportWidth,
           viewportHeight,
           invertLockAspectRatio,
-          isShowGrid && !connectElementId ? gridCellSize : undefined,
+          isShowGrid && !hasConnectElementId ? gridCellSize : undefined,
           resizableProperties,
         ),
       );
@@ -85,7 +86,7 @@ export function ResizeHandleWrapper({
       resizableProperties,
       viewportHeight,
       viewportWidth,
-      connectElementId,
+      hasConnectElementId,
     ],
   );
 
@@ -149,14 +150,13 @@ export function ResizeElement({ elementIds }: ResizeElementProps) {
         const elementId = Object.keys(elements)[0];
         const element = Object.values(elements)[0] as PathElement;
 
-        const position = connectData.resizePositionName;
-        const connectToElementId = connectData.connectToElementId;
+        const { lineHandlePositionName, connectToElementId } = connectData;
 
         updates = lineResizeUpdates(
           slideInstance,
           elementId,
           element,
-          position,
+          lineHandlePositionName,
           connectToElementId,
         );
       } else {

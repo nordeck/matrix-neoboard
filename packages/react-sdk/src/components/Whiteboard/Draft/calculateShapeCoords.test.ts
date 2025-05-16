@@ -16,7 +16,7 @@
 
 import { describe, expect, it } from 'vitest';
 import { Point, ShapeKind } from '../../../state';
-import { ShapeSizesState } from '../../../store/shapeSizesSlide';
+import { ShapeSizesState } from '../../../store/shapeSizesSlice';
 import { calculateShapeCoords } from './calculateShapeCoords';
 
 const shapeSizes: ShapeSizesState = {
@@ -127,6 +127,27 @@ describe('calculateShapeCoords', () => {
     (coordinates, expected) => {
       expect(
         calculateShapeCoords('rectangle', coordinates, shapeSizes),
+      ).toEqual(expected);
+    },
+  );
+
+  it.each([
+    [
+      'rectangle',
+      { x: 0, y: 0 },
+      {
+        startCoords: {
+          x: 0,
+          y: 0,
+        },
+        endCoords: { x: 160, y: 160 },
+      },
+    ],
+  ] as [ShapeKind, Point, ReturnType<typeof calculateShapeCoords>][])(
+    'should calculate the correct coordinates for a %s with overriden size',
+    (kind, coordinates, expected) => {
+      expect(
+        calculateShapeCoords(kind, coordinates, shapeSizes, 160, 1),
       ).toEqual(expected);
     },
   );

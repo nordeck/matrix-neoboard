@@ -16,19 +16,21 @@
 
 export {
   calculateBoundingRectForElements,
-  calculateCentredPosition,
   calculateFittedElementSize,
+  clampElementPosition,
   includesShapeWithText,
   includesTextShape,
   isShapeElementPair,
   isShapeWithText,
   isTextShape,
   isValidElement,
+  modifyElementPosition,
 } from './elements';
 export type {
   Element,
   ElementBase,
   ElementKind,
+  FrameElement,
   ImageElement,
   ImageMimeType,
   PathElement,

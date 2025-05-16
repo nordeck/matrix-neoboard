@@ -8,18 +8,27 @@ Runtime configuration can be performed via environment variables.
 ## Environment Variables
 
 ```sh
-# Base URL of the or a homeserver, used to display avatars (required)
+# Base URL of the or a homeserver, used to display avatars
 REACT_APP_HOME_SERVER_URL=https://matrix-client.matrix.org
 
-# External link to the documentation that will be shown in the help menu if defined.
+# optional: External link to the documentation that will be shown in the help menu
 REACT_APP_HELP_CENTER_URL="https://github.com/nordeck/matrix-neoboard"
 
-# optional - enable connection to React standalone devtools
-# Does only work in development mode.
+# optional: Enable connection to React standalone devtools
+# Only works in development builds
 REACT_APP_DEVTOOLS=true
 
-# Indicate if the widget is embedded in standalone mode to hide the about button
+# optional: Indicate if the widget is embedded, e.g. in standalone mode, to enable/disable respective features
 REACT_APP_EMBEDDED=false
+
+# optional: Select the Realtime Communication (RTC) implementation (defaults to `webrtc`, otherwise `matrixrtc`)
+REACT_APP_RTC=webrtc
+
+# optional: Defines a LiveKit JWT Service URL that is added to the RTC session `foci_preferred` list
+REACT_APP_RTC_LIVEKIT_SERVICE_URL=https://lk-jwt.example.org
+
+# optional: Use infinite canvas instead of slides mode (defaults to `false`)
+REACT_APP_INFINITE_CANVAS=false
 ```
 
 ### Customization

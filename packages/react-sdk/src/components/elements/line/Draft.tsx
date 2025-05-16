@@ -14,20 +14,22 @@
  * limitations under the License.
  */
 
-import { EndMarker } from '../../../state/crdt/documents/elements';
+import { LineMarker } from '../../../state/crdt/documents/elements';
 import { DraftLineChild } from '../../Whiteboard';
 import LineDisplay from './Display';
 
 type LineDraftProps = {
-  endMarker?: EndMarker;
+  startMarker?: LineMarker;
+  endMarker?: LineMarker;
 };
 
-const LineDraft = ({ endMarker }: LineDraftProps) => {
+const LineDraft = ({ startMarker, endMarker }: LineDraftProps) => {
   return (
     <DraftLineChild
       display={LineDisplay}
       onlyStartAndEndPoints
       kind="line"
+      startMarker={startMarker}
       endMarker={endMarker}
     />
   );

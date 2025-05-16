@@ -158,6 +158,9 @@
     "duplicateActiveElement_other": "Elemente duplizieren",
     "fontForm": "Schriftart wählen",
     "fontSize": "Schriftgröße wählen",
+    "lineEnd": "Linienende",
+    "lineMarkerSwitch": "Linienmarkierung tauschen",
+    "lineStart": "Linienanfang",
     "textAlignment": "Textausrichtung",
     "textAlignmentCenter": "Zentriert",
     "textAlignmentLeft": "Links",
@@ -324,12 +327,14 @@
   "toolsBar": {
     "arrowTool": "Pfeil",
     "ellipseTool": "Ellipse",
+    "frameTool": "Rahmen erstellen",
     "imageUploadTool": "Bild hochladen",
     "lineTool": "Linie",
     "penTool": "Stift",
     "rectangleTool": "Rechteck",
     "roundedRectangleTool": "Abgerundetes Rechteck",
     "selectTool": "Auswählen",
+    "stickyNote": "Notiz",
     "textTool": "Text",
     "title": "Werkzeuge",
     "triangleTool": "Dreieck"
@@ -342,5 +347,11 @@
   "uploadBar": {
     "title": "Hochladen",
     "upload": "Hochladen"
+  },
+  "zoomBar": {
+    "reset": "Vergrößerung auf 100 % zurücksetzen",
+    "title": "Vergrößerungseinstellungen",
+    "zoomIn": "Vergrößern",
+    "zoomOut": "Verkleinern"
   }
 }

@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-import { MouseEvent, useCallback } from 'react';
+import { Point } from 'pdfmake/interfaces';
+import { MouseEvent, useCallback, useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import {
   useActiveElement,
@@ -23,12 +24,17 @@ import {
 import { useLayoutState } from '../../../Layout';
 import { HOTKEY_SCOPE_WHITEBOARD } from '../../../WhiteboardHotkeysProvider';
 import { useSvgCanvasContext } from '../../SvgCanvas';
+import { useSvgScaleContext } from '../../SvgScaleContext';
+import { infiniteCanvasMode } from '../../constants';
 
 export function UnSelectElementHandler() {
   const { activeElementId } = useActiveElement();
   const slideInstance = useWhiteboardSlideInstance();
   const { setDragSelectStartCoords } = useLayoutState();
   const { calculateSvgCoords } = useSvgCanvasContext();
+  const [previousPanCoordinates, setPreviousPanCoordinates] = useState<Point>();
+  const [panEnabled, setPanEnabled] = useState(false);
+  const { updateTranslation } = useSvgScaleContext();
 
   const unselectElement = useCallback(() => {
     if (activeElementId) {
@@ -49,6 +55,18 @@ export function UnSelectElementHandler() {
           slideInstance.setActiveElementId(undefined);
           window.getSelection()?.empty();
         }
+      } else if (event.button === 1 || event.button === 2) {
+        // Middle or Right click
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (!infiniteCanvasMode) {
+          return;
+        }
+
+        setPanEnabled(true);
+        document.body.style.cursor = 'grabbing';
+        setPreviousPanCoordinates({ x: event.clientX, y: event.clientY });
       }
     },
     [
@@ -56,8 +74,48 @@ export function UnSelectElementHandler() {
       slideInstance,
       calculateSvgCoords,
       setDragSelectStartCoords,
+      setPreviousPanCoordinates,
     ],
   );
+
+  const handleMouseMove = useCallback(
+    (event: MouseEvent<SVGRectElement>) => {
+      if (!panEnabled || previousPanCoordinates === undefined) {
+        return;
+      }
+
+      updateTranslation(
+        event.clientX - previousPanCoordinates.x,
+        event.clientY - previousPanCoordinates.y,
+      );
+
+      setPreviousPanCoordinates({ x: event.clientX, y: event.clientY });
+    },
+    [panEnabled, previousPanCoordinates, updateTranslation],
+  );
+
+  const handleMouseUp = useCallback((event: MouseEvent<SVGRectElement>) => {
+    if (event.button === 1 || event.button === 2) {
+      // Middle and Right click
+      event.preventDefault();
+      event.stopPropagation();
+
+      if (!infiniteCanvasMode) {
+        return;
+      }
+
+      setPanEnabled(false);
+      document.body.style.cursor = 'default';
+    }
+  }, []);
+
+  const handleMouseEnter = useCallback((event: MouseEvent<SVGRectElement>) => {
+    if (event.buttons !== 2) {
+      // Stop pan
+      setPanEnabled(false);
+      setPreviousPanCoordinates(undefined);
+    }
+  }, []);
 
   useHotkeys(
     'Escape',
@@ -75,6 +133,13 @@ export function UnSelectElementHandler() {
       fill="transparent"
       height="100%"
       onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseEnter={handleMouseEnter}
+      onContextMenu={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      }}
       width="100%"
       data-testid="unselect-element-layer"
     />

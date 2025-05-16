@@ -32,17 +32,29 @@ export function createFontConfig(): FontConfig {
     fonts: {},
   };
 
-  config.fonts['Roboto'] = {
-    normal: 'Roboto-Regular.ttf',
-    bold: 'Roboto-Medium.ttf',
-    italics: 'Roboto-Italic.ttf',
-    bolditalics: 'Roboto-MediumItalic.ttf',
+  config.fonts['Abel'] = {
+    normal: 'Inter-400.woff2',
+  };
+  config.fonts['Actor'] = {
+    normal: 'Inter-400.woff2',
+  };
+  config.fonts['Adamina'] = {
+    normal: 'Inter-400.woff2',
+  };
+  config.fonts['Chewy'] = {
+    normal: 'Inter-400.woff2',
+  };
+  config.fonts['Gwendolyn'] = {
+    normal: 'Inter-400.woff2',
   };
   config.fonts['Inter'] = {
     normal: 'Inter-400.woff2',
   };
   config.fonts['Noto Emoji'] = {
     normal: 'NotoEmoji-Regular.ttf',
+  };
+  config.fonts['Pirata One'] = {
+    normal: 'Inter-400.woff2',
   };
 
   return config;

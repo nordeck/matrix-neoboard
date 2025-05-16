@@ -87,7 +87,7 @@ export function connectPathElement(
 export function connectShapeElement(
   { connectedPaths }: ShapeElement,
   pathElementId: string,
-): Pick<ShapeElement, 'connectedPaths'> | undefined {
+): Pick<ShapeElement, 'connectedPaths'> {
   return {
     connectedPaths: [...(connectedPaths ?? []), pathElementId],
   };

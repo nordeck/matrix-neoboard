@@ -21,9 +21,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   WhiteboardTestingContextProvider,
   mockEllipseElement,
+  mockFrameElement,
   mockWhiteboardManager,
 } from '../../../../lib/testUtils/documentTestUtils';
 import { Point, WhiteboardSlideInstance } from '../../../../state';
+import { ConnectionPointProvider } from '../../../ConnectionPointProvider';
 import { LayoutStateProvider, useLayoutState } from '../../../Layout';
 import { WhiteboardHotkeysProvider } from '../../../WhiteboardHotkeysProvider';
 import { SvgCanvas } from '../../SvgCanvas';
@@ -72,6 +74,16 @@ describe('<DragSelect/>', () => {
                 height: 50,
               }),
             ],
+            // Draw a frame above some other elements.
+            // This should never be selected.
+            [
+              'element-3',
+              mockFrameElement({
+                position: { x: 0, y: 0 },
+                width: 200,
+                height: 200,
+              }),
+            ],
           ],
         ],
       ],
@@ -87,16 +99,18 @@ describe('<DragSelect/>', () => {
     Wrapper = ({ children }) => (
       <LayoutStateProvider>
         <LayoutStateExtractor />
-        <SvgCanvas viewportWidth={200} viewportHeight={200}>
-          <WhiteboardHotkeysProvider>
-            <WhiteboardTestingContextProvider
-              whiteboardManager={whiteboardManager}
-              widgetApi={widgetApi}
-            >
-              {children}
-            </WhiteboardTestingContextProvider>
-          </WhiteboardHotkeysProvider>
-        </SvgCanvas>
+        <WhiteboardHotkeysProvider>
+          <WhiteboardTestingContextProvider
+            whiteboardManager={whiteboardManager}
+            widgetApi={widgetApi}
+          >
+            <ConnectionPointProvider>
+              <SvgCanvas viewportWidth={200} viewportHeight={200}>
+                {children}
+              </SvgCanvas>
+            </ConnectionPointProvider>
+          </WhiteboardTestingContextProvider>
+        </WhiteboardHotkeysProvider>
       </LayoutStateProvider>
     );
   });
@@ -170,5 +184,8 @@ describe('<DragSelect/>', () => {
       'element-1',
       'element-0',
     ]);
+
+    // It should not select the frame
+    expect(activeSlide.getActiveElementIds()).not.toContain('element-3');
   });
 });

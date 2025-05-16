@@ -369,11 +369,15 @@ export function computeResizing(
               dimensions.height,
         },
         width:
-          element.type === 'shape' || element.type === 'image'
+          element.type === 'shape' ||
+          element.type === 'image' ||
+          element.type === 'frame'
             ? (element.width / resizableProperties.width) * dimensions.width
             : undefined,
         height:
-          element.type === 'shape' || element.type === 'image'
+          element.type === 'shape' ||
+          element.type === 'image' ||
+          element.type === 'frame'
             ? (element.height / resizableProperties.height) * dimensions.height
             : undefined,
         points:

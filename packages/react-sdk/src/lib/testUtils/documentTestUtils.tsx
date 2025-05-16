@@ -21,8 +21,10 @@ import { Fragment, PropsWithChildren, useState } from 'react';
 import { Provider } from 'react-redux';
 import { BehaviorSubject, NEVER, Subject, of } from 'rxjs';
 import { Mocked, vi } from 'vitest';
+import { SvgScaleContextProvider } from '../../components/Whiteboard/SvgScaleContext';
 import {
   Element,
+  FrameElement,
   ImageElement,
   PathElement,
   ShapeElement,
@@ -191,13 +193,15 @@ export function WhiteboardTestingContextProvider({
 }>) {
   const [store] = useState(() => createStore({ widgetApi }));
   return (
-    <WidgetApiMockProvider value={widgetApi}>
-      <Provider store={store}>
-        <WhiteboardManagerProvider whiteboardManager={whiteboardManager}>
-          <ProvideActiveSlide>{children}</ProvideActiveSlide>
-        </WhiteboardManagerProvider>
-      </Provider>
-    </WidgetApiMockProvider>
+    <SvgScaleContextProvider>
+      <WidgetApiMockProvider value={widgetApi}>
+        <Provider store={store}>
+          <WhiteboardManagerProvider whiteboardManager={whiteboardManager}>
+            <ProvideActiveSlide>{children}</ProvideActiveSlide>
+          </WhiteboardManagerProvider>
+        </Provider>
+      </WidgetApiMockProvider>
+    </SvgScaleContextProvider>
   );
 }
 
@@ -336,6 +340,18 @@ export function mockImageElement(
     width: 200,
     height: 100,
     ...image,
+  };
+}
+
+export function mockFrameElement(
+  frame: Partial<FrameElement> = {},
+): FrameElement {
+  return {
+    type: 'frame',
+    position: { x: 10, y: 20 },
+    width: 200,
+    height: 100,
+    ...frame,
   };
 }
 

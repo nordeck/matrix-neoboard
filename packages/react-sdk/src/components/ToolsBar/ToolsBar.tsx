@@ -27,6 +27,7 @@ import { ToolbarRadio } from '../common/Toolbar/ToolbarRadio';
 import { CursorDefaultIcon } from '../icons/CursorDefaultIcon';
 import { LineIcon } from '../icons/LineIcon';
 import { RoundedSquareIcon } from '../icons/RoundedSquareIcon';
+import { StickyNoteIcon } from '../icons/StickyNoteIcon';
 import { TriangleIcon } from '../icons/TriangleIcon';
 import { UploadIcon } from '../icons/UploadIcon';
 import { useSlideImageUpload } from '../ImageUpload';
@@ -55,6 +56,11 @@ export function ToolsBar() {
         label: t('toolsBar.selectTool', 'Select'),
         icon: <CursorDefaultIcon />,
         value: 'select',
+      },
+      {
+        label: t('toolsBar.stickyNote', 'Sticky note'),
+        icon: <StickyNoteIcon />,
+        value: 'sticky-note',
       },
       {
         label: t('toolsBar.roundedRectangleTool', 'Rounded rectangle'),
@@ -123,6 +129,7 @@ export function ToolsBar() {
               onChange={handleRadioClick}
             />
           ))}
+          {/*infiniteCanvasMode && <FrameButton />*/}
           <ToolbarButton
             aria-label={t('toolsBar.imageUploadTool', 'Upload image')}
             disabled={isLocked}

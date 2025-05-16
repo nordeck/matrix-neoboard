@@ -25,11 +25,12 @@ import {
   useAppDispatch,
   useAppSelector,
 } from '../../../store/reduxToolkitHooks';
-import { selectShapeSizes, setShapeSize } from '../../../store/shapeSizesSlide';
+import { selectShapeSizes, setShapeSize } from '../../../store/shapeSizesSlice';
 import { useLayoutState } from '../../Layout';
 import { WithExtendedSelectionProps } from '../ElementBehaviors';
-import { gridCellSize } from '../constants';
-import { DraftMouseHandler } from './DraftMouseHandler';
+import { useSvgScaleContext } from '../SvgScaleContext';
+import { defaultTextSize, gridCellSize, stickySize } from '../constants';
+import { DraftEvent, DraftMouseHandler } from './DraftMouseHandler';
 import { calculateShapeCoords } from './calculateShapeCoords';
 import { createShape } from './createShape';
 
@@ -43,6 +44,7 @@ export type DraftShapeChildProps = {
    */
   fixedColor?: string;
   rounded?: boolean;
+  stickyNote?: boolean;
 };
 
 export const DraftShapeChild = ({
@@ -51,20 +53,18 @@ export const DraftShapeChild = ({
   sameLength,
   fixedColor,
   rounded,
+  stickyNote,
 }: DraftShapeChildProps) => {
   const { isShowGrid } = useLayoutState();
   const [startCoords, setStartCoords] = useState<Point>();
   const [endCoords, setEndCoords] = useState<Point>();
-  const {
-    activeTextColor,
-    activeShapeTextColor,
-    activeShapeColor,
-    activeTool,
-  } = useLayoutState();
+  const { activeTextColor, activeShapeTextColor, activeShapeColor } =
+    useLayoutState();
   const slideInstance = useWhiteboardSlideInstance();
   const { setActiveTool, activeFontFamily } = useLayoutState();
   const shapeSizes = useAppSelector((state) => selectShapeSizes(state));
   const dispatch = useAppDispatch();
+  const { scale } = useSvgScaleContext();
 
   const fillColor = activeShapeColor;
   // Text fields are identified by a transparent background color
@@ -86,10 +86,14 @@ export const DraftShapeChild = ({
 
   const handleClick = useCallback(
     (point: Point) => {
+      // Sticky notes have a fixed size, so we need to override the shape size defaults
+      const overrideShapeSize = stickyNote ? stickySize : undefined;
       const { startCoords, endCoords } = calculateShapeCoords(
         kind,
         point,
         shapeSizes,
+        overrideShapeSize,
+        scale,
       );
 
       slideInstance.addElement(
@@ -100,25 +104,29 @@ export const DraftShapeChild = ({
           fillColor: fixedColor || fillColor,
           gridCellSize: isShowGrid ? gridCellSize : undefined,
           sameLength,
-          rounded: activeTool === 'rounded-rectangle' ? true : false,
+          rounded,
           textColor,
+          stickyNote,
           textFontFamily: activeFontFamily,
+          textSize: defaultTextSize,
         }),
       );
       setActiveTool('select');
     },
     [
-      fixedColor,
-      isShowGrid,
       kind,
-      sameLength,
-      setActiveTool,
       shapeSizes,
+      scale,
       slideInstance,
-      textColor,
-      activeTool,
+      fixedColor,
       fillColor,
+      isShowGrid,
+      sameLength,
+      rounded,
+      textColor,
+      stickyNote,
       activeFontFamily,
+      setActiveTool,
     ],
   );
 
@@ -135,6 +143,7 @@ export const DraftShapeChild = ({
           rounded,
           textColor,
           textFontFamily: activeFontFamily,
+          textSize: defaultTextSize,
         }),
       );
       setActiveTool('select');
@@ -159,7 +168,7 @@ export const DraftShapeChild = ({
   ]);
 
   const handleMouseMove = useCallback(
-    (point: Point) => {
+    ({ point }: DraftEvent) => {
       if (startCoords) {
         setEndCoords(point);
       }
@@ -167,7 +176,7 @@ export const DraftShapeChild = ({
     [startCoords],
   );
 
-  const handleMouseDown = useCallback((point: Point) => {
+  const handleMouseDown = useCallback(({ point }: DraftEvent) => {
     setStartCoords(point);
   }, []);
 
@@ -183,6 +192,7 @@ export const DraftShapeChild = ({
             sameLength,
             rounded,
             textColor,
+            stickyNote,
             textFontFamily: activeFontFamily,
           })
         : undefined,
@@ -195,6 +205,7 @@ export const DraftShapeChild = ({
       fixedColor,
       rounded,
       textColor,
+      stickyNote,
       fillColor,
       activeFontFamily,
     ],

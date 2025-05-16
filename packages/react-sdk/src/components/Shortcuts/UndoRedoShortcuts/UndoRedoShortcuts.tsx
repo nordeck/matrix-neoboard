@@ -26,17 +26,12 @@ export function UndoRedoShortcuts() {
 
   useHotkeys(
     isMacOS() ? 'meta+z' : 'ctrl+z',
-    (keyboardEvent) => {
+    () => {
       if (isViewingPresentation) {
         return;
       }
 
-      // react-hotkeys-hook will not properly handle different keyboard layouts
-      // on at least windows. We explicitly recheck if the key z was pressed until
-      // this is fixed in https://github.com/JohannesKlauss/react-hotkeys-hook/issues/909.
-      if (keyboardEvent.key === 'z') {
-        whiteboardManager.getActiveWhiteboardInstance()?.undo();
-      }
+      whiteboardManager.getActiveWhiteboardInstance()?.undo();
     },
     { scopes: HOTKEY_SCOPE_WHITEBOARD, enableOnContentEditable: true },
     [isViewingPresentation, whiteboardManager],
@@ -44,17 +39,12 @@ export function UndoRedoShortcuts() {
 
   useHotkeys(
     isMacOS() ? ['meta+shift+z'] : ['ctrl+shift+z', 'ctrl+y'],
-    (keyboardEvent, hotkeysEvent) => {
+    () => {
       if (isViewingPresentation) {
         return;
       }
 
-      // react-hotkeys-hook will not properly handle different keyboard layouts
-      // on at least windows. We explicitly recheck if the key y was pressed until
-      // this is fixed in https://github.com/JohannesKlauss/react-hotkeys-hook/issues/909.
-      if (hotkeysEvent.shift || keyboardEvent.key === 'y') {
-        whiteboardManager.getActiveWhiteboardInstance()?.redo();
-      }
+      whiteboardManager.getActiveWhiteboardInstance()?.redo();
     },
     { scopes: HOTKEY_SCOPE_WHITEBOARD, enableOnContentEditable: true },
     [isViewingPresentation, whiteboardManager],

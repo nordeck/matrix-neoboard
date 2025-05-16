@@ -17,12 +17,15 @@
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import { filterRecord } from '../../../lib';
 import {
+  calculateBoundingRectForElements,
   Element,
+  Elements,
   useActiveElements,
+  useElements,
   useWhiteboardSlideInstance,
 } from '../../../state';
-import { calculateBoundingRectForElements } from '../../../state/crdt/documents/elements';
 import { BoundingRect } from '../../../state/crdt/documents/point';
 import { gridCellSize, whiteboardWidth } from '../../Whiteboard';
 import { ToolbarButton } from '../../common/Toolbar';
@@ -63,19 +66,28 @@ export function DuplicateActiveElementButton() {
   const { t } = useTranslation('neoboard');
   const slideInstance = useWhiteboardSlideInstance();
   const { activeElementIds } = useActiveElements();
+  const activeElementsObject = useElements(activeElementIds);
+  const activeElements = Object.values(activeElementsObject);
 
   const handleDuplicate = useCallback(() => {
     const sortedActiveElementIds =
       slideInstance.sortElementIds(activeElementIds);
-    const elements = Object.values(
+    const elements = filterRecord(
       slideInstance.getElements(sortedActiveElementIds),
+      (e) => e.type !== 'frame',
     );
-    const boundingRect = calculateBoundingRectForElements(elements);
-    const duplicatedElements = elements.map((element) =>
-      duplicate(element, gridCellSize, boundingRect),
+    const boundingRect = calculateBoundingRectForElements(
+      Object.values(elements),
     );
-
-    slideInstance.addElements(duplicatedElements);
+    const duplicatedElements: Elements = {};
+    for (const [elementId, element] of Object.entries(elements)) {
+      duplicatedElements[elementId] = duplicate(
+        element,
+        gridCellSize,
+        boundingRect,
+      );
+    }
+    slideInstance.addElementsWithConnections(duplicatedElements);
   }, [activeElementIds, slideInstance]);
 
   const duplicateActiveElementLabel = t(
@@ -83,6 +95,12 @@ export function DuplicateActiveElementButton() {
     'Duplicate the active element',
     { count: activeElementIds.length },
   );
+
+  const onlyFramesSelected = activeElements.every((e) => e.type === 'frame');
+
+  if (onlyFramesSelected) {
+    return null;
+  }
 
   return (
     <ToolbarButton

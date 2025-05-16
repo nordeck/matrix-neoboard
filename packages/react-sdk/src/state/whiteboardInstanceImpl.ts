@@ -31,6 +31,7 @@ import {
   takeUntil,
   tap,
 } from 'rxjs';
+import { matrixRtcMode } from '../components/Whiteboard';
 import { Whiteboard } from '../model';
 import { StoreType } from '../store';
 import {
@@ -42,6 +43,8 @@ import {
   WebRtcCommunicationChannel,
   isValidFocusOnMessage,
 } from './communication';
+import { MatrixRtcCommunicationChannel } from './communication/matrixRtcCommunicationChannel';
+import { emptyCommunicationChannelStatistics } from './communication/types';
 import {
   WhiteboardDocument,
   createWhiteboardDocument,
@@ -80,11 +83,13 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
   private loading: boolean = true;
   private loadingSubject = new BehaviorSubject<boolean>(true);
 
-  private presentationManager = new PresentationManagerImpl(
-    this,
-    this.communicationChannel,
-    this.enableObserveVisibilityStateSubject,
-  );
+  private presentationManager = this.communicationChannel
+    ? new PresentationManagerImpl(
+        this,
+        this.communicationChannel,
+        this.enableObserveVisibilityStateSubject,
+      )
+    : undefined;
 
   private readonly slides = new Map<string, WhiteboardSlideInstanceImpl>();
 
@@ -182,19 +187,31 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
   static create(
     store: StoreType,
     widgetApiPromise: Promise<WidgetApi>,
-    sessionManager: SessionManager,
-    signalingChannel: SignalingChannel,
+    sessionManager: SessionManager | undefined,
+    signalingChannel: SignalingChannel | undefined,
     whiteboardEvent: StateEvent<Whiteboard>,
     userId: string,
   ): WhiteboardInstanceImpl {
     const enableObserveVisibilityStateSubject = new BehaviorSubject(true);
-    const communicationChannel = new WebRtcCommunicationChannel(
-      widgetApiPromise,
-      sessionManager,
-      signalingChannel,
-      whiteboardEvent.event_id,
-      enableObserveVisibilityStateSubject,
-    );
+
+    let communicationChannel: CommunicationChannel | undefined = undefined;
+    if (matrixRtcMode && sessionManager) {
+      communicationChannel = new MatrixRtcCommunicationChannel(
+        widgetApiPromise,
+        sessionManager,
+        whiteboardEvent.state_key,
+        enableObserveVisibilityStateSubject,
+      );
+    } else if (!matrixRtcMode && sessionManager && signalingChannel) {
+      communicationChannel = new WebRtcCommunicationChannel(
+        widgetApiPromise,
+        sessionManager,
+        signalingChannel,
+        whiteboardEvent.state_key,
+        enableObserveVisibilityStateSubject,
+      );
+    }
+
     const storage = new LocalForageDocumentStorage();
 
     const document = new SynchronizedDocumentImpl(
@@ -207,6 +224,7 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
         documentValidator: isValidWhiteboardDocument,
         snapshotValidator: isValidWhiteboardDocumentSnapshot,
       },
+      whiteboardEvent.room_id,
     );
 
     return new WhiteboardInstanceImpl(
@@ -220,7 +238,7 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
 
   constructor(
     private readonly synchronizedDocument: SynchronizedDocument<WhiteboardDocument>,
-    private readonly communicationChannel: CommunicationChannel,
+    private readonly communicationChannel: CommunicationChannel | undefined,
     private readonly whiteboardEvent: StateEvent<Whiteboard>,
     private readonly userId: string,
     private readonly enableObserveVisibilityStateSubject?: Subject<boolean>,
@@ -228,7 +246,8 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
     this.whiteboardStatistics = {
       document: undefined,
       communicationChannel: cloneDeep(
-        this.communicationChannel.getStatistics(),
+        this.communicationChannel?.getStatistics() ??
+          emptyCommunicationChannelStatistics(),
       ),
     };
 
@@ -251,7 +270,7 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
       });
 
     this.communicationChannel
-      .observeStatistics()
+      ?.observeStatistics()
       .pipe(takeUntil(this.destroySubject))
       .subscribe((communicationChannelStatistics) => {
         this.whiteboardStatistics = {
@@ -263,7 +282,7 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
       });
 
     this.communicationChannel
-      .observeMessages()
+      ?.observeMessages()
       .pipe(takeUntil(this.destroySubject), filter(isValidFocusOnMessage))
       .subscribe(({ content }) => {
         this.setActiveSlideId(content.slideId);
@@ -334,7 +353,7 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
   }
 
   focusOn(slideId: string): void {
-    this.communicationChannel.broadcastMessage<FocusOn>(FOCUS_ON_MESSAGE, {
+    this.communicationChannel?.broadcastMessage<FocusOn>(FOCUS_ON_MESSAGE, {
       slideId,
     });
   }
@@ -437,7 +456,7 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
       .pipe(distinctUntilChanged(isEqual), takeUntil(this.destroySubject));
   }
 
-  getPresentationManager(): PresentationManager {
+  getPresentationManager(): PresentationManager | undefined {
     return this.presentationManager;
   }
 
@@ -448,8 +467,8 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
     this.loadingSubject.complete();
     this.destroySubject.next();
     this.synchronizedDocument.destroy();
-    this.presentationManager.destroy();
-    this.communicationChannel.destroy();
+    this.presentationManager?.destroy();
+    this.communicationChannel?.destroy();
   }
 
   async persist() {

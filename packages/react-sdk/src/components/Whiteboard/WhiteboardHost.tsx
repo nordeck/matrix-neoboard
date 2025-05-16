@@ -19,7 +19,6 @@ import { useCallback, useState } from 'react';
 import {
   includesShapeWithText,
   includesTextShape,
-  isShapeElementPair,
   type Point,
   useActiveElements,
   useIsWhiteboardLoading,
@@ -28,15 +27,19 @@ import {
   useSlideIsLocked,
   useWhiteboardSlideInstance,
 } from '../../state';
-import { useConnectionPoint } from '../ConnectionPointProvider';
 import { ElementBar } from '../ElementBar';
 import { useElementOverrides } from '../ElementOverridesProvider';
+import { useSlideImageDropUpload } from '../ImageUpload';
 import { useLayoutState } from '../Layout';
+import {
+  infiniteCanvasMode,
+  whiteboardHeight,
+  whiteboardWidth,
+} from './constants';
 import { CursorRenderer } from './CursorRenderer';
 import { DraftPicker } from './Draft/DraftPicker';
 import { ConnectedElement } from './Element';
 import {
-  ConnectableElement,
   ElementBarWrapper,
   ElementBorder,
   ElementOutline,
@@ -48,7 +51,6 @@ import { DragSelect } from './ElementBehaviors/Selection/DragSelect';
 import { DotGrid } from './Grid';
 import { SlideSkeleton } from './SlideSkeleton';
 import { SvgCanvas } from './SvgCanvas';
-import { whiteboardHeight, whiteboardWidth } from './constants';
 
 const WhiteboardHost = ({
   elementIds,
@@ -68,7 +70,9 @@ const WhiteboardHost = ({
     useLayoutState();
   const { activeElementIds } = useActiveElements();
   const overrides = useElementOverrides(activeElementIds);
-  const { isHandleDragging } = useConnectionPoint();
+
+  const { handleUploadDragEnter, uploadDragOverlay } =
+    useSlideImageDropUpload();
 
   const [textToolsEnabled, setTextToolsEnabled] = useState(false);
 
@@ -88,6 +92,16 @@ const WhiteboardHost = ({
       alignContent="space-around"
       position="relative"
       data-guided-tour-target="canvas"
+      onDragEnter={handleUploadDragEnter}
+      {...(infiniteCanvasMode
+        ? {
+            sx: {
+              touchAction: 'none',
+            },
+            overflow: 'hidden',
+            width: '100vw',
+          }
+        : {})}
     >
       <SvgCanvas
         viewportHeight={whiteboardHeight}
@@ -101,14 +115,19 @@ const WhiteboardHost = ({
             </ElementBarWrapper>
           )
         }
+        topLevelChildren={uploadDragOverlay}
         rounded
         withOutline={withOutline}
         onMouseMove={useCallback(
           (position: Point) => {
+            slideInstance.setCursorPosition(position);
             slideInstance.publishCursorPosition(position);
           },
           [slideInstance],
         )}
+        onMouseLeave={useCallback(() => {
+          slideInstance.setCursorPosition(undefined);
+        }, [slideInstance])}
       >
         {!hideDotGrid && <DotGrid />}
         {!readOnly && <UnSelectElementHandler />}
@@ -142,19 +161,6 @@ const WhiteboardHost = ({
             )}
           </>
         )}
-
-        {isHandleDragging &&
-          Object.entries(
-            slideInstance.getElements(slideInstance.getElementIds()),
-          )
-            .filter(isShapeElementPair)
-            .map(([elementId, element]) => (
-              <ConnectableElement
-                key={elementId}
-                elementId={elementId}
-                element={element}
-              />
-            ))}
 
         {isShowCollaboratorsCursors && !hideCursors && <CursorRenderer />}
       </SvgCanvas>

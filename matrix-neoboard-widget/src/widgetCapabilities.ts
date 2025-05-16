@@ -24,10 +24,12 @@ import {
   ROOM_EVENT_DOCUMENT_CREATE,
   ROOM_EVENT_DOCUMENT_SNAPSHOT,
   STATE_EVENT_ROOM_NAME,
+  STATE_EVENT_RTC_MEMBER,
   STATE_EVENT_WHITEBOARD,
   STATE_EVENT_WHITEBOARD_SESSIONS,
   TO_DEVICE_MESSAGE_CONNECTION_SIGNALING,
 } from '@nordeck/matrix-neoboard-react-sdk';
+import { matrixRtcMode } from '@nordeck/matrix-neoboard-react-sdk/src/components/Whiteboard';
 import {
   EventDirection,
   MatrixCapabilities,
@@ -35,7 +37,7 @@ import {
   WidgetEventCapability,
 } from 'matrix-widget-api';
 
-const { userId } = extractWidgetParameters();
+const { userId, deviceId } = extractWidgetParameters();
 
 export const widgetCapabilities = [
   WidgetEventCapability.forRoomEvent(
@@ -88,16 +90,6 @@ export const widgetCapabilities = [
     STATE_EVENT_WHITEBOARD,
   ),
   WidgetEventCapability.forStateEvent(
-    EventDirection.Send,
-    STATE_EVENT_WHITEBOARD_SESSIONS,
-    // We only need to write the own state, but read state from everyone
-    userId,
-  ),
-  WidgetEventCapability.forStateEvent(
-    EventDirection.Receive,
-    STATE_EVENT_WHITEBOARD_SESSIONS,
-  ),
-  WidgetEventCapability.forStateEvent(
     EventDirection.Receive,
     STATE_EVENT_ROOM_NAME,
   ),
@@ -110,8 +102,35 @@ export const widgetCapabilities = [
     EventDirection.Receive,
     TO_DEVICE_MESSAGE_CONNECTION_SIGNALING,
   ),
-
   MatrixCapabilities.MSC3846TurnServers,
   WidgetApiFromWidgetAction.MSC4039UploadFileAction,
   WidgetApiFromWidgetAction.MSC4039DownloadFileAction,
 ];
+
+if (matrixRtcMode) {
+  widgetCapabilities.push(
+    WidgetEventCapability.forStateEvent(
+      EventDirection.Send,
+      STATE_EVENT_RTC_MEMBER,
+      // We only need to write the own state, but read state from everyone
+      `_${userId}_${deviceId}`,
+    ),
+    WidgetEventCapability.forStateEvent(
+      EventDirection.Receive,
+      STATE_EVENT_RTC_MEMBER,
+    ),
+  );
+} else {
+  widgetCapabilities.push(
+    WidgetEventCapability.forStateEvent(
+      EventDirection.Send,
+      STATE_EVENT_WHITEBOARD_SESSIONS,
+      // We only need to write the own state, but read state from everyone
+      userId,
+    ),
+    WidgetEventCapability.forStateEvent(
+      EventDirection.Receive,
+      STATE_EVENT_WHITEBOARD_SESSIONS,
+    ),
+  );
+}

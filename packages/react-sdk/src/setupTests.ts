@@ -159,3 +159,16 @@ window.Promise.withResolvers = function () {
   });
   return { promise, resolve: res, reject: rej };
 };
+
+// Mock DOMMatrix bits required for tests
+class DOMMatrix {
+  translateSelf() {}
+
+  scaleSelf() {}
+
+  transformPoint(point: DOMPoint): DOMPoint {
+    return point;
+  }
+}
+
+Object.defineProperty(global.globalThis, 'DOMMatrix', { value: DOMMatrix });

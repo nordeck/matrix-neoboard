@@ -16,13 +16,17 @@
 
 export { convertBlobToBase64 } from './convertBlobToBase64';
 export { determineImageSize } from './determineImageSize';
+export { filterRecord } from './filterRecord';
 export { findForegroundColor } from './findForegroundColor';
 export { isDefined } from './isDefined';
+export { isInfiniteCanvasMode } from './isInfiniteCanvasMode';
 export { setLocale } from './locale';
 export { WidgetApiActionError, convertMxcToHttpUrl } from './matrix';
+export { isMatrixRtcMode } from './matrixRtcMode';
 export { findColor, useColorPalette } from './useColorPalette';
 export type { Color } from './useColorPalette';
 export { FontsLoadedContextProvider, useFontsLoaded } from './useFontsLoaded';
 export { useLatestValue } from './useLatestValue';
 export { useMeasure } from './useMeasure';
 export { getUserColor } from './userColor';
+export { useZoomControls } from './useZoomControls';

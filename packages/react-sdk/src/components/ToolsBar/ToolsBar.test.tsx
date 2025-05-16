@@ -36,21 +36,18 @@ import { WhiteboardManager } from '../../state';
 import { ImageUploadProvider } from '../ImageUpload';
 import { LayoutStateProvider } from '../Layout';
 import { SnackbarProvider } from '../Snackbar';
+import * as whiteboardConstants from '../Whiteboard/constants';
 import { ToolsBar } from './ToolsBar';
-
-vi.mock('@matrix-widget-toolkit/mui', async () => ({
-  ...(await vi.importActual<typeof import('@matrix-widget-toolkit/mui')>(
-    '@matrix-widget-toolkit/mui',
-  )),
-  getEnvironment: vi.fn(),
-}));
 
 let widgetApi: MockedWidgetApi;
 
-afterEach(() => widgetApi.stop());
-
 beforeEach(() => {
   widgetApi = mockWidgetApi();
+});
+
+afterEach(() => {
+  widgetApi.stop();
+  vi.restoreAllMocks();
 });
 
 describe('<ToolsBar/>', () => {
@@ -101,6 +98,9 @@ describe('<ToolsBar/>', () => {
       within(radiogroup).getByRole('radio', { name: 'Rounded rectangle' }),
     ).not.toBeChecked();
     expect(
+      within(radiogroup).getByRole('radio', { name: 'Sticky note' }),
+    ).not.toBeChecked();
+    expect(
       within(radiogroup).getByRole('radio', { name: 'Triangle' }),
     ).not.toBeChecked();
     expect(
@@ -146,6 +146,7 @@ describe('<ToolsBar/>', () => {
     expect(
       screen.getByRole('radio', { name: 'Rounded rectangle' }),
     ).toBeDisabled();
+    expect(screen.getByRole('radio', { name: 'Sticky note' })).toBeDisabled();
     expect(screen.getByRole('radio', { name: 'Triangle' })).toBeDisabled();
     expect(screen.getByRole('radio', { name: 'Line' })).toBeDisabled();
     expect(screen.getByRole('radio', { name: 'Arrow' })).toBeDisabled();
@@ -158,6 +159,9 @@ describe('<ToolsBar/>', () => {
     expect(screen.getByRole('radio', { name: 'Rectangle' })).not.toBeChecked();
     expect(
       screen.getByRole('radio', { name: 'Rounded rectangle' }),
+    ).not.toBeChecked();
+    expect(
+      screen.getByRole('radio', { name: 'Sticky note' }),
     ).not.toBeChecked();
     expect(screen.getByRole('radio', { name: 'Triangle' })).not.toBeChecked();
     expect(screen.getByRole('radio', { name: 'Line' })).not.toBeChecked();
@@ -192,5 +196,26 @@ describe('<ToolsBar/>', () => {
 
     expect(penTool).toBeChecked();
     expect(slide?.getActiveElementIds()).toEqual([]);
+  });
+
+  it('should not show the create frame button by default', () => {
+    render(<ToolsBar />, { wrapper: Wrapper });
+
+    expect(
+      screen.queryByRole('button', { name: 'Create frame' }),
+    ).not.toBeInTheDocument();
+  });
+
+  // TODO: enable test when adding frames back in
+  it.skip('should show the create frame button, if Infinite Ianvas is enabled', () => {
+    vi.spyOn(whiteboardConstants, 'infiniteCanvasMode', 'get').mockReturnValue(
+      true,
+    );
+
+    render(<ToolsBar />, { wrapper: Wrapper });
+
+    expect(
+      screen.getByRole('button', { name: 'Create frame' }),
+    ).toBeInTheDocument();
   });
 });

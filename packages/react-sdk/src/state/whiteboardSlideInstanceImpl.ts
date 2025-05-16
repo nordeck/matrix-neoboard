@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { nanoid } from '@reduxjs/toolkit';
 import { first, isEqual } from 'lodash';
 import {
   Observable,
@@ -30,16 +31,20 @@ import {
   throttleTime,
   timer,
 } from 'rxjs';
+import { isDefined } from '../lib';
 import {
   CURSOR_UPDATE_MESSAGE,
   CommunicationChannel,
   CursorUpdate,
+  Message,
   isValidCursorUpdateMessage,
 } from './communication';
 import {
   Document,
   Element,
+  PathElement,
   Point,
+  ShapeElement,
   UpdateElementPatch,
   WhiteboardDocument,
   generateAddElement,
@@ -56,11 +61,13 @@ import {
 } from './crdt';
 import { generate, generateRemoveElements } from './crdt/documents/operations';
 import {
+  ElementUpdate,
   Elements,
   WhiteboardSlideInstance,
   WhiteboardUndoManagerContext,
 } from './types';
 import {
+  connectShapeElement,
   deleteConnectionData,
   disconnectPathElement,
   disconnectShapeElement,
@@ -85,7 +92,9 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
   private readonly cursorPositionSubject = new Subject<Point>();
   private readonly cursorPositionObservable: Observable<Record<string, Point>> =
     combineLatest([
-      this.communicationChannel.observeMessages().pipe(
+      (
+        this.communicationChannel?.observeMessages() ?? new Subject<Message>()
+      ).pipe(
         filter(isValidCursorUpdateMessage),
         filter((m) => m.content.slideId === this.slideId),
         scan(
@@ -113,9 +122,10 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
       distinctUntilChanged(isEqual),
       takeUntil(this.destroySubject),
     );
+  private cursorPosition: Point | undefined;
 
   constructor(
-    private readonly communicationChannel: CommunicationChannel,
+    private readonly communicationChannel: CommunicationChannel | undefined,
     private readonly slideId: string,
     private readonly document: Document<WhiteboardDocument>,
     private readonly userId: string,
@@ -126,20 +136,22 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
         this.activeElementIdsSubject.next(this.getActiveElementIds());
       });
 
-    this.cursorPositionSubject
-      .pipe(
-        takeUntil(this.destroySubject),
-        throttleTime(100, undefined, { leading: true, trailing: true }),
-      )
-      .subscribe((position) => {
-        this.communicationChannel.broadcastMessage<CursorUpdate>(
-          CURSOR_UPDATE_MESSAGE,
-          {
-            slideId: this.slideId,
-            position,
-          },
-        );
-      });
+    if (this.communicationChannel) {
+      this.cursorPositionSubject
+        .pipe(
+          takeUntil(this.destroySubject),
+          throttleTime(100, undefined, { leading: true, trailing: true }),
+        )
+        .subscribe((position) => {
+          this.communicationChannel?.broadcastMessage<CursorUpdate>(
+            CURSOR_UPDATE_MESSAGE,
+            {
+              slideId: this.slideId,
+              position,
+            },
+          );
+        });
+    }
   }
 
   lockSlide() {
@@ -164,6 +176,68 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
     return elementId;
   }
 
+  addPathElementAndConnect(element: PathElement): string {
+    this.assertLocked();
+
+    const { connectedElementStart, connectedElementEnd } = element;
+
+    let startElement: [string, ShapeElement] | undefined;
+    if (connectedElementStart) {
+      const connectedElement = this.getElement(connectedElementStart);
+      if (connectedElement && connectedElement.type === 'shape') {
+        startElement = [connectedElementStart, connectedElement];
+      }
+    }
+    let endElement: [string, ShapeElement] | undefined;
+    if (connectedElementEnd) {
+      const connectedElement = this.getElement(connectedElementEnd);
+      if (connectedElement && connectedElement.type === 'shape') {
+        endElement = [connectedElementEnd, connectedElement];
+      }
+    }
+
+    const newElement: Element = {
+      ...element,
+      connectedElementStart: startElement ? startElement[0] : undefined,
+      connectedElementEnd: endElement ? endElement[0] : undefined,
+    };
+
+    const [addElement, elementId] = generateAddElement(
+      this.slideId,
+      newElement,
+    );
+
+    const updates: ElementUpdate[] = [];
+    if (startElement) {
+      const [startElementId, shapeElement] = startElement;
+      updates.push({
+        elementId: startElementId,
+        patch: connectShapeElement(shapeElement, elementId),
+      });
+    }
+    if (endElement) {
+      const [endElementId, shapeElement] = endElement;
+      updates.push({
+        elementId: endElementId,
+        patch: connectShapeElement(shapeElement, elementId),
+      });
+    }
+
+    // set the active element ID first, so it is captured in the undomanager
+    this.setActiveElementId(elementId);
+
+    this.document.performChange(
+      generate([
+        addElement,
+        ...updates.map(({ elementId, patch }) =>
+          generateUpdateElement(this.slideId, elementId, patch),
+        ),
+      ]),
+    );
+
+    return elementId;
+  }
+
   addElements(elements: Array<Element>): string[] {
     this.assertLocked();
 
@@ -174,6 +248,78 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
     );
 
     // set the active element IDs first, so it is captured in the undomanager
+    this.setActiveElementIds(elementIds);
+
+    this.document.performChange(changeFn);
+
+    return elementIds;
+  }
+
+  addElementsWithConnections(elements: Elements): string[] {
+    this.assertLocked();
+
+    // Generate new id for each element
+    const newElementIdsMap = new Map<string, string>();
+    for (const elementId of Object.keys(elements)) {
+      newElementIdsMap.set(elementId, nanoid());
+    }
+
+    /**
+     * Modify elements with new ids.
+     * Update element ids in connections.
+     * Remove connections to unknown elements.
+     * */
+    const newElements: Elements = {};
+    for (const [elementId, element] of Object.entries(elements)) {
+      let newElement: Element;
+      if (element.type === 'shape') {
+        const { connectedPaths } = element;
+
+        let newConnectedPaths: string[] | undefined;
+        if (connectedPaths) {
+          newConnectedPaths = connectedPaths
+            .map((connectedElementId) =>
+              newElementIdsMap.get(connectedElementId),
+            )
+            .filter(isDefined);
+          newConnectedPaths =
+            newConnectedPaths.length == 0 ? undefined : newConnectedPaths;
+        }
+        newElement = {
+          ...element,
+          connectedPaths: newConnectedPaths,
+        };
+      } else if (element.type === 'path') {
+        const { connectedElementStart, connectedElementEnd } = element;
+
+        newElement = {
+          ...element,
+          connectedElementStart: connectedElementStart
+            ? newElementIdsMap.get(connectedElementStart)
+            : undefined,
+          connectedElementEnd: connectedElementEnd
+            ? newElementIdsMap.get(connectedElementEnd)
+            : undefined,
+        };
+      } else {
+        newElement = element;
+      }
+
+      const newElementId = newElementIdsMap.get(elementId);
+      if (!newElementId) {
+        throw new Error('New element id must be defined');
+      }
+
+      newElements[newElementId] = newElement;
+    }
+
+    const [changeFn, elementIds] = generateAddElements(
+      this.slideId,
+      Object.values(newElements),
+      Object.keys(newElements),
+    );
+
+    // set the active element IDs first, so it is captured in the undo manager
     this.setActiveElementIds(elementIds);
 
     this.document.performChange(changeFn);
@@ -325,6 +471,14 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
 
   observeElementIds(): Observable<string[]> {
     return this.elementIdsObservable;
+  }
+
+  setCursorPosition(position: Point | undefined) {
+    this.cursorPosition = position;
+  }
+
+  getCursorPosition(): Point | undefined {
+    return this.cursorPosition;
   }
 
   observeCursorPositions(): Observable<Record<string, Point>> {

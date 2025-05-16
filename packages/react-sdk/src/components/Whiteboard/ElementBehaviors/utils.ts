@@ -31,94 +31,141 @@ import {
   disconnectPathElementOnPosition,
 } from '../../../state/utils';
 import { ElementOverrideUpdate } from '../../ElementOverridesProvider';
-import { LineElementHandlePositionName } from './Resizable/types';
 
 /**
- * Provides updates to line resize.
- * Provides connection changes to line element and connected/disconnected element.
+ * Provides an update to the line resized. It includes element position, points, connect/disconnect to a shape.
+ * Provides updates to the shapes regarding been connected/disconnected to the resized line.
  *
  * @param slideInstance slide instance
  * @param pathElementId path element id
  * @param pathElement path element (currently line only)
- * @param position start or end position of line resized
- * @param connectToElementId if defined an element id to connect to, otherwise disconnect line on position
- * @return line element position, points updates, connection start and end updates, an element to connect to connection updates
+ * @param position start or end connection position of the line resized
+ * @param connectToElementId if defined a shape element id to connect to, otherwise line to be disconnected on position if connection exists
+ * @return line element position, points updates, connection start and end updates, elements to connect/disconnect updates
  */
 export function lineResizeUpdates(
   slideInstance: WhiteboardSlideInstance,
   pathElementId: string,
   pathElement: PathElement,
-  position: LineElementHandlePositionName,
+  position: 'start' | 'end',
   connectToElementId: string | undefined,
 ): ElementUpdate[] {
   const patches: ElementUpdate[] = [];
 
   if (!connectToElementId) {
-    const pathPatch = disconnectPathElementOnPosition(pathElement, position);
+    // Provides update with position, points, shape disconnect to a line
     patches.push({
       elementId: pathElementId,
       patch: {
         position: pathElement.position,
         points: pathElement.points,
-        ...pathPatch,
+        ...disconnectPathElementOnPosition(pathElement, position),
       },
     });
 
-    let shapeElementData: [string, ShapeElement] | undefined;
-    if (pathElement.connectedElementStart || pathElement.connectedElementEnd) {
-      const shapeElementId =
-        position === 'start'
-          ? pathElement.connectedElementStart
-          : pathElement.connectedElementEnd;
-      if (shapeElementId) {
-        const targetElement = slideInstance.getElement(shapeElementId);
-        if (targetElement?.type === 'shape') {
-          shapeElementData = [shapeElementId, targetElement];
-        }
-      }
-    } else {
-      shapeElementData = undefined;
-    }
-
-    if (shapeElementData) {
-      const [shapeElementId, shapeElement] = shapeElementData;
-      const shapePatch = disconnectShapeElement(shapeElement, [pathElementId]);
-      if (shapePatch) {
-        patches.push({
-          elementId: shapeElementId,
-          patch: shapePatch,
-        });
-      }
+    // Provides update to disconnect to a shape
+    const shapePatch = disconnectConnectedShapeFromLine(
+      slideInstance,
+      pathElementId,
+      pathElement,
+      position,
+    );
+    if (shapePatch) {
+      patches.push(shapePatch);
     }
   } else {
     const shapeElement = slideInstance.getElement(connectToElementId);
+    const shapeElementFound = shapeElement && shapeElement.type === 'shape';
 
-    if (shapeElement && shapeElement.type === 'shape') {
-      const pathPatch = connectPathElement(
-        pathElement,
-        position,
-        connectToElementId,
-      );
-      patches.push({
-        elementId: pathElementId,
-        patch: {
-          position: pathElement.position,
-          points: pathElement.points,
-          ...pathPatch,
-        },
-      });
+    // Provides update with position, points, shape connect to a line
+    patches.push({
+      elementId: pathElementId,
+      patch: {
+        position: pathElement.position,
+        points: pathElement.points,
+        ...(shapeElementFound
+          ? connectPathElement(pathElement, position, connectToElementId)
+          : undefined),
+      },
+    });
 
-      const shapePatch = connectShapeElement(shapeElement, pathElementId);
-      if (shapePatch) {
+    // Provides updates to connect to a shape, disconnect from previously connected shape
+    if (shapeElementFound) {
+      const shapeElementId: string | undefined =
+        position === 'start'
+          ? pathElement.connectedElementStart
+          : pathElement.connectedElementEnd;
+
+      const isConnectedElementChanges = connectToElementId !== shapeElementId;
+
+      if (isConnectedElementChanges) {
+        const shapePatch = connectShapeElement(shapeElement, pathElementId);
         patches.push({
           elementId: connectToElementId,
           patch: shapePatch,
         });
+
+        const previousShapePatch = disconnectConnectedShapeFromLine(
+          slideInstance,
+          pathElementId,
+          pathElement,
+          position,
+        );
+        if (previousShapePatch) {
+          patches.push(previousShapePatch);
+        }
       }
     }
   }
 
   return patches;
+}
+
+/**
+ * Provides an update to disconnect a connected shape (if exists) from
+ * the line on specified position.
+ * @param slideInstance slide instance to load a connected shape element
+ * @param pathElementId path element id
+ * @param pathElement path element
+ * @param position start or end connection position
+ * @return update to disconnect a connected shape from the line
+ */
+function disconnectConnectedShapeFromLine(
+  slideInstance: WhiteboardSlideInstance,
+  pathElementId: string,
+  pathElement: PathElement,
+  position: 'start' | 'end',
+): ElementUpdate | undefined {
+  let shapeElementData: [string, ShapeElement] | undefined;
+  if (pathElement.connectedElementStart || pathElement.connectedElementEnd) {
+    const shapeElementId =
+      position === 'start'
+        ? pathElement.connectedElementStart
+        : pathElement.connectedElementEnd;
+    if (shapeElementId) {
+      const targetElement = slideInstance.getElement(shapeElementId);
+      if (targetElement?.type === 'shape') {
+        shapeElementData = [shapeElementId, targetElement];
+      }
+    }
+  } else {
+    shapeElementData = undefined;
+  }
+
+  let patch: ElementUpdate | undefined;
+
+  if (shapeElementData) {
+    const [shapeElementId, shapeElement] = shapeElementData;
+    const shapePatch = disconnectShapeElement(shapeElement, [pathElementId]);
+    if (shapePatch) {
+      patch = {
+        elementId: shapeElementId,
+        patch: shapePatch,
+      };
+    }
+  }
+
+  return patch;
 }
 
 /**

@@ -17,6 +17,7 @@
 import Joi from 'joi';
 import loglevel from 'loglevel';
 // Do not import from the index file to prevent cyclic dependencies
+import { clamp } from 'lodash';
 import { defaultAcceptedImageTypes } from '../../../components/ImageUpload/consts';
 import {
   BoundingRect,
@@ -62,6 +63,7 @@ export type ShapeElement = ElementBase & {
   textColor?: string;
   textBold?: boolean;
   textItalic?: boolean;
+  stickyNote?: boolean;
   textSize?: number;
   textFontFamily: TextFontFamily;
   connectedPaths?: string[];
@@ -86,6 +88,7 @@ const shapeElementSchema = elementBaseSchema
     textColor: Joi.string().strict(),
     textBold: Joi.boolean(),
     textItalic: Joi.boolean(),
+    stickyNote: Joi.boolean(),
     textSize: Joi.number().strict(),
     textFontFamily: Joi.string().strict().default('Inter'),
     connectedPaths: Joi.array().items(Joi.string()),
@@ -94,14 +97,15 @@ const shapeElementSchema = elementBaseSchema
 
 export type PathKind = 'line' | 'polyline';
 
-export type EndMarker = 'arrow-head-line';
+export type LineMarker = 'arrow-head-line';
 
 export type PathElement = ElementBase & {
   type: 'path';
   kind: PathKind;
   points: Point[];
   strokeColor: string;
-  endMarker?: EndMarker;
+  startMarker?: LineMarker;
+  endMarker?: LineMarker;
   connectedElementStart?: string;
   connectedElementEnd?: string;
 };
@@ -112,9 +116,24 @@ const pathElementSchema = elementBaseSchema
     kind: Joi.string().valid('line', 'polyline').required(),
     points: Joi.array().items(pointSchema).required(),
     strokeColor: Joi.string().required(),
+    startMarker: Joi.string().valid('arrow-head-line'),
     endMarker: Joi.string().valid('arrow-head-line'),
     connectedElementStart: Joi.string(),
     connectedElementEnd: Joi.string(),
+  })
+  .required();
+
+export type FrameElement = ElementBase & {
+  type: 'frame';
+  width: number;
+  height: number;
+};
+
+const frameElementSchema = elementBaseSchema
+  .append<FrameElement>({
+    type: Joi.string().valid('frame').required(),
+    width: Joi.number().strict().empty(emptyCoordinateSchema).default(1),
+    height: Joi.number().strict().empty(emptyCoordinateSchema).default(1),
   })
   .required();
 
@@ -157,11 +176,12 @@ const imageElementSchema = elementBaseSchema
   })
   .required();
 
-export type Element = ShapeElement | PathElement | ImageElement;
+export type Element = ShapeElement | PathElement | ImageElement | FrameElement;
 export type ElementKind = ShapeKind | PathKind;
 
 export const elementSchema = Joi.alternatives<Element>().conditional('.type', [
   { is: 'shape', then: shapeElementSchema },
+  { is: 'frame', then: frameElementSchema },
   { is: 'path', then: pathElementSchema },
   { is: 'image', then: imageElementSchema },
 ]);
@@ -220,6 +240,23 @@ export type Size = {
 };
 
 /**
+ * Clamp element position to fit into the container
+ * @param position element position
+ * @param elementSize element size
+ * @param containerSize container size
+ */
+export function clampElementPosition(
+  position: Point,
+  elementSize: Size,
+  containerSize: Size,
+): Point {
+  return {
+    x: clamp(position.x, 0, containerSize.width - elementSize.width - 1),
+    y: clamp(position.y, 0, containerSize.height - elementSize.height - 1),
+  };
+}
+
+/**
  * Calculate the size of an element so that it fits into a container.
  * Maintain the aspect ratio.
  *
@@ -246,23 +283,6 @@ export function calculateFittedElementSize(
   }
 
   return resultSize;
-}
-
-/**
- * Calculate the position of an element so that it is centred inside a container.
- *
- * @param element - Element containing bounding rectangle size
- * @param containerSize - Container size to centre the element inside
- * @returns Centred top left position
- */
-export function calculateCentredPosition(
-  element: Size,
-  containerSize: Size,
-): Point {
-  return {
-    x: Math.round((containerSize.width - element.width) / 2),
-    y: Math.round((containerSize.height - element.height) / 2),
-  };
 }
 
 /**
@@ -307,4 +327,19 @@ export function isShapeElementPair(
   pair: [string, Element],
 ): pair is [string, ShapeElement] {
   return pair[1].type === 'shape';
+}
+
+export function modifyElementPosition<T extends Element>(
+  element: T,
+  positionClamp: Point,
+  offsetX: number,
+  offsetY: number,
+): T {
+  return {
+    ...element,
+    position: {
+      x: positionClamp.x + (element.position.x - offsetX),
+      y: positionClamp.y + (element.position.y - offsetY),
+    },
+  };
 }

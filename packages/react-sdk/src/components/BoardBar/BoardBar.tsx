@@ -16,6 +16,7 @@
 
 import { useTranslation } from 'react-i18next';
 import { Toolbar } from '../common/Toolbar';
+import { infiniteCanvasMode } from '../Whiteboard';
 import { SettingsMenu } from './SettingsMenu';
 import { ShowSlideOverviewToggle } from './ShowSlideOverviewToggle';
 
@@ -30,7 +31,7 @@ export function BoardBar() {
       sx={{ pointerEvents: 'initial', marginRight: 'auto' }}
       data-guided-tour-target="settings"
     >
-      <ShowSlideOverviewToggle />
+      {!infiniteCanvasMode && <ShowSlideOverviewToggle />}
       <SettingsMenu />
     </Toolbar>
   );

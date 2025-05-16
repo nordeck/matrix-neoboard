@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { last } from 'lodash';
 import { ComponentType, useCallback, useMemo, useState } from 'react';
 import {
   PathElement,
@@ -21,43 +22,57 @@ import {
   Point,
   useWhiteboardSlideInstance,
 } from '../../../state';
-import { EndMarker } from '../../../state/crdt/documents/elements';
+import { LineMarker } from '../../../state/crdt/documents/elements';
+import { useConnectionPoint } from '../../ConnectionPointProvider';
 import { useLayoutState } from '../../Layout';
-import { WithExtendedSelectionProps } from '../ElementBehaviors';
+import {
+  findConnectData,
+  WithExtendedSelectionProps,
+} from '../ElementBehaviors';
+import { useSvgCanvasContext } from '../SvgCanvas';
 import { gridCellSize } from '../constants';
-import { DraftMouseHandler } from './DraftMouseHandler';
+import { DraftEvent, DraftMouseHandler } from './DraftMouseHandler';
 import { createShapeFromPoints } from './createShape';
 
 export type DraftLineChildProps = {
   kind: PathKind;
   display: ComponentType<PathElement & WithExtendedSelectionProps>;
   onlyStartAndEndPoints?: boolean;
-  endMarker?: EndMarker;
+  startMarker?: LineMarker;
+  endMarker?: LineMarker;
 };
 
 export const DraftLineChild = ({
   kind,
   onlyStartAndEndPoints = false,
   display: Display,
+  startMarker,
   endMarker,
 }: DraftLineChildProps) => {
   const { isShowGrid } = useLayoutState();
   const [cursorPoints, setCursorPoints] = useState<Point[]>();
+  const [connectedElementStart, setConnectedElementStart] = useState<string>();
+  const [connectedElementEnd, setConnectedElementEnd] = useState<string>();
   const { activeColor: strokeColor } = useLayoutState();
   const slideInstance = useWhiteboardSlideInstance();
   const { setActiveTool } = useLayoutState();
+  const { calculateSvgCoords } = useSvgCanvasContext();
+  const { setConnectElementIds } = useConnectionPoint();
 
   const handleMouseUp = useCallback(() => {
     if (cursorPoints) {
       if (cursorPoints.length > 1) {
-        slideInstance.addElement(
+        slideInstance.addPathElementAndConnect(
           createShapeFromPoints({
             kind,
             cursorPoints,
             strokeColor,
             gridCellSize: isShowGrid ? gridCellSize : undefined,
             onlyStartAndEndPoints,
+            startMarker,
             endMarker,
+            connectedElementStart,
+            connectedElementEnd,
           }),
         );
         if (kind !== 'polyline') {
@@ -65,6 +80,9 @@ export const DraftLineChild = ({
         }
       }
       setCursorPoints(undefined);
+      setConnectedElementStart(undefined);
+      setConnectedElementEnd(undefined);
+      setConnectElementIds([]);
     }
   }, [
     setActiveTool,
@@ -74,21 +92,55 @@ export const DraftLineChild = ({
     strokeColor,
     isShowGrid,
     onlyStartAndEndPoints,
+    startMarker,
     endMarker,
+    connectedElementStart,
+    connectedElementEnd,
+    setConnectElementIds,
   ]);
 
   const handleMouseMove = useCallback(
-    (point: Point) => {
+    ({ point, clientX, clientY }: DraftEvent) => {
+      const { connectElementIds, connectPoint } = findConnectData(
+        clientX,
+        clientY,
+        1,
+      );
+
+      const connectElementId = last(connectElementIds);
+      setConnectedElementEnd(
+        connectElementId && connectPoint ? connectElementId : undefined,
+      );
+      setConnectElementIds(connectElementIds);
+
       if (cursorPoints) {
-        setCursorPoints((p) => (p ? [...p, point] : []));
+        const newPoint = connectPoint
+          ? calculateSvgCoords(connectPoint)
+          : point;
+        setCursorPoints((p) => (p ? [...p, newPoint] : []));
       }
     },
-    [cursorPoints],
+    [cursorPoints, setConnectElementIds, calculateSvgCoords],
   );
 
-  const handleMouseDown = useCallback((point: Point) => {
-    setCursorPoints([point]);
-  }, []);
+  const handleMouseDown = useCallback(
+    ({ point, clientX, clientY }: DraftEvent) => {
+      const { connectElementIds, connectPoint } = findConnectData(
+        clientX,
+        clientY,
+        1,
+      );
+
+      const connectElementId = last(connectElementIds);
+      setConnectedElementStart(
+        connectElementId && connectPoint ? connectElementId : undefined,
+      );
+
+      const newPoint = connectPoint ? calculateSvgCoords(connectPoint) : point;
+      setCursorPoints([newPoint]);
+    },
+    [calculateSvgCoords],
+  );
 
   const shape = useMemo(
     () =>
@@ -99,7 +151,10 @@ export const DraftLineChild = ({
             strokeColor,
             gridCellSize: isShowGrid ? gridCellSize : undefined,
             onlyStartAndEndPoints,
+            startMarker,
             endMarker,
+            connectedElementStart,
+            connectedElementEnd,
           })
         : undefined,
     [
@@ -108,7 +163,10 @@ export const DraftLineChild = ({
       strokeColor,
       isShowGrid,
       onlyStartAndEndPoints,
+      startMarker,
       endMarker,
+      connectedElementStart,
+      connectedElementEnd,
     ],
   );
 

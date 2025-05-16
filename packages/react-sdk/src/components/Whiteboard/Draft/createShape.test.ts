@@ -15,6 +15,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
+import { stickyColor, stickySize } from '../constants';
 import { createShape, createShapeFromPoints } from './createShape';
 
 describe('createShape', () => {
@@ -27,7 +28,6 @@ describe('createShape', () => {
       textColor: '#ff0000',
       textFontFamily: 'Inter',
     });
-
     expect(result).toEqual({
       width: 20,
       height: 20,
@@ -50,7 +50,6 @@ describe('createShape', () => {
       textFontFamily: 'Inter',
       rounded: true,
     });
-
     expect(result).toEqual({
       width: 20,
       height: 20,
@@ -61,6 +60,31 @@ describe('createShape', () => {
       fillColor: '#ffffff',
       textFontFamily: 'Inter',
       borderRadius: 20,
+    });
+  });
+
+  it('should create a sticky note', () => {
+    const result = createShape({
+      kind: 'rectangle',
+      startCoords: { x: 10, y: 20 },
+      endCoords: { x: 10 + stickySize, y: 20 + stickySize },
+      fillColor: stickyColor,
+      textFontFamily: 'Inter',
+      stickyNote: true,
+    });
+    expect(result).toEqual({
+      width: stickySize,
+      height: stickySize,
+      position: { x: 10, y: 20 },
+      type: 'shape',
+      kind: 'rectangle',
+      text: '',
+      fillColor: stickyColor,
+      textFontFamily: 'Inter',
+      borderRadius: undefined,
+      stickyNote: true,
+      textColor: undefined,
+      textSize: undefined,
     });
   });
 
@@ -241,6 +265,34 @@ describe('createShapeFromPoints', () => {
     });
   });
 
+  it('should create basic line with a start and an end marker', () => {
+    const cursorPoints = [
+      { x: 10, y: 20 },
+      { x: 30, y: 40 },
+      { x: 50, y: 60 },
+    ];
+    const result = createShapeFromPoints({
+      kind: 'polyline',
+      cursorPoints,
+      strokeColor: '#000000',
+      startMarker: 'arrow-head-line',
+      endMarker: 'arrow-head-line',
+    });
+    expect(result).toEqual({
+      points: [
+        { x: 0, y: 0 },
+        { x: 20, y: 20 },
+        { x: 40, y: 40 },
+      ],
+      position: { x: 10, y: 20 },
+      strokeColor: '#000000',
+      type: 'path',
+      kind: 'polyline',
+      startMarker: 'arrow-head-line',
+      endMarker: 'arrow-head-line',
+    });
+  });
+
   it('should only use the first and last point to define a simple line', () => {
     const cursorPoints = [
       { x: 10, y: 20 },
@@ -289,6 +341,58 @@ describe('createShapeFromPoints', () => {
     });
   });
 
+  it('should not constrain line start to the grid if connection start is defined', () => {
+    const cursorPoints = [
+      { x: 10, y: 20 },
+      { x: 50, y: 60 },
+    ];
+    const result = createShapeFromPoints({
+      kind: 'line',
+      cursorPoints,
+      strokeColor: '#000000',
+      onlyStartAndEndPoints: true,
+      gridCellSize: 20,
+      connectedElementStart: 'element-id-1',
+    });
+    expect(result).toEqual({
+      points: [
+        { x: 0, y: 0 },
+        { x: 50, y: 40 },
+      ],
+      position: { x: 10, y: 20 },
+      strokeColor: '#000000',
+      type: 'path',
+      kind: 'line',
+      connectedElementStart: 'element-id-1',
+    });
+  });
+
+  it('should not constrain line end to the grid if connection end is defined', () => {
+    const cursorPoints = [
+      { x: 10, y: 20 },
+      { x: 50, y: 60 },
+    ];
+    const result = createShapeFromPoints({
+      kind: 'line',
+      cursorPoints,
+      strokeColor: '#000000',
+      onlyStartAndEndPoints: true,
+      gridCellSize: 20,
+      connectedElementEnd: 'element-id-1',
+    });
+    expect(result).toEqual({
+      points: [
+        { x: 0, y: 0 },
+        { x: 30, y: 40 },
+      ],
+      position: { x: 20, y: 20 },
+      strokeColor: '#000000',
+      type: 'path',
+      kind: 'line',
+      connectedElementEnd: 'element-id-1',
+    });
+  });
+
   it('should create shape with minimum width and height', () => {
     const result = createShape({
       kind: 'circle',
@@ -306,6 +410,30 @@ describe('createShapeFromPoints', () => {
       text: '',
       fillColor: '#ffffff',
       textFontFamily: 'Inter',
+    });
+  });
+
+  it('should create a shape with a text size', () => {
+    const result = createShape({
+      kind: 'rectangle',
+      startCoords: { x: 10, y: 20 },
+      endCoords: { x: 30, y: 40 },
+      fillColor: '#ffffff',
+      textColor: '#ff0000',
+      textFontFamily: 'Inter',
+      textSize: 23,
+    });
+    expect(result).toEqual({
+      width: 20,
+      height: 20,
+      position: { x: 10, y: 20 },
+      type: 'shape',
+      kind: 'rectangle',
+      text: '',
+      fillColor: '#ffffff',
+      textColor: '#ff0000',
+      textFontFamily: 'Inter',
+      textSize: 23,
     });
   });
 });

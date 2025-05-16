@@ -14,9 +14,15 @@
  * limitations under the License.
  */
 
-import { useCallback } from 'react';
-import { FileRejection, useDropzone } from 'react-dropzone';
-import { useWhiteboardSlideInstance } from '../../state';
+import { DragEvent, useCallback } from 'react';
+import { DropEvent, FileRejection, useDropzone } from 'react-dropzone';
+import { Point, useWhiteboardSlideInstance } from '../../state';
+import {
+  initPDFJs,
+  loadPDF,
+  renderPDFToImages,
+} from '../ImportWhiteboardDialog/pdfImportUtils';
+import { useSvgScaleContext } from '../Whiteboard';
 import { addImagesToSlide } from './addImagesToSlide';
 import { defaultAcceptedImageTypes } from './consts';
 import { useImageUpload as useImageUploadContext } from './useImageUpload';
@@ -30,6 +36,11 @@ type UseSlideImageUploadArgs = {
    * If true, do not handle drag.
    */
   noDrag?: boolean;
+  /**
+   * If defined, is used to calculate element coordinates from mouse clientX, clientY drag event
+   * @param position mouse clientX, clientY
+   */
+  calculateSvgCoords?: (position: Point) => Point;
 };
 
 /**
@@ -37,29 +48,77 @@ type UseSlideImageUploadArgs = {
  * Uses react-dropzone {@link https://react-dropzone.js.org/}.
  */
 export function useSlideImageUpload(
-  { noClick = false, noDrag = false }: UseSlideImageUploadArgs = {
+  {
+    noClick = false,
+    noDrag = false,
+    calculateSvgCoords,
+  }: UseSlideImageUploadArgs = {
     noClick: false,
     noDrag: false,
   },
 ) {
   const slide = useWhiteboardSlideInstance();
   const imageUpload = useImageUploadContext();
+  const { viewportCanvasCenter } = useSvgScaleContext();
 
   const handleDrop = useCallback(
-    async (files: File[], rejectedFiles: FileRejection[]) => {
-      const results = await imageUpload.handleDrop(files, rejectedFiles);
+    async (files: File[], rejectedFiles: FileRejection[], event: DropEvent) => {
+      const newFiles: File[] = [];
+
+      if (Array.from(files).some((file) => file.type === 'application/pdf')) {
+        await initPDFJs();
+      }
+
+      for (const file of files) {
+        if (file.type !== 'application/pdf') {
+          newFiles.push(file);
+        } else {
+          const pdf = await loadPDF(await file.arrayBuffer());
+          const images = await renderPDFToImages(pdf);
+
+          let count = 0;
+          for (const image of images) {
+            count++;
+            newFiles.push(
+              new File([image.blob], 'pdfSlide' + count, {
+                type: image.mimeType,
+              }),
+            );
+          }
+        }
+      }
+
+      const results = await imageUpload.handleDrop(newFiles, rejectedFiles);
 
       const images = results
         .filter((result) => result.status === 'fulfilled')
         .map((result) => result.value);
-      addImagesToSlide(slide, images);
+
+      let position: Point;
+      if (
+        !Array.isArray(event) &&
+        event.type === 'drop' &&
+        calculateSvgCoords
+      ) {
+        const dragEvent = event as DragEvent;
+        position = calculateSvgCoords({
+          x: dragEvent.clientX,
+          y: dragEvent.clientY,
+        });
+      } else {
+        position = viewportCanvasCenter;
+      }
+      addImagesToSlide(slide, images, position);
     },
-    [imageUpload, slide],
+    [imageUpload, slide, calculateSvgCoords, viewportCanvasCenter],
   );
 
   const { getInputProps, getRootProps } = useDropzone({
     onDrop: handleDrop,
-    accept: defaultAcceptedImageTypes,
+    accept: {
+      ...defaultAcceptedImageTypes,
+      'application/pdf': ['.pdf'],
+    },
     maxSize: imageUpload.maxUploadSizeBytes,
     noClick,
     noDrag,

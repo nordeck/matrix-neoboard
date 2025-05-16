@@ -35,11 +35,15 @@ import {
 import { WhiteboardSlideInstance } from '../../state';
 import { ImageUploadProvider } from '../ImageUpload';
 import { SnackbarProvider } from '../Snackbar';
+import { whiteboardHeight, whiteboardWidth } from '../Whiteboard';
+import {
+  SvgCanvasContextType,
+  SvgCanvasMockProvider,
+} from '../Whiteboard/SvgCanvas';
 import { SlideImageUploadOverlay } from './SlideImageUploadOverlay';
 import { readFileAsFile } from './imageTestUtils';
 
-vi.mock('../../lib', async () => ({
-  ...(await vi.importActual<typeof import('../../lib')>('../../lib')),
+vi.mock('../../lib/determineImageSize', async () => ({
   determineImageSize: () => {
     // Always return a static value here, because js-dom doesn't implement Image.
     return Promise.resolve({ width: 40, height: 20 });
@@ -62,6 +66,13 @@ describe('SlideImageUploadOverlay', () => {
     slide = whiteboard.getSlide(whiteboard.getActiveSlideId()!);
     consoleSpy = vi.spyOn(console, 'error');
 
+    const value: SvgCanvasContextType = {
+      width: 100,
+      height: 100,
+      viewportWidth: whiteboardWidth,
+      viewportHeight: whiteboardHeight,
+      calculateSvgCoords: vi.fn(),
+    };
     handleDragLeave = vi.fn();
 
     Wrapper = () => {
@@ -72,7 +83,9 @@ describe('SlideImageUploadOverlay', () => {
             widgetApi={widgetApi}
           >
             <ImageUploadProvider>
-              <SlideImageUploadOverlay onDragLeave={handleDragLeave} />
+              <SvgCanvasMockProvider value={value}>
+                <SlideImageUploadOverlay onDragLeave={handleDragLeave} />
+              </SvgCanvasMockProvider>
             </ImageUploadProvider>
           </WhiteboardTestingContextProvider>
         </SnackbarProvider>

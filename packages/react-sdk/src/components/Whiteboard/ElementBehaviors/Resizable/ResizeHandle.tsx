@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
+import { last } from 'lodash';
 import { Dispatch, RefObject, useCallback, useRef } from 'react';
 import { DraggableCore, DraggableData, DraggableEvent } from 'react-draggable';
-import { Point } from '../../../../state';
 import { useConnectionPoint } from '../../../ConnectionPointProvider';
 import { useSvgCanvasContext } from '../../SvgCanvas';
+import { useSvgScaleContext } from '../../SvgScaleContext';
+import { findConnectData } from './findConnectData';
 import { HandlePosition, LineElementHandlePositionName } from './types';
 import { isLineElementHandlePosition } from './utils';
 
@@ -142,51 +144,6 @@ function calculateResizeHandlePosition(params: {
   }
 }
 
-type ConnectData = {
-  connectElementId: string;
-  connectPoint?: Point;
-};
-
-function findConnectData(
-  data: DraggableData,
-  scale: number,
-): ConnectData | undefined {
-  const element = document.elementFromPoint(data.x * scale, data.y * scale);
-
-  if (!element) {
-    return undefined;
-  }
-
-  const connectType = element.getAttribute('data-connect-type');
-  if (!connectType) {
-    return undefined;
-  }
-
-  const connectElementId =
-    element.getAttribute('data-connect-element-id') ?? undefined;
-  if (!connectElementId) {
-    return undefined;
-  }
-
-  let connectPoint: Point | undefined;
-
-  if (
-    connectType === 'connection-point-area' ||
-    connectType === 'connection-point'
-  ) {
-    const rect = element.getBoundingClientRect();
-    connectPoint = {
-      x: (rect.x + rect.width / 2) / scale,
-      y: (rect.y + rect.height / 2) / scale,
-    };
-  }
-
-  return {
-    connectElementId,
-    connectPoint,
-  };
-}
-
 export type DragEvent = {
   x: number;
   y: number;
@@ -195,7 +152,7 @@ export type DragEvent = {
 };
 
 export type DragConnectData = {
-  resizePositionName: LineElementHandlePositionName;
+  lineHandlePositionName: LineElementHandlePositionName;
   connectToElementId?: string;
 };
 
@@ -208,9 +165,10 @@ export type ResizeHandleProps = {
 
 export function ResizeHandle(props: ResizeHandleProps) {
   const nodeRef = useRef<SVGRectElement>(null);
-  const { scale, calculateSvgCoords } = useSvgCanvasContext();
-  const { isHandleDragging, setIsHandleDragging, setConnectElementId } =
+  const { isHandleDragging, setIsHandleDragging, setConnectElementIds } =
     useConnectionPoint();
+  const { calculateSvgCoords } = useSvgCanvasContext();
+  const { scale } = useSvgScaleContext();
 
   const {
     position: { name },
@@ -247,21 +205,24 @@ export function ResizeHandle(props: ResizeHandleProps) {
 
   const handleDrag = useCallback(
     (event: DraggableEvent, data: DraggableData) => {
-      let connectPoint: Point | undefined;
+      let newData: DraggableData = data;
 
       if (isHandleDragging) {
-        const connectData = findConnectData(data, scale);
-        setConnectElementId(connectData?.connectElementId);
-        connectPoint = connectData?.connectPoint;
-      }
+        const { connectElementIds, connectPoint } = findConnectData(
+          data.x,
+          data.y,
+          scale,
+        );
 
-      const newData: DraggableData = connectPoint
-        ? { ...data, x: connectPoint.x, y: connectPoint.y }
-        : data;
+        setConnectElementIds(connectElementIds);
+        if (connectPoint) {
+          newData = { ...data, x: connectPoint.x, y: connectPoint.y };
+        }
+      }
 
       dispatchDragEvent(onDrag, event, newData, undefined);
     },
-    [dispatchDragEvent, isHandleDragging, onDrag, scale, setConnectElementId],
+    [dispatchDragEvent, isHandleDragging, onDrag, scale, setConnectElementIds],
   );
 
   const handleStart = useCallback(
@@ -279,17 +240,20 @@ export function ResizeHandle(props: ResizeHandleProps) {
       let dragConnectData: DragConnectData | undefined;
 
       if (name === 'start' || name === 'end') {
-        const connectData = findConnectData(data, scale);
+        const { connectElementIds, connectPoint } = findConnectData(
+          data.x,
+          data.y,
+          scale,
+        );
 
+        const connectElementId = last(connectElementIds);
         dragConnectData = {
-          resizePositionName: name,
+          lineHandlePositionName: name,
           connectToElementId:
-            connectData?.connectElementId && connectData?.connectPoint
-              ? connectData?.connectElementId
-              : undefined,
+            connectElementId && connectPoint ? connectElementId : undefined,
         };
 
-        setConnectElementId(undefined);
+        setConnectElementIds([]);
         setIsHandleDragging(false);
       }
       dispatchDragEvent(onDragStop, event, data, dragConnectData);
@@ -300,7 +264,7 @@ export function ResizeHandle(props: ResizeHandleProps) {
       name,
       scale,
       setIsHandleDragging,
-      setConnectElementId,
+      setConnectElementIds,
     ],
   );
 

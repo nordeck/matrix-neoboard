@@ -36,16 +36,9 @@ import { ElementOverridesProvider } from '../ElementOverridesProvider';
 import { LayoutStateProvider, useLayoutState } from '../Layout';
 import { WhiteboardHotkeysProvider } from '../WhiteboardHotkeysProvider';
 
-vi.mock('./SvgCanvas/utils', async () => {
-  const original =
-    await vi.importActual<typeof import('./SvgCanvas/utils')>(
-      './SvgCanvas/utils',
-    );
-  return {
-    ...original,
-    calculateScale: () => 1,
-  };
-});
+vi.mock('./SvgCanvas/useMeasure', () => ({
+  useMeasure: vi.fn().mockReturnValue([vi.fn(), { width: 1920, height: 1080 }]),
+}));
 
 describe('<WhiteboardHost/>', () => {
   let activeWhiteboard: WhiteboardInstance;
@@ -205,7 +198,7 @@ describe('<WhiteboardHost/>', () => {
 
   it('should show the grid for the presenter in presentation mode if it is enabled', () => {
     setShowGrid(true);
-    activeWhiteboard.getPresentationManager().startPresentation();
+    activeWhiteboard.getPresentationManager()?.startPresentation();
 
     render(<WhiteboardHost />, { wrapper: Wrapper });
 

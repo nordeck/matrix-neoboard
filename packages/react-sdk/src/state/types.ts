@@ -22,6 +22,7 @@ import {
   Document,
   DocumentStatistics,
   Element,
+  PathElement,
   Point,
   UpdateElementPatch,
 } from './crdt';
@@ -136,7 +137,7 @@ export type WhiteboardInstance = {
   observeUndoRedoState(): Observable<{ canUndo: boolean; canRedo: boolean }>;
 
   /** Get access to the presentation manager */
-  getPresentationManager(): PresentationManager;
+  getPresentationManager(): PresentationManager | undefined;
 
   /** Clear the undo manager */
   clearUndoManager(): void;
@@ -171,11 +172,23 @@ export type WhiteboardSlideInstance = {
    */
   addElement(element: Element): string;
   /**
-   * Add new elements to the slide.
+   * Add a path element and use it's connect start/end data to connect to existing shapes.
+   * @param element element to add
+   */
+  addPathElementAndConnect(element: PathElement): string;
+  /**
+   * Add new elements to the slide. All connection data is ignored.
    * @param elements - the specification of the elements.
    * @returns the IDs of the created elements.
    */
   addElements(elements: Array<Element>): string[];
+  /**
+   * Add new elements with connections data.
+   * Each element will get a new id in the document.
+   * Connection data (ids) for elements not included in the passed elements is ignored.
+   * @param elements
+   */
+  addElementsWithConnections(elements: Elements): string[];
   /** Remove the elements by their IDs */
   removeElements(elementIds: string[]): void;
   /**
@@ -208,6 +221,10 @@ export type WhiteboardSlideInstance = {
   getElementIds(): string[];
   /** Observe the element ids to react to changes */
   observeElementIds(): Observable<string[]>;
+  /** Set cursor position */
+  setCursorPosition(position: Point | undefined): void;
+  /** Get cursor position */
+  getCursorPosition(): Point | undefined;
   /** Returns the cursors for each connected user. */
   observeCursorPositions(): Observable<Record<string, Point>>;
   /** Broadcast the position of the own user in to all other connected users. */

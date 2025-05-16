@@ -14,7 +14,25 @@
  * limitations under the License.
  */
 
-export const whiteboardWidth = 1920;
-export const whiteboardHeight = 1080;
+import { isInfiniteCanvasMode, isMatrixRtcMode } from '../../lib';
+
+export const infiniteCanvasMode = isInfiniteCanvasMode();
+
+export const matrixRtcMode = isMatrixRtcMode();
+
+export const defaultTextSize = infiniteCanvasMode ? 16 : undefined;
+
+export const whiteboardWidth = infiniteCanvasMode ? 19200 : 1920;
+export const whiteboardHeight = infiniteCanvasMode ? 10800 : 1080;
 
 export const gridCellSize = 20;
+
+export const stickySize = 160;
+export const stickyColor = '#ffefc1';
+
+export const frameWidth = 1920;
+export const frameHeight = 1080;
+
+export const zoomStep = 0.1;
+export const zoomMax = 4;
+export const zoomMin = 0.05;

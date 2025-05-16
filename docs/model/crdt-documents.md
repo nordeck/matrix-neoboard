@@ -42,7 +42,13 @@ The central collaboration model is a whiteboard.
                      │
                      │  ┌──────────────┐
                      │  │              │
-                     └──┤ PathElement  │
+                     ├──┤ PathElement  │
+                     │  │              │
+                     │  └──────────────┘
+                     │
+                     │  ┌──────────────┐
+                     │  │              │
+                     └──┤ FrameElement │
                         │              │
                         └──────────────┘
 ```
@@ -166,6 +172,7 @@ An element that consists of points.
 | `position`              | `Point`                          | The position of the path on the whiteboard canvas.                                              |
 | `points`                | `Point[]`                        | The points of the path in relative coordinates to its position.                                 |
 | `strokeColor`           | `string`                         | The stroke color of the path as [CSS color value][csscolor].                                    |
+| `startMarker`           | `'arrow-head-line' \| undefined` | An optional marker for the end of a path.                                                       |
 | `endMarker`             | `'arrow-head-line' \| undefined` | An optional marker for the end of a path.                                                       |
 | `connectedElementStart` | `string \| undefined`            | The ID of connected element on the first point. Currently shapes can be connected.              |
 | `connectedElementEnd`   | `string \| undefined`            | The ID of connected element on the last point. Currently shapes can be connected.               |
@@ -182,6 +189,7 @@ An element that consists of points.
     { "x": 25, "y": 25 }
   ],
   "strokeColor": "#ff0000",
+  "startMarker": "arrow-head-line"
   "endMarker": "arrow-head-line"
 }
 ```
@@ -255,6 +263,32 @@ An image element
   "type": "image",
   "mxc": "mxc://example.com/test1234",
   "fileName": "example.jpg",
+  "position": { "x": 50, "y": 100 },
+  "width": 100,
+  "height": 200
+}
+```
+
+### `FrameElement`
+
+(Only with feature flag `REACT_APP_INFINITE_CANVAS`).
+
+A frame element is used to group elements and run structured presentations.
+
+#### Fields
+
+| Field      | Type      | Description                                           |
+| ---------- | --------- | ----------------------------------------------------- |
+| `type`     | `'frame'` | Identifies the element as a frame.                    |
+| `position` | `Point`   | The position of the element on the whiteboard canvas. |
+| `width`    | `number`  | Scaling of the element on the x-axis.                 |
+| `height`   | `number`  | Scaling of the element on the y-axis.                 |
+
+#### Example
+
+```json
+{
+  "type": "frame",
   "position": { "x": 50, "y": 100 },
   "width": 100,
   "height": 200

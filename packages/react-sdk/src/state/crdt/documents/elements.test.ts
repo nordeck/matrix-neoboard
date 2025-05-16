@@ -22,8 +22,8 @@ import {
 } from '../../../lib/testUtils/documentTestUtils';
 import {
   calculateBoundingRectForElements,
-  calculateCentredPosition,
   calculateFittedElementSize,
+  clampElementPosition,
   elementSchema,
   includesTextShape,
   isShapeWithText,
@@ -167,6 +167,10 @@ describe('isValidElement', () => {
     { strokeColor: null },
     { strokeColor: 111 },
     { strokeColor: '' },
+    { startMarker: null },
+    { startMarker: 111 },
+    { startMarker: '' },
+    { startMarker: 'square' },
     { endMarker: null },
     { endMarker: 111 },
     { endMarker: '' },
@@ -380,44 +384,6 @@ describe('calculateBoundingRectForElements', () => {
   });
 });
 
-describe('calculateCentredPosition', () => {
-  it('should return 0, 0 if everything is 0', () => {
-    expect(
-      calculateCentredPosition(
-        { width: 0, height: 0 },
-        { width: 0, height: 0 },
-      ),
-    ).toEqual({ x: 0, y: 0 });
-  });
-
-  it('should return 0, 0 if the element and the container have the same size', () => {
-    expect(
-      calculateCentredPosition(
-        { width: 100, height: 50 },
-        { width: 100, height: 50 },
-      ),
-    ).toEqual({ x: 0, y: 0 });
-  });
-
-  it('should calculate the centred position if the element is smaller than the container', () => {
-    expect(
-      calculateCentredPosition(
-        { width: 20, height: 10 },
-        { width: 100, height: 50 },
-      ),
-    ).toEqual({ x: 40, y: 20 });
-  });
-
-  it('should calculate the centred position if the element is larger than the container', () => {
-    expect(
-      calculateCentredPosition(
-        { width: 100, height: 50 },
-        { width: 20, height: 10 },
-      ),
-    ).toEqual({ x: -40, y: -20 });
-  });
-});
-
 describe('calculateFittedElementSize', () => {
   it('should return 0, 0 if everything is 0', () => {
     expect(
@@ -465,6 +431,47 @@ describe('calculateFittedElementSize', () => {
         { width: 100, height: 25 },
       ),
     ).toEqual({ width: 20, height: 25 });
+  });
+});
+
+describe('clampElementPosition', () => {
+  it('should not change position if element fits into container', () => {
+    expect(
+      clampElementPosition(
+        { x: 10, y: 10 },
+        { width: 20, height: 20 },
+        { width: 100, height: 100 },
+      ),
+    ).toEqual({
+      x: 10,
+      y: 10,
+    });
+  });
+
+  it('should clamp to top left corner', () => {
+    expect(
+      clampElementPosition(
+        { x: -10, y: -10 },
+        { width: 20, height: 20 },
+        { width: 100, height: 100 },
+      ),
+    ).toEqual({
+      x: 0,
+      y: 0,
+    });
+  });
+
+  it('should clamp to bottom right corner', () => {
+    expect(
+      clampElementPosition(
+        { x: 95, y: 95 },
+        { width: 20, height: 20 },
+        { width: 100, height: 100 },
+      ),
+    ).toEqual({
+      x: 79,
+      y: 79,
+    });
   });
 });
 

@@ -22,9 +22,10 @@ import {
   SelectableElement,
   WithExtendedSelectionProps,
 } from '../../Whiteboard';
-import { useSvgCanvasContext } from '../../Whiteboard/SvgCanvas';
+import { useSvgScaleContext } from '../../Whiteboard/SvgScaleContext';
 import { getRenderProperties } from './getRenderProperties';
 import { useEndMarker } from './useEndMarker';
+import { useStartMarker } from './useStartMarker';
 
 export type LineElementProps = PathElement & WithExtendedSelectionProps;
 
@@ -41,15 +42,17 @@ const LineDisplay = ({
     strokeWidth,
     points: { start, end },
   } = getRenderProperties(element);
-  const { scale } = useSvgCanvasContext();
+  const { scale } = useSvgScaleContext();
   // Fallback to scale = 1 if scale is 0
   const adjustedScale = scale === 0 ? 1 : scale;
   const adjustedStrokeWidth = strokeWidth + 10 / adjustedScale;
 
+  const { startMarkerId, startMarker } = useStartMarker(element);
   const { endMarkerId, endMarker } = useEndMarker(element);
 
   const renderedChild = (
     <g data-testid={`element-${elementId}`}>
+      {startMarker}
       {endMarker}
       <line
         fill="none"
@@ -68,6 +71,7 @@ const LineDisplay = ({
         x2={end.x}
         y1={start.y}
         y2={end.y}
+        markerStart={startMarkerId ? `url(#${startMarkerId})` : undefined}
         markerEnd={endMarkerId ? `url(#${endMarkerId})` : undefined}
       />
     </g>

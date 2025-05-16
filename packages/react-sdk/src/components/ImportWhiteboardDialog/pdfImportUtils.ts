@@ -22,7 +22,13 @@ import {
 } from 'pdfjs-dist';
 import * as pdfJSWorker from 'pdfjs-dist/build/pdf.worker.mjs?url';
 import { RenderParameters } from 'pdfjs-dist/types/src/display/api';
-import { whiteboardHeight, whiteboardWidth } from '../Whiteboard/constants';
+import {
+  frameHeight,
+  frameWidth,
+  infiniteCanvasMode,
+  whiteboardHeight,
+  whiteboardWidth,
+} from '../Whiteboard';
 
 /**
  * Initializes the PDF.js library by dynamically importing the PDF.js worker script.
@@ -57,6 +63,7 @@ export interface PDFImportResult {
   size: number;
   width: number;
   height: number;
+  blob: Blob;
 }
 
 /**
@@ -81,8 +88,8 @@ export async function loadPDF(file: ArrayBuffer): Promise<PDFDocumentProxy> {
  */
 export async function renderPDFToImages(
   pdf: PDFDocumentProxy,
-  desiredWidth: number = whiteboardWidth,
-  desiredHeight: number = whiteboardHeight,
+  desiredWidth: number = infiniteCanvasMode ? frameWidth : whiteboardWidth,
+  desiredHeight: number = infiniteCanvasMode ? frameHeight : whiteboardHeight,
 ): Promise<PDFImportResult[]> {
   const images = [];
   for (let i = 1; i <= pdf.numPages; i++) {
@@ -124,7 +131,7 @@ async function renderPDFPageToImage(
   }
 
   // Ensure consistent scaling
-  const outputScale: number = 2;
+  const outputScale: number = infiniteCanvasMode ? 4 : 2;
 
   const canvas = new OffscreenCanvas(
     Math.floor(scaledViewport.width * outputScale),
@@ -152,6 +159,7 @@ async function renderPDFPageToImage(
     size: blob.size,
     width: scaledViewport.width,
     height: scaledViewport.height,
+    blob,
   };
 }
 

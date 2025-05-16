@@ -14,16 +14,24 @@
  * limitations under the License.
  */
 
-import { ReactElement } from 'react';
+import { ReactElement, useEffect } from 'react';
+import { useConnectionPoint } from '../../ConnectionPointProvider';
 import { useLayoutState } from '../../Layout';
 import EllipseDraft from '../../elements/ellipse/Draft';
 import LineDraft from '../../elements/line/Draft';
 import PolylineDraft from '../../elements/polyline/Draft';
 import RectangleDraft from '../../elements/rectangle/Draft';
 import TriangleDraft from '../../elements/triangle/Draft';
+import { stickyColor } from '../constants';
 
 export const DraftPicker = (): ReactElement | null => {
-  const { activeTool } = useLayoutState();
+  const { activeTool, activeStartLineMarker, activeEndLineMarker } =
+    useLayoutState();
+  const { setIsHandleDragging } = useConnectionPoint();
+
+  useEffect(() => {
+    setIsHandleDragging(activeTool === 'line' || activeTool === 'arrow');
+  }, [activeTool, setIsHandleDragging]);
 
   switch (activeTool) {
     case 'select':
@@ -39,7 +47,12 @@ export const DraftPicker = (): ReactElement | null => {
       return <LineDraft />;
 
     case 'arrow':
-      return <LineDraft endMarker="arrow-head-line" />;
+      return (
+        <LineDraft
+          startMarker={activeStartLineMarker}
+          endMarker={activeEndLineMarker}
+        />
+      );
 
     case 'polyline':
       return <PolylineDraft />;
@@ -52,5 +65,8 @@ export const DraftPicker = (): ReactElement | null => {
 
     case 'triangle':
       return <TriangleDraft />;
+
+    case 'sticky-note':
+      return <RectangleDraft fixedColor={stickyColor} stickyNote={true} />;
   }
 };

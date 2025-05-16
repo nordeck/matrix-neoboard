@@ -34,11 +34,11 @@ import {
   WhiteboardSessions,
 } from '../../model';
 import {
-  Document,
-  WhiteboardDocument,
   createWhiteboardDocument,
+  Document,
   generateAddElement,
   generateAddSlide,
+  WhiteboardDocument,
 } from '../../state';
 import { createChunks } from '../../store/api/documentSnapshotApi';
 
@@ -195,6 +195,7 @@ export function mockDocumentSnapshot({
   chunkOriginServerTs,
   content = {},
   origin_server_ts = 0,
+  room_id = '!room-id',
 }: {
   event_id?: string;
   documentId?: string;
@@ -203,6 +204,7 @@ export function mockDocumentSnapshot({
   chunkOriginServerTs?: number[];
   content?: Partial<DocumentSnapshot>;
   origin_server_ts?: number;
+  room_id?: string;
 } = {}): {
   snapshot: RoomEvent<DocumentSnapshot>;
   chunks: Array<RoomEvent<DocumentChunk>>;
@@ -220,7 +222,7 @@ export function mockDocumentSnapshot({
     },
     origin_server_ts,
     event_id,
-    room_id: '!room-id',
+    room_id,
   };
 
   let chunks: Array<RoomEvent<DocumentChunk>> = [];
@@ -237,6 +239,7 @@ export function mockDocumentSnapshot({
           data: chunkData,
         },
         origin_server_ts: chunkOriginServerTs?.[i] ?? origin_server_ts + i,
+        room_id,
       });
     });
   }
@@ -254,11 +257,13 @@ export function mockDocumentChunk({
   snapshot_event_id = '$document-snapshot-0',
   content = {},
   origin_server_ts = 0,
+  room_id = '!room-id',
 }: {
   event_id?: string;
   snapshot_event_id?: string;
   content?: Partial<DocumentChunk>;
   origin_server_ts?: number;
+  room_id?: string;
 } = {}): RoomEvent<DocumentChunk> {
   return {
     type: 'net.nordeck.whiteboard.document.chunk',
@@ -275,7 +280,7 @@ export function mockDocumentChunk({
     },
     origin_server_ts,
     event_id,
-    room_id: '!room-id',
+    room_id,
   };
 }
 
@@ -286,8 +291,20 @@ export function mockDocumentChunk({
  */
 export function mockConnectionSignalingCandidates({
   candidates = [
-    { candidate: 'candidate-0' },
-    { candidate: 'candidate-1' },
+    {
+      candidate:
+        'candidate:702786350 2 udp 41819902 8.8.8.8 60769 typ relay raddr 8.8.8.8',
+      sdpMLineIndex: null,
+      sdpMid: null,
+      usernameFragment: null,
+    },
+    {
+      candidate:
+        'candidate:635070278 2 udp 99024181 8.8.8.8 60769 typ relay raddr 8.8.8.8',
+      sdpMLineIndex: null,
+      sdpMid: null,
+      usernameFragment: null,
+    },
     null,
   ],
   sender = '@peer-user-id',

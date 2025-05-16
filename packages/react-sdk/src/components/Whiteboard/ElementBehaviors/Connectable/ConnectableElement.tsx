@@ -19,10 +19,10 @@ import { Fragment, useEffect, useMemo, useState } from 'react';
 import { isDefined } from '../../../../lib';
 import { ShapeElement } from '../../../../state';
 import { useConnectionPoint } from '../../../ConnectionPointProvider';
-import { useSvgCanvasContext } from '../../SvgCanvas';
+import { useSvgScaleContext } from '../../SvgScaleContext';
 import { ActivationArea } from './ActivationArea';
 
-type ConnectableElementProps = {
+export type ConnectableElementProps = {
   elementId: string;
   element: ShapeElement;
 };
@@ -37,7 +37,7 @@ export function ConnectableElement({
   },
 }: ConnectableElementProps) {
   const theme = useTheme();
-  const { scale } = useSvgCanvasContext();
+  const { scale } = useSvgScaleContext();
 
   const [showConnectionAnchors, setShowConnectionAnchors] =
     useState<boolean>(false);
@@ -48,11 +48,11 @@ export function ConnectableElement({
   const connectionAnchorSize = 5 / scale;
   const connectionAnchorCornerRadius = 3 / 2 / scale;
 
-  const { connectElementId } = useConnectionPoint();
+  const { connectElementIds } = useConnectionPoint();
 
   useEffect(() => {
-    setShowConnectionAnchors(elementId === connectElementId);
-  }, [connectElementId, elementId]);
+    setShowConnectionAnchors(connectElementIds.includes(elementId));
+  }, [connectElementIds, elementId]);
 
   const points = useMemo(
     () =>

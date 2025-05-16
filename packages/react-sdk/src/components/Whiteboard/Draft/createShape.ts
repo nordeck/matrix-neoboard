@@ -23,7 +23,7 @@ import {
   ShapeKind,
 } from '../../../state';
 import {
-  EndMarker,
+  LineMarker,
   TextFontFamily,
 } from '../../../state/crdt/documents/elements';
 import { whiteboardHeight, whiteboardWidth } from '../constants';
@@ -39,6 +39,8 @@ export function createShape({
   rounded = false,
   textColor,
   textFontFamily,
+  textSize,
+  stickyNote,
 }: {
   kind: ShapeKind;
   startCoords: Point;
@@ -49,6 +51,8 @@ export function createShape({
   rounded?: boolean;
   textColor?: string;
   textFontFamily: TextFontFamily;
+  textSize?: number;
+  stickyNote?: boolean;
 }): ShapeElement {
   const normalizedStart =
     gridCellSize === undefined
@@ -114,6 +118,8 @@ export function createShape({
     text: '',
     textColor,
     textFontFamily,
+    stickyNote,
+    textSize,
     borderRadius: rounded ? 20 : undefined,
   };
 }
@@ -124,23 +130,32 @@ export function createShapeFromPoints({
   strokeColor,
   gridCellSize,
   onlyStartAndEndPoints = false,
+  startMarker,
   endMarker,
+  connectedElementStart,
+  connectedElementEnd,
 }: {
   kind: PathKind;
   cursorPoints: Point[];
   strokeColor: string;
   gridCellSize?: number;
   onlyStartAndEndPoints?: boolean;
-  endMarker?: EndMarker;
+  startMarker?: LineMarker;
+  endMarker?: LineMarker;
+  connectedElementStart?: string;
+  connectedElementEnd?: string;
 }): PathElement {
   const points = onlyStartAndEndPoints
-    ? [cursorPoints[0], cursorPoints[cursorPoints.length - 1]].map((e) =>
-        gridCellSize !== undefined
-          ? {
-              x: snapToGrid(e.x, gridCellSize),
-              y: snapToGrid(e.y, gridCellSize),
-            }
-          : e,
+    ? [cursorPoints[0], cursorPoints[cursorPoints.length - 1]].map(
+        (e, index) =>
+          gridCellSize !== undefined &&
+          ((index === 0 && !connectedElementStart) ||
+            (index === 1 && !connectedElementEnd))
+            ? {
+                x: snapToGrid(e.x, gridCellSize),
+                y: snapToGrid(e.y, gridCellSize),
+              }
+            : e,
       )
     : cursorPoints;
   const { offsetX, offsetY } = calculateBoundingRectForPoints(points);
@@ -149,11 +164,14 @@ export function createShapeFromPoints({
     position: { x: offsetX, y: offsetY },
     type: 'path',
     kind,
+    startMarker,
     endMarker,
     points: points.map((e) => ({
       x: e.x - offsetX,
       y: e.y - offsetY,
     })),
     strokeColor,
+    connectedElementStart,
+    connectedElementEnd,
   };
 }

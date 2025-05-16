@@ -24,11 +24,15 @@ import {
 } from 'react';
 import { useColorPalette } from '../../lib';
 import { Point } from '../../state';
-import { TextFontFamily } from '../../state/crdt/documents/elements';
+import {
+  LineMarker,
+  TextFontFamily,
+} from '../../state/crdt/documents/elements';
 import { useFullscreenMode } from './useFullscreenMode';
 
 export type ActiveTool =
   | 'select'
+  | 'sticky-note'
   | 'text'
   | 'rectangle'
   | 'rounded-rectangle'
@@ -53,6 +57,8 @@ type LayoutState = {
   activeShapeShade: number;
   activeShapeTextColor: string | undefined;
   activeShapeTextShade: number;
+  activeStartLineMarker: LineMarker | undefined;
+  activeEndLineMarker: LineMarker | undefined;
   setSlideOverviewVisible: (value: boolean) => void;
   setDeveloperToolsVisible: (value: boolean) => void;
   setShowCollaboratorsCursors: (value: boolean) => void;
@@ -67,6 +73,8 @@ type LayoutState = {
   setActiveShapeShade: (shade: number) => void;
   setActiveShapeTextColor: (color: string | undefined) => void;
   setActiveShapeTextShade: (shade: number) => void;
+  setActiveStartLineMarker: (marker: LineMarker | undefined) => void;
+  setActiveEndLineMarker: (marker: LineMarker | undefined) => void;
   /**
    * Whether the layout is displayed in fullscreen mode.
    */
@@ -123,6 +131,12 @@ export function LayoutStateProvider({ children }: PropsWithChildren<{}>) {
     useState(defaultTextColor);
   const [activeShapeTextShade, setActiveShapeTextShade] =
     useState(defaultTextShade);
+  const [activeStartLineMarker, setActiveStartLineMarker] = useState<
+    LineMarker | undefined
+  >(undefined);
+  const [activeEndLineMarker, setActiveEndLineMarker] = useState<
+    LineMarker | undefined
+  >('arrow-head-line');
 
   const setActiveFontFamily = (font: TextFontFamily) => {
     setActiveFontFamilyState(font ?? 'Inter');
@@ -144,6 +158,8 @@ export function LayoutStateProvider({ children }: PropsWithChildren<{}>) {
       activeShapeShade,
       activeShapeTextColor,
       activeShapeTextShade,
+      activeStartLineMarker,
+      activeEndLineMarker,
       setSlideOverviewVisible,
       setDeveloperToolsVisible,
       setShowCollaboratorsCursors,
@@ -162,6 +178,8 @@ export function LayoutStateProvider({ children }: PropsWithChildren<{}>) {
       setFullscreenMode,
       dragSelectStartCoords,
       setDragSelectStartCoords,
+      setActiveStartLineMarker,
+      setActiveEndLineMarker,
     }),
     [
       activeColor,
@@ -174,6 +192,8 @@ export function LayoutStateProvider({ children }: PropsWithChildren<{}>) {
       activeShapeTextColor,
       activeShapeTextShade,
       activeTool,
+      activeStartLineMarker,
+      activeEndLineMarker,
       isDeveloperToolsVisible,
       isShowCollaboratorsCursors,
       isShowGrid,
@@ -182,6 +202,8 @@ export function LayoutStateProvider({ children }: PropsWithChildren<{}>) {
       setFullscreenMode,
       dragSelectStartCoords,
       setDragSelectStartCoords,
+      setActiveStartLineMarker,
+      setActiveEndLineMarker,
     ],
   );
 

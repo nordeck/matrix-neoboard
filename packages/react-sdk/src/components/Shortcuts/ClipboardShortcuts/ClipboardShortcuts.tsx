@@ -18,12 +18,28 @@ import { useWidgetApi } from '@matrix-widget-toolkit/react';
 import { useCallback, useEffect } from 'react';
 import { useHotkeysContext } from 'react-hotkeys-hook';
 import {
+  calculateBoundingRectForElements,
+  clampElementPosition,
+  Element,
+  Elements,
+  modifyElementPosition,
+  Point,
   usePresentationMode,
   useWhiteboardSlideInstance,
 } from '../../../state';
 import { useImageUpload } from '../../ImageUpload';
 import { addImagesToSlide } from '../../ImageUpload/addImagesToSlide';
 import { defaultAcceptedImageTypesArray } from '../../ImageUpload/consts';
+import {
+  initPDFJs,
+  loadPDF,
+  renderPDFToImages,
+} from '../../ImportWhiteboardDialog/pdfImportUtils';
+import {
+  useSvgScaleContext,
+  whiteboardHeight,
+  whiteboardWidth,
+} from '../../Whiteboard';
 import { HOTKEY_SCOPE_WHITEBOARD } from '../../WhiteboardHotkeysProvider';
 import {
   ClipboardContent,
@@ -47,13 +63,14 @@ import {
 export function ClipboardShortcuts() {
   // Do avoid issues where users are interacting the the content editable part
   // of the whiteboard canvas, we should disable our listeners.
-  const { enabledScopes } = useHotkeysContext();
-  const enableShortcuts = enabledScopes.includes(HOTKEY_SCOPE_WHITEBOARD);
+  const { activeScopes } = useHotkeysContext();
+  const enableShortcuts = activeScopes.includes(HOTKEY_SCOPE_WHITEBOARD);
   const slideInstance = useWhiteboardSlideInstance();
   const { state: presentationState } = usePresentationMode();
   const isViewingPresentation = presentationState.type === 'presentation';
   const widgetApi = useWidgetApi();
   const { handleDrop } = useImageUpload();
+  const { viewportCanvasCenter } = useSvgScaleContext();
 
   // Copy event is triggered by the default keyboard shortcut for copying in the
   // browser, usually Ctrl/Meta+C
@@ -82,7 +99,7 @@ export function ClipboardShortcuts() {
       }
 
       const content = serializeToClipboard({
-        elements: Object.values(activeElements),
+        elements: activeElements,
       });
       writeIntoClipboardData(event.clipboardData, content);
       event.preventDefault();
@@ -123,7 +140,7 @@ export function ClipboardShortcuts() {
       }
 
       const content = serializeToClipboard({
-        elements: Object.values(activeElements),
+        elements: activeElements,
       });
       writeIntoClipboardData(event.clipboardData, content);
       slideInstance.removeElements(activeElementIds);
@@ -135,13 +152,14 @@ export function ClipboardShortcuts() {
   }, [enableShortcuts, isViewingPresentation, slideInstance]);
 
   const handlePasteImages = useCallback(
-    async (files: File[]) => {
-      const results = await handleDrop(Array.from(files));
+    async (files: File[], centerPosition: Point) => {
+      const results = await handleDrop(files);
 
       const images = results
         .filter((result) => result.status === 'fulfilled')
         .map((result) => result.value);
-      addImagesToSlide(slideInstance, images);
+
+      addImagesToSlide(slideInstance, images, centerPosition);
     },
     [handleDrop, slideInstance],
   );
@@ -161,8 +179,44 @@ export function ClipboardShortcuts() {
       const content = readFromClipboardData(event.clipboardData);
       const { elements } = deserializeFromClipboard(content);
 
-      if (elements && elements.length > 0) {
-        const pastedElementIds = slideInstance.addElements(elements);
+      const centerPosition =
+        slideInstance.getCursorPosition() ?? viewportCanvasCenter;
+
+      if (elements) {
+        const elementsArray: Element[] | undefined = Array.isArray(elements)
+          ? elements
+          : Object.values(elements);
+
+        const { offsetX, offsetY, width, height } =
+          calculateBoundingRectForElements(elementsArray);
+        const position: Point = {
+          x: centerPosition.x - width / 2,
+          y: centerPosition.y - height / 2,
+        };
+        const positionClamp = clampElementPosition(
+          position,
+          { width, height },
+          { width: whiteboardWidth, height: whiteboardHeight },
+        );
+        let pastedElementIds: string[];
+        if (Array.isArray(elements)) {
+          const newElements: Element[] = elementsArray.map((element) =>
+            modifyElementPosition(element, positionClamp, offsetX, offsetY),
+          );
+          pastedElementIds = slideInstance.addElements(newElements);
+        } else {
+          const newElements: Elements = {};
+          for (const [elementId, element] of Object.entries(elements)) {
+            newElements[elementId] = modifyElementPosition(
+              element,
+              positionClamp,
+              offsetX,
+              offsetY,
+            );
+          }
+          pastedElementIds =
+            slideInstance.addElementsWithConnections(newElements);
+        }
         slideInstance.setActiveElementIds(pastedElementIds);
       }
 
@@ -174,8 +228,33 @@ export function ClipboardShortcuts() {
         );
 
         if (imageFiles.length > 0) {
-          handlePasteImages(Array.from(imageFiles));
-          // slideInstance.setActiveElementIds(pastedImageIds);
+          handlePasteImages(imageFiles, centerPosition);
+        }
+
+        if (Array.from(files).some((file) => file.type === 'application/pdf')) {
+          await initPDFJs();
+        }
+
+        const pdfImageFiles: File[] = [];
+        for (const file of files) {
+          if (file.type === 'application/pdf') {
+            const pdf = await loadPDF(await file.arrayBuffer());
+            const images = await renderPDFToImages(pdf);
+
+            let count = 0;
+            for (const image of images) {
+              count++;
+              pdfImageFiles.push(
+                new File([image.blob], 'pdfSlide' + count, {
+                  type: image.mimeType,
+                }),
+              );
+            }
+          }
+        }
+
+        if (pdfImageFiles.length > 0) {
+          handlePasteImages(pdfImageFiles, centerPosition);
         }
       }
     };
@@ -188,6 +267,7 @@ export function ClipboardShortcuts() {
     isViewingPresentation,
     slideInstance,
     widgetApi,
+    viewportCanvasCenter,
   ]);
 
   return null;

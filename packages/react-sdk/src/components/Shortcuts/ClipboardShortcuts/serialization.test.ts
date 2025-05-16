@@ -33,12 +33,29 @@ import {
 describe('serializeToClipboard', () => {
   it('should serialize plain text and HTML', () => {
     const clipboardContent = serializeToClipboard({
-      elements: [mockEllipseElement({ text: 'Hello World' })],
+      elements: {
+        ['element-id-0']: mockEllipseElement({ text: 'Hello World' }),
+      },
     });
 
     expect(clipboardContent).toMatchInlineSnapshot(`
       {
-        "text/html": "<span data-meta="<--(net.nordeck.whiteboard)eyJlbGVtZW50cyI6W3sidHlwZSI6InNoYXBlIiwia2luZCI6ImVsbGlwc2UiLCJwb3NpdGlvbiI6eyJ4IjowLCJ5IjoxfSwiZmlsbENvbG9yIjoiI2ZmZmZmZiIsInRleHRGb250RmFtaWx5IjoiSW50ZXIiLCJoZWlnaHQiOjEwMCwid2lkdGgiOjUwLCJ0ZXh0IjoiSGVsbG8gV29ybGQifV19(/net.nordeck.whiteboard)-->"></span><div>Hello World</div>",
+        "text/html": "<span data-meta="<--(net.nordeck.whiteboard)eyJlbGVtZW50cyI6eyJlbGVtZW50LWlkLTAiOnsidHlwZSI6InNoYXBlIiwia2luZCI6ImVsbGlwc2UiLCJwb3NpdGlvbiI6eyJ4IjowLCJ5IjoxfSwiZmlsbENvbG9yIjoiI2ZmZmZmZiIsInRleHRGb250RmFtaWx5IjoiSW50ZXIiLCJoZWlnaHQiOjEwMCwid2lkdGgiOjUwLCJ0ZXh0IjoiSGVsbG8gV29ybGQifX19(/net.nordeck.whiteboard)-->"></span><div>Hello World</div>",
+        "text/plain": "Hello World",
+      }
+    `);
+  });
+
+  it('should serialize plain text and HTML for elements object', () => {
+    const clipboardContent = serializeToClipboard({
+      elements: {
+        ['element-id-0']: mockEllipseElement({ text: 'Hello World' }),
+      },
+    });
+
+    expect(clipboardContent).toMatchInlineSnapshot(`
+      {
+        "text/html": "<span data-meta="<--(net.nordeck.whiteboard)eyJlbGVtZW50cyI6eyJlbGVtZW50LWlkLTAiOnsidHlwZSI6InNoYXBlIiwia2luZCI6ImVsbGlwc2UiLCJwb3NpdGlvbiI6eyJ4IjowLCJ5IjoxfSwiZmlsbENvbG9yIjoiI2ZmZmZmZiIsInRleHRGb250RmFtaWx5IjoiSW50ZXIiLCJoZWlnaHQiOjEwMCwid2lkdGgiOjUwLCJ0ZXh0IjoiSGVsbG8gV29ybGQifX19(/net.nordeck.whiteboard)-->"></span><div>Hello World</div>",
         "text/plain": "Hello World",
       }
     `);
@@ -65,6 +82,20 @@ describe('deserializeFromClipboard', () => {
           width: 50,
         },
       ],
+    });
+  });
+
+  it('should prefer deserializing from HTML for elements object', () => {
+    const content = deserializeFromClipboard({
+      'text/html':
+        '<span data-meta="<--(net.nordeck.whiteboard)eyJlbGVtZW50cyI6eyJlbGVtZW50LWlkLTAiOnsidHlwZSI6InNoYXBlIiwia2luZCI6ImVsbGlwc2UiLCJwb3NpdGlvbiI6eyJ4IjowLCJ5IjoxfSwiZmlsbENvbG9yIjoiI2ZmZmZmZiIsInRleHRGb250RmFtaWx5IjoiSW50ZXIiLCJoZWlnaHQiOjEwMCwid2lkdGgiOjUwLCJ0ZXh0IjoiSGVsbG8gV29ybGQifX19(/net.nordeck.whiteboard)-->"></span><div>Hello World</div>',
+      'text/plain': 'Hello Plain',
+    });
+
+    expect(content).toEqual({
+      elements: {
+        ['element-id-0']: mockEllipseElement({ text: 'Hello World' }),
+      },
     });
   });
 
@@ -124,7 +155,9 @@ describe('serializeAsPlainText', () => {
   it('should serialize text of elements', () => {
     expect(
       serializeAsPlainText({
-        elements: [mockEllipseElement({ text: 'Hello World' })],
+        elements: {
+          ['element-id-0']: mockEllipseElement({ text: 'Hello World' }),
+        },
       }),
     ).toBe('Hello World');
   });
@@ -132,10 +165,10 @@ describe('serializeAsPlainText', () => {
   it('should serialize text of multiple elements', () => {
     expect(
       serializeAsPlainText({
-        elements: [
-          mockEllipseElement({ text: 'Hello World' }),
-          mockEllipseElement({ text: 'With\nLine\nBreaks' }),
-        ],
+        elements: {
+          ['element-id-0']: mockEllipseElement({ text: 'Hello World' }),
+          ['element-id-1']: mockEllipseElement({ text: 'With\nLine\nBreaks' }),
+        },
       }),
     ).toBe('Hello World With\nLine\nBreaks');
   });
@@ -143,7 +176,9 @@ describe('serializeAsPlainText', () => {
   it('should serialize empty text of elements without text', () => {
     expect(
       serializeAsPlainText({
-        elements: [mockLineElement()],
+        elements: {
+          ['element-id-0']: mockLineElement(),
+        },
       }),
     ).toBe('');
   });
@@ -173,25 +208,27 @@ describe('deserializeFromPlainText', () => {
 describe('serializeAsHtml', () => {
   it('should serialize elements as HTML', () => {
     const content = serializeAsHtml({
-      elements: [mockEllipseElement({ text: 'Hello World' })],
+      elements: {
+        ['element-id-0']: mockEllipseElement({ text: 'Hello World' }),
+      },
     });
 
     expect(content).toMatchInlineSnapshot(
-      `"<span data-meta="<--(net.nordeck.whiteboard)eyJlbGVtZW50cyI6W3sidHlwZSI6InNoYXBlIiwia2luZCI6ImVsbGlwc2UiLCJwb3NpdGlvbiI6eyJ4IjowLCJ5IjoxfSwiZmlsbENvbG9yIjoiI2ZmZmZmZiIsInRleHRGb250RmFtaWx5IjoiSW50ZXIiLCJoZWlnaHQiOjEwMCwid2lkdGgiOjUwLCJ0ZXh0IjoiSGVsbG8gV29ybGQifV19(/net.nordeck.whiteboard)-->"></span><div>Hello World</div>"`,
+      `"<span data-meta="<--(net.nordeck.whiteboard)eyJlbGVtZW50cyI6eyJlbGVtZW50LWlkLTAiOnsidHlwZSI6InNoYXBlIiwia2luZCI6ImVsbGlwc2UiLCJwb3NpdGlvbiI6eyJ4IjowLCJ5IjoxfSwiZmlsbENvbG9yIjoiI2ZmZmZmZiIsInRleHRGb250RmFtaWx5IjoiSW50ZXIiLCJoZWlnaHQiOjEwMCwid2lkdGgiOjUwLCJ0ZXh0IjoiSGVsbG8gV29ybGQifX19(/net.nordeck.whiteboard)-->"></span><div>Hello World</div>"`,
     );
   });
 
   it('should serialize multiple elements as HTML', () => {
     const content = serializeAsHtml({
-      elements: [
-        mockEllipseElement({ text: 'Hello World' }),
-        mockEllipseElement({ text: 'Multi\nLine' }),
-        mockLineElement(),
-      ],
+      elements: {
+        ['element-id-0']: mockEllipseElement({ text: 'Hello World' }),
+        ['element-id-1']: mockEllipseElement({ text: 'Multi\nLine' }),
+        ['element-id-2']: mockLineElement(),
+      },
     });
 
     expect(content).toMatchInlineSnapshot(
-      `"<span data-meta="<--(net.nordeck.whiteboard)eyJlbGVtZW50cyI6W3sidHlwZSI6InNoYXBlIiwia2luZCI6ImVsbGlwc2UiLCJwb3NpdGlvbiI6eyJ4IjowLCJ5IjoxfSwiZmlsbENvbG9yIjoiI2ZmZmZmZiIsInRleHRGb250RmFtaWx5IjoiSW50ZXIiLCJoZWlnaHQiOjEwMCwid2lkdGgiOjUwLCJ0ZXh0IjoiSGVsbG8gV29ybGQifSx7InR5cGUiOiJzaGFwZSIsImtpbmQiOiJlbGxpcHNlIiwicG9zaXRpb24iOnsieCI6MCwieSI6MX0sImZpbGxDb2xvciI6IiNmZmZmZmYiLCJ0ZXh0Rm9udEZhbWlseSI6IkludGVyIiwiaGVpZ2h0IjoxMDAsIndpZHRoIjo1MCwidGV4dCI6Ik11bHRpXG5MaW5lIn0seyJ0eXBlIjoicGF0aCIsImtpbmQiOiJsaW5lIiwicG9zaXRpb24iOnsieCI6MCwieSI6MX0sInN0cm9rZUNvbG9yIjoiI2ZmZmZmZiIsInBvaW50cyI6W3sieCI6MCwieSI6MX0seyJ4IjoyLCJ5IjozfV19XX0=(/net.nordeck.whiteboard)-->"></span><div>Hello World</div><div>Multi<br>Line</div>"`,
+      `"<span data-meta="<--(net.nordeck.whiteboard)eyJlbGVtZW50cyI6eyJlbGVtZW50LWlkLTAiOnsidHlwZSI6InNoYXBlIiwia2luZCI6ImVsbGlwc2UiLCJwb3NpdGlvbiI6eyJ4IjowLCJ5IjoxfSwiZmlsbENvbG9yIjoiI2ZmZmZmZiIsInRleHRGb250RmFtaWx5IjoiSW50ZXIiLCJoZWlnaHQiOjEwMCwid2lkdGgiOjUwLCJ0ZXh0IjoiSGVsbG8gV29ybGQifSwiZWxlbWVudC1pZC0xIjp7InR5cGUiOiJzaGFwZSIsImtpbmQiOiJlbGxpcHNlIiwicG9zaXRpb24iOnsieCI6MCwieSI6MX0sImZpbGxDb2xvciI6IiNmZmZmZmYiLCJ0ZXh0Rm9udEZhbWlseSI6IkludGVyIiwiaGVpZ2h0IjoxMDAsIndpZHRoIjo1MCwidGV4dCI6Ik11bHRpXG5MaW5lIn0sImVsZW1lbnQtaWQtMiI6eyJ0eXBlIjoicGF0aCIsImtpbmQiOiJsaW5lIiwicG9zaXRpb24iOnsieCI6MCwieSI6MX0sInN0cm9rZUNvbG9yIjoiI2ZmZmZmZiIsInBvaW50cyI6W3sieCI6MCwieSI6MX0seyJ4IjoyLCJ5IjozfV19fX0=(/net.nordeck.whiteboard)-->"></span><div>Hello World</div><div>Multi<br>Line</div>"`,
     );
   });
 });
@@ -223,6 +260,22 @@ describe('deserializeFromHtml', () => {
     );
 
     expect(content).toEqual({ elements: [] });
+  });
+
+  it('should ignore elements object with invalid element', () => {
+    const content = deserializeFromHtml(
+      '<span data-meta="<--(net.nordeck.whiteboard)eyJlbGVtZW50cyI6IHsiZWxlbWVudC0xIjogeyJ0eXBlIjoic2hhcGUiLCJraW5kIjoibWJpdXNzdHJpcCIsInBvc2l0aW9uIjp7IngiOjAsInkiOjF9LCJmaWxsQ29sb3IiOiIjZmZmZmZmIiwiaGVpZ2h0IjoxMDAsIndpZHRoIjo1MCwidGV4dCI6IkhlbGxvIFdvcmxkIn19fQ==(/net.nordeck.whiteboard)-->"></span><div>Hello World</div>',
+    );
+
+    expect(content).toEqual({});
+  });
+
+  it('should ignore invalid elements object', () => {
+    const content = deserializeFromHtml(
+      '<span data-meta="<--(net.nordeck.whiteboard)eyJlbGVtZW50cyI6IHswOiB7InR5cGUiOiJzaGFwZSIsImtpbmQiOiJtYml1c3N0cmlwIiwicG9zaXRpb24iOnsieCI6MCwieSI6MX0sImZpbGxDb2xvciI6IiNmZmZmZmYiLCJoZWlnaHQiOjEwMCwid2lkdGgiOjUwLCJ0ZXh0IjoiSGVsbG8gV29ybGQifX19(/net.nordeck.whiteboard)-->"></span><div>Hello World</div>',
+    );
+
+    expect(content).toEqual({});
   });
 
   it('should ignore invalid JSON', () => {

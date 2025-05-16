@@ -15,6 +15,7 @@
  */
 
 import { useMemo } from 'react';
+import { matrixRtcMode } from '../components/Whiteboard';
 import { isPeerConnected } from './communication/connection';
 import { useActiveWhiteboardInstanceStatistics } from './useActiveWhiteboardInstance';
 
@@ -28,16 +29,32 @@ export function useActiveWhiteboardMembers(): ActiveWhiteboardMember[] {
   return useMemo(() => {
     const activeWhiteboardMembers = new Map<string, ActiveWhiteboardMember>();
 
-    Object.values(statistics.communicationChannel.peerConnections).forEach(
-      (p) => {
-        if (isPeerConnected(p)) {
-          activeWhiteboardMembers.set(p.remoteUserId, {
-            userId: p.remoteUserId,
-          });
-        }
-      },
-    );
+    if (matrixRtcMode) {
+      const allRtcMembers = statistics.communicationChannel.sessions
+        ? statistics.communicationChannel.sessions.filter(
+            (s) => s.expiresTs > Date.now(),
+          )
+        : undefined;
 
+      allRtcMembers?.forEach((s) => {
+        activeWhiteboardMembers.set(s.userId, {
+          userId: s.userId,
+        });
+      });
+    } else {
+      Object.values(statistics.communicationChannel.peerConnections).forEach(
+        (p) => {
+          if (isPeerConnected(p)) {
+            activeWhiteboardMembers.set(p.remoteUserId, {
+              userId: p.remoteUserId,
+            });
+          }
+        },
+      );
+    }
     return Array.from(activeWhiteboardMembers.values());
-  }, [statistics]);
+  }, [
+    statistics.communicationChannel.sessions,
+    statistics.communicationChannel.peerConnections,
+  ]);
 }

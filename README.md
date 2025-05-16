@@ -1,6 +1,6 @@
 # NeoBoard
 
-![Build](https://github.com/nordeck/matrix-neoboard/workflows/CI/badge.svg)
+[![CI](https://github.com/nordeck/matrix-neoboard/actions/workflows/ci.yml/badge.svg)](https://github.com/nordeck/matrix-neoboard/actions/workflows/ci.yml)
 [![Matrix](https://img.shields.io/matrix/nordeck%3Amatrix.org)](https://matrix.to/#/#nordeck:matrix.org)
 
 A collaborative whiteboard widget for Element, based on [Matrix](https://matrix.org).

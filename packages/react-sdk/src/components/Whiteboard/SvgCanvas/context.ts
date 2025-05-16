@@ -18,11 +18,30 @@ import { createContext, useContext } from 'react';
 import { Point } from '../../../state';
 
 export type SvgCanvasContextType = {
+  /**
+   * With of the container holding the canvas
+   *
+   * @deprecated use SvgScaleContext.containerDimensions instead
+   */
   width: number;
+  /**
+   * Height of the container holding the canvas
+   *
+   * @deprecated use SvgScaleContext.containerDimensions instead
+   */
   height: number;
+  /**
+   * Canvas width
+   *
+   * @deprecated use whiteboard const whiteboardWidth instead
+   */
   viewportWidth: number;
+  /**
+   * Canvas height
+   *
+   * @deprecated use whiteboard const whiteboardHeight instead
+   */
   viewportHeight: number;
-  scale: number;
 
   calculateSvgCoords: (position: Point) => Point;
 };
@@ -40,3 +59,10 @@ export const useSvgCanvasContext = (): SvgCanvasContextType => {
 
   return context;
 };
+
+/**
+ * Provides a custom instance of the `SvgCanvas` to the context.
+ *
+ * @remarks Should only be used in tests.
+ */
+export const SvgCanvasMockProvider = SvgCanvasContext.Provider;

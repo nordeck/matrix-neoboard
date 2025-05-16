@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+export { findConnectData } from './findConnectData';
 export { ResizeElement } from './ResizeElement';
 export {
   computeResizingConnectingPathElementOverDeltaPoints,

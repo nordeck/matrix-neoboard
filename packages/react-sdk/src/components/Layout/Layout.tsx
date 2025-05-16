@@ -33,14 +33,16 @@ import { ElementOverridesProvider } from '../ElementOverridesProvider';
 import { FullscreenModeBar } from '../FullscreenModeBar';
 import { GuidedTour } from '../GuidedTour';
 import { HelpCenterBar } from '../HelpCenterBar';
-import { ImageUploadProvider, useSlideImageDropUpload } from '../ImageUpload';
+import { ImageUploadProvider } from '../ImageUpload';
 import { ImportWhiteboardDialogProvider } from '../ImportWhiteboardDialog/ImportWhiteboardDialogProvider';
 import { PresentBar } from '../PresentBar';
 import { Shortcuts } from '../Shortcuts';
 import { SlideOverviewBar } from '../SlideOverviewBar';
 import { ToolsBar } from '../ToolsBar';
 import { UndoRedoBar } from '../UndoRedoBar';
-import { WhiteboardHost } from '../Whiteboard';
+import { infiniteCanvasMode, WhiteboardHost } from '../Whiteboard';
+import { SvgScaleContextProvider } from '../Whiteboard/SvgScaleContext';
+import { ZoomBar } from '../ZoomBar';
 import { PageLoader } from '../common/PageLoader';
 import { SlidesProvider } from './SlidesProvider';
 import { ToolbarCanvasContainer } from './ToolbarCanvasContainer';
@@ -74,9 +76,6 @@ export function Layout({ height = '100vh' }: LayoutProps) {
   const { state: presentationState } = usePresentationMode();
   const isViewingPresentation = presentationState.type === 'presentation';
 
-  const { handleUploadDragEnter, uploadDragOverlay } =
-    useSlideImageDropUpload();
-
   const handleClose = useCallback(() => {
     setDeveloperToolsVisible(false);
   }, [setDeveloperToolsVisible]);
@@ -95,6 +94,12 @@ export function Layout({ height = '100vh' }: LayoutProps) {
             height={!isFullscreenMode ? height : '100vh'}
             direction="row"
             bgcolor="background.paper"
+            {...(infiniteCanvasMode
+              ? {
+                  zIndex: '100',
+                  position: 'absolute',
+                }
+              : {})}
           >
             <AnimatedSidebar
               visible={isSlideOverviewVisible && !isViewingPresentation}
@@ -103,20 +108,13 @@ export function Layout({ height = '100vh' }: LayoutProps) {
               <SlideOverviewBar />
             </AnimatedSidebar>
 
-            <Box
-              component="main"
-              flex={1}
-              display="flex"
-              position="relative"
-              onDragEnter={handleUploadDragEnter}
-            >
+            <Box component="main" flex={1} display="flex" position="relative">
               {slideIds.map((slideId) => (
                 <TabPanelStyled value={slideId} key={slideId}>
                   <SlideProvider slideId={slideId}>
                     <ElementOverridesProvider>
                       <ConnectionPointProvider>
                         <ContentArea />
-                        {uploadDragOverlay}
                       </ConnectionPointProvider>
                     </ElementOverridesProvider>
                   </SlideProvider>
@@ -161,7 +159,7 @@ function ContentArea() {
   const [sizeRef, { width: toolbarWidth }] = useMeasure<HTMLDivElement>();
 
   return (
-    <>
+    <SvgScaleContextProvider>
       <Shortcuts />
 
       <ToolbarContainer
@@ -179,7 +177,8 @@ function ContentArea() {
           right={0}
         >
           <FullscreenModeBar />
-          {(!isViewingPresentation || canStopPresentation) && <PresentBar />}
+          {!infiniteCanvasMode &&
+            (!isViewingPresentation || canStopPresentation) && <PresentBar />}
         </ToolbarContainer>
       </ToolbarContainer>
 
@@ -187,7 +186,12 @@ function ContentArea() {
 
       {(!isViewingPresentation || isViewingPresentationInEditMode) && (
         <ToolbarCanvasContainer ref={sizeRef}>
-          <ToolbarContainer bottom={(theme) => theme.spacing(1)}>
+          <ToolbarContainer
+            bottom={(theme) => theme.spacing(1)}
+            {...(infiniteCanvasMode ? { position: 'fixed' } : undefined)}
+          >
+            {infiniteCanvasMode && <ZoomBar />}
+
             <Box flex="1" />
 
             <ToolsBar />
@@ -199,6 +203,6 @@ function ContentArea() {
           </ToolbarContainer>
         </ToolbarCanvasContainer>
       )}
-    </>
+    </SvgScaleContextProvider>
   );
 }

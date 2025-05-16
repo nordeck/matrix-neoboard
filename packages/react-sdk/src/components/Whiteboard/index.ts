@@ -14,10 +14,20 @@
  * limitations under the License.
  */
 
-export { gridCellSize, whiteboardHeight, whiteboardWidth } from './constants';
+export {
+  frameHeight,
+  frameWidth,
+  gridCellSize,
+  infiniteCanvasMode,
+  matrixRtcMode,
+  whiteboardHeight,
+  whiteboardWidth,
+} from './constants';
 export * from './Draft';
 export * from './ElementBehaviors';
 export * from './Grid';
 export { SlidePreview } from './SlidePreview';
+export { SlideSkeleton } from './SlideSkeleton';
+export { useSvgScaleContext } from './SvgScaleContext';
 export type { ElementRenderProperties } from './types';
 export { WhiteboardHostConnected as WhiteboardHost } from './WhiteboardHost';

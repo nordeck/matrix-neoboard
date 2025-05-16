@@ -29,6 +29,13 @@ export type CommunicationChannelStatistics = {
   sessions?: SessionState[];
 };
 
+export function emptyCommunicationChannelStatistics(): CommunicationChannelStatistics {
+  return {
+    peerConnections: {},
+    sessions: [],
+  };
+}
+
 export type CommunicationChannel = {
   /** Sends a message to all connected peers. */
   broadcastMessage<T = unknown>(type: string, content: T): void;

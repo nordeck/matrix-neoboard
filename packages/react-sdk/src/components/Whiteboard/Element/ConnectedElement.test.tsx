@@ -28,6 +28,7 @@ import {
 } from 'vitest';
 import {
   WhiteboardTestingContextProvider,
+  mockFrameElement,
   mockImageElement,
   mockWhiteboardManager,
 } from '../../../lib/testUtils/documentTestUtils';
@@ -49,7 +50,15 @@ describe('<ConnectedElement />', () => {
     vi.mocked(URL.createObjectURL).mockReturnValue('http://...');
 
     const { whiteboardManager } = mockWhiteboardManager({
-      slides: [['slide-0', [['element-0', mockImageElement()]]]],
+      slides: [
+        [
+          'slide-0',
+          [
+            ['element-0', mockImageElement()],
+            ['element-1', mockFrameElement()],
+          ],
+        ],
+      ],
     });
 
     Wrapper = ({ children }) => (
@@ -111,5 +120,15 @@ describe('<ConnectedElement />', () => {
     expect(
       screen.queryByTestId('element-element-0-image'),
     ).not.toBeInTheDocument();
+  });
+
+  it('should render a frame element', async () => {
+    render(
+      <ConnectedElement id="element-1" activeElementIds={['element-1']} />,
+      { wrapper: Wrapper },
+    );
+
+    const frameElement = await screen.findByTestId('element-frame-element-1');
+    expect(frameElement).toBeInTheDocument();
   });
 });
