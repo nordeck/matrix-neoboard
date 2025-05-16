@@ -34,7 +34,7 @@ export function useFontSize(): UseFontSizeResult {
   const activeElements = useElements(activeElementIds);
   const elements = Object.values(activeElements);
 
-  let fontSize = defaultTextSize;
+  let fontSize: number | undefined = defaultTextSize;
 
   for (const element of elements) {
     if (element.type === 'shape') {
