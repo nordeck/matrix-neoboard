@@ -28,7 +28,6 @@ import {
 import { WhiteboardManager } from '../../state';
 import { CommunicationChannel } from '../../state/communication';
 import { ImageUploadProvider } from '../ImageUpload';
-import { ImportWhiteboardDialogProvider } from '../ImportWhiteboardDialog/ImportWhiteboardDialogProvider';
 import { LayoutStateProvider } from '../Layout';
 import { SlidesProvider } from '../Layout/SlidesProvider';
 import { SnackbarProvider } from '../Snackbar';
@@ -64,15 +63,12 @@ describe('<SideOverviewBar/>', () => {
             >
               <SlidesProvider>
                 <ImageUploadProvider>
-                  {/* for ImportWhiteboardDialogProvider */}
-                  <ImportWhiteboardDialogProvider>
-                    {children}
+                  {children}
 
-                    {/* Include tab panels to make accessibility test happy */}
-                    <TabPanel value="slide-0" />
-                    <TabPanel value="slide-1" />
-                    <TabPanel value="slide-2" />
-                  </ImportWhiteboardDialogProvider>
+                  {/* Include tab panels to make accessibility test happy */}
+                  <TabPanel value="slide-0" />
+                  <TabPanel value="slide-1" />
+                  <TabPanel value="slide-2" />
                 </ImageUploadProvider>
               </SlidesProvider>
             </WhiteboardTestingContextProvider>

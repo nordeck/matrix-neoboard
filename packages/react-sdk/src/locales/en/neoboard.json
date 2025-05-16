@@ -62,20 +62,6 @@
       "title": "Export the content"
     },
     "hideSlideBarTitle": "Close slide overview",
-    "importWhiteboardDialog": {
-      "close": "Close",
-      "errorDescription": "Your file can't be loaded. Please try again by selecting a different file.",
-      "errorTitle": "Error",
-      "selectFile": "Select file",
-      "selectFileLabel": "Selected file: “{{fileName}}”. Click to select a different file.",
-      "success": {
-        "cancel": "Cancel",
-        "import": "Import"
-      },
-      "successDescription": "Your contents will be replaced. This operation is reversible by using “undo”.",
-      "successTitle": "Caution",
-      "title": "Import content"
-    },
     "menu": {
       "developerTools": "Developer Tools",
       "export": "Export…",
@@ -261,6 +247,31 @@
     "resolutionError_other": "The files {{fileNames}} cannot be uploaded due to their resolution. The upload is possible for a maximum of {{limit}} per file.",
     "sizeError_one": "The file {{fileNames}} cannot be uploaded due to its size. The upload is possible for a maximum of {{limit}} per file.",
     "sizeError_other": "The files {{fileNames}} cannot be uploaded due to their size. The upload is possible for a maximum of {{limit}} per file."
+  },
+  "importDialog": {
+    "appendContent": "Append to current content",
+    "cancel": "Cancel",
+    "changeFile": "Change File",
+    "close": "Close",
+    "closeToView": "You can close this dialog to view your imported content.",
+    "done": "Done",
+    "dragActive": "Drop the file here...",
+    "dragInactive": "Drag and drop a file here, or click to select a file",
+    "errorMessage": "There was an error processing your file. Please try again with a different file.",
+    "errorTitle": "Error",
+    "fileImported": "The file \"{{fileName}}\" has been successfully imported.",
+    "fileSelected": "File Selected",
+    "import": "Import",
+    "importCompleted": "Import Completed",
+    "importing": "Importing your file...",
+    "importOptions": "Import Options",
+    "importSuccess": "Import Successful",
+    "processing": "Processing your file...",
+    "replaceContent": "Replace current content",
+    "selectedFile": "You have selected: {{fileName}}",
+    "supportedFormats": "Supported formats: PDF, NWB",
+    "title": "Import Document",
+    "tryAgain": "Try Again"
   },
   "peerConnectionDetail": {
     "false": "false",

@@ -35,7 +35,7 @@ import {
   useSlideIsLocked,
 } from '../../state';
 import { MenuItemSwitch } from '../common/MenuItemSwitch';
-import { useImportWhiteboardDialog } from '../ImportWhiteboardDialog/useImportWhiteboardDialog';
+import ImportDialog from '../ImportDialog';
 
 type ContextMenuState =
   | { slideId: string; position: PopoverPosition }
@@ -58,7 +58,7 @@ export const withContextMenu = <P extends object>(
   }: WithContextMenuProps) => {
     const { t } = useTranslation('neoboard');
     const [state, setState] = useState<ContextMenuState>();
-    const importContext = useImportWhiteboardDialog();
+    const [openImportDialog, setOpenImportDialog] = useState(false);
     const whiteboardInstance = useActiveWhiteboardInstance();
     const slideIds = useActiveWhiteboardInstanceSlideIds();
     const isLocked = useSlideIsLocked(slideId);
@@ -109,9 +109,13 @@ export const withContextMenu = <P extends object>(
     }, [handleClose, slideIndex, whiteboardInstance]);
 
     const handleInsertImport = useCallback(() => {
-      importContext.showImportWhiteboardDialog(slideIndex + 1);
+      setOpenImportDialog(true);
       handleClose();
-    }, [handleClose, slideIndex, importContext]);
+    }, [handleClose]);
+
+    const handleCloseImportDialog = useCallback(() => {
+      setOpenImportDialog(false);
+    }, []);
 
     const handleContextMenu = useCallback(
       (event: MouseEvent<HTMLButtonElement>) => {
@@ -140,6 +144,11 @@ export const withContextMenu = <P extends object>(
           {...(props as P)}
           ref={innerRef}
           onContextMenu={handleContextMenu}
+        />
+
+        <ImportDialog
+          open={openImportDialog}
+          onClose={handleCloseImportDialog}
         />
 
         <Menu
