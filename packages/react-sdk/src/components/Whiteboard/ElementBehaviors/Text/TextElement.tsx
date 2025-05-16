@@ -168,7 +168,7 @@ export const TextElement = ({
       )
       .join('\n\n');
     slideInstance.updateElement(elementId, {
-      text: '...',
+      text: 'Generating…',
     });
     // Ask the AI
     const res = await fetch('http://localhost:11434/api/generate', {
@@ -178,7 +178,7 @@ export const TextElement = ({
       },
       body: JSON.stringify({
         model,
-        prompt,
+        prompt: `Answer in a short and precise way. Limit yourself to 2 sentences. ${prompt}`,
         stream: false,
       }),
     });
