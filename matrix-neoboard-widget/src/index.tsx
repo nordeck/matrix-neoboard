@@ -27,6 +27,9 @@ import { AppContainer } from './AppContainer';
 import './i18n';
 import './logger';
 import { widgetCapabilities } from './widgetCapabilities';
+// Loads Sentry for error tracking
+import '@nordeck/matrix-neoboard-react-sdk/src/utils/sentry';
+import { ErrorBoundary } from '@sentry/react';
 
 declare global {
   let __webpack_nonce__: string | undefined;
@@ -59,10 +62,12 @@ const container = document.getElementById('root');
 const root = createRoot(container!);
 root.render(
   <React.StrictMode>
-    <AppContainer
-      widgetApiPromise={widgetApiPromise}
-      store={store}
-      whiteboardManager={whiteboardManager}
-    />
-  </React.StrictMode>,
+    <ErrorBoundary fallback={<p>An error has occurred</p>}>
+      <AppContainer
+        widgetApiPromise={widgetApiPromise}
+        store={store}
+        whiteboardManager={whiteboardManager}
+      />
+    </ErrorBoundary>
+  </React.StrictMode >,
 );
