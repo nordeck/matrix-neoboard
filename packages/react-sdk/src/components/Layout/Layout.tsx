@@ -34,7 +34,6 @@ import { FullscreenModeBar } from '../FullscreenModeBar';
 import { GuidedTour } from '../GuidedTour';
 import { HelpCenterBar } from '../HelpCenterBar';
 import { ImageUploadProvider } from '../ImageUpload';
-import { ImportWhiteboardDialogProvider } from '../ImportWhiteboardDialog/ImportWhiteboardDialogProvider';
 import { PresentBar } from '../PresentBar';
 import { Shortcuts } from '../Shortcuts';
 import { SlideOverviewBar } from '../SlideOverviewBar';
@@ -87,46 +86,44 @@ export function Layout({ height = '100vh' }: LayoutProps) {
   return (
     <SlidesProvider>
       <ImageUploadProvider>
-        <ImportWhiteboardDialogProvider>
-          <GuidedTour disabled={isViewingPresentation} />
+        <GuidedTour disabled={isViewingPresentation} />
 
-          <Stack
-            height={!isFullscreenMode ? height : '100vh'}
-            direction="row"
-            bgcolor="background.paper"
-            {...(infiniteCanvasMode
-              ? {
-                  zIndex: '100',
-                  position: 'absolute',
-                }
-              : {})}
+        <Stack
+          height={!isFullscreenMode ? height : '100vh'}
+          direction="row"
+          bgcolor="background.paper"
+          {...(infiniteCanvasMode
+            ? {
+                zIndex: '100',
+                position: 'absolute',
+              }
+            : {})}
+        >
+          <AnimatedSidebar
+            visible={isSlideOverviewVisible && !isViewingPresentation}
+            direction="right"
           >
-            <AnimatedSidebar
-              visible={isSlideOverviewVisible && !isViewingPresentation}
-              direction="right"
-            >
-              <SlideOverviewBar />
-            </AnimatedSidebar>
+            <SlideOverviewBar />
+          </AnimatedSidebar>
 
-            <Box component="main" flex={1} display="flex" position="relative">
-              {slideIds.map((slideId) => (
-                <TabPanelStyled value={slideId} key={slideId}>
-                  <SlideProvider slideId={slideId}>
-                    <ElementOverridesProvider>
-                      <ConnectionPointProvider>
-                        <ContentArea />
-                      </ConnectionPointProvider>
-                    </ElementOverridesProvider>
-                  </SlideProvider>
-                </TabPanelStyled>
-              ))}
-            </Box>
-            <DeveloperToolsDialog
-              open={isDeveloperToolsVisible}
-              handleClose={handleClose}
-            />
-          </Stack>
-        </ImportWhiteboardDialogProvider>
+          <Box component="main" flex={1} display="flex" position="relative">
+            {slideIds.map((slideId) => (
+              <TabPanelStyled value={slideId} key={slideId}>
+                <SlideProvider slideId={slideId}>
+                  <ElementOverridesProvider>
+                    <ConnectionPointProvider>
+                      <ContentArea />
+                    </ConnectionPointProvider>
+                  </ElementOverridesProvider>
+                </SlideProvider>
+              </TabPanelStyled>
+            ))}
+          </Box>
+          <DeveloperToolsDialog
+            open={isDeveloperToolsVisible}
+            handleClose={handleClose}
+          />
+        </Stack>
       </ImageUploadProvider>
     </SlidesProvider>
   );

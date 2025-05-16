@@ -62,20 +62,6 @@
       "title": "Inhalt exportieren"
     },
     "hideSlideBarTitle": "Folienübersicht schließen",
-    "importWhiteboardDialog": {
-      "close": "Schließen",
-      "errorDescription": "Deine Datei kann nicht geladen werden, versuche es mit einer anderen Datei.",
-      "errorTitle": "Fehler",
-      "selectFile": "Datei auswählen",
-      "selectFileLabel": "Ausgewählte Datei: „{{fileName}}“. Klicke um eine andere Datei auszuwählen.",
-      "success": {
-        "cancel": "Abbrechen",
-        "import": "Importieren"
-      },
-      "successDescription": "Deine Inhalte werden überschrieben. Diese Aktion ist durch die Nutzung von „Rückgängig“ umkehrbar.",
-      "successTitle": "Achtung",
-      "title": "Inhalt importieren"
-    },
     "menu": {
       "developerTools": "Entwicklerwerkzeuge",
       "export": "Exportieren…",
@@ -261,6 +247,31 @@
     "resolutionError_other": "Die Dateien {{fileNames}} können aufgrund ihrer Auflösung nicht hochgeladen werden. Der Upload ist mit maximal {{limit}} pro Datei möglich.",
     "sizeError_one": "Die Datei {{fileNames}} kann aufgrund ihrer Größe nicht hochgeladen werden. Der Upload ist mit maximal {{limit}} pro Datei möglich.",
     "sizeError_other": "Die Dateien {{fileNames}} können aufgrund ihrer Größe nicht hochgeladen werden. Der Upload ist mit maximal {{limit}} pro Datei möglich."
+  },
+  "importDialog": {
+    "appendContent": "Füge den Inhalt an",
+    "cancel": "Abbrechen",
+    "changeFile": "Ändere die Datei",
+    "close": "Schließen",
+    "closeToView": "Du kannst dieses Dialogfeld schließen, um den importierten Inhalt anzuzeigen.",
+    "done": "Fertig",
+    "dragActive": "Lass die Datei hier los...",
+    "dragInactive": "Ziehen Sie eine Datei hierher, oder klicken Sie, um eine Datei auszuwählen",
+    "errorMessage": "Die Datei kann nicht geladen werden. Bitte versuchen Sie es erneut, indem Sie eine andere Datei auswählen.",
+    "errorTitle": "Fehler",
+    "fileImported": "Die Datei \"{{fileName}}\" wurde erfolgreich importiert.",
+    "fileSelected": "Datei ausgewählt",
+    "import": "Importieren",
+    "importCompleted": "Import abgeschlossen",
+    "importing": "Importierte Datei...",
+    "importOptions": "Importoptionen",
+    "importSuccess": "Import erfolgreich",
+    "processing": "Verarbeite deine Datei...",
+    "replaceContent": "Aktuellen Inhalt ersetzen",
+    "selectedFile": "Du hast die Datei {{fileName}} ausgewählt.",
+    "supportedFormats": "Unterstützte Formate: PDF, NWB",
+    "title": "Dokument importieren",
+    "tryAgain": "Bitte versuchen Sie es erneut"
   },
   "peerConnectionDetail": {
     "false": "falsch",
