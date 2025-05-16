@@ -69,5 +69,5 @@ root.render(
         whiteboardManager={whiteboardManager}
       />
     </ErrorBoundary>
-  </React.StrictMode >,
+  </React.StrictMode>,
 );

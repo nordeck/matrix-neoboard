@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
+import { sentryVitePlugin } from '@sentry/vite-plugin';
 import basicSsl from '@vitejs/plugin-basic-ssl';
 import react from '@vitejs/plugin-react-swc';
 import { Plugin, PluginOption, defineConfig } from 'vite';
-import { sentryVitePlugin } from "@sentry/vite-plugin";
 
 const plugins: [Plugin | PluginOption] = [react()];
 let port = 5273;
@@ -29,12 +29,14 @@ if (process.env.VITE_DEV_SSL === 'true') {
 
 // Uploads the sourcemaps to Sentry
 if (process.env.SENTRY_AUTH_TOKEN) {
-  plugins.push(sentryVitePlugin({
-    org: process.env.SENTRY_ORG,
-    project: process.env.SENTRY_PROJECT,
-    authToken: process.env.SENTRY_AUTH_TOKEN,
-    telemetry: false,
-  }));
+  plugins.push(
+    sentryVitePlugin({
+      org: process.env.SENTRY_ORG,
+      project: process.env.SENTRY_PROJECT,
+      authToken: process.env.SENTRY_AUTH_TOKEN,
+      telemetry: false,
+    }),
+  );
 }
 
 // https://vitejs.dev/config/
@@ -51,7 +53,9 @@ export default defineConfig({
       strictRequires: true,
     },
     // Required to upload sourcemaps to Sentry
-    sourcemap: process.env.SENTRY_AUTH_TOKEN ? true : process.env.NODE_ENV === 'development',
+    sourcemap: process.env.SENTRY_AUTH_TOKEN
+      ? true
+      : process.env.NODE_ENV === 'development',
   },
   resolve: {
     dedupe: [

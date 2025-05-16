@@ -30,6 +30,7 @@ if (!sentryDSN) {
   const tracePropagationTargets = getEnvironment(
     'REACT_APP_SENTRY_TRACE_PROPAGATION_TARGETS',
   );
+  const listOfTracePropagationTargets = tracePropagationTargets?.split(',');
 
   init({
     dsn: sentryDSN,
@@ -47,8 +48,8 @@ if (!sentryDSN) {
     tracesSampleRate: 1.0,
 
     // Set `tracePropagationTargets` to control for which URLs trace propagation should be enabled
-    tracePropagationTargets: tracePropagationTargets
-      ? [new RegExp(tracePropagationTargets)]
+    tracePropagationTargets: listOfTracePropagationTargets
+      ? listOfTracePropagationTargets.map((regex) => new RegExp(regex))
       : undefined,
 
     // Capture Replay for 10% of all sessions,
