@@ -24,11 +24,15 @@ import {
   Elements,
   modifyElementPosition,
   Point,
+  Size,
   usePresentationMode,
   useWhiteboardSlideInstance,
 } from '../../../state';
 import { useImageUpload } from '../../ImageUpload';
-import { addImagesToSlide } from '../../ImageUpload/addImagesToSlide';
+import {
+  addImagesToSlide,
+  ImageToAddData,
+} from '../../ImageUpload/addImagesToSlide';
 import { defaultAcceptedImageTypesArray } from '../../ImageUpload/consts';
 import {
   initPDFJs,
@@ -152,12 +156,19 @@ export function ClipboardShortcuts() {
   }, [enableShortcuts, isViewingPresentation, slideInstance]);
 
   const handlePasteImages = useCallback(
-    async (files: File[], centerPosition: Point) => {
+    async (files: File[], imageSizes: Size[], centerPosition: Point) => {
       const results = await handleDrop(files);
 
-      const images = results
-        .filter((result) => result.status === 'fulfilled')
-        .map((result) => result.value);
+      const images: ImageToAddData[] = [];
+      for (let i = 0; i < results.length; i++) {
+        const result = results[i];
+        if (result.status === 'fulfilled') {
+          images.push({
+            uploadResult: result.value,
+            size: imageSizes[i],
+          });
+        }
+      }
 
       addImagesToSlide(slideInstance, images, centerPosition);
     },
@@ -228,7 +239,7 @@ export function ClipboardShortcuts() {
         );
 
         if (imageFiles.length > 0) {
-          handlePasteImages(imageFiles, centerPosition);
+          handlePasteImages(imageFiles, [], centerPosition);
         }
 
         if (Array.from(files).some((file) => file.type === 'application/pdf')) {
@@ -236,6 +247,7 @@ export function ClipboardShortcuts() {
         }
 
         const pdfImageFiles: File[] = [];
+        const imageSizes: Size[] = [];
         for (const file of files) {
           if (file.type === 'application/pdf') {
             const pdf = await loadPDF(await file.arrayBuffer());
@@ -249,12 +261,16 @@ export function ClipboardShortcuts() {
                   type: image.mimeType,
                 }),
               );
+              imageSizes.push({
+                width: image.width,
+                height: image.height,
+              });
             }
           }
         }
 
         if (pdfImageFiles.length > 0) {
-          handlePasteImages(pdfImageFiles, centerPosition);
+          handlePasteImages(pdfImageFiles, imageSizes, centerPosition);
         }
       }
     };
