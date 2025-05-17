@@ -16,6 +16,7 @@
 
 import { WidgetApi } from '@matrix-widget-toolkit/api';
 import { autoBatchEnhancer, configureStore } from '@reduxjs/toolkit';
+import { createReduxEnhancer } from '@sentry/react';
 import { baseApi } from './api/baseApi';
 import { connectionInfoReducer } from './connectionInfoSlice';
 import { loggerMiddleware } from './loggerMiddleware';
@@ -26,6 +27,8 @@ export function createStore({
 }: {
   widgetApi: WidgetApi | Promise<WidgetApi>;
 }) {
+  const sentryReduxEnhancer = createReduxEnhancer();
+
   const store = configureStore({
     reducer: {
       [baseApi.reducerPath]: baseApi.reducer,
@@ -46,13 +49,17 @@ export function createStore({
       }).concat(baseApi.middleware, loggerMiddleware);
     },
     enhancers: (getDefaultEnhancers) => {
-      return getDefaultEnhancers().concat(
-        autoBatchEnhancer(
-          // Disable the auto batching when running tests in JSDOM, as it
-          // conflicts with fake timers.
-          navigator.userAgent.includes('jsdom') ? { type: 'tick' } : undefined,
-        ),
-      );
+      return getDefaultEnhancers()
+        .concat(sentryReduxEnhancer)
+        .concat(
+          autoBatchEnhancer(
+            // Disable the auto batching when running tests in JSDOM, as it
+            // conflicts with fake timers.
+            navigator.userAgent.includes('jsdom')
+              ? { type: 'tick' }
+              : undefined,
+          ),
+        );
     },
   });
   return store;
