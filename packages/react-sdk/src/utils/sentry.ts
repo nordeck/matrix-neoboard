@@ -17,9 +17,14 @@
 import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import {
   browserTracingIntegration,
+  FeatureFlagsIntegration,
+  featureFlagsIntegration,
+  getClient,
   init,
   replayIntegration,
 } from '@sentry/react';
+import { isInfiniteCanvasMode } from '../lib/isInfiniteCanvasMode';
+import { isMatrixRtcMode } from '../lib/matrixRtcMode';
 
 const sentryDSN = getEnvironment('REACT_APP_SENTRY_DSN');
 if (!sentryDSN) {
@@ -39,7 +44,11 @@ if (!sentryDSN) {
     // https://docs.sentry.io/platforms/javascript/guides/react/configuration/options/#sendDefaultPii
     sendDefaultPii: false,
 
-    integrations: [browserTracingIntegration(), replayIntegration()],
+    integrations: [
+      browserTracingIntegration(),
+      replayIntegration(),
+      featureFlagsIntegration(),
+    ],
 
     // Set tracesSampleRate to 1.0 to capture 100%
     // of transactions for tracing.
@@ -59,4 +68,15 @@ if (!sentryDSN) {
     replaysSessionSampleRate: 0.1,
     replaysOnErrorSampleRate: 1.0,
   });
+
+  const flagsIntegration =
+    getClient()?.getIntegrationByName<FeatureFlagsIntegration>('FeatureFlags');
+  if (flagsIntegration) {
+    flagsIntegration.addFeatureFlag('infinite-canvas', isInfiniteCanvasMode());
+    flagsIntegration.addFeatureFlag('matrixrtc-mode', isMatrixRtcMode());
+  } else {
+    console.warn(
+      'Sentry FeatureFlagsIntegration not found. Please check your Sentry setup.',
+    );
+  }
 }
