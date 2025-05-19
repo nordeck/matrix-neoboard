@@ -29,6 +29,7 @@ import React, {
 } from 'react';
 import { useHotkeysContext } from 'react-hotkeys-hook';
 import { Point, usePresentationMode } from '../../../state';
+import { isMacOSSafari } from '../../common/platform';
 import { HOTKEY_SCOPE_WHITEBOARD } from '../../WhiteboardHotkeysProvider';
 import {
   gridCellSize,
@@ -258,10 +259,18 @@ export const SvgCanvas = function ({
             infiniteCanvasMode && !preview ? 'center center' : undefined
           }
           transform={
-            infiniteCanvasMode && !preview
+            !isMacOSSafari() && infiniteCanvasMode && !preview
               ? `translate(${translation.x}, ${translation.y}) scale(${scale})`
               : undefined
           }
+          style={{
+            ...(isMacOSSafari() && infiniteCanvasMode && !preview
+              ? {
+                  WebkitTransformOrigin: 'center center',
+                  WebkitTransform: `translate(${viewportWidth / 2 + translation.x}px, ${viewportHeight / 2 + translation.y}px) scale(${scale}) translate(${-viewportWidth / 2}px, ${-viewportHeight / 2}px)`,
+                }
+              : {}),
+          }}
         >
           {children}
         </Canvas>
