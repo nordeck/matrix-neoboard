@@ -17,6 +17,7 @@
 import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import {
   browserTracingIntegration,
+  consoleLoggingIntegration,
   FeatureFlagsIntegration,
   featureFlagsIntegration,
   getClient,
@@ -39,6 +40,17 @@ if (!sentryDSN) {
 
   init({
     dsn: sentryDSN,
+    // Ensures that we get logs from the Console as well
+    _experiments: {
+      enableLogs: true,
+      beforeSendLog: (log) => {
+        if (log.level === 'info') {
+          // Filter out all info logs as it usually contains event and room data
+          return null;
+        }
+        return log;
+      },
+    },
 
     // Adds request headers and IP for users, for more info visit:
     // https://docs.sentry.io/platforms/javascript/guides/react/configuration/options/#sendDefaultPii
@@ -48,6 +60,7 @@ if (!sentryDSN) {
       browserTracingIntegration(),
       replayIntegration(),
       featureFlagsIntegration(),
+      consoleLoggingIntegration({ levels: ['error', 'warn'] }),
     ],
 
     // Set tracesSampleRate to 1.0 to capture 100%
