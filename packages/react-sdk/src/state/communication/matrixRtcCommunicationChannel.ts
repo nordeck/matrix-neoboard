@@ -207,6 +207,8 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
 
     this.statistics.localSessionId = undefined;
     this.statisticsSubject.next(cloneDeep(this.statistics));
+
+    this.peerConnections.forEach((c) => c.close());
   }
 
   private async initLiveKitServer(session: Session): Promise<void> {

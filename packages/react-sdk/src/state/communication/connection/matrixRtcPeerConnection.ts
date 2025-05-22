@@ -119,6 +119,7 @@ export class MatrixRtcPeerConnection implements PeerConnection {
       `Closing connection ${this.connectionId} to ${this.session.sessionId} (${this.session.userId})`,
     );
 
+    this.room.disconnect();
     this.destroySubject.next();
     this.messageSubject.complete();
     this.statisticsSubject.complete();
