@@ -34,8 +34,8 @@ import {
 
 export function calculateElementOverrideUpdates(
   elements: Elements,
-  deltaX: number,
-  deltaY: number,
+  rectX: number,
+  rectY: number,
   viewportWidth: number,
   viewportHeight: number,
   connectingPathElements?: Record<string, PathElement>,
@@ -48,8 +48,8 @@ export function calculateElementOverrideUpdates(
     height: rectHeight,
   } = calculateBoundingRectForElements(Object.values(elements));
 
-  const rectX = offsetX + deltaX;
-  const rectY = offsetY + deltaY;
+  const deltaX = rectX - offsetX;
+  const deltaY = rectY - offsetY;
 
   const overrides: ElementOverrideUpdate[] = Object.entries(elements).map(
     ([elemId, element]) => {

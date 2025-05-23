@@ -40,6 +40,10 @@ vi.mock('./SvgCanvas/useMeasure', () => ({
   useMeasure: vi.fn().mockReturnValue([vi.fn(), { width: 1920, height: 1080 }]),
 }));
 
+vi.mock('./SvgCanvas/utils', () => ({
+  calculateSvgCoords: (position: Point) => position,
+}));
+
 describe('<WhiteboardHost/>', () => {
   let activeWhiteboard: WhiteboardInstance;
   let activeSlide: WhiteboardSlideInstance;
