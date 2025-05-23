@@ -24,6 +24,7 @@
     "@mui/material": "^6.3.1",
     "@mui/utils": "^6.0.2",
     "@reduxjs/toolkit": "^2.5.1",
+    "@sentry/react": "^9.19.0",
     "emoji-regex": "^10.3.0",
     "joi": "^17.13.3",
     "js-base64": "^3.7.7",
