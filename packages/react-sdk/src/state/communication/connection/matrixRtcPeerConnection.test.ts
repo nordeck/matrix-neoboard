@@ -207,5 +207,25 @@ describe('MatrixRtcPeerConnection', () => {
 
       subscription.unsubscribe();
     });
+
+    it('should disconnect on peer close', async () => {
+      const connectionStates: string[] = [];
+      const subscription = connection.observeStatistics().subscribe((stats) => {
+        connectionStates.push(stats.connectionState);
+      });
+
+      mockRoom.setConnectionState(ConnectionState.Connected);
+      await vi.waitFor(() => {
+        expect(connectionStates).toContain('connected');
+      });
+
+      connection.close();
+
+      await vi.waitFor(() => {
+        expect(connectionStates).toContain('disconnected');
+      });
+
+      subscription.unsubscribe();
+    });
   });
 });
