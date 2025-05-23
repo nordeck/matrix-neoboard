@@ -142,17 +142,20 @@ describe('<Display />', () => {
           data-testid="end-marker-id-4"
           fill="none"
           id="end-marker-id-4"
-          markerHeight="7"
-          markerWidth="3.5"
+          markerHeight="10"
+          markerWidth="10"
           orient="auto"
-          refX="3.5"
-          refY="3.5"
-          viewBox="0 0 3.5 7"
+          refX="10"
+          refY="5"
+          viewBox="0 -1 20 20"
         >
-          <path
-            d="M0 0 L3.5 3.5 M3.5 3.5 L0 7"
-            stroke="#ffffff"
-          />
+          <g>
+            <path
+              d="M5 0 L10 5 L5 10"
+              stroke="#ffffff"
+              stroke-width="2"
+            />
+          </g>
         </marker>
         <line
           fill="none"
@@ -169,9 +172,9 @@ describe('<Display />', () => {
           stroke="#ffffff"
           stroke-width="4"
           x1="0"
-          x2="2"
+          x2="-0.4748737341529159"
           y1="2"
-          y2="4"
+          y2="1.525126265847084"
         />
       </g>
     `);
@@ -204,33 +207,41 @@ describe('<Display />', () => {
           data-testid="start-marker-id-3"
           fill="none"
           id="start-marker-id-3"
-          markerHeight="7"
-          markerWidth="3.5"
+          markerHeight="10"
+          markerWidth="10"
           orient="auto"
-          refX="0"
-          refY="3.5"
-          viewBox="0 0 3.5 7"
+          refX="10"
+          refY="5"
+          viewBox="0 -1 20 20"
         >
-          <path
-            d="M3.5 0 L0 3.5 M0 3.5 L3.5 7"
-            stroke="#ffffff"
-          />
+          <g
+            transform="scale(-1,1) translate(-20,0)"
+          >
+            <path
+              d="M5 0 L10 5 L5 10"
+              stroke="#ffffff"
+              stroke-width="2"
+            />
+          </g>
         </marker>
         <marker
           data-testid="end-marker-id-4"
           fill="none"
           id="end-marker-id-4"
-          markerHeight="7"
-          markerWidth="3.5"
+          markerHeight="10"
+          markerWidth="10"
           orient="auto"
-          refX="3.5"
-          refY="3.5"
-          viewBox="0 0 3.5 7"
+          refX="10"
+          refY="5"
+          viewBox="0 -1 20 20"
         >
-          <path
-            d="M0 0 L3.5 3.5 M3.5 3.5 L0 7"
-            stroke="#ffffff"
-          />
+          <g>
+            <path
+              d="M5 0 L10 5 L5 10"
+              stroke="#ffffff"
+              stroke-width="2"
+            />
+          </g>
         </marker>
         <line
           fill="none"
@@ -247,10 +258,10 @@ describe('<Display />', () => {
           marker-start="url(#start-marker-id-3)"
           stroke="#ffffff"
           stroke-width="4"
-          x1="0"
-          x2="2"
-          y1="2"
-          y2="4"
+          x1="2.474873734152916"
+          x2="-0.4748737341529159"
+          y1="4.474873734152916"
+          y2="1.525126265847084"
         />
       </g>
     `);
