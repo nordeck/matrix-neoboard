@@ -16,7 +16,7 @@
 
 import { ReactElement, useId } from 'react';
 import { PathElement } from '../../../state';
-import { ArrowHeadLineEndMarker } from './ArrowHeadLineEndMarker';
+import { ArrowHeadLineMarker } from './ArrowHeadLineMarker';
 
 type UseEndMarkerResult =
   | {
@@ -51,9 +51,10 @@ export function useEndMarker(element: PathElement): UseEndMarkerResult {
     return {
       endMarkerId,
       endMarker: (
-        <ArrowHeadLineEndMarker
+        <ArrowHeadLineMarker
           id={endMarkerId}
           strokeColor={element.strokeColor}
+          mirrored={false}
         />
       ),
     };

@@ -47,8 +47,26 @@ const LineDisplay = ({
   const adjustedScale = scale === 0 ? 1 : scale;
   const adjustedStrokeWidth = strokeWidth + 10 / adjustedScale;
 
+  // Margin in pixels to offset the line endpoints so markers don't overlap the line
+  const markerMargin = 3.5;
+
+  // Calculate the direction vector and its length
+  const dx = end.x - start.x;
+  const dy = end.y - start.y;
+  const length = Math.sqrt(dx * dx + dy * dy) || 1;
+
+  // Calculate normalized direction vector
+  const nx = dx / length;
+  const ny = dy / length;
+
   const { startMarkerId, startMarker } = useStartMarker(element);
   const { endMarkerId, endMarker } = useEndMarker(element);
+
+  // Calculate margin offsets for start and end
+  const startOffsetX = startMarkerId ? nx * markerMargin : 0;
+  const startOffsetY = startMarkerId ? ny * markerMargin : 0;
+  const endOffsetX = endMarkerId ? -nx * markerMargin : 0;
+  const endOffsetY = endMarkerId ? -ny * markerMargin : 0;
 
   const renderedChild = (
     <g data-testid={`element-${elementId}`}>
@@ -67,10 +85,10 @@ const LineDisplay = ({
         fill="none"
         stroke={strokeColor}
         strokeWidth={strokeWidth}
-        x1={start.x}
-        x2={end.x}
-        y1={start.y}
-        y2={end.y}
+        x1={start.x + startOffsetX}
+        y1={start.y + startOffsetY}
+        x2={end.x + endOffsetX}
+        y2={end.y + endOffsetY}
         markerStart={startMarkerId ? `url(#${startMarkerId})` : undefined}
         markerEnd={endMarkerId ? `url(#${endMarkerId})` : undefined}
       />
