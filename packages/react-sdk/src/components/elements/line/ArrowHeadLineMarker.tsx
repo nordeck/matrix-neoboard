@@ -19,13 +19,11 @@ const lineMarkerSize = 20;
 type ArrowHeadLineMarkerProps = {
   id: string;
   strokeColor?: string;
-  mirrored?: boolean;
 };
 
 export function ArrowHeadLineMarker({
   id,
   strokeColor,
-  mirrored = false,
 }: ArrowHeadLineMarkerProps) {
   const halfSize = lineMarkerSize / 2;
   return (
@@ -37,13 +35,10 @@ export function ArrowHeadLineMarker({
       refY={halfSize / 2}
       markerWidth={halfSize}
       markerHeight={halfSize}
-      orient="auto"
+      orient="auto-start-reverse"
       fill="none"
     >
       <path
-        transform={
-          mirrored ? `scale(-1,1) translate(-${lineMarkerSize},0)` : undefined
-        }
         d={`M${halfSize / 2} 0 L${halfSize} ${halfSize / 2} L${halfSize / 2} ${halfSize}`}
         stroke={strokeColor}
         strokeWidth={2}

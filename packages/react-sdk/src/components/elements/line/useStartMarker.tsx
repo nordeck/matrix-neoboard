@@ -54,7 +54,6 @@ export function useStartMarker(element: PathElement): UseStartMarkerResult {
         <ArrowHeadLineMarker
           id={startMarkerId}
           strokeColor={element.strokeColor}
-          mirrored={true}
         />
       ),
     };

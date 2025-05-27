@@ -54,7 +54,6 @@ export function useEndMarker(element: PathElement): UseEndMarkerResult {
         <ArrowHeadLineMarker
           id={endMarkerId}
           strokeColor={element.strokeColor}
-          mirrored={false}
         />
       ),
     };

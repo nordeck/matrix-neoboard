@@ -144,7 +144,7 @@ describe('<Display />', () => {
           id="end-marker-id-4"
           markerHeight="10"
           markerWidth="10"
-          orient="auto"
+          orient="auto-start-reverse"
           refX="10"
           refY="5"
           viewBox="0 -1 20 20"
@@ -207,7 +207,7 @@ describe('<Display />', () => {
           id="start-marker-id-3"
           markerHeight="10"
           markerWidth="10"
-          orient="auto"
+          orient="auto-start-reverse"
           refX="10"
           refY="5"
           viewBox="0 -1 20 20"
@@ -216,7 +216,6 @@ describe('<Display />', () => {
             d="M5 0 L10 5 L5 10"
             stroke="#ffffff"
             stroke-width="2"
-            transform="scale(-1,1) translate(-20,0)"
           />
         </marker>
         <marker
@@ -225,7 +224,7 @@ describe('<Display />', () => {
           id="end-marker-id-4"
           markerHeight="10"
           markerWidth="10"
-          orient="auto"
+          orient="auto-start-reverse"
           refX="10"
           refY="5"
           viewBox="0 -1 20 20"
