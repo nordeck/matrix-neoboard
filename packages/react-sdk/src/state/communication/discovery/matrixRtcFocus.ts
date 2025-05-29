@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
+import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { getLogger } from 'loglevel';
 import AutoDiscovery, { FOCI_WK_KEY } from './autodiscovery';
-import { getEnvironment } from '@matrix-widget-toolkit/mui';
 
 export type RTCFocus = {
   type: string;
