@@ -16,7 +16,7 @@
 
 import { ReactElement, useId } from 'react';
 import { PathElement } from '../../../state';
-import { ArrowHeadLineStartMarker } from './ArrowHeadLineStartMarker';
+import { ArrowHeadLineMarker } from './ArrowHeadLineMarker';
 
 type UseStartMarkerResult =
   | {
@@ -51,7 +51,7 @@ export function useStartMarker(element: PathElement): UseStartMarkerResult {
     return {
       startMarkerId,
       startMarker: (
-        <ArrowHeadLineStartMarker
+        <ArrowHeadLineMarker
           id={startMarkerId}
           strokeColor={element.strokeColor}
         />
