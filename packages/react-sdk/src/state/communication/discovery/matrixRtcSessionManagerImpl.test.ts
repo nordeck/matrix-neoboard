@@ -22,7 +22,9 @@ import { STATE_EVENT_RTC_MEMBER } from '../../../model';
 import {
   DEFAULT_RTC_EXPIRE_DURATION,
   RTC_APPLICATION_WHITEBOARD,
+  RTCSessionEventContent,
 } from '../../../model/matrixRtcSessions';
+import * as matrixRtcFocus from './matrixRtcFocus';
 import { MatrixRtcSessionManagerImpl } from './matrixRtcSessionManagerImpl';
 
 describe('MatrixRtcSessionManagerImpl', () => {
@@ -37,12 +39,26 @@ describe('MatrixRtcSessionManagerImpl', () => {
     widgetApi.widgetParameters.userId = '@user-id';
     // @ts-ignore forcefully set for tests
     widgetApi.widgetParameters.deviceId = 'DEVICEID';
+    // @ts-ignore forcefully set for tests
+    widgetApi.widgetParameters.roomId = 'room-id';
 
     vi.stubEnv('REACT_APP_RTC', 'matrixrtc');
     vi.spyOn(Date, 'now').mockImplementation(() => fixedDate);
     expectedExpires = fixedDate + DEFAULT_RTC_EXPIRE_DURATION;
 
     rtcSessionManager = new MatrixRtcSessionManagerImpl(widgetApi);
+
+    vi.spyOn(matrixRtcFocus, 'makePreferredLivekitFoci').mockImplementation(
+      async (_domain: string | undefined, _livekitAlias: string) => {
+        return [
+          {
+            type: 'livekit',
+            livekit_service_url: 'https://livekit.example.com',
+            livekit_alias: 'room-id',
+          },
+        ];
+      },
+    );
   });
 
   afterEach(() => {
@@ -157,16 +173,33 @@ describe('MatrixRtcSessionManagerImpl', () => {
   it('should update membership if it is about to expire', async () => {
     vi.spyOn(Date, 'now').mockRestore();
     vi.useFakeTimers();
-    vi.setSystemTime(new Date('2023-02-01T10:11:12.345Z'));
+
+    const fakeTime = new Date('2023-02-01T10:11:12.345Z');
+    const expectedExpires = fakeTime.getTime() + DEFAULT_RTC_EXPIRE_DURATION;
+
+    vi.setSystemTime(fakeTime);
 
     await rtcSessionManager.join('whiteboard-id');
 
-    expect(widgetApi.sendStateEvent).toHaveBeenCalledTimes(1);
+    expect(widgetApi.sendStateEvent).toHaveBeenNthCalledWith(
+      2,
+      STATE_EVENT_RTC_MEMBER,
+      {
+        application: RTC_APPLICATION_WHITEBOARD,
+        call_id: 'whiteboard-id',
+        device_id: 'DEVICEID',
+        expires: expectedExpires,
+        foci_preferred: expect.any(Array),
+        focus_active: { type: 'livekit', focus_selection: 'oldest_membership' },
+        scope: 'm.room',
+      },
+      { stateKey: '_@user-id_DEVICEID' },
+    );
 
     vi.advanceTimersByTime(DEFAULT_RTC_EXPIRE_DURATION * 0.8);
 
     await vi.waitFor(() =>
-      expect(widgetApi.sendStateEvent).toHaveBeenCalledTimes(2),
+      expect(widgetApi.sendStateEvent).toHaveBeenCalledTimes(3),
     );
 
     expect(widgetApi.sendStateEvent).toHaveBeenNthCalledWith(
@@ -183,6 +216,11 @@ describe('MatrixRtcSessionManagerImpl', () => {
       },
       { stateKey: '_@user-id_DEVICEID' },
     );
+
+    // Check separately that the expires value is greater than expected
+    const lastCall = widgetApi.sendStateEvent.mock
+      .calls[2][1] as RTCSessionEventContent;
+    expect(lastCall.expires).toBeGreaterThan(expectedExpires);
   });
 
   it('should handle new members joining a whiteboard', async () => {
@@ -281,5 +319,106 @@ describe('MatrixRtcSessionManagerImpl', () => {
 
     await expect(joinedPromise).resolves.toEqual([]);
     await expect(leftPromise).resolves.toEqual([]);
+  });
+
+  it('should fetch and emit LiveKit foci on initialization', async () => {
+    const fociPromise = firstValueFrom(
+      rtcSessionManager.observeFoci().pipe(take(1), toArray()),
+    );
+
+    await rtcSessionManager.join('whiteboard-id');
+
+    await expect(fociPromise).resolves.toEqual([
+      [
+        {
+          type: 'livekit',
+          livekit_service_url: 'https://livekit.example.com',
+          livekit_alias: 'room-id',
+        },
+      ],
+    ]);
+  });
+
+  it('should update the membership when LiveKit foci are discovered', async () => {
+    const fociPromise = firstValueFrom(
+      rtcSessionManager.observeFoci().pipe(take(1), toArray()),
+    );
+
+    await rtcSessionManager.join('whiteboard-id');
+
+    await expect(fociPromise).resolves.toEqual([
+      [
+        {
+          type: 'livekit',
+          livekit_service_url: 'https://livekit.example.com',
+          livekit_alias: 'room-id',
+        },
+      ],
+    ]);
+
+    expect(widgetApi.sendStateEvent).toHaveBeenCalledWith(
+      STATE_EVENT_RTC_MEMBER,
+      expect.objectContaining({
+        foci_preferred: [
+          {
+            type: 'livekit',
+            livekit_service_url: 'https://livekit.example.com',
+            livekit_alias: 'room-id',
+          },
+        ],
+      }),
+      expect.any(Object),
+    );
+  });
+
+  it('should update session with new foci when they change', async () => {
+    await rtcSessionManager.join('whiteboard-id');
+
+    widgetApi.sendStateEvent.mockClear();
+
+    const fociPromise = firstValueFrom(
+      rtcSessionManager.observeFoci().pipe(take(1)),
+    );
+
+    // Simulate a foci change
+    vi.spyOn(matrixRtcFocus, 'makePreferredLivekitFoci').mockImplementationOnce(
+      async () => {
+        return [
+          {
+            type: 'livekit',
+            livekit_service_url: 'https://new-livekit.example.com',
+            livekit_alias: 'room-id',
+          },
+        ];
+      },
+    );
+
+    // Manually trigger an update (instead of waiting for the polling interval)
+    // @ts-ignore: access private method for testing
+    rtcSessionManager.updateLivekitFoci();
+
+    // Verify the foci update is emitted
+    await expect(fociPromise).resolves.toEqual([
+      {
+        type: 'livekit',
+        livekit_service_url: 'https://new-livekit.example.com',
+        livekit_alias: 'room-id',
+      },
+    ]);
+
+    // Verify the session is updated with the new foci
+    expect(widgetApi.sendStateEvent).toHaveBeenCalledWith(
+      STATE_EVENT_RTC_MEMBER,
+      expect.objectContaining({
+        foci_preferred: [
+          {
+            type: 'livekit',
+            livekit_service_url: 'https://new-livekit.example.com',
+            livekit_alias: 'room-id',
+          },
+        ],
+      }),
+      expect.any(Object),
+    );
   });
 });
