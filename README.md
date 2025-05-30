@@ -161,6 +161,20 @@ For example, this allows running the image in an IPv4-only environment, as demon
 
 We also provide a [HELM chart](./charts/).
 
+## Sentry
+
+For sentry there are additional environment variables to set:
+
+- `REACT_APP_SENTRY_DSN`: The Sentry DSN to use for error tracking.
+- `REACT_APP_SENTRY_TRACE_PROPAGATION_TARGETS`: A comma-separated list of Regexes to propagate the trace context to. This is useful for tracking errors across different domains.
+
+Additionally to upload source maps to Sentry, you need to set the following environment variables:
+
+- `SENTRY_AUTH_TOKEN`: The Sentry auth token to use for uploading source maps.
+- `SENTRY_ORG`: The Sentry organization to use for uploading source maps.
+- `SENTRY_PROJECT`: The Sentry project to use for uploading source maps.
+- `SENTRY_URL`: The Sentry URL to use for uploading source maps.
+
 ### Important notes
 
 **TURN server**
