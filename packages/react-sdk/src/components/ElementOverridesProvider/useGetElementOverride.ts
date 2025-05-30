@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Nordeck IT + Consulting GmbH
+ * Copyright 2025 Nordeck IT + Consulting GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,4 +14,20 @@
  * limitations under the License.
  */
 
-export { ConnectedElement } from './ConnectedElement';
+import { useContext } from 'react';
+import {
+  ElementOverrideGetter,
+  ElementOverrideGetterContext,
+} from './ElementOverridesProvider';
+
+export function useGetElementOverride(): ElementOverrideGetter {
+  const getElementOverride = useContext(ElementOverrideGetterContext);
+
+  if (!getElementOverride) {
+    throw new Error(
+      'useElementOverride can only be used inside of <ElementOverridesProvider>',
+    );
+  }
+
+  return getElementOverride;
+}

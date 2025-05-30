@@ -15,10 +15,13 @@
  */
 
 import { useWidgetApi } from '@matrix-widget-toolkit/react';
-import { JSX } from 'react';
-import { Elements } from '../../../state';
+import React, { JSX } from 'react';
+import { Elements, useElement } from '../../../state';
 import { useConnectionPoint } from '../../ConnectionPointProvider';
-import { useElementOverride } from '../../ElementOverridesProvider';
+import {
+  ElementOverride,
+  mergeElementAndOverride,
+} from '../../ElementOverridesProvider';
 import EllipseDisplay from '../../elements/ellipse/Display';
 import FrameDisplay from '../../elements/frame/Display';
 import ImageDisplay from '../../elements/image/ImageDisplay';
@@ -31,21 +34,23 @@ import {
   ConnectableElementProps,
 } from '../ElementBehaviors';
 
-export const ConnectedElement = ({
+const ConnectedElement = ({
   id,
   readOnly = false,
+  override,
   activeElementIds = [],
   overrides = {},
   setTextToolsEnabled = () => {},
 }: {
   id: string;
   readOnly?: boolean;
+  override?: ElementOverride;
   activeElementIds?: string[];
   overrides?: Elements;
   setTextToolsEnabled?: (enabled: boolean) => void;
 }) => {
   const widgetApi = useWidgetApi();
-  const element = useElementOverride(id);
+  let element = useElement(id);
 
   const isActive =
     !readOnly && id
@@ -61,6 +66,8 @@ export const ConnectedElement = ({
   };
 
   if (element) {
+    element = mergeElementAndOverride(element, override);
+
     if (element.type === 'path') {
       if (element.kind === 'line') {
         return <LineDisplay {...element} {...otherProps} />;
@@ -139,3 +146,5 @@ function ConnectableElementWrapper({
 
   return <ConnectableElement elementId={elementId} element={element} />;
 }
+
+export default React.memo(ConnectedElement);

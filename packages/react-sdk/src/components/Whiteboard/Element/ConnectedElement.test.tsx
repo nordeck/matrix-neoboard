@@ -36,7 +36,7 @@ import { LayoutStateProvider } from '../../Layout';
 import { SlidesProvider } from '../../Layout/SlidesProvider';
 import { SvgCanvas } from '../SvgCanvas';
 import { whiteboardHeight, whiteboardWidth } from '../constants';
-import { ConnectedElement } from './ConnectedElement';
+import ConnectedElement from './ConnectedElement';
 
 describe('<ConnectedElement />', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;

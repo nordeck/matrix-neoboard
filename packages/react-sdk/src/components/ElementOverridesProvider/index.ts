@@ -18,7 +18,11 @@ export {
   ElementOverridesProvider,
   createResetElementOverrides,
 } from './ElementOverridesProvider';
-export type { ElementOverrideUpdate } from './ElementOverridesProvider';
-export { useElementOverride } from './useElementOverride';
+export type {
+  ElementOverride,
+  ElementOverrideUpdate,
+} from './ElementOverridesProvider';
 export { useElementOverrides } from './useElementOverrides';
+export { useGetElementOverride } from './useGetElementOverride';
 export { useSetElementOverride } from './useSetElementOverride';
+export { mergeElementAndOverride } from './utils';

@@ -21,6 +21,7 @@ import {
   ElementOverride,
   ElementOverrideGetterContext,
 } from './ElementOverridesProvider';
+import { mergeElementAndOverride } from './utils';
 
 export function useElementOverrides(elementIds: string[]): Elements {
   const getElementOverride = useContext(ElementOverrideGetterContext);
@@ -39,21 +40,7 @@ export function useElementOverrides(elementIds: string[]): Elements {
         Object.entries(elements).map(([elementId, element]) => {
           const override: ElementOverride | undefined =
             getElementOverride(elementId);
-          return [
-            elementId,
-            element.type === 'path'
-              ? {
-                  ...element,
-                  position: override?.position ?? element.position,
-                  points: override?.points ?? element.points,
-                }
-              : {
-                  ...element,
-                  height: override?.height ?? element.height,
-                  width: override?.width ?? element.width,
-                  position: override?.position ?? element.position,
-                },
-          ];
+          return [elementId, mergeElementAndOverride(element, override)];
         }),
       ),
     [elements, getElementOverride],
