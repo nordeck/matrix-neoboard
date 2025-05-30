@@ -21,7 +21,7 @@ import {
   initPDFJs,
   loadPDF,
   renderPDFToImages,
-} from '../ImportWhiteboardDialog/pdfImportUtils';
+} from '../ImportDialog/pdfImportUtils';
 import { useSvgScaleContext } from '../Whiteboard';
 import { addImagesToSlide, ImageToAddData } from './addImagesToSlide';
 import { defaultAcceptedImageTypes } from './consts';

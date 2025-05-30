@@ -24,7 +24,7 @@ import {
   Size,
   WhiteboardSlideInstance,
 } from '../../state';
-import { positionImageElements } from '../ImportWhiteboardDialog';
+import { positionImageElements } from '../ImportDialog';
 import { whiteboardHeight, whiteboardWidth } from '../Whiteboard';
 import { ImageUploadResult } from './ImageUploadProvider';
 

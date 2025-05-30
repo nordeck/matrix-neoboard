@@ -21,7 +21,7 @@ import { unstable_useId as useId } from '@mui/utils';
 import { MouseEvent, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { usePowerLevels } from '../../store/api/usePowerLevels';
-import { useImportWhiteboardDialog } from '../ImportWhiteboardDialog/useImportWhiteboardDialog';
+import ImportDialog from '../ImportDialog';
 import { useLayoutState } from '../Layout';
 import { MenuItemSwitch } from '../common/MenuItemSwitch';
 import { ToolbarSubMenu } from '../common/Toolbar';
@@ -29,24 +29,6 @@ import { DotsGridIcon } from '../icons/DotsGridIcon';
 import { FileExportOutlineIcon } from '../icons/FileExportOutlineIcon';
 import { FileImportOutlineIcon } from '../icons/FileImportOutlineIcon';
 import { ExportWhiteboardDialog } from './ExportWhiteboardDialog';
-
-function ImportMenuItem({ onClose }: { onClose: () => void }) {
-  const { t } = useTranslation('neoboard');
-  const importContext = useImportWhiteboardDialog();
-  return (
-    <MenuItem
-      onClick={useCallback(() => {
-        importContext.showImportWhiteboardDialog();
-        onClose();
-      }, [importContext, onClose])}
-    >
-      <ListItemIcon>
-        <FileImportOutlineIcon sx={{ color: 'text.primary' }} />
-      </ListItemIcon>
-      <ListItemText>{t('boardBar.menu.import', 'Import…')}</ListItemText>
-    </MenuItem>
-  );
-}
 
 export function SettingsMenu() {
   const { t } = useTranslation('neoboard');
@@ -57,6 +39,7 @@ export function SettingsMenu() {
   const open = Boolean(anchorEl);
 
   const [openExportDialog, setOpenExportDialog] = useState(false);
+  const [openImportDialog, setOpenImportDialog] = useState(false);
   const { canImportWhiteboard } = usePowerLevels();
 
   const handleClick = useCallback((event: MouseEvent<HTMLButtonElement>) => {
@@ -71,6 +54,15 @@ export function SettingsMenu() {
     setOpenExportDialog(true);
     handleClose();
   }, [handleClose]);
+
+  const handleImportClick = useCallback(() => {
+    setOpenImportDialog(true);
+    handleClose();
+  }, [handleClose]);
+
+  const handleCloseImportDialog = useCallback(() => {
+    setOpenImportDialog(false);
+  }, []);
 
   const handleGridClick = useCallback(() => {
     handleClose();
@@ -110,6 +102,8 @@ export function SettingsMenu() {
         onClose={useCallback(() => setOpenExportDialog(false), [])}
       />
 
+      <ImportDialog open={openImportDialog} onClose={handleCloseImportDialog} />
+
       <Menu
         anchorEl={anchorEl}
         open={open}
@@ -137,7 +131,14 @@ export function SettingsMenu() {
         )}
         id={menuId}
       >
-        {canImportWhiteboard && <ImportMenuItem onClose={handleClose} />}
+        {canImportWhiteboard && (
+          <MenuItem onClick={handleImportClick}>
+            <ListItemIcon>
+              <FileImportOutlineIcon sx={{ color: 'text.primary' }} />
+            </ListItemIcon>
+            <ListItemText>{t('boardBar.menu.import', 'Import…')}</ListItemText>
+          </MenuItem>
+        )}
         <MenuItem onClick={handleExportClick}>
           <ListItemIcon>
             <FileExportOutlineIcon sx={{ color: 'text.primary' }} />
