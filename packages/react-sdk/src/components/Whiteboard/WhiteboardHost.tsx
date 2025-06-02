@@ -28,7 +28,10 @@ import {
   useWhiteboardSlideInstance,
 } from '../../state';
 import { ElementBar } from '../ElementBar';
-import { useElementOverrides } from '../ElementOverridesProvider';
+import {
+  useElementOverrides,
+  useGetElementOverride,
+} from '../ElementOverridesProvider';
 import { useSlideImageDropUpload } from '../ImageUpload';
 import { useLayoutState } from '../Layout';
 import {
@@ -38,7 +41,7 @@ import {
 } from './constants';
 import { CursorRenderer } from './CursorRenderer';
 import { DraftPicker } from './Draft/DraftPicker';
-import { ConnectedElement } from './Element';
+import ConnectedElement from './Element/ConnectedElement';
 import {
   ElementBarWrapper,
   ElementBorder,
@@ -70,6 +73,7 @@ const WhiteboardHost = ({
     useLayoutState();
   const { activeElementIds } = useActiveElements();
   const overrides = useElementOverrides(activeElementIds);
+  const getElementOverride = useGetElementOverride();
 
   const { handleUploadDragEnter, uploadDragOverlay } =
     useSlideImageDropUpload();
@@ -132,16 +136,22 @@ const WhiteboardHost = ({
         {!hideDotGrid && <DotGrid />}
         {!readOnly && <UnSelectElementHandler />}
 
-        {elementIds.map((e) => (
-          <ConnectedElement
-            id={e}
-            key={e}
-            readOnly={readOnly}
-            activeElementIds={activeElementIds}
-            overrides={overrides}
-            setTextToolsEnabled={setTextToolsEnabled}
-          />
-        ))}
+        {elementIds.map((e) => {
+          const override = getElementOverride(e);
+          const isSelected = activeElementIds.includes(e);
+
+          return (
+            <ConnectedElement
+              id={e}
+              key={e}
+              readOnly={readOnly}
+              override={override}
+              activeElementIds={isSelected ? activeElementIds : undefined}
+              overrides={isSelected ? overrides : undefined}
+              setTextToolsEnabled={setTextToolsEnabled}
+            />
+          );
+        })}
 
         {!readOnly && <DraftPicker />}
 
