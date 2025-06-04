@@ -15,12 +15,12 @@
  */
 
 import { WidgetApi } from '@matrix-widget-toolkit/api';
+import { ConnectionState } from 'livekit-client';
 import { cloneDeep } from 'lodash';
 import { getLogger } from 'loglevel';
 import {
   BehaviorSubject,
   distinctUntilChanged,
-  firstValueFrom,
   mergeMap,
   Observable,
   Subject,
@@ -29,9 +29,9 @@ import {
 } from 'rxjs';
 import { MatrixRtcPeerConnection, PeerConnection } from './connection';
 import {
-  areLiveKitFociEqual,
   LivekitFocus,
   MatrixRtcSessionManagerImpl,
+  RTCFocus,
   Session,
 } from './discovery';
 import AutoDiscovery from './discovery/autodiscovery';
@@ -61,8 +61,7 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
   };
   private readonly peerConnections: PeerConnection[] = [];
   private sfuConfig: SFUConfig | undefined;
-  private activeFocus: LivekitFocus | undefined;
-  private livekitFoci: LivekitFocus[] | undefined;
+  private activeFocus: RTCFocus | undefined;
 
   constructor(
     private readonly widgetApiPromise: Promise<WidgetApi> | WidgetApi,
@@ -74,66 +73,26 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
     visibilityTimeout = 30 * 1000,
   ) {
     this.logger.log('Creating communication channel');
+    this.activeFocus = this.sessionManager.getActiveFocus();
 
     this.sessionManager
-      .observeFoci()
+      .observeActiveFoci()
       .pipe(takeUntil(this.destroySubject))
-      .subscribe((foci) => {
-        this.livekitFoci = foci;
-        this.logger.debug('LiveKit foci updated', foci[0]);
-        // Check for focus change and restart backend
-        if (
-          this.activeFocus &&
-          foci.length > 0 &&
-          areLiveKitFociEqual(this.activeFocus, foci[0])
-        ) {
-          this.logger.debug('LiveKit focus changed, restarting backend');
-          this.activeFocus = this.sfuConfig = undefined;
-          this.initLiveKitBackend();
-        }
+      .subscribe((focus) => {
+        this.logger.debug('RTC Focus update received', focus);
+        this.initFocusBackend(focus);
       });
 
+    // MARK: is this required?
     this.sessionManager
       .observeSession()
       .pipe(takeUntil(this.destroySubject))
       .subscribe((session) => {
-        this.logger.debug('Observing session', session);
+        this.logger.debug('Got session changes for', session);
         if (session.expiresTs !== undefined) {
           this.addSessionStatistics(session);
         } else {
           this.removeSessionStatistics(session);
-        }
-      });
-
-    this.sessionManager
-      .observeSessionJoined()
-      .pipe(takeUntil(this.destroySubject))
-      .subscribe(this.handleSessionJoined.bind(this));
-
-    this.sessionManager
-      .observeSessionLeft()
-      .pipe(
-        takeUntil(
-          // Wait with unsubscribing the session left events till we processed
-          // all of then, which is after completing the disconnect
-          this.destroySubject.pipe(
-            mergeMap(async () => {
-              this.logger.log(
-                'Communication channel destroyed, disconnecting…',
-              );
-              await this.disconnect();
-            }),
-          ),
-        ),
-      )
-      .subscribe((session) => {
-        const index = this.peerConnections.findIndex(
-          (c) => c.getRemoteSessionId() === session.sessionId,
-        );
-
-        if (index >= 0) {
-          this.peerConnections[index].close();
-          this.peerConnections.splice(index, 1);
         }
       });
 
@@ -148,11 +107,17 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
             mergeMap(async (v) => {
               if (v === 'visible') {
                 try {
-                  this.logger.log('Visibility changed to visible, connecting…');
-                  await this.connect();
+                  if (this.activeFocus) {
+                    this.logger.log('Visibility changed to visible, connecting…');
+                    await this.initFocusBackend(this.activeFocus);
+                  } else {
+                    this.logger.warn(
+                      'Visibility changed to visible but no active focus found, not connecting',
+                    );
+                  }
                 } catch (err) {
                   this.logger.error(
-                    'Error while connecting to whiteboard',
+                    'Error while connecting to focus backend',
                     err,
                   );
                 }
@@ -190,6 +155,10 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
     this.messagesSubject.complete();
     this.statisticsSubject.complete();
     this.destroySubject.next();
+
+    this.disconnect().catch((err) => {
+      this.logger.error('Error while disconnecting communication channel', err);
+    });
   }
 
   getStatistics(): CommunicationChannelStatistics {
@@ -209,18 +178,6 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
     this.logger.log('Connecting communication channel');
     const { sessionId } = await this.sessionManager.join(this.whiteboardId);
 
-    const widgetApi = await this.widgetApiPromise;
-
-    if (!widgetApi.widgetParameters.userId) {
-      this.logger.error('User ID not found in widget parameters');
-      throw new Error('User ID not found in widget parameters');
-    }
-
-    await this.handleSessionJoined({
-      sessionId,
-      userId: widgetApi.widgetParameters.userId,
-    });
-
     this.statistics.localSessionId = sessionId;
     this.statisticsSubject.next(cloneDeep(this.statistics));
   }
@@ -228,6 +185,7 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
   private async disconnect(): Promise<void> {
     this.logger.log('Disconnecting communication channel');
 
+    this.sfuConfig = undefined;
     await this.sessionManager.leave();
 
     this.statistics.localSessionId = undefined;
@@ -236,87 +194,35 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
     this.peerConnections.forEach((c) => c.close());
   }
 
-  /**
-   * If there are already known LiveKit foci, this uses them.
-   * Otherwise wait for LiveKit foci to be loaded until a timeout.
-   */
-  private async initLiveKitFoci(): Promise<void> {
-    if (this.livekitFoci !== undefined && this.livekitFoci.length > 0) {
-      this.logger.debug('LiveKit foci already known, skipping init');
-      return;
+  private async initFocusBackend(focus: RTCFocus): Promise<void> {
+    this.logger.debug('Initializing focus backend with focus', focus);
+
+    await this.disconnect();
+
+    const widgetApi = await this.widgetApiPromise;
+    if (!widgetApi.widgetParameters.roomId) {
+      this.logger.error('Room ID not found in widget parameters');
+      throw new Error('Room ID not found in widget parameters');
     }
+    const roomId = widgetApi.widgetParameters.roomId;
 
-    this.logger.debug('Waiting for LiveKit foci...');
-    const source = this.sessionManager.observeFoci();
+    const { userId, deviceId } = widgetApi.widgetParameters;
+    const sessionId = `_${userId}_${deviceId}`;
 
-    try {
-      await firstValueFrom(source);
-      this.logger.debug('LiveKit foci retrieved', this.livekitFoci);
-    } catch (error) {
-      this.logger.warn('Loading LiveKit foci timed out', error);
-    }
-  }
+    const session = { sessionId: sessionId, userId: userId } as Session;
 
-  private async initLiveKitBackend(): Promise<void> {
-    if (this.sfuConfig !== undefined) {
-      this.logger.debug('LiveKit config already set, skipping init');
-      return;
-    }
+    // Make sure the livekit alias is set to the roomId
+    focus.livekit_alias = roomId;
 
-    // Initialize and wait for LiveKit foci first
-    await this.initLiveKitFoci();
+    this.activeFocus = focus;
+    this.sfuConfig = await AutoDiscovery.getSFUConfigWithOpenID(
+      widgetApi,
+      this.activeFocus as LivekitFocus,
+    );
 
-    if (!this.livekitFoci || this.livekitFoci.length === 0) {
-      this.logger.error('No LiveKit foci available');
-      throw new Error('No LiveKit foci available');
-    }
-
-    try {
-      const widgetApi = await this.widgetApiPromise;
-
-      if (!widgetApi.widgetParameters.roomId) {
-        this.logger.error('Room ID not found in widget parameters');
-        throw new Error('Room ID not found in widget parameters');
-      }
-
-      // Use the first focus from the list
-      this.activeFocus = this.livekitFoci[0];
-      this.sfuConfig = await AutoDiscovery.getSFUConfigWithOpenID(
-        widgetApi,
-        this.activeFocus,
-      );
-
-      this.logger.debug('Got SFU config', JSON.stringify(this.sfuConfig));
-
-      if (!this.sfuConfig) {
-        this.logger.warn('Failed to get LiveKit JWT');
-        throw new Error('Failed to get LiveKit JWT');
-      }
-    } catch (error) {
-      this.logger.error('Error getting the LiveKit SFU config', error);
-      throw error;
-    }
-  }
-
-  private async handleSessionJoined(session: Session): Promise<void> {
-    const sessionId = this.sessionManager.getSessionId();
-
-    this.logger.log('joined', session.sessionId, session.userId);
-
-    if (!sessionId) {
-      this.logger.error('Unknown session id on session join');
-      throw new Error('Unknown session id on session join');
-    }
-
-    // Wait for the Widget API and LiveKit servers to be ready
-    await this.widgetApiPromise;
-    await this.initLiveKitBackend();
-
-    // only start peer connection for the current session
-    // because matrix rtc is not peer to peer
-    if (this.sfuConfig && session.sessionId === sessionId) {
+    if (this.sfuConfig) {
       this.logger.debug(
-        'Creating peer connection with SFU config',
+        'Creating peer connection with focus config',
         JSON.stringify(this.sfuConfig),
         'for session',
         session.sessionId,
@@ -326,6 +232,28 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
         this.sfuConfig,
       );
       this.peerConnections.push(peerConnection);
+
+      peerConnection.observeConnectionState().subscribe(async (state) => {
+        this.logger.debug('Peer connection state changed:', state);
+
+        switch (state) {
+          case ConnectionState.Connected:
+            this.logger.info('Peer connection connected');
+            await this.connect();
+            break;
+          case ConnectionState.Disconnected:
+            this.logger.info('Peer connection disconnected');
+            await this.disconnect();
+            break;
+          case ConnectionState.Connecting:
+          case ConnectionState.Reconnecting:
+          case ConnectionState.SignalReconnecting:
+            this.logger.debug('Peer connection state changed:', state);
+            break;
+          default:
+            break;
+        }
+      });
 
       peerConnection.observeMessages().subscribe((m) => {
         return this.messagesSubject.next(m);
@@ -344,7 +272,7 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
       });
     } else {
       this.logger.warn(
-        'No LiveKit SFU config or session id, unable to create peer connection',
+        'No focus config available - unable to create peer connection',
       );
     }
   }
