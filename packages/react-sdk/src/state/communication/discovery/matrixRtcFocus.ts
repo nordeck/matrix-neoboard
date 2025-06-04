@@ -37,41 +37,76 @@ export interface LivekitFocusActive extends RTCFocus {
   focus_selection: 'oldest_membership';
 }
 
-export async function makePreferredLivekitFoci(
+export async function getWellKnownFoci(
   domain: string | undefined,
-  livekitAlias: string,
-): Promise<LivekitFocus[]> {
-  const logger = getLogger('makePreferredLivekitFoci');
-  logger.debug('Building preferred foci list for', domain, livekitAlias);
+): Promise<RTCFocus[]> {
+  const logger = getLogger('matrixRtcFocus.getWellKnownFoci');
 
-  const preferredFoci: LivekitFocus[] = [];
+  const foci: RTCFocus[] = [];
 
   if (domain) {
     logger.debug(
-      'Trying to fetch .well-known/matrix/client from domain',
+      'Fetching foci from .well-known/matrix/client on domain',
       domain,
     );
+
     const clientConfig = await AutoDiscovery.getRawClientConfig(domain);
     const wellKnownFoci = clientConfig ? clientConfig[FOCI_WK_KEY] : undefined;
+
+    // NOTE: We filter out non-livekit focus types but they may exist
     if (Array.isArray(wellKnownFoci)) {
-      preferredFoci.push(
-        ...wellKnownFoci
-          .filter((f) => !!f)
-          .filter(isLivekitFocusConfig)
-          .map((wellKnownFocus) => {
-            logger.log(
-              'Adding livekit focus from well known: ',
-              wellKnownFocus,
-            );
-            return { ...wellKnownFocus, livekit_alias: livekitAlias };
-          }),
+      foci.push(
+        ...wellKnownFoci.filter((f) => !!f).filter(isLivekitFocusConfig),
       );
+    } else {
+      logger.debug('No valid foci found in .well-known/matrix/client');
     }
+  } else {
+    logger.debug('No domain provided to fetch .well-known/matrix/client from');
+  }
+
+  return foci;
+}
+
+// As defined in MSC4143
+// https://github.com/matrix-org/matrix-spec-proposals/blob/toger5/matrixRTC/proposals/4143-matrix-rtc.md#choosing-the-value-of-foci_preferred-for-the-mrtcmember-state-event
+export function makeFociPreferred(
+  memberFocus: LivekitFocus | undefined,
+  wellKnownFoci: LivekitFocus[],
+  livekitAlias: string,
+): LivekitFocus[] {
+  const logger = getLogger('matrixRtcFocus.makeFociPreferred');
+  logger.debug('Building preferred foci list for', livekitAlias);
+
+  const preferredFoci: LivekitFocus[] = [];
+
+  if (memberFocus) {
+    logger.debug('Adding member focus to preferred foci', memberFocus);
+    preferredFoci.push(memberFocus);
+  } else {
+    logger.debug('No member focus provided, skipping');
+  }
+
+  if (wellKnownFoci.length > 0) {
+    logger.debug('Adding .well-known foci to preferred foci');
+    preferredFoci.push(
+      ...wellKnownFoci.map((wellKnownFocus) => {
+        return {
+          ...wellKnownFocus,
+          livekit_alias: livekitAlias,
+        };
+      }),
+    );
+  } else {
+    logger.debug('No .well-known preferred foci provided, skipping');
   }
 
   const envFoci = getEnvironment('REACT_APP_RTC_LIVEKIT_SERVICE_URL');
   if (envFoci) {
-    logger.debug('Using environment variable for LiveKit service URL', envFoci);
+    logger.debug(
+      'Adding environment variable for LiveKit service URL',
+      envFoci,
+    );
     const livekit_config: LivekitFocus = {
       type: 'livekit',
       livekit_service_url: envFoci,
@@ -80,17 +115,9 @@ export async function makePreferredLivekitFoci(
     preferredFoci.push(livekit_config);
   }
 
+  logger.debug('Final preferred foci:', preferredFoci);
   return preferredFoci;
 }
 
 const isLivekitFocusConfig = (object: RTCFocus): object is LivekitFocusConfig =>
   object.type === 'livekit' && 'livekit_service_url' in object;
-
-export function areLiveKitFociEqual(a: LivekitFocus, b: LivekitFocus): boolean {
-  return (
-    isLivekitFocusConfig(a) &&
-    isLivekitFocusConfig(a) &&
-    a.livekit_service_url === b.livekit_service_url &&
-    a.type === b.type
-  );
-}

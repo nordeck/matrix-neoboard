@@ -36,7 +36,12 @@ import {
   DEFAULT_RTC_EXPIRE_DURATION,
   isWhiteboardRTCSessionStateEvent,
 } from '../../../model/matrixRtcSessions';
-import { LivekitFocus, makePreferredLivekitFoci } from './matrixRtcFocus';
+import {
+  LivekitFocus,
+  RTCFocus,
+  getWellKnownFoci,
+  makeFociPreferred,
+} from './matrixRtcFocus';
 import { SessionState } from './sessionManagerImpl';
 import { Session, SessionManager } from './types';
 
@@ -46,13 +51,14 @@ export class MatrixRtcSessionManagerImpl implements SessionManager {
   private readonly leaveSubject = new Subject<void>();
   private readonly sessionJoinedSubject = new Subject<Session>();
   private readonly sessionLeftSubject = new Subject<Session>();
-  private readonly fociSubject = new Subject<LivekitFocus[]>();
-  // This subject is used to track the state of all sessions, allowing us to
-  // detect sessions and manage their lifecycle, including adding expiration dates.
+  private readonly preferredFociSubject = new Subject<RTCFocus[]>();
+  private readonly activeFocusSubject = new Subject<RTCFocus>();
   private readonly sessionSubject = new Subject<SessionState>();
   private sessions: StateEvent<RTCSessionEventContent>[] = [];
   private joinState: { whiteboardId: string; sessionId: string } | undefined;
-  private activeFoci: LivekitFocus[] = [];
+  private fociPreferred: RTCFocus[] = [];
+  private wellKnownFoci: RTCFocus[] = [];
+  private activeFocus: RTCFocus | undefined;
   private readonly fociPollingInterval = 60 * 1000;
 
   constructor(
@@ -60,14 +66,39 @@ export class MatrixRtcSessionManagerImpl implements SessionManager {
     private readonly sessionTimeout = DEFAULT_RTC_EXPIRE_DURATION,
   ) {
     interval(this.fociPollingInterval)
-      .pipe(
-        takeUntil(this.destroySubject),
-        filter(() => document.visibilityState === 'visible'),
-      )
-      .subscribe(() => {
-        this.logger.debug('Polling for updated LiveKit foci');
-        this.updateLivekitFoci();
+      .pipe(takeUntil(this.destroySubject))
+      .subscribe(async () => {
+        await this.checkForWellKnownFoci();
       });
+
+    this.observePreferredFoci()
+      .pipe(takeUntil(this.destroySubject))
+      .subscribe(async (foci) => {
+        this.logger.debug('Preferred foci updated');
+
+        const widgetApi = await this.widgetApiPromise;
+        const roomId = widgetApi.widgetParameters.roomId ?? '';
+
+        // TODO: Implement member focus logic later
+        const memberFocus: LivekitFocus | undefined = undefined;
+
+        this.fociPreferred = makeFociPreferred(
+          memberFocus,
+          foci as LivekitFocus[],
+          roomId,
+        );
+
+        // Check for a new active foci to change to
+        const newActiveFocus = this.fociPreferred[0];
+        if (this.activeFocus !== newActiveFocus) {
+          this.activeFocus = newActiveFocus;
+          this.activeFocusSubject.next(newActiveFocus);
+        }
+      });
+
+    this.checkForWellKnownFoci().catch((error) => {
+      this.logger.error('Failed to check for well-known foci:', error);
+    });
   }
 
   getSessionId(): string | undefined {
@@ -81,6 +112,10 @@ export class MatrixRtcSessionManagerImpl implements SessionManager {
     }));
   }
 
+  getActiveFocus(): RTCFocus | undefined {
+    return this.activeFocus;
+  }
+
   observeSessionJoined(): Observable<Session> {
     return this.sessionJoinedSubject;
   }
@@ -89,12 +124,36 @@ export class MatrixRtcSessionManagerImpl implements SessionManager {
     return this.sessionLeftSubject;
   }
 
-  observeFoci(): Observable<LivekitFocus[]> {
-    return this.fociSubject;
+  observePreferredFoci(): Observable<RTCFocus[]> {
+    return this.preferredFociSubject;
+  }
+
+  observeActiveFoci(): Observable<RTCFocus> {
+    return this.activeFocusSubject;
   }
 
   observeSession(): Observable<SessionState> {
     return this.sessionSubject;
+  }
+
+  async checkForWellKnownFoci(): Promise<void> {
+    this.logger.debug('Looking up the homeserver RTC foci');
+
+    // Check for foci in .well-known/matrix/client
+    const widgetApi = await this.widgetApiPromise;
+    const domain = widgetApi.widgetParameters.userId?.replace(/^.*?:/, '');
+
+    const foci = await getWellKnownFoci(domain);
+    this.logger.debug('Found homeserver foci', JSON.stringify(foci));
+
+    // There was a change in the homeserver's foci
+    if (!isEqual(foci, this.wellKnownFoci)) {
+      this.logger.debug('Homeserver foci changed');
+      this.wellKnownFoci = foci;
+      this.preferredFociSubject.next(foci);
+    } else {
+      this.logger.debug('No new homeserver foci found');
+    }
   }
 
   async join(whiteboardId: string): Promise<{ sessionId: string }> {
@@ -102,7 +161,6 @@ export class MatrixRtcSessionManagerImpl implements SessionManager {
       this.logger.debug('Already joined a whiteboard, must leave first.');
       await this.leave();
     }
-    this.updateLivekitFoci();
 
     const widgetApi = await this.widgetApiPromise;
     const { userId, deviceId } = widgetApi.widgetParameters;
@@ -163,7 +221,7 @@ export class MatrixRtcSessionManagerImpl implements SessionManager {
       this.removeSession(sessionId, userId);
     }
 
-    await this.removeOwnSession(whiteboardId, sessionId);
+    await this.endRtcSession(sessionId);
   }
 
   destroy(): void {
@@ -171,6 +229,8 @@ export class MatrixRtcSessionManagerImpl implements SessionManager {
     this.sessionJoinedSubject.complete();
     this.sessionSubject.complete();
     this.sessionLeftSubject.complete();
+    this.activeFocusSubject.complete();
+    this.preferredFociSubject.complete();
   }
 
   private handleRTCSessionEvent(
@@ -233,20 +293,8 @@ export class MatrixRtcSessionManagerImpl implements SessionManager {
     });
   }
 
-  private async removeOwnSession(
-    whiteboardId: string,
-    sessionId: string,
-  ): Promise<void> {
-    this.logger.debug(
-      `Removing own session ${sessionId} for whiteboard ${whiteboardId}`,
-    );
-
-    await this.endRtcSession(sessionId);
-  }
-
   private async refreshOwnSession(
     sessionId: string | undefined,
-    content?: Partial<RTCSessionEventContent>,
   ): Promise<void> {
     const expires = Date.now() + this.sessionTimeout;
     const widgetApi = await this.widgetApiPromise;
@@ -285,10 +333,21 @@ export class MatrixRtcSessionManagerImpl implements SessionManager {
         baseSession = newRTCSession(deviceId, whiteboardId);
       }
 
+      // make sure the livekit alias for foci is set to the current room
+      const foci_preferred = this.fociPreferred.map((focus) => {
+        if (focus.type === 'livekit') {
+          return {
+            ...focus,
+            livekit_alias: widgetApi.widgetParameters.roomId,
+          };
+        }
+        return focus;
+      });
+
       const updatedSession: RTCSessionEventContent = {
         ...baseSession,
         expires,
-        ...content,
+        foci_preferred,
       };
 
       // Check if session has been modified compared to the original
@@ -323,43 +382,5 @@ export class MatrixRtcSessionManagerImpl implements SessionManager {
     } catch (ex) {
       this.logger.error('Error while sending RTC session', ex);
     }
-  }
-
-  private updateLivekitFoci(): void {
-    from(Promise.resolve(this.widgetApiPromise))
-      .pipe(
-        switchMap(async (widgetApi) => {
-          if (!widgetApi.widgetParameters.roomId) {
-            this.logger.error('Room ID not found in widget parameters');
-            throw new Error('Room ID not found in widget parameters');
-          }
-          if (!widgetApi.widgetParameters.userId) {
-            this.logger.error('User ID not found in widget parameters');
-            throw new Error('User ID not found in widget parameters');
-          }
-          const domain = widgetApi.widgetParameters.userId.replace(/^.*?:/, '');
-          return makePreferredLivekitFoci(
-            domain,
-            widgetApi.widgetParameters.roomId,
-          );
-        }),
-        takeUntil(this.destroySubject),
-      )
-      .subscribe((foci) => {
-        this.logger.log('Received new LiveKit foci', foci);
-        // Notify observers of the new foci
-        this.fociSubject.next(foci);
-        if (isEqual(this.activeFoci, foci)) {
-          this.logger.debug(
-            'No changes in LiveKit foci from .well-known/matrix/client',
-          );
-          return;
-        }
-        // Update the preferred foci in the current session
-        this.activeFoci = foci;
-        this.refreshOwnSession(this.getSessionId(), {
-          foci_preferred: foci,
-        });
-      });
   }
 }
