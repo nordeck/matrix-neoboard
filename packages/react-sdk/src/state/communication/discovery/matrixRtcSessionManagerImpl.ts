@@ -15,8 +15,9 @@
  */
 
 import { StateEvent, WidgetApi } from '@matrix-widget-toolkit/api';
-import { clone, isEqual } from 'lodash';
+import { clone, isEqual, isError } from 'lodash';
 import { getLogger } from 'loglevel';
+import { UpdateDelayedEventAction } from 'matrix-widget-api';
 import {
   Observable,
   Subject,
@@ -49,11 +50,13 @@ export class MatrixRtcSessionManagerImpl implements SessionManager {
   // detect sessions and manage their lifecycle, including adding expiration dates.
   private readonly sessionSubject = new Subject<SessionState>();
   private sessions: StateEvent<RTCSessionEventContent>[] = [];
-  private joinState: { whiteboardId: string; sessionId: string } | undefined;
+  private joinState?: { whiteboardId: string; sessionId: string };
+  private removeSessionDelayId?: string;
 
   constructor(
     private readonly widgetApiPromise: Promise<WidgetApi> | WidgetApi,
     private readonly sessionTimeout = DEFAULT_RTC_EXPIRE_DURATION,
+    private readonly removeSessionDelay: number = 8000,
   ) {}
 
   getSessionId(): string | undefined {
@@ -95,6 +98,16 @@ export class MatrixRtcSessionManagerImpl implements SessionManager {
       `Joining whiteboard ${whiteboardId} as session ${sessionId}`,
     );
 
+    interval(this.sessionTimeout * 0.75)
+      .pipe(
+        takeUntil(this.destroySubject),
+        takeUntil(this.leaveSubject),
+        switchMap(() => this.refreshOwnSession(sessionId)),
+      )
+      .subscribe();
+
+    await this.refreshOwnSession(sessionId);
+
     // Handle session events
     from(Promise.resolve(this.widgetApiPromise))
       .pipe(
@@ -106,18 +119,50 @@ export class MatrixRtcSessionManagerImpl implements SessionManager {
         takeUntil(this.leaveSubject),
       )
       .subscribe((rtcSession) => {
-        this.handleRTCSessionEvent(rtcSession);
+        if (
+          Object.keys(rtcSession.content).length === 0 &&
+          rtcSession.state_key === sessionId
+        ) {
+          this.refreshOwnSession(sessionId);
+        } else {
+          this.handleRTCSessionEvent(rtcSession);
+        }
       });
 
-    interval(this.sessionTimeout * 0.75)
-      .pipe(
-        takeUntil(this.destroySubject),
-        takeUntil(this.leaveSubject),
-        switchMap(() => this.refreshOwnSession(sessionId)),
-      )
-      .subscribe();
+    let removeSessionDelayId: string | undefined;
+    try {
+      ({ delay_id: removeSessionDelayId } =
+        await widgetApi.sendDelayedStateEvent(
+          STATE_EVENT_RTC_MEMBER,
+          {},
+          this.removeSessionDelay,
+          {
+            stateKey: `_${userId}_${deviceId}`,
+          },
+        ));
+    } catch (ex) {
+      this.logger.error(
+        'Could not send remove membership delayed event:',
+        isError(ex) ? ex.message : ex,
+      );
+    }
 
-    await this.refreshOwnSession(sessionId);
+    if (removeSessionDelayId) {
+      interval(this.removeSessionDelay * 0.75)
+        .pipe(
+          takeUntil(this.destroySubject),
+          takeUntil(this.leaveSubject),
+          switchMap(() =>
+            widgetApi.updateDelayedEvent(
+              removeSessionDelayId,
+              UpdateDelayedEventAction.Restart,
+            ),
+          ),
+        )
+        .subscribe();
+    }
+
+    this.removeSessionDelayId = removeSessionDelayId;
 
     return { sessionId };
   }
@@ -143,6 +188,12 @@ export class MatrixRtcSessionManagerImpl implements SessionManager {
     }
 
     await this.removeOwnSession(whiteboardId, sessionId);
+    if (this.removeSessionDelayId) {
+      widgetApi.updateDelayedEvent(
+        this.removeSessionDelayId,
+        UpdateDelayedEventAction.Cancel,
+      );
+    }
   }
 
   destroy(): void {

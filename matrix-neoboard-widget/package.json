@@ -7,7 +7,7 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@matrix-widget-toolkit/api": "4.1.2",
+    "@matrix-widget-toolkit/api": "4.2.0",
     "@matrix-widget-toolkit/mui": "2.1.2",
     "@nordeck/matrix-neoboard-react-sdk": "1.1.0",
     "i18next": "^24.2.1",
