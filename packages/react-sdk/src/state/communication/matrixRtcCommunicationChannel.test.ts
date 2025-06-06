@@ -17,7 +17,14 @@
 import { WidgetApi } from '@matrix-widget-toolkit/api';
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { waitFor } from '@testing-library/react';
-import { BehaviorSubject, Subject, firstValueFrom, toArray } from 'rxjs';
+import { ConnectionState } from 'livekit-client';
+import {
+  BehaviorSubject,
+  ReplaySubject,
+  Subject,
+  firstValueFrom,
+  toArray,
+} from 'rxjs';
 import {
   Mocked,
   afterEach,
@@ -28,13 +35,11 @@ import {
   vi,
 } from 'vitest';
 import { mockDocumentVisibilityState } from '../../lib/testUtils/domTestUtils';
-import { PeerConnection, PeerConnectionStatistics } from './connection';
-import {
-  LivekitFocus,
-  MatrixRtcSessionManagerImpl,
-  Session,
-} from './discovery';
-import { SessionState } from './discovery/sessionManagerImpl';
+import { PeerConnectionStatistics } from './connection';
+import { StatefulPeerConnection } from './connection/types';
+import { connectionStateHandler } from './connectionStateHandler';
+import { LivekitFocus, MatrixRtcSessionManagerImpl } from './discovery';
+import AutoDiscovery from './discovery/autodiscovery';
 import { MatrixRtcCommunicationChannel } from './matrixRtcCommunicationChannel';
 
 let widgetApi: MockedWidgetApi;
@@ -54,81 +59,31 @@ afterEach(() => {
 });
 
 describe('MatrixRtcCommunicationChannel', () => {
-  const anotherSession = {
-    sessionId: 'another-session-id',
-    userId: '@another-user-id',
-  };
-  const ownConnectionStatistics = {
-    bytesReceived: 0,
-    bytesSent: 0,
-    packetsReceived: 0,
-    packetsSent: 0,
-    connectionState: expect.any(String),
-    dataChannelState: 'undefined',
-    iceConnectionState: 'undefined',
-    iceGatheringState: 'undefined',
-    signalingState: 'undefined',
-    impolite: false,
-    remoteSessionId: 'session-id',
-    remoteUserId: '@user-id',
-  };
-
   let sessionManager: Mocked<MatrixRtcSessionManagerImpl>;
-  let peerConnection: Mocked<PeerConnection>;
+  let peerConnection: Mocked<StatefulPeerConnection>;
   let channel: MatrixRtcCommunicationChannel;
-  let sessionSubject: Subject<SessionState>;
-  let joinedSubject: Subject<Session>;
-  let leftSubject: Subject<Session>;
-  let fociSubject: Subject<LivekitFocus[]>;
+  let activeFocusSubject: ReplaySubject<LivekitFocus>;
   let statisticsSubject: Subject<PeerConnectionStatistics>;
+  let connectionStateSubject: Subject<ConnectionState>;
   let enableObserveVisibilityStateSubject: Subject<boolean>;
+  let currentSessionId: string | undefined;
+
+  const mockActiveFocus: LivekitFocus = {
+    type: 'livekit',
+    livekit_service_url: 'http://mock-livekit-server.example.com',
+    livekit_alias: 'mock-livekit-alias',
+  };
 
   beforeEach(() => {
     mockDocumentVisibilityState('visible');
 
-    let currentSessionId: string | undefined;
-
-    sessionSubject = new Subject();
-    joinedSubject = new Subject();
-    leftSubject = new Subject();
-    fociSubject = new Subject();
-    sessionManager = vi.mocked(
-      Object.assign(new MatrixRtcSessionManagerImpl(widgetApi as WidgetApi), {
-        getSessionId: vi.fn(() => currentSessionId),
-        getSessions: vi.fn().mockReturnValue([]),
-        observeSession: vi.fn().mockReturnValue(sessionSubject),
-        observeSessionJoined: vi.fn().mockReturnValue(joinedSubject),
-        observeSessionLeft: vi.fn().mockReturnValue(leftSubject),
-        observeFoci: vi.fn().mockReturnValue(fociSubject),
-        join: vi.fn().mockImplementation(async () => {
-          const sessionId = 'session-id';
-          currentSessionId = sessionId;
-          return { sessionId };
-        }),
-        leave: vi.fn().mockImplementation(async () => {
-          leftSubject.next(anotherSession);
-          currentSessionId = undefined;
-        }),
-        destroy: vi.fn(),
-        joinState: {
-          whiteboardId: 'whiteboard-id',
-          sessionId: 'session-id',
-        },
-      }),
-    );
-
+    activeFocusSubject = new ReplaySubject(1);
     statisticsSubject = new Subject();
+    connectionStateSubject = new Subject<ConnectionState>();
     enableObserveVisibilityStateSubject = new BehaviorSubject(true);
 
-    peerConnection = {
-      sendMessage: vi.fn(),
-      close: vi.fn(),
-      observeMessages: vi.fn().mockReturnValue(new Subject()),
-      observeStatistics: vi.fn().mockReturnValue(statisticsSubject),
-      getRemoteSessionId: vi.fn().mockReturnValue('another-session-id'),
-      getConnectionId: vi.fn().mockReturnValue('connection-id'),
-    } as unknown as Mocked<PeerConnection>;
-
+    createSessionManager();
+    createPeerConnection();
     createChannel();
   });
 
@@ -137,8 +92,22 @@ describe('MatrixRtcCommunicationChannel', () => {
     vi.resetAllMocks();
   });
 
+  it('should create peer connection and statistics on join', async () => {
+    activeFocusSubject.next(mockActiveFocus);
+    connectionStateSubject.next(ConnectionState.Connected);
+
+    expect(sessionManager.join).toHaveBeenCalledTimes(1);
+
+    expect(channel.getStatistics().localSessionId).toBe('session-id');
+    expect(Object.values(channel.getStatistics().peerConnections).length).toBe(
+      1,
+    );
+  });
+
   it('should disconnect while the browser is hidden', async () => {
-    joinedSubject.next(anotherSession);
+    activeFocusSubject.next(mockActiveFocus);
+    connectionStateSubject.next(ConnectionState.Connected);
+
     await waitForSessionExists();
 
     vi.useFakeTimers();
@@ -153,16 +122,23 @@ describe('MatrixRtcCommunicationChannel', () => {
       expect(sessionManager.getSessionId()).toBeUndefined();
     });
 
+    sessionManager.join.mockClear();
+
     // Make the tab visible again
     mockDocumentVisibilityState('visible');
 
-    expect(sessionManager.join).toHaveBeenCalledTimes(2);
-    expect(sessionManager.join).toHaveBeenCalledWith('whiteboard-id');
+    connectionStateSubject.next(ConnectionState.Connected);
+
+    expect(sessionManager.join).toHaveBeenCalledTimes(1);
   });
 
   it('should skip disconnect while the browser is hidden if disabled', async () => {
+    activeFocusSubject.next(mockActiveFocus);
+    connectionStateSubject.next(ConnectionState.Connected);
+
+    await waitForSessionExists();
+
     vi.useFakeTimers();
-    joinedSubject.next(anotherSession);
 
     enableObserveVisibilityStateSubject.next(false);
 
@@ -174,7 +150,9 @@ describe('MatrixRtcCommunicationChannel', () => {
   });
 
   it('should handle messages from peer connections', async () => {
-    joinedSubject.next(anotherSession);
+    activeFocusSubject.next(mockActiveFocus);
+    connectionStateSubject.next(ConnectionState.Connected);
+
     await waitForSessionExists();
 
     const messagesPromise = firstValueFrom(channel.observeMessages());
@@ -196,7 +174,9 @@ describe('MatrixRtcCommunicationChannel', () => {
   });
 
   it('should send messages to peer connections', async () => {
-    joinedSubject.next(anotherSession);
+    activeFocusSubject.next(mockActiveFocus);
+    connectionStateSubject.next(ConnectionState.Connected);
+
     await waitForSessionExists();
 
     // @ts-ignore
@@ -208,15 +188,32 @@ describe('MatrixRtcCommunicationChannel', () => {
     });
   });
 
+  it('should leave when disconnected', async () => {
+    activeFocusSubject.next(mockActiveFocus);
+    connectionStateSubject.next(ConnectionState.Connected);
+
+    await waitForSessionExists();
+
+    expect(sessionManager.join).toHaveBeenCalledTimes(1);
+
+    connectionStateSubject.next(ConnectionState.Disconnected);
+
+    await waitFor(() => {
+      expect(sessionManager.leave).toHaveBeenCalled();
+    });
+  });
+
   it('should leave after destroying', async () => {
-    joinedSubject.next(anotherSession);
+    activeFocusSubject.next(mockActiveFocus);
+    connectionStateSubject.next(ConnectionState.Connected);
+
     await waitForSessionExists();
 
     const messagesPromise = firstValueFrom(
       channel.observeMessages().pipe(toArray()),
     );
     const statisticsPromise = firstValueFrom(
-      channel.observeMessages().pipe(toArray()),
+      channel.observeStatistics().pipe(toArray()),
     );
 
     channel.destroy();
@@ -228,26 +225,50 @@ describe('MatrixRtcCommunicationChannel', () => {
     });
   });
 
-  it('should add peer connection when joining session', async () => {
-    expect(sessionManager.join).toHaveBeenCalledWith('whiteboard-id');
-    await waitFor(() => {
-      statisticsSubject.next(ownConnectionStatistics);
-      expect(
-        Object.values(channel.getStatistics().peerConnections).length,
-      ).toBe(1);
-    });
-
-    expect(channel.getStatistics()).toMatchObject({
-      localSessionId: 'session-id',
-    });
-  });
-
   async function waitForSessionExists() {
     await waitFor(() => {
-      statisticsSubject.next(ownConnectionStatistics);
       expect(
         Object.values(channel.getStatistics().peerConnections).length,
       ).toBe(1);
+    });
+  }
+
+  function createSessionManager() {
+    sessionManager = vi.mocked(
+      Object.assign(new MatrixRtcSessionManagerImpl(widgetApi as WidgetApi), {
+        getSessionId: vi.fn(() => currentSessionId),
+        observeActiveFocus: vi.fn().mockReturnValue(activeFocusSubject),
+        join: vi.fn().mockImplementation(async () => {
+          const sessionId = 'session-id';
+          currentSessionId = sessionId;
+          return { sessionId };
+        }),
+        leave: vi.fn().mockImplementation(async () => {
+          currentSessionId = undefined;
+        }),
+        destroy: vi.fn(),
+      }),
+    );
+  }
+
+  function createPeerConnection() {
+    peerConnection = {
+      sendMessage: vi.fn(),
+      close: vi.fn(),
+      observeMessages: vi.fn().mockReturnValue(new Subject()),
+      observeStatistics: vi.fn().mockReturnValue(statisticsSubject),
+      getConnectionId: vi.fn().mockReturnValue('connection-id'),
+      observeConnectionState: vi.fn().mockReturnValue(connectionStateSubject),
+    } as unknown as Mocked<StatefulPeerConnection>;
+
+    peerConnection.observeConnectionState().subscribe(async (state) => {
+      await connectionStateHandler(
+        state,
+        // @ts-ignore
+        channel.connect.bind(channel),
+        // @ts-ignore
+        channel.disconnect.bind(channel),
+      );
     });
   }
 
@@ -260,30 +281,26 @@ describe('MatrixRtcCommunicationChannel', () => {
       250,
     );
 
-    const mockInitLiveKitBackend = vi.fn().mockImplementation(function (
-      this: unknown,
+    const mockGetSFUConfigWithOpenID = vi.fn().mockResolvedValue({
+      url: 'wss://mock-livekit-server.example.com',
+      jwt: 'mock-jwt-token',
+    });
+    vi.spyOn(AutoDiscovery, 'getSFUConfigWithOpenID').mockImplementation(
+      mockGetSFUConfigWithOpenID,
+    );
+
+    const mockinitFocusBackend = vi.fn().mockImplementation(function (
+      this: MatrixRtcCommunicationChannel,
     ) {
-      Object.defineProperty(this, 'sfuConfig', {
-        value: {
-          url: 'wss://mock-livekit-server.example.com',
-          jwt: 'mock-jwt-token',
-        },
-        writable: true,
-      });
-      Object.defineProperty(this, 'livekitFoci', {
-        value: [
-          {
-            type: 'livekit',
-            livekit_service_url: 'http://mock-livekit-server.example.com',
-          },
-        ],
-        writable: true,
+      this.getStatistics = vi.fn().mockReturnValue({
+        localSessionId: 'session-id',
+        peerConnections: [peerConnection],
       });
 
       return Promise.resolve();
     });
 
     // @ts-ignore - Overriding private method
-    channel.initLiveKitBackend = mockInitLiveKitBackend;
+    channel.initFocusBackend = mockinitFocusBackend;
   }
 });

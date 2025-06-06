@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-import { isInfiniteCanvasMode, isMatrixRtcMode } from '../../lib';
+import { isEmbedded, isInfiniteCanvasMode, isMatrixRtcMode } from '../../lib';
+
+export const embeddedMode = isEmbedded();
 
 export const infiniteCanvasMode = isInfiniteCanvasMode();
 

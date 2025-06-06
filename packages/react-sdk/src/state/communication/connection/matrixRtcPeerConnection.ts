@@ -33,10 +33,14 @@ import {
 } from 'rxjs';
 import { Session } from '../discovery';
 import { SFUConfig } from '../matrixRtcCommunicationChannel';
-import { Message, PeerConnection, PeerConnectionStatistics } from './types';
+import {
+  Message,
+  PeerConnectionStatistics,
+  StatefulPeerConnection,
+} from './types';
 import { extractPeerConnectionStatistics } from './utils';
 
-export class MatrixRtcPeerConnection implements PeerConnection {
+export class MatrixRtcPeerConnection implements StatefulPeerConnection {
   private readonly logger = getLogger('PeerConnection');
   private readonly destroySubject = new Subject<void>();
   private readonly messageSubject = new Subject<Message>();
@@ -54,9 +58,7 @@ export class MatrixRtcPeerConnection implements PeerConnection {
   ) {
     this.connectionId = this.session.sessionId;
 
-    this.logger.log(
-      `Creating connection ${this.connectionId}`,
-    );
+    this.logger.log(`Creating connection ${this.connectionId}`);
 
     // Statistics gathering
     this.statistics = {
@@ -116,17 +118,13 @@ export class MatrixRtcPeerConnection implements PeerConnection {
   }
 
   destroy(): void {
-    this.logger.log(
-      `Destroying connection ${this.connectionId}`,
-    );
+    this.logger.log(`Destroying connection ${this.connectionId}`);
 
     this.close();
   }
 
   close(): void {
-    this.logger.log(
-      `Closing connection ${this.connectionId}`,
-    );
+    this.logger.log(`Closing connection ${this.connectionId}`);
 
     this.room.disconnect();
 
