@@ -19,6 +19,7 @@ import { clone, isEqual } from 'lodash';
 import { getLogger } from 'loglevel';
 import {
   Observable,
+  ReplaySubject,
   Subject,
   filter,
   from,
@@ -51,8 +52,8 @@ export class MatrixRtcSessionManagerImpl implements SessionManager {
   private readonly leaveSubject = new Subject<void>();
   private readonly sessionJoinedSubject = new Subject<Session>();
   private readonly sessionLeftSubject = new Subject<Session>();
-  private readonly preferredFociSubject = new Subject<RTCFocus[]>();
-  private readonly activeFocusSubject = new Subject<RTCFocus>();
+  private readonly preferredFociSubject = new ReplaySubject<RTCFocus[]>(1);
+  private readonly activeFocusSubject = new ReplaySubject<RTCFocus>(1);
   private readonly sessionSubject = new Subject<SessionState>();
   private sessions: StateEvent<RTCSessionEventContent>[] = [];
   private joinState: { whiteboardId: string; sessionId: string } | undefined;
@@ -128,7 +129,8 @@ export class MatrixRtcSessionManagerImpl implements SessionManager {
     return this.preferredFociSubject;
   }
 
-  observeActiveFoci(): Observable<RTCFocus> {
+  // TODO: rename to active focus
+  observeActiveFocus(): Observable<RTCFocus> {
     return this.activeFocusSubject;
   }
 
@@ -186,6 +188,7 @@ export class MatrixRtcSessionManagerImpl implements SessionManager {
         this.handleRTCSessionEvent(rtcSession);
       });
 
+    // Setup session refresh
     interval(this.sessionTimeout * 0.75)
       .pipe(
         takeUntil(this.destroySubject),

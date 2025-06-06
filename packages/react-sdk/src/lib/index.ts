@@ -19,6 +19,7 @@ export { determineImageSize } from './determineImageSize';
 export { filterRecord } from './filterRecord';
 export { findForegroundColor } from './findForegroundColor';
 export { isDefined } from './isDefined';
+export { isEmbedded } from './isEmbedded';
 export { isInfiniteCanvasMode } from './isInfiniteCanvasMode';
 export { setLocale } from './locale';
 export { WidgetApiActionError, convertMxcToHttpUrl } from './matrix';

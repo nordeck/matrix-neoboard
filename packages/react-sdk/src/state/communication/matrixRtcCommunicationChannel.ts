@@ -15,7 +15,6 @@
  */
 
 import { WidgetApi } from '@matrix-widget-toolkit/api';
-import { ConnectionState } from 'livekit-client';
 import { cloneDeep } from 'lodash';
 import { getLogger } from 'loglevel';
 import {
@@ -27,7 +26,9 @@ import {
   switchMap,
   takeUntil,
 } from 'rxjs';
+import { embeddedMode } from '../../components/Whiteboard/constants';
 import { MatrixRtcPeerConnection, PeerConnection } from './connection';
+import { connectionStateHandler } from './connectionStateHandler';
 import {
   LivekitFocus,
   MatrixRtcSessionManagerImpl,
@@ -76,14 +77,13 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
     this.activeFocus = this.sessionManager.getActiveFocus();
 
     this.sessionManager
-      .observeActiveFoci()
+      .observeActiveFocus()
       .pipe(takeUntil(this.destroySubject))
       .subscribe((focus) => {
         this.logger.debug('RTC Focus update received', focus);
         this.initFocusBackend(focus);
       });
 
-    // MARK: is this required?
     this.sessionManager
       .observeSession()
       .pipe(takeUntil(this.destroySubject))
@@ -108,7 +108,9 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
               if (v === 'visible') {
                 try {
                   if (this.activeFocus) {
-                    this.logger.log('Visibility changed to visible, connecting…');
+                    this.logger.log(
+                      'Visibility changed to visible, connecting…',
+                    );
                     await this.initFocusBackend(this.activeFocus);
                   } else {
                     this.logger.warn(
@@ -191,6 +193,7 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
     this.statistics.localSessionId = undefined;
     this.statisticsSubject.next(cloneDeep(this.statistics));
 
+    this.statistics.sessions = [];
     this.peerConnections.forEach((c) => c.close());
   }
 
@@ -211,8 +214,12 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
 
     const session = { sessionId: sessionId, userId: userId } as Session;
 
-    // Make sure the livekit alias is set to the roomId
-    focus.livekit_alias = roomId;
+    if (embeddedMode) {
+      // Make sure the livekit alias is set to the roomId
+      // This is required because the communication channel may be initialized
+      // with a bogus room id in embedded mode
+      focus.livekit_alias = roomId;
+    }
 
     this.activeFocus = focus;
     this.sfuConfig = await AutoDiscovery.getSFUConfigWithOpenID(
@@ -236,23 +243,7 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
       peerConnection.observeConnectionState().subscribe(async (state) => {
         this.logger.debug('Peer connection state changed:', state);
 
-        switch (state) {
-          case ConnectionState.Connected:
-            this.logger.info('Peer connection connected');
-            await this.connect();
-            break;
-          case ConnectionState.Disconnected:
-            this.logger.info('Peer connection disconnected');
-            await this.disconnect();
-            break;
-          case ConnectionState.Connecting:
-          case ConnectionState.Reconnecting:
-          case ConnectionState.SignalReconnecting:
-            this.logger.debug('Peer connection state changed:', state);
-            break;
-          default:
-            break;
-        }
+        await connectionStateHandler(state, this.connect, this.disconnect);
       });
 
       peerConnection.observeMessages().subscribe((m) => {

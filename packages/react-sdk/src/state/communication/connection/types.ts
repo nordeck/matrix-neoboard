@@ -60,3 +60,13 @@ export type PeerConnection = {
    */
   observeStatistics(): Observable<PeerConnectionStatistics>;
 };
+
+/**
+ * Extended PeerConnection that can observe connection state changes
+ */
+export type StatefulPeerConnection = PeerConnection & {
+  /**
+   * Returns an observable that emits when the connection state changes.
+   */
+  observeConnectionState(): Observable<string>;
+};

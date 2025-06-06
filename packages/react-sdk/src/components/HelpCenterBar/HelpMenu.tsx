@@ -20,6 +20,7 @@ import { Link, ListItemText, Menu, MenuItem } from '@mui/material';
 import { unstable_useId as useId } from '@mui/utils';
 import { MouseEvent, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { isEmbedded } from '../../lib';
 import { useGuidedTour } from '../GuidedTour';
 import { ToolbarSubMenu } from '../common/Toolbar';
 import { InfoDialog } from './InfoDialog';
@@ -29,7 +30,6 @@ export function HelpMenu() {
   const helpCenterUrl = getEnvironment('REACT_APP_HELP_CENTER_URL');
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const { restartGuidedTour } = useGuidedTour();
-  const embedded = getEnvironment('REACT_APP_EMBEDDED') === 'true';
 
   const open = Boolean(anchorEl);
 
@@ -128,7 +128,7 @@ export function HelpMenu() {
           </ListItemText>
         </MenuItem>
 
-        {!embedded && (
+        {!isEmbedded && (
           <MenuItem onClick={handleClickAbout}>
             <ListItemText>
               {t('helpCenter.menu.about', 'About NeoBoard')}
