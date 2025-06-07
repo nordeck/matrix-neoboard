@@ -22,7 +22,9 @@ import { STATE_EVENT_RTC_MEMBER } from '../../../model';
 import {
   DEFAULT_RTC_EXPIRE_DURATION,
   RTC_APPLICATION_WHITEBOARD,
+  RTCSessionEventContent,
 } from '../../../model/matrixRtcSessions';
+import * as matrixRtcFocus from './matrixRtcFocus';
 import { MatrixRtcSessionManagerImpl } from './matrixRtcSessionManagerImpl';
 
 describe('MatrixRtcSessionManagerImpl', () => {
@@ -37,12 +39,33 @@ describe('MatrixRtcSessionManagerImpl', () => {
     widgetApi.widgetParameters.userId = '@user-id';
     // @ts-ignore forcefully set for tests
     widgetApi.widgetParameters.deviceId = 'DEVICEID';
+    // @ts-ignore forcefully set for tests
+    widgetApi.widgetParameters.roomId = 'room-id';
 
     vi.stubEnv('REACT_APP_RTC', 'matrixrtc');
     vi.spyOn(Date, 'now').mockImplementation(() => fixedDate);
     expectedExpires = fixedDate + DEFAULT_RTC_EXPIRE_DURATION;
 
     rtcSessionManager = new MatrixRtcSessionManagerImpl(widgetApi);
+
+    vi.spyOn(matrixRtcFocus, 'makeFociPreferred').mockImplementation(() => {
+      return [
+        {
+          type: 'livekit',
+          livekit_service_url: 'https://livekit.example.com',
+          livekit_alias: 'room-id',
+        },
+      ];
+    });
+
+    // need to mock getWellKnownFoci to return a value
+    vi.spyOn(matrixRtcFocus, 'getWellKnownFoci').mockResolvedValue([
+      {
+        type: 'livekit',
+        livekit_service_url: 'https://livekit.example.com',
+        livekit_alias: 'room-id',
+      },
+    ]);
   });
 
   afterEach(() => {
@@ -157,11 +180,28 @@ describe('MatrixRtcSessionManagerImpl', () => {
   it('should update membership if it is about to expire', async () => {
     vi.spyOn(Date, 'now').mockRestore();
     vi.useFakeTimers();
-    vi.setSystemTime(new Date('2023-02-01T10:11:12.345Z'));
+
+    const fakeTime = new Date('2023-02-01T10:11:12.345Z');
+    const expectedExpires = fakeTime.getTime() + DEFAULT_RTC_EXPIRE_DURATION;
+
+    vi.setSystemTime(fakeTime);
 
     await rtcSessionManager.join('whiteboard-id');
 
-    expect(widgetApi.sendStateEvent).toHaveBeenCalledTimes(1);
+    expect(widgetApi.sendStateEvent).toHaveBeenNthCalledWith(
+      1,
+      STATE_EVENT_RTC_MEMBER,
+      {
+        application: RTC_APPLICATION_WHITEBOARD,
+        call_id: 'whiteboard-id',
+        device_id: 'DEVICEID',
+        expires: expectedExpires,
+        foci_preferred: expect.any(Array),
+        focus_active: { type: 'livekit', focus_selection: 'oldest_membership' },
+        scope: 'm.room',
+      },
+      { stateKey: '_@user-id_DEVICEID' },
+    );
 
     vi.advanceTimersByTime(DEFAULT_RTC_EXPIRE_DURATION * 0.8);
 
@@ -183,6 +223,11 @@ describe('MatrixRtcSessionManagerImpl', () => {
       },
       { stateKey: '_@user-id_DEVICEID' },
     );
+
+    // Check separately that the expires value is greater than expected
+    const lastCall = widgetApi.sendStateEvent.mock
+      .calls[1][1] as RTCSessionEventContent;
+    expect(lastCall.expires).toBeGreaterThan(expectedExpires);
   });
 
   it('should handle new members joining a whiteboard', async () => {
@@ -248,7 +293,7 @@ describe('MatrixRtcSessionManagerImpl', () => {
     ]);
   });
 
-  it('should leave a whiteboard', async () => {
+  it('should remove membership when leaving', async () => {
     await rtcSessionManager.join('whiteboard-id');
 
     const leftPromise = firstValueFrom(
@@ -281,5 +326,110 @@ describe('MatrixRtcSessionManagerImpl', () => {
 
     await expect(joinedPromise).resolves.toEqual([]);
     await expect(leftPromise).resolves.toEqual([]);
+  });
+
+  it('should check for preferred foci on initialization', async () => {
+    const fociPromise = firstValueFrom(
+      rtcSessionManager.observePreferredFoci().pipe(take(1)),
+    );
+
+    await expect(fociPromise).resolves.toEqual([
+      {
+        type: 'livekit',
+        livekit_service_url: 'https://livekit.example.com',
+        livekit_alias: 'room-id',
+      },
+    ]);
+  });
+
+  it('should set membership when joining a session', async () => {
+    const fociPromise = firstValueFrom(
+      rtcSessionManager.observeActiveFocus().pipe(take(1)),
+    );
+
+    await expect(fociPromise).resolves.toEqual({
+      type: 'livekit',
+      livekit_service_url: 'https://livekit.example.com',
+      livekit_alias: 'room-id',
+    });
+
+    await rtcSessionManager.join('whiteboard-id');
+
+    expect(widgetApi.sendStateEvent).toHaveBeenCalledWith(
+      STATE_EVENT_RTC_MEMBER,
+      expect.objectContaining({
+        foci_preferred: [
+          {
+            type: 'livekit',
+            livekit_service_url: 'https://livekit.example.com',
+            livekit_alias: 'room-id',
+          },
+        ],
+      }),
+      expect.any(Object),
+    );
+  });
+
+  it('should update membership with new foci when they change', async () => {
+    await rtcSessionManager.join('whiteboard-id');
+
+    widgetApi.sendStateEvent.mockClear();
+
+    // Simulate a foci change
+    vi.spyOn(matrixRtcFocus, 'makeFociPreferred').mockImplementation(() => {
+      return [
+        {
+          type: 'livekit',
+          livekit_service_url: 'https://new-livekit.example.com',
+          livekit_alias: 'room-id',
+        },
+      ];
+    });
+
+    vi.spyOn(matrixRtcFocus, 'getWellKnownFoci').mockResolvedValue([
+      {
+        type: 'livekit',
+        livekit_service_url: 'https://new-livekit.example.com',
+        livekit_alias: 'room-id',
+      },
+    ]);
+
+    await rtcSessionManager.checkForWellKnownFoci();
+
+    const newFociPromise = firstValueFrom(
+      rtcSessionManager.observePreferredFoci().pipe(take(1)),
+    );
+
+    // Verify the new foci update was emitted
+    await expect(newFociPromise).resolves.toEqual([
+      {
+        type: 'livekit',
+        livekit_service_url: 'https://new-livekit.example.com',
+        livekit_alias: 'room-id',
+      },
+    ]);
+
+    // re-join the session to trigger the foci update
+    await rtcSessionManager.join('whiteboard-id');
+
+    expect(widgetApi.sendStateEvent).toHaveBeenCalledTimes(2);
+
+    const firstCall = widgetApi.sendStateEvent.mock.calls[0];
+    // expect content to be empty for the first call
+    expect(firstCall[1]).toEqual({});
+
+    const secondCall = widgetApi.sendStateEvent.mock.calls[1];
+    // expect content to contain the new foci for the second call
+    expect(secondCall[1]).toEqual(
+      expect.objectContaining({
+        foci_preferred: [
+          {
+            type: 'livekit',
+            livekit_service_url: 'https://new-livekit.example.com',
+            livekit_alias: 'room-id',
+          },
+        ],
+      }),
+    );
   });
 });
