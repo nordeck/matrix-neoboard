@@ -293,7 +293,7 @@ describe('MatrixRtcSessionManagerImpl', () => {
     ]);
   });
 
-  it('should leave a whiteboard', async () => {
+  it('should remove membership when leaving', async () => {
     await rtcSessionManager.join('whiteboard-id');
 
     const leftPromise = firstValueFrom(
@@ -342,7 +342,7 @@ describe('MatrixRtcSessionManagerImpl', () => {
     ]);
   });
 
-  it('should update foci preferred when starting a session', async () => {
+  it('should set membership when joining a session', async () => {
     const fociPromise = firstValueFrom(
       rtcSessionManager.observeActiveFocus().pipe(take(1)),
     );
@@ -370,7 +370,7 @@ describe('MatrixRtcSessionManagerImpl', () => {
     );
   });
 
-  it('should update session with new foci when they change', async () => {
+  it('should update membership with new foci when they change', async () => {
     await rtcSessionManager.join('whiteboard-id');
 
     widgetApi.sendStateEvent.mockClear();
