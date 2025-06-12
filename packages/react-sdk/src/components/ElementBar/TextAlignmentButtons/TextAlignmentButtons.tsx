@@ -62,8 +62,8 @@ export function TextAlignmentButtons() {
       <ToolbarRadio
         inputProps={{
           'aria-label': t('elementBar.textAlignmentLeft', 'Left'),
-          onClick: () => handleRadioClick('left'),
         }}
+        onClick={() => handleRadioClick('left')}
         icon={<FormatAlignLeftIcon />}
         checkedIcon={<FormatAlignLeftIcon />}
         value={'left'}
@@ -72,8 +72,8 @@ export function TextAlignmentButtons() {
       <ToolbarRadio
         inputProps={{
           'aria-label': t('elementBar.textAlignmentCenter', 'Center'),
-          onClick: () => handleRadioClick('center'),
         }}
+        onClick={() => handleRadioClick('center')}
         icon={<FormatAlignCenterIcon />}
         checkedIcon={<FormatAlignCenterIcon />}
         value={'center'}
@@ -82,8 +82,8 @@ export function TextAlignmentButtons() {
       <ToolbarRadio
         inputProps={{
           'aria-label': t('elementBar.textAlignmentRight', 'Right'),
-          onClick: () => handleRadioClick('right'),
         }}
+        onClick={() => handleRadioClick('right')}
         icon={<FormatAlignRightIcon />}
         checkedIcon={<FormatAlignRightIcon />}
         value={'right'}
