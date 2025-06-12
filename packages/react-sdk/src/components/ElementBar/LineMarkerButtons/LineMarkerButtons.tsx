@@ -116,8 +116,8 @@ export function LineMarkerButtons() {
       <ToolbarRadio
         inputProps={{
           'aria-label': t('elementBar.lineMarkerSwitch', 'Line Marker Switch'),
-          onClick: () => handleSwitchClick(startMarker, endMarker),
         }}
+        onClick={() => handleSwitchClick(startMarker, endMarker)}
         icon={<AutorenewIcon />}
         value={'center'}
         checked={false}
