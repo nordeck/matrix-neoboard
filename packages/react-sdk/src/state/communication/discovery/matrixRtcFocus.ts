@@ -115,8 +115,19 @@ export function makeFociPreferred(
     preferredFoci.push(livekit_config);
   }
 
-  logger.debug('Final preferred foci:', preferredFoci);
-  return preferredFoci;
+  // Remove duplicates
+  const foci = preferredFoci.filter(
+    (focus, index, self) =>
+      index ===
+      self.findIndex(
+        (f) =>
+          f.livekit_type === focus.livekit_type &&
+          f.livekit_service_url === focus.livekit_service_url,
+      ),
+  );
+
+  logger.debug('Final preferred foci:', foci);
+  return foci;
 }
 
 const isLivekitFocusConfig = (object: RTCFocus): object is LivekitFocusConfig =>

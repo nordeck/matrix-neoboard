@@ -20,8 +20,8 @@ import { Link, ListItemText, Menu, MenuItem } from '@mui/material';
 import { unstable_useId as useId } from '@mui/utils';
 import { MouseEvent, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { isEmbedded } from '../../lib';
 import { useGuidedTour } from '../GuidedTour';
+import { embeddedMode } from '../Whiteboard/constants';
 import { ToolbarSubMenu } from '../common/Toolbar';
 import { InfoDialog } from './InfoDialog';
 
@@ -128,7 +128,7 @@ export function HelpMenu() {
           </ListItemText>
         </MenuItem>
 
-        {!isEmbedded && (
+        {!embeddedMode && (
           <MenuItem onClick={handleClickAbout}>
             <ListItemText>
               {t('helpCenter.menu.about', 'About NeoBoard')}
