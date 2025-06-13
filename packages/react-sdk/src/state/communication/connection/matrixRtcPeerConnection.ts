@@ -120,18 +120,18 @@ export class MatrixRtcPeerConnection implements StatefulPeerConnection {
   destroy(): void {
     this.logger.log(`Destroying connection ${this.connectionId}`);
 
-    this.close();
+    this.destroySubject.next();
+    this.messageSubject.complete();
+    this.statisticsSubject.complete();
+    this.connectionStateSubject.complete();
   }
 
   close(): void {
     this.logger.log(`Closing connection ${this.connectionId}`);
 
-    this.room.disconnect();
-
-    this.destroySubject.next();
-    this.messageSubject.complete();
-    this.statisticsSubject.complete();
-    this.connectionStateSubject.complete();
+    if (this.room.state === ConnectionState.Connected) {
+      this.room.disconnect();
+    }
   }
 
   sendMessage<T = unknown>(type: string, content: T): void {
@@ -165,13 +165,14 @@ export class MatrixRtcPeerConnection implements StatefulPeerConnection {
   private async initializeChannel(sfuConfig: SFUConfig) {
     this.room
       .prepareConnection(sfuConfig.url, sfuConfig.jwt)
-      .then(() => this.room.connect(sfuConfig.url, sfuConfig.jwt))
-      .then(() => {
-        if (!this.room) {
-          throw new Error('Room not initialized');
-        }
-        return;
-      })
+      .then(() =>
+        this.room.connect(sfuConfig.url, sfuConfig.jwt, {
+          // Due to stability issues on Firefox we are testing the effect of different
+          // timeouts, and allow these values to be set through the console
+          peerConnectionTimeout: 45000,
+          websocketTimeout: 45000,
+        }),
+      )
       .catch((error) => {
         this.logger.error(`Failed to initialize connection: ${error.message}`);
       });

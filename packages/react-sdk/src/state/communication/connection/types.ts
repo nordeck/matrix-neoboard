@@ -69,4 +69,7 @@ export type StatefulPeerConnection = PeerConnection & {
    * Returns an observable that emits when the connection state changes.
    */
   observeConnectionState(): Observable<string>;
+
+  /** Destroys the peer resources. */
+  destroy(): void;
 };
