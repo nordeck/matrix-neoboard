@@ -26,7 +26,7 @@ import {
   switchMap,
   takeUntil,
 } from 'rxjs';
-import { embeddedMode } from '../../components/Whiteboard/constants';
+import { isEmbedded } from '../../lib';
 import { MatrixRtcPeerConnection, PeerConnection } from './connection';
 import { connectionStateHandler } from './connectionStateHandler';
 import {
@@ -62,7 +62,6 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
   };
   private readonly peerConnections: PeerConnection[] = [];
   private sfuConfig: SFUConfig | undefined;
-  private activeFocus: RTCFocus | undefined;
 
   constructor(
     private readonly widgetApiPromise: Promise<WidgetApi> | WidgetApi,
@@ -74,14 +73,18 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
     visibilityTimeout = 30 * 1000,
   ) {
     this.logger.log('Creating communication channel');
-    this.activeFocus = this.sessionManager.getActiveFocus();
 
     this.sessionManager
       .observeActiveFocus()
       .pipe(takeUntil(this.destroySubject))
-      .subscribe((focus) => {
-        this.logger.debug('RTC Focus update received', focus);
-        this.initFocusBackend(focus);
+      .subscribe({
+        next: (focus) => {
+          this.logger.debug('RTC Focus update received', focus);
+          this.initFocusBackend(focus);
+        },
+        error: (error) => {
+          this.logger.error('Error while updating focus', error);
+        },
       });
 
     this.sessionManager
@@ -107,11 +110,12 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
             mergeMap(async (v) => {
               if (v === 'visible') {
                 try {
-                  if (this.activeFocus) {
+                  const activeFocus = this.sessionManager.getActiveFocus();
+                  if (activeFocus) {
                     this.logger.log(
                       'Visibility changed to visible, connecting…',
                     );
-                    await this.initFocusBackend(this.activeFocus);
+                    await this.initFocusBackend(activeFocus);
                   } else {
                     this.logger.warn(
                       'Visibility changed to visible but no active focus found, not connecting',
@@ -214,62 +218,58 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
 
     const session = { sessionId: sessionId, userId: userId } as Session;
 
-    if (embeddedMode) {
+    if (isEmbedded()) {
       // Make sure the livekit alias is set to the roomId
       // This is required because the communication channel may be initialized
       // with a bogus room id in embedded mode
       focus.livekit_alias = roomId;
     }
 
-    this.activeFocus = focus;
     this.sfuConfig = await AutoDiscovery.getSFUConfigWithOpenID(
       widgetApi,
-      this.activeFocus as LivekitFocus,
+      this.sessionManager.getActiveFocus() as LivekitFocus,
     );
 
-    if (this.sfuConfig) {
-      this.logger.debug(
-        'Creating peer connection with focus config',
-        JSON.stringify(this.sfuConfig),
-        'for session',
-        session.sessionId,
-      );
-      const peerConnection = new MatrixRtcPeerConnection(
-        session,
-        this.sfuConfig,
-      );
-      this.peerConnections.push(peerConnection);
-
-      peerConnection.observeConnectionState().subscribe(async (state) => {
-        this.logger.debug('Peer connection state changed:', state);
-
-        await connectionStateHandler(
-          state,
-          this.connect.bind(this),
-          this.disconnect.bind(this),
-        );
-      });
-
-      peerConnection.observeMessages().subscribe((m) => {
-        return this.messagesSubject.next(m);
-      });
-
-      peerConnection.observeStatistics().subscribe({
-        next: (peerConnectionStatistics) => {
-          this.addPeerConnectionStatistics(
-            peerConnection.getConnectionId(),
-            peerConnectionStatistics,
-          );
-        },
-        complete: () => {
-          this.addPeerConnectionStatistics(peerConnection.getConnectionId());
-        },
-      });
-    } else {
-      this.logger.warn(
-        'No focus config available - unable to create peer connection',
+    if (!this.sfuConfig) {
+      throw new Error(
+        'No focus config available - Unable to create peer connection',
       );
     }
+
+    this.logger.debug(
+      'Creating peer connection with focus config',
+      JSON.stringify(this.sfuConfig),
+      'for session',
+      session.sessionId,
+    );
+    const peerConnection = new MatrixRtcPeerConnection(session, this.sfuConfig);
+    this.peerConnections.push(peerConnection);
+
+    peerConnection.observeConnectionState().subscribe(async (state) => {
+      this.logger.debug('Peer connection state changed:', state);
+
+      await connectionStateHandler(
+        state,
+        this.connect.bind(this),
+        this.disconnect.bind(this),
+      );
+    });
+
+    peerConnection.observeMessages().subscribe((m) => {
+      return this.messagesSubject.next(m);
+    });
+
+    peerConnection.observeStatistics().subscribe({
+      next: (peerConnectionStatistics) => {
+        this.addPeerConnectionStatistics(
+          peerConnection.getConnectionId(),
+          peerConnectionStatistics,
+        );
+      },
+      complete: () => {
+        this.addPeerConnectionStatistics(peerConnection.getConnectionId());
+      },
+    });
   }
 
   private addPeerConnectionStatistics(

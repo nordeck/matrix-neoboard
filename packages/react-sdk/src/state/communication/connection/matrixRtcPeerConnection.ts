@@ -33,14 +33,10 @@ import {
 } from 'rxjs';
 import { Session } from '../discovery';
 import { SFUConfig } from '../matrixRtcCommunicationChannel';
-import {
-  Message,
-  PeerConnectionStatistics,
-  StatefulPeerConnection,
-} from './types';
+import { Message, PeerConnection, PeerConnectionStatistics } from './types';
 import { extractPeerConnectionStatistics } from './utils';
 
-export class MatrixRtcPeerConnection implements StatefulPeerConnection {
+export class MatrixRtcPeerConnection implements PeerConnection {
   private readonly logger = getLogger('PeerConnection');
   private readonly destroySubject = new Subject<void>();
   private readonly messageSubject = new Subject<Message>();

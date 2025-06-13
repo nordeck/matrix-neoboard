@@ -36,7 +36,7 @@ import {
 } from 'vitest';
 import { mockDocumentVisibilityState } from '../../lib/testUtils/domTestUtils';
 import { PeerConnectionStatistics } from './connection';
-import { StatefulPeerConnection } from './connection/types';
+import { PeerConnection } from './connection/types';
 import { connectionStateHandler } from './connectionStateHandler';
 import { LivekitFocus, MatrixRtcSessionManagerImpl } from './discovery';
 import AutoDiscovery from './discovery/autodiscovery';
@@ -60,7 +60,7 @@ afterEach(() => {
 
 describe('MatrixRtcCommunicationChannel', () => {
   let sessionManager: Mocked<MatrixRtcSessionManagerImpl>;
-  let peerConnection: Mocked<StatefulPeerConnection>;
+  let peerConnection: Mocked<PeerConnection>;
   let channel: MatrixRtcCommunicationChannel;
   let activeFocusSubject: ReplaySubject<LivekitFocus>;
   let statisticsSubject: Subject<PeerConnectionStatistics>;
@@ -259,7 +259,7 @@ describe('MatrixRtcCommunicationChannel', () => {
       observeStatistics: vi.fn().mockReturnValue(statisticsSubject),
       getConnectionId: vi.fn().mockReturnValue('connection-id'),
       observeConnectionState: vi.fn().mockReturnValue(connectionStateSubject),
-    } as unknown as Mocked<StatefulPeerConnection>;
+    } as unknown as Mocked<PeerConnection>;
 
     peerConnection.observeConnectionState().subscribe(async (state) => {
       await connectionStateHandler(

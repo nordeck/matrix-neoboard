@@ -129,7 +129,6 @@ export class MatrixRtcSessionManagerImpl implements SessionManager {
     return this.preferredFociSubject;
   }
 
-  // TODO: rename to active focus
   observeActiveFocus(): Observable<RTCFocus> {
     return this.activeFocusSubject;
   }
