@@ -18,7 +18,7 @@
     "eslint-plugin-react": "^7.37.4",
     "eslint-plugin-react-hooks": "^5.1.0",
     "eslint-plugin-testing-library": "^7.1.1",
-    "eslint-plugin-vitest": "^0.5.4",
+    "@vitest/eslint-plugin": "^1.2.1",
     "husky": "^9.1.7",
     "i18next": "^25.2.1",
     "lint-staged": "^15.4.3",
@@ -29,7 +29,7 @@
     "react-i18next": "^15.5.2",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.25.0",
-    "vitest": "^2.1.9",
+    "vitest": "^3.2.1",
     "yarn-deduplicate": "^6.0.2"
   },
   "resolutions": {
