@@ -22,6 +22,7 @@ import {
   AlertTitle,
   Box,
   Button,
+  Checkbox,
   CircularProgress,
   Dialog,
   DialogActions,
@@ -30,8 +31,6 @@ import {
   FormControl,
   FormControlLabel,
   IconButton,
-  Radio,
-  RadioGroup,
   Stack,
   Tooltip,
   Typography,
@@ -155,6 +154,8 @@ function ImportConfirmation({
 }) {
   const { t } = useTranslation('neoboard');
 
+  console.log('ImpportMode', importMode);
+
   return (
     <Box>
       <Alert severity="info" sx={{ mb: 2 }}>
@@ -189,21 +190,23 @@ function ImportConfirmation({
       </Typography>
 
       <FormControl component="fieldset">
-        <RadioGroup
-          value={importMode}
-          onChange={(e) => onImportModeChange(e.target.value as ImportMode)}
-        >
-          <FormControlLabel
-            value="replace"
-            control={<Radio />}
-            label={t('importDialog.replaceContent', 'Replace current content')}
-          />
-          <FormControlLabel
-            value="append"
-            control={<Radio />}
-            label={t('importDialog.appendContent', 'Append to current content')}
-          />
-        </RadioGroup>
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={importMode === 'replace'}
+              onChange={(e) =>
+                onImportModeChange(e.target.checked ? 'replace' : 'append')
+              }
+            />
+          }
+          label={t('importDialog.replaceContent', 'Replace current content')}
+        />
+        <Typography variant="body2" color="text.secondary" sx={{ ml: 4 }}>
+          {t(
+            'importDialog.appendContent',
+            'If unchecked, content will be appended to the current board.',
+          )}
+        </Typography>
       </FormControl>
     </Box>
   );
@@ -248,7 +251,7 @@ export default function ImportDialog({ open, onClose }: ImportDialogProps) {
   const [step, setStep] = useState<ImportStep>('select');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [processedData, setProcessedData] = useState<ProcessedData>(null);
-  const [importMode, setImportMode] = useState<ImportMode>('replace');
+  const [importMode, setImportMode] = useState<ImportMode>('append');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Keep track of pending import operation
@@ -267,7 +270,7 @@ export default function ImportDialog({ open, onClose }: ImportDialogProps) {
       setSelectedFile(null);
       setProcessedData(null);
       setErrorMessage(null);
-      setImportMode('replace');
+      setImportMode('append');
       setIsImporting(false);
       importOperationRef.current = null;
     }

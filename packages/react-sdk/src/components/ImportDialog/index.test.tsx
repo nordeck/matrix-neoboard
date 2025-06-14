@@ -15,7 +15,7 @@
  */
 
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import axe from 'axe-core';
 import { ComponentType, PropsWithChildren } from 'react';
 import {
@@ -80,17 +80,34 @@ vi.mock('../Whiteboard', () => ({
 // Create a custom mock for react-dropzone
 // This approach directly provides our test files to the component
 vi.mock('react-dropzone', () => ({
-  useDropzone: () => {
-    return {
-      getRootProps: () => ({}),
-      getInputProps: () => ({
-        'data-testid': 'import-file-picker',
-        'aria-label': 'Select file to import',
-      }),
-      isDragActive: false,
-      open: vi.fn(),
-    };
-  },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  useDropzone: (opts: any = {}) => ({
+    getRootProps: (props = {}) => ({
+      ...props,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      onDrop: (event: any) => {
+        // Simulate react-dropzone's onDrop event
+        if (opts.onDrop) {
+          const files = event.dataTransfer?.files || [];
+          opts.onDrop(Array.from(files), [], event);
+        }
+      },
+    }),
+    getInputProps: (props = {}) => ({
+      ...props,
+      'data-testid': 'import-file-picker',
+      'aria-label': 'Select file to import',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      onChange: (e: any) => {
+        if (opts.onDrop) {
+          const files = e.target.files;
+          opts.onDrop(Array.from(files), [], e);
+        }
+      },
+    }),
+    isDragActive: false,
+    open: vi.fn(),
+  }),
 }));
 
 let widgetApi: MockedWidgetApi;
@@ -325,5 +342,46 @@ describe('<ImportDialog />', () => {
 
     // Reset infinite canvas mode
     vi.mocked(infiniteCanvasModule).infiniteCanvasMode = false;
+  });
+
+  it('should show replace checkbox and default to append', async () => {
+    render(<ImportDialog open={true} onClose={onClose} />, {
+      wrapper: Wrapper,
+    });
+
+    // Simulate file selection
+    const file = new File(['dummy content'], 'test.pdf', {
+      type: 'application/pdf',
+    });
+    // Find the file picker and simulate file selection
+    const data = {
+      dataTransfer: {
+        files: [file],
+        items: [],
+        types: ['Files'],
+      },
+    };
+    const input = screen.getByTestId('import-file-picker');
+    fireEvent.drop(input, data);
+
+    // Wait for processing to finish and confirmation to show
+    await waitFor(() => {
+      expect(screen.getByText('File Selected')).toBeInTheDocument();
+    });
+
+    // Checkbox should be present and unchecked (append mode)
+    const checkbox = screen.getByLabelText(
+      'Replace current content',
+    ) as HTMLInputElement;
+    expect(checkbox).toBeInTheDocument();
+    expect(checkbox.checked).toBe(false);
+
+    // Click the checkbox to switch to replace mode
+    fireEvent.click(checkbox);
+    expect(checkbox.checked).toBe(true);
+
+    // Click again to switch back to append
+    fireEvent.click(checkbox);
+    expect(checkbox.checked).toBe(false);
   });
 });
