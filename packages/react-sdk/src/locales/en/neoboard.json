@@ -249,7 +249,7 @@
     "sizeError_other": "The files {{fileNames}} cannot be uploaded due to their size. The upload is possible for a maximum of {{limit}} per file."
   },
   "importDialog": {
-    "appendContent": "Append to current content",
+    "appendContent": "If unchecked, content will be appended to the current board.",
     "cancel": "Cancel",
     "changeFile": "Change File",
     "close": "Close",

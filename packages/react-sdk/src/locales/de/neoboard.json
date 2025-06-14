@@ -249,7 +249,7 @@
     "sizeError_other": "Die Dateien {{fileNames}} können aufgrund ihrer Größe nicht hochgeladen werden. Der Upload ist mit maximal {{limit}} pro Datei möglich."
   },
   "importDialog": {
-    "appendContent": "Füge den Inhalt an",
+    "appendContent": "Wenn diese Option nicht aktiviert ist, wird der Inhalt an das aktuelle Board angehängt.",
     "cancel": "Abbrechen",
     "changeFile": "Ändere die Datei",
     "close": "Schließen",
