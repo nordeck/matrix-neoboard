@@ -77,6 +77,10 @@ type ImportOperationResult = {
 interface ImportDialogProps {
   open: boolean;
   onClose: () => void;
+  /** Optional: Provide a file to skip the select step (for external dropzone use) */
+  initialFile?: File | null;
+  /** Optional: Control the initial step (default: 'select') */
+  initialStep?: ImportStep;
 }
 
 // Component for file selection step
@@ -153,8 +157,6 @@ function ImportConfirmation({
   onChangeFile: () => void;
 }) {
   const { t } = useTranslation('neoboard');
-
-  console.log('ImpportMode', importMode);
 
   return (
     <Box>
@@ -242,14 +244,19 @@ function SuccessMessage({ fileName }: { fileName: string }) {
 }
 
 // Main import dialog component
-export default function ImportDialog({ open, onClose }: ImportDialogProps) {
+export default function ImportDialog({
+  open,
+  onClose,
+  initialFile = null,
+  initialStep = 'select',
+}: ImportDialogProps) {
   const { t } = useTranslation('neoboard');
   const whiteboardInstance = useActiveWhiteboardInstance();
   const { handleDrop } = useImageUpload();
 
   const [isImporting, setIsImporting] = useState(false);
-  const [step, setStep] = useState<ImportStep>('select');
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [step, setStep] = useState<ImportStep>(initialStep);
+  const [selectedFile, setSelectedFile] = useState<File | null>(initialFile);
   const [processedData, setProcessedData] = useState<ProcessedData>(null);
   const [importMode, setImportMode] = useState<ImportMode>('append');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -266,15 +273,20 @@ export default function ImportDialog({ open, onClose }: ImportDialogProps) {
   // Reset dialog state when opened
   useEffect(() => {
     if (open) {
-      setStep('select');
-      setSelectedFile(null);
+      if (initialFile) {
+        setSelectedFile(initialFile);
+        setStep('process');
+      } else {
+        setStep(initialStep);
+        setSelectedFile(null);
+      }
       setProcessedData(null);
       setErrorMessage(null);
       setImportMode('append');
       setIsImporting(false);
       importOperationRef.current = null;
     }
-  }, [open]);
+  }, [open, initialFile, initialStep]);
 
   // Handle component unmounting
   useEffect(() => {
@@ -363,7 +375,8 @@ export default function ImportDialog({ open, onClose }: ImportDialogProps) {
     setStep('select');
     setSelectedFile(null);
     setProcessedData(null);
-  }, []);
+    setStep(initialFile ? 'process' : 'select');
+  }, [initialFile]);
 
   const handleImport = useCallback(() => {
     if (!processedData || !selectedFile || !whiteboardInstance) return;

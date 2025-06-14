@@ -75,7 +75,7 @@ const WhiteboardHost = ({
   const overrides = useElementOverrides(activeElementIds);
   const getElementOverride = useGetElementOverride();
 
-  const { handleUploadDragEnter, uploadDragOverlay } =
+  const { handleUploadDragEnter, uploadDragOverlay, importDialog } =
     useSlideImageDropUpload();
 
   const [textToolsEnabled, setTextToolsEnabled] = useState(false);
@@ -107,6 +107,7 @@ const WhiteboardHost = ({
           }
         : {})}
     >
+      {importDialog}
       <SvgCanvas
         viewportHeight={whiteboardHeight}
         viewportWidth={whiteboardWidth}
