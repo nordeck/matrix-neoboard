@@ -33,14 +33,10 @@ import {
 } from 'rxjs';
 import { Session } from '../discovery';
 import { SFUConfig } from '../matrixRtcCommunicationChannel';
-import {
-  Message,
-  PeerConnectionStatistics,
-  StatefulPeerConnection,
-} from './types';
+import { Message, PeerConnection, PeerConnectionStatistics } from './types';
 import { extractPeerConnectionStatistics } from './utils';
 
-export class MatrixRtcPeerConnection implements StatefulPeerConnection {
+export class MatrixRtcPeerConnection implements PeerConnection {
   private readonly logger = getLogger('PeerConnection');
   private readonly destroySubject = new Subject<void>();
   private readonly messageSubject = new Subject<Message>();
@@ -54,7 +50,7 @@ export class MatrixRtcPeerConnection implements StatefulPeerConnection {
 
   constructor(
     private readonly session: Session,
-    private readonly sfuConfig: SFUConfig,
+    sfuConfig: SFUConfig,
   ) {
     this.connectionId = this.session.sessionId;
 
@@ -165,14 +161,7 @@ export class MatrixRtcPeerConnection implements StatefulPeerConnection {
   private async initializeChannel(sfuConfig: SFUConfig) {
     this.room
       .prepareConnection(sfuConfig.url, sfuConfig.jwt)
-      .then(() =>
-        this.room.connect(sfuConfig.url, sfuConfig.jwt, {
-          // Due to stability issues on Firefox we are testing the effect of different
-          // timeouts, and allow these values to be set through the console
-          peerConnectionTimeout: 45000,
-          websocketTimeout: 45000,
-        }),
-      )
+      .then(() => this.room.connect(sfuConfig.url, sfuConfig.jwt))
       .catch((error) => {
         this.logger.error(`Failed to initialize connection: ${error.message}`);
       });

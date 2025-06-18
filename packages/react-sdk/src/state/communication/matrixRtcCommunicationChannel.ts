@@ -26,10 +26,10 @@ import {
   switchMap,
   takeUntil,
 } from 'rxjs';
-import { embeddedMode } from '../../components/Whiteboard/constants';
 import { MatrixRtcPeerConnection, PeerConnection } from './connection';
 import { connectionStateHandler } from './connectionStateHandler';
 import {
+  isLivekitFocusConfig,
   LivekitFocus,
   MatrixRtcSessionManagerImpl,
   RTCFocus,
@@ -62,7 +62,6 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
   };
   private readonly peerConnections: PeerConnection[] = [];
   private sfuConfig: SFUConfig | undefined;
-  private activeFocus: RTCFocus | undefined;
 
   constructor(
     private readonly widgetApiPromise: Promise<WidgetApi> | WidgetApi,
@@ -74,14 +73,18 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
     visibilityTimeout = 30 * 1000,
   ) {
     this.logger.log('Creating communication channel');
-    this.activeFocus = this.sessionManager.getActiveFocus();
 
     this.sessionManager
       .observeActiveFocus()
       .pipe(takeUntil(this.destroySubject))
-      .subscribe((focus) => {
-        this.logger.debug('RTC Focus update received', focus);
-        this.initFocusBackend(focus);
+      .subscribe({
+        next: (focus) => {
+          this.logger.debug('RTC Focus update received', focus);
+          this.initFocusBackend(focus);
+        },
+        error: (error) => {
+          this.logger.error('Error while updating focus', error);
+        },
       });
 
     this.sessionManager
@@ -107,11 +110,12 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
             mergeMap(async (v) => {
               if (v === 'visible') {
                 try {
-                  if (this.activeFocus) {
+                  const activeFocus = this.sessionManager.getActiveFocus();
+                  if (activeFocus) {
                     this.logger.log(
                       'Visibility changed to visible, connecting…',
                     );
-                    await this.initFocusBackend(this.activeFocus);
+                    await this.initFocusBackend(activeFocus);
                   } else {
                     this.logger.warn(
                       'Visibility changed to visible but no active focus found, not connecting',
@@ -158,6 +162,8 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
     this.statisticsSubject.complete();
     this.destroySubject.next();
 
+    this.peerConnections.forEach((peer) => peer.destroy());
+
     this.disconnect().catch((err) => {
       this.logger.error('Error while disconnecting communication channel', err);
     });
@@ -200,76 +206,86 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
   private async initFocusBackend(focus: RTCFocus): Promise<void> {
     this.logger.debug('Initializing focus backend with focus', focus);
 
-    await this.disconnect();
+    if (focus.type !== 'livekit') {
+      this.logger.error(
+        'Unable to init focus backend due to unsupported active focus type',
+        focus.type,
+      );
+      throw new Error('Unsupported active focus type');
+    }
+
+    if (!isLivekitFocusConfig(focus)) {
+      this.logger.error(
+        'Unable to init focus backend due to unsupported LiveKit configuration',
+        focus,
+      );
+      throw new Error('Unsupported active focus backend configuration');
+    }
 
     const widgetApi = await this.widgetApiPromise;
     if (!widgetApi.widgetParameters.roomId) {
       this.logger.error('Room ID not found in widget parameters');
       throw new Error('Room ID not found in widget parameters');
     }
-    const roomId = widgetApi.widgetParameters.roomId;
+
+    // Disconnect before starting a new backend connection
+    await this.disconnect();
+
+    // The LiveKit alias is required to check for room membership when requesting the
+    // OpenID token and place users in the same LiveKit data exchange room
+    const activeFocus: LivekitFocus = {
+      ...focus,
+      livekit_alias: widgetApi.widgetParameters.roomId,
+    };
+
+    this.sfuConfig = await AutoDiscovery.getSFUConfigWithOpenID(
+      widgetApi,
+      activeFocus,
+    );
+
+    if (!this.sfuConfig) {
+      this.logger.error('Unable to retrieve LiveKit SFU configuration');
+      throw new Error('Unable to retrieve LiveKit SFU configuration');
+    }
 
     const { userId, deviceId } = widgetApi.widgetParameters;
     const sessionId = `_${userId}_${deviceId}`;
-
     const session = { sessionId: sessionId, userId: userId } as Session;
 
-    if (embeddedMode) {
-      // Make sure the livekit alias is set to the roomId
-      // This is required because the communication channel may be initialized
-      // with a bogus room id in embedded mode
-      focus.livekit_alias = roomId;
-    }
-
-    this.activeFocus = focus;
-    this.sfuConfig = await AutoDiscovery.getSFUConfigWithOpenID(
-      widgetApi,
-      this.activeFocus as LivekitFocus,
+    this.logger.debug(
+      'Creating peer connection with focus config',
+      JSON.stringify(this.sfuConfig),
+      'for session',
+      session.sessionId,
     );
+    const peerConnection = new MatrixRtcPeerConnection(session, this.sfuConfig);
+    this.peerConnections.push(peerConnection);
 
-    if (this.sfuConfig) {
-      this.logger.debug(
-        'Creating peer connection with focus config',
-        JSON.stringify(this.sfuConfig),
-        'for session',
-        session.sessionId,
+    peerConnection.observeConnectionState().subscribe(async (state) => {
+      this.logger.debug('Peer connection state changed:', state);
+
+      await connectionStateHandler(
+        state,
+        this.connect.bind(this),
+        this.disconnect.bind(this),
       );
-      const peerConnection = new MatrixRtcPeerConnection(
-        session,
-        this.sfuConfig,
-      );
-      this.peerConnections.push(peerConnection);
+    });
 
-      peerConnection.observeConnectionState().subscribe(async (state) => {
-        this.logger.debug('Peer connection state changed:', state);
+    peerConnection.observeMessages().subscribe((m) => {
+      return this.messagesSubject.next(m);
+    });
 
-        await connectionStateHandler(
-          state,
-          this.connect.bind(this),
-          this.disconnect.bind(this),
+    peerConnection.observeStatistics().subscribe({
+      next: (peerConnectionStatistics) => {
+        this.addPeerConnectionStatistics(
+          peerConnection.getConnectionId(),
+          peerConnectionStatistics,
         );
-      });
-
-      peerConnection.observeMessages().subscribe((m) => {
-        return this.messagesSubject.next(m);
-      });
-
-      peerConnection.observeStatistics().subscribe({
-        next: (peerConnectionStatistics) => {
-          this.addPeerConnectionStatistics(
-            peerConnection.getConnectionId(),
-            peerConnectionStatistics,
-          );
-        },
-        complete: () => {
-          this.addPeerConnectionStatistics(peerConnection.getConnectionId());
-        },
-      });
-    } else {
-      this.logger.warn(
-        'No focus config available - unable to create peer connection',
-      );
-    }
+      },
+      complete: () => {
+        this.addPeerConnectionStatistics(peerConnection.getConnectionId());
+      },
+    });
   }
 
   private addPeerConnectionStatistics(

@@ -15,6 +15,7 @@
  */
 
 import { getEnvironment } from '@matrix-widget-toolkit/mui';
+import { isEqual, uniqWith } from 'lodash';
 import { getLogger } from 'loglevel';
 import AutoDiscovery, { FOCI_WK_KEY } from './autodiscovery';
 
@@ -53,13 +54,10 @@ export async function getWellKnownFoci(
     const clientConfig = await AutoDiscovery.getRawClientConfig(domain);
     const wellKnownFoci = clientConfig ? clientConfig[FOCI_WK_KEY] : undefined;
 
-    // NOTE: We filter out non-livekit focus types but they may exist
     if (Array.isArray(wellKnownFoci)) {
-      foci.push(
-        ...wellKnownFoci.filter((f) => !!f).filter(isLivekitFocusConfig),
-      );
+      foci.push(...wellKnownFoci);
     } else {
-      logger.debug('No valid foci found in .well-known/matrix/client');
+      logger.debug('No foci found in .well-known/matrix/client');
     }
   } else {
     logger.debug('No domain provided to fetch .well-known/matrix/client from');
@@ -71,14 +69,12 @@ export async function getWellKnownFoci(
 // As defined in MSC4143
 // https://github.com/matrix-org/matrix-spec-proposals/blob/toger5/matrixRTC/proposals/4143-matrix-rtc.md#choosing-the-value-of-foci_preferred-for-the-mrtcmember-state-event
 export function makeFociPreferred(
-  memberFocus: LivekitFocus | undefined,
-  wellKnownFoci: LivekitFocus[],
-  livekitAlias: string,
-): LivekitFocus[] {
+  memberFocus: RTCFocus | undefined,
+  wellKnownFoci: RTCFocus[],
+): RTCFocus[] {
   const logger = getLogger('matrixRtcFocus.makeFociPreferred');
-  logger.debug('Building preferred foci list for', livekitAlias);
 
-  const preferredFoci: LivekitFocus[] = [];
+  const preferredFoci: RTCFocus[] = [];
 
   if (memberFocus) {
     logger.debug('Adding member focus to preferred foci', memberFocus);
@@ -89,46 +85,32 @@ export function makeFociPreferred(
 
   if (wellKnownFoci.length > 0) {
     logger.debug('Adding .well-known foci to preferred foci');
-    preferredFoci.push(
-      ...wellKnownFoci.map((wellKnownFocus) => {
-        return {
-          ...wellKnownFocus,
-          livekit_alias: livekitAlias,
-        };
-      }),
-    );
+    preferredFoci.push(...wellKnownFoci);
   } else {
     logger.debug('No .well-known preferred foci provided, skipping');
   }
 
+  // check for specific livekit backend config underride
   const envFoci = getEnvironment('REACT_APP_RTC_LIVEKIT_SERVICE_URL');
   if (envFoci) {
     logger.debug(
       'Adding environment variable for LiveKit service URL',
       envFoci,
     );
-    const livekit_config: LivekitFocus = {
+    const livekit_config: LivekitFocusConfig = {
       type: 'livekit',
       livekit_service_url: envFoci,
-      livekit_alias: livekitAlias,
     };
     preferredFoci.push(livekit_config);
   }
 
-  // Remove duplicates
-  const foci = preferredFoci.filter(
-    (focus, index, self) =>
-      index ===
-      self.findIndex(
-        (f) =>
-          f.livekit_type === focus.livekit_type &&
-          f.livekit_service_url === focus.livekit_service_url,
-      ),
-  );
+  const foci = uniqWith(preferredFoci, isEqual);
 
   logger.debug('Final preferred foci:', foci);
   return foci;
 }
 
-const isLivekitFocusConfig = (object: RTCFocus): object is LivekitFocusConfig =>
+export const isLivekitFocusConfig = (
+  object: RTCFocus,
+): object is LivekitFocusConfig =>
   object.type === 'livekit' && 'livekit_service_url' in object;

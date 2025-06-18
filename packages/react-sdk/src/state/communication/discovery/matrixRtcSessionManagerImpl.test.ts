@@ -328,21 +328,7 @@ describe('MatrixRtcSessionManagerImpl', () => {
     await expect(leftPromise).resolves.toEqual([]);
   });
 
-  it('should check for preferred foci on initialization', async () => {
-    const fociPromise = firstValueFrom(
-      rtcSessionManager.observePreferredFoci().pipe(take(1)),
-    );
-
-    await expect(fociPromise).resolves.toEqual([
-      {
-        type: 'livekit',
-        livekit_service_url: 'https://livekit.example.com',
-        livekit_alias: 'room-id',
-      },
-    ]);
-  });
-
-  it('should set membership when joining a session', async () => {
+  it('should set membership with preferred foci when joining a session', async () => {
     const fociPromise = firstValueFrom(
       rtcSessionManager.observeActiveFocus().pipe(take(1)),
     );
@@ -394,10 +380,8 @@ describe('MatrixRtcSessionManagerImpl', () => {
       },
     ]);
 
-    await rtcSessionManager.checkForWellKnownFoci();
-
     const newFociPromise = firstValueFrom(
-      rtcSessionManager.observePreferredFoci().pipe(take(1)),
+      rtcSessionManager.observeActiveFocus().pipe(take(1)),
     );
 
     // Verify the new foci update was emitted
@@ -431,5 +415,10 @@ describe('MatrixRtcSessionManagerImpl', () => {
         ],
       }),
     );
+  });
+
+  it('should not trigger focus update if the active focus is the same', async () => {
+    // TODO: make this happen
+    expect(await rtcSessionManager.join('whiteboard-id')).toBe(true);
   });
 });

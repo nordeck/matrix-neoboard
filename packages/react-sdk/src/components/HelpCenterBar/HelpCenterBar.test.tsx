@@ -33,7 +33,9 @@ vi.mock('@matrix-widget-toolkit/mui', async () => ({
 // mock isEmbedded to return false, so HelpCenterBar renders the About menu
 vi.mock('../../lib', async () => ({
   ...(await vi.importActual<typeof import('../../lib')>('../../lib')),
-  isEmbedded: false,
+  isEmbedded: () => {
+    return false;
+  },
 }));
 
 function TestComponent() {

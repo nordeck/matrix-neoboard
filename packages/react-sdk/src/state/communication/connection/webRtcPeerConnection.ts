@@ -349,15 +349,20 @@ export class WebRtcPeerConnection implements PeerConnection {
     return this.connectionId;
   }
 
+  // TODO: review this
+  destroy(): void {
+    this.connection.close();
+    this.destroySubject.next();
+    this.messageSubject.complete();
+    this.statisticsSubject.complete();
+  }
+
   close(): void {
     this.logger.log(
       `Closing connection ${this.connectionId} to ${this.session.sessionId} (${this.session.userId})`,
     );
 
-    this.connection.close();
-    this.destroySubject.next();
-    this.messageSubject.complete();
-    this.statisticsSubject.complete();
+    this.destroy();
   }
 
   sendMessage<T = unknown>(type: string, content: T): void {
@@ -374,6 +379,10 @@ export class WebRtcPeerConnection implements PeerConnection {
 
   observeStatistics(): Observable<PeerConnectionStatistics> {
     return concat(of(this.statistics), this.statisticsSubject);
+  }
+
+  observeConnectionState(): Observable<string> {
+    throw new Error('not implemented');
   }
 
   private updateStatistics(update: Partial<PeerConnectionStatistics>): void {
