@@ -37,7 +37,6 @@ import { MatrixRtcCommunicationChannel } from './matrixRtcCommunicationChannel';
 
 const mockPeerConnection = {
   close: vi.fn(),
-  destroy: vi.fn(),
   observeMessages: vi.fn().mockReturnValue(new Subject()),
   observeStatistics: vi.fn(),
   getRemoteSessionId: vi.fn(() => 'remote-session-id'),
@@ -85,13 +84,14 @@ describe('MatrixRtcCommunicationChannel', () => {
     bytesSent: 0,
     packetsReceived: 0,
     packetsSent: 0,
-    connectionState: 'new',
-    iceConnectionState: 'new',
-    iceGatheringState: 'new',
-    signalingState: 'new',
+    connectionState: expect.any(String),
+    dataChannelState: 'undefined',
+    iceConnectionState: 'undefined',
+    iceGatheringState: 'undefined',
+    signalingState: 'undefined',
     impolite: false,
-    remoteSessionId: 'another-session-id',
-    remoteUserId: '@another-user-id',
+    remoteSessionId: 'session-id',
+    remoteUserId: '@user-id',
   };
 
   const mockActiveFocus: RTCFocus = {

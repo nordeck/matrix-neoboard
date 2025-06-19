@@ -349,20 +349,15 @@ export class WebRtcPeerConnection implements PeerConnection {
     return this.connectionId;
   }
 
-  // TODO: review this
-  destroy(): void {
-    this.connection.close();
-    this.destroySubject.next();
-    this.messageSubject.complete();
-    this.statisticsSubject.complete();
-  }
-
   close(): void {
     this.logger.log(
       `Closing connection ${this.connectionId} to ${this.session.sessionId} (${this.session.userId})`,
     );
 
-    this.destroy();
+    this.connection.close();
+    this.destroySubject.next();
+    this.messageSubject.complete();
+    this.statisticsSubject.complete();
   }
 
   sendMessage<T = unknown>(type: string, content: T): void {

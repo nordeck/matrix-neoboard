@@ -62,7 +62,6 @@ describe('MatrixRtcPeerConnection', () => {
     );
 
     connection.close();
-    connection.destroy();
 
     await expect(statisticsPromise).resolves.toEqual(expect.any(Array));
     await expect(messagesPromise).resolves.toEqual([]);

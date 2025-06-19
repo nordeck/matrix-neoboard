@@ -113,21 +113,17 @@ export class MatrixRtcPeerConnection implements PeerConnection {
     return this.connectionId;
   }
 
-  destroy(): void {
-    this.logger.log(`Destroying connection ${this.connectionId}`);
-
-    this.destroySubject.next();
-    this.messageSubject.complete();
-    this.statisticsSubject.complete();
-    this.connectionStateSubject.complete();
-  }
-
   close(): void {
     this.logger.log(`Closing connection ${this.connectionId}`);
 
     if (this.room.state === ConnectionState.Connected) {
       this.room.disconnect();
     }
+
+    this.destroySubject.next();
+    this.messageSubject.complete();
+    this.statisticsSubject.complete();
+    this.connectionStateSubject.complete();
   }
 
   sendMessage<T = unknown>(type: string, content: T): void {

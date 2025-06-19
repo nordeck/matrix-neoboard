@@ -15,6 +15,7 @@
  */
 
 import { WidgetApi } from '@matrix-widget-toolkit/api';
+import { ConnectionState } from 'livekit-client';
 import { cloneDeep } from 'lodash';
 import { getLogger } from 'loglevel';
 import {
@@ -27,7 +28,6 @@ import {
   takeUntil,
 } from 'rxjs';
 import { MatrixRtcPeerConnection, PeerConnection } from './connection';
-import { connectionStateHandler } from './connectionStateHandler';
 import {
   isLivekitFocusConfig,
   LivekitFocus,
@@ -162,8 +162,6 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
     this.statisticsSubject.complete();
     this.destroySubject.next();
 
-    this.peerConnections.forEach((peer) => peer.destroy());
-
     this.disconnect().catch((err) => {
       this.logger.error('Error while disconnecting communication channel', err);
     });
@@ -263,11 +261,24 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
 
     peerConnection.observeConnectionState().subscribe(async (state) => {
       this.logger.debug('Peer connection state changed:', state);
-      await connectionStateHandler(
-        state,
-        this.connect.bind(this),
-        this.disconnect.bind(this),
-      );
+
+      switch (state) {
+        case ConnectionState.Connected:
+          await this.connect();
+          break;
+
+        case ConnectionState.Disconnected:
+          await this.disconnect();
+          break;
+
+        case ConnectionState.Connecting:
+        case ConnectionState.Reconnecting:
+        case ConnectionState.SignalReconnecting:
+          break;
+
+        default:
+          break;
+      }
     });
 
     peerConnection.observeMessages().subscribe((m) => {

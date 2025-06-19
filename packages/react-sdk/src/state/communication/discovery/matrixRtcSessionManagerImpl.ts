@@ -140,16 +140,13 @@ export class MatrixRtcSessionManagerImpl implements SessionManager {
         this.handleRTCSessionEvent(rtcSession);
       });
 
-    // Setup session refresh
     interval(this.sessionTimeout * 0.75)
       .pipe(
         takeUntil(this.destroySubject),
         takeUntil(this.leaveSubject),
         switchMap(() => this.refreshOwnSession(sessionId)),
       )
-      .subscribe(() => {
-        this.logger.debug('Session refreshed');
-      });
+      .subscribe();
 
     await this.refreshOwnSession(sessionId);
 
