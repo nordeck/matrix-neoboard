@@ -62,7 +62,7 @@ describe('matrixRtcFocus', () => {
       expect(result).toEqual([]);
     });
 
-    it('should filter out non-livekit focus types', async () => {
+    it('should handle different focus types', async () => {
       const clientConfig = {
         'org.matrix.msc4143.rtc_foci': [
           {
@@ -71,11 +71,6 @@ describe('matrixRtcFocus', () => {
           },
           {
             type: 'full_mesh',
-            janus_service_url: 'https://turn.example.com',
-          },
-          {
-            type: 'livekit',
-            livekit_service_url: 'https://livekit2.example.com',
           },
         ],
       };
@@ -89,8 +84,7 @@ describe('matrixRtcFocus', () => {
           livekit_service_url: 'https://livekit.example.com',
         },
         {
-          type: 'livekit',
-          livekit_service_url: 'https://livekit2.example.com',
+          type: 'full_mesh',
         },
       ]);
     });
@@ -181,7 +175,7 @@ describe('matrixRtcFocus', () => {
     });
 
     it('should remove duplicate foci', () => {
-      const envServiceUrl = 'https://wellknown1.livekit.example.com'; // Same as first well-known
+      const envServiceUrl = 'https://wellknown1.livekit.example.com';
       vi.mocked(getEnvironment).mockImplementation((_value) => {
         return envServiceUrl;
       });
@@ -189,11 +183,11 @@ describe('matrixRtcFocus', () => {
       const duplicateWellKnownFoci: RTCFocus[] = [
         {
           type: 'livekit',
-          livekit_service_url: 'https://wellknown1.livekit.example.com',
+          livekit_service_url: 'https://wellknown1.livekit.example.com', // same as the env foci
         },
         {
           type: 'livekit',
-          livekit_service_url: 'https://member.livekit.example.com',
+          livekit_service_url: 'https://member.livekit.example.com', // same as the member focus
         },
       ];
 

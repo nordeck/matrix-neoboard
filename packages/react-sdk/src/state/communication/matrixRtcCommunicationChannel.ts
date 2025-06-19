@@ -263,7 +263,6 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
 
     peerConnection.observeConnectionState().subscribe(async (state) => {
       this.logger.debug('Peer connection state changed:', state);
-
       await connectionStateHandler(
         state,
         this.connect.bind(this),

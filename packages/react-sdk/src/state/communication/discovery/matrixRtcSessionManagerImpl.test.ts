@@ -48,22 +48,11 @@ describe('MatrixRtcSessionManagerImpl', () => {
 
     rtcSessionManager = new MatrixRtcSessionManagerImpl(widgetApi);
 
-    vi.spyOn(matrixRtcFocus, 'makeFociPreferred').mockImplementation(() => {
-      return [
-        {
-          type: 'livekit',
-          livekit_service_url: 'https://livekit.example.com',
-          livekit_alias: 'room-id',
-        },
-      ];
-    });
-
     // need to mock getWellKnownFoci to return a value
     vi.spyOn(matrixRtcFocus, 'getWellKnownFoci').mockResolvedValue([
       {
         type: 'livekit',
         livekit_service_url: 'https://livekit.example.com',
-        livekit_alias: 'room-id',
       },
     ]);
   });
@@ -329,17 +318,18 @@ describe('MatrixRtcSessionManagerImpl', () => {
   });
 
   it('should set membership with preferred foci when joining a session', async () => {
+    const sessionManager = new MatrixRtcSessionManagerImpl(widgetApi);
+
     const fociPromise = firstValueFrom(
-      rtcSessionManager.observeActiveFocus().pipe(take(1)),
+      sessionManager.observeActiveFocus().pipe(take(1)),
     );
 
     await expect(fociPromise).resolves.toEqual({
       type: 'livekit',
       livekit_service_url: 'https://livekit.example.com',
-      livekit_alias: 'room-id',
     });
 
-    await rtcSessionManager.join('whiteboard-id');
+    await sessionManager.join('whiteboard-id');
 
     expect(widgetApi.sendStateEvent).toHaveBeenCalledWith(
       STATE_EVENT_RTC_MEMBER,
@@ -357,41 +347,43 @@ describe('MatrixRtcSessionManagerImpl', () => {
   });
 
   it('should update membership with new foci when they change', async () => {
+    vi.spyOn(Date, 'now').mockRestore();
+    vi.useFakeTimers();
+
+    const fakeTime = new Date('2023-02-01T10:11:12.345Z');
+
+    vi.setSystemTime(fakeTime);
+
     await rtcSessionManager.join('whiteboard-id');
 
     widgetApi.sendStateEvent.mockClear();
 
     // Simulate a foci change
-    vi.spyOn(matrixRtcFocus, 'makeFociPreferred').mockImplementation(() => {
-      return [
-        {
-          type: 'livekit',
-          livekit_service_url: 'https://new-livekit.example.com',
-          livekit_alias: 'room-id',
-        },
-      ];
-    });
-
     vi.spyOn(matrixRtcFocus, 'getWellKnownFoci').mockResolvedValue([
       {
         type: 'livekit',
         livekit_service_url: 'https://new-livekit.example.com',
-        livekit_alias: 'room-id',
       },
     ]);
 
-    const newFociPromise = firstValueFrom(
+    // default well known foci polling is 60 seconds
+    vi.advanceTimersByTime(60 * 1000 + 500);
+
+    const activeFocusPromise = firstValueFrom(
       rtcSessionManager.observeActiveFocus().pipe(take(1)),
     );
 
-    // Verify the new foci update was emitted
-    await expect(newFociPromise).resolves.toEqual([
-      {
-        type: 'livekit',
-        livekit_service_url: 'https://new-livekit.example.com',
-        livekit_alias: 'room-id',
-      },
-    ]);
+    // Verify the focus update was emitted
+    await expect(activeFocusPromise).resolves.toEqual({
+      type: 'livekit',
+      livekit_service_url: 'https://new-livekit.example.com',
+    });
+
+    // Verify the active focus was updated
+    expect(rtcSessionManager.getActiveFocus()).toEqual({
+      type: 'livekit',
+      livekit_service_url: 'https://new-livekit.example.com',
+    });
 
     // re-join the session to trigger the foci update
     await rtcSessionManager.join('whiteboard-id');
@@ -418,7 +410,32 @@ describe('MatrixRtcSessionManagerImpl', () => {
   });
 
   it('should not trigger focus update if the active focus is the same', async () => {
-    // TODO: make this happen
-    expect(await rtcSessionManager.join('whiteboard-id')).toBe(true);
+    vi.spyOn(Date, 'now').mockRestore();
+    vi.useFakeTimers();
+
+    const fakeTime = new Date('2023-02-01T10:11:12.345Z');
+
+    vi.setSystemTime(fakeTime);
+
+    await rtcSessionManager.join('whiteboard-id');
+
+    widgetApi.sendStateEvent.mockClear();
+
+    // Simulate a foci change
+    vi.spyOn(matrixRtcFocus, 'getWellKnownFoci').mockResolvedValue([
+      {
+        type: 'livekit',
+        livekit_service_url: 'https://livekit.example.com',
+      },
+    ]);
+
+    // default well known foci polling is 60 seconds
+    vi.advanceTimersByTime(60 * 1000 + 500);
+
+    // Verify that no focus update was done
+    expect(rtcSessionManager.getActiveFocus()).toEqual({
+      type: 'livekit',
+      livekit_service_url: 'https://livekit.example.com',
+    });
   });
 });
