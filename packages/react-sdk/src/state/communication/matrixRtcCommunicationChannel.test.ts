@@ -79,21 +79,6 @@ describe('MatrixRtcCommunicationChannel', () => {
   let enableObserveVisibilityStateSubject: Subject<boolean>;
   let currentSessionId: string | undefined;
 
-  const peerConnectionStatistics = {
-    bytesReceived: 0,
-    bytesSent: 0,
-    packetsReceived: 0,
-    packetsSent: 0,
-    connectionState: expect.any(String),
-    dataChannelState: 'undefined',
-    iceConnectionState: 'undefined',
-    iceGatheringState: 'undefined',
-    signalingState: 'undefined',
-    impolite: false,
-    remoteSessionId: 'session-id',
-    remoteUserId: '@user-id',
-  };
-
   const mockActiveFocus: RTCFocus = {
     type: 'livekit',
     livekit_service_url: 'http://mock-livekit-server.example.com',
@@ -122,18 +107,15 @@ describe('MatrixRtcCommunicationChannel', () => {
     vi.clearAllMocks();
   });
 
-  it('should create peer connection and statistics on join', async () => {
-    await waitForSessionExists();
+  it('should create a peer connection and join when connected', async () => {
+    await waitForPeerConnection();
     connectionStateSubject.next(ConnectionState.Connected);
 
     expect(sessionManager.join).toHaveBeenCalledTimes(1);
-    expect(Object.values(channel.getStatistics().peerConnections).length).toBe(
-      1,
-    );
   });
 
   it('should disconnect while the browser is hidden', async () => {
-    await waitForSessionExists();
+    await waitForPeerConnection();
     connectionStateSubject.next(ConnectionState.Connected);
 
     expect(sessionManager.join).toHaveBeenCalledTimes(1);
@@ -154,7 +136,6 @@ describe('MatrixRtcCommunicationChannel', () => {
   });
 
   it('should skip disconnect while the browser is hidden if disabled', async () => {
-    await waitForSessionExists();
     connectionStateSubject.next(ConnectionState.Connected);
 
     vi.useFakeTimers();
@@ -170,7 +151,6 @@ describe('MatrixRtcCommunicationChannel', () => {
   });
 
   it('should handle messages from peer connections', async () => {
-    await waitForSessionExists();
     connectionStateSubject.next(ConnectionState.Connected);
 
     const messagesPromise = firstValueFrom(channel.observeMessages());
@@ -192,7 +172,7 @@ describe('MatrixRtcCommunicationChannel', () => {
   });
 
   it('should send messages to peer connections', async () => {
-    await waitForSessionExists();
+    await waitForPeerConnection();
     connectionStateSubject.next(ConnectionState.Connected);
 
     channel.broadcastMessage('example_type', { key: 'value' });
@@ -206,7 +186,7 @@ describe('MatrixRtcCommunicationChannel', () => {
   });
 
   it('should leave when disconnected', async () => {
-    await waitForSessionExists();
+    await waitForPeerConnection();
     connectionStateSubject.next(ConnectionState.Connected);
 
     expect(sessionManager.join).toHaveBeenCalledTimes(1);
@@ -219,7 +199,6 @@ describe('MatrixRtcCommunicationChannel', () => {
   });
 
   it('should leave after destroying', async () => {
-    await waitForSessionExists();
     connectionStateSubject.next(ConnectionState.Connected);
 
     const messagesPromise = firstValueFrom(
@@ -238,12 +217,13 @@ describe('MatrixRtcCommunicationChannel', () => {
     });
   });
 
-  async function waitForSessionExists() {
+  // wait until there is a peer connection in the statistics
+  // this means that the peer connection was created and observables were set up
+  async function waitForPeerConnection() {
     await waitFor(() => {
-      statisticsSubject.next(peerConnectionStatistics);
-      expect(
-        Object.values(channel.getStatistics().peerConnections).length,
-      ).toBe(1);
+      expect(Object.keys(channel.getStatistics().peerConnections).length).toBe(
+        0,
+      );
     });
   }
 

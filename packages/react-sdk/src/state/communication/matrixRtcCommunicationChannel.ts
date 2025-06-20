@@ -247,8 +247,13 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
     }
 
     const { userId, deviceId } = widgetApi.widgetParameters;
+    if (!userId || !deviceId) {
+      this.logger.error('User ID or device ID not found in widget parameters');
+      throw new Error('User ID or device ID not found in widget parameters');
+    }
+
     const sessionId = `_${userId}_${deviceId}`;
-    const session = { sessionId: sessionId, userId: userId } as Session;
+    const session: Session = { sessionId: sessionId, userId: userId };
 
     this.logger.debug(
       'Creating peer connection with focus config',
