@@ -374,7 +374,7 @@ describe('SessionManagerImpl', () => {
       sessionManager.observeSessionJoined().pipe(toArray()),
     );
     const leftPromise = firstValueFrom(
-      sessionManager.observeSessionJoined().pipe(toArray()),
+      sessionManager.observeSessionLeft().pipe(toArray()),
     );
 
     sessionManager.destroy();

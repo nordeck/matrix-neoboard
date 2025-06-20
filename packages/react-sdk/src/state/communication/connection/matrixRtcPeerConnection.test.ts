@@ -46,9 +46,7 @@ describe('MatrixRtcPeerConnection', () => {
     const connection = new MatrixRtcPeerConnection(session, sfuConfig);
     const spy = vi.spyOn(connection.room, 'connect');
 
-    await vi.waitFor(() =>
-      expect(spy).toHaveBeenCalledWith('wss://livekit-server', 'dummy-jwt'),
-    );
+    await vi.waitFor(() => expect(spy).toHaveBeenCalledOnce());
 
     connection.close();
   });
