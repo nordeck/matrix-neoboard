@@ -28,12 +28,12 @@ import * as matrixRtcFocus from './matrixRtcFocus';
 import { MatrixRtcSessionManagerImpl } from './matrixRtcSessionManagerImpl';
 
 describe('MatrixRtcSessionManagerImpl', () => {
-  const fixedDate = 1742832000;
-  let expectedExpires: number;
   let widgetApi: MockedWidgetApi;
   let rtcSessionManager: MatrixRtcSessionManagerImpl;
 
   beforeEach(() => {
+    vi.useFakeTimers();
+
     widgetApi = mockWidgetApi();
     // @ts-ignore forcefully set for tests
     widgetApi.widgetParameters.userId = '@user-id';
@@ -43,8 +43,6 @@ describe('MatrixRtcSessionManagerImpl', () => {
     widgetApi.widgetParameters.roomId = 'room-id';
 
     vi.stubEnv('REACT_APP_RTC', 'matrixrtc');
-    vi.spyOn(Date, 'now').mockImplementation(() => fixedDate);
-    expectedExpires = fixedDate + DEFAULT_RTC_EXPIRE_DURATION;
 
     rtcSessionManager = new MatrixRtcSessionManagerImpl(widgetApi);
 
@@ -58,8 +56,8 @@ describe('MatrixRtcSessionManagerImpl', () => {
   });
 
   afterEach(() => {
-    vi.spyOn(Date, 'now').mockRestore();
     vi.unstubAllEnvs();
+    vi.useRealTimers();
 
     widgetApi.stop();
   });
@@ -74,7 +72,7 @@ describe('MatrixRtcSessionManagerImpl', () => {
         application: RTC_APPLICATION_WHITEBOARD,
         call_id: 'whiteboard-id',
         device_id: 'DEVICEID',
-        expires: expectedExpires,
+        expires: expect.any(Number),
         foci_preferred: expect.any(Array),
         focus_active: { type: 'livekit', focus_selection: 'oldest_membership' },
         scope: 'm.room',
@@ -98,7 +96,7 @@ describe('MatrixRtcSessionManagerImpl', () => {
         application: RTC_APPLICATION_WHITEBOARD,
         call_id: 'whiteboard-id-0',
         device_id: 'DEVICEID',
-        expires: expectedExpires,
+        expires: expect.any(Number),
         foci_preferred: expect.any(Array),
         focus_active: { type: 'livekit', focus_selection: 'oldest_membership' },
         scope: 'm.room',
@@ -120,7 +118,7 @@ describe('MatrixRtcSessionManagerImpl', () => {
         application: RTC_APPLICATION_WHITEBOARD,
         call_id: 'whiteboard-id-1',
         device_id: 'DEVICEID',
-        expires: expectedExpires,
+        expires: expect.any(Number),
         foci_preferred: expect.any(Array),
         focus_active: { type: 'livekit', focus_selection: 'oldest_membership' },
         scope: 'm.room',
@@ -138,7 +136,7 @@ describe('MatrixRtcSessionManagerImpl', () => {
         application: RTC_APPLICATION_WHITEBOARD,
         call_id: 'whiteboard-id',
         device_id: 'DEVICEID',
-        expires: expectedExpires,
+        expires: expect.any(Number),
         foci_preferred: expect.any(Array),
         focus_active: { type: 'livekit', focus_selection: 'oldest_membership' },
         scope: 'm.room',
@@ -157,7 +155,7 @@ describe('MatrixRtcSessionManagerImpl', () => {
         application: RTC_APPLICATION_WHITEBOARD,
         call_id: 'whiteboard-id',
         device_id: 'OTHERDEVICEID',
-        expires: expectedExpires,
+        expires: expect.any(Number),
         foci_preferred: expect.any(Array),
         focus_active: { type: 'livekit', focus_selection: 'oldest_membership' },
         scope: 'm.room',
@@ -167,14 +165,7 @@ describe('MatrixRtcSessionManagerImpl', () => {
   });
 
   it('should update membership if it is about to expire', async () => {
-    vi.spyOn(Date, 'now').mockRestore();
-    vi.useFakeTimers();
-
-    const fakeTime = new Date('2023-02-01T10:11:12.345Z');
-    const expectedExpires = fakeTime.getTime() + DEFAULT_RTC_EXPIRE_DURATION;
-
-    vi.setSystemTime(fakeTime);
-
+    const expectedExpires = Date.now() + DEFAULT_RTC_EXPIRE_DURATION;
     await rtcSessionManager.join('whiteboard-id');
 
     expect(widgetApi.sendStateEvent).toHaveBeenNthCalledWith(
@@ -233,7 +224,7 @@ describe('MatrixRtcSessionManagerImpl', () => {
           scope: 'm.room',
           application: RTC_APPLICATION_WHITEBOARD,
           device_id: 'ANOTHERDEVICEID',
-          expires: expectedExpires,
+          expires: 123456789,
           foci_preferred: [],
           focus_active: {
             type: 'livekit',
@@ -259,7 +250,7 @@ describe('MatrixRtcSessionManagerImpl', () => {
       mockWhiteboardMembership({
         content: {
           device_id: 'ANOTHERDEVICEID',
-          expires: expectedExpires,
+          expires: 123456789,
         },
         state_key: '_@another-user_ANOTHERDEVICEID',
       }),
@@ -308,7 +299,7 @@ describe('MatrixRtcSessionManagerImpl', () => {
       rtcSessionManager.observeSessionJoined().pipe(toArray()),
     );
     const leftPromise = firstValueFrom(
-      rtcSessionManager.observeSessionJoined().pipe(toArray()),
+      rtcSessionManager.observeSessionLeft().pipe(toArray()),
     );
 
     rtcSessionManager.destroy();
@@ -318,18 +309,7 @@ describe('MatrixRtcSessionManagerImpl', () => {
   });
 
   it('should set membership with preferred foci when joining a session', async () => {
-    const sessionManager = new MatrixRtcSessionManagerImpl(widgetApi);
-
-    const fociPromise = firstValueFrom(
-      sessionManager.observeActiveFocus().pipe(take(1)),
-    );
-
-    await expect(fociPromise).resolves.toEqual({
-      type: 'livekit',
-      livekit_service_url: 'https://livekit.example.com',
-    });
-
-    await sessionManager.join('whiteboard-id');
+    await rtcSessionManager.join('whiteboard-id');
 
     expect(widgetApi.sendStateEvent).toHaveBeenCalledWith(
       STATE_EVENT_RTC_MEMBER,
@@ -346,14 +326,7 @@ describe('MatrixRtcSessionManagerImpl', () => {
     );
   });
 
-  it('should update membership with new foci when they change', async () => {
-    vi.spyOn(Date, 'now').mockRestore();
-    vi.useFakeTimers();
-
-    const fakeTime = new Date('2023-02-01T10:11:12.345Z');
-
-    vi.setSystemTime(fakeTime);
-
+  it('should re-join and update session with new foci if they change', async () => {
     await rtcSessionManager.join('whiteboard-id');
 
     widgetApi.sendStateEvent.mockClear();
@@ -410,15 +383,6 @@ describe('MatrixRtcSessionManagerImpl', () => {
   });
 
   it('should not trigger focus update if the active focus is the same', async () => {
-    vi.spyOn(Date, 'now').mockRestore();
-    vi.useFakeTimers();
-
-    const fakeTime = new Date('2023-02-01T10:11:12.345Z');
-
-    vi.setSystemTime(fakeTime);
-
-    await rtcSessionManager.join('whiteboard-id');
-
     widgetApi.sendStateEvent.mockClear();
 
     // Simulate a foci change

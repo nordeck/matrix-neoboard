@@ -73,7 +73,7 @@ export class MatrixRtcSessionManagerImpl implements SessionManager {
     });
 
     interval(wellKnownPollingInterval)
-      .pipe(takeUntil(this.leaveSubject))
+      .pipe(takeUntil(this.destroySubject))
       .subscribe(async () => {
         await this.checkForWellKnownFoci();
       });
@@ -204,7 +204,7 @@ export class MatrixRtcSessionManagerImpl implements SessionManager {
     }
   }
 
-  private async computeActiveFocus(): Promise<void> {
+  private computeActiveFocus() {
     this.logger.debug('Checking if a new active focus is required');
 
     this.fociPreferred = makeFociPreferred(
