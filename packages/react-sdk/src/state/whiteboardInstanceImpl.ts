@@ -185,10 +185,10 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
     takeUntil(this.destroySubject),
   );
 
-  static create<T extends SessionManager>(
+  static create(
     store: StoreType,
     widgetApiPromise: Promise<WidgetApi>,
-    sessionManager: T | undefined,
+    sessionManager: SessionManager | undefined,
     signalingChannel: SignalingChannel | undefined,
     whiteboardEvent: StateEvent<Whiteboard>,
     userId: string,

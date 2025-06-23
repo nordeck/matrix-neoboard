@@ -57,10 +57,6 @@ export type SessionManager = {
 };
 
 export type MatrixRtcSessionManager = SessionManager & {
-  /**
-   * Observes sessions in the current whiteboard.
-   */
-  observeSession(): Observable<SessionState>;
   /** Gets the current active focus, if discovered */
   getActiveFocus(): RTCFocus | undefined;
   /**
