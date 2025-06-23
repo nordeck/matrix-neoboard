@@ -2,4 +2,4 @@
 '@nordeck/matrix-neoboard-react-sdk': minor
 ---
 
-Get preferred foci for MatrixRTC from homeserver Well-known URI
+Discover MatrixRTC foci from /.well-known/matrix/client and sync session state with backend connection status.

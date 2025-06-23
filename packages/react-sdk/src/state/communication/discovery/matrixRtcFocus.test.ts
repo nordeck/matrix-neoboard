@@ -19,6 +19,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import AutoDiscovery from './autodiscovery';
 import {
   getWellKnownFoci,
+  isLivekitFocusConfig,
   makeFociPreferred,
   RTCFocus,
 } from './matrixRtcFocus';
@@ -209,6 +210,43 @@ describe('matrixRtcFocus', () => {
       const result = makeFociPreferred(undefined, []);
 
       expect(result).toEqual([]);
+    });
+  });
+
+  describe('isLivekitFocusConfig', () => {
+    it('should return true for valid LivekitFocusConfig objects', () => {
+      const validConfig: RTCFocus = {
+        type: 'livekit',
+        livekit_service_url: 'https://livekit.example.com',
+      };
+
+      expect(isLivekitFocusConfig(validConfig)).toBe(true);
+    });
+
+    it('should return false for non-livekit type', () => {
+      const invalidType: RTCFocus = {
+        type: 'full_mesh',
+      };
+
+      expect(isLivekitFocusConfig(invalidType)).toBe(false);
+    });
+
+    it('should return false when livekit_service_url is missing', () => {
+      const missingUrl: RTCFocus = {
+        type: 'livekit',
+      };
+
+      expect(isLivekitFocusConfig(missingUrl)).toBe(false);
+    });
+
+    it('should return true when additional properties are present', () => {
+      const extraProps: RTCFocus = {
+        type: 'livekit',
+        livekit_service_url: 'https://livekit.example.com',
+        additional_property: 'value',
+      };
+
+      expect(isLivekitFocusConfig(extraProps)).toBe(true);
     });
   });
 });

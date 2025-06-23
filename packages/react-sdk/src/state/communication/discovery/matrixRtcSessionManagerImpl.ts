@@ -42,9 +42,9 @@ import {
   makeFociPreferred,
 } from './matrixRtcFocus';
 import { SessionState } from './sessionManagerImpl';
-import { Session, SessionManager } from './types';
+import { MatrixRtcSessionManager, Session } from './types';
 
-export class MatrixRtcSessionManagerImpl implements SessionManager {
+export class MatrixRtcSessionManagerImpl implements MatrixRtcSessionManager {
   private readonly logger = getLogger('RTCSessionManager');
   private readonly destroySubject = new Subject<void>();
   private readonly leaveSubject = new Subject<void>();

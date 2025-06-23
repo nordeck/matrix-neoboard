@@ -38,12 +38,12 @@ import {
   CommunicationChannel,
   FOCUS_ON_MESSAGE,
   FocusOn,
-  MatrixRtcSessionManagerImpl,
   SessionManager,
   SignalingChannel,
   WebRtcCommunicationChannel,
   isValidFocusOnMessage,
 } from './communication';
+import { isMatrixRtcSessionManager } from './communication/discovery/types';
 import { MatrixRtcCommunicationChannel } from './communication/matrixRtcCommunicationChannel';
 import { emptyCommunicationChannelStatistics } from './communication/types';
 import {
@@ -185,10 +185,10 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
     takeUntil(this.destroySubject),
   );
 
-  static create(
+  static create<T extends SessionManager>(
     store: StoreType,
     widgetApiPromise: Promise<WidgetApi>,
-    sessionManager: SessionManager | undefined,
+    sessionManager: T | undefined,
     signalingChannel: SignalingChannel | undefined,
     whiteboardEvent: StateEvent<Whiteboard>,
     userId: string,
@@ -196,10 +196,14 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
     const enableObserveVisibilityStateSubject = new BehaviorSubject(true);
 
     let communicationChannel: CommunicationChannel | undefined = undefined;
-    if (matrixRtcMode && sessionManager) {
+    if (
+      matrixRtcMode &&
+      sessionManager &&
+      isMatrixRtcSessionManager(sessionManager)
+    ) {
       communicationChannel = new MatrixRtcCommunicationChannel(
         widgetApiPromise,
-        sessionManager as MatrixRtcSessionManagerImpl,
+        sessionManager,
         whiteboardEvent.state_key,
         enableObserveVisibilityStateSubject,
       );

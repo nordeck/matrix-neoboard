@@ -31,12 +31,12 @@ import { MatrixRtcPeerConnection, PeerConnection } from './connection';
 import {
   isLivekitFocusConfig,
   LivekitFocus,
-  MatrixRtcSessionManagerImpl,
   RTCFocus,
   Session,
 } from './discovery';
 import AutoDiscovery from './discovery/autodiscovery';
 import { SessionState } from './discovery/sessionManagerImpl';
+import { MatrixRtcSessionManager } from './discovery/types';
 import {
   CommunicationChannel,
   CommunicationChannelStatistics,
@@ -65,7 +65,7 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
 
   constructor(
     private readonly widgetApiPromise: Promise<WidgetApi> | WidgetApi,
-    private readonly sessionManager: MatrixRtcSessionManagerImpl,
+    private readonly sessionManager: MatrixRtcSessionManager,
     private readonly whiteboardId: string,
     onEnableObserveVisibilityState: Observable<boolean> = new BehaviorSubject(
       true,
