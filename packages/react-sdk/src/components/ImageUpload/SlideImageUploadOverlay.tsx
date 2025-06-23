@@ -22,17 +22,18 @@ import { useSlideImageUpload } from './useSlideImageUpload';
 
 type SlideImageUploadOverlayProps = {
   onDragLeave: () => void;
+  onPdfDrop?: (file: File) => void;
 };
 
 export const SlideImageUploadOverlay: React.FC<SlideImageUploadOverlayProps> =
-  function ({ onDragLeave }) {
+  function ({ onDragLeave, onPdfDrop }) {
     const { t } = useTranslation('neoboard');
     const { calculateSvgCoords } = useSvgCanvasContext();
     const { getRootProps, getInputProps } = useSlideImageUpload({
       noClick: true,
       calculateSvgCoords,
+      onPdfDrop,
     });
-
     return (
       <Overlay
         data-testid="slide-image-upload-overlay"
