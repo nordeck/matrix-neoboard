@@ -1,5 +1,57 @@
 # @nordeck/matrix-neoboard-react-sdk
 
+## 1.2.0
+
+### Minor Changes
+
+- a523436: Use room id of selected whiteboard event to load document snapshots.
+- b863b53: Add start markers to lines and element bar options for changing them
+- 0a9bc50: Add sticky notes feature with toolbar button, default styling, and resize behavior
+- f24412d: Fix PDF export for older boards where the font of shapes with text wasn't specified
+- d050272: There is now an infinite canvas mode exist which can be enabled with the `REACT_APP_INFINITE_CANVAS` environment variable.
+- 7964ca0: There is now a the new frame tool, that places frames on the canvas (only with feature flag `REACT_APP_INFINITE_CANVAS`)
+- 5aa6fad: Adds baseline MatrixRTC implementation as an alternative to peer-to-peer WebRTC
+- c8348bd: Provide option to create whiteboard manager with disabled RTC communication.
+- d9a5026: Export SlideSkeleton component.
+- fd1538e: Improve zooming and panning with trackpad, mouse and keyboard
+- f62be01: Add PDF to uploadable file types
+- 3d7c3bf: Fix PDF export, if the new fonts are used. Use the Inter font for all text.
+- 0a5b1f3: Connect a line/arrow to a shape while creating
+- 54f0787: Discover MatrixRTC foci from /.well-known/matrix/client and sync session state with backend connection status.
+
+### Patch Changes
+
+- 2d739e4: Increase the output scale to 4 on infinite canvas mode to ensure the images have enough quality on the board
+- f88782b: Fix the canvas being unable to display visible area when infinite canvas mode is activated
+- b9bb163: Adds env variable for setting LiveKit JWT Service URL
+- 8ca852a: Fit scale to fix not expected transition on zoom out
+- b826259: Disable Zoom Shortcuts when editing text content
+- 41b337f: Update matrix-widget-toolkit group: @matrix-widget-toolkit/api to 4.2.0, @matrix-widget-toolkit/mui to 2.1.3, i18next to 25.2.1, react-i18next to 15.5.2, @mui/lab to 6.0.1-beta.35
+- b76e3a6: Only init session manager when RTC is enabled
+- 76c2700: Fix duplicate elements shortcut to keep the connections
+- 18e2f1f: Use rtc channel sessions instead of redux store for Collaborators bar
+- 241f6dc: Improve drag and drop, copy and paste behaviours to add elements to the mouse cursor position
+- 1d08584: Fix inconsistent color between avatar and realtime collaboration cursor borders
+- aca78bb: Hide Slide Overview and Presentation Mode toggles, disable Frames tool
+- 0591f4f: Disable slide overview guided tour step in infinite canvas mode
+- be8c7d0: Fix scrolling not working when the pointer is over preview
+- 57e222d: Keep the elements connections during copy and paste, duplicate operations
+- 17be86c: Update the help center button icon to look less like an error
+- 5b24e27: Improve PDF import for infinite canvas
+- 3e0cbf7: Fix regressions in fitting a widget into a frame and a canvas moving off-screen
+- 4e9146e: Close peer backend connection on channel destruction
+- 176b3da: Fix selected connected line direction change when moved and snap to grid is enabled
+- 42e391b: Improve the behavior of connecting a line to a shape
+- b384065: Ensure that pdf imports on infinite canvas mode work.
+
+  We import pdf pages on infinite canvas now in the size of a frame instead.
+
+- a213b9a: Fix sync between cursor position and dragged elements
+- 1aac286: Improve performance when the element is moved or resized
+- 87cd696: Fix uploaded image size and pass pdf image size explicitly
+- 5dc812a: Revert IC default font size back to auto
+- 205cf88: Fix cutoff arrow tips
+
 ## 1.1.0
 
 ### Minor Changes
