@@ -15,6 +15,7 @@
  */
 
 import { Observable } from 'rxjs';
+import { RTCFocus } from './matrixRtcFocus';
 import { SessionState } from './sessionManagerImpl';
 
 export type Session = { userId: string; sessionId: string };
@@ -54,3 +55,23 @@ export type SessionManager = {
    */
   destroy(): void;
 };
+
+export type MatrixRtcSessionManager = SessionManager & {
+  /** Gets the current active focus, if discovered */
+  getActiveFocus(): RTCFocus | undefined;
+  /**
+   * Observe active focus changes.
+   * This will emit the current active focus when it changes.
+   */
+  observeActiveFocus(): Observable<RTCFocus>;
+};
+
+export function isMatrixRtcSessionManager(
+  manager: SessionManager,
+): manager is MatrixRtcSessionManager {
+  return (
+    typeof (manager as MatrixRtcSessionManager).getActiveFocus === 'function' &&
+    typeof (manager as MatrixRtcSessionManager).observeActiveFocus ===
+      'function'
+  );
+}

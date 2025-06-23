@@ -376,6 +376,10 @@ export class WebRtcPeerConnection implements PeerConnection {
     return concat(of(this.statistics), this.statisticsSubject);
   }
 
+  observeConnectionState(): Observable<string> {
+    throw new Error('not implemented');
+  }
+
   private updateStatistics(update: Partial<PeerConnectionStatistics>): void {
     if (Object.keys(update).length > 0) {
       Object.assign(this.statistics, update);

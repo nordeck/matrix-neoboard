@@ -23,5 +23,7 @@ export type {
   RTCFocus,
 } from './matrixRtcFocus';
 
+export { isLivekitFocusConfig } from './matrixRtcFocus';
+
 export { SessionManagerImpl } from './sessionManagerImpl';
 export type { Session, SessionManager } from './types';
