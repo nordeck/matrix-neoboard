@@ -1,5 +1,75 @@
 # @nordeck/matrix-neoboard-widget
 
+## 2.2.0
+
+### Minor Changes
+
+- 0a9bc50: Add sticky notes feature with toolbar button, default styling, and resize behavior
+- d050272: There is now an infinite canvas mode exist which can be enabled with the `REACT_APP_INFINITE_CANVAS` environment variable.
+- 7964ca0: There is now a the new frame tool, that places frames on the canvas (only with feature flag `REACT_APP_INFINITE_CANVAS`)
+- 5aa6fad: Adds baseline MatrixRTC implementation as an alternative to peer-to-peer WebRTC
+- 9a833f2: add wss to CSP to enable matrixRTC
+- f62be01: Add PDF to uploadable file types
+- 0a5b1f3: Connect a line/arrow to a shape while creating
+
+### Patch Changes
+
+- f88782b: Fix the canvas being unable to display visible area when infinite canvas mode is activated
+- 8ca852a: Fit scale to fix not expected transition on zoom out
+- 41b337f: Update matrix-widget-toolkit group: @matrix-widget-toolkit/api to 4.2.0, @matrix-widget-toolkit/mui to 2.1.3, i18next to 25.2.1, react-i18next to 15.5.2, @mui/lab to 6.0.1-beta.35
+- 76c2700: Fix duplicate elements shortcut to keep the connections
+- 241f6dc: Improve drag and drop, copy and paste behaviours to add elements to the mouse cursor position
+- 57e222d: Keep the elements connections during copy and paste, duplicate operations
+- 17be86c: Update the help center button icon to look less like an error
+- 3e0cbf7: Fix regressions in fitting a widget into a frame and a canvas moving off-screen
+- 176b3da: Fix selected connected line direction change when moved and snap to grid is enabled
+- 42e391b: Improve the behavior of connecting a line to a shape
+- a213b9a: Fix sync between cursor position and dragged elements
+- 1aac286: Improve performance when the element is moved or resized
+- 87cd696: Fix uploaded image size and pass pdf image size explicitly
+- Updated dependencies [2d739e4]
+- Updated dependencies [f88782b]
+- Updated dependencies [a523436]
+- Updated dependencies [b9bb163]
+- Updated dependencies [b863b53]
+- Updated dependencies [8ca852a]
+- Updated dependencies [b826259]
+- Updated dependencies [41b337f]
+- Updated dependencies [b76e3a6]
+- Updated dependencies [76c2700]
+- Updated dependencies [0a9bc50]
+- Updated dependencies [18e2f1f]
+- Updated dependencies [f24412d]
+- Updated dependencies [d050272]
+- Updated dependencies [241f6dc]
+- Updated dependencies [7964ca0]
+- Updated dependencies [5aa6fad]
+- Updated dependencies [1d08584]
+- Updated dependencies [aca78bb]
+- Updated dependencies [0591f4f]
+- Updated dependencies [c8348bd]
+- Updated dependencies [be8c7d0]
+- Updated dependencies [57e222d]
+- Updated dependencies [17be86c]
+- Updated dependencies [5b24e27]
+- Updated dependencies [3e0cbf7]
+- Updated dependencies [4e9146e]
+- Updated dependencies [d9a5026]
+- Updated dependencies [176b3da]
+- Updated dependencies [42e391b]
+- Updated dependencies [b384065]
+- Updated dependencies [a213b9a]
+- Updated dependencies [1aac286]
+- Updated dependencies [fd1538e]
+- Updated dependencies [87cd696]
+- Updated dependencies [5dc812a]
+- Updated dependencies [f62be01]
+- Updated dependencies [3d7c3bf]
+- Updated dependencies [0a5b1f3]
+- Updated dependencies [54f0787]
+- Updated dependencies [205cf88]
+  - @nordeck/matrix-neoboard-react-sdk@1.2.0
+
 ## 2.1.0
 
 ### Minor Changes
