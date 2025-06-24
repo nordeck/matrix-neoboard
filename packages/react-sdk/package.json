@@ -79,7 +79,7 @@
     "prettier": "^3.5.2",
     "react-i18next": "^15.5.2",
     "typescript": "^5.7.3",
-    "vite": "^5.4.12",
+    "vite": "^5.4.19",
     "vitest": "^2.1.9",
     "vitest-fetch-mock": "^0.4.3",
     "yarn-deduplicate": "^6.0.2"
