@@ -3,7 +3,7 @@
   "description": "SDK with react components to develop neoboard",
   "author": "Nordeck IT + Consulting GmbH",
   "license": "Apache-2.0",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "private": true,
   "source": "./src/index.ts",
   "module": "./src/index.ts",

@@ -1,5 +1,11 @@
 # @nordeck/matrix-neoboard-react-sdk
 
+## 1.2.1
+
+### Patch Changes
+
+- ae223c4: Bump vite from 5.4.14 to 5.4.19
+
 ## 1.2.0
 
 ### Minor Changes
