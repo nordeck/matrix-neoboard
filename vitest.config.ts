@@ -15,4 +15,11 @@
  */
 
 // These are all the packages using vitest.
-export default ['matrix-neoboard-widget', 'packages/*'];
+import { defineConfig } from 'vitest/config';
+
+export default defineConfig({
+  test: {
+    // These are all the packages using vitest. The containers folder is excluded since it is using playwright.
+    projects: ['matrix-neoboard-widget', 'packages/*'],
+  },
+});
