@@ -187,7 +187,73 @@ export class MatrixRtcSessionManagerImpl implements MatrixRtcSessionManager {
         }
       });
 
+    this.observeSessionLeft()
+      .pipe(takeUntil(this.destroySubject), takeUntil(this.leaveSubject))
+      .subscribe(() => {
+        this.checkMemberFocus();
+      });
+
     return { sessionId };
+  }
+
+  /**
+   * Sends a remove membership delayed event, updates delay id.
+   * Refreshes a delayed event periodically.
+   * Invalidates a delay id if failed to refresh.
+   * @param widgetApi Widget API
+   * @param sessionId session id
+   */
+  private async scheduleRemoveMembershipDelayedEvent(
+    widgetApi: WidgetApi,
+    sessionId: string,
+  ): Promise<void> {
+    let removeSessionDelayId: string | undefined;
+    try {
+      ({ delay_id: removeSessionDelayId } =
+        await widgetApi.sendDelayedStateEvent(
+          STATE_EVENT_RTC_MEMBER,
+          {},
+          this.removeSessionDelay,
+          {
+            stateKey: sessionId,
+          },
+        ));
+    } catch (ex) {
+      this.logger.error(
+        'Could not send remove membership delayed event:',
+        isError(ex) ? ex.message : ex,
+      );
+    }
+
+    if (removeSessionDelayId) {
+      interval(this.removeSessionDelay * 0.75)
+        .pipe(
+          takeUntil(this.destroySubject),
+          takeUntil(this.leaveSubject),
+          switchMap(() =>
+            widgetApi.updateDelayedEvent(
+              removeSessionDelayId,
+              UpdateDelayedEventAction.Restart,
+            ),
+          ),
+        )
+        .subscribe({
+          error: (err) => {
+            if (
+              this.removeSessionDelayId &&
+              this.removeSessionDelayId === removeSessionDelayId
+            ) {
+              this.removeSessionDelayId = undefined;
+            }
+            this.logger.error(
+              'Could not refresh delayed event:',
+              isError(err) ? err.message : err,
+            );
+          },
+        });
+
+      this.removeSessionDelayId = removeSessionDelayId;
+    }
   }
 
   /**
@@ -305,6 +371,35 @@ export class MatrixRtcSessionManagerImpl implements MatrixRtcSessionManager {
       this.computeActiveFocus();
     } else {
       this.logger.debug('No new homeserver foci found');
+    }
+  }
+
+  private checkMemberFocus() {
+    // sort the sessions by expire time
+    const sortedSessions = this.sessions.sort((a, b) => {
+      const aExpire = a.content.expires || Infinity;
+      const bExpire = b.content.expires || Infinity;
+      return aExpire - bExpire;
+    });
+
+    // get the oldest session (smaller expires) preferred focus
+    const oldestSession = sortedSessions[0];
+    if (oldestSession) {
+      // check for active focus selection type
+      if (
+        oldestSession.content.focus_active.type === 'livekit' &&
+        oldestSession.content.focus_active.focus_selection ===
+          'oldest_membership'
+      ) {
+        const newMemberFocus = oldestSession.content.foci_preferred[0];
+        // check if it has changed since last session change
+        if (!isEqual(this.memberFocus, newMemberFocus)) {
+          this.memberFocus = newMemberFocus;
+          this.computeActiveFocus();
+        }
+      } else {
+        throw new Error('Unsupported focus selection type');
+      }
     }
   }
 
