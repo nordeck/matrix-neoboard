@@ -140,6 +140,12 @@ export class MatrixRtcSessionManagerImpl implements MatrixRtcSessionManager {
         this.handleRTCSessionEvent(rtcSession);
       });
 
+    this.observeSessionLeft()
+      .pipe(takeUntil(this.destroySubject), takeUntil(this.leaveSubject))
+      .subscribe(() => {
+        this.checkMemberFocus();
+      });
+
     interval(this.sessionTimeout * 0.75)
       .pipe(
         takeUntil(this.destroySubject),
@@ -201,6 +207,35 @@ export class MatrixRtcSessionManagerImpl implements MatrixRtcSessionManager {
       this.computeActiveFocus();
     } else {
       this.logger.debug('No new homeserver foci found');
+    }
+  }
+
+  private checkMemberFocus() {
+    // sort the sessions by expire time
+    const sortedSessions = this.sessions.sort((a, b) => {
+      const aExpire = a.content.expires || Infinity;
+      const bExpire = b.content.expires || Infinity;
+      return aExpire - bExpire;
+    });
+
+    // get the oldest session (smaller expires) preferred focus
+    const oldestSession = sortedSessions[0];
+    if (oldestSession) {
+      // check for active focus selection type
+      if (
+        oldestSession.content.focus_active.type === 'livekit' &&
+        oldestSession.content.focus_active.focus_selection ===
+          'oldest_membership'
+      ) {
+        const newMemberFocus = oldestSession.content.foci_preferred[0];
+        // check if it has changed since last session change
+        if (!isEqual(this.memberFocus, newMemberFocus)) {
+          this.memberFocus = newMemberFocus;
+          this.computeActiveFocus();
+        }
+      } else {
+        throw new Error('Unsupported focus selection type');
+      }
     }
   }
 
