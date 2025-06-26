@@ -375,23 +375,36 @@ export class MatrixRtcSessionManagerImpl implements MatrixRtcSessionManager {
   }
 
   private checkMemberFocus() {
+    const filteredSessions = this.sessions.filter((session) =>
+      isRTCSessionNotExpired(session),
+    );
     // sort the sessions by expire time
-    const sortedSessions = this.sessions.sort((a, b) => {
+    const sortedSessions = filteredSessions.sort((a, b) => {
       const aExpire = a.content.expires || Infinity;
       const bExpire = b.content.expires || Infinity;
       return aExpire - bExpire;
     });
+    console.info('FOCUS: Checking member focus on sessions', sortedSessions);
 
     // get the oldest session (smaller expires) preferred focus
     const oldestSession = sortedSessions[0];
+    // if *YOU* are the oldest member, ignore member focus, as it may have changed
+    // by a malicious actor or from well-known foci
+    console.info(
+      'FOCUS: Oldest session:',
+      oldestSession.state_key,
+      this.getSessionId(),
+    );
     if (oldestSession) {
       // check for active focus selection type
       if (
         oldestSession.content.focus_active.type === 'livekit' &&
         oldestSession.content.focus_active.focus_selection ===
-          'oldest_membership'
+          'oldest_membership' &&
+        oldestSession.state_key !== this.getSessionId()
       ) {
         const newMemberFocus = oldestSession.content.foci_preferred[0];
+        console.info('FOCUS: New member focus:', newMemberFocus);
         // check if it has changed since last session change
         if (!isEqual(this.memberFocus, newMemberFocus)) {
           this.memberFocus = newMemberFocus;
@@ -404,7 +417,7 @@ export class MatrixRtcSessionManagerImpl implements MatrixRtcSessionManager {
   }
 
   private computeActiveFocus() {
-    this.logger.debug('Checking if a new active focus is required');
+    this.logger.debug('FOCUS: Checking if a new active focus is required');
 
     this.fociPreferred = makeFociPreferred(
       this.memberFocus,
@@ -414,6 +427,7 @@ export class MatrixRtcSessionManagerImpl implements MatrixRtcSessionManager {
     // Check for a new active foci to change to
     const newActiveFocus = this.fociPreferred[0];
     if (!isEqual(this.activeFocus, newActiveFocus)) {
+      this.logger.debug('FOCUS: New active focus:', newActiveFocus);
       this.activeFocus = newActiveFocus;
       this.activeFocusSubject.next(newActiveFocus);
     }
