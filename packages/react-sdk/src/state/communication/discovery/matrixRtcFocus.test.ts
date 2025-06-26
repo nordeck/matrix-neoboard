@@ -19,6 +19,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import AutoDiscovery from './autodiscovery';
 import {
   getWellKnownFoci,
+  isLivekitFocusActive,
   isLivekitFocusConfig,
   makeFociPreferred,
   RTCFocus,
@@ -247,6 +248,43 @@ describe('matrixRtcFocus', () => {
       };
 
       expect(isLivekitFocusConfig(extraProps)).toBe(true);
+    });
+  });
+
+  describe('isLivekitFocusActive', () => {
+    it('should return true for valid LivekitFocusActive objects', () => {
+      const validActive: RTCFocus = {
+        type: 'livekit',
+        focus_selection: 'oldest_membership',
+      };
+
+      expect(isLivekitFocusActive(validActive)).toBe(true);
+    });
+
+    it('should return false for non-livekit type', () => {
+      const invalidType: RTCFocus = {
+        type: 'full_mesh',
+      };
+
+      expect(isLivekitFocusActive(invalidType)).toBe(false);
+    });
+
+    it('should return false when focus_selection is missing', () => {
+      const missingSelection: RTCFocus = {
+        type: 'livekit',
+      };
+
+      expect(isLivekitFocusActive(missingSelection)).toBe(false);
+    });
+
+    it('should return true when additional properties are present', () => {
+      const extraProps: RTCFocus = {
+        type: 'livekit',
+        focus_selection: 'oldest_membership',
+        additional_property: 'value',
+      };
+
+      expect(isLivekitFocusActive(extraProps)).toBe(true);
     });
   });
 });

@@ -114,3 +114,8 @@ export const isLivekitFocusConfig = (
   object: RTCFocus,
 ): object is LivekitFocusConfig =>
   object.type === 'livekit' && 'livekit_service_url' in object;
+
+export const isLivekitFocusActive = (
+  focus_active: RTCFocus,
+): focus_active is LivekitFocusActive =>
+  focus_active.type === 'livekit' && 'focus_selection' in focus_active;
