@@ -1,8 +1,6 @@
 {
   $schema: 'https://docs.renovatebot.com/renovate-schema.json',
-  extends: [
-    'github>nordeck/matrix-widget-toolkit//.github/renovate.json5'
-  ],
+  extends: ['github>nordeck/matrix-widget-toolkit//.github/renovate.json5'],
   // https://docs.renovatebot.com/configuration-options/#packagerules - Note that later overrides earlier rules
   packageRules: [],
 }
