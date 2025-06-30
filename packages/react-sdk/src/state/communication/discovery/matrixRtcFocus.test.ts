@@ -19,6 +19,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import AutoDiscovery from './autodiscovery';
 import {
   getWellKnownFoci,
+  isEqualFocus,
   isLivekitFocusActive,
   isLivekitFocusConfig,
   makeFociPreferred,
@@ -248,6 +249,64 @@ describe('matrixRtcFocus', () => {
       };
 
       expect(isLivekitFocusConfig(extraProps)).toBe(true);
+    });
+  });
+
+  describe('isEqualFocus', () => {
+    it('should return true for identical objects', () => {
+      const focus1: RTCFocus = {
+        type: 'livekit',
+        livekit_service_url: 'https://livekit.example.com',
+      };
+
+      const focus2: RTCFocus = {
+        type: 'livekit',
+        livekit_service_url: 'https://livekit.example.com',
+      };
+
+      expect(isEqualFocus(focus1, focus2)).toBe(true);
+    });
+
+    it('should return true for identical objects with additional properties', () => {
+      const focus1: RTCFocus = {
+        type: 'livekit',
+        livekit_service_url: 'https://livekit.example.com',
+        livekit_alias: '!room-alias',
+      };
+
+      const focus2: RTCFocus = {
+        type: 'livekit',
+        livekit_service_url: 'https://livekit.example.com',
+      };
+
+      expect(isEqualFocus(focus1, focus2)).toBe(true);
+    });
+
+    it('should return false for different types', () => {
+      const focus1: RTCFocus = {
+        type: 'livekit',
+        livekit_service_url: 'https://livekit.example.com',
+      };
+
+      const focus2: RTCFocus = {
+        type: 'full_mesh',
+      };
+
+      expect(isEqualFocus(focus1, focus2)).toBe(false);
+    });
+
+    it('should return false for different URLs', () => {
+      const focus1: RTCFocus = {
+        type: 'livekit',
+        livekit_service_url: 'https://livekit.example.com',
+      };
+
+      const focus2: RTCFocus = {
+        type: 'livekit',
+        livekit_service_url: 'https://livekit.example.org',
+      };
+
+      expect(isEqualFocus(focus1, focus2)).toBe(false);
     });
   });
 
