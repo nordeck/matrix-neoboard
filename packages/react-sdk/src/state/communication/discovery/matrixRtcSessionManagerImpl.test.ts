@@ -792,7 +792,7 @@ describe('MatrixRtcSessionManagerImpl', () => {
   });
 
   it('should not trigger focus update if the active focus is the same', async () => {
-    widgetApi.sendStateEvent.mockClear();
+    await rtcSessionManager.join('whiteboard-id');
 
     // Simulate a foci change
     vi.spyOn(matrixRtcFocus, 'getWellKnownFoci').mockResolvedValue([
@@ -809,6 +809,75 @@ describe('MatrixRtcSessionManagerImpl', () => {
     expect(rtcSessionManager.getActiveFocus()).toEqual({
       type: 'livekit',
       livekit_service_url: 'https://livekit.example.com',
+    });
+  });
+
+  it('should use member focus when joining ongoing session', async () => {
+    await rtcSessionManager.join('whiteboard-id');
+
+    widgetApi.sendStateEvent.mockClear();
+
+    // @ts-ignore forcefully set for tests
+    widgetApi.widgetParameters.deviceId = 'OTHERDEVICEID';
+    const otherSessionManager = new MatrixRtcSessionManagerImpl(widgetApi);
+
+    // return a different value for this other session manager
+    vi.spyOn(matrixRtcFocus, 'getWellKnownFoci').mockResolvedValue([
+      {
+        type: 'livekit',
+        livekit_service_url: 'https://other.livekit.example.com',
+      },
+    ]);
+
+    await otherSessionManager.join('whiteboard-id');
+
+    expect(
+      matrixRtcFocus.isEqualFocus(otherSessionManager.getActiveFocus(), {
+        type: 'livekit',
+        livekit_service_url: 'https://livekit.example.com',
+      }),
+    ).toEqual(true);
+  });
+
+  it('should change active focus when oldest member leaves', async () => {
+    await rtcSessionManager.join('whiteboard-id');
+
+    // return a different value for this other session manager
+    vi.spyOn(matrixRtcFocus, 'getWellKnownFoci').mockResolvedValue([
+      {
+        type: 'livekit',
+        livekit_service_url: 'https://other.livekit.example.com',
+      },
+    ]);
+
+    // @ts-ignore forcefully set for tests
+    widgetApi.widgetParameters.userId = '@another-user-id';
+    // @ts-ignore forcefully set for tests
+    widgetApi.widgetParameters.deviceId = 'OTHERDEVICEID';
+    const otherSessionManager = new MatrixRtcSessionManagerImpl(widgetApi);
+
+    const activeFocusPromise = firstValueFrom(
+      otherSessionManager.observeActiveFocus().pipe(take(1)),
+    );
+
+    await expect(activeFocusPromise).resolves.toEqual({
+      type: 'livekit',
+      livekit_service_url: 'https://livekit.example.com',
+      livekit_alias: 'room-id',
+    });
+
+    await otherSessionManager.join('whiteboard-id');
+
+    // @ts-ignore forcefully set for tests
+    widgetApi.widgetParameters.userId = '@user-id';
+    // @ts-ignore forcefully set for tests
+    widgetApi.widgetParameters.deviceId = 'DEVICEID';
+    await rtcSessionManager.leave();
+
+    // Verify the active focus was updated
+    expect(otherSessionManager.getActiveFocus()).toEqual({
+      type: 'livekit',
+      livekit_service_url: 'https://other.livekit.example.com',
     });
   });
 });
