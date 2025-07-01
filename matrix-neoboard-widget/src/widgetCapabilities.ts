@@ -119,6 +119,8 @@ if (matrixRtcMode) {
       EventDirection.Receive,
       STATE_EVENT_RTC_MEMBER,
     ),
+    MatrixCapabilities.MSC4157SendDelayedEvent,
+    MatrixCapabilities.MSC4157UpdateDelayedEvent,
   );
 } else {
   widgetCapabilities.push(
