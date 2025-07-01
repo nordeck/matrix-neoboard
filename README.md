@@ -65,7 +65,8 @@ Check the following steps to develop for the widget:
 You need to install Node.js (`>= 20.0.0`, prefer using an LTS version) and run
 `yarn` to work on this package.
 The minimal Element version to use this widget is `1.11.46`.
-It is recommended to use Synapse with the minimal version `1.127.0` that has delayed events support.
+If you are using `MatrixRTC`, it is recommended to use Synapse with the minimal version `1.127.0`
+that has delayed events support.
 
 ### Dependencies
 
