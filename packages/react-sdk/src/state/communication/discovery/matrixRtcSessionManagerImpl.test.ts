@@ -497,7 +497,7 @@ describe('MatrixRtcSessionManagerImpl', () => {
     expect(widgetApi.sendDelayedStateEvent).toHaveBeenCalledTimes(1);
   });
 
-  it('should update membership and and re-schedule remove membership delayed event when membership is removed by another user', async () => {
+  it('should update membership and reschedule remove membership delayed event when membership is removed by another user', async () => {
     await rtcSessionManager.join('whiteboard-id');
 
     expect(widgetApi.sendStateEvent).toHaveBeenCalledWith(
@@ -591,7 +591,7 @@ describe('MatrixRtcSessionManagerImpl', () => {
     expect(widgetApi.updateDelayedEvent).toHaveBeenCalledTimes(3);
   });
 
-  it('should update membership and re-schedule remove membership delayed event when failed to restart membership delayed event and own membership is removed', async () => {
+  it('should update membership and reschedule remove membership delayed event when failed to restart membership delayed event and own membership is removed', async () => {
     widgetApi.updateDelayedEvent.mockRejectedValue(new Error('Some error'));
 
     await rtcSessionManager.join('whiteboard-id');
