@@ -15,6 +15,7 @@
  */
 
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
+import { UpdateDelayedEventAction } from 'matrix-widget-api';
 import { firstValueFrom, take, toArray } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { mockWhiteboardMembership } from '../../../lib/testUtils/matrixRtcMock';
@@ -28,6 +29,7 @@ import * as matrixRtcFocus from './matrixRtcFocus';
 import { MatrixRtcSessionManagerImpl } from './matrixRtcSessionManagerImpl';
 
 describe('MatrixRtcSessionManagerImpl', () => {
+  const removeSessionDelay = 8000;
   let widgetApi: MockedWidgetApi;
   let rtcSessionManager: MatrixRtcSessionManagerImpl;
 
@@ -44,7 +46,11 @@ describe('MatrixRtcSessionManagerImpl', () => {
 
     vi.stubEnv('REACT_APP_RTC', 'matrixrtc');
 
-    rtcSessionManager = new MatrixRtcSessionManagerImpl(widgetApi);
+    rtcSessionManager = new MatrixRtcSessionManagerImpl(
+      widgetApi,
+      DEFAULT_RTC_EXPIRE_DURATION,
+      removeSessionDelay,
+    );
 
     // need to mock getWellKnownFoci to return a value
     vi.spyOn(matrixRtcFocus, 'getWellKnownFoci').mockResolvedValue([
@@ -79,6 +85,15 @@ describe('MatrixRtcSessionManagerImpl', () => {
       },
       { stateKey: '_@user-id_DEVICEID' },
     );
+    expect(widgetApi.sendDelayedStateEvent).toHaveBeenCalledWith(
+      STATE_EVENT_RTC_MEMBER,
+      {},
+      removeSessionDelay,
+      { stateKey: '_@user-id_DEVICEID' },
+    );
+    expect(rtcSessionManager.getRemoveSessionDelayId()).toEqual(
+      'syd_bcooaGNyKtyFbIGjGMQR',
+    );
     expect(rtcSessionManager.getSessions()).toEqual([
       {
         sessionId: sessionId,
@@ -103,6 +118,16 @@ describe('MatrixRtcSessionManagerImpl', () => {
       },
       { stateKey: '_@user-id_DEVICEID' },
     );
+    expect(widgetApi.sendDelayedStateEvent).toHaveBeenCalledWith(
+      STATE_EVENT_RTC_MEMBER,
+      {},
+      removeSessionDelay,
+      { stateKey: '_@user-id_DEVICEID' },
+    );
+
+    widgetApi.sendDelayedStateEvent.mockResolvedValue({
+      delay_id: 'qqq_bcooaGNyKtyFbIGjGMQR',
+    });
 
     await rtcSessionManager.join('whiteboard-id-1');
 
@@ -110,6 +135,10 @@ describe('MatrixRtcSessionManagerImpl', () => {
       STATE_EVENT_RTC_MEMBER,
       {},
       { stateKey: '_@user-id_DEVICEID' },
+    );
+    expect(widgetApi.updateDelayedEvent).toHaveBeenCalledWith(
+      'syd_bcooaGNyKtyFbIGjGMQR',
+      UpdateDelayedEventAction.Cancel,
     );
 
     expect(widgetApi.sendStateEvent).toHaveBeenCalledWith(
@@ -124,6 +153,83 @@ describe('MatrixRtcSessionManagerImpl', () => {
         scope: 'm.room',
       },
       { stateKey: '_@user-id_DEVICEID' },
+    );
+    expect(widgetApi.sendDelayedStateEvent).toHaveBeenNthCalledWith(
+      2,
+      STATE_EVENT_RTC_MEMBER,
+      {},
+      removeSessionDelay,
+      { stateKey: '_@user-id_DEVICEID' },
+    );
+    expect(rtcSessionManager.getRemoveSessionDelayId()).toEqual(
+      'qqq_bcooaGNyKtyFbIGjGMQR',
+    );
+  });
+
+  it('should join the same whiteboard', async () => {
+    const { sessionId } = await rtcSessionManager.join('whiteboard-id');
+
+    expect(sessionId).toEqual(expect.any(String));
+    expect(widgetApi.sendStateEvent).toHaveBeenCalledWith(
+      STATE_EVENT_RTC_MEMBER,
+      {
+        application: RTC_APPLICATION_WHITEBOARD,
+        call_id: 'whiteboard-id',
+        device_id: 'DEVICEID',
+        expires: expect.any(Number),
+        foci_preferred: expect.any(Array),
+        focus_active: { type: 'livekit', focus_selection: 'oldest_membership' },
+        scope: 'm.room',
+      },
+      { stateKey: '_@user-id_DEVICEID' },
+    );
+    expect(widgetApi.sendDelayedStateEvent).toHaveBeenCalledWith(
+      STATE_EVENT_RTC_MEMBER,
+      {},
+      removeSessionDelay,
+      { stateKey: '_@user-id_DEVICEID' },
+    );
+
+    widgetApi.sendDelayedStateEvent.mockResolvedValue({
+      delay_id: 'qqq_bcooaGNyKtyFbIGjGMQR',
+    });
+
+    await rtcSessionManager.join('whiteboard-id');
+
+    expect(widgetApi.sendStateEvent).toHaveBeenNthCalledWith(
+      2,
+      STATE_EVENT_RTC_MEMBER,
+      {},
+      { stateKey: '_@user-id_DEVICEID' },
+    );
+    expect(widgetApi.updateDelayedEvent).toHaveBeenCalledWith(
+      'syd_bcooaGNyKtyFbIGjGMQR',
+      UpdateDelayedEventAction.Cancel,
+    );
+
+    expect(widgetApi.sendStateEvent).toHaveBeenNthCalledWith(
+      3,
+      STATE_EVENT_RTC_MEMBER,
+      {
+        application: RTC_APPLICATION_WHITEBOARD,
+        call_id: 'whiteboard-id',
+        device_id: 'DEVICEID',
+        expires: expect.any(Number),
+        foci_preferred: expect.any(Array),
+        focus_active: { type: 'livekit', focus_selection: 'oldest_membership' },
+        scope: 'm.room',
+      },
+      { stateKey: '_@user-id_DEVICEID' },
+    );
+    expect(widgetApi.sendDelayedStateEvent).toHaveBeenNthCalledWith(
+      2,
+      STATE_EVENT_RTC_MEMBER,
+      {},
+      removeSessionDelay,
+      { stateKey: '_@user-id_DEVICEID' },
+    );
+    expect(rtcSessionManager.getRemoveSessionDelayId()).toEqual(
+      'qqq_bcooaGNyKtyFbIGjGMQR',
     );
   });
 
@@ -141,6 +247,12 @@ describe('MatrixRtcSessionManagerImpl', () => {
         focus_active: { type: 'livekit', focus_selection: 'oldest_membership' },
         scope: 'm.room',
       },
+      { stateKey: '_@user-id_DEVICEID' },
+    );
+    expect(widgetApi.sendDelayedStateEvent).toHaveBeenCalledWith(
+      STATE_EVENT_RTC_MEMBER,
+      {},
+      removeSessionDelay,
       { stateKey: '_@user-id_DEVICEID' },
     );
 
@@ -161,6 +273,16 @@ describe('MatrixRtcSessionManagerImpl', () => {
         scope: 'm.room',
       },
       { stateKey: '_@user-id_OTHERDEVICEID' },
+    );
+    expect(widgetApi.sendDelayedStateEvent).toHaveBeenNthCalledWith(
+      2,
+      STATE_EVENT_RTC_MEMBER,
+      {},
+      removeSessionDelay,
+      { stateKey: '_@user-id_OTHERDEVICEID' },
+    );
+    expect(rtcSessionManager.getRemoveSessionDelayId()).toEqual(
+      'syd_bcooaGNyKtyFbIGjGMQR',
     );
   });
 
@@ -210,6 +332,60 @@ describe('MatrixRtcSessionManagerImpl', () => {
     expect(lastCall.expires).toBeGreaterThan(expectedExpires);
   });
 
+  it('should restart a remove membership delayed event if it is about to be sent', async () => {
+    await rtcSessionManager.join('whiteboard-id');
+
+    expect(widgetApi.sendDelayedStateEvent).toHaveBeenCalledWith(
+      STATE_EVENT_RTC_MEMBER,
+      {},
+      removeSessionDelay,
+      { stateKey: '_@user-id_DEVICEID' },
+    );
+    expect(widgetApi.updateDelayedEvent).not.toHaveBeenCalled();
+
+    await vi.advanceTimersByTimeAsync(removeSessionDelay * 0.75 + 100);
+
+    expect(widgetApi.updateDelayedEvent).toHaveBeenLastCalledWith(
+      'syd_bcooaGNyKtyFbIGjGMQR',
+      UpdateDelayedEventAction.Restart,
+    );
+    expect(widgetApi.updateDelayedEvent).toHaveBeenCalledTimes(1);
+
+    await vi.advanceTimersByTimeAsync(removeSessionDelay * 0.75);
+
+    expect(widgetApi.updateDelayedEvent).toHaveBeenLastCalledWith(
+      'syd_bcooaGNyKtyFbIGjGMQR',
+      UpdateDelayedEventAction.Restart,
+    );
+    expect(widgetApi.updateDelayedEvent).toHaveBeenCalledTimes(2);
+  });
+
+  it('should stop to restart a remove membership delayed event if restart failed', async () => {
+    widgetApi.updateDelayedEvent.mockRejectedValue(new Error('Some error'));
+
+    await rtcSessionManager.join('whiteboard-id');
+
+    expect(widgetApi.sendDelayedStateEvent).toHaveBeenCalledWith(
+      STATE_EVENT_RTC_MEMBER,
+      {},
+      removeSessionDelay,
+      { stateKey: '_@user-id_DEVICEID' },
+    );
+    expect(widgetApi.updateDelayedEvent).not.toHaveBeenCalled();
+
+    await vi.advanceTimersByTimeAsync(removeSessionDelay * 0.75 + 100);
+
+    expect(widgetApi.updateDelayedEvent).toHaveBeenLastCalledWith(
+      'syd_bcooaGNyKtyFbIGjGMQR',
+      UpdateDelayedEventAction.Restart,
+    );
+    expect(widgetApi.updateDelayedEvent).toHaveBeenCalledTimes(1);
+
+    await vi.advanceTimersByTimeAsync(removeSessionDelay * 0.75);
+
+    expect(widgetApi.updateDelayedEvent).toHaveBeenCalledTimes(1);
+  });
+
   it('should handle new members joining a whiteboard', async () => {
     await rtcSessionManager.join('whiteboard-id');
 
@@ -246,16 +422,6 @@ describe('MatrixRtcSessionManagerImpl', () => {
       rtcSessionManager.observeSessionLeft().pipe(take(1), toArray()),
     );
 
-    widgetApi.mockSendStateEvent(
-      mockWhiteboardMembership({
-        content: {
-          device_id: 'ANOTHERDEVICEID',
-          expires: 123456789,
-        },
-        state_key: '_@another-user_ANOTHERDEVICEID',
-      }),
-    );
-
     await rtcSessionManager.join('whiteboard-id');
 
     widgetApi.mockSendStateEvent(
@@ -271,6 +437,244 @@ describe('MatrixRtcSessionManagerImpl', () => {
     await expect(leftPromise).resolves.toEqual([
       { sessionId: '_@another-user_ANOTHERDEVICEID', userId: '@user-id' },
     ]);
+  });
+
+  it('should update membership when own membership is removed by user himself', async () => {
+    await rtcSessionManager.join('whiteboard-id');
+
+    expect(widgetApi.sendStateEvent).toHaveBeenCalledWith(
+      STATE_EVENT_RTC_MEMBER,
+      {
+        application: RTC_APPLICATION_WHITEBOARD,
+        call_id: 'whiteboard-id',
+        device_id: 'DEVICEID',
+        expires: expect.any(Number),
+        foci_preferred: expect.any(Array),
+        focus_active: { type: 'livekit', focus_selection: 'oldest_membership' },
+        scope: 'm.room',
+      },
+      { stateKey: '_@user-id_DEVICEID' },
+    );
+    expect(widgetApi.sendDelayedStateEvent).toHaveBeenCalledWith(
+      STATE_EVENT_RTC_MEMBER,
+      {},
+      removeSessionDelay,
+      { stateKey: '_@user-id_DEVICEID' },
+    );
+
+    expect(widgetApi.sendDelayedStateEvent).toHaveBeenCalledTimes(1);
+
+    widgetApi.mockSendStateEvent(
+      mockWhiteboardMembership(
+        {
+          state_key: '_@user-id_DEVICEID',
+          content: {},
+        },
+        true,
+      ),
+    );
+
+    await vi.waitFor(() =>
+      expect(widgetApi.sendStateEvent).toHaveBeenNthCalledWith(
+        2,
+        STATE_EVENT_RTC_MEMBER,
+        {
+          application: RTC_APPLICATION_WHITEBOARD,
+          call_id: 'whiteboard-id',
+          device_id: 'DEVICEID',
+          expires: expect.any(Number),
+          foci_preferred: expect.any(Array),
+          focus_active: {
+            type: 'livekit',
+            focus_selection: 'oldest_membership',
+          },
+          scope: 'm.room',
+        },
+        { stateKey: '_@user-id_DEVICEID' },
+      ),
+    );
+
+    expect(widgetApi.sendDelayedStateEvent).toHaveBeenCalledTimes(1);
+  });
+
+  it('should update membership and reschedule remove membership delayed event when membership is removed by another user', async () => {
+    await rtcSessionManager.join('whiteboard-id');
+
+    expect(widgetApi.sendStateEvent).toHaveBeenCalledWith(
+      STATE_EVENT_RTC_MEMBER,
+      {
+        application: RTC_APPLICATION_WHITEBOARD,
+        call_id: 'whiteboard-id',
+        device_id: 'DEVICEID',
+        expires: expect.any(Number),
+        foci_preferred: expect.any(Array),
+        focus_active: { type: 'livekit', focus_selection: 'oldest_membership' },
+        scope: 'm.room',
+      },
+      { stateKey: '_@user-id_DEVICEID' },
+    );
+    expect(widgetApi.sendDelayedStateEvent).toHaveBeenCalledWith(
+      STATE_EVENT_RTC_MEMBER,
+      {},
+      removeSessionDelay,
+      { stateKey: '_@user-id_DEVICEID' },
+    );
+
+    widgetApi.sendDelayedStateEvent.mockResolvedValue({
+      delay_id: 'qqq_bcooaGNyKtyFbIGjGMQR',
+    });
+    widgetApi.updateDelayedEvent.mockImplementation((delayId) => {
+      if (delayId === 'syd_bcooaGNyKtyFbIGjGMQR') {
+        // Throw an error if a previous delay_id is passed
+        throw new Error('Cannot find a delayed event');
+      } else {
+        return Promise.resolve();
+      }
+    });
+
+    // Use another user to send empty member event, according to MSC4140 this will cancel a more recent state event.
+    widgetApi.mockSendStateEvent(
+      mockWhiteboardMembership(
+        {
+          state_key: '_@user-id_DEVICEID',
+          content: {},
+          sender: '@another-user-id',
+        },
+        true,
+      ),
+    );
+
+    await vi.waitFor(() =>
+      expect(widgetApi.sendStateEvent).toHaveBeenNthCalledWith(
+        2,
+        STATE_EVENT_RTC_MEMBER,
+        {
+          application: RTC_APPLICATION_WHITEBOARD,
+          call_id: 'whiteboard-id',
+          device_id: 'DEVICEID',
+          expires: expect.any(Number),
+          foci_preferred: expect.any(Array),
+          focus_active: {
+            type: 'livekit',
+            focus_selection: 'oldest_membership',
+          },
+          scope: 'm.room',
+        },
+        { stateKey: '_@user-id_DEVICEID' },
+      ),
+    );
+
+    expect(widgetApi.sendDelayedStateEvent).toHaveBeenCalledTimes(2);
+
+    await vi.advanceTimersByTimeAsync(removeSessionDelay * 0.75 + 100);
+
+    // This refresh request will fail and get cancelled
+    expect(widgetApi.updateDelayedEvent).toHaveBeenCalledWith(
+      'syd_bcooaGNyKtyFbIGjGMQR',
+      UpdateDelayedEventAction.Restart,
+    );
+    expect(widgetApi.updateDelayedEvent).toHaveBeenCalledWith(
+      'qqq_bcooaGNyKtyFbIGjGMQR',
+      UpdateDelayedEventAction.Restart,
+    );
+    expect(widgetApi.updateDelayedEvent).toHaveBeenCalledTimes(2);
+    expect(rtcSessionManager.getRemoveSessionDelayId()).toEqual(
+      'qqq_bcooaGNyKtyFbIGjGMQR',
+    );
+
+    await vi.advanceTimersByTimeAsync(removeSessionDelay * 0.75);
+
+    expect(widgetApi.updateDelayedEvent).toHaveBeenLastCalledWith(
+      'qqq_bcooaGNyKtyFbIGjGMQR',
+      UpdateDelayedEventAction.Restart,
+    );
+    expect(widgetApi.updateDelayedEvent).toHaveBeenCalledTimes(3);
+  });
+
+  it('should update membership and reschedule remove membership delayed event when failed to restart membership delayed event and own membership is removed', async () => {
+    widgetApi.updateDelayedEvent.mockRejectedValue(new Error('Some error'));
+
+    await rtcSessionManager.join('whiteboard-id');
+
+    expect(widgetApi.sendDelayedStateEvent).toHaveBeenCalledWith(
+      STATE_EVENT_RTC_MEMBER,
+      {},
+      removeSessionDelay,
+      { stateKey: '_@user-id_DEVICEID' },
+    );
+    expect(widgetApi.updateDelayedEvent).not.toHaveBeenCalled();
+    expect(rtcSessionManager.getRemoveSessionDelayId()).toEqual(
+      'syd_bcooaGNyKtyFbIGjGMQR',
+    );
+
+    await vi.advanceTimersByTimeAsync(removeSessionDelay * 0.75 + 100);
+
+    expect(widgetApi.updateDelayedEvent).toHaveBeenLastCalledWith(
+      'syd_bcooaGNyKtyFbIGjGMQR',
+      UpdateDelayedEventAction.Restart,
+    );
+    expect(widgetApi.updateDelayedEvent).toHaveBeenCalledTimes(1);
+    expect(rtcSessionManager.getRemoveSessionDelayId()).toBeUndefined();
+
+    await vi.advanceTimersByTimeAsync(removeSessionDelay * 0.75);
+
+    expect(widgetApi.updateDelayedEvent).toHaveBeenCalledTimes(1);
+
+    widgetApi.updateDelayedEvent.mockResolvedValue(undefined);
+    widgetApi.sendDelayedStateEvent.mockResolvedValue({
+      delay_id: 'qqq_bcooaGNyKtyFbIGjGMQR',
+    });
+
+    widgetApi.mockSendStateEvent(
+      mockWhiteboardMembership(
+        {
+          state_key: '_@user-id_DEVICEID',
+          content: {},
+        },
+        true,
+      ),
+    );
+
+    await vi.waitFor(() =>
+      expect(widgetApi.sendStateEvent).toHaveBeenNthCalledWith(
+        2,
+        STATE_EVENT_RTC_MEMBER,
+        {
+          application: RTC_APPLICATION_WHITEBOARD,
+          call_id: 'whiteboard-id',
+          device_id: 'DEVICEID',
+          expires: expect.any(Number),
+          foci_preferred: expect.any(Array),
+          focus_active: {
+            type: 'livekit',
+            focus_selection: 'oldest_membership',
+          },
+          scope: 'm.room',
+        },
+        { stateKey: '_@user-id_DEVICEID' },
+      ),
+    );
+
+    expect(widgetApi.sendDelayedStateEvent).toHaveBeenCalledTimes(2);
+    expect(rtcSessionManager.getRemoveSessionDelayId()).toEqual(
+      'qqq_bcooaGNyKtyFbIGjGMQR',
+    );
+
+    await vi.advanceTimersByTimeAsync(removeSessionDelay * 0.75 + 100);
+
+    expect(widgetApi.updateDelayedEvent).toHaveBeenLastCalledWith(
+      'qqq_bcooaGNyKtyFbIGjGMQR',
+      UpdateDelayedEventAction.Restart,
+    );
+    expect(widgetApi.updateDelayedEvent).toHaveBeenCalledTimes(2);
+
+    await vi.advanceTimersByTimeAsync(removeSessionDelay * 0.75);
+
+    expect(widgetApi.updateDelayedEvent).toHaveBeenLastCalledWith(
+      'qqq_bcooaGNyKtyFbIGjGMQR',
+      UpdateDelayedEventAction.Restart,
+    );
+    expect(widgetApi.updateDelayedEvent).toHaveBeenCalledTimes(3);
   });
 
   it('should remove membership when leaving', async () => {
@@ -292,6 +696,11 @@ describe('MatrixRtcSessionManagerImpl', () => {
       {},
       { stateKey: '_@user-id_DEVICEID' },
     );
+    expect(widgetApi.updateDelayedEvent).toHaveBeenCalledWith(
+      'syd_bcooaGNyKtyFbIGjGMQR',
+      UpdateDelayedEventAction.Cancel,
+    );
+    expect(rtcSessionManager.getRemoveSessionDelayId()).toBeUndefined();
   });
 
   it('should close observables', async () => {
