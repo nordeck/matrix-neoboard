@@ -15,8 +15,9 @@
  */
 
 import { StateEvent, WidgetApi } from '@matrix-widget-toolkit/api';
-import { clone, isEqual } from 'lodash';
+import { clone, isEqual, isError } from 'lodash';
 import { getLogger } from 'loglevel';
+import { UpdateDelayedEventAction } from 'matrix-widget-api';
 import {
   Observable,
   Subject,
@@ -62,11 +63,18 @@ export class MatrixRtcSessionManagerImpl implements MatrixRtcSessionManager {
   private fociPreferred: RTCFocus[] = [];
   private wellKnownFoci: RTCFocus[] = [];
   private activeFocus: RTCFocus | undefined;
+  /**
+   * Holds remove membership event delay id.
+   * Is undefined is homeserver doesn't support delayed events.
+   * Is assigned undefined if cannot refresh a delayed event with this id.
+   */
+  private removeSessionDelayId?: string;
 
   constructor(
     private readonly widgetApiPromise: Promise<WidgetApi> | WidgetApi,
     private readonly sessionTimeout = DEFAULT_RTC_EXPIRE_DURATION,
     wellKnownPollingInterval = 60 * 1000,
+    private readonly removeSessionDelay: number = 8000,
   ) {
     this.checkForWellKnownFoci().catch((error) => {
       this.logger.error('Failed to check for well-known foci:', error);
@@ -92,6 +100,13 @@ export class MatrixRtcSessionManagerImpl implements MatrixRtcSessionManager {
 
   getActiveFocus(): RTCFocus | undefined {
     return this.activeFocus;
+  }
+
+  /**
+   * Is not part of MatrixRtcSessionManager type. Is used in tests only.
+   */
+  getRemoveSessionDelayId(): string | undefined {
+    return this.removeSessionDelayId;
   }
 
   observeSessionJoined(): Observable<Session> {
@@ -126,6 +141,17 @@ export class MatrixRtcSessionManagerImpl implements MatrixRtcSessionManager {
       `Joining whiteboard ${whiteboardId} as session ${sessionId}`,
     );
 
+    interval(this.sessionTimeout * 0.75)
+      .pipe(
+        takeUntil(this.destroySubject),
+        takeUntil(this.leaveSubject),
+        switchMap(() => this.refreshOwnSession(sessionId)),
+      )
+      .subscribe();
+
+    await this.refreshOwnSession(sessionId);
+    await this.scheduleRemoveMembershipDelayedEvent(widgetApi, sessionId);
+
     // Handle session events
     from(Promise.resolve(this.widgetApiPromise))
       .pipe(
@@ -136,21 +162,92 @@ export class MatrixRtcSessionManagerImpl implements MatrixRtcSessionManager {
         takeUntil(this.destroySubject),
         takeUntil(this.leaveSubject),
       )
-      .subscribe((rtcSession) => {
-        this.handleRTCSessionEvent(rtcSession);
+      .subscribe(async (rtcSession) => {
+        if (
+          Object.keys(rtcSession.content).length === 0 &&
+          rtcSession.state_key === sessionId
+        ) {
+          // refresh a membership event when event for this session is removed
+          await this.refreshOwnSession(sessionId);
+
+          if (!this.removeSessionDelayId || rtcSession.sender !== userId) {
+            /**
+             * Re-schedule if delay id is empty (failed to refresh a delayed event)
+             *
+             * Re-schedule if a remove membership event is sent by another user.
+             * In this case a delayed state event is cancelled according to MSC4140.
+             */
+            await this.scheduleRemoveMembershipDelayedEvent(
+              widgetApi,
+              sessionId,
+            );
+          }
+        } else {
+          this.handleRTCSessionEvent(rtcSession);
+        }
       });
 
-    interval(this.sessionTimeout * 0.75)
-      .pipe(
-        takeUntil(this.destroySubject),
-        takeUntil(this.leaveSubject),
-        switchMap(() => this.refreshOwnSession(sessionId)),
-      )
-      .subscribe();
-
-    await this.refreshOwnSession(sessionId);
-
     return { sessionId };
+  }
+
+  /**
+   * Sends a remove membership delayed event, updates delay id.
+   * Refreshes a delayed event periodically.
+   * Invalidates a delay id if failed to refresh.
+   * @param widgetApi Widget API
+   * @param sessionId session id
+   */
+  private async scheduleRemoveMembershipDelayedEvent(
+    widgetApi: WidgetApi,
+    sessionId: string,
+  ): Promise<void> {
+    let removeSessionDelayId: string | undefined;
+    try {
+      ({ delay_id: removeSessionDelayId } =
+        await widgetApi.sendDelayedStateEvent(
+          STATE_EVENT_RTC_MEMBER,
+          {},
+          this.removeSessionDelay,
+          {
+            stateKey: sessionId,
+          },
+        ));
+    } catch (ex) {
+      this.logger.error(
+        'Could not send remove membership delayed event:',
+        isError(ex) ? ex.message : ex,
+      );
+    }
+
+    if (removeSessionDelayId) {
+      interval(this.removeSessionDelay * 0.75)
+        .pipe(
+          takeUntil(this.destroySubject),
+          takeUntil(this.leaveSubject),
+          switchMap(() =>
+            widgetApi.updateDelayedEvent(
+              removeSessionDelayId,
+              UpdateDelayedEventAction.Restart,
+            ),
+          ),
+        )
+        .subscribe({
+          error: (err) => {
+            if (
+              this.removeSessionDelayId &&
+              this.removeSessionDelayId === removeSessionDelayId
+            ) {
+              this.removeSessionDelayId = undefined;
+            }
+            this.logger.error(
+              'Could not refresh delayed event:',
+              isError(err) ? err.message : err,
+            );
+          },
+        });
+
+      this.removeSessionDelayId = removeSessionDelayId;
+    }
   }
 
   async leave(): Promise<void> {
@@ -174,6 +271,13 @@ export class MatrixRtcSessionManagerImpl implements MatrixRtcSessionManager {
     }
 
     await this.endRtcSession(sessionId);
+    if (this.removeSessionDelayId) {
+      widgetApi.updateDelayedEvent(
+        this.removeSessionDelayId,
+        UpdateDelayedEventAction.Cancel,
+      );
+      this.removeSessionDelayId = undefined;
+    }
   }
 
   destroy(): void {
