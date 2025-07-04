@@ -1,5 +1,18 @@
 # @nordeck/matrix-neoboard-widget
 
+## 2.3.0
+
+### Minor Changes
+
+- 9d8cb41: Use delayed events to terminate Matrix RTC session
+
+### Patch Changes
+
+- f8bb468: Use `React.memo` for `ElementBar` to have smoother moving and resizing of multiple elements
+- Updated dependencies [9d8cb41]
+- Updated dependencies [f8bb468]
+  - @nordeck/matrix-neoboard-react-sdk@1.3.0
+
 ## 2.2.1
 
 ### Patch Changes
