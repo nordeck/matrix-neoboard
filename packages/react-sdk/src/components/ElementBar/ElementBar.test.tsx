@@ -33,7 +33,7 @@ import {
   WhiteboardSlideInstance,
 } from '../../state';
 import { LayoutStateProvider } from '../Layout';
-import { ElementBar } from './ElementBar';
+import ElementBar from './ElementBar';
 
 let widgetApi: MockedWidgetApi;
 

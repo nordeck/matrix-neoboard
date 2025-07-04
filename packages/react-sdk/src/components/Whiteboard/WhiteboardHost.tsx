@@ -27,7 +27,7 @@ import {
   useSlideIsLocked,
   useWhiteboardSlideInstance,
 } from '../../state';
-import { ElementBar } from '../ElementBar';
+import ElementBar from '../ElementBar/ElementBar';
 import {
   useElementOverrides,
   useGetElementOverride,
