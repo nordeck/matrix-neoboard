@@ -97,6 +97,7 @@ describe('matrixRtcFocus', () => {
     const memberFocus: RTCFocus = {
       type: 'livekit',
       livekit_service_url: 'https://member.livekit.example.com',
+      livekit_alias: '!room-id',
     };
     const wellKnownFoci: RTCFocus[] = [
       {
@@ -200,6 +201,7 @@ describe('matrixRtcFocus', () => {
         {
           type: 'livekit',
           livekit_service_url: 'https://member.livekit.example.com',
+          livekit_alias: '!room-id',
         },
         {
           type: 'livekit',

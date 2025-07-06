@@ -2,4 +2,4 @@
 '@nordeck/matrix-neoboard-react-sdk': minor
 ---
 
-Use active member focus on join and update on session membership changes"
+Implement oldest membership selection type for the active focus when using MatrixRTC with a Livekit backend

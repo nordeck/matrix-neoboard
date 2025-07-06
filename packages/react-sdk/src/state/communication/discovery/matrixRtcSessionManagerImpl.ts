@@ -53,9 +53,9 @@ export class MatrixRtcSessionManagerImpl implements MatrixRtcSessionManager {
   private readonly sessionLeftSubject = new Subject<Session>();
   private readonly activeFocusSubject = new Subject<RTCFocus>();
   private readonly sessionSubject = new Subject<SessionState>();
+  private initialized = false;
   private sessions: StateEvent<RTCSessionEventContent>[] = [];
   private joinState: { whiteboardId: string; sessionId: string } | undefined;
-  private memberFocus: RTCFocus | undefined = undefined;
   private fociPreferred: RTCFocus[] = [];
   private wellKnownFoci: RTCFocus[] = [];
   private activeFocus: RTCFocus | undefined;
@@ -69,18 +69,28 @@ export class MatrixRtcSessionManagerImpl implements MatrixRtcSessionManager {
   constructor(
     private readonly widgetApiPromise: Promise<WidgetApi> | WidgetApi,
     private readonly sessionTimeout = DEFAULT_RTC_EXPIRE_DURATION,
-    wellKnownPollingInterval = 60 * 1000,
+    private readonly wellKnownPollingInterval = 60 * 1000,
     private readonly removeSessionDelay: number = 8000,
-  ) {
+  ) {}
+
+  initialize(): void {
+    if (this.initialized) return;
+
     this.checkForWellKnownFoci().catch((error) => {
       this.logger.error('Failed to check for well-known foci:', error);
     });
 
-    interval(wellKnownPollingInterval)
+    interval(this.wellKnownPollingInterval)
       .pipe(takeUntil(this.destroySubject))
       .subscribe(async () => {
         await this.checkForWellKnownFoci();
       });
+
+    this.initialized = true;
+  }
+
+  isInitialized(): boolean {
+    return this.initialized;
   }
 
   getSessionId(): string | undefined {
@@ -370,15 +380,44 @@ export class MatrixRtcSessionManagerImpl implements MatrixRtcSessionManager {
     }
   }
 
-  private async checkMemberFocus() {
+  private async computeActiveFocus() {
+    this.logger.debug('Checking if a new active focus is required');
+
+    const memberFocus = await this.checkMemberFocus();
+
+    this.fociPreferred = makeFociPreferred(memberFocus, this.wellKnownFoci);
+
+    // Check for a new active foci to change to
+    const newActiveFocus = this.fociPreferred[0];
+    if (!isEqual(this.activeFocus, newActiveFocus)) {
+      this.logger.debug('New active focus:', newActiveFocus);
+      this.activeFocus = newActiveFocus;
+      this.activeFocusSubject.next(newActiveFocus);
+    }
+  }
+
+  private async checkMemberFocus(): Promise<RTCFocus | undefined> {
     const widgetApi = await this.widgetApiPromise;
     let sessions: StateEvent<RTCSessionEventContent>[] = [];
 
-    try {
-      sessions = await widgetApi.receiveStateEvents(STATE_EVENT_RTC_MEMBER);
-    } catch (error) {
-      this.logger.error('Failed to receive RTC member state events', error);
-      return;
+    if (this.sessions.length == 0) {
+      this.logger.debug(
+        'Not joined yet, need to retrieve session member state events',
+      );
+      try {
+        sessions = await widgetApi.receiveStateEvents(STATE_EVENT_RTC_MEMBER);
+      } catch (error) {
+        this.logger.error(
+          'Failed to receive session member state events',
+          error,
+        );
+        return;
+      }
+    } else {
+      this.logger.debug(
+        'Already joined, using cached session member state events',
+      );
+      sessions = this.sessions;
     }
 
     // Filter out invalid and expired sessions
@@ -410,39 +449,17 @@ export class MatrixRtcSessionManagerImpl implements MatrixRtcSessionManager {
       ) {
         // if this is the oldest session, we don't care about member focus
         if (oldestSession.state_key === this.getSessionId()) {
-          this.memberFocus = undefined;
+          return undefined;
         } else {
           const newMemberFocus = oldestSession.content.foci_preferred[0];
           this.logger.debug('New member focus:', newMemberFocus);
-          // only update if it has changed
-          if (!isEqual(this.memberFocus, newMemberFocus)) {
-            this.memberFocus = newMemberFocus;
-          }
+          return newMemberFocus;
         }
       } else {
         this.logger.error(
           'Unsupported focus selection type on oldest session member',
         );
       }
-    }
-  }
-
-  private async computeActiveFocus() {
-    this.logger.debug('Checking if a new active focus is required');
-
-    await this.checkMemberFocus();
-
-    this.fociPreferred = makeFociPreferred(
-      this.memberFocus,
-      this.wellKnownFoci,
-    );
-
-    // Check for a new active foci to change to
-    const newActiveFocus = this.fociPreferred[0];
-    if (!isEqual(this.activeFocus, newActiveFocus)) {
-      this.logger.debug('New active focus:', newActiveFocus);
-      this.activeFocus = newActiveFocus;
-      this.activeFocusSubject.next(newActiveFocus);
     }
   }
 

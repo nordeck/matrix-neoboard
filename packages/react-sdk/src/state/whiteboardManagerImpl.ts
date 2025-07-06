@@ -64,6 +64,9 @@ export class WhiteboardManagerImpl implements WhiteboardManager {
           userId,
         ),
       );
+      if (this.sessionManager && !this.sessionManager.isInitialized()) {
+        this.sessionManager.initialize();
+      }
     }
   }
 

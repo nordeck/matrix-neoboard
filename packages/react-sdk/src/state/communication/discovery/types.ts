@@ -21,6 +21,10 @@ import { SessionState } from './sessionManagerImpl';
 export type Session = { userId: string; sessionId: string };
 
 export type SessionManager = {
+  /** Sets up resources for the session manager, if required */
+  initialize(): void;
+  /** True if initialize() was called */
+  isInitialized(): boolean;
   /** Gets the current session id, if joined. */
   getSessionId(): string | undefined;
   /** Gets a list of all active sessions, excluding the own session. */
