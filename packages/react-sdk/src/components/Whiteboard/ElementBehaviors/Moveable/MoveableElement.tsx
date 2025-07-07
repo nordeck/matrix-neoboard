@@ -28,6 +28,7 @@ import {
   calculateBoundingRectForElements,
   findConnectingPaths,
   PathElement,
+  Point,
   useWhiteboardSlideInstance,
 } from '../../../../state';
 import { BoundingRect } from '../../../../state/crdt/documents/point';
@@ -68,6 +69,7 @@ export function MoveableElement({
   const setElementOverride = useSetElementOverride();
   const { viewportHeight, viewportWidth } = useSvgCanvasContext();
   const slideInstance = useWhiteboardSlideInstance();
+  const { calculateSvgCoords } = useSvgCanvasContext();
   const { scale } = useSvgScaleContext();
 
   const [{ deltaX, deltaY }, setDelta] = useState({ deltaX: 0, deltaY: 0 });
@@ -95,19 +97,33 @@ export function MoveableElement({
   const handleDrag = useCallback(
     (_: DraggableEvent, data: DraggableData) => {
       let boundingRect: BoundingRect | undefined;
+      let boundingRectCursorOffset: Point | undefined;
       let connectingPathElements: Record<string, PathElement> | undefined;
+
       if (!resizableProperties) {
+        boundingRect = calculateBoundingRectForElements(
+          Object.values(overrides),
+        );
+        const lastCursorPosition: Point = calculateSvgCoords({
+          x: data.lastX * scale,
+          y: data.lastY * scale,
+        });
+        boundingRectCursorOffset = {
+          x: lastCursorPosition.x - boundingRect.offsetX,
+          y: lastCursorPosition.y - boundingRect.offsetY,
+        };
+        connectingPathElements = getPathElements(
+          slideInstance,
+          findConnectingPaths(overrides),
+        );
         setResizableProperties({
-          boundingRect: calculateBoundingRectForElements(
-            Object.values(overrides),
-          ),
-          connectingPathElements: getPathElements(
-            slideInstance,
-            findConnectingPaths(overrides),
-          ),
+          boundingRect,
+          boundingRectCursorOffset,
+          connectingPathElements,
         });
       } else {
-        ({ boundingRect, connectingPathElements } = resizableProperties);
+        ({ boundingRect, boundingRectCursorOffset, connectingPathElements } =
+          resizableProperties);
       }
 
       setDelta((old) => ({
@@ -115,10 +131,15 @@ export function MoveableElement({
         deltaY: old.deltaY + data.deltaY,
       }));
 
+      const cursorPosition: Point = calculateSvgCoords({
+        x: data.x * scale,
+        y: data.y * scale,
+      });
+
       const elementOverrideUpdates = calculateElementOverrideUpdates(
         overrides,
-        data.deltaX,
-        data.deltaY,
+        cursorPosition.x - boundingRectCursorOffset.x,
+        cursorPosition.y - boundingRectCursorOffset.y,
         viewportWidth,
         viewportHeight,
         connectingPathElements,
@@ -135,6 +156,8 @@ export function MoveableElement({
       overrides,
       resizableProperties,
       slideInstance,
+      calculateSvgCoords,
+      scale,
     ],
   );
 

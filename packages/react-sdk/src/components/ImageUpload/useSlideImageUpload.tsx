@@ -16,14 +16,14 @@
 
 import { DragEvent, useCallback } from 'react';
 import { DropEvent, FileRejection, useDropzone } from 'react-dropzone';
-import { Point, useWhiteboardSlideInstance } from '../../state';
+import { Point, Size, useWhiteboardSlideInstance } from '../../state';
 import {
   initPDFJs,
   loadPDF,
   renderPDFToImages,
 } from '../ImportWhiteboardDialog/pdfImportUtils';
 import { useSvgScaleContext } from '../Whiteboard';
-import { addImagesToSlide } from './addImagesToSlide';
+import { addImagesToSlide, ImageToAddData } from './addImagesToSlide';
 import { defaultAcceptedImageTypes } from './consts';
 import { useImageUpload as useImageUploadContext } from './useImageUpload';
 
@@ -64,6 +64,7 @@ export function useSlideImageUpload(
   const handleDrop = useCallback(
     async (files: File[], rejectedFiles: FileRejection[], event: DropEvent) => {
       const newFiles: File[] = [];
+      const imageSizes: Size[] = [];
 
       if (Array.from(files).some((file) => file.type === 'application/pdf')) {
         await initPDFJs();
@@ -84,15 +85,26 @@ export function useSlideImageUpload(
                 type: image.mimeType,
               }),
             );
+            imageSizes.push({
+              width: image.width,
+              height: image.height,
+            });
           }
         }
       }
 
       const results = await imageUpload.handleDrop(newFiles, rejectedFiles);
 
-      const images = results
-        .filter((result) => result.status === 'fulfilled')
-        .map((result) => result.value);
+      const images: ImageToAddData[] = [];
+      for (let i = 0; i < results.length; i++) {
+        const result = results[i];
+        if (result.status === 'fulfilled') {
+          images.push({
+            uploadResult: result.value,
+            size: imageSizes[i],
+          });
+        }
+      }
 
       let position: Point;
       if (

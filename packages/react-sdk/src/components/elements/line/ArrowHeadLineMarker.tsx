@@ -14,28 +14,35 @@
  * limitations under the License.
  */
 
-type ArrowHeadLineEndMarkerProps = {
+const lineMarkerSize = 20;
+
+type ArrowHeadLineMarkerProps = {
   id: string;
   strokeColor?: string;
 };
 
-export function ArrowHeadLineEndMarker({
+export function ArrowHeadLineMarker({
   id,
   strokeColor,
-}: ArrowHeadLineEndMarkerProps) {
+}: ArrowHeadLineMarkerProps) {
+  const halfSize = lineMarkerSize / 2;
   return (
     <marker
       id={id}
       data-testid={id}
-      viewBox="0 0 3.5 7"
-      refX="3.5"
-      refY="3.5"
-      markerWidth="3.5"
-      markerHeight="7"
-      orient="auto"
+      viewBox={`0 -1 ${lineMarkerSize} ${lineMarkerSize}`}
+      refX={halfSize}
+      refY={halfSize / 2}
+      markerWidth={halfSize}
+      markerHeight={halfSize}
+      orient="auto-start-reverse"
       fill="none"
     >
-      <path d="M0 0 L3.5 3.5 M3.5 3.5 L0 7" stroke={strokeColor} />
+      <path
+        d={`M${halfSize / 2} 0 L${halfSize} ${halfSize / 2} L${halfSize / 2} ${halfSize}`}
+        stroke={strokeColor}
+        strokeWidth={2}
+      />
     </marker>
   );
 }

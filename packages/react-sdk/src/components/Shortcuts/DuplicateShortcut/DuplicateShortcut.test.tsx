@@ -49,8 +49,14 @@ describe('<DuplicateShortcut>', () => {
           'slide-0',
           [
             ['element-0', mockLineElement()],
-            ['element-1', mockLineElement()],
-            ['element-2', mockEllipseElement()],
+            [
+              'element-1',
+              mockLineElement({ connectedElementStart: 'element-2' }),
+            ],
+            [
+              'element-2',
+              mockEllipseElement({ connectedPaths: ['element-1'] }),
+            ],
           ],
         ],
       ],
@@ -91,6 +97,39 @@ describe('<DuplicateShortcut>', () => {
 
       // check that the elements have been duplicated
       expect(activeSlide.getElementIds()).toHaveLength(3 + elementIds.length);
+    },
+  );
+
+  it.each(['{Control>}d{/Control}', '{meta>}d'])(
+    'should copy connected elements with the %s keys',
+    async (key) => {
+      const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
+      activeSlide.setActiveElementIds(['element-1', 'element-2']);
+
+      render(<DuplicateShortcut />, { wrapper: Wrapper });
+
+      await userEvent.keyboard(key);
+
+      const elementIds = activeSlide.getElementIds();
+      expect(elementIds).toHaveLength(5);
+
+      const [newLineElementId, newShapeElementId] = elementIds.slice(3);
+
+      const newLineElement = activeSlide.getElement(newLineElementId);
+      const newShapeElement = activeSlide.getElement(newShapeElementId);
+
+      expect(newLineElement).toEqual(
+        expect.objectContaining({
+          type: 'path',
+          connectedElementStart: newShapeElementId,
+        }),
+      );
+      expect(newShapeElement).toEqual(
+        expect.objectContaining({
+          type: 'shape',
+          connectedPaths: [newLineElementId],
+        }),
+      );
     },
   );
 });

@@ -14,28 +14,23 @@
  * limitations under the License.
  */
 
-type ArrowHeadLineStartMarkerProps = {
-  id: string;
-  strokeColor?: string;
-};
+import { Element } from '../../state';
+import { ElementOverride } from './ElementOverridesProvider';
 
-export function ArrowHeadLineStartMarker({
-  id,
-  strokeColor,
-}: ArrowHeadLineStartMarkerProps) {
-  return (
-    <marker
-      id={id}
-      data-testid={id}
-      viewBox="0 0 3.5 7"
-      refX="0"
-      refY="3.5"
-      markerWidth="3.5"
-      markerHeight="7"
-      orient="auto"
-      fill="none"
-    >
-      <path d="M3.5 0 L0 3.5 M0 3.5 L3.5 7" stroke={strokeColor} />
-    </marker>
-  );
+export function mergeElementAndOverride(
+  element: Element,
+  override: ElementOverride | undefined,
+): Element {
+  return element.type === 'path'
+    ? {
+        ...element,
+        position: override?.position ?? element.position,
+        points: override?.points ?? element.points,
+      }
+    : {
+        ...element,
+        height: override?.height ?? element.height,
+        width: override?.width ?? element.width,
+        position: override?.position ?? element.position,
+      };
 }

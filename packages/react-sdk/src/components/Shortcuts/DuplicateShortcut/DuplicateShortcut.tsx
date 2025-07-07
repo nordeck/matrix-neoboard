@@ -18,6 +18,7 @@ import { useCallback } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import {
   calculateBoundingRectForElements,
+  Elements,
   useActiveElements,
   useWhiteboardSlideInstance,
 } from '../../../state';
@@ -32,15 +33,19 @@ export function DuplicateShortcut() {
   const handleDuplicate = useCallback(() => {
     const sortedActiveElementIds =
       slideInstance.sortElementIds(activeElementIds);
-    const elements = Object.values(
-      slideInstance.getElements(sortedActiveElementIds),
+    const elements = slideInstance.getElements(sortedActiveElementIds);
+    const boundingRect = calculateBoundingRectForElements(
+      Object.values(elements),
     );
-    const boundingRect = calculateBoundingRectForElements(elements);
-    const duplicatedElements = elements.map((element) =>
-      duplicate(element, gridCellSize, boundingRect),
-    );
-
-    slideInstance.addElements(duplicatedElements);
+    const duplicatedElements: Elements = {};
+    for (const [elementId, element] of Object.entries(elements)) {
+      duplicatedElements[elementId] = duplicate(
+        element,
+        gridCellSize,
+        boundingRect,
+      );
+    }
+    slideInstance.addElementsWithConnections(duplicatedElements);
   }, [activeElementIds, slideInstance]);
 
   useHotkeys(

@@ -3,4 +3,4 @@
 '@nordeck/matrix-neoboard-widget': patch
 ---
 
-Fix regressions in fitting a widget into a frame and a canvas moving off-screen
+Use `React.memo` for `ElementBar` to have smoother moving and resizing of multiple elements

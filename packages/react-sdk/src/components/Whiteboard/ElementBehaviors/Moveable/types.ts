@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-import { PathElement } from '../../../../state';
+import { PathElement, Point } from '../../../../state';
 import { BoundingRect } from '../../../../state/crdt/documents/point';
 
 export type ResizableProperties = {
   boundingRect: BoundingRect;
+  boundingRectCursorOffset: Point;
   connectingPathElements: Record<string, PathElement>;
 };

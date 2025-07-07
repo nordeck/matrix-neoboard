@@ -21,34 +21,37 @@ import {
   ImageElement,
   modifyElementPosition,
   Point,
+  Size,
   WhiteboardSlideInstance,
 } from '../../state';
 import { positionImageElements } from '../ImportWhiteboardDialog';
 import { whiteboardHeight, whiteboardWidth } from '../Whiteboard';
 import { ImageUploadResult } from './ImageUploadProvider';
 
+export type ImageToAddData = {
+  uploadResult: ImageUploadResult;
+  size?: Size;
+};
+
 /**
  * Fit and centre and add images to a slide.
  *
  * @param slide - slide instance
- * @param uploadResult - Information from the image upload
- * @param uploadResult[].mxc - MXC URI of the image {@link https://spec.matrix.org/v1.9/client-server-api/#matrix-content-mxc-uris}
- * @param uploadResult[].fileName - File name
- * @param uploadResult[].imageSize - Image size
+ * @param uploadResults - Information from the image upload
  * @param centerPosition - Image center position
  */
 export function addImagesToSlide(
   slide: WhiteboardSlideInstance,
-  uploadResults: ImageUploadResult[],
+  uploadResults: ImageToAddData[],
   centerPosition: Point,
 ): void {
   let images: ImageElement[] = [];
   if (isInfiniteCanvasMode()) {
-    for (const uploadResult of uploadResults) {
+    for (const { uploadResult, size } of uploadResults) {
       images.push({
         type: 'image',
-        width: uploadResult.size.width / 4,
-        height: uploadResult.size.height / 4,
+        width: size?.width ?? uploadResult.size.width,
+        height: size?.height ?? uploadResult.size.height,
         position: { x: 0, y: 0 },
         mxc: uploadResult.mxc,
         fileName: uploadResult.fileName,
@@ -75,7 +78,7 @@ export function addImagesToSlide(
       );
     }
   } else {
-    images = uploadResults.map((uploadResult) => {
+    images = uploadResults.map(({ uploadResult }) => {
       const fittedSize = calculateFittedElementSize(uploadResult.size, {
         width: whiteboardWidth,
         height: whiteboardHeight,

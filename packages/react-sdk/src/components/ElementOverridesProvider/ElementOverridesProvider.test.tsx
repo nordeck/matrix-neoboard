@@ -31,7 +31,6 @@ import {
   ElementOverridesProvider,
   createResetElementOverrides,
 } from './ElementOverridesProvider';
-import { useElementOverride } from './useElementOverride';
 import { useElementOverrides } from './useElementOverrides';
 import { useSetElementOverride } from './useSetElementOverride';
 
@@ -83,23 +82,6 @@ describe('useElementOverride', () => {
     };
   });
 
-  it('should return the original element', () => {
-    const { result } = renderHook(() => useElementOverride('element-1'), {
-      wrapper: Wrapper,
-    });
-
-    expect(result.current).toEqual({
-      type: 'shape',
-      kind: 'ellipse',
-      fillColor: '#ffffff',
-      textFontFamily: 'Inter',
-      text: 'Element 1',
-      position: { x: 0, y: 1 },
-      height: 100,
-      width: 50,
-    });
-  });
-
   it('should return the original elements', () => {
     const elementIds = ['element-1'];
     const { result } = renderHook(() => useElementOverrides(elementIds), {
@@ -117,39 +99,6 @@ describe('useElementOverride', () => {
         height: 100,
         width: 50,
       },
-    });
-  });
-
-  it('should replace the element position', () => {
-    const { result } = renderHook(
-      () => {
-        const element = useElementOverride('element-1');
-        const setElementOverride = useSetElementOverride();
-        return { element, setElementOverride };
-      },
-      { wrapper: Wrapper },
-    );
-
-    act(() => {
-      result.current.setElementOverride([
-        {
-          elementId: 'element-1',
-          elementOverride: {
-            position: { x: 50, y: 51 },
-          },
-        },
-      ]);
-    });
-
-    expect(result.current.element).toEqual({
-      type: 'shape',
-      kind: 'ellipse',
-      fillColor: '#ffffff',
-      textFontFamily: 'Inter',
-      text: 'Element 1',
-      position: { x: 50, y: 51 },
-      height: 100,
-      width: 50,
     });
   });
 
@@ -258,91 +207,6 @@ describe('useElementOverride', () => {
         strokeColor: '#ffffff',
         type: 'path',
       },
-    });
-  });
-
-  it('should replace the element height and width', () => {
-    const { result } = renderHook(
-      () => {
-        const element = useElementOverride('element-1');
-        const setElementOverride = useSetElementOverride();
-        return { element, setElementOverride };
-      },
-      { wrapper: Wrapper },
-    );
-
-    act(() => {
-      result.current.setElementOverride([
-        {
-          elementId: 'element-1',
-          elementOverride: {
-            height: 125,
-            width: 75,
-          },
-        },
-      ]);
-    });
-
-    expect(result.current.element).toEqual({
-      type: 'shape',
-      kind: 'ellipse',
-      fillColor: '#ffffff',
-      textFontFamily: 'Inter',
-      text: 'Element 1',
-      position: { x: 0, y: 1 },
-      height: 125,
-      width: 75,
-    });
-  });
-
-  it('should clean the override', () => {
-    const { result } = renderHook(
-      () => {
-        const element = useElementOverride('element-1');
-        const setElementOverride = useSetElementOverride();
-        return { element, setElementOverride };
-      },
-      { wrapper: Wrapper },
-    );
-
-    act(() => {
-      result.current.setElementOverride([
-        {
-          elementId: 'element-1',
-          elementOverride: { height: 10 },
-        },
-      ]);
-    });
-
-    expect(result.current.element).toEqual({
-      type: 'shape',
-      kind: 'ellipse',
-      fillColor: '#ffffff',
-      textFontFamily: 'Inter',
-      text: 'Element 1',
-      position: { x: 0, y: 1 },
-      height: 10,
-      width: 50,
-    });
-
-    act(() => {
-      result.current.setElementOverride([
-        {
-          elementId: 'element-1',
-          elementOverride: undefined,
-        },
-      ]);
-    });
-
-    expect(result.current.element).toEqual({
-      type: 'shape',
-      kind: 'ellipse',
-      fillColor: '#ffffff',
-      textFontFamily: 'Inter',
-      text: 'Element 1',
-      position: { x: 0, y: 1 },
-      height: 100,
-      width: 50,
     });
   });
 

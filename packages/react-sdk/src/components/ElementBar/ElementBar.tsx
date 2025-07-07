@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { PropsWithChildren } from 'react';
+import React, { PropsWithChildren } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Toolbar } from '../common/Toolbar';
 import { ElementColorPicker } from './ColorPickerButton/ElementColorPicker';
@@ -28,7 +28,7 @@ import { TextAlignmentButtons } from './TextAlignmentButtons';
 import { TextBoldButton } from './TextBoldButton';
 import { TextItalicButton } from './TextItalicButton';
 
-export function ElementBar({
+function ElementBar({
   showTextTools = true,
 }: PropsWithChildren<{ showTextTools?: boolean }>) {
   const { t } = useTranslation('neoboard');
@@ -53,3 +53,5 @@ export function ElementBar({
     </Toolbar>
   );
 }
+
+export default React.memo(ElementBar);

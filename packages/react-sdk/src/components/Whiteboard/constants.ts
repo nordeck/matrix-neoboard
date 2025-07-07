@@ -20,7 +20,7 @@ export const infiniteCanvasMode = isInfiniteCanvasMode();
 
 export const matrixRtcMode = isMatrixRtcMode();
 
-export const defaultTextSize = infiniteCanvasMode ? 16 : undefined;
+export const defaultTextSize = undefined;
 
 export const whiteboardWidth = infiniteCanvasMode ? 19200 : 1920;
 export const whiteboardHeight = infiniteCanvasMode ? 10800 : 1080;

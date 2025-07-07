@@ -17,7 +17,7 @@
 import { Box } from '@mui/material';
 import { useIsWhiteboardLoading, useSlideElementIds } from '../../state';
 import { whiteboardHeight, whiteboardWidth } from './constants';
-import { ConnectedElement } from './Element';
+import ConnectedElement from './Element/ConnectedElement';
 import { SlideSkeleton } from './SlideSkeleton';
 import { SvgCanvas } from './SvgCanvas';
 import { SvgScaleContextProvider } from './SvgScaleContext';

@@ -49,8 +49,8 @@ describe('calculateElementOverrideUpdates', () => {
     expect(
       calculateElementOverrideUpdates(
         elements,
-        100,
         120,
+        171,
         whiteboardWidth,
         whiteboardHeight,
       ),
@@ -75,7 +75,7 @@ describe('calculateElementOverrideUpdates', () => {
       calculateElementOverrideUpdates(
         elements,
         -155,
-        0,
+        51,
         whiteboardWidth,
         whiteboardHeight,
       ),
@@ -99,8 +99,8 @@ describe('calculateElementOverrideUpdates', () => {
     expect(
       calculateElementOverrideUpdates(
         elements,
-        whiteboardWidth + 155,
-        0,
+        whiteboardWidth,
+        51,
         whiteboardWidth,
         whiteboardHeight,
       ),
@@ -124,7 +124,7 @@ describe('calculateElementOverrideUpdates', () => {
     expect(
       calculateElementOverrideUpdates(
         elements,
-        0,
+        20,
         -155,
         whiteboardWidth,
         whiteboardHeight,
@@ -149,7 +149,7 @@ describe('calculateElementOverrideUpdates', () => {
     expect(
       calculateElementOverrideUpdates(
         elements,
-        0,
+        20,
         whiteboardHeight + 55,
         whiteboardWidth,
         whiteboardHeight,

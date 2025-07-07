@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Nordeck IT + Consulting GmbH
+ * Copyright 2025 Nordeck IT + Consulting GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,6 +41,7 @@ export class MatrixRtcPeerConnection implements PeerConnection {
   private readonly destroySubject = new Subject<void>();
   private readonly messageSubject = new Subject<Message>();
   private readonly statisticsSubject = new Subject<PeerConnectionStatistics>();
+  private readonly connectionStateSubject = new Subject<ConnectionState>();
   private readonly statistics: PeerConnectionStatistics;
   private encoder: TextEncoder = new TextEncoder();
   private decoder: TextDecoder = new TextDecoder();
@@ -49,13 +50,11 @@ export class MatrixRtcPeerConnection implements PeerConnection {
 
   constructor(
     private readonly session: Session,
-    private readonly sfuConfig: SFUConfig,
+    sfuConfig: SFUConfig,
   ) {
     this.connectionId = this.session.sessionId;
 
-    this.logger.log(
-      `Creating connection ${this.connectionId} to ${session.sessionId} (${session.userId})`,
-    );
+    this.logger.log(`Creating connection ${this.connectionId}`);
 
     // Statistics gathering
     this.statistics = {
@@ -115,13 +114,16 @@ export class MatrixRtcPeerConnection implements PeerConnection {
   }
 
   close(): void {
-    this.logger.log(
-      `Closing connection ${this.connectionId} to ${this.session.sessionId} (${this.session.userId})`,
-    );
+    this.logger.log(`Closing connection ${this.connectionId}`);
+
+    if (this.room.state === ConnectionState.Connected) {
+      this.room.disconnect();
+    }
 
     this.destroySubject.next();
     this.messageSubject.complete();
     this.statisticsSubject.complete();
+    this.connectionStateSubject.complete();
   }
 
   sendMessage<T = unknown>(type: string, content: T): void {
@@ -140,6 +142,10 @@ export class MatrixRtcPeerConnection implements PeerConnection {
     return concat(of(this.statistics), this.statisticsSubject);
   }
 
+  observeConnectionState(): Observable<ConnectionState> {
+    return this.connectionStateSubject;
+  }
+
   updateStatistics(update: Partial<PeerConnectionStatistics>): void {
     if (Object.keys(update).length > 0) {
       Object.assign(this.statistics, update);
@@ -152,12 +158,6 @@ export class MatrixRtcPeerConnection implements PeerConnection {
     this.room
       .prepareConnection(sfuConfig.url, sfuConfig.jwt)
       .then(() => this.room.connect(sfuConfig.url, sfuConfig.jwt))
-      .then(() => {
-        if (!this.room) {
-          throw new Error('Room not initialized');
-        }
-        return;
-      })
       .catch((error) => {
         this.logger.error(`Failed to initialize connection: ${error.message}`);
       });
@@ -170,6 +170,9 @@ export class MatrixRtcPeerConnection implements PeerConnection {
       this.logger.log(
         `Connection state of connection ${this.connectionId} changed: ${state}`,
       );
+
+      this.connectionStateSubject.next(state);
+
       this.updateStatistics({
         connectionState: state,
       });

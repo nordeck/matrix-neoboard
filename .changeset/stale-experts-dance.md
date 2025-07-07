@@ -3,4 +3,4 @@
 '@nordeck/matrix-neoboard-react-sdk': minor
 ---
 
-Adds baseline MatrixRTC implementation as an alternative to peer-to-peer WebRTC
+Use delayed events to terminate Matrix RTC session

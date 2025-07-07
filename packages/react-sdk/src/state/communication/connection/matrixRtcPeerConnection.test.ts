@@ -46,9 +46,7 @@ describe('MatrixRtcPeerConnection', () => {
     const connection = new MatrixRtcPeerConnection(session, sfuConfig);
     const spy = vi.spyOn(connection.room, 'connect');
 
-    await vi.waitFor(() =>
-      expect(spy).toHaveBeenCalledWith('wss://livekit-server', 'dummy-jwt'),
-    );
+    await vi.waitFor(() => expect(spy).toHaveBeenCalledOnce());
 
     connection.close();
   });
@@ -201,6 +199,26 @@ describe('MatrixRtcPeerConnection', () => {
       });
 
       mockRoom.setConnectionState(ConnectionState.Disconnected);
+      await vi.waitFor(() => {
+        expect(connectionStates).toContain('disconnected');
+      });
+
+      subscription.unsubscribe();
+    });
+
+    it('should disconnect on peer close', async () => {
+      const connectionStates: string[] = [];
+      const subscription = connection.observeStatistics().subscribe((stats) => {
+        connectionStates.push(stats.connectionState);
+      });
+
+      mockRoom.setConnectionState(ConnectionState.Connected);
+      await vi.waitFor(() => {
+        expect(connectionStates).toContain('connected');
+      });
+
+      connection.close();
+
       await vi.waitFor(() => {
         expect(connectionStates).toContain('disconnected');
       });

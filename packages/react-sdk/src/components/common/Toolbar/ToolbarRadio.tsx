@@ -79,11 +79,9 @@ export function ToolbarRadio({ inputProps = {}, ...props }: ToolbarRadioProps) {
       <TooltipDisabledChildWrapper>
         <RadioStyled
           inputRef={ref}
-          inputProps={{
-            onKeyDown: handleKeyDown,
-            ...inputProps,
-            ...additionalProps,
-          }}
+          inputProps={inputProps}
+          onKeyDown={handleKeyDown}
+          {...additionalProps}
           {...props}
         />
       </TooltipDisabledChildWrapper>

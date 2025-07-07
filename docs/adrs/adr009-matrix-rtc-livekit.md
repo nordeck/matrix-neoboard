@@ -116,7 +116,7 @@ both of which are then used to establish the realtime data channels.
 
 ### Session Termination
 
-We use [delayed events][MSC4140] with a 5 second refresh while the widget is
+We use [delayed events][MSC4140] with few seconds refresh while the widget is
 active, so that when it becomes inactive, a "hangup" event is applied in the
 room, by clearing the `content` of the RTC membership state event of that client
 and effectively terminating his session.
