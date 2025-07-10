@@ -16,6 +16,7 @@
 
 import { styled } from '@mui/material';
 import {
+  MouseEvent,
   PropsWithChildren,
   RefObject,
   useCallback,
@@ -39,6 +40,7 @@ import {
   useSetElementOverride,
 } from '../../../ElementOverridesProvider';
 import { useLayoutState } from '../../../Layout';
+import { infiniteCanvasMode } from '../../constants';
 import { useSvgCanvasContext } from '../../SvgCanvas';
 import { useSvgScaleContext } from '../../SvgScaleContext';
 import { elementsUpdates, getPathElements } from '../utils';
@@ -49,9 +51,7 @@ import {
   snapToGridElementOverrideUpdates,
 } from './utils';
 
-const DraggableGroup = styled('g')({
-  cursor: 'move',
-});
+const DraggableGroup = styled('g')({});
 
 export type MoveableElementProps = PropsWithChildren<{
   elementId?: string;
@@ -70,7 +70,8 @@ export function MoveableElement({
   const { viewportHeight, viewportWidth } = useSvgCanvasContext();
   const slideInstance = useWhiteboardSlideInstance();
   const { calculateSvgCoords } = useSvgCanvasContext();
-  const { scale } = useSvgScaleContext();
+  const { scale, updateTranslation } = useSvgScaleContext();
+  const [cursor, setCursor] = useState<string>('move');
 
   const [{ deltaX, deltaY }, setDelta] = useState({ deltaX: 0, deltaY: 0 });
   const [resizableProperties, setResizableProperties] =
@@ -95,7 +96,7 @@ export function MoveableElement({
   }, []);
 
   const handleDrag = useCallback(
-    (_: DraggableEvent, data: DraggableData) => {
+    (event: DraggableEvent, data: DraggableData) => {
       let boundingRect: BoundingRect | undefined;
       let boundingRectCursorOffset: Point | undefined;
       let connectingPathElements: Record<string, PathElement> | undefined;
@@ -121,6 +122,9 @@ export function MoveableElement({
           boundingRectCursorOffset,
           connectingPathElements,
         });
+        if (isMouseEvent(event) && isButtonToPan(event.buttons)) {
+          setCursor('grabbing');
+        }
       } else {
         ({ boundingRect, boundingRectCursorOffset, connectingPathElements } =
           resizableProperties);
@@ -136,18 +140,29 @@ export function MoveableElement({
         y: data.y * scale,
       });
 
-      const elementOverrideUpdates = calculateElementOverrideUpdates(
-        overrides,
-        cursorPosition.x - boundingRectCursorOffset.x,
-        cursorPosition.y - boundingRectCursorOffset.y,
-        viewportWidth,
-        viewportHeight,
-        connectingPathElements,
-        boundingRect,
-      );
+      if (isMouseEvent(event) && isButtonToPan(event.buttons)) {
+        const { offsetX, offsetY } = calculateBoundingRectForElements(
+          Object.values(overrides),
+        );
 
-      setElementOverride(elementOverrideUpdates);
-      setElementOverrideUpdates(elementOverrideUpdates);
+        const deltaX = cursorPosition.x - boundingRectCursorOffset.x - offsetX;
+        const deltaY = cursorPosition.y - boundingRectCursorOffset.y - offsetY;
+
+        updateTranslation(deltaX * scale, deltaY * scale);
+      } else {
+        const elementOverrideUpdates = calculateElementOverrideUpdates(
+          overrides,
+          cursorPosition.x - boundingRectCursorOffset.x,
+          cursorPosition.y - boundingRectCursorOffset.y,
+          viewportWidth,
+          viewportHeight,
+          connectingPathElements,
+          boundingRect,
+        );
+
+        setElementOverride(elementOverrideUpdates);
+        setElementOverrideUpdates(elementOverrideUpdates);
+      }
     },
     [
       setElementOverride,
@@ -158,6 +173,7 @@ export function MoveableElement({
       slideInstance,
       calculateSvgCoords,
       scale,
+      updateTranslation,
     ],
   );
 
@@ -186,6 +202,7 @@ export function MoveableElement({
     setResizableProperties(undefined);
     isDragging.current = false;
     removeUserSelectStyles();
+    setCursor('move');
   }, [
     deltaX,
     deltaY,
@@ -206,8 +223,21 @@ export function MoveableElement({
       onStop={handleStop}
       onStart={handleStart}
       scale={scale}
+      allowAnyClick={infiniteCanvasMode ? true : undefined}
     >
-      <DraggableGroup ref={nodeRef}>{children}</DraggableGroup>
+      <DraggableGroup ref={nodeRef} cursor={cursor}>
+        {children}
+      </DraggableGroup>
     </DraggableCore>
   );
+}
+
+function isMouseEvent(
+  event: DraggableEvent,
+): event is MouseEvent<HTMLElement | SVGElement> {
+  return event.type.startsWith('mouse');
+}
+
+function isButtonToPan(buttons: number): boolean {
+  return buttons === 2 || buttons === 4;
 }
