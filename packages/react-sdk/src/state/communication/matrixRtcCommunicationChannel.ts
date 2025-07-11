@@ -107,6 +107,7 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
         distinctUntilChanged(),
         switchMap((enableObserveVisibilityState) =>
           observeVisibilityState(visibilityTimeout).pipe(
+            takeUntil(this.destroySubject),
             mergeMap(async (v) => {
               if (v === 'visible') {
                 try {
