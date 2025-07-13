@@ -4,6 +4,21 @@
     "waitModeratorJoin": "Bitte warte auf den Moderator."
   },
   "boardBar": {
+    "aiAssistant": {
+      "apiKey": {
+        "title": "OpenAI API-Schlüssel"
+      },
+      "cancel": "Start",
+      "close": "Abbrechen",
+      "description": "Bitte wähle einen KI-Dienst. Für OpenAIist ein API-Schlüssel erforderlich.",
+      "pdfError": "Something went wrong while generating the PDF.",
+      "service": {
+        "ollama": "Ollama",
+        "openai": "OpenAI",
+        "title": "Service"
+      },
+      "title": "KI-Assistent-Einstellungen"
+    },
     "developerToolsDialog": {
       "closeAriaLabel": "Schließen",
       "communicationChannelStatistics": {
