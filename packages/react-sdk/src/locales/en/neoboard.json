@@ -4,6 +4,21 @@
     "waitModeratorJoin": "Wait for the moderator to join."
   },
   "boardBar": {
+    "aiAssistant": {
+      "apiKey": {
+        "title": "OpenAI API Key"
+      },
+      "cancel": "Start",
+      "close": "Close",
+      "description": "Please choose your a service. For OpenAI, enter an API Key.",
+      "pdfError": "Something went wrong while generating the PDF.",
+      "service": {
+        "ollama": "Ollama",
+        "openai": "OpenAI",
+        "title": "Service"
+      },
+      "title": "AI Assistant Settings"
+    },
     "developerToolsDialog": {
       "closeAriaLabel": "Close",
       "communicationChannelStatistics": {
