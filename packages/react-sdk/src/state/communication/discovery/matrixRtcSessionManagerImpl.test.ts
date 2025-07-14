@@ -820,7 +820,7 @@ describe('MatrixRtcSessionManagerImpl', () => {
     });
   });
 
-  it('should use member focus when joining ongoing session', async () => {
+  it('should use member focus before joining ongoing session', async () => {
     rtcSessionManager.initFociDiscovery();
 
     widgetApi.mockSendStateEvent(
@@ -848,7 +848,7 @@ describe('MatrixRtcSessionManagerImpl', () => {
       }),
     );
 
-    await rtcSessionManager.join('whiteboard-id');
+    await firstValueFrom(rtcSessionManager.observeActiveFocus());
 
     expect(rtcSessionManager.getActiveFocus()).toEqual({
       type: 'livekit',
