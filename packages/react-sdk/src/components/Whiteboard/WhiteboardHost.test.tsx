@@ -237,6 +237,35 @@ describe('<WhiteboardHost/>', () => {
     },
   );
 
+  it.each([
+    ['right', 2],
+    ['middle', 1],
+  ])(
+    'should pan the infinite canvas by dragging canvas with the %s mouse button',
+    async (_, button) => {
+      vi.spyOn(constants, 'infiniteCanvasMode', 'get').mockReturnValue(true);
+      vi.spyOn(constants, 'whiteboardWidth', 'get').mockReturnValue(19200);
+      vi.spyOn(constants, 'whiteboardHeight', 'get').mockReturnValue(10800);
+
+      render(<WhiteboardHost />, { wrapper: Wrapper });
+
+      const element = screen.getByTestId('unselect-element-layer');
+      fireEvent.mouseDown(element, {
+        clientX: 150,
+        clientY: 150,
+        button,
+      });
+      fireEvent.mouseMove(element, {
+        clientX: 300,
+        clientY: 400,
+        button,
+      });
+      fireEvent.mouseUp(element);
+
+      expect(svgScaleContextState.translation).toEqual({ x: 150, y: 250 });
+    },
+  );
+
   it('should move multiple selected elements by dragging the border', () => {
     activeSlide.setActiveElementIds(['element-0', 'element-1']);
     render(<WhiteboardHost />, { wrapper: Wrapper });
