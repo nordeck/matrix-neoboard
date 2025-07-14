@@ -53,7 +53,6 @@ export class MatrixRtcSessionManagerImpl implements MatrixRtcSessionManager {
   private readonly sessionLeftSubject = new Subject<Session>();
   private readonly activeFocusSubject = new Subject<RTCFocus>();
   private readonly sessionSubject = new Subject<SessionState>();
-  private initialized = false;
   private sessions: StateEvent<RTCSessionEventContent>[] = [];
   private joinState: { whiteboardId: string; sessionId: string } | undefined;
   private fociPreferred: RTCFocus[] = [];
@@ -73,9 +72,7 @@ export class MatrixRtcSessionManagerImpl implements MatrixRtcSessionManager {
     private readonly removeSessionDelay: number = 8000,
   ) {}
 
-  initialize(): void {
-    if (this.initialized) return;
-
+  initFociDiscovery(): void {
     this.checkForWellKnownFoci().catch((error) => {
       this.logger.error('Failed to check for well-known foci:', error);
     });
@@ -85,12 +82,6 @@ export class MatrixRtcSessionManagerImpl implements MatrixRtcSessionManager {
       .subscribe(async () => {
         await this.checkForWellKnownFoci();
       });
-
-    this.initialized = true;
-  }
-
-  isInitialized(): boolean {
-    return this.initialized;
   }
 
   getSessionId(): string | undefined {
@@ -383,7 +374,7 @@ export class MatrixRtcSessionManagerImpl implements MatrixRtcSessionManager {
   private async computeActiveFocus() {
     this.logger.debug('Checking if a new active focus is required');
 
-    const memberFocus = await this.checkMemberFocus();
+    const memberFocus = await this.selectMemberFocus();
 
     this.fociPreferred = makeFociPreferred(memberFocus, this.wellKnownFoci);
 
@@ -396,7 +387,7 @@ export class MatrixRtcSessionManagerImpl implements MatrixRtcSessionManager {
     }
   }
 
-  private async checkMemberFocus(): Promise<RTCFocus | undefined> {
+  private async selectMemberFocus(): Promise<RTCFocus | undefined> {
     const widgetApi = await this.widgetApiPromise;
     let sessions: StateEvent<RTCSessionEventContent>[] = [];
 

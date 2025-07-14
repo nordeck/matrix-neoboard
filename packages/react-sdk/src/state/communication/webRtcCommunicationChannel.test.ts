@@ -108,8 +108,6 @@ describe('WebRtcCommunicationChannel', () => {
     joinedSubject = new Subject();
     leftSubject = new Subject();
     sessionManager = {
-      initialize: vi.fn(),
-      isInitialized: vi.fn(() => true),
       getSessionId: vi.fn(() => currentSessionId),
       getSessions: vi.fn().mockReturnValue([]),
       observeSession: vi.fn().mockReturnValue(sessionSubject),

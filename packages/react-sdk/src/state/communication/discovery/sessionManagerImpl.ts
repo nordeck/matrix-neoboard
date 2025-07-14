@@ -56,14 +56,6 @@ export class SessionManagerImpl implements SessionManager {
     private readonly cleanupInterval = 10 * 1000,
   ) {}
 
-  initialize(): void {
-    // Nothing to do here
-  }
-
-  isInitialized(): boolean {
-    return true;
-  }
-
   getSessionId(): string | undefined {
     return this.joinState?.sessionId;
   }
