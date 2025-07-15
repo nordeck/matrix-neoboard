@@ -16,7 +16,6 @@
 
 import { WidgetApi } from '@matrix-widget-toolkit/api';
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
-import { waitFor } from '@testing-library/react';
 import { ConnectionState } from 'livekit-client';
 import { BehaviorSubject, Subject, firstValueFrom, toArray } from 'rxjs';
 import {
@@ -108,14 +107,14 @@ describe('MatrixRtcCommunicationChannel', () => {
   });
 
   it('should create a peer connection and join when connected', async () => {
-    await waitForPeerConnection();
+    await waitForHandlers();
     connectionStateSubject.next(ConnectionState.Connected);
 
     expect(sessionManager.join).toHaveBeenCalledTimes(1);
   });
 
   it('should disconnect while the browser is hidden', async () => {
-    await waitForPeerConnection();
+    await waitForHandlers();
     connectionStateSubject.next(ConnectionState.Connected);
 
     expect(sessionManager.join).toHaveBeenCalledTimes(1);
@@ -133,6 +132,45 @@ describe('MatrixRtcCommunicationChannel', () => {
     await vi.waitFor(() => {
       expect(sessionManager.getSessionId()).toBeUndefined();
     });
+
+    sessionManager.getActiveFocus.mockClear();
+
+    // Show the tab
+    mockDocumentVisibilityState('visible');
+    connectionStateSubject.next(ConnectionState.Connected);
+
+    expect(sessionManager.getActiveFocus).toHaveBeenCalledTimes(1);
+    expect(sessionManager.join).toHaveBeenCalledTimes(2);
+  });
+
+  it('should not attempt to connect when destroyed but browser becomes visible', async () => {
+    await waitForHandlers();
+    connectionStateSubject.next(ConnectionState.Connected);
+
+    expect(sessionManager.join).toHaveBeenCalledTimes(1);
+
+    vi.useFakeTimers();
+    sessionManager.leave.mockClear();
+
+    // Hide the tab
+    mockDocumentVisibilityState('hidden');
+
+    vi.advanceTimersByTime(250);
+
+    expect(sessionManager.leave).toHaveBeenCalledTimes(1);
+
+    await vi.waitFor(() => {
+      expect(sessionManager.getSessionId()).toBeUndefined();
+    });
+
+    channel.destroy();
+
+    sessionManager.getActiveFocus.mockClear();
+
+    // Show the tab
+    mockDocumentVisibilityState('visible');
+
+    expect(sessionManager.getActiveFocus).not.toHaveBeenCalled();
   });
 
   it('should skip disconnect while the browser is hidden if disabled', async () => {
@@ -172,7 +210,7 @@ describe('MatrixRtcCommunicationChannel', () => {
   });
 
   it('should send messages to peer connections', async () => {
-    await waitForPeerConnection();
+    await waitForHandlers();
     connectionStateSubject.next(ConnectionState.Connected);
 
     channel.broadcastMessage('example_type', { key: 'value' });
@@ -186,14 +224,14 @@ describe('MatrixRtcCommunicationChannel', () => {
   });
 
   it('should leave when disconnected', async () => {
-    await waitForPeerConnection();
+    await waitForHandlers();
     connectionStateSubject.next(ConnectionState.Connected);
 
     expect(sessionManager.join).toHaveBeenCalledTimes(1);
 
     connectionStateSubject.next(ConnectionState.Disconnected);
 
-    await waitFor(() => {
+    await vi.waitFor(() => {
       expect(sessionManager.leave).toHaveBeenCalled();
     });
   });
@@ -212,19 +250,14 @@ describe('MatrixRtcCommunicationChannel', () => {
 
     await expect(messagesPromise).resolves.toEqual([]);
     await expect(statisticsPromise).resolves.toEqual([]);
-    await waitFor(() => {
+    await vi.waitFor(() => {
       expect(sessionManager.leave).toHaveBeenCalled();
     });
   });
 
-  // wait until there is a peer connection in the statistics
-  // this means that the peer connection was created and observables were set up
-  async function waitForPeerConnection() {
-    await waitFor(() => {
-      expect(Object.keys(channel.getStatistics().peerConnections).length).toBe(
-        0,
-      );
-    });
+  // Waits for observers handlers to be registered
+  async function waitForHandlers() {
+    // empty, to wait for Observer handlers to be registered
   }
 
   function createSessionManager() {

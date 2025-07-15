@@ -193,6 +193,31 @@ describe('WebRtcCommunicationChannel', () => {
       expect(sessionManager.join).toHaveBeenCalledWith('whiteboard-id');
     });
 
+    it('should not attempt to connect when destroyed but browser becomes visible', async () => {
+      joinedSubject.next(anotherSession);
+      await waitForSessionExists();
+
+      vi.useFakeTimers();
+
+      // Hide the tab
+      mockDocumentVisibilityState('hidden');
+
+      vi.advanceTimersByTime(250);
+      expect(sessionManager.leave).toHaveBeenCalled();
+      expect(peerConnection.close).toHaveBeenCalled();
+
+      await vi.waitFor(() => {
+        expect(sessionManager.getSessionId()).toBeUndefined();
+      });
+
+      channel.destroy();
+
+      // Make the tab visible again
+      mockDocumentVisibilityState('visible');
+
+      expect(sessionManager.join).toHaveBeenCalledTimes(1);
+    });
+
     it('should skip disconnect while the browser is hidden if disabled', async () => {
       vi.useFakeTimers();
       joinedSubject.next(anotherSession);
