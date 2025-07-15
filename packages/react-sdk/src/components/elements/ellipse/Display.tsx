@@ -46,7 +46,7 @@ const EllipseDisplay = ({
   const { strokeColor, strokeWidth, text } = getRenderProperties(shape);
 
   const renderedChild = (
-    <g>
+    <g data-testid={`element-ellipse-${elementId}`}>
       <ellipse
         data-connect-type={`connectable-element`}
         cx={shape.position.x + cx}

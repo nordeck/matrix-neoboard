@@ -35,6 +35,9 @@ import { ConnectionPointProvider } from '../ConnectionPointProvider';
 import { ElementOverridesProvider } from '../ElementOverridesProvider';
 import { LayoutStateProvider, useLayoutState } from '../Layout';
 import { WhiteboardHotkeysProvider } from '../WhiteboardHotkeysProvider';
+import * as constants from './constants';
+import { useSvgScaleContext } from './SvgScaleContext';
+import { SvgScaleContextType } from './SvgScaleContext/context';
 
 vi.mock('./SvgCanvas/useMeasure', () => ({
   useMeasure: vi.fn().mockReturnValue([vi.fn(), { width: 1920, height: 1080 }]),
@@ -49,6 +52,7 @@ describe('<WhiteboardHost/>', () => {
   let activeSlide: WhiteboardSlideInstance;
   let setDragSelectStartCoords: (point: Point | undefined) => void;
   let setShowGrid: (value: boolean) => void;
+  let svgScaleContextState: SvgScaleContextType;
   let widgetApi: MockedWidgetApi;
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
 
@@ -79,6 +83,11 @@ describe('<WhiteboardHost/>', () => {
       return null;
     }
 
+    function SvgScaleContextExtractor() {
+      svgScaleContextState = useSvgScaleContext();
+      return null;
+    }
+
     Wrapper = ({ children }) => (
       <LayoutStateProvider>
         <LayoutStateExtractor />
@@ -87,6 +96,7 @@ describe('<WhiteboardHost/>', () => {
             whiteboardManager={whiteboardManager}
             widgetApi={widgetApi}
           >
+            <SvgScaleContextExtractor />
             <ElementOverridesProvider>
               <ConnectionPointProvider>{children}</ConnectionPointProvider>
             </ElementOverridesProvider>
@@ -94,6 +104,10 @@ describe('<WhiteboardHost/>', () => {
         </WhiteboardHotkeysProvider>
       </LayoutStateProvider>
     );
+
+    vi.spyOn(constants, 'infiniteCanvasMode', 'get').mockReturnValue(false);
+    vi.spyOn(constants, 'whiteboardWidth', 'get').mockReturnValue(1920);
+    vi.spyOn(constants, 'whiteboardHeight', 'get').mockReturnValue(1080);
   });
 
   afterEach(() => {
@@ -163,6 +177,93 @@ describe('<WhiteboardHost/>', () => {
       ).toBeInTheDocument();
     }
   });
+
+  it('should move element by dragging with left button', async () => {
+    activeSlide.setActiveElementIds(['element-0']);
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    // move 150px on x and 250px on y axis
+    const element = screen.getByTestId('element-ellipse-element-0');
+    fireEvent.mouseDown(element, {
+      clientX: 150,
+      clientY: 150,
+      buttons: 1,
+    });
+    fireEvent.mouseMove(element, {
+      clientX: 300,
+      clientY: 400,
+      buttons: 1,
+    });
+    fireEvent.mouseUp(element);
+
+    expect(activeSlide.getElement('element-0')?.position).toEqual({
+      x: 160,
+      y: 260,
+    });
+  });
+
+  it.each([
+    ['right', 2],
+    ['middle', 4],
+  ])(
+    'should pan the infinite canvas by dragging element with the %s mouse button',
+    async (_, buttons) => {
+      vi.spyOn(constants, 'infiniteCanvasMode', 'get').mockReturnValue(true);
+      vi.spyOn(constants, 'whiteboardWidth', 'get').mockReturnValue(19200);
+      vi.spyOn(constants, 'whiteboardHeight', 'get').mockReturnValue(10800);
+
+      activeSlide.setActiveElementIds(['element-0']);
+      render(<WhiteboardHost />, { wrapper: Wrapper });
+
+      // move 150px on x and 250px on y axis
+      const element = screen.getByTestId('element-ellipse-element-0');
+      fireEvent.mouseDown(element, {
+        clientX: 150,
+        clientY: 150,
+        buttons,
+      });
+      fireEvent.mouseMove(element, {
+        clientX: 300,
+        clientY: 400,
+        buttons,
+      });
+      fireEvent.mouseUp(element);
+
+      expect(activeSlide.getElement('element-0')?.position).toEqual({
+        x: 0,
+        y: 1,
+      });
+      expect(svgScaleContextState.translation).toEqual({ x: 150, y: 250 });
+    },
+  );
+
+  it.each([
+    ['right', 2],
+    ['middle', 1],
+  ])(
+    'should pan the infinite canvas by dragging canvas with the %s mouse button',
+    async (_, button) => {
+      vi.spyOn(constants, 'infiniteCanvasMode', 'get').mockReturnValue(true);
+      vi.spyOn(constants, 'whiteboardWidth', 'get').mockReturnValue(19200);
+      vi.spyOn(constants, 'whiteboardHeight', 'get').mockReturnValue(10800);
+
+      render(<WhiteboardHost />, { wrapper: Wrapper });
+
+      const element = screen.getByTestId('unselect-element-layer');
+      fireEvent.mouseDown(element, {
+        clientX: 150,
+        clientY: 150,
+        button,
+      });
+      fireEvent.mouseMove(element, {
+        clientX: 300,
+        clientY: 400,
+      });
+      fireEvent.mouseUp(element);
+
+      expect(svgScaleContextState.translation).toEqual({ x: 150, y: 250 });
+    },
+  );
 
   it('should move multiple selected elements by dragging the border', () => {
     activeSlide.setActiveElementIds(['element-0', 'element-1']);
