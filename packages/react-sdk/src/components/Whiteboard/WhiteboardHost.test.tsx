@@ -258,7 +258,6 @@ describe('<WhiteboardHost/>', () => {
       fireEvent.mouseMove(element, {
         clientX: 300,
         clientY: 400,
-        button,
       });
       fireEvent.mouseUp(element);
 
