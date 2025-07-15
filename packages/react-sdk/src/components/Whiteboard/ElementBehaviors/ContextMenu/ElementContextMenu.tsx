@@ -22,8 +22,14 @@ import {
   PopoverPosition,
   Typography,
 } from '@mui/material';
-import { first, last } from 'lodash';
-import { MouseEvent, PropsWithChildren, useCallback, useState } from 'react';
+import { first, isEqual, last } from 'lodash';
+import {
+  MouseEvent,
+  PropsWithChildren,
+  useCallback,
+  useRef,
+  useState,
+} from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   useSlideElementIds,
@@ -34,22 +40,43 @@ import { HotkeysHelp } from '../../../common/HotkeysHelp';
 import { isMacOS } from '../../../common/platform';
 
 type ContextMenuState = { position: PopoverPosition } | undefined;
+type MouseClientPosition = { clientX: number; clientY: number };
 
 export function ElementContextMenu({
   children,
   activeElementIds = [],
 }: PropsWithChildren<{ activeElementIds: string[] }>) {
+  const mousePositionRef = useRef<MouseClientPosition>();
   const [state, setState] = useState<ContextMenuState>();
 
   const handleContextMenu = useCallback((event: MouseEvent<SVGElement>) => {
     event.preventDefault();
-    setState((state) =>
-      !state
-        ? {
-            position: { left: event.clientX + 2, top: event.clientY - 6 },
-          }
-        : undefined,
-    );
+    mousePositionRef.current = {
+      clientX: event.clientX,
+      clientY: event.clientY,
+    };
+  }, []);
+
+  const handleMouseUp = useCallback((event: MouseEvent<SVGElement>) => {
+    if (!mousePositionRef.current) {
+      return;
+    }
+
+    const mousePosition: MouseClientPosition = {
+      clientX: event.clientX,
+      clientY: event.clientY,
+    };
+    if (isEqual(mousePositionRef.current, mousePosition)) {
+      setState((state) =>
+        !state
+          ? {
+              position: { left: event.clientX + 2, top: event.clientY - 6 },
+            }
+          : undefined,
+      );
+    }
+
+    mousePositionRef.current = undefined;
   }, []);
 
   const handleClose = useCallback(() => {
@@ -61,6 +88,7 @@ export function ElementContextMenu({
       <Box
         component="g"
         onContextMenu={handleContextMenu}
+        onMouseUp={handleMouseUp}
         data-testid="element-context-menu-container"
       >
         {children}
