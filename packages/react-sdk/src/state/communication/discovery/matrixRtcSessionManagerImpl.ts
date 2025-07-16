@@ -132,8 +132,6 @@ export class MatrixRtcSessionManagerImpl implements MatrixRtcSessionManager {
     const { userId, deviceId } = widgetApi.widgetParameters;
     const sessionId = `_${userId}_${deviceId}`;
 
-    this.joinState = { sessionId, whiteboardId };
-
     this.logger.debug(
       `Joining whiteboard ${whiteboardId} as session ${sessionId}`,
     );
@@ -142,11 +140,11 @@ export class MatrixRtcSessionManagerImpl implements MatrixRtcSessionManager {
       .pipe(
         takeUntil(this.destroySubject),
         takeUntil(this.leaveSubject),
-        switchMap(() => this.refreshOwnSession(sessionId)),
+        switchMap(() => this.refreshOwnSession(sessionId, whiteboardId)),
       )
       .subscribe();
 
-    await this.refreshOwnSession(sessionId);
+    await this.refreshOwnSession(sessionId, whiteboardId);
     await this.scheduleRemoveMembershipDelayedEvent(widgetApi, sessionId);
 
     // Handle session events
@@ -165,7 +163,7 @@ export class MatrixRtcSessionManagerImpl implements MatrixRtcSessionManager {
           rtcSession.state_key === sessionId
         ) {
           // refresh a membership event when event for this session is removed
-          await this.refreshOwnSession(sessionId);
+          await this.refreshOwnSession(sessionId, whiteboardId);
 
           if (!this.removeSessionDelayId || rtcSession.sender !== userId) {
             /**
@@ -189,6 +187,8 @@ export class MatrixRtcSessionManagerImpl implements MatrixRtcSessionManager {
       .subscribe(async () => {
         await this.computeActiveFocus();
       });
+
+    this.joinState = { sessionId, whiteboardId };
 
     return { sessionId };
   }
@@ -331,7 +331,7 @@ export class MatrixRtcSessionManagerImpl implements MatrixRtcSessionManager {
     const widgetApi = await this.widgetApiPromise;
     let sessions: StateEvent<RTCSessionEventContent>[] = [];
 
-    if (this.sessions.length == 0) {
+    if (!this.joinState) {
       this.logger.debug(
         'Not joined yet, need to retrieve session member state events',
       );
@@ -456,11 +456,11 @@ export class MatrixRtcSessionManagerImpl implements MatrixRtcSessionManager {
 
   private async refreshOwnSession(
     sessionId: string | undefined,
+    whiteboardId: string,
   ): Promise<void> {
     const expires = Date.now() + this.sessionTimeout;
     const widgetApi = await this.widgetApiPromise;
     const { userId, deviceId } = widgetApi.widgetParameters;
-    const { whiteboardId } = this.joinState ?? {};
 
     this.logger.debug(`Refreshing session ${sessionId}`);
 
