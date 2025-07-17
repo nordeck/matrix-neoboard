@@ -15,7 +15,7 @@
  */
 
 import { getEnvironment } from '@matrix-widget-toolkit/mui';
-import { isEqual, uniqWith } from 'lodash';
+import { uniqWith } from 'lodash';
 import { getLogger } from 'loglevel';
 import AutoDiscovery, { FOCI_WK_KEY } from './autodiscovery';
 
@@ -104,13 +104,36 @@ export function makeFociPreferred(
     preferredFoci.push(livekit_config);
   }
 
-  const foci = uniqWith(preferredFoci, isEqual);
+  const foci = uniqWith(preferredFoci, isEqualFocus);
 
   logger.debug('Final preferred foci:', foci);
   return foci;
+}
+
+export function isEqualFocus(
+  value: RTCFocus | undefined,
+  other: RTCFocus | undefined,
+): boolean {
+  let isEqual = false;
+
+  if (!value || !other) {
+    return false;
+  }
+
+  if (value.type === 'livekit' && other.type === 'livekit') {
+    isEqual = value.livekit_service_url === other.livekit_service_url;
+  } else {
+    isEqual = value.type === other.type;
+  }
+  return isEqual;
 }
 
 export const isLivekitFocusConfig = (
   object: RTCFocus,
 ): object is LivekitFocusConfig =>
   object.type === 'livekit' && 'livekit_service_url' in object;
+
+export const isLivekitFocusActive = (
+  focus_active: RTCFocus,
+): focus_active is LivekitFocusActive =>
+  focus_active.type === 'livekit' && 'focus_selection' in focus_active;
