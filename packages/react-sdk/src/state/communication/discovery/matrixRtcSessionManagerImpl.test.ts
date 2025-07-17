@@ -42,7 +42,7 @@ describe('MatrixRtcSessionManagerImpl', () => {
     // @ts-ignore forcefully set for tests
     widgetApi.widgetParameters.deviceId = 'DEVICEID';
     // @ts-ignore forcefully set for tests
-    widgetApi.widgetParameters.roomId = 'room-id';
+    widgetApi.widgetParameters.roomId = '!room-id';
 
     vi.stubEnv('REACT_APP_RTC', 'matrixrtc');
 
@@ -718,6 +718,10 @@ describe('MatrixRtcSessionManagerImpl', () => {
   });
 
   it('should set membership with preferred foci when joining a session', async () => {
+    rtcSessionManager.initFociDiscovery();
+
+    await firstValueFrom(rtcSessionManager.observeActiveFocus());
+
     await rtcSessionManager.join('whiteboard-id');
 
     expect(widgetApi.sendStateEvent).toHaveBeenCalledWith(
@@ -727,7 +731,7 @@ describe('MatrixRtcSessionManagerImpl', () => {
           {
             type: 'livekit',
             livekit_service_url: 'https://livekit.example.com',
-            livekit_alias: 'room-id',
+            livekit_alias: '!room-id',
           },
         ],
       }),
@@ -736,6 +740,8 @@ describe('MatrixRtcSessionManagerImpl', () => {
   });
 
   it('should re-join and update session with new foci if they change', async () => {
+    rtcSessionManager.initFociDiscovery();
+
     await rtcSessionManager.join('whiteboard-id');
 
     widgetApi.sendStateEvent.mockClear();
@@ -784,7 +790,7 @@ describe('MatrixRtcSessionManagerImpl', () => {
           {
             type: 'livekit',
             livekit_service_url: 'https://new-livekit.example.com',
-            livekit_alias: 'room-id',
+            livekit_alias: '!room-id',
           },
         ],
       }),
@@ -792,7 +798,9 @@ describe('MatrixRtcSessionManagerImpl', () => {
   });
 
   it('should not trigger focus update if the active focus is the same', async () => {
-    widgetApi.sendStateEvent.mockClear();
+    rtcSessionManager.initFociDiscovery();
+
+    await rtcSessionManager.join('whiteboard-id');
 
     // Simulate a foci change
     vi.spyOn(matrixRtcFocus, 'getWellKnownFoci').mockResolvedValue([
@@ -809,6 +817,178 @@ describe('MatrixRtcSessionManagerImpl', () => {
     expect(rtcSessionManager.getActiveFocus()).toEqual({
       type: 'livekit',
       livekit_service_url: 'https://livekit.example.com',
+    });
+  });
+
+  it('should use member focus before joining ongoing session', async () => {
+    rtcSessionManager.initFociDiscovery();
+
+    widgetApi.mockSendStateEvent(
+      mockWhiteboardMembership({
+        content: {
+          call_id: 'whiteboard-id',
+          scope: 'm.room',
+          application: RTC_APPLICATION_WHITEBOARD,
+          device_id: 'FIRSTDEVICEID',
+          expires: Date.now() + DEFAULT_RTC_EXPIRE_DURATION,
+          foci_preferred: [
+            {
+              type: 'livekit',
+              livekit_service_url: 'https://active-livekit.example.com',
+              livekit_alias: '!room-id',
+            },
+          ],
+          focus_active: {
+            type: 'livekit',
+            focus_selection: 'oldest_membership',
+          },
+        },
+        state_key: '_@first-user_FIRSTDEVICEID',
+        sender: '@first-user',
+      }),
+    );
+
+    await firstValueFrom(rtcSessionManager.observeActiveFocus());
+
+    expect(rtcSessionManager.getActiveFocus()).toEqual({
+      type: 'livekit',
+      livekit_service_url: 'https://active-livekit.example.com',
+      livekit_alias: '!room-id',
+    });
+  });
+
+  it('should change active focus when oldest member leaves', async () => {
+    rtcSessionManager.initFociDiscovery();
+
+    widgetApi.mockSendStateEvent(
+      mockWhiteboardMembership({
+        content: {
+          call_id: 'whiteboard-id',
+          scope: 'm.room',
+          application: RTC_APPLICATION_WHITEBOARD,
+          device_id: 'FIRSTDEVICEID',
+          expires: Date.now() + DEFAULT_RTC_EXPIRE_DURATION,
+          foci_preferred: [
+            {
+              type: 'livekit',
+              livekit_service_url: 'https://active-livekit.example.com',
+              livekit_alias: '!room-id',
+            },
+          ],
+          focus_active: {
+            type: 'livekit',
+            focus_selection: 'oldest_membership',
+          },
+        },
+        state_key: '_@first-user_FIRSTDEVICEID',
+        sender: '@first-user',
+      }),
+    );
+
+    await rtcSessionManager.join('whiteboard-id');
+
+    // simulate first user leaving
+    widgetApi.mockSendStateEvent({
+      content: {},
+      state_key: '_@first-user_FIRSTDEVICEID',
+      sender: '@first-user',
+      type: STATE_EVENT_RTC_MEMBER,
+      event_id: '$event-id-0',
+      room_id: '!room-id',
+      origin_server_ts: 0,
+    });
+
+    await firstValueFrom(rtcSessionManager.observeActiveFocus());
+
+    // Verify the active focus was updated
+    expect(rtcSessionManager.getActiveFocus()).toEqual({
+      type: 'livekit',
+      livekit_service_url: 'https://livekit.example.com',
+    });
+  });
+
+  it('should not change active focus when some member leaves', async () => {
+    rtcSessionManager.initFociDiscovery();
+
+    // setup oldest membership with active focus
+    widgetApi.mockSendStateEvent(
+      mockWhiteboardMembership({
+        content: {
+          call_id: 'whiteboard-id',
+          scope: 'm.room',
+          application: RTC_APPLICATION_WHITEBOARD,
+          device_id: 'FIRSTDEVICEID',
+          expires: Date.now() + DEFAULT_RTC_EXPIRE_DURATION,
+          foci_preferred: [
+            {
+              type: 'livekit',
+              livekit_service_url: 'https://oldest-livekit.example.com',
+              livekit_alias: '!room-id',
+            },
+          ],
+          focus_active: {
+            type: 'livekit',
+            focus_selection: 'oldest_membership',
+          },
+        },
+        state_key: '_@first-user_FIRSTDEVICEID',
+        sender: '@first-user',
+      }),
+    );
+
+    await rtcSessionManager.join('whiteboard-id');
+
+    expect(rtcSessionManager.getActiveFocus()).toEqual({
+      type: 'livekit',
+      livekit_service_url: 'https://oldest-livekit.example.com',
+      livekit_alias: '!room-id',
+    });
+
+    widgetApi.mockSendStateEvent(
+      mockWhiteboardMembership({
+        content: {
+          call_id: 'whiteboard-id',
+          scope: 'm.room',
+          application: RTC_APPLICATION_WHITEBOARD,
+          device_id: 'ANOTHERDEVICEID',
+          expires: Date.now() + DEFAULT_RTC_EXPIRE_DURATION,
+          foci_preferred: [
+            {
+              type: 'livekit',
+              livekit_service_url: 'https://other-livekit.example.com',
+              livekit_alias: '!room-id',
+            },
+          ],
+          focus_active: {
+            type: 'livekit',
+            focus_selection: 'oldest_membership',
+          },
+        },
+        state_key: '_@other-user_ANOTHERDEVICEID',
+        sender: '@other-user',
+      }),
+    );
+
+    vi.advanceTimersByTime(60 * 1000 + 500);
+
+    // simulate the latest user leaving
+    widgetApi.mockSendStateEvent({
+      content: {},
+      state_key: '_@other-user_ANOTHERDEVICEID',
+      sender: '@other-user',
+      type: STATE_EVENT_RTC_MEMBER,
+      event_id: '$event-id-0',
+      room_id: '!room-id',
+      origin_server_ts: 0,
+    });
+
+    // used as a way to sync the session manager state
+    await rtcSessionManager.leave();
+
+    expect(rtcSessionManager.getActiveFocus()).toEqual({
+      type: 'livekit',
+      livekit_service_url: 'https://oldest-livekit.example.com',
+      livekit_alias: '!room-id',
     });
   });
 });

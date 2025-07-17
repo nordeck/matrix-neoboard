@@ -74,6 +74,8 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
   ) {
     this.logger.log('Creating communication channel');
 
+    this.sessionManager.initFociDiscovery();
+
     this.sessionManager
       .observeActiveFocus()
       .pipe(takeUntil(this.destroySubject))

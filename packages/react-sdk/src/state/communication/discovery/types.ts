@@ -57,6 +57,8 @@ export type SessionManager = {
 };
 
 export type MatrixRtcSessionManager = SessionManager & {
+  /** Initialize RTC Foci Discovery */
+  initFociDiscovery(): void;
   /** Gets the current active focus, if discovered */
   getActiveFocus(): RTCFocus | undefined;
   /**
