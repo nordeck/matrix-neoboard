@@ -172,12 +172,14 @@ export const TextElement = ({
     });
     // Ask the AI
     try {
-      let text: string;
-      if (
+      const service =
         model.startsWith('deepseek') ||
         model.startsWith('gemma') ||
         model.startsWith('llama')
-      ) {
+          ? 'ollama'
+          : 'open-ai';
+      let text: string;
+      if (service === 'ollama') {
         const res = await fetch('http://localhost:11434/api/generate', {
           method: 'POST',
           headers: {
