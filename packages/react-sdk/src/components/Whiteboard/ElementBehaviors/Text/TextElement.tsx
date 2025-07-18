@@ -18,7 +18,11 @@ import { styled } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
 import { useUnmount } from 'react-use';
 import { findForegroundColor } from '../../../../lib';
-import { PathElement, TextAlignment, useWhiteboardSlideInstance } from '../../../../state';
+import {
+  PathElement,
+  TextAlignment,
+  useWhiteboardSlideInstance,
+} from '../../../../state';
 import { TextFontFamily } from '../../../../state/crdt/documents/elements';
 import { TextEditor } from './TextEditor';
 
