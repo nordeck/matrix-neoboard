@@ -159,7 +159,7 @@ export const TextElement = ({
     const model =
       (elementWithModelStatement?.type === 'shape'
         ? elementWithModelStatement.text.slice('model: '.length).trim()
-        : '') || 'llama3.2';
+        : '') || 'o4-mini-2025-04-16';
     const prompt = incomingShapes
       .map((element) =>
         element.type === 'shape' && !element.text.startsWith('model: ')
@@ -171,29 +171,41 @@ export const TextElement = ({
       text: 'Generating…',
     });
     // Ask the AI
-    const res = await fetch('http://localhost:11434/api/generate', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model,
-        prompt: `Answer in a short and precise way. Limit yourself to 2 sentences. ${prompt}`,
-        stream: false,
-      }),
-    });
-    if (!res.ok) {
-      slideInstance.updateElement(elementId, {
-        text: `HTTP error ${res.status}`,
+    try {
+      const res = await fetch('https://api.openai.com/v1/responses', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${globalThis.localStorage.getItem('open-ai-api-token')}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model,
+          input: `Answer in a short and precise way. Limit yourself to 2 sentences. ${prompt}`,
+          stream: false,
+        }),
       });
-      return;
+      if (!res.ok) {
+        slideInstance.updateElement(elementId, {
+          text: `HTTP error ${res.status}`,
+        });
+        return;
+      }
+      const data = await res.json();
+      console.log(data);
+      const text = data.output
+        .find((output: { type: string }) => output.type === 'message')
+        .content.find(
+          (content: { type: string }) => content.type === 'output_text',
+        ).text;
+      slideInstance.updateElement(elementId, {
+        text,
+      });
+    } catch (err) {
+      console.error(err);
+      slideInstance.updateElement(elementId, {
+        text: 'Try again later.',
+      });
     }
-    const data = await res.json();
-    console.log(data);
-    const text = data.response.replace(/<think>.*?<\/think>\W*/gs, '');
-    slideInstance.updateElement(elementId, {
-      text,
-    });
   }, [elementId, slideInstance, x, y, width, height]);
 
   // If text editing is exited before the blur is received force a submit

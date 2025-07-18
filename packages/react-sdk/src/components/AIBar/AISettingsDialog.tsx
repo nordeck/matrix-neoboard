@@ -35,7 +35,7 @@ import { unstable_useId as useId } from '@mui/utils';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-export type AIAssistantService = 'ollama' | 'openai';
+export type AIAssistantService = 'ollama' | 'open-ai';
 
 export function AISettingsDialog({
   open,
@@ -78,10 +78,18 @@ function AISettingsDialogContent({
 
   const [error, setError] = useState<string>();
 
-  const [service, setService] = useState<AIAssistantService>('ollama');
-  const [apiKey, setAPIKey] = useState('');
+  const [service, setService] = useState<AIAssistantService>('open-ai');
+  const [apiKey, setAPIKey] = useState(
+    globalThis.localStorage.getItem('open-ai-api-token') ?? '',
+  );
+
+  const handleClose = () => {
+    globalThis.localStorage.setItem('open-ai-api-token', apiKey);
+    onClose();
+  };
 
   const handleServiceChange = (event: SelectChangeEvent) => {
+    event.stopPropagation();
     setService(event.target.value as AIAssistantService);
     setError(undefined);
   };
@@ -89,6 +97,8 @@ function AISettingsDialogContent({
   const handleAPIKeyChange: React.ChangeEventHandler<HTMLInputElement> = (
     event,
   ) => {
+    event.stopPropagation();
+    event.preventDefault();
     setAPIKey(event.target.value);
     setError(undefined);
   };
@@ -102,7 +112,7 @@ function AISettingsDialogContent({
           {t('boardBar.aiAssistant.title', 'AI Assistant Settings')}
         </DialogTitle>
         <Tooltip
-          onClick={onClose}
+          onClick={handleClose}
           title={t('boardBar.aiAssistant.close', 'Close')}
         >
           <IconButton sx={{ mr: 3 }}>
@@ -131,14 +141,15 @@ function AISettingsDialogContent({
             <MenuItem value="ollama">
               {t('boardBar.aiAssistant.service.ollama', 'Ollama')}
             </MenuItem>
-            <MenuItem value="openai">
-              {t('boardBar.aiAssistant.service.openai', 'OpenAI')}
+            <MenuItem value="open-ai">
+              {t('boardBar.aiAssistant.service.open-ai', 'OpenAI')}
             </MenuItem>
           </Select>
         </FormControl>
 
         <TextField
           fullWidth
+          type="password"
           label={t('boardBar.aiAssistant.apiKey.title', 'OpenAI API Key')}
           onChange={handleAPIKeyChange}
           value={apiKey}
