@@ -32,7 +32,7 @@ import { unstable_useId as useId } from '@mui/utils';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-export type AIAssistantService = 'ollama' | 'openai';
+export type AIAssistantService = 'ollama' | 'open-ai';
 
 export function AIAssistantDialog({
   open,

@@ -14,7 +14,7 @@
       "pdfError": "Something went wrong while generating the PDF.",
       "service": {
         "ollama": "Ollama",
-        "openai": "OpenAI",
+        "open-ai": "OpenAI",
         "title": "Service"
       },
       "title": "KI-Assistent-Einstellungen"
