@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import { getEnvironment } from '@matrix-widget-toolkit/mui';
-
 export function isInfiniteCanvasMode(): boolean {
-  return getEnvironment('REACT_APP_INFINITE_CANVAS') === 'true';
+  return true;
 }
