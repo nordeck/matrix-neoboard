@@ -74,7 +74,7 @@
     "i18next": "^25.2.1",
     "i18next-parser": "^9.3.0",
     "i18next-resources-to-backend": "^1.2.1",
-    "jsdom": "^25.0.1",
+    "jsdom": "^26.1.0",
     "pdfjs-dist": "^4.6.82",
     "prettier": "^3.5.2",
     "react-i18next": "^15.5.2",
