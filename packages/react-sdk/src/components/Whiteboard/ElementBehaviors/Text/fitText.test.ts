@@ -139,9 +139,9 @@ describe('fitText', () => {
 
   it.each`
     fontStyleItalic | expectedPadding
-    ${false}        | ${'0px 0em 0px'}
-    ${true}         | ${'0px 0.2em 0px'}
-    ${undefined}    | ${'0px 0em 0px'}
+    ${false}        | ${'0px 0em'}
+    ${true}         | ${'0px 0.2em'}
+    ${undefined}    | ${'0px 0em'}
   `(
     'should handle the horizontal padding for fontStyleItalic $fontStyleItalic accordingly',
     ({ fontStyleItalic, expectedPadding }) => {
