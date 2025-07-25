@@ -147,6 +147,8 @@ function AISettingsDialogContent({
           </Select>
         </FormControl>
 
+        <br />
+
         <TextField
           fullWidth
           type="password"
