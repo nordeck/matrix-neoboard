@@ -16,7 +16,7 @@
 
 import { useTranslation } from 'react-i18next';
 import { Toolbar } from '../common/Toolbar';
-import { AIAssistantButton } from './AIAssistantButton';
+// import { AIAssistantButton } from './AIAssistantButton';
 import { AISettingsButton } from './AISettingsButton';
 
 export function AIBar() {
@@ -29,7 +29,7 @@ export function AIBar() {
       sx={{ pointerEvents: 'initial' }}
       data-guided-tour-target="aibar"
     >
-      <AIAssistantButton />
+      {/* <AIAssistantButton /> */}
       <AISettingsButton />
     </Toolbar>
   );
