@@ -177,7 +177,7 @@ export const TextElement = ({
         model.startsWith('gemma') ||
         model.startsWith('llama')
           ? 'ollama'
-          : 'open-ai';
+          : (globalThis.localStorage.getItem('llm-service') ?? 'open-ai');
       let text: string;
       if (service === 'ollama') {
         const res = await fetch('http://localhost:11434/api/generate', {

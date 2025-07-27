@@ -35,8 +35,6 @@ import { unstable_useId as useId } from '@mui/utils';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-export type AIAssistantService = 'ollama' | 'open-ai';
-
 export function AISettingsDialog({
   open,
   onClose,
@@ -78,7 +76,9 @@ function AISettingsDialogContent({
 
   const [error, setError] = useState<string>();
 
-  const [service, setService] = useState<AIAssistantService>('open-ai');
+  const [service, setService] = useState(
+    globalThis.localStorage.getItem('llm-service') ?? 'open-ai',
+  );
   const [apiKey, setAPIKey] = useState(
     globalThis.localStorage.getItem('open-ai-api-token') ?? '',
   );
@@ -90,7 +90,7 @@ function AISettingsDialogContent({
 
   const handleServiceChange = (event: SelectChangeEvent) => {
     event.stopPropagation();
-    setService(event.target.value as AIAssistantService);
+    setService(event.target.value);
     setError(undefined);
   };
 
