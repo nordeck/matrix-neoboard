@@ -25,6 +25,7 @@ import {
   usePresentationMode,
 } from '../../state';
 import { usePowerLevels } from '../../store/api/usePowerLevels';
+import { AIBar } from '../AIBar';
 import { BoardBar } from '../BoardBar';
 import { CollaborationBar } from '../CollaborationBar';
 import { ConnectionPointProvider } from '../ConnectionPointProvider';
@@ -168,6 +169,7 @@ function ContentArea() {
         top={(theme) => theme.spacing(1)}
       >
         {!isViewingPresentation && <BoardBar />}
+        <AIBar />
         <CollaborationBar />
         <ToolbarContainer
           direction="column"
