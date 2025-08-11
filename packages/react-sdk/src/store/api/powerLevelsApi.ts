@@ -137,7 +137,7 @@ export const powerLevelsApi = baseApi.injectEndpoints({
         await cacheDataLoaded;
 
         const subscription = widgetApi
-          .observeStateEvents(STATE_EVENT_POWER_LEVELS, {
+          .observeStateEvents(STATE_EVENT_CREATE, {
             stateKey: '',
           })
           .pipe(
