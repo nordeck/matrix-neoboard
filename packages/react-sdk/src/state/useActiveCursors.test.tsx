@@ -86,13 +86,13 @@ describe('useActiveCursors', () => {
 
     act(() => {
       cursorPositionSubject.next({
-        '@user-id': { x: 1, y: 2 },
-        '@another-user': { x: 3, y: 4 },
+        '@user-id:example.com': { x: 1, y: 2 },
+        '@another-user:example.com': { x: 3, y: 4 },
       });
     });
 
     expect(result.current).toEqual({
-      '@another-user': { x: 3, y: 4 },
+      '@another-user:example.com': { x: 3, y: 4 },
     });
   });
 });

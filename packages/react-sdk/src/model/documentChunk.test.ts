@@ -32,8 +32,8 @@ describe('isValidDocumentChunkRoomEvent', () => {
         },
         event_id: '$event-id',
         origin_server_ts: 0,
-        room_id: '!room-id',
-        sender: '@user-id',
+        room_id: '!room-id:example.com',
+        sender: '@user-id:example.com',
         type: 'net.nordeck.whiteboard.document.chunk',
       }),
     ).toBe(true);
@@ -55,8 +55,8 @@ describe('isValidDocumentChunkRoomEvent', () => {
         },
         event_id: '$event-id',
         origin_server_ts: 0,
-        room_id: '!room-id',
-        sender: '@user-id',
+        room_id: '!room-id:example.com',
+        sender: '@user-id:example.com',
         type: 'net.nordeck.whiteboard.document.chunk',
       }),
     ).toBe(true);
@@ -101,8 +101,8 @@ describe('isValidDocumentChunkRoomEvent', () => {
         },
         event_id: '$event-id',
         origin_server_ts: 0,
-        room_id: '!room-id',
-        sender: '@user-id',
+        room_id: '!room-id:example.com',
+        sender: '@user-id:example.com',
         type: 'net.nordeck.whiteboard.document.chunk',
       }),
     ).toBe(false);

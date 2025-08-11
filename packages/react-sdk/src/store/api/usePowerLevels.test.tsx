@@ -65,10 +65,10 @@ describe('usePowerLevels', () => {
         content: {
           events: {},
           users: {
-            '@user-id': 100,
-            '@user-id-1': 55,
-            '@user-id-2': 25,
-            '@user-id-3': 0,
+            '@user-id:example.com': 100,
+            '@user-id-1:example.com': 55,
+            '@user-id-2:example.com': 25,
+            '@user-id-3:example.com': 0,
           },
           events_default: 100,
           state_default: 100,
@@ -96,7 +96,7 @@ describe('usePowerLevels', () => {
         content: {
           events: {},
           users: {
-            '@user-id': 50,
+            '@user-id:example.com': 50,
           },
           events_default: 100,
           state_default: 100,
@@ -124,7 +124,7 @@ describe('usePowerLevels', () => {
         content: {
           events: {},
           users: {
-            '@user-id': 25,
+            '@user-id:example.com': 25,
           },
           events_default: 100,
           state_default: 100,

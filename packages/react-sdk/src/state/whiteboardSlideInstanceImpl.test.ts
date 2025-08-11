@@ -93,13 +93,13 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id',
+      '@user-id:example.com',
     );
 
     slideInstance.lockSlide();
 
     expect(getSlideLock(document.getData(), slide0)).toEqual({
-      userId: '@user-id',
+      userId: '@user-id:example.com',
     });
     expect(slideInstance.isLocked()).toEqual(true);
   });
@@ -109,7 +109,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id',
+      '@user-id:example.com',
     );
 
     slideInstance.lockSlide();
@@ -123,7 +123,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const element = mockLineElement();
@@ -138,7 +138,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const element = mockEllipseElement({ connectedPaths: ['element-id-1'] });
@@ -153,7 +153,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const elementShape1 = mockRectangleElement();
@@ -188,7 +188,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const elementShape1 = mockRectangleElement();
@@ -217,7 +217,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const elementShape1 = mockRectangleElement();
@@ -246,7 +246,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const elementLine = mockLineElement();
@@ -284,7 +284,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const element0 = mockEllipseElement();
@@ -301,7 +301,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const element0 = mockEllipseElement();
@@ -327,7 +327,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const element0 = mockEllipseElement();
@@ -374,7 +374,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const element0 = mockEllipseElement();
@@ -418,7 +418,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id',
+      '@user-id:example.com',
     );
     slideInstance.lockSlide();
 
@@ -434,7 +434,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const setActiveElementIdSpy = vi.spyOn(slideInstance, 'setActiveElementId');
@@ -461,7 +461,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const element = mockLineElement();
@@ -480,7 +480,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
         communicationChannel,
         slide0,
         document,
-        '@user-id',
+        '@user-id:example.com',
       );
 
       const element1 = mockLineElement();
@@ -506,7 +506,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const elementLine = mockLineElement();
@@ -538,7 +538,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const elementLine = mockLineElement();
@@ -570,7 +570,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const elementLine = mockLineElement();
@@ -603,7 +603,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id',
+      '@user-id:example.com',
     );
     const element = mockLineElement();
     const element0 = slideInstance.addElement(element);
@@ -619,7 +619,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const element = mockLineElement();
@@ -642,7 +642,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const element = mockLineElement();
@@ -684,7 +684,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id',
+      '@user-id:example.com',
     );
     const element = mockLineElement();
     const element0 = slideInstance.addElement(element);
@@ -702,7 +702,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const element = mockLineElement();
@@ -730,7 +730,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const element = mockLineElement();
@@ -758,7 +758,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const element = mockLineElement();
@@ -786,7 +786,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const element = mockLineElement();
@@ -803,7 +803,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const element = mockLineElement();
@@ -831,7 +831,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const element = mockLineElement();
@@ -848,7 +848,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const element = mockLineElement();
@@ -876,7 +876,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const element = mockLineElement();
@@ -893,7 +893,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const element = mockLineElement();
@@ -921,7 +921,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const element = mockLineElement();
@@ -949,7 +949,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const element = mockLineElement();
@@ -977,7 +977,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const element = mockLineElement();
@@ -994,7 +994,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const element = mockLineElement();
@@ -1021,7 +1021,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const element = mockLineElement();
@@ -1055,7 +1055,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const elementIds = firstValueFrom(
@@ -1082,7 +1082,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const cursorPositions = firstValueFrom(
@@ -1095,7 +1095,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
         slideId: slide0,
         position: { x: 1, y: 2 },
       },
-      senderUserId: '@user-id',
+      senderUserId: '@user-id:example.com',
       senderSessionId: 'session-id',
     });
 
@@ -1105,14 +1105,17 @@ describe('WhiteboardSlideInstanceImpl', () => {
         slideId: slide0,
         position: { x: 2, y: 1 },
       },
-      senderUserId: '@another-user-id',
+      senderUserId: '@another-user-id:example.com',
       senderSessionId: 'session-id',
     });
 
     vi.advanceTimersByTime(1000);
 
     expect(await cursorPositions).toEqual([
-      { '@user-id': { x: 1, y: 2 }, '@another-user-id': { x: 2, y: 1 } },
+      {
+        '@user-id:example.com': { x: 1, y: 2 },
+        '@another-user-id:example.com': { x: 2, y: 1 },
+      },
     ]);
   });
 
@@ -1123,7 +1126,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const cursorPositions = firstValueFrom(
@@ -1136,7 +1139,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
         slideId: slide0,
         position: { x: 1, y: 2 },
       },
-      senderUserId: '@user-id',
+      senderUserId: '@user-id:example.com',
       senderSessionId: 'session-id',
     });
 
@@ -1148,15 +1151,15 @@ describe('WhiteboardSlideInstanceImpl', () => {
         slideId: slide0,
         position: { x: 2, y: 1 },
       },
-      senderUserId: '@user-id',
+      senderUserId: '@user-id:example.com',
       senderSessionId: 'another-session-id',
     });
 
     vi.advanceTimersByTime(1000);
 
     expect(await cursorPositions).toEqual([
-      { '@user-id': { x: 1, y: 2 } },
-      { '@user-id': { x: 2, y: 1 } },
+      { '@user-id:example.com': { x: 1, y: 2 } },
+      { '@user-id:example.com': { x: 2, y: 1 } },
     ]);
   });
 
@@ -1167,7 +1170,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const cursorPositions = firstValueFrom(
@@ -1180,7 +1183,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
         slideId: slide0,
         position: { x: 1, y: 2 },
       },
-      senderUserId: '@user-id',
+      senderUserId: '@user-id:example.com',
       senderSessionId: 'session-id',
     });
 
@@ -1192,13 +1195,15 @@ describe('WhiteboardSlideInstanceImpl', () => {
         slideId: 'another-slide',
         position: { x: 2, y: 1 },
       },
-      senderUserId: '@user-id',
+      senderUserId: '@user-id:example.com',
       senderSessionId: 'session-id',
     });
 
     vi.advanceTimersByTime(1000);
 
-    expect(await cursorPositions).toEqual([{ '@user-id': { x: 1, y: 2 } }]);
+    expect(await cursorPositions).toEqual([
+      { '@user-id:example.com': { x: 1, y: 2 } },
+    ]);
   });
 
   it('should forget cursors after 5 seconds', async () => {
@@ -1208,7 +1213,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const firstCursorPosition = firstValueFrom(
@@ -1224,12 +1229,14 @@ describe('WhiteboardSlideInstanceImpl', () => {
         slideId: slide0,
         position: { x: 1, y: 2 },
       },
-      senderUserId: '@user-id',
+      senderUserId: '@user-id:example.com',
       senderSessionId: 'session-id',
     });
 
     vi.advanceTimersByTime(4999);
-    expect(await firstCursorPosition).toEqual({ '@user-id': { x: 1, y: 2 } });
+    expect(await firstCursorPosition).toEqual({
+      '@user-id:example.com': { x: 1, y: 2 },
+    });
 
     vi.advanceTimersByTime(1);
     expect(await secondCursorPosition).toEqual({});
@@ -1240,7 +1247,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id',
+      '@user-id:example.com',
     );
 
     slideInstance.publishCursorPosition({ x: 1, y: 2 });
@@ -1258,7 +1265,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id',
+      '@user-id:example.com',
     );
 
     slideInstance.publishCursorPosition({ x: 1, y: 2 });
@@ -1285,7 +1292,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const observedActiveElement = firstValueFrom(
@@ -1310,7 +1317,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const element0 = slideInstance.addElement(mockLineElement());
@@ -1340,7 +1347,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const observedActiveElement = firstValueFrom(
@@ -1364,7 +1371,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const [addElement, element0] = generateAddElement(
@@ -1390,7 +1397,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const element0 = slideInstance.addElement(mockLineElement());
@@ -1421,7 +1428,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const element = mockLineElement();
@@ -1438,7 +1445,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const element0 = slideInstance.addElement(mockLineElement());
@@ -1457,7 +1464,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const observedActiveElement = firstValueFrom(
@@ -1482,7 +1489,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const lockUpdates = firstValueFrom(
@@ -1501,7 +1508,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       communicationChannel,
       slide0,
       document,
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const element = mockLineElement();

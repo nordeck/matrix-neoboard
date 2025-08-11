@@ -22,7 +22,7 @@ describe('isValidCursorUpdateMessage', () => {
     expect(
       isValidCursorUpdateMessage({
         senderSessionId: 'sender-session-id',
-        senderUserId: '@sender-user-id',
+        senderUserId: '@sender-user-id:example.com',
         content: {
           slideId: 'slide-id',
           position: { x: 1, y: 2 },
@@ -36,7 +36,7 @@ describe('isValidCursorUpdateMessage', () => {
     expect(
       isValidCursorUpdateMessage({
         senderSessionId: 'sender-session-id',
-        senderUserId: '@sender-user-id',
+        senderUserId: '@sender-user-id:example.com',
         content: {
           slideId: 'slide-id',
           position: { x: 1, y: 2, additional: 'tmp' },
@@ -67,7 +67,7 @@ describe('isValidCursorUpdateMessage', () => {
     expect(
       isValidCursorUpdateMessage({
         senderSessionId: 'sender-session-id',
-        senderUserId: '@sender-user-id',
+        senderUserId: '@sender-user-id:example.com',
         content: {
           slideId: 'slide-id',
           position: { x: 1, y: 2 },

@@ -56,10 +56,12 @@ describe('<Collaborators>', () => {
   beforeEach(() => {
     ({ whiteboardManager, setPresentationMode } = mockWhiteboardManager());
 
-    widgetApi.mockSendStateEvent(mockRoomMember({ state_key: '@user-id' }));
+    widgetApi.mockSendStateEvent(
+      mockRoomMember({ state_key: '@user-id:example.com' }),
+    );
     widgetApi.mockSendStateEvent(
       mockRoomMember({
-        state_key: '@user-bob',
+        state_key: '@user-bob:example.com',
         content: {
           displayname: 'Bob',
         },
@@ -67,7 +69,7 @@ describe('<Collaborators>', () => {
     );
     widgetApi.mockSendStateEvent(
       mockRoomMember({
-        state_key: '@user-charlie',
+        state_key: '@user-charlie:example.com',
         content: {
           displayname: 'Charlie',
         },
@@ -75,7 +77,7 @@ describe('<Collaborators>', () => {
     );
     widgetApi.mockSendStateEvent(
       mockRoomMember({
-        state_key: '@user-dave',
+        state_key: '@user-dave:example.com',
         content: {
           displayname: 'Dave',
         },
@@ -83,7 +85,7 @@ describe('<Collaborators>', () => {
     );
     widgetApi.mockSendStateEvent(
       mockRoomMember({
-        state_key: '@user-erin',
+        state_key: '@user-erin:example.com',
         content: {
           displayname: 'Erin',
         },
@@ -91,7 +93,7 @@ describe('<Collaborators>', () => {
     );
     widgetApi.mockSendStateEvent(
       mockRoomMember({
-        state_key: '@user-frank',
+        state_key: '@user-frank:example.com',
         content: {
           displayname: 'Frank',
         },
@@ -99,7 +101,7 @@ describe('<Collaborators>', () => {
     );
     widgetApi.mockSendStateEvent(
       mockRoomMember({
-        state_key: '@user-grace',
+        state_key: '@user-grace:example.com',
         content: {
           displayname: 'Grace',
         },
@@ -110,53 +112,74 @@ describe('<Collaborators>', () => {
       communicationChannel: {
         localSessionId: 'own',
         peerConnections: {
-          'peer-0': mockPeerConnectionStatistics('@user-bob', 'connected'),
-          'peer-1': mockPeerConnectionStatistics('@user-charlie', 'failed'),
-          'peer-2': mockPeerConnectionStatistics('@user-dave', 'failed'),
-          'peer-3': mockPeerConnectionStatistics('@user-erin', 'connected'),
-          'peer-4': mockPeerConnectionStatistics('@user-frank', 'connected'),
-          'peer-5': mockPeerConnectionStatistics('@user-grace', 'connected'),
-          'peer-6': mockPeerConnectionStatistics('@user-heidi', 'connected'),
+          'peer-0': mockPeerConnectionStatistics(
+            '@user-bob:example.com',
+            'connected',
+          ),
+          'peer-1': mockPeerConnectionStatistics(
+            '@user-charlie:example.com',
+            'failed',
+          ),
+          'peer-2': mockPeerConnectionStatistics(
+            '@user-dave:example.com',
+            'failed',
+          ),
+          'peer-3': mockPeerConnectionStatistics(
+            '@user-erin:example.com',
+            'connected',
+          ),
+          'peer-4': mockPeerConnectionStatistics(
+            '@user-frank:example.com',
+            'connected',
+          ),
+          'peer-5': mockPeerConnectionStatistics(
+            '@user-grace:example.com',
+            'connected',
+          ),
+          'peer-6': mockPeerConnectionStatistics(
+            '@user-heidi:example.com',
+            'connected',
+          ),
         },
         sessions: [
           {
-            userId: '@user-bob',
+            userId: '@user-bob:example.com',
             expiresTs: Date.now() + 1000,
             sessionId: 'session-0',
             whiteboardId: 'whiteboard-id',
           },
           {
-            userId: '@user-charlie',
+            userId: '@user-charlie:example.com',
             expiresTs: Date.now() - 1000,
             sessionId: 'session-1',
             whiteboardId: 'whiteboard-id',
           },
           {
-            userId: '@user-dave',
+            userId: '@user-dave:example.com',
             expiresTs: Date.now() - 1000,
             sessionId: 'session-2',
             whiteboardId: 'whiteboard-id',
           },
           {
-            userId: '@user-erin',
+            userId: '@user-erin:example.com',
             expiresTs: Date.now() + 1000,
             sessionId: 'session-3',
             whiteboardId: 'whiteboard-id',
           },
           {
-            userId: '@user-frank',
+            userId: '@user-frank:example.com',
             expiresTs: Date.now() + 1000,
             sessionId: 'session-4',
             whiteboardId: 'whiteboard-id',
           },
           {
-            userId: '@user-grace',
+            userId: '@user-grace:example.com',
             expiresTs: Date.now() + 1000,
             sessionId: 'session-5',
             whiteboardId: 'whiteboard-id',
           },
           {
-            userId: '@user-heidi',
+            userId: '@user-heidi:example.com',
             expiresTs: Date.now() + 1000,
             sessionId: 'session-6',
             whiteboardId: 'whiteboard-id',
@@ -218,7 +241,7 @@ describe('<Collaborators>', () => {
     await act(async () => {
       expect(
         within(group).getByRole('button', {
-          name: '@user-alice is presenting',
+          name: '@user-alice:example.com is presenting',
         }),
       ).toBeInTheDocument();
     });
@@ -235,10 +258,22 @@ describe('<Collaborators>', () => {
   describe('WebRTC P2P mode', () => {
     it('should show active users', async () => {
       statistics.communicationChannel.peerConnections = {
-        'peer-0': mockPeerConnectionStatistics('@user-bob', 'connected'),
-        'peer-1': mockPeerConnectionStatistics('@user-charlie', 'failed'),
-        'peer-2': mockPeerConnectionStatistics('@user-dave', 'failed'),
-        'peer-3': mockPeerConnectionStatistics('@user-erin', 'connected'),
+        'peer-0': mockPeerConnectionStatistics(
+          '@user-bob:example.com',
+          'connected',
+        ),
+        'peer-1': mockPeerConnectionStatistics(
+          '@user-charlie:example.com',
+          'failed',
+        ),
+        'peer-2': mockPeerConnectionStatistics(
+          '@user-dave:example.com',
+          'failed',
+        ),
+        'peer-3': mockPeerConnectionStatistics(
+          '@user-erin:example.com',
+          'connected',
+        ),
       };
 
       render(<Collaborators />, { wrapper: Wrapper });
@@ -271,7 +306,7 @@ describe('<Collaborators>', () => {
       });
 
       expect(
-        within(menu).getByRole('menuitem', { name: '@user-heidi' }),
+        within(menu).getByRole('menuitem', { name: '@user-heidi:example.com' }),
       ).toBeInTheDocument();
 
       await userEvent.keyboard('[Space]');
@@ -283,13 +318,34 @@ describe('<Collaborators>', () => {
 
     it('should show more button for more users', async () => {
       statistics.communicationChannel.peerConnections = {
-        'peer-0': mockPeerConnectionStatistics('@user-bob', 'connected'),
-        'peer-1': mockPeerConnectionStatistics('@user-charlie', 'failed'),
-        'peer-2': mockPeerConnectionStatistics('@user-dave', 'connected'),
-        'peer-3': mockPeerConnectionStatistics('@user-erin', 'connected'),
-        'peer-4': mockPeerConnectionStatistics('@user-frank', 'connected'),
-        'peer-5': mockPeerConnectionStatistics('@user-grace', 'connected'),
-        'peer-6': mockPeerConnectionStatistics('@user-heidi', 'connected'),
+        'peer-0': mockPeerConnectionStatistics(
+          '@user-bob:example.com',
+          'connected',
+        ),
+        'peer-1': mockPeerConnectionStatistics(
+          '@user-charlie:example.com',
+          'failed',
+        ),
+        'peer-2': mockPeerConnectionStatistics(
+          '@user-dave:example.com',
+          'connected',
+        ),
+        'peer-3': mockPeerConnectionStatistics(
+          '@user-erin:example.com',
+          'connected',
+        ),
+        'peer-4': mockPeerConnectionStatistics(
+          '@user-frank:example.com',
+          'connected',
+        ),
+        'peer-5': mockPeerConnectionStatistics(
+          '@user-grace:example.com',
+          'connected',
+        ),
+        'peer-6': mockPeerConnectionStatistics(
+          '@user-heidi:example.com',
+          'connected',
+        ),
       };
 
       render(<Collaborators />, { wrapper: Wrapper });
@@ -311,7 +367,7 @@ describe('<Collaborators>', () => {
         within(menu).getByRole('menuitem', { name: 'Grace' }),
       ).toBeInTheDocument();
       expect(
-        within(menu).getByRole('menuitem', { name: '@user-heidi' }),
+        within(menu).getByRole('menuitem', { name: '@user-heidi:example.com' }),
       ).toBeInTheDocument();
 
       await userEvent.keyboard('[Escape]');
@@ -334,25 +390,25 @@ describe('<Collaborators>', () => {
     it('should show active users', async () => {
       statistics.communicationChannel.sessions = [
         {
-          userId: '@user-bob',
+          userId: '@user-bob:example.com',
           expiresTs: Date.now() + 1000,
           sessionId: 'session-0',
           whiteboardId: 'whiteboard-id',
         },
         {
-          userId: '@user-charlie',
+          userId: '@user-charlie:example.com',
           expiresTs: Date.now() - 1000,
           sessionId: 'session-1',
           whiteboardId: 'whiteboard-id',
         },
         {
-          userId: '@user-dave',
+          userId: '@user-dave:example.com',
           expiresTs: Date.now() - 1000,
           sessionId: 'session-2',
           whiteboardId: 'whiteboard-id',
         },
         {
-          userId: '@user-erin',
+          userId: '@user-erin:example.com',
           expiresTs: Date.now() + 1000,
           sessionId: 'session-3',
           whiteboardId: 'whiteboard-id',
@@ -389,7 +445,7 @@ describe('<Collaborators>', () => {
       });
 
       expect(
-        within(menu).getByRole('menuitem', { name: '@user-heidi' }),
+        within(menu).getByRole('menuitem', { name: '@user-heidi:example.com' }),
       ).toBeInTheDocument();
 
       await userEvent.keyboard('[Space]');
@@ -402,43 +458,43 @@ describe('<Collaborators>', () => {
     it('should show more button for more users', async () => {
       statistics.communicationChannel.sessions = [
         {
-          userId: '@user-bob',
+          userId: '@user-bob:example.com',
           expiresTs: Date.now() + 1000,
           sessionId: 'session-0',
           whiteboardId: 'whiteboard-id',
         },
         {
-          userId: '@user-charlie',
+          userId: '@user-charlie:example.com',
           expiresTs: Date.now() - 1000,
           sessionId: 'session-1',
           whiteboardId: 'whiteboard-id',
         },
         {
-          userId: '@user-dave',
+          userId: '@user-dave:example.com',
           expiresTs: Date.now() + 1000,
           sessionId: 'session-2',
           whiteboardId: 'whiteboard-id',
         },
         {
-          userId: '@user-erin',
+          userId: '@user-erin:example.com',
           expiresTs: Date.now() + 1000,
           sessionId: 'session-3',
           whiteboardId: 'whiteboard-id',
         },
         {
-          userId: '@user-frank',
+          userId: '@user-frank:example.com',
           expiresTs: Date.now() + 1000,
           sessionId: 'session-4',
           whiteboardId: 'whiteboard-id',
         },
         {
-          userId: '@user-grace',
+          userId: '@user-grace:example.com',
           expiresTs: Date.now() + 1000,
           sessionId: 'session-5',
           whiteboardId: 'whiteboard-id',
         },
         {
-          userId: '@user-heidi',
+          userId: '@user-heidi:example.com',
           expiresTs: Date.now() + 1000,
           sessionId: 'session-6',
           whiteboardId: 'whiteboard-id',
@@ -464,7 +520,7 @@ describe('<Collaborators>', () => {
         within(menu).getByRole('menuitem', { name: 'Grace' }),
       ).toBeInTheDocument();
       expect(
-        within(menu).getByRole('menuitem', { name: '@user-heidi' }),
+        within(menu).getByRole('menuitem', { name: '@user-heidi:example.com' }),
       ).toBeInTheDocument();
 
       await userEvent.keyboard('[Escape]');

@@ -112,14 +112,20 @@ export function mockWhiteboardManager(
     getStatistics: vi.fn(() => ({
       localSessionId: 'own',
       peerConnections: {
-        'peer-0': mockPeerConnectionStatistics('@user-alice', 'connected'),
+        'peer-0': mockPeerConnectionStatistics(
+          '@user-alice:example.com',
+          'connected',
+        ),
       },
     })),
     observeStatistics: vi.fn(() =>
       of({
         localSessionId: 'own',
         peerConnections: {
-          'peer-0': mockPeerConnectionStatistics('@user-alice', 'connected'),
+          'peer-0': mockPeerConnectionStatistics(
+            '@user-alice:example.com',
+            'connected',
+          ),
         },
       }),
     ),
@@ -138,7 +144,7 @@ export function mockWhiteboardManager(
     synchronizedDocument,
     communicationChannel,
     mockWhiteboard(),
-    '@user-id',
+    '@user-id:example.com',
   );
 
   const activeWhiteboardSubject = new BehaviorSubject<
@@ -162,7 +168,7 @@ export function mockWhiteboardManager(
     synchronizedDocument,
     setPresentationMode: (enable, enableEdit) => {
       messageSubject.next({
-        senderUserId: '@user-alice',
+        senderUserId: '@user-alice:example.com',
         senderSessionId: 'other',
         type: 'net.nordeck.whiteboard.present_slide',
         content: {

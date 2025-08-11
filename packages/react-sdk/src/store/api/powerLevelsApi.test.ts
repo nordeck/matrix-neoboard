@@ -115,7 +115,7 @@ describe('patchPowerLevels', () => {
     widgetApi.mockSendStateEvent(
       mockPowerLevelsEvent({
         content: {
-          users: { '@user-id': 100 },
+          users: { '@user-id:example.com': 100 },
           users_default: 100,
         },
       }),
@@ -132,7 +132,7 @@ describe('patchPowerLevels', () => {
     expect(widgetApi.sendStateEvent).toHaveBeenCalledWith(
       'm.room.power_levels',
       {
-        users: { '@user-id': 100 },
+        users: { '@user-id:example.com': 100 },
         users_default: 0,
         events_default: 0,
       },
@@ -143,7 +143,7 @@ describe('patchPowerLevels', () => {
     widgetApi.mockSendStateEvent(
       mockPowerLevelsEvent({
         content: {
-          users: { '@user-id': 100 },
+          users: { '@user-id:example.com': 100 },
           users_default: 100,
         },
       }),

@@ -98,13 +98,28 @@ describe('useActiveWhiteboardMembers', () => {
         communicationChannel: {
           localSessionId: 'own',
           peerConnections: {
-            'peer-0': mockPeerConnectionStatistics('@user-0', 'connected'),
-            'peer-1': mockPeerConnectionStatistics('@user-0', 'failed'),
+            'peer-0': mockPeerConnectionStatistics(
+              '@user-0:example.com',
+              'connected',
+            ),
+            'peer-1': mockPeerConnectionStatistics(
+              '@user-0:example.com',
+              'failed',
+            ),
 
-            'peer-2': mockPeerConnectionStatistics('@user-1', 'failed'),
-            'peer-3': mockPeerConnectionStatistics('@user-1', 'connected'),
+            'peer-2': mockPeerConnectionStatistics(
+              '@user-1:example.com',
+              'failed',
+            ),
+            'peer-3': mockPeerConnectionStatistics(
+              '@user-1:example.com',
+              'connected',
+            ),
 
-            'peer-4': mockPeerConnectionStatistics('@user-2', 'failed'),
+            'peer-4': mockPeerConnectionStatistics(
+              '@user-2:example.com',
+              'failed',
+            ),
           },
         },
         document: {
@@ -128,8 +143,8 @@ describe('useActiveWhiteboardMembers', () => {
       });
 
       expect(result.current).toEqual([
-        { userId: '@user-0' },
-        { userId: '@user-1' },
+        { userId: '@user-0:example.com' },
+        { userId: '@user-1:example.com' },
       ]);
     });
 
@@ -138,7 +153,10 @@ describe('useActiveWhiteboardMembers', () => {
         communicationChannel: {
           localSessionId: 'own',
           peerConnections: {
-            'peer-0': mockPeerConnectionStatistics('@user-0', 'connected'),
+            'peer-0': mockPeerConnectionStatistics(
+              '@user-0:example.com',
+              'connected',
+            ),
           },
         },
         document: {
@@ -172,13 +190,28 @@ describe('useActiveWhiteboardMembers', () => {
           communicationChannel: {
             localSessionId: 'own',
             peerConnections: {
-              'peer-0': mockPeerConnectionStatistics('@user-0', 'connected'),
-              'peer-1': mockPeerConnectionStatistics('@user-0', 'failed'),
+              'peer-0': mockPeerConnectionStatistics(
+                '@user-0:example.com',
+                'connected',
+              ),
+              'peer-1': mockPeerConnectionStatistics(
+                '@user-0:example.com',
+                'failed',
+              ),
 
-              'peer-2': mockPeerConnectionStatistics('@user-1', 'failed'),
-              'peer-3': mockPeerConnectionStatistics('@user-1', 'connected'),
+              'peer-2': mockPeerConnectionStatistics(
+                '@user-1:example.com',
+                'failed',
+              ),
+              'peer-3': mockPeerConnectionStatistics(
+                '@user-1:example.com',
+                'connected',
+              ),
 
-              'peer-4': mockPeerConnectionStatistics('@user-2', 'failed'),
+              'peer-4': mockPeerConnectionStatistics(
+                '@user-2:example.com',
+                'failed',
+              ),
             },
           },
           document: {
@@ -194,8 +227,8 @@ describe('useActiveWhiteboardMembers', () => {
       });
 
       expect(result.current).toEqual([
-        { userId: '@user-0' },
-        { userId: '@user-1' },
+        { userId: '@user-0:example.com' },
+        { userId: '@user-1:example.com' },
       ]);
     });
   });
@@ -246,13 +279,13 @@ describe('useActiveWhiteboardMembers', () => {
           peerConnections: {},
           sessions: [
             {
-              userId: '@user-0',
+              userId: '@user-0:example.com',
               expiresTs: Date.now() + 1000,
               sessionId: 'session-0',
               whiteboardId: 'whiteboard-id',
             },
             {
-              userId: '@user-1',
+              userId: '@user-1:example.com',
               expiresTs: Date.now() + 1000,
               sessionId: 'session-1',
               whiteboardId: 'whiteboard-id',
@@ -280,8 +313,8 @@ describe('useActiveWhiteboardMembers', () => {
       });
 
       expect(result.current).toEqual([
-        { userId: '@user-0' },
-        { userId: '@user-1' },
+        { userId: '@user-0:example.com' },
+        { userId: '@user-1:example.com' },
       ]);
     });
 
@@ -292,7 +325,7 @@ describe('useActiveWhiteboardMembers', () => {
           peerConnections: {},
           sessions: [
             {
-              userId: '@user-0',
+              userId: '@user-0:example.com',
               expiresTs: Date.now() + 1000,
               sessionId: 'session-0',
               whiteboardId: 'whiteboard-id',
@@ -332,13 +365,13 @@ describe('useActiveWhiteboardMembers', () => {
             peerConnections: {},
             sessions: [
               {
-                userId: '@user-0',
+                userId: '@user-0:example.com',
                 expiresTs: Date.now() + 1000,
                 sessionId: 'session-0',
                 whiteboardId: 'whiteboard-id',
               },
               {
-                userId: '@user-1',
+                userId: '@user-1:example.com',
                 expiresTs: Date.now() + 1000,
                 sessionId: 'session-1',
                 whiteboardId: 'whiteboard-id',
@@ -358,8 +391,8 @@ describe('useActiveWhiteboardMembers', () => {
       });
 
       expect(result.current).toEqual([
-        { userId: '@user-0' },
-        { userId: '@user-1' },
+        { userId: '@user-0:example.com' },
+        { userId: '@user-1:example.com' },
       ]);
     });
   });

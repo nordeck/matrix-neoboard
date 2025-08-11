@@ -370,7 +370,7 @@ describe('convertWhiteboardToExportFormat', () => {
       const [addSlide1, slide1] = generateAddSlide();
       addSlide1(doc);
 
-      const lockSlide1 = generateLockSlide(slide1, '@user-id');
+      const lockSlide1 = generateLockSlide(slide1, '@user-id:example.com');
       lockSlide1(doc);
     });
 

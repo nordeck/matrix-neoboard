@@ -134,7 +134,10 @@ describe('useActiveWhiteboardInstanceStatistics', () => {
       communicationChannel: {
         localSessionId: 'own',
         peerConnections: {
-          'peer-0': mockPeerConnectionStatistics('@user-alice', 'connected'),
+          'peer-0': mockPeerConnectionStatistics(
+            '@user-alice:example.com',
+            'connected',
+          ),
         },
       },
     });
@@ -161,7 +164,10 @@ describe('useActiveWhiteboardInstanceStatistics', () => {
       communicationChannel: {
         localSessionId: 'own',
         peerConnections: {
-          'peer-0': mockPeerConnectionStatistics('@user-alice', 'connected'),
+          'peer-0': mockPeerConnectionStatistics(
+            '@user-alice:example.com',
+            'connected',
+          ),
         },
       },
     });

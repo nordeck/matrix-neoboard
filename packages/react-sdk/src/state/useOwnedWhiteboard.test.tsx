@@ -254,7 +254,7 @@ describe('useOwnedWhiteboard', () => {
         content: {
           users_default: 0,
           users: {
-            '@moderator-user': 50,
+            '@moderator-user:example.com': 50,
           },
         },
       }),
@@ -275,13 +275,13 @@ describe('useOwnedWhiteboard', () => {
 
     widgetApi.mockSendRoomEvent(
       mockDocumentCreate({
-        sender: '@moderator-user',
+        sender: '@moderator-user:example.com',
       }),
     );
 
     widgetApi.mockSendStateEvent(
       mockWhiteboard({
-        sender: '@moderator-user',
+        sender: '@moderator-user:example.com',
         content: {
           documentId: '$document-0',
         },
@@ -304,7 +304,7 @@ describe('useOwnedWhiteboard', () => {
         value: {
           type: 'whiteboard',
           event: mockWhiteboard({
-            sender: '@moderator-user',
+            sender: '@moderator-user:example.com',
             content: { documentId: '$document-0' },
             event_id: expect.any(String),
             origin_server_ts: expect.any(Number),

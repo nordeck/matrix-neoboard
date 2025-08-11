@@ -22,7 +22,7 @@ describe('isValidDocumentUpdateMessage', () => {
     expect(
       isValidDocumentUpdateMessage({
         senderSessionId: 'sender-session-id',
-        senderUserId: '@sender-user-id',
+        senderUserId: '@sender-user-id:example.com',
         content: {
           documentId: 'document-id',
           data: 'base64',
@@ -36,7 +36,7 @@ describe('isValidDocumentUpdateMessage', () => {
     expect(
       isValidDocumentUpdateMessage({
         senderSessionId: 'sender-session-id',
-        senderUserId: '@sender-user-id',
+        senderUserId: '@sender-user-id:example.com',
         content: {
           documentId: 'document-id',
           data: 'base64',
@@ -60,7 +60,7 @@ describe('isValidDocumentUpdateMessage', () => {
     expect(
       isValidDocumentUpdateMessage({
         senderSessionId: 'sender-session-id',
-        senderUserId: '@sender-user-id',
+        senderUserId: '@sender-user-id:example.com',
         content: {
           documentId: 'document-id',
           data: 'base64',

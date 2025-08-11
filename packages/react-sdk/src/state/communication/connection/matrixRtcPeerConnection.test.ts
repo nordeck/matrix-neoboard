@@ -27,7 +27,10 @@ import { MatrixRtcPeerConnection } from './matrixRtcPeerConnection';
 
 describe('MatrixRtcPeerConnection', () => {
   let mockRoom: MockLivekitRoom;
-  const session: Session = { sessionId: 'session-a', userId: '@user-id' };
+  const session: Session = {
+    sessionId: 'session-a',
+    userId: '@user-id:example.com',
+  };
   const sfuConfig: SFUConfig = {
     url: 'wss://livekit-server',
     jwt: 'dummy-jwt',
@@ -112,7 +115,7 @@ describe('MatrixRtcPeerConnection', () => {
       );
 
       const mockParticipant = {
-        identity: '@remote-user-id',
+        identity: '@remote-user-id:example.com',
         sid: 'remote-session-id',
       };
 
@@ -122,7 +125,7 @@ describe('MatrixRtcPeerConnection', () => {
         type: 'com.example.test',
         content: { key: 'value', nested: { prop: true } },
         senderSessionId: 'session-a',
-        senderUserId: '@remote-user-id',
+        senderUserId: '@remote-user-id:example.com',
       });
     });
 
@@ -134,7 +137,7 @@ describe('MatrixRtcPeerConnection', () => {
       );
 
       const mockParticipant = {
-        identity: '@remote-user-id',
+        identity: '@remote-user-id:example.com',
         sid: 'remote-session-id',
       };
 
@@ -155,7 +158,7 @@ describe('MatrixRtcPeerConnection', () => {
       );
 
       const mockParticipant = {
-        identity: '@remote-user-id',
+        identity: '@remote-user-id:example.com',
         sid: 'remote-session-id',
       };
 

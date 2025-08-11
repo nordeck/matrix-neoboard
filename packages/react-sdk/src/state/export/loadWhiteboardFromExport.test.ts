@@ -46,7 +46,7 @@ describe('generateLoadWhiteboardFromExport', () => {
 
     const importWhiteboard = generateLoadWhiteboardFromExport(
       exportDocument,
-      '@user-id',
+      '@user-id:example.com',
     );
     document.performChange(importWhiteboard);
 
@@ -103,7 +103,7 @@ describe('generateLoadWhiteboardFromExport', () => {
 
     const importWhiteboard = generateLoadWhiteboardFromExport(
       exportDocument,
-      '@user-id',
+      '@user-id:example.com',
     );
     document.performChange(importWhiteboard);
 
@@ -160,7 +160,7 @@ describe('generateLoadWhiteboardFromExport', () => {
 
     const importWhiteboard = generateLoadWhiteboardFromExport(
       exportDocument,
-      '@user-id',
+      '@user-id:example.com',
     );
     document.performChange(importWhiteboard);
 
@@ -199,7 +199,7 @@ describe('generateLoadWhiteboardFromExport', () => {
       whiteboard: {
         slides: [
           { elements: [] },
-          { elements: [], lock: { userId: '@another-user-id' } },
+          { elements: [], lock: { userId: '@another-user-id:example.com' } },
         ],
       },
     };
@@ -208,7 +208,7 @@ describe('generateLoadWhiteboardFromExport', () => {
 
     const importWhiteboard = generateLoadWhiteboardFromExport(
       exportDocument,
-      '@user-id',
+      '@user-id:example.com',
     );
     document.performChange(importWhiteboard);
 
@@ -222,7 +222,7 @@ describe('generateLoadWhiteboardFromExport', () => {
         [slide1]: {
           elements: {},
           elementIds: [],
-          lock: { userId: '@user-id' },
+          lock: { userId: '@user-id:example.com' },
         },
       },
       slideIds: [slide0, slide1],
@@ -245,14 +245,14 @@ describe('generateLoadWhiteboardFromExport', () => {
     // Replace the whiteboard to make the output predictable.
     const importWhiteboard1 = generateLoadWhiteboardFromExport(
       exportDocument,
-      '@user-id',
+      '@user-id:example.com',
     );
     document.performChange(importWhiteboard1);
 
     // Import it a second time, but this time insert it into the existing whiteboard.
     const importWhiteboard2 = generateLoadWhiteboardFromExport(
       exportDocument,
-      '@user-id',
+      '@user-id:example.com',
       1,
     );
     document.performChange(importWhiteboard2);
