@@ -16,16 +16,25 @@
 
 import { describe, expect, it } from 'vitest';
 
-import { mockLineElement, mockRectangleElement } from '../lib/testUtils';
 import {
+  mockFrameElement,
+  mockImageElement,
+  mockLineElement,
+  mockRectangleElement,
+} from '../lib/testUtils';
+import {
+  attachElementFrame,
+  attachFrameElements,
   connectPathElement,
   connectShapeElement,
-  deleteConnectionData,
+  deleteRelationsData,
   disconnectPathElement,
   disconnectPathElementOnPosition,
   disconnectShapeElement,
   findConnectingPaths,
   findConnectingShapes,
+  findElementAttachNotSelectedFrame,
+  findNotSelectedAttachedElements,
 } from './utils';
 
 describe('findConnectingShapes', () => {
@@ -157,6 +166,233 @@ describe('findConnectingPaths', () => {
         }),
       }),
     ).toEqual(['path-id-0', 'path-id-1']);
+  });
+});
+
+describe('findNotSelectedAttachedElements', () => {
+  it('should find attached elements for frame selected', () => {
+    expect(
+      findNotSelectedAttachedElements({
+        'frame-id-0': mockFrameElement({
+          attachedElements: ['element-id-1', 'element-id-2'],
+        }),
+      }),
+    ).toEqual(['element-id-1', 'element-id-2']);
+  });
+
+  it('should not find attached element for frame if element is selected', () => {
+    expect(
+      findNotSelectedAttachedElements({
+        'frame-id-0': mockFrameElement({
+          attachedElements: ['element-id-1', 'element-id-2'],
+        }),
+        'element-id-2': mockRectangleElement(),
+      }),
+    ).toEqual(['element-id-1']);
+  });
+
+  it('should return empty if no attached elements are found', () => {
+    expect(
+      findNotSelectedAttachedElements({
+        'frame-id-0': mockFrameElement({
+          attachedElements: ['element-id-1'],
+        }),
+        'element-id-1': mockRectangleElement(),
+        'element-id-2': mockRectangleElement(),
+      }),
+    ).toEqual([]);
+  });
+});
+
+describe('findElementAttachNotSelectedFrame', () => {
+  it('should find attached not selected frames for element selected', () => {
+    expect(
+      findElementAttachNotSelectedFrame({
+        'element-id-0': mockRectangleElement({ attachedFrame: 'frame-id-0' }),
+        'element-id-1': mockRectangleElement({ attachedFrame: 'frame-id-1' }),
+      }),
+    ).toEqual({
+      'element-id-0': 'frame-id-0',
+      'element-id-1': 'frame-id-1',
+    });
+  });
+
+  it('should not find attached frame for element if frame is selected', () => {
+    expect(
+      findElementAttachNotSelectedFrame({
+        'element-id-0': mockRectangleElement({ attachedFrame: 'frame-id-0' }),
+        'element-id-1': mockRectangleElement({ attachedFrame: 'frame-id-1' }),
+        'frame-id-1': mockFrameElement(),
+      }),
+    ).toEqual({
+      'element-id-0': 'frame-id-0',
+    });
+  });
+
+  it('should return empty if no attached frames are found', () => {
+    expect(
+      findElementAttachNotSelectedFrame({
+        'element-id-0': mockRectangleElement({ attachedFrame: 'frame-id-0' }),
+        'element-id-1': mockRectangleElement({ attachedFrame: 'frame-id-1' }),
+        'frame-id-0': mockFrameElement(),
+        'frame-id-1': mockFrameElement(),
+      }),
+    ).toEqual({});
+  });
+});
+
+describe('attachFrameElements', () => {
+  it('should attach single element', () => {
+    const patch = attachFrameElements(mockFrameElement(), {
+      attachElementIds: ['element-id-0'],
+      detachElementIds: [],
+    });
+    expect(patch).toEqual({
+      attachedElements: ['element-id-0'],
+    });
+  });
+
+  it('should attach elements', () => {
+    const patch = attachFrameElements(mockFrameElement(), {
+      attachElementIds: ['element-id-0', 'element-id-1'],
+      detachElementIds: [],
+    });
+    expect(patch).toEqual({
+      attachedElements: ['element-id-0', 'element-id-1'],
+    });
+  });
+
+  it('should not attach element if already attached', () => {
+    const patch = attachFrameElements(
+      mockFrameElement({
+        attachedElements: ['element-id-0'],
+      }),
+      {
+        attachElementIds: ['element-id-0'],
+        detachElementIds: [],
+      },
+    );
+    expect(patch).toBeUndefined();
+  });
+
+  it('should not attach duplicate elements', () => {
+    const patch = attachFrameElements(
+      mockFrameElement({
+        attachedElements: ['element-id-0'],
+      }),
+      {
+        attachElementIds: [
+          'element-id-0',
+          'element-id-1',
+          'element-id-1',
+          'element-id-2',
+        ],
+        detachElementIds: [],
+      },
+    );
+    expect(patch).toEqual({
+      attachedElements: ['element-id-0', 'element-id-1', 'element-id-2'],
+    });
+  });
+
+  it('should remove attached element', () => {
+    const patch = attachFrameElements(
+      mockFrameElement({ attachedElements: ['element-id-0', 'element-id-1'] }),
+      {
+        attachElementIds: [],
+        detachElementIds: ['element-id-1'],
+      },
+    );
+    expect(patch).toEqual({
+      attachedElements: ['element-id-0'],
+    });
+  });
+
+  it('should remove all attached elements', () => {
+    const patch = attachFrameElements(
+      mockFrameElement({ attachedElements: ['element-id-0', 'element-id-1'] }),
+      {
+        attachElementIds: [],
+        detachElementIds: ['element-id-0', 'element-id-1'],
+      },
+    );
+    expect(patch).toStrictEqual({
+      attachedElements: undefined,
+    });
+  });
+
+  it('should not remove element if is not attached', () => {
+    const patch = attachFrameElements(
+      mockFrameElement({ attachedElements: ['element-id-0'] }),
+      {
+        attachElementIds: [],
+        detachElementIds: ['element-id-1'],
+      },
+    );
+    expect(patch).toBeUndefined();
+  });
+
+  it('should not remove element if no elements attached', () => {
+    const patch = attachFrameElements(mockFrameElement(), {
+      attachElementIds: [],
+      detachElementIds: ['element-id-0'],
+    });
+    expect(patch).toBeUndefined();
+  });
+
+  it('should attach and remove elements', () => {
+    const patch = attachFrameElements(
+      mockFrameElement({ attachedElements: ['element-id-0'] }),
+      {
+        attachElementIds: ['element-id-1', 'element-id-2'],
+        detachElementIds: ['element-id-0', 'element-id-1'],
+      },
+    );
+    expect(patch).toEqual({
+      attachedElements: ['element-id-2'],
+    });
+  });
+});
+
+describe('attachElementFrame', () => {
+  it('should attach frame', () => {
+    const patch = attachElementFrame(mockLineElement(), 'element-frame-id-0');
+    expect(patch).toEqual({
+      attachedFrame: 'element-frame-id-0',
+    });
+  });
+
+  it('should attach frame if element has another attached', () => {
+    const patch = attachElementFrame(
+      mockLineElement({ attachedFrame: 'element-frame-id-0' }),
+      'element-frame-id-1',
+    );
+    expect(patch).toEqual({
+      attachedFrame: 'element-frame-id-1',
+    });
+  });
+
+  it('should not attach frame if already attached', () => {
+    const patch = attachElementFrame(
+      mockLineElement({ attachedFrame: 'element-frame-id-0' }),
+      'element-frame-id-0',
+    );
+    expect(patch).toBeUndefined();
+  });
+
+  it('should remove attached frame', () => {
+    const patch = attachElementFrame(
+      mockLineElement({ attachedFrame: 'element-frame-0' }),
+      undefined,
+    );
+    expect(patch).toStrictEqual({
+      attachedFrame: undefined,
+    });
+  });
+
+  it('should not remove attached frame if already no frame', () => {
+    const patch = attachElementFrame(mockLineElement(), undefined);
+    expect(patch).toBeUndefined();
   });
 });
 
@@ -483,25 +719,47 @@ describe('disconnectShapeElement', () => {
   });
 });
 
-describe('deleteConnectionData', () => {
-  it('should delete connection data from shape', () => {
+describe('deleteRelationsData', () => {
+  it('should delete relations data from shape', () => {
     expect(
-      deleteConnectionData(
+      deleteRelationsData(
         mockRectangleElement({
           connectedPaths: ['element-id-0', 'element-id-1'],
+          attachedFrame: 'frame-id-1',
         }),
       ),
     ).toEqual(mockRectangleElement());
   });
 
-  it('should delete connection data from line', () => {
+  it('should delete relations data from path', () => {
     expect(
-      deleteConnectionData(
+      deleteRelationsData(
         mockLineElement({
           connectedElementStart: 'element-id-0',
           connectedElementEnd: 'element-id-1',
+          attachedFrame: 'frame-id-1',
         }),
       ),
     ).toEqual(mockLineElement());
+  });
+
+  it('should delete relations data from frame', () => {
+    expect(
+      deleteRelationsData(
+        mockFrameElement({
+          attachedElements: ['element-id-1'],
+        }),
+      ),
+    ).toEqual(mockFrameElement());
+  });
+
+  it('should delete relations data from image', () => {
+    expect(
+      deleteRelationsData(
+        mockImageElement({
+          attachedFrame: 'frame-id-1',
+        }),
+      ),
+    ).toEqual(mockImageElement());
   });
 });

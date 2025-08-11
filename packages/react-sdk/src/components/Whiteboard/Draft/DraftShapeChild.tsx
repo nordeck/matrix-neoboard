@@ -19,6 +19,7 @@ import {
   Point,
   ShapeElement,
   ShapeKind,
+  useSlideExtendedContext,
   useWhiteboardSlideInstance,
 } from '../../../state';
 import {
@@ -65,6 +66,7 @@ export const DraftShapeChild = ({
   const shapeSizes = useAppSelector((state) => selectShapeSizes(state));
   const dispatch = useAppDispatch();
   const { scale } = useSvgScaleContext();
+  const { frameElements } = useSlideExtendedContext();
 
   const fillColor = activeShapeColor;
   // Text fields are identified by a transparent background color
@@ -96,12 +98,13 @@ export const DraftShapeChild = ({
         scale,
       );
 
-      slideInstance.addElement(
+      slideInstance.addShapeElementAndAttach(
         createShape({
           kind,
           startCoords,
           endCoords,
           fillColor: fixedColor || fillColor,
+          frameElements,
           gridCellSize: isShowGrid ? gridCellSize : undefined,
           sameLength,
           rounded,
@@ -127,17 +130,19 @@ export const DraftShapeChild = ({
       stickyNote,
       activeFontFamily,
       setActiveTool,
+      frameElements,
     ],
   );
 
   const handleMouseUp = useCallback(() => {
     if (startCoords && endCoords) {
-      slideInstance.addElement(
+      slideInstance.addShapeElementAndAttach(
         createShape({
           kind,
           startCoords,
           endCoords,
           fillColor: fixedColor || fillColor,
+          frameElements,
           gridCellSize: isShowGrid ? gridCellSize : undefined,
           sameLength,
           rounded,
@@ -165,6 +170,7 @@ export const DraftShapeChild = ({
     textColor,
     fillColor,
     activeFontFamily,
+    frameElements,
   ]);
 
   const handleMouseMove = useCallback(

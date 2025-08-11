@@ -29,6 +29,7 @@ import {
 } from 'vitest';
 import {
   mockEllipseElement,
+  mockFrameElement,
   mockLineElement,
   mockRectangleElement,
 } from '../lib/testUtils/documentTestUtils';
@@ -146,6 +147,65 @@ describe('WhiteboardSlideInstanceImpl', () => {
 
     expect(slideInstance.getElement(element0)).toEqual(mockEllipseElement());
     expect(slideInstance.getActiveElementId()).toEqual(element0);
+  });
+
+  it('should delete attach frame data when line element is added', () => {
+    const slideInstance = new WhiteboardSlideInstanceImpl(
+      communicationChannel,
+      slide0,
+      document,
+      '@user-id',
+    );
+
+    const element = mockLineElement({ attachedFrame: 'frame-id-1' });
+    const element0 = slideInstance.addElement(element);
+
+    expect(slideInstance.getElement(element0)).toEqual(mockLineElement());
+    expect(slideInstance.getActiveElementId()).toEqual(element0);
+  });
+
+  it('should add shape element and attach to existing frame element', () => {
+    const slideInstance = new WhiteboardSlideInstanceImpl(
+      communicationChannel,
+      slide0,
+      document,
+      '@user-id',
+    );
+
+    const frameElement1 = mockFrameElement();
+    const frameElementId1 = slideInstance.addElement(frameElement1);
+
+    const shapeElement = mockRectangleElement({
+      attachedFrame: frameElementId1,
+    });
+    const shapeElementId = slideInstance.addShapeElementAndAttach(shapeElement);
+
+    expect(slideInstance.getElement(shapeElementId)).toEqual(shapeElement);
+    expect(slideInstance.getElement(frameElementId1)).toEqual({
+      ...frameElement1,
+      attachedElements: [shapeElementId],
+    });
+    expect(slideInstance.getActiveElementId()).toEqual(shapeElementId);
+  });
+
+  it('should add shape element and filter out unknown frame', () => {
+    const slideInstance = new WhiteboardSlideInstanceImpl(
+      communicationChannel,
+      slide0,
+      document,
+      '@user-id',
+    );
+
+    const shapeElement = mockRectangleElement({
+      attachedFrame: 'unknown-frame-id',
+    });
+    const shapeElementId = slideInstance.addShapeElementAndAttach(shapeElement);
+
+    expect(slideInstance.getElement(shapeElementId)).toEqual({
+      ...shapeElement,
+      attachedFrame: undefined,
+    });
+    expect(slideInstance.getActiveElementId()).toEqual(shapeElementId);
   });
 
   it('should add line element and connect to existing shape elements', () => {
@@ -277,6 +337,50 @@ describe('WhiteboardSlideInstanceImpl', () => {
       ...elementShape,
       connectedPaths: [elementLineId],
     });
+  });
+
+  it('should add line element and attach to existing frame element', () => {
+    const slideInstance = new WhiteboardSlideInstanceImpl(
+      communicationChannel,
+      slide0,
+      document,
+      '@user-id',
+    );
+
+    const frameElement1 = mockFrameElement();
+    const frameElementId1 = slideInstance.addElement(frameElement1);
+
+    const lineElement = mockLineElement({
+      attachedFrame: frameElementId1,
+    });
+    const lineElementId = slideInstance.addPathElementAndConnect(lineElement);
+
+    expect(slideInstance.getElement(lineElementId)).toEqual(lineElement);
+    expect(slideInstance.getElement(frameElementId1)).toEqual({
+      ...frameElement1,
+      attachedElements: [lineElementId],
+    });
+    expect(slideInstance.getActiveElementId()).toEqual(lineElementId);
+  });
+
+  it('should add line element and filter out unknown frame', () => {
+    const slideInstance = new WhiteboardSlideInstanceImpl(
+      communicationChannel,
+      slide0,
+      document,
+      '@user-id',
+    );
+
+    const lineElement = mockLineElement({
+      attachedFrame: 'unknown-frame-id',
+    });
+    const lineElementId = slideInstance.addPathElementAndConnect(lineElement);
+
+    expect(slideInstance.getElement(lineElementId)).toEqual({
+      ...lineElement,
+      attachedFrame: undefined,
+    });
+    expect(slideInstance.getActiveElementId()).toEqual(lineElementId);
   });
 
   it('should add elements and select them as active elements', () => {
@@ -411,6 +515,130 @@ describe('WhiteboardSlideInstanceImpl', () => {
       }),
     });
     expect(slideInstance.getActiveElementIds()).toEqual(elementIds);
+  });
+
+  it('should add frame with attached elements and select them as active elements', () => {
+    const slideInstance = new WhiteboardSlideInstanceImpl(
+      communicationChannel,
+      slide0,
+      document,
+      '@user-id',
+    );
+
+    const frameElement = mockFrameElement({
+      attachedElements: ['element-id-1', 'element-id-2'],
+    });
+    const shapeElement = mockRectangleElement({
+      attachedFrame: 'element-id-0',
+    });
+    const lineElement = mockLineElement({
+      attachedFrame: 'element-id-0',
+    });
+
+    const elementIds = slideInstance.addElementsWithConnections({
+      'element-id-0': frameElement,
+      'element-id-1': shapeElement,
+      'element-id-2': lineElement,
+    });
+    expect(elementIds).toEqual([
+      'mock-nanoid-0',
+      'mock-nanoid-1',
+      'mock-nanoid-2',
+    ]);
+    const [frameElementId, shapeElementId, lineElementId] = elementIds;
+
+    expect(slideInstance.getElement(frameElementId)).toEqual({
+      ...frameElement,
+      attachedElements: [shapeElementId, lineElementId],
+    });
+    expect(slideInstance.getElement(shapeElementId)).toEqual({
+      ...shapeElement,
+      attachedFrame: frameElementId,
+    });
+    expect(slideInstance.getElement(lineElementId)).toEqual({
+      ...lineElement,
+      attachedFrame: frameElementId,
+    });
+    expect(slideInstance.getActiveElementIds()).toEqual([
+      frameElementId,
+      shapeElementId,
+      lineElementId,
+    ]);
+  });
+
+  it('should add frame with attached elements and filer out unknown attach data and select them as active elements', () => {
+    const slideInstance = new WhiteboardSlideInstanceImpl(
+      communicationChannel,
+      slide0,
+      document,
+      '@user-id',
+    );
+
+    const frameElement = mockFrameElement({
+      attachedElements: ['element-id-1', 'unknown-element-id-1'],
+    });
+    const shapeElement = mockRectangleElement({
+      attachedFrame: 'element-id-0',
+    });
+    const lineElement = mockLineElement({
+      attachedFrame: 'unknown-frame-id-1',
+    });
+
+    const elementIds = slideInstance.addElementsWithConnections({
+      'element-id-0': frameElement,
+      'element-id-1': shapeElement,
+      'element-id-2': lineElement,
+    });
+    expect(elementIds).toEqual([
+      'mock-nanoid-0',
+      'mock-nanoid-1',
+      'mock-nanoid-2',
+    ]);
+    const [frameElementId, shapeElementId, lineElementId] = elementIds;
+
+    expect(slideInstance.getElement(frameElementId)).toEqual({
+      ...frameElement,
+      attachedElements: [shapeElementId],
+    });
+    expect(slideInstance.getElement(shapeElementId)).toEqual({
+      ...shapeElement,
+      attachedFrame: frameElementId,
+    });
+    expect(slideInstance.getElement(lineElementId)).toEqual({
+      ...lineElement,
+      attachedFrame: undefined,
+    });
+    expect(slideInstance.getActiveElementIds()).toEqual([
+      frameElementId,
+      shapeElementId,
+      lineElementId,
+    ]);
+  });
+
+  it('should add elements and attach to existing frame element and select them as active elements', () => {
+    const slideInstance = new WhiteboardSlideInstanceImpl(
+      communicationChannel,
+      slide0,
+      document,
+      '@user-id',
+    );
+
+    const frameElement1 = mockFrameElement();
+    const frameElementId1 = slideInstance.addElement(frameElement1);
+
+    const shapeElement = mockRectangleElement({
+      attachedFrame: frameElementId1,
+    });
+    const [shapeElementId] = slideInstance.addElementsWithConnections({
+      'element-id-0': shapeElement,
+    });
+
+    expect(slideInstance.getElement(shapeElementId)).toEqual(shapeElement);
+    expect(slideInstance.getElement(frameElementId1)).toEqual({
+      ...frameElement1,
+      attachedElements: [shapeElementId],
+    });
+    expect(slideInstance.getActiveElementIds()).toEqual([shapeElementId]);
   });
 
   it('should throw when adding element to a locked slide', () => {
@@ -596,6 +824,70 @@ describe('WhiteboardSlideInstanceImpl', () => {
     slideInstance.removeElements([elementLineId]);
 
     expect(slideInstance.getElement(elementShapeId)).toEqual(elementShape);
+  });
+
+  it('should remove attached frame', () => {
+    const slideInstance = new WhiteboardSlideInstanceImpl(
+      communicationChannel,
+      slide0,
+      document,
+      '@user-id',
+    );
+
+    const elementFrame = mockFrameElement();
+    const elementFrameId = slideInstance.addElement(elementFrame);
+    const elementShape = mockRectangleElement();
+    const elementShapeId = slideInstance.addElement(elementShape);
+
+    slideInstance.updateElements([
+      {
+        elementId: elementFrameId,
+        patch: {
+          attachedElements: [elementShapeId],
+        },
+      },
+      {
+        elementId: elementShapeId,
+        patch: {
+          attachedFrame: elementFrameId,
+        },
+      },
+    ]);
+    slideInstance.removeElements([elementFrameId]);
+
+    expect(slideInstance.getElement(elementShapeId)).toEqual(elementShape);
+  });
+
+  it('should remove attached element', () => {
+    const slideInstance = new WhiteboardSlideInstanceImpl(
+      communicationChannel,
+      slide0,
+      document,
+      '@user-id',
+    );
+
+    const elementFrame = mockFrameElement();
+    const elementFrameId = slideInstance.addElement(elementFrame);
+    const elementShape = mockRectangleElement();
+    const elementShapeId = slideInstance.addElement(elementShape);
+
+    slideInstance.updateElements([
+      {
+        elementId: elementFrameId,
+        patch: {
+          attachedElements: [elementShapeId],
+        },
+      },
+      {
+        elementId: elementShapeId,
+        patch: {
+          attachedFrame: elementFrameId,
+        },
+      },
+    ]);
+    slideInstance.removeElements([elementShapeId]);
+
+    expect(slideInstance.getElement(elementFrameId)).toEqual(elementFrame);
   });
 
   it('should throw when removing element from a locked slide', () => {

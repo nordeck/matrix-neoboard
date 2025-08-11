@@ -17,14 +17,16 @@
 import { describe, expect, it } from 'vitest';
 import {
   mockEllipseElement,
+  mockFrameElement,
   mockLineElement,
   mockRectangleElement,
-} from '../../../lib/testUtils/documentTestUtils';
+} from '../../../lib/testUtils';
 import {
   calculateBoundingRectForElements,
   calculateFittedElementSize,
   clampElementPosition,
   elementSchema,
+  findFrameToAttach,
   includesTextShape,
   isShapeWithText,
   isTextShape,
@@ -56,7 +58,7 @@ describe('isValidElement', () => {
       connectedElementEnd: 'element-id-2',
     },
   ])(
-    'should accept path event',
+    'should accept path element with connections',
     ({ connectedElementStart, connectedElementEnd }) => {
       const data = {
         type: 'path',
@@ -66,6 +68,22 @@ describe('isValidElement', () => {
         strokeColor: 'red',
         connectedElementStart,
         connectedElementEnd,
+      };
+
+      expect(isValidElement(data)).toBe(true);
+    },
+  );
+
+  it.each(['line', 'polyline'])(
+    'should accept %j path element with attached frame',
+    (kind) => {
+      const data = {
+        type: 'path',
+        position: { x: 1, y: 2 },
+        kind: kind,
+        points: [],
+        strokeColor: 'red',
+        attachedFrame: 'frame-id-0',
       };
 
       expect(isValidElement(data)).toBe(true);
@@ -110,7 +128,7 @@ describe('isValidElement', () => {
     {
       connectedPaths: ['element-1'],
     },
-  ])('should accept shape event', ({ connectedPaths }) => {
+  ])('should accept shape element with connections', ({ connectedPaths }) => {
     const data = {
       type: 'shape',
       position: { x: 1, y: 2 },
@@ -124,6 +142,24 @@ describe('isValidElement', () => {
 
     expect(isValidElement(data)).toBe(true);
   });
+
+  it.each(['rectangle', 'circle', 'ellipse', 'triangle'])(
+    'should accept %j shape event with attached frame',
+    (kind) => {
+      const data = {
+        type: 'shape',
+        position: { x: 1, y: 2 },
+        kind,
+        width: 100,
+        height: 100,
+        fillColor: 'red',
+        text: '',
+        attachedFrame: 'frame-id-0',
+      };
+
+      expect(isValidElement(data)).toBe(true);
+    },
+  );
 
   it('should accept additional properties for shape event', () => {
     const data = {
@@ -141,6 +177,40 @@ describe('isValidElement', () => {
       textBold: false,
       textItalic: true,
       additional: 'data',
+    };
+
+    expect(isValidElement(data)).toBe(true);
+  });
+
+  it('should accept frame element', () => {
+    const data = {
+      type: 'frame',
+      position: { x: 1, y: 2 },
+      width: 100,
+      height: 100,
+    };
+
+    expect(isValidElement(data)).toBe(true);
+  });
+
+  it('should accept frame element with attached elements', () => {
+    const data = {
+      type: 'frame',
+      position: { x: 1, y: 2 },
+      width: 100,
+      height: 100,
+      attachedElements: ['element-id-0', 'element-id-1'],
+    };
+
+    expect(isValidElement(data)).toBe(true);
+  });
+
+  it('should accept additional properties for frame element', () => {
+    const data = {
+      type: 'frame',
+      position: { x: 1, y: 2, additional: 'data' },
+      width: 100,
+      height: 100,
     };
 
     expect(isValidElement(data)).toBe(true);
@@ -175,6 +245,14 @@ describe('isValidElement', () => {
     { endMarker: 111 },
     { endMarker: '' },
     { endMarker: 'triangle' },
+    { connectedElementStart: 111 },
+    { connectedElementStart: null },
+    { connectedElementStart: '' },
+    { connectedElementEnd: 111 },
+    { connectedElementEnd: null },
+    { connectedElementEnd: '' },
+    { attachedFrame: 111 },
+    { attachedFrame: null },
   ])('should reject path event with patch %j', (patch: object) => {
     const data = {
       type: 'path',
@@ -224,6 +302,10 @@ describe('isValidElement', () => {
     { textItalic: null },
     { textItalic: 111 },
     { textItalic: 'other' },
+    { connectedPaths: 111 },
+    { connectedPaths: null },
+    { attachedFrame: 111 },
+    { attachedFrame: null },
   ])('should reject shape event with patch %j', (patch: object) => {
     const data = {
       type: 'shape',
@@ -233,6 +315,32 @@ describe('isValidElement', () => {
       height: 100,
       fillColor: 'red',
       text: '',
+      ...patch,
+    };
+
+    expect(isValidElement(data)).toBe(false);
+  });
+
+  it.each<object>([
+    { type: undefined },
+    { type: null },
+    { type: 111 },
+    { type: '' },
+    { position: undefined },
+    { position: null },
+    { position: 111 },
+    { position: {} },
+    { width: '111' },
+    { height: '111' },
+    { attachedElements: null },
+    { attachedElements: '111' },
+    { attachedElements: [{}] },
+  ])('should reject frame event with patch %j', (patch: object) => {
+    const data = {
+      type: 'frame',
+      position: { x: 1, y: 2 },
+      width: 100,
+      height: 100,
       ...patch,
     };
 
@@ -256,6 +364,21 @@ describe('isValidElement', () => {
     },
   );
 
+  it('should accept image with attached frame', () => {
+    const data = {
+      type: 'image',
+      mxc: 'mxc://example.com/test1234',
+      fileName: 'example.jpg',
+      mimeType: 'image/jpeg',
+      position: { x: 10, y: 20 },
+      width: 100,
+      height: 100,
+      attachedFrame: 'frame-id-0',
+    };
+
+    expect(isValidElement(data)).toBe(true);
+  });
+
   it.each<object>([
     { type: undefined },
     { type: null },
@@ -276,6 +399,8 @@ describe('isValidElement', () => {
     { position: {} },
     { width: '111' },
     { height: '111' },
+    { attachedFrame: 111 },
+    { attachedFrame: null },
   ])('should reject an image event with patch %j', (patch: object) => {
     const data = {
       type: 'image',
@@ -556,5 +681,105 @@ describe('includesTextShape', () => {
         mockRectangleElement({ fillColor: '#ff0000', text: 'hello' }),
       ]),
     ).toBe(false);
+  });
+});
+
+describe('findFrameToAttach', () => {
+  it('should find frame if element top left and bottom right corners are within the frame', () => {
+    expect(
+      findFrameToAttach(mockRectangleElement(), {
+        'frame-id-0': mockFrameElement({
+          position: { x: 0, y: 1 },
+          width: 50,
+          height: 100,
+        }),
+      }),
+    ).toEqual('frame-id-0');
+  });
+
+  it('should not find frame if element top left is not within the frame', () => {
+    expect(
+      findFrameToAttach(mockRectangleElement(), {
+        'frame-id-0': mockFrameElement({
+          position: { x: 1, y: 1 },
+          width: 50,
+          height: 100,
+        }),
+      }),
+    ).toBeUndefined();
+  });
+
+  it('should not find frame if element bottom right corner is not within the frame', () => {
+    expect(
+      findFrameToAttach(mockRectangleElement(), {
+        'frame-id-0': mockFrameElement({
+          position: { x: 1, y: 1 },
+          width: 50,
+          height: 50,
+        }),
+      }),
+    ).toBeUndefined();
+  });
+
+  it('should find frame if path element top left and bottom right corners are within the frame', () => {
+    expect(
+      findFrameToAttach(
+        mockLineElement({
+          points: [
+            { x: 0, y: 0 },
+            { x: 50, y: 100 },
+          ],
+        }),
+        {
+          'frame-id-0': mockFrameElement({
+            position: { x: 0, y: 1 },
+            width: 50,
+            height: 100,
+          }),
+        },
+      ),
+    ).toEqual('frame-id-0');
+  });
+
+  it('should not find frame if path element bottom right corner is not within the frame', () => {
+    expect(
+      findFrameToAttach(
+        mockLineElement({
+          position: { x: 1, y: 1 },
+          points: [
+            { x: 0, y: 0 },
+            { x: 50, y: 100 },
+          ],
+        }),
+        {
+          'frame-id-0': mockFrameElement({
+            position: { x: 1, y: 1 },
+            width: 50,
+            height: 50,
+          }),
+        },
+      ),
+    ).toBeUndefined();
+  });
+
+  it('should find last frame if several frames match', () => {
+    expect(
+      findFrameToAttach(mockRectangleElement(), {
+        'frame-id-0': mockFrameElement({
+          position: { x: 0, y: 1 },
+          width: 50,
+          height: 100,
+        }),
+        'frame-id-1': mockFrameElement({
+          position: { x: 0, y: 1 },
+          width: 100,
+          height: 200,
+        }),
+      }),
+    ).toEqual('frame-id-1');
+  });
+
+  it('should find no frame', () => {
+    expect(findFrameToAttach(mockRectangleElement(), {})).toBeUndefined();
   });
 });

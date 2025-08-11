@@ -22,10 +22,12 @@ import {
   clampElementPosition,
   Element,
   Elements,
+  modifyElementAttachFrame,
   modifyElementPosition,
   Point,
   Size,
   usePresentationMode,
+  useSlideExtendedContext,
   useWhiteboardSlideInstance,
 } from '../../../state';
 import { useImageUpload } from '../../ImageUpload';
@@ -75,6 +77,7 @@ export function ClipboardShortcuts() {
   const widgetApi = useWidgetApi();
   const { handleDrop } = useImageUpload();
   const { viewportCanvasCenter } = useSvgScaleContext();
+  const { frameElements } = useSlideExtendedContext();
 
   // Copy event is triggered by the default keyboard shortcut for copying in the
   // browser, usually Ctrl/Meta+C
@@ -170,9 +173,9 @@ export function ClipboardShortcuts() {
         }
       }
 
-      addImagesToSlide(slideInstance, images, centerPosition);
+      addImagesToSlide(slideInstance, images, centerPosition, frameElements);
     },
-    [handleDrop, slideInstance],
+    [handleDrop, slideInstance, frameElements],
   );
 
   // Paste event is triggered by the default keyboard shortcut for pasting in
@@ -218,12 +221,32 @@ export function ClipboardShortcuts() {
         } else {
           const newElements: Elements = {};
           for (const [elementId, element] of Object.entries(elements)) {
-            newElements[elementId] = modifyElementPosition(
+            let newElement = modifyElementPosition(
               element,
               positionClamp,
               offsetX,
               offsetY,
             );
+
+            if (
+              newElement.type !== 'frame' &&
+              newElement.attachedFrame !== undefined &&
+              elements[newElement.attachedFrame] === undefined
+            ) {
+              // a frame that is not copied is referenced, ignore
+              newElement = {
+                ...newElement,
+                attachedFrame: undefined,
+              };
+            }
+
+            if (
+              newElement.type !== 'frame' &&
+              newElement.attachedFrame === undefined
+            ) {
+              newElement = modifyElementAttachFrame(newElement, frameElements);
+            }
+            newElements[elementId] = newElement;
           }
           pastedElementIds =
             slideInstance.addElementsWithConnections(newElements);
@@ -284,6 +307,7 @@ export function ClipboardShortcuts() {
     slideInstance,
     widgetApi,
     viewportCanvasCenter,
+    frameElements,
   ]);
 
   return null;

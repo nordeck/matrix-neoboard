@@ -17,6 +17,8 @@
 import { Box } from '@mui/material';
 import { useCallback, useState } from 'react';
 import {
+  Elements,
+  FrameElement,
   includesShapeWithText,
   includesTextShape,
   type Point,
@@ -24,9 +26,12 @@ import {
   useIsWhiteboardLoading,
   usePresentationMode,
   useSlideElementIds,
+  useSlideExtendedContext,
   useSlideIsLocked,
   useWhiteboardSlideInstance,
 } from '../../state';
+import { findNotSelectedAttachedElements } from '../../state/utils';
+import { useGetElementAttachFrame } from '../ElementAttachFrameProvider';
 import ElementBar from '../ElementBar/ElementBar';
 import {
   useElementOverrides,
@@ -71,9 +76,22 @@ const WhiteboardHost = ({
   const slideInstance = useWhiteboardSlideInstance();
   const { isShowCollaboratorsCursors, dragSelectStartCoords } =
     useLayoutState();
+  const { frameElements } = useSlideExtendedContext();
   const { activeElementIds } = useActiveElements();
-  const overrides = useElementOverrides(activeElementIds);
+
+  const activeFrameElements: Elements<FrameElement> = Object.fromEntries(
+    Object.entries(frameElements).filter(([frameElementId]) =>
+      activeElementIds.includes(frameElementId),
+    ),
+  );
+  const activeAndAttachedElementIds = [
+    ...activeElementIds,
+    ...findNotSelectedAttachedElements(activeFrameElements),
+  ];
+  const elements = useElementOverrides(activeAndAttachedElementIds);
   const getElementOverride = useGetElementOverride();
+  const { isFrameHasElementMoved, isElementMovedHasFrame } =
+    useGetElementAttachFrame();
 
   const { handleUploadDragEnter, uploadDragOverlay } =
     useSlideImageDropUpload();
@@ -81,8 +99,8 @@ const WhiteboardHost = ({
   const [textToolsEnabled, setTextToolsEnabled] = useState(false);
 
   const hasElementWithText =
-    includesTextShape(Object.values(overrides)) ||
-    includesShapeWithText(Object.values(overrides));
+    includesTextShape(Object.values(elements)) ||
+    includesShapeWithText(Object.values(elements));
 
   const showTextTools = textToolsEnabled || hasElementWithText;
 
@@ -139,6 +157,8 @@ const WhiteboardHost = ({
         {elementIds.map((e) => {
           const override = getElementOverride(e);
           const isSelected = activeElementIds.includes(e);
+          const frameHasElementMoved = isFrameHasElementMoved(e);
+          const elementMovedHasFrame = isElementMovedHasFrame(e);
 
           return (
             <ConnectedElement
@@ -147,8 +167,10 @@ const WhiteboardHost = ({
               readOnly={readOnly}
               override={override}
               activeElementIds={isSelected ? activeElementIds : undefined}
-              overrides={isSelected ? overrides : undefined}
+              elements={isSelected ? elements : undefined}
               setTextToolsEnabled={setTextToolsEnabled}
+              frameHasElementMoved={frameHasElementMoved}
+              elementMovedHasFrame={elementMovedHasFrame}
             />
           );
         })}
@@ -156,7 +178,7 @@ const WhiteboardHost = ({
         {!readOnly && <DraftPicker />}
 
         {!readOnly && activeElementIds.length > 0 && (
-          <MoveableElement overrides={overrides}>
+          <MoveableElement elements={elements}>
             <ElementBorder elementIds={activeElementIds} />
           </MoveableElement>
         )}
@@ -167,7 +189,13 @@ const WhiteboardHost = ({
           <>
             <ElementOutline elementIds={activeElementIds} />
             {dragSelectStartCoords === undefined && (
-              <ResizeElement elementIds={activeElementIds} />
+              <ResizeElement
+                elementIds={
+                  activeElementIds.length === 1
+                    ? activeElementIds // when single active element pass without attached
+                    : activeAndAttachedElementIds
+                }
+              />
             )}
           </>
         )}

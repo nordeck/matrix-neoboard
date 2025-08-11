@@ -22,8 +22,10 @@ import {
   Document,
   DocumentStatistics,
   Element,
+  FrameElement,
   PathElement,
   Point,
+  ShapeElement,
   UpdateElementPatch,
 } from './crdt';
 import { WhiteboardDocumentExport } from './export';
@@ -171,6 +173,7 @@ export type WhiteboardSlideInstance = {
    * @returns the ID of the created element.
    */
   addElement(element: Element): string;
+  addShapeElementAndAttach(element: ShapeElement): string;
   /**
    * Add a path element and use it's connect start/end data to connect to existing shapes.
    * @param element element to add
@@ -213,10 +216,13 @@ export type WhiteboardSlideInstance = {
   getElement(elementId: string): Element | undefined;
   /** Returns elements by ids. */
   getElements(elementIds: string[]): Elements;
+  getFrameElements(): Elements<FrameElement>;
   /** Observe the changes of an element. Emits undefined if the element is removed. */
   observeElement(elementId: string): Observable<Element | undefined>;
   /** Observe the changes of elements.*/
   observeElements(elementIds: string[]): Observable<Elements>;
+  /** Observe the changes of frame elements.*/
+  observeFrameElements(): Observable<Elements<FrameElement>>;
   /** Returns the list of all element ids in the correct order from back to front. */
   getElementIds(): string[];
   /** Observe the element ids to react to changes */
@@ -262,7 +268,7 @@ export type WhiteboardSlideInstance = {
   sortElementIds(elementIds: string[]): string[];
 };
 
-export type Elements = Record<string, Element>;
+export type Elements<T extends Element = Element> = Record<string, T>;
 
 /**
  * A document that is stored in a persistent storage and is kept up-to-date via

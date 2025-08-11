@@ -23,6 +23,7 @@ import {
   WithExtendedSelectionProps,
 } from '../../Whiteboard';
 import { useSvgScaleContext } from '../../Whiteboard/SvgScaleContext';
+import { ElementShadow } from '../ElementShadow';
 import { getRenderProperties } from './getRenderProperties';
 import { useEndMarker } from './useEndMarker';
 import { useStartMarker } from './useStartMarker';
@@ -34,7 +35,8 @@ const LineDisplay = ({
   active,
   elementId,
   activeElementIds = [],
-  overrides = {},
+  elements = {},
+  elementMovedHasFrame,
   ...element
 }: LineElementProps) => {
   const {
@@ -105,9 +107,17 @@ const LineDisplay = ({
       readOnly={readOnly}
       elementId={elementId}
     >
-      <MoveableElement elementId={elementId} overrides={overrides}>
+      <MoveableElement elementId={elementId} elements={elements}>
         <ElementContextMenu activeElementIds={activeElementIds}>
           {renderedChild}
+          {elementMovedHasFrame && (
+            <ElementShadow
+              offsetX={Math.min(start.x, end.x)}
+              offsetY={Math.min(start.y, end.y)}
+              width={Math.abs(dx)}
+              height={Math.abs(dy)}
+            />
+          )}
         </ElementContextMenu>
       </MoveableElement>
     </SelectableElement>
