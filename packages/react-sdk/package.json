@@ -15,7 +15,7 @@
   "type": "module",
   "dependencies": {
     "@fontsource/noto-emoji": "^5.1.1",
-    "@matrix-widget-toolkit/api": "5.0.0",
+    "@matrix-widget-toolkit/api": "5.0.1",
     "@matrix-widget-toolkit/mui": "2.2.0",
     "@matrix-widget-toolkit/react": "2.1.0",
     "@mui/base": "^5.0.0-beta.70",

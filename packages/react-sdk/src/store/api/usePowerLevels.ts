@@ -16,9 +16,9 @@
 
 import {
   calculateUserPowerLevel,
+  compareUserPowerLevelToNormalPowerLevel,
   hasStateEventPower,
   STATE_EVENT_POWER_LEVELS,
-  UserPowerLevelType,
 } from '@matrix-widget-toolkit/api';
 import { useWidgetApi } from '@matrix-widget-toolkit/react';
 import { STATE_EVENT_WHITEBOARD } from '../../model';
@@ -80,24 +80,4 @@ export function usePowerLevels({
     canImportWhiteboard,
     canStopPresentation,
   };
-}
-
-// TODO: We should fix toolkit to instead export this method and then use it from toolkit.
-const ROOM_VERSION_12_CREATOR = 'ROOM_VERSION_12_CREATOR';
-
-// TODO: We should fix toolkit to instead export this method and then use it from toolkit.
-function compareUserPowerLevelToNormalPowerLevel(
-  userPowerLevel: UserPowerLevelType,
-  normalPowerLevel: number,
-): boolean {
-  if (userPowerLevel === ROOM_VERSION_12_CREATOR) {
-    // Room version 12 creator has the highest power level.
-    return true;
-  }
-  if (typeof userPowerLevel !== 'number') {
-    // If the user power level is not a number, we cannot compare it to a normal power level.
-    return false;
-  }
-  // Compare the user power level to the normal power level.
-  return userPowerLevel >= normalPowerLevel;
 }
