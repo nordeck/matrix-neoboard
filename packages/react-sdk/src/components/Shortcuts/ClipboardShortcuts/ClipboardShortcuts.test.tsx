@@ -29,11 +29,16 @@ import {
 import {
   WhiteboardTestingContextProvider,
   mockEllipseElement,
+  mockFrameElement,
   mockLineElement,
   mockRectangleElement,
   mockWhiteboardManager,
-} from '../../../lib/testUtils/documentTestUtils';
-import { WhiteboardInstance, WhiteboardManager } from '../../../state';
+} from '../../../lib/testUtils';
+import {
+  FrameElement,
+  WhiteboardInstance,
+  WhiteboardManager,
+} from '../../../state';
 import { ImageUploadProvider } from '../../ImageUpload';
 import { SnackbarProvider } from '../../Snackbar';
 import { useSvgScaleContext } from '../../Whiteboard';
@@ -68,6 +73,14 @@ describe('<CopyAndPasteShortcuts>', () => {
             ['element-0', mockLineElement()],
             ['element-1', mockEllipseElement({ text: 'Hello World 1' })],
             ['element-2', mockEllipseElement({ text: 'Hello World 2' })],
+            [
+              'frame-0',
+              mockFrameElement({
+                position: { x: 500, y: 500 },
+                width: 300,
+                height: 300,
+              }),
+            ],
           ],
         ],
       ],
@@ -279,6 +292,139 @@ describe('<CopyAndPasteShortcuts>', () => {
       type: 'shape',
       width: 600,
     });
+    expect(activeSlide.getElement('element-id-0')).toBeUndefined();
+  });
+
+  it('should paste element to cursor position', () => {
+    const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
+    activeSlide.setCursorPosition({ x: 400, y: 200 });
+
+    render(<ClipboardShortcuts />, { wrapper: Wrapper });
+
+    fireClipboardEvent(
+      'paste',
+      serializeToClipboard({
+        elements: {
+          ['element-id-0']: mockRectangleElement({ width: 600, height: 300 }),
+        },
+      }),
+    );
+
+    const activeElementId = activeSlide.getActiveElementId();
+    expect(activeElementId).not.toBe('element-1');
+    const activeElement = activeSlide.getElement(activeElementId!);
+    expect(activeElement).toEqual({
+      fillColor: '#ffffff',
+      textFontFamily: 'Inter',
+      height: 300,
+      kind: 'rectangle',
+      position: {
+        x: 100,
+        y: 50,
+      },
+      text: '',
+      type: 'shape',
+      width: 600,
+    });
+    expect(activeSlide.getElement('element-id-0')).toBeUndefined();
+  });
+
+  it('should paste element to frame', () => {
+    const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
+    activeSlide.setCursorPosition({ x: 600, y: 600 });
+
+    render(<ClipboardShortcuts />, { wrapper: Wrapper });
+
+    fireClipboardEvent(
+      'paste',
+      serializeToClipboard({
+        elements: {
+          ['element-id-0']: mockRectangleElement({ width: 100, height: 100 }),
+        },
+      }),
+    );
+
+    const activeElementId = activeSlide.getActiveElementId();
+    expect(activeElementId).not.toBe('element-1');
+    const activeElement = activeSlide.getElement(activeElementId!);
+    expect(activeElement).toEqual({
+      fillColor: '#ffffff',
+      textFontFamily: 'Inter',
+      height: 100,
+      kind: 'rectangle',
+      position: {
+        x: 550,
+        y: 550,
+      },
+      text: '',
+      type: 'shape',
+      width: 100,
+      attachedFrame: 'frame-0',
+    });
+    const frameElement = activeSlide.getElement('frame-0');
+    expect(frameElement).toEqual(
+      expect.objectContaining({
+        attachedElements: [activeElementId],
+      }),
+    );
+    expect(activeSlide.getElement('element-id-0')).toBeUndefined();
+  });
+
+  it('should paste frame and attached element', () => {
+    const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
+    activeSlide.setCursorPosition({ x: 600, y: 600 });
+
+    render(<ClipboardShortcuts />, { wrapper: Wrapper });
+
+    fireClipboardEvent(
+      'paste',
+      serializeToClipboard({
+        elements: {
+          'frame-id-1': mockFrameElement({
+            position: { x: 0, y: 0 },
+            width: 100,
+            height: 100,
+            attachedElements: ['element-id-0'],
+          }),
+          'element-id-0': mockRectangleElement({
+            position: { x: 0, y: 0 },
+            width: 100,
+            height: 100,
+            attachedFrame: 'frame-id-1',
+          }),
+        },
+      }),
+    );
+
+    const [pastedFrameElementId, elementId] = activeSlide.getActiveElementIds();
+    const pastedFrame = activeSlide.getElement(pastedFrameElementId);
+    expect(pastedFrame).toEqual({
+      type: 'frame',
+      position: {
+        x: 550,
+        y: 550,
+      },
+      width: 100,
+      height: 100,
+      attachedElements: [elementId],
+    });
+    const element = activeSlide.getElement(elementId);
+    expect(element).toEqual({
+      fillColor: '#ffffff',
+      textFontFamily: 'Inter',
+      height: 100,
+      kind: 'rectangle',
+      position: {
+        x: 550,
+        y: 550,
+      },
+      text: '',
+      type: 'shape',
+      width: 100,
+      attachedFrame: pastedFrameElementId,
+    });
+    const frameElement = activeSlide.getElement('frame-0');
+    expect((frameElement as FrameElement).attachedElements).toBeUndefined();
     expect(activeSlide.getElement('element-id-0')).toBeUndefined();
   });
 

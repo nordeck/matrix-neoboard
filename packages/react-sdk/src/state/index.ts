@@ -49,6 +49,7 @@ export {
   useElement,
   useElements,
   useSlideElementIds,
+  useSlideExtendedContext,
   useSlideIsLocked,
   useWhiteboardSlideInstance,
 } from './useWhiteboardSlideInstance';

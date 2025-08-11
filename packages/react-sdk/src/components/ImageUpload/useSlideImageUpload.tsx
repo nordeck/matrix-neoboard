@@ -16,7 +16,12 @@
 
 import { DragEvent, useCallback } from 'react';
 import { DropEvent, FileRejection, useDropzone } from 'react-dropzone';
-import { Point, Size, useWhiteboardSlideInstance } from '../../state';
+import {
+  Point,
+  Size,
+  useSlideExtendedContext,
+  useWhiteboardSlideInstance,
+} from '../../state';
 import {
   initPDFJs,
   loadPDF,
@@ -60,6 +65,7 @@ export function useSlideImageUpload(
   const slide = useWhiteboardSlideInstance();
   const imageUpload = useImageUploadContext();
   const { viewportCanvasCenter } = useSvgScaleContext();
+  const { frameElements } = useSlideExtendedContext();
 
   const handleDrop = useCallback(
     async (files: File[], rejectedFiles: FileRejection[], event: DropEvent) => {
@@ -120,9 +126,15 @@ export function useSlideImageUpload(
       } else {
         position = viewportCanvasCenter;
       }
-      addImagesToSlide(slide, images, position);
+      addImagesToSlide(slide, images, position, frameElements);
     },
-    [imageUpload, slide, calculateSvgCoords, viewportCanvasCenter],
+    [
+      imageUpload,
+      slide,
+      calculateSvgCoords,
+      viewportCanvasCenter,
+      frameElements,
+    ],
   );
 
   const { getInputProps, getRootProps } = useDropzone({

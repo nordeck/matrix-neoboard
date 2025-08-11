@@ -15,7 +15,7 @@
  */
 
 import { nanoid } from '@reduxjs/toolkit';
-import { first, isEqual } from 'lodash';
+import { first, isEqual, uniq } from 'lodash';
 import {
   Observable,
   Subject,
@@ -42,6 +42,7 @@ import {
 import {
   Document,
   Element,
+  FrameElement,
   PathElement,
   Point,
   ShapeElement,
@@ -67,12 +68,17 @@ import {
   WhiteboardUndoManagerContext,
 } from './types';
 import {
+  attachElementFrame,
+  attachFrameElements,
   connectShapeElement,
-  deleteConnectionData,
+  deleteRelationsData,
   disconnectPathElement,
   disconnectShapeElement,
   findConnectingPaths,
   findConnectingShapes,
+  findElementAttachNotSelectedFrame,
+  findNotSelectedAttachedElements,
+  invertElementAttachFrame,
 } from './utils';
 
 export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
@@ -165,7 +171,7 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
   addElement(element: Element): string {
     this.assertLocked();
 
-    const newElement = deleteConnectionData(element);
+    const newElement = deleteRelationsData(element);
     const [changeFn, elementId] = generateAddElement(this.slideId, newElement);
 
     // set the active element ID first, so it is captured in the undomanager
@@ -176,10 +182,64 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
     return elementId;
   }
 
+  addShapeElementAndAttach(element: ShapeElement): string {
+    this.assertLocked();
+
+    const { attachedFrame } = element;
+
+    let attachFrameElement: [string, FrameElement] | undefined;
+    if (attachedFrame) {
+      const frameElement = this.getElement(attachedFrame);
+      if (frameElement && frameElement.type === 'frame') {
+        attachFrameElement = [attachedFrame, frameElement];
+      }
+    }
+
+    const newElement: Element = {
+      ...element,
+      attachedFrame: attachFrameElement ? attachFrameElement[0] : undefined,
+    };
+
+    const [addElement, elementId] = generateAddElement(
+      this.slideId,
+      newElement,
+    );
+
+    const updates: ElementUpdate[] = [];
+    if (attachFrameElement) {
+      const [frameElementId, frameElement] = attachFrameElement;
+      const patch = attachFrameElements(frameElement, {
+        attachElementIds: [elementId],
+        detachElementIds: [],
+      });
+      if (patch) {
+        updates.push({
+          elementId: frameElementId,
+          patch: patch,
+        });
+      }
+    }
+
+    // set the active element ID first, so it is captured in the undomanager
+    this.setActiveElementId(elementId);
+
+    this.document.performChange(
+      generate([
+        addElement,
+        ...updates.map(({ elementId, patch }) =>
+          generateUpdateElement(this.slideId, elementId, patch),
+        ),
+      ]),
+    );
+
+    return elementId;
+  }
+
   addPathElementAndConnect(element: PathElement): string {
     this.assertLocked();
 
-    const { connectedElementStart, connectedElementEnd } = element;
+    const { connectedElementStart, connectedElementEnd, attachedFrame } =
+      element;
 
     let startElement: [string, ShapeElement] | undefined;
     if (connectedElementStart) {
@@ -195,11 +255,19 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
         endElement = [connectedElementEnd, connectedElement];
       }
     }
+    let attachFrameElement: [string, FrameElement] | undefined;
+    if (attachedFrame) {
+      const frameElement = this.getElement(attachedFrame);
+      if (frameElement && frameElement.type === 'frame') {
+        attachFrameElement = [attachedFrame, frameElement];
+      }
+    }
 
     const newElement: Element = {
       ...element,
       connectedElementStart: startElement ? startElement[0] : undefined,
       connectedElementEnd: endElement ? endElement[0] : undefined,
+      attachedFrame: attachFrameElement ? attachFrameElement[0] : undefined,
     };
 
     const [addElement, elementId] = generateAddElement(
@@ -222,6 +290,19 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
         patch: connectShapeElement(shapeElement, elementId),
       });
     }
+    if (attachFrameElement) {
+      const [frameElementId, frameElement] = attachFrameElement;
+      const patch = attachFrameElements(frameElement, {
+        attachElementIds: [elementId],
+        detachElementIds: [],
+      });
+      if (patch) {
+        updates.push({
+          elementId: frameElementId,
+          patch: patch,
+        });
+      }
+    }
 
     // set the active element ID first, so it is captured in the undomanager
     this.setActiveElementId(elementId);
@@ -241,7 +322,7 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
   addElements(elements: Array<Element>): string[] {
     this.assertLocked();
 
-    const newElements = elements.map((e) => deleteConnectionData(e));
+    const newElements = elements.map((e) => deleteRelationsData(e));
     const [changeFn, elementIds] = generateAddElements(
       this.slideId,
       newElements,
@@ -270,6 +351,7 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
      * Remove connections to unknown elements.
      * */
     const newElements: Elements = {};
+    const updates: ElementUpdate[] = [];
     for (const [elementId, element] of Object.entries(elements)) {
       let newElement: Element;
       if (element.type === 'shape') {
@@ -305,6 +387,57 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
         newElement = element;
       }
 
+      if (newElement.type === 'frame') {
+        const { attachedElements } = newElement;
+
+        let newAttachedElements: string[] | undefined;
+        if (attachedElements) {
+          newAttachedElements = attachedElements
+            .map((elementId) => newElementIdsMap.get(elementId))
+            .filter(isDefined);
+          newAttachedElements =
+            newAttachedElements.length === 0 ? undefined : newAttachedElements;
+        }
+        newElement = {
+          ...newElement,
+          attachedElements: newAttachedElements,
+        };
+      } else {
+        const { attachedFrame } = newElement;
+        let newAttachedFrame: string | undefined;
+        if (attachedFrame) {
+          const documentElement = this.getElement(attachedFrame);
+          const newElementId = newElementIdsMap.get(elementId);
+          if (
+            documentElement !== undefined &&
+            documentElement.type === 'frame' &&
+            newElementId
+          ) {
+            // allow to reference an existing frame
+            newAttachedFrame = attachedFrame;
+
+            // Update the frame
+            const patch = attachFrameElements(documentElement, {
+              attachElementIds: [newElementId],
+              detachElementIds: [],
+            });
+            if (patch) {
+              updates.push({
+                elementId: attachedFrame,
+                patch: patch,
+              });
+            }
+          } else if (elements[attachedFrame]?.type === 'frame') {
+            // allow to reference a frame for elements, take new id
+            newAttachedFrame = newElementIdsMap.get(attachedFrame);
+          }
+        }
+        newElement = {
+          ...newElement,
+          attachedFrame: newAttachedFrame,
+        };
+      }
+
       const newElementId = newElementIdsMap.get(elementId);
       if (!newElementId) {
         throw new Error('New element id must be defined');
@@ -313,7 +446,7 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
       newElements[newElementId] = newElement;
     }
 
-    const [changeFn, elementIds] = generateAddElements(
+    const [addElementsChangeFn, elementIds] = generateAddElements(
       this.slideId,
       Object.values(newElements),
       Object.keys(newElements),
@@ -322,7 +455,14 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
     // set the active element IDs first, so it is captured in the undo manager
     this.setActiveElementIds(elementIds);
 
-    this.document.performChange(changeFn);
+    this.document.performChange(
+      generate([
+        addElementsChangeFn,
+        ...updates.map(({ elementId, patch }) =>
+          generateUpdateElement(this.slideId, elementId, patch),
+        ),
+      ]),
+    );
 
     return elementIds;
   }
@@ -336,24 +476,66 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
     }[] = [];
 
     const elements: Elements = this.getElements(elementIds);
+
     const connectedElementIds = [
       ...findConnectingPaths(elements),
       ...findConnectingShapes(elements),
     ];
-    for (const elementId of connectedElementIds) {
+
+    const detachElementIds = findNotSelectedAttachedElements(elements);
+    const elementDetachFrame = findElementAttachNotSelectedFrame(elements);
+    const frameDetachElements = invertElementAttachFrame(elementDetachFrame);
+
+    const attachElementIds = [
+      ...detachElementIds,
+      ...Object.keys(frameDetachElements),
+    ];
+
+    const changeElementIds = uniq([
+      ...connectedElementIds,
+      ...attachElementIds,
+    ]);
+
+    for (const elementId of changeElementIds) {
       const element = this.getElement(elementId);
 
-      let elementPatch: UpdateElementPatch | undefined;
-      if (element?.type === 'path') {
-        elementPatch = disconnectPathElement(element, elementIds);
-      } else if (element?.type === 'shape') {
-        elementPatch = disconnectShapeElement(element, elementIds, true);
+      if (!element) {
+        continue;
       }
 
-      if (elementPatch) {
+      const { type: elementType } = element;
+
+      let connectPatch: UpdateElementPatch | undefined;
+      if (connectedElementIds.includes(elementId)) {
+        if (elementType === 'path') {
+          connectPatch = disconnectPathElement(element, elementIds);
+        } else if (elementType === 'shape') {
+          connectPatch = disconnectShapeElement(element, elementIds, true);
+        }
+      }
+
+      let attachPatch: UpdateElementPatch | undefined;
+      if (attachElementIds.includes(elementId)) {
+        if (elementType === 'frame') {
+          const detachElementIds = frameDetachElements[elementId];
+          if (detachElementIds) {
+            attachPatch = attachFrameElements(element, {
+              attachElementIds: [],
+              detachElementIds,
+            });
+          }
+        } else {
+          attachPatch = attachElementFrame(element, undefined);
+        }
+      }
+
+      if (connectPatch || attachPatch) {
         updates.push({
           elementId,
-          patch: elementPatch,
+          patch: {
+            ...connectPatch,
+            ...attachPatch,
+          },
         });
       }
     }
@@ -442,6 +624,20 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
     return elements;
   }
 
+  getFrameElements(): Elements<FrameElement> {
+    const frameElements: Elements<FrameElement> = {};
+    for (const elementId of getNormalizedElementIds(
+      this.document.getData(),
+      this.slideId,
+    )) {
+      const element = this.getElement(elementId);
+      if (element && element.type === 'frame') {
+        frameElements[elementId] = element;
+      }
+    }
+    return frameElements;
+  }
+
   observeElement(elementId: string): Observable<Element | undefined> {
     return this.dataObservable.pipe(
       map((doc) => getElement(doc, this.slideId, elementId)?.toJSON()),
@@ -460,6 +656,22 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
           }
         }
         return elements;
+      }),
+      distinctUntilChanged(isEqual),
+    );
+  }
+
+  observeFrameElements(): Observable<Elements<FrameElement>> {
+    return this.dataObservable.pipe(
+      map((doc) => {
+        const frameElements: Elements<FrameElement> = {};
+        for (const elementId of getNormalizedElementIds(doc, this.slideId)) {
+          const element = getElement(doc, this.slideId, elementId)?.toJSON();
+          if (element && element.type === 'frame') {
+            frameElements[elementId] = element;
+          }
+        }
+        return frameElements;
       }),
       distinctUntilChanged(isEqual),
     );

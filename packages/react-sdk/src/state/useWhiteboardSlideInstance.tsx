@@ -17,18 +17,37 @@
 import React, { PropsWithChildren, useContext, useMemo } from 'react';
 import { EMPTY } from 'rxjs';
 import { useLatestValue } from '../lib';
-import { Element } from './crdt';
+import { Element, FrameElement } from './crdt';
 import { Elements, WhiteboardSlideInstance } from './types';
 import { useActiveWhiteboardInstance } from './useActiveWhiteboardInstance';
 
 const SlideContext = React.createContext<string | undefined>(undefined);
+
+type SlideExtendedContextType = {
+  frameElements: Elements<FrameElement>;
+};
+const SlideExtendedContext = React.createContext<
+  SlideExtendedContextType | undefined
+>(undefined);
 
 export function SlideProvider({
   slideId,
   children,
 }: PropsWithChildren<{ slideId: string }>) {
   return (
-    <SlideContext.Provider value={slideId}>{children}</SlideContext.Provider>
+    <SlideContext.Provider value={slideId}>
+      <SlideExtendedProvider>{children}</SlideExtendedProvider>
+    </SlideContext.Provider>
+  );
+}
+
+function SlideExtendedProvider({ children }: PropsWithChildren<{}>) {
+  const frameElements = useFrameElements();
+
+  return (
+    <SlideExtendedContext.Provider value={{ frameElements }}>
+      {children}
+    </SlideExtendedContext.Provider>
   );
 }
 
@@ -43,6 +62,18 @@ export function useWhiteboardSlideInstance(): WhiteboardSlideInstance {
 
   const whiteboardInstance = useActiveWhiteboardInstance();
   return whiteboardInstance.getSlide(slideId);
+}
+
+export function useSlideExtendedContext(): SlideExtendedContextType {
+  const context = useContext(SlideExtendedContext);
+
+  if (!context) {
+    throw new Error(
+      'useSlideExtendedContext can only be used inside of <SlideProvider>',
+    );
+  }
+
+  return context;
 }
 
 export function useSlideElementIds(): string[] {
@@ -80,6 +111,17 @@ export function useElements(elementIds: string[]): Elements {
     () => slideInstance.getElements(elementIds),
     observable,
   );
+}
+
+function useFrameElements(): Elements<FrameElement> {
+  const slideInstance = useWhiteboardSlideInstance();
+
+  const observable = useMemo(
+    () => slideInstance.observeFrameElements(),
+    [slideInstance],
+  );
+
+  return useLatestValue(() => slideInstance.getFrameElements(), observable);
 }
 
 type ActiveElement = {

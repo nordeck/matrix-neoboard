@@ -16,9 +16,11 @@
 
 import { Dispatch, useCallback, useState } from 'react';
 import { useUnmount } from 'react-use';
+import { filterRecord } from '../../../../lib';
 import {
   calculateBoundingRectForElements,
   findConnectingPaths,
+  FrameElement,
   PathElement,
   useWhiteboardSlideInstance,
 } from '../../../../state';
@@ -36,7 +38,15 @@ import { useLayoutState } from '../../../Layout';
 import { getRenderProperties } from '../../../elements/line/getRenderProperties';
 import { useSvgCanvasContext } from '../../SvgCanvas';
 import { gridCellSize } from '../../constants';
-import { elementsUpdates, getPathElements, lineResizeUpdates } from '../utils';
+import {
+  ElementFrameChanges,
+  elementsUpdates,
+  findElementAttachFrame,
+  findElementsToAttachChange,
+  frameResizeUpdates,
+  getPathElements,
+  lineResizeUpdates,
+} from '../utils';
 import { DragEvent, ResizeHandle } from './ResizeHandle';
 import { HandlePosition, ResizableProperties } from './types';
 import { computeResizing } from './utils';
@@ -141,6 +151,7 @@ export function ResizeElement({ elementIds }: ResizeElementProps) {
 
   const handleDragStop = useCallback(
     ({ connectData }: DragEvent) => {
+      //TODO:MA check why points: undefined is passed when shape/frame is resized
       let updates: ElementUpdate[];
       if (
         Object.values(elements).length === 1 &&
@@ -159,11 +170,45 @@ export function ResizeElement({ elementIds }: ResizeElementProps) {
           lineHandlePositionName,
           connectToElementId,
         );
+      } else if (
+        Object.values(elements).length === 1 &&
+        Object.values(elements)[0].type === 'frame' &&
+        elementOverrideUpdates.length === 1 &&
+        elementOverrideUpdates[0].elementOverride
+      ) {
+        const frameElementId = Object.keys(elements)[0];
+        const frameElement = Object.values(elements)[0] as FrameElement;
+        const allElements = slideInstance.getElements(
+          slideInstance.getElementIds(),
+        );
+        const detachedElements = filterRecord(
+          allElements,
+          (e) =>
+            e.type !== 'frame' &&
+            (e.attachedFrame === undefined ||
+              e.attachedFrame === frameElementId),
+        );
+
+        const elementAttachFrame = findElementAttachFrame(detachedElements, {
+          [frameElementId]: frameElement,
+        });
+
+        const changeElementFrame: Record<string, ElementFrameChanges> =
+          findElementsToAttachChange(elementAttachFrame, detachedElements);
+
+        updates = frameResizeUpdates(
+          slideInstance,
+          frameElementId,
+          frameElement,
+          elementOverrideUpdates[0].elementOverride,
+          changeElementFrame,
+        );
       } else {
         updates = elementsUpdates(
           slideInstance,
           elements,
           elementOverrideUpdates,
+          {},
         );
       }
 

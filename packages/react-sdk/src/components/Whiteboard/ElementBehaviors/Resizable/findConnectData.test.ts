@@ -14,12 +14,9 @@
  * limitations under the License.
  */
 
-import { beforeAll, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+import { mockElement } from '../../../../lib/testUtils/domTestUtils';
 import { findConnectData } from './findConnectData';
-
-beforeAll(() => {
-  document.elementsFromPoint = vi.fn().mockReturnValue([]);
-});
 
 describe('findConnectData', () => {
   it('should find no elements to connect', () => {
@@ -187,24 +184,3 @@ describe('findConnectData', () => {
     });
   });
 });
-
-function mockElement(
-  attributes: Record<string, string> = {},
-  localName: string = 'rect',
-  domRect: DOMRect = {
-    x: 0,
-    y: 0,
-    width: 40,
-    height: 40,
-  } as unknown as DOMRect,
-): Element {
-  return {
-    localName,
-    getAttribute(qualifiedName: string): string | null {
-      return attributes[qualifiedName] ?? null;
-    },
-    getBoundingClientRect(): DOMRect {
-      return domRect;
-    },
-  } as unknown as Element;
-}

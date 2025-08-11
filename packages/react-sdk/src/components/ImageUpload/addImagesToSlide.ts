@@ -18,7 +18,10 @@ import { isInfiniteCanvasMode } from '../../lib';
 import {
   calculateFittedElementSize,
   clampElementPosition,
+  Elements,
+  FrameElement,
   ImageElement,
+  modifyElementAttachFrame,
   modifyElementPosition,
   Point,
   Size,
@@ -44,6 +47,7 @@ export function addImagesToSlide(
   slide: WhiteboardSlideInstance,
   uploadResults: ImageToAddData[],
   centerPosition: Point,
+  frameElements: Elements<FrameElement>,
 ): void {
   let images: ImageElement[] = [];
   if (isInfiniteCanvasMode()) {
@@ -105,5 +109,12 @@ export function addImagesToSlide(
       };
     });
   }
-  slide.addElements(images);
+  images = images.map((image) =>
+    modifyElementAttachFrame(image, frameElements),
+  );
+  // Group by index to pass with temporary ids
+  const imageElements = Object.fromEntries(
+    images.map((image, index) => [index, image]),
+  );
+  slide.addElementsWithConnections(imageElements);
 }

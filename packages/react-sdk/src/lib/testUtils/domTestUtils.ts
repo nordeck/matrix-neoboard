@@ -23,3 +23,24 @@ export function mockDocumentVisibilityState(
   vi.spyOn(document, 'visibilityState', 'get').mockReturnValue(visibility);
   document.dispatchEvent(new Event('visibilitychange'));
 }
+
+export function mockElement(
+  attributes: Record<string, string> = {},
+  localName: string = 'rect',
+  domRect: DOMRect = {
+    x: 0,
+    y: 0,
+    width: 40,
+    height: 40,
+  } as unknown as DOMRect,
+): Element {
+  return {
+    localName,
+    getAttribute(qualifiedName: string): string | null {
+      return attributes[qualifiedName] ?? null;
+    },
+    getBoundingClientRect(): DOMRect {
+      return domRect;
+    },
+  } as unknown as Element;
+}

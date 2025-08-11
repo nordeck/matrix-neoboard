@@ -15,7 +15,13 @@
  */
 
 import { isEqual, uniq } from 'lodash';
-import { Element, PathElement, ShapeElement } from './crdt';
+import {
+  Element,
+  FrameElement,
+  ImageElement,
+  PathElement,
+  ShapeElement,
+} from './crdt';
 import { Elements } from './types';
 
 /**
@@ -60,6 +66,120 @@ export function findConnectingShapes(elements: Elements): string[] {
   }
 
   return uniq(elementIds);
+}
+
+/**
+ * Within selected elements it finds elements attached to frames and not selected
+ * @param elements
+ */
+export function findNotSelectedAttachedElements(elements: Elements): string[] {
+  const elementIds: string[] = [];
+
+  for (const element of Object.values(elements)) {
+    if (element.type === 'frame' && element.attachedElements) {
+      for (const attachedElement of element.attachedElements) {
+        if (!elements[attachedElement]) {
+          elementIds.push(attachedElement);
+        }
+      }
+    }
+  }
+
+  return elementIds;
+}
+
+export function findElementAttachNotSelectedFrame(
+  elements: Elements,
+): Record<string, string> {
+  const elementAttachFrame: Record<string, string> = {};
+
+  for (const [elementId, element] of Object.entries(elements)) {
+    if (element.type !== 'frame' && element.attachedFrame) {
+      const frameId = element.attachedFrame;
+      if (!elements[frameId]) {
+        elementAttachFrame[elementId] = frameId;
+      }
+    }
+  }
+
+  return elementAttachFrame;
+}
+
+export function invertElementAttachFrame(
+  elementAttachFrame: Record<string, string>,
+): Record<string, string[]> {
+  const result: Record<string, string[]> = {};
+
+  for (const [elementId, frameElementId] of Object.entries(
+    elementAttachFrame,
+  )) {
+    if (result[frameElementId] === undefined) {
+      result[frameElementId] = [];
+    }
+    result[frameElementId].push(elementId);
+  }
+
+  return result;
+}
+
+export type FrameElementsChanges = {
+  attachElementIds: string[];
+  detachElementIds: string[];
+};
+
+/**
+ * Create patch to attach/detach elements to frame element
+ */
+export function attachFrameElements(
+  { attachedElements }: FrameElement,
+  { attachElementIds, detachElementIds }: FrameElementsChanges,
+): Pick<FrameElement, 'attachedElements'> | undefined {
+  let newAttachedElements = attachedElements ?? [];
+  let modified: boolean = false;
+
+  for (const elementId of attachElementIds) {
+    if (!newAttachedElements.includes(elementId)) {
+      newAttachedElements.push(elementId);
+      modified = true;
+    }
+  }
+
+  if (
+    detachElementIds.length > 0 &&
+    newAttachedElements.some((elementId) =>
+      detachElementIds.includes(elementId),
+    )
+  ) {
+    modified = true;
+    newAttachedElements = newAttachedElements.filter(
+      (elementId) => !detachElementIds.includes(elementId),
+    );
+  }
+
+  return modified
+    ? {
+        attachedElements:
+          newAttachedElements.length !== 0 ? newAttachedElements : undefined,
+      }
+    : undefined;
+}
+
+/**
+ * Create patch to attach/detach frame to element
+ */
+export function attachElementFrame(
+  { attachedFrame }: ShapeElement | PathElement | ImageElement,
+  frameElementId: string | undefined,
+): Pick<ShapeElement, 'attachedFrame'> | undefined {
+  if (!frameElementId) {
+    return attachedFrame ? { attachedFrame: undefined } : undefined;
+  }
+
+  return attachedFrame !== frameElementId
+    ? {
+        attachedFrame: frameElementId,
+      }
+    : undefined;
 }
 
 export function connectPathElement(
@@ -204,14 +324,28 @@ export function disconnectShapeElement(
   }
 }
 
-export function deleteConnectionData(element: Element): Element {
+/**
+ * Deletes connection and attach relations for element
+ * @param element
+ */
+export function deleteRelationsData(element: Element): Element {
   if (element.type === 'shape') {
-    const { connectedPaths, ...newElement } = element;
+    const { connectedPaths, attachedFrame, ...newElement } = element;
     return newElement;
   } else if (element.type === 'path') {
-    const { connectedElementStart, connectedElementEnd, ...newElement } =
-      element;
+    const {
+      connectedElementStart,
+      connectedElementEnd,
+      attachedFrame,
+      ...newElement
+    } = element;
     return newElement;
+  } else if (element.type === 'frame') {
+    const { attachedElements, ...newFrame } = element;
+    return newFrame;
+  } else if (element.type === 'image') {
+    const { attachedFrame, ...newImage } = element;
+    return newImage;
   } else {
     return element;
   }

@@ -20,17 +20,26 @@ import {
   disconnectShapeElement,
   Element,
   Elements,
+  findFrameToAttach,
+  FrameElement,
   PathElement,
   ShapeElement,
   WhiteboardSlideInstance,
 } from '../../../state';
 import { ElementUpdate } from '../../../state/types';
 import {
+  attachElementFrame,
+  attachFrameElements,
   connectPathElement,
   connectShapeElement,
   disconnectPathElementOnPosition,
+  FrameElementsChanges,
 } from '../../../state/utils';
-import { ElementOverrideUpdate } from '../../ElementOverridesProvider';
+import {
+  ElementOverride,
+  ElementOverrideUpdate,
+  mergeElementAndOverride,
+} from '../../ElementOverridesProvider';
 
 /**
  * Provides an update to the line resized. It includes element position, points, connect/disconnect to a shape.
@@ -168,6 +177,70 @@ function disconnectConnectedShapeFromLine(
   return patch;
 }
 
+export function frameResizeUpdates(
+  slideInstance: WhiteboardSlideInstance,
+  resizeFrameElementId: string,
+  resizeFrameElement: FrameElement,
+  frameElementOverride: ElementOverride,
+  elementFrameChanges: Record<string, ElementFrameChanges>,
+): ElementUpdate[] {
+  const updates: ElementUpdate[] = [];
+
+  const frameElementsChanges = invertChangeElementFrame(elementFrameChanges);
+
+  updates.push({
+    elementId: resizeFrameElementId,
+    patch: {
+      ...frameElementOverride,
+      ...(frameElementsChanges[resizeFrameElementId] &&
+        attachFrameElements(
+          resizeFrameElement,
+          frameElementsChanges[resizeFrameElementId],
+        )),
+    },
+  });
+
+  for (const [frameId, changes] of Object.entries(frameElementsChanges)) {
+    if (frameId === resizeFrameElementId) {
+      continue;
+    }
+
+    const frameElement = slideInstance.getElement(frameId);
+    if (!frameElement || frameElement.type !== 'frame') {
+      continue;
+    }
+
+    const patch = attachFrameElements(frameElement, changes);
+    if (!patch) {
+      continue;
+    }
+
+    updates.push({
+      elementId: frameId,
+      patch,
+    });
+  }
+
+  for (const [elementId, changes] of Object.entries(elementFrameChanges)) {
+    const element = slideInstance.getElement(elementId);
+    if (!element || element.type === 'frame') {
+      continue;
+    }
+
+    const patch = attachElementFrame(element, changes.newFrameId);
+    if (!patch) {
+      continue;
+    }
+
+    updates.push({
+      elementId,
+      patch,
+    });
+  }
+
+  return updates;
+}
+
 /**
  * Takes elements overrides and provides elements updates.
  * Considers that some lines may become disconnected and provides updates to disconnect elements.
@@ -181,6 +254,7 @@ export function elementsUpdates(
   slideInstance: WhiteboardSlideInstance,
   elements: Elements,
   elementOverrideUpdates: ElementOverrideUpdate[],
+  changeElementFrame: Record<string, ElementFrameChanges>,
 ): ElementUpdate[] {
   const disconnectPathElementsObj = findPathElementsToDisconnect(
     elementOverrideUpdates,
@@ -188,6 +262,7 @@ export function elementsUpdates(
   );
 
   // Selected lines may become disconnected, apply disconnect patch
+  // Selected elements may become attached/detached to frames
   const elementsUpdates: ElementUpdate[] = [];
   for (const { elementId, elementOverride } of elementOverrideUpdates) {
     let element: Element | undefined;
@@ -206,6 +281,12 @@ export function elementsUpdates(
             disconnectPathElement(
               element,
               disconnectPathElementsObj[elementId],
+            )),
+          ...(element.type !== 'frame' &&
+            Object.keys(changeElementFrame).includes(elementId) &&
+            attachElementFrame(
+              element,
+              changeElementFrame[elementId].newFrameId,
             )),
         },
       });
@@ -249,7 +330,26 @@ export function elementsUpdates(
     }
   }
 
-  return [...elementsUpdates, ...shapesUpdates];
+  const frameElementsChanges = invertChangeElementFrame(changeElementFrame);
+
+  // Attach / detach elements to frame
+  const framesUpdates: ElementUpdate[] = [];
+  for (const [frameElementId, changes] of Object.entries(
+    frameElementsChanges,
+  )) {
+    const frameElement = slideInstance.getElement(frameElementId);
+    if (frameElement && frameElement.type === 'frame') {
+      const patch = attachFrameElements(frameElement, changes);
+      if (patch) {
+        framesUpdates.push({
+          elementId: frameElementId,
+          patch,
+        });
+      }
+    }
+  }
+
+  return [...elementsUpdates, ...shapesUpdates, ...framesUpdates];
 }
 
 function findPathElementsToDisconnect(
@@ -269,6 +369,165 @@ function findPathElementsToDisconnect(
   }
 
   return res;
+}
+
+export function findElementsToDetach(
+  elementAttachFrame: Record<string, string>,
+  elements: Elements,
+): Record<string, string> {
+  const elementFrame: Record<string, string> = {};
+
+  for (const [elementId, element] of Object.entries(elements)) {
+    if (
+      element.type !== 'frame' &&
+      element.attachedFrame &&
+      element.attachedFrame !== elementAttachFrame[elementId]
+    ) {
+      elementFrame[elementId] = element.attachedFrame;
+    }
+  }
+
+  return elementFrame;
+}
+
+export type ElementFrameChanges =
+  | {
+      oldFrameId?: string;
+      newFrameId: string;
+    }
+  | {
+      oldFrameId: string;
+      newFrameId?: string;
+    };
+
+/**
+ * Find changes to be applied to elements regarding change element attach to frame
+ * @param elementAttachFrame current element to frame attach during/after the movement
+ * @param elements elements moved
+ */
+export function findElementsToAttachChange(
+  elementAttachFrame: Record<string, string>,
+  elements: Elements,
+): Record<string, ElementFrameChanges> {
+  const elementFrame: Record<string, ElementFrameChanges> = {};
+
+  for (const [elementId, element] of Object.entries(elements)) {
+    if (
+      element.type !== 'frame' &&
+      element.attachedFrame !== elementAttachFrame[elementId]
+    ) {
+      elementFrame[elementId] = {
+        oldFrameId: element.attachedFrame,
+        newFrameId: elementAttachFrame[elementId],
+      };
+    }
+  }
+
+  return elementFrame;
+}
+
+export function invertChangeElementFrame(
+  changeElementFrame: Record<string, ElementFrameChanges>,
+): Record<string, FrameElementsChanges> {
+  const changeFrameElementsObject: Record<string, FrameElementsChanges> = {};
+
+  for (const [elementId, change] of Object.entries(changeElementFrame)) {
+    const { oldFrameId, newFrameId } = change;
+    if (oldFrameId && changeFrameElementsObject[oldFrameId] === undefined) {
+      changeFrameElementsObject[oldFrameId] = {
+        attachElementIds: [],
+        detachElementIds: [],
+      };
+    }
+    if (newFrameId && changeFrameElementsObject[newFrameId] === undefined) {
+      changeFrameElementsObject[newFrameId] = {
+        attachElementIds: [],
+        detachElementIds: [],
+      };
+    }
+    if (oldFrameId) {
+      changeFrameElementsObject[oldFrameId].detachElementIds.push(elementId);
+    }
+    if (newFrameId) {
+      changeFrameElementsObject[newFrameId].attachElementIds.push(elementId);
+    }
+  }
+
+  return changeFrameElementsObject;
+}
+
+/**
+ * Takes elements and frames and finds element to frame intersection via
+ * bounding rectangles to be used as attach relation.
+ * @param elements elements to check
+ * @param frameElements frame elements
+ * @returns element to frame intersection
+ */
+export function findElementAttachFrame(
+  elements: Elements,
+  frameElements: Elements<FrameElement>,
+): Record<string, string> {
+  const elementAttachFrame: Record<string, string> = {};
+
+  for (const [elementId, element] of Object.entries(elements)) {
+    if (element && element.type !== 'frame') {
+      const frameElementId = findFrameToAttach(element, frameElements);
+      if (frameElementId) {
+        elementAttachFrame[elementId] = frameElementId;
+      }
+    }
+  }
+
+  return Object.fromEntries(
+    Object.entries(elementAttachFrame).filter(([elementId, frameId]) => {
+      const element = elements[elementId];
+      if (element.type !== 'path') {
+        return true;
+      }
+
+      const { connectedElementStart, connectedElementEnd } = element;
+      return (
+        (connectedElementStart === undefined ||
+          elementAttachFrame[connectedElementStart] === frameId) &&
+        (connectedElementEnd === undefined ||
+          elementAttachFrame[connectedElementEnd] === frameId)
+      );
+    }),
+  );
+}
+
+/**
+ * Find elements that were moved by the frame movement.
+ * @param elements elements
+ * @returns elements moved because an attached frame is moved
+ */
+export function findAttachedElementsMovedByFrame(elements: Elements): string[] {
+  const attachedElementsMovedByFrame: string[] = [];
+
+  for (const [elementId, element] of Object.entries(elements)) {
+    if (
+      element &&
+      element.type !== 'frame' &&
+      element.attachedFrame !== undefined &&
+      elements[element.attachedFrame] !== undefined
+    ) {
+      attachedElementsMovedByFrame.push(elementId);
+    }
+  }
+
+  return attachedElementsMovedByFrame;
+}
+
+export function mergeElementsAndOverrides<T extends Element = Element>(
+  elements: Elements<T>,
+  overrides: Record<string, ElementOverride | undefined>,
+): Elements<T> {
+  return Object.fromEntries(
+    Object.entries(elements).map(([elementId, element]) => [
+      elementId,
+      mergeElementAndOverride(element, overrides[elementId]),
+    ]),
+  );
 }
 
 /**

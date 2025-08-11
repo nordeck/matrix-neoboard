@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Elements } from '../../../../state/types';
+import { Elements } from '../../../../state';
 
 export type WithSelectionProps = {
   readOnly: boolean;
@@ -24,6 +24,8 @@ export type WithSelectionProps = {
 
 export type WithExtendedSelectionProps = WithSelectionProps & {
   activeElementIds?: string[];
-  overrides?: Elements;
+  elements?: Elements;
   setTextToolsEnabled?: (enabled: boolean) => void;
+  frameHasElementMoved?: boolean;
+  elementMovedHasFrame?: boolean;
 };

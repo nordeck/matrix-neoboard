@@ -20,6 +20,7 @@ import {
   PathElement,
   PathKind,
   Point,
+  useSlideExtendedContext,
   useWhiteboardSlideInstance,
 } from '../../../state';
 import { LineMarker } from '../../../state/crdt/documents/elements';
@@ -58,6 +59,7 @@ export const DraftLineChild = ({
   const { setActiveTool } = useLayoutState();
   const { calculateSvgCoords } = useSvgCanvasContext();
   const { setConnectElementIds } = useConnectionPoint();
+  const { frameElements } = useSlideExtendedContext();
 
   const handleMouseUp = useCallback(() => {
     if (cursorPoints) {
@@ -67,6 +69,7 @@ export const DraftLineChild = ({
             kind,
             cursorPoints,
             strokeColor,
+            frameElements,
             gridCellSize: isShowGrid ? gridCellSize : undefined,
             onlyStartAndEndPoints,
             startMarker,
@@ -97,6 +100,7 @@ export const DraftLineChild = ({
     connectedElementStart,
     connectedElementEnd,
     setConnectElementIds,
+    frameElements,
   ]);
 
   const handleMouseMove = useCallback(

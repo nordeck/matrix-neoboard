@@ -17,6 +17,7 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import {
   mockEllipseElement,
+  mockFrameElement,
   mockLineElement,
   mockRectangleElement,
   mockTriangleElement,
@@ -28,7 +29,14 @@ import {
   WhiteboardSlideInstance,
 } from '../../../state';
 import { ElementOverrideUpdate } from '../../ElementOverridesProvider';
-import { elementsUpdates, lineResizeUpdates } from './utils';
+import {
+  elementsUpdates,
+  findAttachedElementsMovedByFrame,
+  findElementAttachFrame,
+  findElementsToAttachChange,
+  findElementsToDetach,
+  lineResizeUpdates,
+} from './utils';
 
 describe('lineResizeUpdates', () => {
   let slideElements: Elements;
@@ -641,7 +649,7 @@ describe('elementsUpdates', () => {
     } as WhiteboardSlideInstance;
 
     expect(
-      elementsUpdates(slideInstance, elements, elementOverrideUpdates),
+      elementsUpdates(slideInstance, elements, elementOverrideUpdates, {}),
     ).toStrictEqual([
       {
         elementId: 'rectangle-id',
@@ -673,5 +681,214 @@ describe('elementsUpdates', () => {
         },
       },
     ]);
+  });
+});
+
+describe('findElementsToDetach', () => {
+  it('should find element to detach', () => {
+    expect(
+      findElementsToDetach(
+        { 'element-id-0': 'element-frame-id-1' },
+        {
+          'element-id-0': mockRectangleElement({
+            attachedFrame: 'element-frame-id-0',
+          }),
+          'element-id-1': mockRectangleElement(),
+        },
+      ),
+    ).toEqual({ 'element-id-0': 'element-frame-id-0' });
+  });
+
+  it('should not find element to detach', () => {
+    expect(
+      findElementsToDetach(
+        { 'element-id-0': 'element-frame-id-1' },
+        {
+          'element-id-0': mockRectangleElement(),
+          'element-id-1': mockRectangleElement(),
+        },
+      ),
+    ).toEqual({});
+  });
+});
+
+describe('findElementsToAttachChange', () => {
+  it('should find elements to change frame attached', () => {
+    expect(
+      findElementsToAttachChange(
+        {
+          'element-id-0': 'element-frame-id-1',
+          'element-id-3': 'element-frame-id-3',
+        },
+        {
+          'element-id-0': mockRectangleElement({
+            attachedFrame: 'element-frame-id-0',
+          }),
+          'element-id-1': mockRectangleElement({
+            attachedFrame: 'element-frame-id-2',
+          }),
+          'element-id-2': mockRectangleElement(),
+          'element-id-3': mockRectangleElement(),
+        },
+      ),
+    ).toEqual({
+      'element-id-0': {
+        oldFrameId: 'element-frame-id-0',
+        newFrameId: 'element-frame-id-1',
+      },
+      'element-id-1': {
+        oldFrameId: 'element-frame-id-2',
+      },
+      'element-id-3': {
+        newFrameId: 'element-frame-id-3',
+      },
+    });
+  });
+});
+
+describe('findElementAttachFrame', () => {
+  it('should find element to be attached to frame', () => {
+    expect(
+      findElementAttachFrame(
+        {
+          'element-id-0': mockRectangleElement(),
+          'element-id-1': mockRectangleElement({ width: 50, height: 50 }),
+          'element-id-2': mockLineElement({
+            points: [
+              { x: 0, y: 0 },
+              { x: 50, y: 100 },
+            ],
+          }),
+          'element-id-3': mockRectangleElement({
+            position: { x: 100, y: 101 },
+          }),
+        },
+        {
+          'frame-id-0': mockFrameElement({
+            position: { x: 0, y: 1 },
+            width: 50,
+            height: 100,
+          }),
+          'frame-id-1': mockFrameElement({
+            position: { x: 100, y: 101 },
+            width: 50,
+            height: 100,
+          }),
+        },
+      ),
+    ).toEqual({
+      'element-id-0': 'frame-id-0',
+      'element-id-1': 'frame-id-0',
+      'element-id-2': 'frame-id-0',
+      'element-id-3': 'frame-id-1',
+    });
+  });
+
+  it('should not attach frame element to frame', () => {
+    expect(
+      findElementAttachFrame(
+        {
+          'element-id-0': mockRectangleElement(),
+          'frame-element-id-1': mockFrameElement({
+            position: { x: 0, y: 1 },
+            width: 50,
+            height: 50,
+          }),
+        },
+        {
+          'frame-id-0': mockFrameElement({
+            position: { x: 0, y: 1 },
+            width: 50,
+            height: 100,
+          }),
+        },
+      ),
+    ).toEqual({
+      'element-id-0': 'frame-id-0',
+    });
+  });
+
+  it('should not attach path element with start element connected to another frame', () => {
+    expect(
+      findElementAttachFrame(
+        {
+          'element-id-0': mockRectangleElement(),
+          'element-id-2': mockLineElement({
+            points: [
+              { x: 0, y: 0 },
+              { x: 50, y: 100 },
+            ],
+            connectedElementStart: 'element-id-3',
+          }),
+          'element-id-3': mockRectangleElement({
+            position: { x: 100, y: 101 },
+          }),
+        },
+        {
+          'frame-id-0': mockFrameElement({
+            position: { x: 0, y: 1 },
+            width: 50,
+            height: 100,
+          }),
+          'frame-id-1': mockFrameElement({
+            position: { x: 100, y: 101 },
+            width: 50,
+            height: 100,
+          }),
+        },
+      ),
+    ).toEqual({
+      'element-id-0': 'frame-id-0',
+      'element-id-3': 'frame-id-1',
+    });
+  });
+
+  it('should not attach path element with end element connected to another frame', () => {
+    expect(
+      findElementAttachFrame(
+        {
+          'element-id-0': mockRectangleElement(),
+          'element-id-2': mockLineElement({
+            points: [
+              { x: 0, y: 0 },
+              { x: 50, y: 100 },
+            ],
+            connectedElementEnd: 'element-id-3',
+          }),
+          'element-id-3': mockRectangleElement({
+            position: { x: 100, y: 101 },
+          }),
+        },
+        {
+          'frame-id-0': mockFrameElement({
+            position: { x: 0, y: 1 },
+            width: 50,
+            height: 100,
+          }),
+          'frame-id-1': mockFrameElement({
+            position: { x: 100, y: 101 },
+            width: 50,
+            height: 100,
+          }),
+        },
+      ),
+    ).toEqual({
+      'element-id-0': 'frame-id-0',
+      'element-id-3': 'frame-id-1',
+    });
+  });
+});
+
+describe('findAttachedElementsMovedByFrame', () => {
+  it('should find attached elements moved by the frame been moved', () => {
+    expect(
+      findAttachedElementsMovedByFrame({
+        'element-id-0': mockRectangleElement(),
+        'element-id-1': mockRectangleElement({ attachedFrame: 'frame-id-0' }),
+        'element-id-2': mockRectangleElement({ attachedFrame: 'frame-id-1' }),
+        'element-id-3': mockLineElement({ attachedFrame: 'frame-id-0' }),
+        'frame-id-0': mockFrameElement(),
+      }),
+    ).toEqual(['element-id-1', 'element-id-3']);
   });
 });
