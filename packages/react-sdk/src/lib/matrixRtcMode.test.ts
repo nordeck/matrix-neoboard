@@ -35,27 +35,33 @@ describe('normalizeMatrixUserId', () => {
   it('returns unchanged if not a valid MXID in MatrixRTC mode', () => {
     (getEnvironment as Mock).mockReturnValue('matrixrtc');
 
-    expect(normalizeMatrixUserId('@user')).toBe('@user');
+    expect(normalizeMatrixUserId('@user:example.com')).toBe(
+      '@user:example.com',
+    );
   });
 
   it('returns userId unchanged if not in MatrixRTC mode', () => {
     (getEnvironment as Mock).mockReturnValue('webrtc');
 
-    expect(normalizeMatrixUserId('@user:domain')).toBe('@user:domain');
-    expect(normalizeMatrixUserId('@user:domain:sessionId')).toBe(
-      '@user:domain:sessionId',
+    expect(normalizeMatrixUserId('@user:example.com')).toBe(
+      '@user:example.com',
+    );
+    expect(normalizeMatrixUserId('@user:example.com:sessionId')).toBe(
+      '@user:example.com:sessionId',
     );
   });
 
   it('return userId if in MatrixRTC mode and it has more than two parts', () => {
     (getEnvironment as Mock).mockReturnValue('matrixrtc');
 
-    expect(normalizeMatrixUserId('@user:domain')).toBe('@user:domain');
-    expect(normalizeMatrixUserId('@user:domain:sessionId')).toBe(
-      '@user:domain',
+    expect(normalizeMatrixUserId('@user:example.com')).toBe(
+      '@user:example.com',
     );
-    expect(normalizeMatrixUserId('@user:domain:session:extra')).toBe(
-      '@user:domain',
+    expect(normalizeMatrixUserId('@user:example.com:sessionId')).toBe(
+      '@user:example.com',
+    );
+    expect(normalizeMatrixUserId('@user:example.com:session:extra')).toBe(
+      '@user:example.com',
     );
   });
 });

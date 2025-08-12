@@ -19,6 +19,7 @@ import {
   RoomEvent,
   RoomMemberStateEventContent,
   StateEvent,
+  StateEventCreateContent,
   ToDeviceMessageEvent,
 } from '@matrix-widget-toolkit/api';
 import {
@@ -48,7 +49,7 @@ import { createChunks } from '../../store/api/documentSnapshotApi';
  * @remarks Only use for tests
  */
 export function mockRoomMember({
-  state_key = '@user-alice',
+  state_key = '@user-alice:example.com',
   event_id = '$event-id-0',
   content = {},
 }: {
@@ -58,7 +59,7 @@ export function mockRoomMember({
 } = {}): StateEvent<RoomMemberStateEventContent> {
   return {
     type: 'm.room.member',
-    sender: '@user-id',
+    sender: '@user-id:example.com',
     content: {
       membership: 'join',
       displayname: 'Alice',
@@ -68,7 +69,7 @@ export function mockRoomMember({
     state_key,
     origin_server_ts: 0,
     event_id,
-    room_id: '!room-id',
+    room_id: '!room-id:example.com',
   };
 }
 
@@ -84,9 +85,57 @@ export function mockPowerLevelsEvent({
 } = {}): StateEvent<PowerLevelsStateEvent> {
   return {
     type: 'm.room.power_levels',
-    sender: '@user-id',
+    sender: '@user-id:example.com',
     content: {
       users_default: 100,
+      ...content,
+    },
+    state_key: '',
+    origin_server_ts: 0,
+    event_id: '$event-id-0',
+    room_id: '!room-id:example.com',
+  };
+}
+
+/**
+ * Create a room version 11 create event with known test data.
+ *
+ * @remarks Only use for tests
+ */
+export function mockRoomVersion11CreateEvent({
+  content = {},
+}: {
+  content?: Partial<StateEventCreateContent>;
+} = {}): StateEvent<StateEventCreateContent> {
+  return {
+    type: 'm.room.create',
+    sender: '@user-id:example.com',
+    content: {
+      room_version: '11',
+      ...content,
+    },
+    state_key: '',
+    origin_server_ts: 0,
+    event_id: '$event-id-0',
+    room_id: '!room-id:example.com',
+  };
+}
+
+/**
+ * Create a room version 12 create event with known test data.
+ *
+ * @remarks Only use for tests
+ */
+export function mockRoomVersion12CreateEvent({
+  content = {},
+}: {
+  content?: Partial<StateEventCreateContent>;
+} = {}): StateEvent<StateEventCreateContent> {
+  return {
+    type: 'm.room.create',
+    sender: '@user-id:example.com',
+    content: {
+      room_version: '12',
       ...content,
     },
     state_key: '',
@@ -102,7 +151,7 @@ export function mockPowerLevelsEvent({
  * @remarks Only use for tests
  */
 export function mockRoomName({
-  room_id = '!room-id',
+  room_id = '!room-id:example.com',
   content = {},
 }: {
   room_id?: string;
@@ -128,7 +177,7 @@ export function mockRoomName({
  * @remarks Only use for tests
  */
 export function mockWhiteboard({
-  sender = '@user-id',
+  sender = '@user-id:example.com',
   state_key = 'whiteboard-0',
   event_id = '$event-id-0',
   content = {},
@@ -150,7 +199,7 @@ export function mockWhiteboard({
     state_key,
     origin_server_ts,
     event_id,
-    room_id: '!room-id',
+    room_id: '!room-id:example.com',
   };
 }
 
@@ -160,7 +209,7 @@ export function mockWhiteboard({
  * @remarks Only use for tests
  */
 export function mockDocumentCreate({
-  sender = '@user-id',
+  sender = '@user-id:example.com',
   event_id = '$document-0',
   content = {},
   origin_server_ts = 0,
@@ -178,7 +227,7 @@ export function mockDocumentCreate({
     },
     origin_server_ts,
     event_id,
-    room_id: '!room-id',
+    room_id: '!room-id:example.com',
   };
 }
 
@@ -195,7 +244,7 @@ export function mockDocumentSnapshot({
   chunkOriginServerTs,
   content = {},
   origin_server_ts = 0,
-  room_id = '!room-id',
+  room_id = '!room-id:example.com',
 }: {
   event_id?: string;
   documentId?: string;
@@ -211,7 +260,7 @@ export function mockDocumentSnapshot({
 } {
   const snapshot: RoomEvent<DocumentSnapshot> = {
     type: 'net.nordeck.whiteboard.document.snapshot',
-    sender: '@user-id',
+    sender: '@user-id:example.com',
     content: {
       chunkCount,
       'm.relates_to': {
@@ -257,7 +306,7 @@ export function mockDocumentChunk({
   snapshot_event_id = '$document-snapshot-0',
   content = {},
   origin_server_ts = 0,
-  room_id = '!room-id',
+  room_id = '!room-id:example.com',
 }: {
   event_id?: string;
   snapshot_event_id?: string;
@@ -267,7 +316,7 @@ export function mockDocumentChunk({
 } = {}): RoomEvent<DocumentChunk> {
   return {
     type: 'net.nordeck.whiteboard.document.chunk',
-    sender: '@user-id',
+    sender: '@user-id:example.com',
     content: {
       documentId: '$document-0',
       sequenceNumber: 0,
@@ -307,9 +356,9 @@ export function mockConnectionSignalingCandidates({
     },
     null,
   ],
-  sender = '@peer-user-id',
-  sessionId = '@session-id',
-  connectionId = '@connection-id',
+  sender = '@peer-user-id:example.com',
+  sessionId = '@session-id:example.com',
+  connectionId = '@connection-id:example.com',
 }: {
   sender?: string;
   sessionId?: string;
@@ -335,9 +384,9 @@ export function mockConnectionSignalingCandidates({
  */
 export function mockConnectionSignalingDescription({
   description = {},
-  sender = '@peer-user-id',
-  sessionId = '@session-id',
-  connectionId = '@connection-id',
+  sender = '@peer-user-id:example.com',
+  sessionId = '@session-id:example.com',
+  connectionId = '@connection-id:example.com',
   encrypted = false,
 }: {
   sender?: string;
@@ -375,7 +424,7 @@ export function mockWhiteboardSessions({
       whiteboardId: 'whiteboard-id',
     },
   ],
-  state_key = '@user-id',
+  state_key = '@user-id:example.com',
   origin_server_ts = 0,
 }: {
   sessions?: WhiteboardSession[];
@@ -384,14 +433,14 @@ export function mockWhiteboardSessions({
 } = {}): StateEvent<WhiteboardSessions> {
   return {
     type: 'net.nordeck.whiteboard.sessions',
-    sender: '@user-id',
+    sender: '@user-id:example.com',
     content: {
       sessions,
     },
     state_key,
     origin_server_ts,
     event_id: '$event-id-0',
-    room_id: '!room-id',
+    room_id: '!room-id:example.com',
   };
 }
 

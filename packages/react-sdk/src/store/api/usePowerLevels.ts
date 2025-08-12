@@ -15,13 +15,17 @@
  */
 
 import {
+  calculateUserPowerLevel,
+  compareUserPowerLevelToNormalPowerLevel,
   hasStateEventPower,
-  PowerLevelsStateEvent,
   STATE_EVENT_POWER_LEVELS,
 } from '@matrix-widget-toolkit/api';
 import { useWidgetApi } from '@matrix-widget-toolkit/react';
 import { STATE_EVENT_WHITEBOARD } from '../../model';
-import { useGetPowerLevelsQuery } from './powerLevelsApi';
+import {
+  useGetCreateEventQuery,
+  useGetPowerLevelsQuery,
+} from './powerLevelsApi';
 
 export type PowerLevels = {
   canInitializeWhiteboard: boolean | undefined;
@@ -32,7 +36,11 @@ export type PowerLevels = {
 export function usePowerLevels({
   userId,
 }: { userId?: string } = {}): PowerLevels {
-  const { data: powerLevels, isLoading } = useGetPowerLevelsQuery();
+  const { data: powerLevels, isLoading: isLoadingPowerLevels } =
+    useGetPowerLevelsQuery();
+  const { data: createEvent, isLoading: isLoadingCreateEvent } =
+    useGetCreateEventQuery();
+  const isLoading = isLoadingPowerLevels || isLoadingCreateEvent;
   const widgetApi = useWidgetApi();
   userId ??= widgetApi.widgetParameters.userId;
 
@@ -42,12 +50,27 @@ export function usePowerLevels({
 
   if (!isLoading && powerLevels) {
     const powerContent = powerLevels.event?.content;
-    const userPowerLevel = getUserPowerLevel(userId, powerContent) ?? 0;
-    const canModerate = userPowerLevel >= 50;
+    const userPowerLevel =
+      calculateUserPowerLevel(powerContent, createEvent?.event, userId ?? '') ??
+      0;
+    const canModerate = compareUserPowerLevelToNormalPowerLevel(
+      userPowerLevel,
+      50,
+    );
 
     canInitializeWhiteboard =
-      hasStateEventPower(powerContent, userId, STATE_EVENT_POWER_LEVELS) &&
-      hasStateEventPower(powerContent, userId, STATE_EVENT_WHITEBOARD);
+      hasStateEventPower(
+        powerContent,
+        createEvent?.event,
+        userId,
+        STATE_EVENT_POWER_LEVELS,
+      ) &&
+      hasStateEventPower(
+        powerContent,
+        createEvent?.event,
+        userId,
+        STATE_EVENT_WHITEBOARD,
+      );
     canImportWhiteboard = canModerate;
     canStopPresentation = canModerate;
   }
@@ -58,17 +81,3 @@ export function usePowerLevels({
     canStopPresentation,
   };
 }
-
-export const getUserPowerLevel = (
-  userId: string | undefined,
-  powerLevel: PowerLevelsStateEvent | undefined,
-): number | undefined => {
-  if (!powerLevel || !userId) {
-    return undefined;
-  }
-  if (powerLevel?.users && userId in powerLevel.users) {
-    return powerLevel?.users[userId];
-  } else {
-    return powerLevel.users_default;
-  }
-};

@@ -132,7 +132,7 @@ describe('whiteboardDocumentSchema', () => {
           },
           elementIds: ['element-0'],
           lock: {
-            userId: '@user-id:matrix',
+            userId: '@user-id:example.com',
             additional: 'data',
           },
           additional: 'data',
@@ -297,7 +297,7 @@ describe('keepWhiteboardUndoRedoItem', () => {
 
   it('should reject changes when slide is locked', () => {
     const document = createWhiteboardDocument();
-    document.performChange(generateLockSlide(slide0, '@user-id'));
+    document.performChange(generateLockSlide(slide0, '@user-id:example.com'));
 
     const hasKeepChanges = keepWhiteboardUndoRedoItem(document.getData());
 
@@ -314,7 +314,7 @@ describe('keepWhiteboardUndoRedoItem', () => {
 
   it('should accept undo changes when slide lock is part of the undo stack', () => {
     const document = createWhiteboardDocument();
-    document.performChange(generateLockSlide(slide0, '@user-id'));
+    document.performChange(generateLockSlide(slide0, '@user-id:example.com'));
 
     const hasKeepChanges = keepWhiteboardUndoRedoItem(document.getData());
 
@@ -443,7 +443,7 @@ describe('keepWhiteboardUndoRedoItem', () => {
       position: { x: 15, y: 100 },
     });
 
-    const lockSlide = generateLockSlide(slide0, '@user-id');
+    const lockSlide = generateLockSlide(slide0, '@user-id:example.com');
 
     document.performChange(addElement);
     document.performChange(moveElement);
@@ -490,7 +490,7 @@ describe('keepWhiteboardUndoRedoItem', () => {
               position: { x: 0, y: 1 },
             }),
           },
-          lock: { userId: '@user-id' },
+          lock: { userId: '@user-id:example.com' },
         },
       },
     });
@@ -508,7 +508,7 @@ describe('keepWhiteboardUndoRedoItem', () => {
       position: { x: 15, y: 100 },
     });
 
-    const lockSlide = generateLockSlide(slide0, '@user-id');
+    const lockSlide = generateLockSlide(slide0, '@user-id:example.com');
 
     document.performChange(addElement);
     document.performChange(moveElement);
@@ -553,7 +553,7 @@ describe('keepWhiteboardUndoRedoItem', () => {
               position: { x: 0, y: 1 },
             }),
           },
-          lock: { userId: '@user-id' },
+          lock: { userId: '@user-id:example.com' },
         },
       },
     });
@@ -562,7 +562,7 @@ describe('keepWhiteboardUndoRedoItem', () => {
   it('should undo consecutive locks and unlocks when called by the undo manager', () => {
     const document = createWhiteboardDocument();
 
-    const lockSlide = generateLockSlide(slide0, '@user-id');
+    const lockSlide = generateLockSlide(slide0, '@user-id:example.com');
     const unlockSlide = generateUnlockSlide(slide0);
 
     document.performChange(lockSlide);
@@ -576,7 +576,7 @@ describe('keepWhiteboardUndoRedoItem', () => {
 
     document.getUndoManager().undo();
     expect(document.getData().toJSON().slides[slide0].lock).toEqual({
-      userId: '@user-id',
+      userId: '@user-id:example.com',
     });
 
     document.getUndoManager().undo();
@@ -584,7 +584,7 @@ describe('keepWhiteboardUndoRedoItem', () => {
 
     document.getUndoManager().undo();
     expect(document.getData().toJSON().slides[slide0].lock).toEqual({
-      userId: '@user-id',
+      userId: '@user-id:example.com',
     });
 
     document.getUndoManager().undo();
@@ -592,7 +592,7 @@ describe('keepWhiteboardUndoRedoItem', () => {
 
     document.getUndoManager().undo();
     expect(document.getData().toJSON().slides[slide0].lock).toEqual({
-      userId: '@user-id',
+      userId: '@user-id:example.com',
     });
 
     document.getUndoManager().undo();

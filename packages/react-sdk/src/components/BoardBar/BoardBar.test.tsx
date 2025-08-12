@@ -157,7 +157,7 @@ describe('<BoardBar/>', () => {
         content: {
           events: {},
           users: {
-            '@user-id': 100,
+            '@user-id:example.com': 100,
           },
           events_default: 100,
           state_default: 100,
@@ -190,7 +190,7 @@ describe('<BoardBar/>', () => {
         content: {
           events: {},
           users: {
-            '@user-id': 25,
+            '@user-id:example.com': 25,
           },
           events_default: 100,
           state_default: 100,

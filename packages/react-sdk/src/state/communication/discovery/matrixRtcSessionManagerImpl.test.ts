@@ -38,11 +38,11 @@ describe('MatrixRtcSessionManagerImpl', () => {
 
     widgetApi = mockWidgetApi();
     // @ts-ignore forcefully set for tests
-    widgetApi.widgetParameters.userId = '@user-id';
+    widgetApi.widgetParameters.userId = '@user-id:example.com';
     // @ts-ignore forcefully set for tests
     widgetApi.widgetParameters.deviceId = 'DEVICEID';
     // @ts-ignore forcefully set for tests
-    widgetApi.widgetParameters.roomId = '!room-id';
+    widgetApi.widgetParameters.roomId = '!room-id:example.com';
 
     vi.stubEnv('REACT_APP_RTC', 'matrixrtc');
 
@@ -83,13 +83,13 @@ describe('MatrixRtcSessionManagerImpl', () => {
         focus_active: { type: 'livekit', focus_selection: 'oldest_membership' },
         scope: 'm.room',
       },
-      { stateKey: '_@user-id_DEVICEID' },
+      { stateKey: '_@user-id:example.com_DEVICEID' },
     );
     expect(widgetApi.sendDelayedStateEvent).toHaveBeenCalledWith(
       STATE_EVENT_RTC_MEMBER,
       {},
       removeSessionDelay,
-      { stateKey: '_@user-id_DEVICEID' },
+      { stateKey: '_@user-id:example.com_DEVICEID' },
     );
     expect(rtcSessionManager.getRemoveSessionDelayId()).toEqual(
       'syd_bcooaGNyKtyFbIGjGMQR',
@@ -97,7 +97,7 @@ describe('MatrixRtcSessionManagerImpl', () => {
     expect(rtcSessionManager.getSessions()).toEqual([
       {
         sessionId: sessionId,
-        userId: '@user-id',
+        userId: '@user-id:example.com',
       },
     ]);
   });
@@ -116,13 +116,13 @@ describe('MatrixRtcSessionManagerImpl', () => {
         focus_active: { type: 'livekit', focus_selection: 'oldest_membership' },
         scope: 'm.room',
       },
-      { stateKey: '_@user-id_DEVICEID' },
+      { stateKey: '_@user-id:example.com_DEVICEID' },
     );
     expect(widgetApi.sendDelayedStateEvent).toHaveBeenCalledWith(
       STATE_EVENT_RTC_MEMBER,
       {},
       removeSessionDelay,
-      { stateKey: '_@user-id_DEVICEID' },
+      { stateKey: '_@user-id:example.com_DEVICEID' },
     );
 
     widgetApi.sendDelayedStateEvent.mockResolvedValue({
@@ -134,7 +134,7 @@ describe('MatrixRtcSessionManagerImpl', () => {
     expect(widgetApi.sendStateEvent).toHaveBeenCalledWith(
       STATE_EVENT_RTC_MEMBER,
       {},
-      { stateKey: '_@user-id_DEVICEID' },
+      { stateKey: '_@user-id:example.com_DEVICEID' },
     );
     expect(widgetApi.updateDelayedEvent).toHaveBeenCalledWith(
       'syd_bcooaGNyKtyFbIGjGMQR',
@@ -152,14 +152,14 @@ describe('MatrixRtcSessionManagerImpl', () => {
         focus_active: { type: 'livekit', focus_selection: 'oldest_membership' },
         scope: 'm.room',
       },
-      { stateKey: '_@user-id_DEVICEID' },
+      { stateKey: '_@user-id:example.com_DEVICEID' },
     );
     expect(widgetApi.sendDelayedStateEvent).toHaveBeenNthCalledWith(
       2,
       STATE_EVENT_RTC_MEMBER,
       {},
       removeSessionDelay,
-      { stateKey: '_@user-id_DEVICEID' },
+      { stateKey: '_@user-id:example.com_DEVICEID' },
     );
     expect(rtcSessionManager.getRemoveSessionDelayId()).toEqual(
       'qqq_bcooaGNyKtyFbIGjGMQR',
@@ -181,13 +181,13 @@ describe('MatrixRtcSessionManagerImpl', () => {
         focus_active: { type: 'livekit', focus_selection: 'oldest_membership' },
         scope: 'm.room',
       },
-      { stateKey: '_@user-id_DEVICEID' },
+      { stateKey: '_@user-id:example.com_DEVICEID' },
     );
     expect(widgetApi.sendDelayedStateEvent).toHaveBeenCalledWith(
       STATE_EVENT_RTC_MEMBER,
       {},
       removeSessionDelay,
-      { stateKey: '_@user-id_DEVICEID' },
+      { stateKey: '_@user-id:example.com_DEVICEID' },
     );
 
     widgetApi.sendDelayedStateEvent.mockResolvedValue({
@@ -200,7 +200,7 @@ describe('MatrixRtcSessionManagerImpl', () => {
       2,
       STATE_EVENT_RTC_MEMBER,
       {},
-      { stateKey: '_@user-id_DEVICEID' },
+      { stateKey: '_@user-id:example.com_DEVICEID' },
     );
     expect(widgetApi.updateDelayedEvent).toHaveBeenCalledWith(
       'syd_bcooaGNyKtyFbIGjGMQR',
@@ -219,14 +219,14 @@ describe('MatrixRtcSessionManagerImpl', () => {
         focus_active: { type: 'livekit', focus_selection: 'oldest_membership' },
         scope: 'm.room',
       },
-      { stateKey: '_@user-id_DEVICEID' },
+      { stateKey: '_@user-id:example.com_DEVICEID' },
     );
     expect(widgetApi.sendDelayedStateEvent).toHaveBeenNthCalledWith(
       2,
       STATE_EVENT_RTC_MEMBER,
       {},
       removeSessionDelay,
-      { stateKey: '_@user-id_DEVICEID' },
+      { stateKey: '_@user-id:example.com_DEVICEID' },
     );
     expect(rtcSessionManager.getRemoveSessionDelayId()).toEqual(
       'qqq_bcooaGNyKtyFbIGjGMQR',
@@ -247,13 +247,13 @@ describe('MatrixRtcSessionManagerImpl', () => {
         focus_active: { type: 'livekit', focus_selection: 'oldest_membership' },
         scope: 'm.room',
       },
-      { stateKey: '_@user-id_DEVICEID' },
+      { stateKey: '_@user-id:example.com_DEVICEID' },
     );
     expect(widgetApi.sendDelayedStateEvent).toHaveBeenCalledWith(
       STATE_EVENT_RTC_MEMBER,
       {},
       removeSessionDelay,
-      { stateKey: '_@user-id_DEVICEID' },
+      { stateKey: '_@user-id:example.com_DEVICEID' },
     );
 
     // @ts-ignore forcefully set for tests
@@ -272,14 +272,14 @@ describe('MatrixRtcSessionManagerImpl', () => {
         focus_active: { type: 'livekit', focus_selection: 'oldest_membership' },
         scope: 'm.room',
       },
-      { stateKey: '_@user-id_OTHERDEVICEID' },
+      { stateKey: '_@user-id:example.com_OTHERDEVICEID' },
     );
     expect(widgetApi.sendDelayedStateEvent).toHaveBeenNthCalledWith(
       2,
       STATE_EVENT_RTC_MEMBER,
       {},
       removeSessionDelay,
-      { stateKey: '_@user-id_OTHERDEVICEID' },
+      { stateKey: '_@user-id:example.com_OTHERDEVICEID' },
     );
     expect(rtcSessionManager.getRemoveSessionDelayId()).toEqual(
       'syd_bcooaGNyKtyFbIGjGMQR',
@@ -302,7 +302,7 @@ describe('MatrixRtcSessionManagerImpl', () => {
         focus_active: { type: 'livekit', focus_selection: 'oldest_membership' },
         scope: 'm.room',
       },
-      { stateKey: '_@user-id_DEVICEID' },
+      { stateKey: '_@user-id:example.com_DEVICEID' },
     );
 
     vi.advanceTimersByTime(DEFAULT_RTC_EXPIRE_DURATION * 0.8);
@@ -323,7 +323,7 @@ describe('MatrixRtcSessionManagerImpl', () => {
         focus_active: { type: 'livekit', focus_selection: 'oldest_membership' },
         scope: 'm.room',
       },
-      { stateKey: '_@user-id_DEVICEID' },
+      { stateKey: '_@user-id:example.com_DEVICEID' },
     );
 
     // Check separately that the expires value is greater than expected
@@ -339,7 +339,7 @@ describe('MatrixRtcSessionManagerImpl', () => {
       STATE_EVENT_RTC_MEMBER,
       {},
       removeSessionDelay,
-      { stateKey: '_@user-id_DEVICEID' },
+      { stateKey: '_@user-id:example.com_DEVICEID' },
     );
     expect(widgetApi.updateDelayedEvent).not.toHaveBeenCalled();
 
@@ -369,7 +369,7 @@ describe('MatrixRtcSessionManagerImpl', () => {
       STATE_EVENT_RTC_MEMBER,
       {},
       removeSessionDelay,
-      { stateKey: '_@user-id_DEVICEID' },
+      { stateKey: '_@user-id:example.com_DEVICEID' },
     );
     expect(widgetApi.updateDelayedEvent).not.toHaveBeenCalled();
 
@@ -408,12 +408,15 @@ describe('MatrixRtcSessionManagerImpl', () => {
           },
         },
         state_key: '_@another-user_ANOTHERDEVICEID',
-        sender: '@another-user',
+        sender: '@another-user:example.com',
       }),
     );
 
     await expect(joinedPromise).resolves.toEqual([
-      { sessionId: '_@another-user_ANOTHERDEVICEID', userId: '@another-user' },
+      {
+        sessionId: '_@another-user_ANOTHERDEVICEID',
+        userId: '@another-user:example.com',
+      },
     ]);
   });
 
@@ -435,7 +438,10 @@ describe('MatrixRtcSessionManagerImpl', () => {
     );
 
     await expect(leftPromise).resolves.toEqual([
-      { sessionId: '_@another-user_ANOTHERDEVICEID', userId: '@user-id' },
+      {
+        sessionId: '_@another-user_ANOTHERDEVICEID',
+        userId: '@user-id:example.com',
+      },
     ]);
   });
 
@@ -453,13 +459,13 @@ describe('MatrixRtcSessionManagerImpl', () => {
         focus_active: { type: 'livekit', focus_selection: 'oldest_membership' },
         scope: 'm.room',
       },
-      { stateKey: '_@user-id_DEVICEID' },
+      { stateKey: '_@user-id:example.com_DEVICEID' },
     );
     expect(widgetApi.sendDelayedStateEvent).toHaveBeenCalledWith(
       STATE_EVENT_RTC_MEMBER,
       {},
       removeSessionDelay,
-      { stateKey: '_@user-id_DEVICEID' },
+      { stateKey: '_@user-id:example.com_DEVICEID' },
     );
 
     expect(widgetApi.sendDelayedStateEvent).toHaveBeenCalledTimes(1);
@@ -467,7 +473,7 @@ describe('MatrixRtcSessionManagerImpl', () => {
     widgetApi.mockSendStateEvent(
       mockWhiteboardMembership(
         {
-          state_key: '_@user-id_DEVICEID',
+          state_key: '_@user-id:example.com_DEVICEID',
           content: {},
         },
         true,
@@ -490,7 +496,7 @@ describe('MatrixRtcSessionManagerImpl', () => {
           },
           scope: 'm.room',
         },
-        { stateKey: '_@user-id_DEVICEID' },
+        { stateKey: '_@user-id:example.com_DEVICEID' },
       ),
     );
 
@@ -511,13 +517,13 @@ describe('MatrixRtcSessionManagerImpl', () => {
         focus_active: { type: 'livekit', focus_selection: 'oldest_membership' },
         scope: 'm.room',
       },
-      { stateKey: '_@user-id_DEVICEID' },
+      { stateKey: '_@user-id:example.com_DEVICEID' },
     );
     expect(widgetApi.sendDelayedStateEvent).toHaveBeenCalledWith(
       STATE_EVENT_RTC_MEMBER,
       {},
       removeSessionDelay,
-      { stateKey: '_@user-id_DEVICEID' },
+      { stateKey: '_@user-id:example.com_DEVICEID' },
     );
 
     widgetApi.sendDelayedStateEvent.mockResolvedValue({
@@ -536,9 +542,9 @@ describe('MatrixRtcSessionManagerImpl', () => {
     widgetApi.mockSendStateEvent(
       mockWhiteboardMembership(
         {
-          state_key: '_@user-id_DEVICEID',
+          state_key: '_@user-id:example.com_DEVICEID',
           content: {},
-          sender: '@another-user-id',
+          sender: '@another-user-id:example.com',
         },
         true,
       ),
@@ -560,7 +566,7 @@ describe('MatrixRtcSessionManagerImpl', () => {
           },
           scope: 'm.room',
         },
-        { stateKey: '_@user-id_DEVICEID' },
+        { stateKey: '_@user-id:example.com_DEVICEID' },
       ),
     );
 
@@ -600,7 +606,7 @@ describe('MatrixRtcSessionManagerImpl', () => {
       STATE_EVENT_RTC_MEMBER,
       {},
       removeSessionDelay,
-      { stateKey: '_@user-id_DEVICEID' },
+      { stateKey: '_@user-id:example.com_DEVICEID' },
     );
     expect(widgetApi.updateDelayedEvent).not.toHaveBeenCalled();
     expect(rtcSessionManager.getRemoveSessionDelayId()).toEqual(
@@ -628,7 +634,7 @@ describe('MatrixRtcSessionManagerImpl', () => {
     widgetApi.mockSendStateEvent(
       mockWhiteboardMembership(
         {
-          state_key: '_@user-id_DEVICEID',
+          state_key: '_@user-id:example.com_DEVICEID',
           content: {},
         },
         true,
@@ -651,7 +657,7 @@ describe('MatrixRtcSessionManagerImpl', () => {
           },
           scope: 'm.room',
         },
-        { stateKey: '_@user-id_DEVICEID' },
+        { stateKey: '_@user-id:example.com_DEVICEID' },
       ),
     );
 
@@ -687,14 +693,17 @@ describe('MatrixRtcSessionManagerImpl', () => {
     await rtcSessionManager.leave();
 
     await expect(leftPromise).resolves.toEqual([
-      { sessionId: '_@user-id_DEVICEID', userId: '@user-id' },
+      {
+        sessionId: '_@user-id:example.com_DEVICEID',
+        userId: '@user-id:example.com',
+      },
     ]);
 
     expect(rtcSessionManager.getSessions()).toEqual([]);
     expect(widgetApi.sendStateEvent).toHaveBeenCalledWith(
       STATE_EVENT_RTC_MEMBER,
       {},
-      { stateKey: '_@user-id_DEVICEID' },
+      { stateKey: '_@user-id:example.com_DEVICEID' },
     );
     expect(widgetApi.updateDelayedEvent).toHaveBeenCalledWith(
       'syd_bcooaGNyKtyFbIGjGMQR',
@@ -731,7 +740,7 @@ describe('MatrixRtcSessionManagerImpl', () => {
           {
             type: 'livekit',
             livekit_service_url: 'https://livekit.example.com',
-            livekit_alias: '!room-id',
+            livekit_alias: '!room-id:example.com',
           },
         ],
       }),
@@ -790,7 +799,7 @@ describe('MatrixRtcSessionManagerImpl', () => {
           {
             type: 'livekit',
             livekit_service_url: 'https://new-livekit.example.com',
-            livekit_alias: '!room-id',
+            livekit_alias: '!room-id:example.com',
           },
         ],
       }),
@@ -835,7 +844,7 @@ describe('MatrixRtcSessionManagerImpl', () => {
             {
               type: 'livekit',
               livekit_service_url: 'https://active-livekit.example.com',
-              livekit_alias: '!room-id',
+              livekit_alias: '!room-id:example.com',
             },
           ],
           focus_active: {
@@ -844,7 +853,7 @@ describe('MatrixRtcSessionManagerImpl', () => {
           },
         },
         state_key: '_@first-user_FIRSTDEVICEID',
-        sender: '@first-user',
+        sender: '@first-user:example.com',
       }),
     );
 
@@ -853,7 +862,7 @@ describe('MatrixRtcSessionManagerImpl', () => {
     expect(rtcSessionManager.getActiveFocus()).toEqual({
       type: 'livekit',
       livekit_service_url: 'https://active-livekit.example.com',
-      livekit_alias: '!room-id',
+      livekit_alias: '!room-id:example.com',
     });
   });
 
@@ -872,7 +881,7 @@ describe('MatrixRtcSessionManagerImpl', () => {
             {
               type: 'livekit',
               livekit_service_url: 'https://active-livekit.example.com',
-              livekit_alias: '!room-id',
+              livekit_alias: '!room-id:example.com',
             },
           ],
           focus_active: {
@@ -881,7 +890,7 @@ describe('MatrixRtcSessionManagerImpl', () => {
           },
         },
         state_key: '_@first-user_FIRSTDEVICEID',
-        sender: '@first-user',
+        sender: '@first-user:example.com',
       }),
     );
 
@@ -891,10 +900,10 @@ describe('MatrixRtcSessionManagerImpl', () => {
     widgetApi.mockSendStateEvent({
       content: {},
       state_key: '_@first-user_FIRSTDEVICEID',
-      sender: '@first-user',
+      sender: '@first-user:example.com',
       type: STATE_EVENT_RTC_MEMBER,
       event_id: '$event-id-0',
-      room_id: '!room-id',
+      room_id: '!room-id:example.com',
       origin_server_ts: 0,
     });
 
@@ -923,7 +932,7 @@ describe('MatrixRtcSessionManagerImpl', () => {
             {
               type: 'livekit',
               livekit_service_url: 'https://oldest-livekit.example.com',
-              livekit_alias: '!room-id',
+              livekit_alias: '!room-id:example.com',
             },
           ],
           focus_active: {
@@ -932,7 +941,7 @@ describe('MatrixRtcSessionManagerImpl', () => {
           },
         },
         state_key: '_@first-user_FIRSTDEVICEID',
-        sender: '@first-user',
+        sender: '@first-user:example.com',
       }),
     );
 
@@ -941,7 +950,7 @@ describe('MatrixRtcSessionManagerImpl', () => {
     expect(rtcSessionManager.getActiveFocus()).toEqual({
       type: 'livekit',
       livekit_service_url: 'https://oldest-livekit.example.com',
-      livekit_alias: '!room-id',
+      livekit_alias: '!room-id:example.com',
     });
 
     widgetApi.mockSendStateEvent(
@@ -956,7 +965,7 @@ describe('MatrixRtcSessionManagerImpl', () => {
             {
               type: 'livekit',
               livekit_service_url: 'https://other-livekit.example.com',
-              livekit_alias: '!room-id',
+              livekit_alias: '!room-id:example.com',
             },
           ],
           focus_active: {
@@ -965,7 +974,7 @@ describe('MatrixRtcSessionManagerImpl', () => {
           },
         },
         state_key: '_@other-user_ANOTHERDEVICEID',
-        sender: '@other-user',
+        sender: '@other-user:example.com',
       }),
     );
 
@@ -975,10 +984,10 @@ describe('MatrixRtcSessionManagerImpl', () => {
     widgetApi.mockSendStateEvent({
       content: {},
       state_key: '_@other-user_ANOTHERDEVICEID',
-      sender: '@other-user',
+      sender: '@other-user:example.com',
       type: STATE_EVENT_RTC_MEMBER,
       event_id: '$event-id-0',
-      room_id: '!room-id',
+      room_id: '!room-id:example.com',
       origin_server_ts: 0,
     });
 
@@ -988,7 +997,7 @@ describe('MatrixRtcSessionManagerImpl', () => {
     expect(rtcSessionManager.getActiveFocus()).toEqual({
       type: 'livekit',
       livekit_service_url: 'https://oldest-livekit.example.com',
-      livekit_alias: '!room-id',
+      livekit_alias: '!room-id:example.com',
     });
   });
 });

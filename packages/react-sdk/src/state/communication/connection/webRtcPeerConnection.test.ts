@@ -73,7 +73,7 @@ describe('WebRtcPeerConnection', () => {
   it('should pass fallback stun server to WebRTC on creation', () => {
     const connection = new WebRtcPeerConnection(
       signalingChannel,
-      { sessionId: politeSessionId, userId: '@other-user' },
+      { sessionId: politeSessionId, userId: '@other-user:example.com' },
       impoliteSessionId,
     );
 
@@ -96,7 +96,7 @@ describe('WebRtcPeerConnection', () => {
     };
     const connection = new WebRtcPeerConnection(
       signalingChannel,
-      { sessionId: politeSessionId, userId: '@other-user' },
+      { sessionId: politeSessionId, userId: '@other-user:example.com' },
       impoliteSessionId,
       { turnServer },
     );
@@ -111,7 +111,7 @@ describe('WebRtcPeerConnection', () => {
   it('should close connection', async () => {
     const connection = new WebRtcPeerConnection(
       signalingChannel,
-      { sessionId: politeSessionId, userId: '@other-user' },
+      { sessionId: politeSessionId, userId: '@other-user:example.com' },
       impoliteSessionId,
     );
 
@@ -135,7 +135,7 @@ describe('WebRtcPeerConnection', () => {
     beforeEach(() => {
       connection = new WebRtcPeerConnection(
         signalingChannel,
-        { sessionId: politeSessionId, userId: '@other-user' },
+        { sessionId: politeSessionId, userId: '@other-user:example.com' },
         impoliteSessionId,
       );
     });
@@ -156,7 +156,7 @@ describe('WebRtcPeerConnection', () => {
 
       await waitFor(() =>
         expect(signalingChannel.sendDescription).toHaveBeenCalledWith(
-          '@other-user',
+          '@other-user:example.com',
           'session-a',
           'session-b_session-a',
           new RTCSessionDescription({ type: 'offer', sdp: 'sdp' }),
@@ -182,7 +182,7 @@ describe('WebRtcPeerConnection', () => {
 
       await waitFor(() =>
         expect(signalingChannel.sendDescription).toHaveBeenCalledWith(
-          '@other-user',
+          '@other-user:example.com',
           'session-a',
           'session-b_session-a',
           new RTCSessionDescription({ type: 'offer', sdp: 'sdp' }),
@@ -224,7 +224,7 @@ describe('WebRtcPeerConnection', () => {
 
       await waitFor(() =>
         expect(signalingChannel.sendDescription).toHaveBeenCalledWith(
-          '@other-user',
+          '@other-user:example.com',
           'session-a',
           'session-b_session-a',
           new RTCSessionDescription({ type: 'answer', sdp: 'sdp' }),
@@ -239,7 +239,7 @@ describe('WebRtcPeerConnection', () => {
     beforeEach(() => {
       connection = new WebRtcPeerConnection(
         signalingChannel,
-        { sessionId: impoliteSessionId, userId: '@user-id' },
+        { sessionId: impoliteSessionId, userId: '@user-id:example.com' },
         politeSessionId,
       );
     });
@@ -265,7 +265,7 @@ describe('WebRtcPeerConnection', () => {
           key: 'value',
         },
         senderSessionId: 'session-b',
-        senderUserId: '@user-id',
+        senderUserId: '@user-id:example.com',
         type: 'com.example.test',
       });
     });
@@ -277,7 +277,7 @@ describe('WebRtcPeerConnection', () => {
 
       await waitFor(() =>
         expect(signalingChannel.sendDescription).toHaveBeenCalledWith(
-          '@user-id',
+          '@user-id:example.com',
           'session-b',
           'session-b_session-a',
           new RTCSessionDescription({ type: 'offer', sdp: 'sdp' }),
@@ -301,7 +301,7 @@ describe('WebRtcPeerConnection', () => {
 
       await waitFor(() =>
         expect(signalingChannel.sendDescription).toHaveBeenCalledWith(
-          '@user-id',
+          '@user-id:example.com',
           'session-b',
           'session-b_session-a',
           new RTCSessionDescription({ type: 'answer', sdp: 'sdp' }),
@@ -316,7 +316,7 @@ describe('WebRtcPeerConnection', () => {
 
       await waitFor(() =>
         expect(signalingChannel.sendDescription).toHaveBeenCalledWith(
-          '@user-id',
+          '@user-id:example.com',
           'session-b',
           'session-b_session-a',
           new RTCSessionDescription({ type: 'offer', sdp: 'sdp' }),
@@ -353,7 +353,7 @@ describe('WebRtcPeerConnection', () => {
 
       await waitFor(() =>
         expect(signalingChannel.sendDescription).toHaveBeenCalledWith(
-          '@user-id',
+          '@user-id:example.com',
           'session-b',
           'session-b_session-a',
           new RTCSessionDescription({ type: 'answer', sdp: 'sdp' }),
@@ -371,7 +371,7 @@ describe('WebRtcPeerConnection', () => {
     beforeEach(() => {
       connection = new WebRtcPeerConnection(
         signalingChannel,
-        { sessionId: politeSessionId, userId: '@other-user' },
+        { sessionId: politeSessionId, userId: '@other-user:example.com' },
         impoliteSessionId,
       );
     });
@@ -390,7 +390,7 @@ describe('WebRtcPeerConnection', () => {
       rtcPeerConnection.emitIceCandidate(null);
 
       expect(signalingChannel.sendCandidates).toHaveBeenCalledWith(
-        '@other-user',
+        '@other-user:example.com',
         'session-a',
         'session-b_session-a',
         [candidate0, candidate1, null],
@@ -403,7 +403,7 @@ describe('WebRtcPeerConnection', () => {
       rtcPeerConnection.emitIceCandidate(emptyCandidate);
 
       expect(signalingChannel.sendCandidates).toHaveBeenCalledWith(
-        '@other-user',
+        '@other-user:example.com',
         'session-a',
         'session-b_session-a',
         [candidate0, emptyCandidate],
@@ -416,7 +416,7 @@ describe('WebRtcPeerConnection', () => {
 
       await waitFor(() => {
         expect(signalingChannel.sendCandidates).toHaveBeenCalledWith(
-          '@other-user',
+          '@other-user:example.com',
           'session-a',
           'session-b_session-a',
           [candidate0, candidate1],
@@ -480,7 +480,7 @@ describe('WebRtcPeerConnection', () => {
           key: 'value',
         },
         senderSessionId: 'session-a',
-        senderUserId: '@other-user',
+        senderUserId: '@other-user:example.com',
         type: 'com.example.test',
       });
     });
@@ -535,7 +535,7 @@ describe('WebRtcPeerConnection', () => {
 
       connection = new WebRtcPeerConnection(
         signalingChannel,
-        { sessionId: politeSessionId, userId: '@other-user' },
+        { sessionId: politeSessionId, userId: '@other-user:example.com' },
         impoliteSessionId,
         { statisticsInterval: 100 },
       );
@@ -604,7 +604,7 @@ describe('WebRtcPeerConnection', () => {
       await expect(statisticsPromise).resolves.toMatchObject([
         expect.objectContaining({
           impolite: true,
-          remoteUserId: '@other-user',
+          remoteUserId: '@other-user:example.com',
           remoteSessionId: 'session-a',
           packetsReceived: 1,
           bytesReceived: 2,

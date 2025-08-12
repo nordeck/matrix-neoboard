@@ -172,7 +172,7 @@ describe('<ExportWhiteboardDialogDownloadPdf />', () => {
     await act(async () => {
       expect(pdf.createWhiteboardPdf).toHaveBeenCalledTimes(1);
       expect(pdf.createWhiteboardPdf).toHaveBeenCalledWith({
-        authorName: '@user-id',
+        authorName: '@user-id:example.com',
         roomName: 'NeoBoard',
         widgetApi: widgetApi,
         whiteboardInstance: whiteboardManager.getActiveWhiteboardInstance(),

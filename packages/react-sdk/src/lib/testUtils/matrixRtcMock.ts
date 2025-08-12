@@ -136,7 +136,7 @@ export function mockWhiteboardMembership(
   {
     content = {},
     state_key = '_@user-id_DEVICEID',
-    sender = '@user-id',
+    sender = '@user-id:example.com',
     origin_server_ts = 0,
   }: {
     content?: RTCSessionEventContent | Partial<RTCSessionEventContent>;
@@ -173,6 +173,6 @@ export function mockWhiteboardMembership(
     state_key,
     origin_server_ts,
     event_id: '$event-id-0',
-    room_id: '!room-id',
+    room_id: '!room-id:example.com',
   };
 }

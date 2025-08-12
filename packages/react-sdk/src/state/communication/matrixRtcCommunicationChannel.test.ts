@@ -59,7 +59,7 @@ let widgetApi: MockedWidgetApi;
 beforeEach(() => {
   widgetApi = mockWidgetApi();
   // @ts-ignore forcefully set for tests
-  widgetApi.widgetParameters.userId = '@user-id';
+  widgetApi.widgetParameters.userId = '@user-id:example.com';
   // @ts-ignore forcefully set for tests
   widgetApi.widgetParameters.deviceId = 'DEVICEID';
 });
@@ -198,14 +198,14 @@ describe('MatrixRtcCommunicationChannel', () => {
       type: 'example_type',
       content: { key: 'value' },
       senderSessionId: 'another-session-id',
-      senderUserId: '@another-user-id',
+      senderUserId: '@another-user-id:example.com',
     });
 
     await expect(messagesPromise).resolves.toEqual({
       type: 'example_type',
       content: { key: 'value' },
       senderSessionId: 'another-session-id',
-      senderUserId: '@another-user-id',
+      senderUserId: '@another-user-id:example.com',
     });
   });
 

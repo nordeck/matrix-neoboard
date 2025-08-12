@@ -89,7 +89,7 @@ describe('WhiteboardInstanceImpl', () => {
       synchronizedDocument,
       communicationChannel,
       mockWhiteboard(),
-      '@user-id',
+      '@user-id:example.com',
     );
 
     expect(whiteboardInstance.getSlide(slide0)).toBeInstanceOf(
@@ -102,7 +102,7 @@ describe('WhiteboardInstanceImpl', () => {
       synchronizedDocument,
       communicationChannel,
       mockWhiteboard(),
-      '@user-id',
+      '@user-id:example.com',
     );
 
     expect(whiteboardInstance.getWhiteboardId()).toBe('$event-id-0');
@@ -113,7 +113,7 @@ describe('WhiteboardInstanceImpl', () => {
       synchronizedDocument,
       communicationChannel,
       mockWhiteboard(),
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const [changeFn, slideId] = generateAddSlide();
@@ -129,7 +129,7 @@ describe('WhiteboardInstanceImpl', () => {
       synchronizedDocument,
       communicationChannel,
       mockWhiteboard(),
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const destroySlideSpy = vi.spyOn(
@@ -151,7 +151,7 @@ describe('WhiteboardInstanceImpl', () => {
       synchronizedDocument,
       communicationChannel,
       mockWhiteboard(),
-      '@user-id',
+      '@user-id:example.com',
     );
 
     expect(whiteboardInstance.getWhiteboardStatistics()).toEqual({
@@ -194,7 +194,7 @@ describe('WhiteboardInstanceImpl', () => {
       synchronizedDocument,
       communicationChannel,
       mockWhiteboard(),
-      '@user-id',
+      '@user-id:example.com',
     );
 
     expect(whiteboardInstance.getWhiteboardStatistics()).toEqual({
@@ -224,7 +224,7 @@ describe('WhiteboardInstanceImpl', () => {
       synchronizedDocument,
       communicationChannel,
       mockWhiteboard(),
-      '@user-id',
+      '@user-id:example.com',
     );
 
     expect(whiteboardInstance.isLoading()).toBe(true);
@@ -244,7 +244,7 @@ describe('WhiteboardInstanceImpl', () => {
       synchronizedDocument,
       communicationChannel,
       mockWhiteboard(),
-      '@user-id',
+      '@user-id:example.com',
     );
 
     // initially, the whiteboard is initiated with the initial slide
@@ -275,7 +275,7 @@ describe('WhiteboardInstanceImpl', () => {
       synchronizedDocument,
       communicationChannel,
       mockWhiteboard(),
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const slide1 = whiteboardInstance.addSlide();
@@ -288,7 +288,7 @@ describe('WhiteboardInstanceImpl', () => {
       synchronizedDocument,
       communicationChannel,
       mockWhiteboard(),
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const slide1 = whiteboardInstance.addSlide();
@@ -302,7 +302,7 @@ describe('WhiteboardInstanceImpl', () => {
       synchronizedDocument,
       communicationChannel,
       mockWhiteboard(),
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const slide1 = whiteboardInstance.addSlide();
@@ -324,7 +324,7 @@ describe('WhiteboardInstanceImpl', () => {
       synchronizedDocument,
       communicationChannel,
       mockWhiteboard(),
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const slide1 = whiteboardInstance.duplicateSlide(slide0);
@@ -337,7 +337,7 @@ describe('WhiteboardInstanceImpl', () => {
       synchronizedDocument,
       communicationChannel,
       mockWhiteboard(),
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const slide1 = whiteboardInstance.addSlide();
@@ -355,7 +355,7 @@ describe('WhiteboardInstanceImpl', () => {
       synchronizedDocument,
       communicationChannel,
       mockWhiteboard(),
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const slide1 = whiteboardInstance.addSlide();
@@ -379,7 +379,7 @@ describe('WhiteboardInstanceImpl', () => {
       synchronizedDocument,
       communicationChannel,
       mockWhiteboard(),
-      '@user-id',
+      '@user-id:example.com',
     );
 
     whiteboardInstance.focusOn(slide0);
@@ -395,7 +395,7 @@ describe('WhiteboardInstanceImpl', () => {
       synchronizedDocument,
       communicationChannel,
       mockWhiteboard(),
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const slide1 = whiteboardInstance.addSlide();
@@ -404,7 +404,7 @@ describe('WhiteboardInstanceImpl', () => {
       type: 'net.nordeck.whiteboard.focus_on',
       content: { slideId: slide1 },
       senderSessionId: 'session-id',
-      senderUserId: '@another-user-id',
+      senderUserId: '@another-user-id:example.com',
     });
 
     expect(whiteboardInstance.getActiveSlideId()).toBe(slide1);
@@ -415,7 +415,7 @@ describe('WhiteboardInstanceImpl', () => {
       synchronizedDocument,
       communicationChannel,
       mockWhiteboard(),
-      '@user-id',
+      '@user-id:example.com',
     );
 
     expect(() => whiteboardInstance.getSlide('not-exists')).toThrow(
@@ -428,7 +428,7 @@ describe('WhiteboardInstanceImpl', () => {
       synchronizedDocument,
       communicationChannel,
       mockWhiteboard(),
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const slideIds = firstValueFrom(
@@ -445,7 +445,7 @@ describe('WhiteboardInstanceImpl', () => {
       synchronizedDocument,
       communicationChannel,
       mockWhiteboard(),
-      '@user-id',
+      '@user-id:example.com',
     );
 
     expect(whiteboardInstance.getActiveSlideId()).toEqual(slide0);
@@ -456,7 +456,7 @@ describe('WhiteboardInstanceImpl', () => {
       synchronizedDocument,
       communicationChannel,
       mockWhiteboard(),
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const observedActiveSlides = firstValueFrom(
@@ -475,7 +475,7 @@ describe('WhiteboardInstanceImpl', () => {
       synchronizedDocument,
       communicationChannel,
       mockWhiteboard(),
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const observedActiveSlides = firstValueFrom(
@@ -495,7 +495,7 @@ describe('WhiteboardInstanceImpl', () => {
       synchronizedDocument,
       communicationChannel,
       mockWhiteboard(),
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const slide1 = whiteboardInstance.addSlide();
@@ -515,7 +515,7 @@ describe('WhiteboardInstanceImpl', () => {
       synchronizedDocument,
       communicationChannel,
       mockWhiteboard(),
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const slideInstance = whiteboardInstance.getSlide(slide0);
@@ -534,7 +534,7 @@ describe('WhiteboardInstanceImpl', () => {
       synchronizedDocument,
       communicationChannel,
       mockWhiteboard(),
-      '@user-id',
+      '@user-id:example.com',
     );
 
     // prepare a new slide
@@ -583,7 +583,7 @@ describe('WhiteboardInstanceImpl', () => {
       synchronizedDocument,
       communicationChannel,
       mockWhiteboard(),
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const undoRedoStates = firstValueFrom(
@@ -612,7 +612,7 @@ describe('WhiteboardInstanceImpl', () => {
       synchronizedDocument,
       communicationChannel,
       mockWhiteboard(),
-      '@user-id',
+      '@user-id:example.com',
     );
 
     const statistics = firstValueFrom(

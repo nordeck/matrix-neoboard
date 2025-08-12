@@ -41,9 +41,9 @@ describe('ToDeviceMessageSignalingChannel', () => {
 
     it('should send candidate', async () => {
       await channel.sendCandidates(
-        '@peer-user-id',
-        '@peer-session-id',
-        '@connection-id',
+        '@peer-user-id:example.com',
+        '@peer-session-id:example.com',
+        '@connection-id:example.com',
         [
           new RTCIceCandidate({
             candidate:
@@ -67,9 +67,9 @@ describe('ToDeviceMessageSignalingChannel', () => {
         'net.nordeck.whiteboard.connection_signaling',
         false,
         {
-          '@peer-user-id': {
+          '@peer-user-id:example.com': {
             '*': mockConnectionSignalingCandidates({
-              sessionId: '@peer-session-id',
+              sessionId: '@peer-session-id:example.com',
             }).content,
           },
         },
@@ -78,9 +78,9 @@ describe('ToDeviceMessageSignalingChannel', () => {
 
     it('should send description', async () => {
       await channel.sendDescription(
-        '@peer-user-id',
-        '@peer-session-id',
-        '@connection-id',
+        '@peer-user-id:example.com',
+        '@peer-session-id:example.com',
+        '@connection-id:example.com',
         new RTCSessionDescription({
           type: 'offer',
           sdp: 'sdp',
@@ -91,9 +91,9 @@ describe('ToDeviceMessageSignalingChannel', () => {
         'net.nordeck.whiteboard.connection_signaling',
         false,
         {
-          '@peer-user-id': {
+          '@peer-user-id:example.com': {
             '*': mockConnectionSignalingDescription({
-              sessionId: '@peer-session-id',
+              sessionId: '@peer-session-id:example.com',
             }).content,
           },
         },
@@ -103,9 +103,9 @@ describe('ToDeviceMessageSignalingChannel', () => {
     it('should receive candidates', async () => {
       const signalingPromise = firstValueFrom(
         channel.observeSignaling(
-          '@peer-user-id',
-          '@session-id',
-          '@connection-id',
+          '@peer-user-id:example.com',
+          '@session-id:example.com',
+          '@connection-id:example.com',
         ),
       );
 
@@ -136,9 +136,9 @@ describe('ToDeviceMessageSignalingChannel', () => {
     it('should receive description', async () => {
       const signalingPromise = firstValueFrom(
         channel.observeSignaling(
-          '@peer-user-id',
-          '@session-id',
-          '@connection-id',
+          '@peer-user-id:example.com',
+          '@session-id:example.com',
+          '@connection-id:example.com',
         ),
       );
 
@@ -156,9 +156,9 @@ describe('ToDeviceMessageSignalingChannel', () => {
       await expect(
         firstValueFrom(
           channel.observeSignaling(
-            '@peer-user-id',
-            '@session-id',
-            '@connection-id',
+            '@peer-user-id:example.com',
+            '@session-id:example.com',
+            '@connection-id:example.com',
           ),
         ),
       ).resolves.toEqual({
@@ -170,23 +170,25 @@ describe('ToDeviceMessageSignalingChannel', () => {
     it('should ignore unrelated signaling messages', async () => {
       const signalingPromise = firstValueFrom(
         channel.observeSignaling(
-          '@peer-user-id',
-          '@session-id',
-          '@connection-id',
+          '@peer-user-id:example.com',
+          '@session-id:example.com',
+          '@connection-id:example.com',
         ),
       );
 
       widgetApi.mockSendToDeviceMessage(
-        mockConnectionSignalingDescription({ sender: '@another-user-id' }),
-      );
-      widgetApi.mockSendToDeviceMessage(
         mockConnectionSignalingDescription({
-          sessionId: '@another-session-id',
+          sender: '@another-user-id:example.com',
         }),
       );
       widgetApi.mockSendToDeviceMessage(
         mockConnectionSignalingDescription({
-          connectionId: '@another-connection-id',
+          sessionId: '@another-session-id:example.com',
+        }),
+      );
+      widgetApi.mockSendToDeviceMessage(
+        mockConnectionSignalingDescription({
+          connectionId: '@another-connection-id:example.com',
         }),
       );
       widgetApi.mockSendToDeviceMessage(mockConnectionSignalingDescription());
@@ -200,9 +202,9 @@ describe('ToDeviceMessageSignalingChannel', () => {
     it('should ignore invalid signaling messages', async () => {
       const signalingPromise = firstValueFrom(
         channel.observeSignaling(
-          '@peer-user-id',
-          '@session-id',
-          '@connection-id',
+          '@peer-user-id:example.com',
+          '@session-id:example.com',
+          '@connection-id:example.com',
         ),
       );
 
@@ -225,7 +227,11 @@ describe('ToDeviceMessageSignalingChannel', () => {
     it('should close observables', async () => {
       const signalingPromise = firstValueFrom(
         channel
-          .observeSignaling('@peer-user-id', '@session-id', '@connection-id')
+          .observeSignaling(
+            '@peer-user-id:example.com',
+            '@session-id:example.com',
+            '@connection-id:example.com',
+          )
           .pipe(toArray()),
       );
 
@@ -244,9 +250,9 @@ describe('ToDeviceMessageSignalingChannel', () => {
 
     it('should send encrypted messages if encryption is active', async () => {
       await channel.sendDescription(
-        '@peer-user-id',
-        '@peer-session-id',
-        '@connection-id',
+        '@peer-user-id:example.com',
+        '@peer-session-id:example.com',
+        '@connection-id:example.com',
         new RTCSessionDescription({
           type: 'offer',
           sdp: 'sdp',
@@ -254,14 +260,14 @@ describe('ToDeviceMessageSignalingChannel', () => {
       );
 
       const { content, type } = mockConnectionSignalingDescription({
-        sessionId: '@peer-session-id',
+        sessionId: '@peer-session-id:example.com',
       });
 
       expect(widgetApi.sendToDeviceMessage).toHaveBeenCalledWith(
         'net.nordeck.whiteboard.connection_signaling',
         true,
         {
-          '@peer-user-id': {
+          '@peer-user-id:example.com': {
             '*': { content, type },
           },
         },
@@ -271,9 +277,9 @@ describe('ToDeviceMessageSignalingChannel', () => {
     it('should only receive encrypted messages if encryption is active', async () => {
       const signalingPromise = firstValueFrom(
         channel.observeSignaling(
-          '@peer-user-id',
-          '@session-id',
-          '@connection-id',
+          '@peer-user-id:example.com',
+          '@session-id:example.com',
+          '@connection-id:example.com',
         ),
       );
 
