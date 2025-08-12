@@ -19,6 +19,7 @@ import {
   RoomEvent,
   RoomMemberStateEventContent,
   StateEvent,
+  StateEventCreateContent,
   ToDeviceMessageEvent,
 } from '@matrix-widget-toolkit/api';
 import {
@@ -93,6 +94,54 @@ export function mockPowerLevelsEvent({
     origin_server_ts: 0,
     event_id: '$event-id-0',
     room_id: '!room-id:example.com',
+  };
+}
+
+/**
+ * Create a room version 11 create event with known test data.
+ *
+ * @remarks Only use for tests
+ */
+export function mockRoomVersion11CreateEvent({
+  content = {},
+}: {
+  content?: Partial<StateEventCreateContent>;
+} = {}): StateEvent<StateEventCreateContent> {
+  return {
+    type: 'm.room.create',
+    sender: '@user-id:example.com',
+    content: {
+      room_version: '11',
+      ...content,
+    },
+    state_key: '',
+    origin_server_ts: 0,
+    event_id: '$event-id-0',
+    room_id: '!room-id:example.com',
+  };
+}
+
+/**
+ * Create a room version 12 create event with known test data.
+ *
+ * @remarks Only use for tests
+ */
+export function mockRoomVersion12CreateEvent({
+  content = {},
+}: {
+  content?: Partial<StateEventCreateContent>;
+} = {}): StateEvent<StateEventCreateContent> {
+  return {
+    type: 'm.room.create',
+    sender: '@user-id:example.com',
+    content: {
+      room_version: '12',
+      ...content,
+    },
+    state_key: '',
+    origin_server_ts: 0,
+    event_id: '$event-id-0',
+    room_id: '!room-id',
   };
 }
 

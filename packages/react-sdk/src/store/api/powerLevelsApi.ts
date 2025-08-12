@@ -119,7 +119,7 @@ export const powerLevelsApi = baseApi.injectEndpoints({
           return {
             error: {
               name: 'LoadFailed',
-              message: `Could not load power levels: ${
+              message: `Could not load create event: ${
                 isError(e) ? e.message : e
               }`,
             },
