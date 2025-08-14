@@ -155,7 +155,8 @@ export const useWheelZoom = (
       const isZoom =
         event.ctrlKey ||
         event.metaKey ||
-        (event.deltaX < 1 &&
+        (event.deltaY !== 0 &&
+          event.deltaX < 1 &&
           // This is for mouse wheel zooming - on Linux, the deltas are large values
           // 120 is the delta reported by Chrome
           // 138 is the delta reported by Firefox
@@ -175,7 +176,8 @@ export const useWheelZoom = (
           },
           svgRef.current,
         );
-        const wheelZoomStep = zoomStep * scale;
+        // Increase stepping for Linux browsers
+        const wheelZoomStep = zoomStep * scale * 2;
         updateScale(
           event.deltaY < 0 ? wheelZoomStep : -wheelZoomStep,
           zoomOriginOnCanvas,
