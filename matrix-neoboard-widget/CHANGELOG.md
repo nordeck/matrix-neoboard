@@ -1,5 +1,11 @@
 # @nordeck/matrix-neoboard-widget
 
+## 2.3.1
+
+### Patch Changes
+
+- ddcebb7: Ensure we request the capability to get m.room.create events
+
 ## 2.3.0
 
 ### Minor Changes
