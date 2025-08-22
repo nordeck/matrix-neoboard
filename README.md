@@ -206,6 +206,10 @@ The widget room can be upgraded.
 Before the upgrade it is strongly recommended to download any whiteboard data by exporting it as NeoBoard file (.nwb).
 After the upgrade, the NeoBoard widget needs to be configured in the new room and .nwb file can be imported.
 
+If you are using the widget as part of [NeoDateFix](https://github.com/nordeck/matrix-meetings), then
+please refer to it's [documentation](https://github.com/nordeck/matrix-meetings/blob/main/README.md#matrix-room-upgrades)
+about room upgrades.
+
 ## License
 
 This project is licensed under [APACHE 2.0](./LICENSE).
