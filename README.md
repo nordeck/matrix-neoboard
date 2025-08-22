@@ -210,6 +210,8 @@ If you are using the widget as part of [NeoDateFix](https://github.com/nordeck/m
 please refer to its [documentation](https://github.com/nordeck/matrix-meetings/blob/main/README.md#matrix-room-upgrades)
 about room upgrades.
 
+Matrix room version 12 is supported from NeoBoard version [2.3.1](https://github.com/nordeck/matrix-neoboard/releases/tag/%40nordeck%2Fmatrix-neoboard-widget%402.3.1).
+
 ## License
 
 This project is licensed under [APACHE 2.0](./LICENSE).
