@@ -200,7 +200,7 @@ cosign verify \
 ghcr.io/nordeck/matrix-neoboard-widget:<version> | jq
 ```
 
-### Matrix Room Upgrades
+## Matrix Room Upgrades
 
 The widget room can be [upgraded](https://matrix.org/docs/communities/administration/#room-upgrades).
 Before the upgrade, it is strongly recommended to download any whiteboard data by exporting it as NeoBoard file (.nwb).
