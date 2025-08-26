@@ -17,3 +17,11 @@
 export function isMacOS() {
   return /mac os/i.test(window.navigator.userAgent);
 }
+
+export function isMacOSSafari() {
+  return (
+    /mac os/i.test(window.navigator.userAgent) &&
+    /safari/i.test(window.navigator.userAgent) &&
+    !/chrome/i.test(window.navigator.userAgent)
+  );
+}
