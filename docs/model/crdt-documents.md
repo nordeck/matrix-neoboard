@@ -144,6 +144,7 @@ An Element that has a shape attached, that has a text and a fill color.
 | `textSize`       | `number \| undefined`                                                                              | Font size of the text in CSS pixel unit, `undefined` for auto text size.   |
 | `textFontFamily` | `'Inter' \| 'Abel' \| 'Actor' \| 'Adamina' \| 'Chewy' \| 'Gwendolyn' \| 'Pirata One' \| undefined` | The font family of the text. Defaults to `"Inter"`.                        |
 | `connectedPaths` | `string[] \| undefined`                                                                            | The IDs of connected path elements. Currently only lines can be connected. |
+| `attachedFrame`  | `string \| undefined`                                                                              | The ID of the frame this element is attached to.                           |
 
 #### Example
 
@@ -176,6 +177,7 @@ An element that consists of points.
 | `endMarker`             | `'arrow-head-line' \| undefined` | An optional marker for the end of a path.                                                       |
 | `connectedElementStart` | `string \| undefined`            | The ID of connected element on the first point. Currently shapes can be connected.              |
 | `connectedElementEnd`   | `string \| undefined`            | The ID of connected element on the last point. Currently shapes can be connected.               |
+| `attachedFrame`         | `string \| undefined`            | The ID of the frame this element is attached to.                                                |
 
 #### Example
 
@@ -246,15 +248,16 @@ An image element
 
 #### Fields
 
-| Field      | Type                                                            | Description                                                                                                                      |
-| ---------- | --------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| `type`     | `'image'`                                                       | Identifies the element as an image.                                                                                              |
-| `mxc`      | `string`                                                        | [MXC URI](https://spec.matrix.org/v1.9/client-server-api/#matrix-content-mxc-uris) pointing to the image.                        |
-| `fileName` | `string`                                                        | Image file name.                                                                                                                 |
-| `mimeType` | `'image/gif' \| 'image/jpeg' \| 'image/png' \| 'image/svg+xml'` | Supported image mime type. (Deprecated. We only have this field for backwards compatibility in the model. It isnt used anymore.) |
-| `position` | `Point`                                                         | The position of the image on the whiteboard canvas.                                                                              |
-| `width`    | `number`                                                        | Scaling of the image on the x-axis.                                                                                              |
-| `height`   | `number`                                                        | Scaling of the image on the y-axis.                                                                                              |
+| Field           | Type                                                            | Description                                                                                                                      |
+| --------------- | --------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `type`          | `'image'`                                                       | Identifies the element as an image.                                                                                              |
+| `mxc`           | `string`                                                        | [MXC URI](https://spec.matrix.org/v1.9/client-server-api/#matrix-content-mxc-uris) pointing to the image.                        |
+| `fileName`      | `string`                                                        | Image file name.                                                                                                                 |
+| `mimeType`      | `'image/gif' \| 'image/jpeg' \| 'image/png' \| 'image/svg+xml'` | Supported image mime type. (Deprecated. We only have this field for backwards compatibility in the model. It isnt used anymore.) |
+| `position`      | `Point`                                                         | The position of the image on the whiteboard canvas.                                                                              |
+| `width`         | `number`                                                        | Scaling of the image on the x-axis.                                                                                              |
+| `height`        | `number`                                                        | Scaling of the image on the y-axis.                                                                                              |
+| `attachedFrame` | `string \| undefined`                                           | The ID of the frame this element is attached to.                                                                                 |
 
 #### Example
 
@@ -277,12 +280,13 @@ A frame element is used to group elements and run structured presentations.
 
 #### Fields
 
-| Field      | Type      | Description                                           |
-| ---------- | --------- | ----------------------------------------------------- |
-| `type`     | `'frame'` | Identifies the element as a frame.                    |
-| `position` | `Point`   | The position of the element on the whiteboard canvas. |
-| `width`    | `number`  | Scaling of the element on the x-axis.                 |
-| `height`   | `number`  | Scaling of the element on the y-axis.                 |
+| Field              | Type                    | Description                                           |
+| ------------------ | ----------------------- | ----------------------------------------------------- |
+| `type`             | `'frame'`               | Identifies the element as a frame.                    |
+| `position`         | `Point`                 | The position of the element on the whiteboard canvas. |
+| `width`            | `number`                | Scaling of the element on the x-axis.                 |
+| `height`           | `number`                | Scaling of the element on the y-axis.                 |
+| `attachedElements` | `string[] \| undefined` | The IDs of the elements attached to this frame.       |
 
 #### Example
 
@@ -294,6 +298,41 @@ A frame element is used to group elements and run structured presentations.
   "height": 200
 }
 ```
+
+### Attached elements
+
+Elements can be attached to frames through various operations, such as moving, resizing the frame, pasting and dragging and dropping elements onto frames. Frames cannot be attached to other frames.
+
+Frames apply changes to their attached elements when a frame is moved or resized or in the case of other operations.
+
+Rectangle shape with id: `E8LVfJCoYubKA-x2cuc0n` that is attached to the frame:
+
+```json
+{
+  "type": "shape",
+  "kind": "rectangle",
+  "position": { "x": 100, "y": 100 },
+  "fillColor": "#ffffff",
+  "height": 200,
+  "width": 200,
+  "text": "Hello World",
+  "attachedFrame": "jmU4s3M4aysDWiSVKAXI2"
+}
+```
+
+Frame element with id `jmU4s3M4aysDWiSVKAXI2` that has shape attached:
+
+```json
+{
+  "type": "frame",
+  "position": { "x": 50, "y": 100 },
+  "width": 100,
+  "height": 200,
+  "attachedElements": ["E8LVfJCoYubKA-x2cuc0n"]
+}
+```
+
+The attached elements and frames have their IDs exported and are used during the import.
 
 ### `Point`
 

@@ -18,6 +18,8 @@ export {
   calculateBoundingRectForElements,
   calculateFittedElementSize,
   clampElementPosition,
+  copyElementWithAttachedFrame,
+  findFrameToAttach,
   includesShapeWithText,
   includesTextShape,
   isShapeElementPair,
@@ -62,8 +64,12 @@ export {
   getSlideLock,
 } from './operations';
 export type { UpdateElementPatch } from './operations';
-export { calculateBoundingRectForPoints, pointSchema } from './point';
-export type { Point } from './point';
+export {
+  calculateBoundingRectForPoints,
+  isPointWithinBoundingRect,
+  pointSchema,
+} from './point';
+export type { BoundingRect, Point } from './point';
 export {
   createWhiteboardDocument,
   isValidWhiteboardDocument,

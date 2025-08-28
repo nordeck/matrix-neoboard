@@ -21,6 +21,7 @@ import { Fragment, PropsWithChildren, useState } from 'react';
 import { Provider } from 'react-redux';
 import { BehaviorSubject, NEVER, Subject, of } from 'rxjs';
 import { Mocked, vi } from 'vitest';
+import { ElementAttachFrameProvider } from '../../components/ElementAttachFrameProvider';
 import { SvgScaleContextProvider } from '../../components/Whiteboard/SvgScaleContext';
 import {
   Element,
@@ -203,7 +204,11 @@ export function WhiteboardTestingContextProvider({
       <WidgetApiMockProvider value={widgetApi}>
         <Provider store={store}>
           <WhiteboardManagerProvider whiteboardManager={whiteboardManager}>
-            <ProvideActiveSlide>{children}</ProvideActiveSlide>
+            <ProvideActiveSlide>
+              <ElementAttachFrameProvider>
+                {children}
+              </ElementAttachFrameProvider>
+            </ProvideActiveSlide>
           </WhiteboardManagerProvider>
         </Provider>
       </WidgetApiMockProvider>

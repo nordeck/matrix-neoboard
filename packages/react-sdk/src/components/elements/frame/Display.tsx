@@ -25,11 +25,12 @@ import {
 
 type DisplayProps = FrameElement & WithExtendedSelectionProps;
 
-export const Display: React.FC<DisplayProps> = ({
+const FrameDisplay: React.FC<DisplayProps> = ({
   elementId,
   active,
   readOnly,
-  overrides = {},
+  elements = {},
+  frameHasElementMoved = false,
   ...frameProps
 }) => {
   const theme = useTheme();
@@ -39,9 +40,13 @@ export const Display: React.FC<DisplayProps> = ({
       <rect
         x={frameProps.position.x}
         y={frameProps.position.y}
-        fill={theme.palette.common.white}
+        fill={theme.palette.common.white} //TODO: MA maybe fill transparent
         height={frameProps.height}
-        stroke={theme.palette.divider}
+        stroke={
+          frameHasElementMoved
+            ? theme.palette.primary.main
+            : theme.palette.divider
+        }
         strokeWidth="2"
         width={frameProps.width}
       />
@@ -58,11 +63,11 @@ export const Display: React.FC<DisplayProps> = ({
       readOnly={readOnly}
       elementId={elementId}
     >
-      <MoveableElement elementId={elementId} overrides={overrides}>
+      <MoveableElement elementId={elementId} elements={elements}>
         {renderedChild}
       </MoveableElement>
     </SelectableElement>
   );
 };
 
-export default React.memo(Display);
+export default React.memo(FrameDisplay);
