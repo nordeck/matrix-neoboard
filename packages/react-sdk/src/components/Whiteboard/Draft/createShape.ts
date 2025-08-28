@@ -16,6 +16,9 @@
 
 import {
   calculateBoundingRectForPoints,
+  copyElementWithAttachedFrame,
+  Elements,
+  FrameElement,
   PathElement,
   PathKind,
   Point,
@@ -34,6 +37,7 @@ export function createShape({
   startCoords,
   endCoords,
   fillColor,
+  frameElements = {},
   gridCellSize,
   sameLength = false,
   rounded = false,
@@ -46,6 +50,7 @@ export function createShape({
   startCoords: Point;
   endCoords: Point;
   fillColor: string;
+  frameElements?: Elements<FrameElement>;
   gridCellSize?: number;
   sameLength?: boolean;
   rounded?: boolean;
@@ -108,7 +113,7 @@ export function createShape({
   width = Math.max(width, 1);
   height = Math.max(height, 1);
 
-  return {
+  const shapeElement: ShapeElement = {
     fillColor,
     height,
     position: { x, y },
@@ -122,12 +127,15 @@ export function createShape({
     textSize,
     borderRadius: rounded ? 20 : undefined,
   };
+
+  return copyElementWithAttachedFrame(shapeElement, frameElements);
 }
 
 export function createShapeFromPoints({
   kind,
   cursorPoints,
   strokeColor,
+  frameElements = {},
   gridCellSize,
   onlyStartAndEndPoints = false,
   startMarker,
@@ -138,6 +146,7 @@ export function createShapeFromPoints({
   kind: PathKind;
   cursorPoints: Point[];
   strokeColor: string;
+  frameElements?: Elements<FrameElement>;
   gridCellSize?: number;
   onlyStartAndEndPoints?: boolean;
   startMarker?: LineMarker;
@@ -160,7 +169,7 @@ export function createShapeFromPoints({
     : cursorPoints;
   const { offsetX, offsetY } = calculateBoundingRectForPoints(points);
 
-  return {
+  const pathElement: PathElement = {
     position: { x: offsetX, y: offsetY },
     type: 'path',
     kind,
@@ -174,4 +183,6 @@ export function createShapeFromPoints({
     connectedElementStart,
     connectedElementEnd,
   };
+
+  return copyElementWithAttachedFrame(pathElement, frameElements);
 }

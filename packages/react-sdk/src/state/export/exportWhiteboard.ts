@@ -81,19 +81,30 @@ function getExportElements(elements: [string, Element][]): ElementExport[] {
   const elementIdSet = new Set<string>();
 
   for (const [_, element] of elements) {
-    let ids: string[] | undefined;
+    const ids: string[] = [];
+    // Export the ids of the connected elements
     if (element.type === 'shape' && element.connectedPaths) {
-      ids = element.connectedPaths;
+      ids.push(...element.connectedPaths);
     } else if (element.type === 'path') {
-      ids = [element.connectedElementStart, element.connectedElementEnd].filter(
-        (v) => v !== undefined,
-      );
+      if (element.connectedElementStart) {
+        ids.push(element.connectedElementStart);
+      }
+      if (element.connectedElementEnd) {
+        ids.push(element.connectedElementEnd);
+      }
     }
 
-    if (ids) {
-      for (const id of ids) {
-        elementIdSet.add(id);
+    // Export the ids of the frames and attached elements
+    if (element.type === 'frame') {
+      if (element.attachedElements) {
+        ids.push(...element.attachedElements);
       }
+    } else if (element.attachedFrame) {
+      ids.push(element.attachedFrame);
+    }
+
+    for (const id of ids) {
+      elementIdSet.add(id);
     }
   }
 

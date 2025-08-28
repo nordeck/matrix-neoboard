@@ -55,6 +55,7 @@ export {
 export {
   disconnectPathElement,
   disconnectShapeElement,
+  findActiveAndAttachedElementIds,
   findConnectingPaths,
 } from './utils';
 export { createWhiteboardManager } from './whiteboardManagerImpl';

@@ -31,7 +31,7 @@ import {
   mockFrameElement,
   mockImageElement,
   mockWhiteboardManager,
-} from '../../../lib/testUtils/documentTestUtils';
+} from '../../../lib/testUtils';
 import { LayoutStateProvider } from '../../Layout';
 import { SlidesProvider } from '../../Layout/SlidesProvider';
 import { SvgCanvas } from '../SvgCanvas';
@@ -93,7 +93,7 @@ describe('<ConnectedElement />', () => {
       <ConnectedElement
         id="element-0"
         activeElementIds={['element-0']}
-        overrides={{}}
+        elements={{}}
       />,
       { wrapper: Wrapper },
     );
@@ -109,7 +109,7 @@ describe('<ConnectedElement />', () => {
       <ConnectedElement
         id="element-0"
         activeElementIds={['element-0']}
-        overrides={{}}
+        elements={{}}
       />,
       { wrapper: Wrapper },
     );
