@@ -15,6 +15,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
+import { mockFrameElement } from '../../../lib/testUtils';
 import { stickyColor, stickySize } from '../constants';
 import { createShape, createShapeFromPoints } from './createShape';
 
@@ -38,6 +39,33 @@ describe('createShape', () => {
       fillColor: '#ffffff',
       textColor: '#ff0000',
       textFontFamily: 'Inter',
+    });
+  });
+
+  it('should create shape and attach to the frame', () => {
+    const result = createShape({
+      kind: 'rectangle',
+      startCoords: { x: 10, y: 20 },
+      endCoords: { x: 30, y: 40 },
+      frameElements: {
+        'frame-id-0': mockFrameElement(),
+        'frame-id-1': mockFrameElement({ position: { x: 100, y: 100 } }),
+      },
+      fillColor: '#ffffff',
+      textColor: '#ff0000',
+      textFontFamily: 'Inter',
+    });
+    expect(result).toEqual({
+      width: 20,
+      height: 20,
+      position: { x: 10, y: 20 },
+      type: 'shape',
+      kind: 'rectangle',
+      text: '',
+      fillColor: '#ffffff',
+      textColor: '#ff0000',
+      textFontFamily: 'Inter',
+      attachedFrame: 'frame-id-0',
     });
   });
 
@@ -236,6 +264,35 @@ describe('createShapeFromPoints', () => {
       strokeColor: '#000000',
       type: 'path',
       kind: 'polyline',
+    });
+  });
+
+  it('should create line and attach to frame', () => {
+    const cursorPoints = [
+      { x: 10, y: 20 },
+      { x: 30, y: 40 },
+      { x: 50, y: 60 },
+    ];
+    const result = createShapeFromPoints({
+      kind: 'polyline',
+      cursorPoints,
+      strokeColor: '#000000',
+      frameElements: {
+        'frame-id-0': mockFrameElement(),
+        'frame-id-1': mockFrameElement({ position: { x: 100, y: 100 } }),
+      },
+    });
+    expect(result).toEqual({
+      points: [
+        { x: 0, y: 0 },
+        { x: 20, y: 20 },
+        { x: 40, y: 40 },
+      ],
+      position: { x: 10, y: 20 },
+      strokeColor: '#000000',
+      type: 'path',
+      kind: 'polyline',
+      attachedFrame: 'frame-id-0',
     });
   });
 

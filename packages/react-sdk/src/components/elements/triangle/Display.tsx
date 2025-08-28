@@ -23,6 +23,7 @@ import {
   TextElement,
   WithExtendedSelectionProps,
 } from '../../Whiteboard';
+import { ElementFrameOverlay } from '../ElementFrameOverlay';
 import { getRenderProperties } from './getRenderProperties';
 
 export type TriangleElementProps = ShapeElement & WithExtendedSelectionProps;
@@ -32,7 +33,8 @@ const TriangleDisplay = ({
   active,
   elementId,
   activeElementIds = [],
-  overrides = {},
+  elements = {},
+  elementMovedHasFrame,
   ...shape
 }: TriangleElementProps) => {
   const {
@@ -84,9 +86,17 @@ const TriangleDisplay = ({
       readOnly={readOnly}
       elementId={elementId}
     >
-      <MoveableElement elementId={elementId} overrides={overrides}>
+      <MoveableElement elementId={elementId} elements={elements}>
         <ElementContextMenu activeElementIds={activeElementIds}>
           {renderedChild}
+          {elementMovedHasFrame && (
+            <ElementFrameOverlay
+              offsetX={shape.position.x}
+              offsetY={shape.position.y}
+              width={shape.width}
+              height={shape.height}
+            />
+          )}
         </ElementContextMenu>
       </MoveableElement>
     </SelectableElement>

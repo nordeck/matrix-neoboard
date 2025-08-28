@@ -23,6 +23,7 @@ import {
   TextElement,
   WithExtendedSelectionProps,
 } from '../../Whiteboard';
+import { ElementFrameOverlay } from '../ElementFrameOverlay';
 import { getRenderProperties } from './getRenderProperties';
 
 export type RectangleElementProps = ShapeElement &
@@ -35,7 +36,8 @@ const RectangleDisplay = ({
   active,
   elementId,
   activeElementIds = [],
-  overrides = {},
+  elements = {},
+  elementMovedHasFrame,
   'data-testid': dataTestid,
   ...shape
 }: RectangleElementProps) => {
@@ -104,9 +106,17 @@ const RectangleDisplay = ({
       readOnly={readOnly}
       elementId={elementId}
     >
-      <MoveableElement elementId={elementId} overrides={overrides}>
+      <MoveableElement elementId={elementId} elements={elements}>
         <ElementContextMenu activeElementIds={activeElementIds}>
           {renderedChild}
+          {elementMovedHasFrame && (
+            <ElementFrameOverlay
+              offsetX={shape.position.x}
+              offsetY={shape.position.y}
+              width={shape.width}
+              height={shape.height}
+            />
+          )}
         </ElementContextMenu>
       </MoveableElement>
     </SelectableElement>

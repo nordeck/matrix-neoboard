@@ -51,3 +51,15 @@ export function calculateBoundingRectForPoints(points: Point[]): BoundingRect {
     height: maxY - minY,
   };
 }
+
+export function isPointWithinBoundingRect(
+  { x, y }: Point,
+  { offsetX, offsetY, width, height }: BoundingRect,
+): boolean {
+  return (
+    offsetX <= x &&
+    x <= offsetX + width &&
+    offsetY <= y &&
+    y <= offsetY + height
+  );
+}

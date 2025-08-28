@@ -27,6 +27,7 @@ import {
   SelectableElement,
   WithExtendedSelectionProps,
 } from '../../Whiteboard';
+import { ElementFrameOverlay } from '../ElementFrameOverlay';
 import { ImagePlaceholder } from './ImagePlaceholder';
 import { Skeleton } from './Skeleton';
 
@@ -61,7 +62,8 @@ function ImageDisplay({
   readOnly,
   elementId,
   activeElementIds = [],
-  overrides = {},
+  elements = {},
+  elementMovedHasFrame,
 }: ImageDisplayProps) {
   const widgetApi = useWidgetApi();
   const [loadError, setLoadError] = useState(false);
@@ -212,11 +214,19 @@ function ImageDisplay({
         readOnly={readOnly}
         elementId={elementId}
       >
-        <MoveableElement elementId={elementId} overrides={overrides}>
+        <MoveableElement elementId={elementId} elements={elements}>
           <ElementContextMenu activeElementIds={activeElementIds}>
             {renderedSkeleton}
             {renderedChild}
             {renderedPlaceholder}
+            {elementMovedHasFrame && (
+              <ElementFrameOverlay
+                offsetX={position.x}
+                offsetY={position.y}
+                width={width}
+                height={height}
+              />
+            )}
           </ElementContextMenu>
         </MoveableElement>
       </SelectableElement>

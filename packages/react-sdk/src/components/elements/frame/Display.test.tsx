@@ -62,7 +62,7 @@ describe('<FrameDisplay />', () => {
       <FrameDisplay
         elementId="element-0"
         activeElementIds={[]}
-        overrides={{}}
+        elements={{}}
         {...element}
         active={false}
         readOnly={false}

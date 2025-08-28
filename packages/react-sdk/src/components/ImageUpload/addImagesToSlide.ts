@@ -18,6 +18,7 @@ import { isInfiniteCanvasMode } from '../../lib';
 import {
   calculateFittedElementSize,
   clampElementPosition,
+  copyElementWithAttachedFrame,
   ImageElement,
   modifyElementPosition,
   Point,
@@ -105,5 +106,12 @@ export function addImagesToSlide(
       };
     });
   }
-  slide.addElements(images);
+  images = images.map((image) =>
+    copyElementWithAttachedFrame(image, slide.getFrameElements()),
+  );
+  // Group by index to pass with temporary ids
+  const imageElements = Object.fromEntries(
+    images.map((image, index) => [index, image]),
+  );
+  slide.addElementsWithRelations(imageElements);
 }

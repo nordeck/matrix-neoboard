@@ -172,3 +172,5 @@ class DOMMatrix {
 }
 
 Object.defineProperty(global.globalThis, 'DOMMatrix', { value: DOMMatrix });
+
+document.elementsFromPoint = vi.fn();

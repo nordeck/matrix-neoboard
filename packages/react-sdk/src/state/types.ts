@@ -22,8 +22,10 @@ import {
   Document,
   DocumentStatistics,
   Element,
+  FrameElement,
   PathElement,
   Point,
+  ShapeElement,
   UpdateElementPatch,
 } from './crdt';
 import { WhiteboardDocumentExport } from './export';
@@ -166,29 +168,40 @@ export type WhiteboardSlideInstance = {
   /** Unlock the slide. */
   unlockSlide(): void;
   /**
-   * Add a new element to the slide.
+   * Add a new element to the slide. All relations (connections, attachments) will be ignored.
    * @param element - the specification of the element.
    * @returns the ID of the created element.
    */
   addElement(element: Element): string;
   /**
-   * Add a path element and use it's connect start/end data to connect to existing shapes.
-   * @param element element to add
+   * Add a new shape element to the slide and attach the shape to a frame.
+   * @param element - the shape to be added. It can contain an attachment relation to the frame.
+   * @returns the ID of the created element.
    */
-  addPathElementAndConnect(element: PathElement): string;
+  addShapeElementAndAttach(element: ShapeElement): string;
   /**
-   * Add new elements to the slide. All connection data is ignored.
+   * Add a new path element to the slide and connect it to the shapes or attach it to the frame.
+   * @param element - the path element to be added. It can contain a connection relation to the shapes or an attachment relation to the frame, or both.
+   * @returns the ID of the created element.
+   */
+  addPathElementAndRelate(element: PathElement): string;
+  /**
+   * Add new elements to the slide. All relations (connections, attachments) will be ignored.
    * @param elements - the specification of the elements.
    * @returns the IDs of the created elements.
    */
   addElements(elements: Array<Element>): string[];
   /**
-   * Add new elements with connections data.
-   * Each element will get a new id in the document.
-   * Connection data (ids) for elements not included in the passed elements is ignored.
-   * @param elements
+   * Add new elements with relations.
+   * Each element will get a new id in the document. The ids in relations are then updated with the newly generated ids.
+   *
+   * Connections for elements not included in the passed elements are ignored.
+   * Attachments for elements can reference existing frames. These frames will be updated with attached elements.
+   *
+   * @param elements - elements with relations to be added
+   * @returns the IDs of the created elements, in the same order as the keys of passed elements.
    */
-  addElementsWithConnections(elements: Elements): string[];
+  addElementsWithRelations(elements: Elements): string[];
   /** Remove the elements by their IDs */
   removeElements(elementIds: string[]): void;
   /**
@@ -213,10 +226,14 @@ export type WhiteboardSlideInstance = {
   getElement(elementId: string): Element | undefined;
   /** Returns elements by ids. */
   getElements(elementIds: string[]): Elements;
+  /** Returns elements of type 'frame' */
+  getFrameElements(): Elements<FrameElement>;
   /** Observe the changes of an element. Emits undefined if the element is removed. */
   observeElement(elementId: string): Observable<Element | undefined>;
   /** Observe the changes of elements.*/
   observeElements(elementIds: string[]): Observable<Elements>;
+  /** Observe the changes in elements of type 'frame'.*/
+  observeFrameElements(): Observable<Elements<FrameElement>>;
   /** Returns the list of all element ids in the correct order from back to front. */
   getElementIds(): string[];
   /** Observe the element ids to react to changes */
@@ -262,7 +279,7 @@ export type WhiteboardSlideInstance = {
   sortElementIds(elementIds: string[]): string[];
 };
 
-export type Elements = Record<string, Element>;
+export type Elements<T extends Element = Element> = Record<string, T>;
 
 /**
  * A document that is stored in a persistent storage and is kept up-to-date via

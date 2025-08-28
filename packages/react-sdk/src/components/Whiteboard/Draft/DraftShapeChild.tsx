@@ -96,12 +96,13 @@ export const DraftShapeChild = ({
         scale,
       );
 
-      slideInstance.addElement(
+      slideInstance.addShapeElementAndAttach(
         createShape({
           kind,
           startCoords,
           endCoords,
           fillColor: fixedColor || fillColor,
+          frameElements: slideInstance.getFrameElements(),
           gridCellSize: isShowGrid ? gridCellSize : undefined,
           sameLength,
           rounded,
@@ -132,12 +133,13 @@ export const DraftShapeChild = ({
 
   const handleMouseUp = useCallback(() => {
     if (startCoords && endCoords) {
-      slideInstance.addElement(
+      slideInstance.addShapeElementAndAttach(
         createShape({
           kind,
           startCoords,
           endCoords,
           fillColor: fixedColor || fillColor,
+          frameElements: slideInstance.getFrameElements(),
           gridCellSize: isShowGrid ? gridCellSize : undefined,
           sameLength,
           rounded,

@@ -15,13 +15,14 @@
  */
 
 import React from 'react';
-import { PathElement } from '../../../state';
+import { calculateBoundingRectForPoints, PathElement } from '../../../state';
 import {
   ElementContextMenu,
   MoveableElement,
   SelectableElement,
   WithExtendedSelectionProps,
 } from '../../Whiteboard';
+import { ElementFrameOverlay } from '../ElementFrameOverlay';
 import { getRenderProperties } from './getRenderProperties';
 
 export type PolylineElementProps = PathElement & WithExtendedSelectionProps;
@@ -31,10 +32,12 @@ const PolylineDisplay = ({
   active,
   elementId,
   activeElementIds = [],
-  overrides = {},
+  elements = {},
+  elementMovedHasFrame,
   ...element
 }: PolylineElementProps) => {
   const { strokeColor, strokeWidth, points } = getRenderProperties(element);
+  const boundingRect = calculateBoundingRectForPoints(element.points);
 
   const renderedChild = (
     <g>
@@ -58,9 +61,17 @@ const PolylineDisplay = ({
       readOnly={readOnly}
       elementId={elementId}
     >
-      <MoveableElement elementId={elementId} overrides={overrides}>
+      <MoveableElement elementId={elementId} elements={elements}>
         <ElementContextMenu activeElementIds={activeElementIds}>
           {renderedChild}
+          {elementMovedHasFrame && (
+            <ElementFrameOverlay
+              offsetX={element.position.x}
+              offsetY={element.position.y}
+              width={boundingRect.width}
+              height={boundingRect.height}
+            />
+          )}
         </ElementContextMenu>
       </MoveableElement>
     </SelectableElement>

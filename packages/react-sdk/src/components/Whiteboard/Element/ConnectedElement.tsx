@@ -39,15 +39,19 @@ const ConnectedElement = ({
   readOnly = false,
   override,
   activeElementIds = [],
-  overrides = {},
+  elements = {},
   setTextToolsEnabled = () => {},
+  frameHasElementMoved = false,
+  elementMovedHasFrame = false,
 }: {
   id: string;
   readOnly?: boolean;
   override?: ElementOverride;
   activeElementIds?: string[];
-  overrides?: Elements;
+  elements?: Elements;
   setTextToolsEnabled?: (enabled: boolean) => void;
+  frameHasElementMoved?: boolean;
+  elementMovedHasFrame?: boolean;
 }) => {
   const widgetApi = useWidgetApi();
   let element = useElement(id);
@@ -62,7 +66,9 @@ const ConnectedElement = ({
     readOnly,
     elementId: id,
     activeElementIds,
-    overrides,
+    elements,
+    frameHasElementMoved,
+    elementMovedHasFrame,
   };
 
   if (element) {

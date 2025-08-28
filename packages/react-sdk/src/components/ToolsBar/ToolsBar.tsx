@@ -21,6 +21,7 @@ import SquareIcon from '@mui/icons-material/Square';
 import TitleRoundedIcon from '@mui/icons-material/TitleRounded';
 import { ChangeEvent, ReactElement, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import { isInfiniteCanvasMode } from '../../lib';
 import { useSlideIsLocked, useWhiteboardSlideInstance } from '../../state';
 import { Toolbar, ToolbarButton, ToolbarRadioGroup } from '../common/Toolbar';
 import { ToolbarRadio } from '../common/Toolbar/ToolbarRadio';
@@ -32,6 +33,7 @@ import { TriangleIcon } from '../icons/TriangleIcon';
 import { UploadIcon } from '../icons/UploadIcon';
 import { useSlideImageUpload } from '../ImageUpload';
 import { ActiveTool, useLayoutState } from '../Layout';
+import { FrameButton } from './FrameButton';
 
 export function ToolsBar() {
   const { t } = useTranslation('neoboard');
@@ -129,7 +131,7 @@ export function ToolsBar() {
               onChange={handleRadioClick}
             />
           ))}
-          {/*infiniteCanvasMode && <FrameButton />*/}
+          {isInfiniteCanvasMode() && <FrameButton />}
           <ToolbarButton
             aria-label={t('toolsBar.imageUploadTool', 'Upload image')}
             disabled={isLocked}

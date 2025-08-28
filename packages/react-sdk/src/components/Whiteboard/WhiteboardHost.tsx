@@ -17,16 +17,18 @@
 import { Box } from '@mui/material';
 import { useCallback, useState } from 'react';
 import {
+  findActiveAndAttachedElementIds,
   includesShapeWithText,
   includesTextShape,
-  type Point,
   useActiveElements,
   useIsWhiteboardLoading,
   usePresentationMode,
   useSlideElementIds,
   useSlideIsLocked,
   useWhiteboardSlideInstance,
+  type Point,
 } from '../../state';
+import { useGetElementAttachFrame } from '../ElementAttachFrameProvider';
 import ElementBar from '../ElementBar/ElementBar';
 import {
   useElementOverrides,
@@ -72,8 +74,15 @@ const WhiteboardHost = ({
   const { isShowCollaboratorsCursors, dragSelectStartCoords } =
     useLayoutState();
   const { activeElementIds } = useActiveElements();
-  const overrides = useElementOverrides(activeElementIds);
+
+  const activeAndAttachedElementIds = findActiveAndAttachedElementIds(
+    activeElementIds,
+    slideInstance.getFrameElements(),
+  );
+  const elements = useElementOverrides(activeAndAttachedElementIds);
   const getElementOverride = useGetElementOverride();
+  const { isFrameHasElementMoved, isElementMovedHasFrame } =
+    useGetElementAttachFrame();
 
   const { handleUploadDragEnter, uploadDragOverlay } =
     useSlideImageDropUpload();
@@ -81,8 +90,8 @@ const WhiteboardHost = ({
   const [textToolsEnabled, setTextToolsEnabled] = useState(false);
 
   const hasElementWithText =
-    includesTextShape(Object.values(overrides)) ||
-    includesShapeWithText(Object.values(overrides));
+    includesTextShape(Object.values(elements)) ||
+    includesShapeWithText(Object.values(elements));
 
   const showTextTools = textToolsEnabled || hasElementWithText;
 
@@ -136,19 +145,21 @@ const WhiteboardHost = ({
         {!hideDotGrid && <DotGrid />}
         {!readOnly && <UnSelectElementHandler />}
 
-        {elementIds.map((e) => {
-          const override = getElementOverride(e);
-          const isSelected = activeElementIds.includes(e);
+        {elementIds.map((elementId) => {
+          const override = getElementOverride(elementId);
+          const isSelected = activeElementIds.includes(elementId);
 
           return (
             <ConnectedElement
-              id={e}
-              key={e}
+              id={elementId}
+              key={elementId}
               readOnly={readOnly}
               override={override}
               activeElementIds={isSelected ? activeElementIds : undefined}
-              overrides={isSelected ? overrides : undefined}
+              elements={isSelected ? elements : undefined}
               setTextToolsEnabled={setTextToolsEnabled}
+              frameHasElementMoved={isFrameHasElementMoved(elementId)}
+              elementMovedHasFrame={isElementMovedHasFrame(elementId)}
             />
           );
         })}
@@ -156,7 +167,7 @@ const WhiteboardHost = ({
         {!readOnly && <DraftPicker />}
 
         {!readOnly && activeElementIds.length > 0 && (
-          <MoveableElement overrides={overrides}>
+          <MoveableElement elements={elements}>
             <ElementBorder elementIds={activeElementIds} />
           </MoveableElement>
         )}
@@ -167,7 +178,14 @@ const WhiteboardHost = ({
           <>
             <ElementOutline elementIds={activeElementIds} />
             {dragSelectStartCoords === undefined && (
-              <ResizeElement elementIds={activeElementIds} />
+              <ResizeElement
+                elementIds={
+                  // To resize a single frame without resizing its attached elements, pass only one active element.
+                  activeElementIds.length === 1
+                    ? activeElementIds
+                    : activeAndAttachedElementIds
+                }
+              />
             )}
           </>
         )}

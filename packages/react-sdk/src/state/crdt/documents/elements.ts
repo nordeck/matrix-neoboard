@@ -19,9 +19,11 @@ import loglevel from 'loglevel';
 // Do not import from the index file to prevent cyclic dependencies
 import { clamp } from 'lodash';
 import { defaultAcceptedImageTypes } from '../../../components/ImageUpload/consts';
+import { Elements } from '../../types';
 import {
   BoundingRect,
   calculateBoundingRectForPoints,
+  isPointWithinBoundingRect,
   Point,
   pointSchema,
 } from './point';
@@ -67,6 +69,7 @@ export type ShapeElement = ElementBase & {
   textSize?: number;
   textFontFamily: TextFontFamily;
   connectedPaths?: string[];
+  attachedFrame?: string;
 };
 
 const emptyCoordinateSchema = Joi.any().valid(null, 0, '');
@@ -92,6 +95,7 @@ const shapeElementSchema = elementBaseSchema
     textSize: Joi.number().strict(),
     textFontFamily: Joi.string().strict().default('Inter'),
     connectedPaths: Joi.array().items(Joi.string()),
+    attachedFrame: Joi.string(),
   })
   .required();
 
@@ -108,6 +112,7 @@ export type PathElement = ElementBase & {
   endMarker?: LineMarker;
   connectedElementStart?: string;
   connectedElementEnd?: string;
+  attachedFrame?: string;
 };
 
 const pathElementSchema = elementBaseSchema
@@ -120,6 +125,7 @@ const pathElementSchema = elementBaseSchema
     endMarker: Joi.string().valid('arrow-head-line'),
     connectedElementStart: Joi.string(),
     connectedElementEnd: Joi.string(),
+    attachedFrame: Joi.string(),
   })
   .required();
 
@@ -127,6 +133,7 @@ export type FrameElement = ElementBase & {
   type: 'frame';
   width: number;
   height: number;
+  attachedElements?: string[];
 };
 
 const frameElementSchema = elementBaseSchema
@@ -134,6 +141,7 @@ const frameElementSchema = elementBaseSchema
     type: Joi.string().valid('frame').required(),
     width: Joi.number().strict().empty(emptyCoordinateSchema).default(1),
     height: Joi.number().strict().empty(emptyCoordinateSchema).default(1),
+    attachedElements: Joi.array().items(Joi.string()),
   })
   .required();
 
@@ -157,6 +165,7 @@ export type ImageElement = ElementBase & {
    * @deprecated  This is kept for backwards compatibility. We dont send it anymore. DO NOT USE!
    */
   mimeType?: ImageMimeType;
+  attachedFrame?: string;
 };
 
 const imageElementSchema = elementBaseSchema
@@ -173,6 +182,7 @@ const imageElementSchema = elementBaseSchema
       .optional(),
     width: Joi.number().strict().empty(emptyCoordinateSchema).default(1),
     height: Joi.number().strict().empty(emptyCoordinateSchema).default(1),
+    attachedFrame: Joi.string(),
   })
   .required();
 
@@ -342,4 +352,70 @@ export function modifyElementPosition<T extends Element>(
       y: positionClamp.y + (element.position.y - offsetY),
     },
   };
+}
+
+/**
+ * Find a frame to attach and copy the passed element with the attached frame.
+ * @param element
+ * @param frameElements
+ */
+export function copyElementWithAttachedFrame<
+  T extends ShapeElement | PathElement | ImageElement,
+>(element: T, frameElements: Elements<FrameElement>): T {
+  const frameElementId = findFrameToAttach(element, frameElements);
+
+  let newElement = element;
+  if (frameElementId) {
+    newElement = {
+      ...newElement,
+      attachedFrame: frameElementId,
+    };
+  }
+
+  return newElement;
+}
+
+/**
+ * Find the topmost frame element that fully contains the passed element.
+ * @param element element - element to check
+ * @param frameElements - frame elements
+ * @returns frame id
+ */
+export function findFrameToAttach(
+  element: ShapeElement | PathElement | ImageElement,
+  frameElements: Elements<FrameElement>,
+): string | undefined {
+  const { position } = element;
+  const { width, height } =
+    element.type == 'path'
+      ? calculateBoundingRectForPoints(element.points)
+      : element;
+
+  const entry = Object.entries(frameElements)
+    .reverse()
+    .find(([_, frameElement]) => {
+      const frameBoundingRect: BoundingRect = {
+        offsetX: frameElement.position.x,
+        offsetY: frameElement.position.y,
+        width: frameElement.width,
+        height: frameElement.height,
+      };
+      return (
+        isPointWithinBoundingRect(position, frameBoundingRect) &&
+        isPointWithinBoundingRect(
+          {
+            x: position.x + width,
+            y: position.y + height,
+          },
+          frameBoundingRect,
+        )
+      );
+    });
+
+  if (entry) {
+    const [frameElementId] = entry;
+    return frameElementId;
+  } else {
+    return undefined;
+  }
 }
