@@ -22,6 +22,7 @@ import { Mocked, afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
   WhiteboardTestingContextProvider,
   mockEllipseElement,
+  mockFrameElement,
   mockLineElement,
   mockWhiteboardManager,
 } from '../../../lib/testUtils/documentTestUtils';
@@ -51,6 +52,14 @@ describe('<DeleteShortcut>', () => {
             ['element-0', mockLineElement()],
             ['element-1', mockLineElement()],
             ['element-2', mockEllipseElement()],
+            [
+              'frame-0',
+              mockFrameElement({
+                position: { x: 500, y: 500 },
+                width: 300,
+                height: 300,
+              }),
+            ],
           ],
         ],
       ],
@@ -95,4 +104,45 @@ describe('<DeleteShortcut>', () => {
     ).toBeFalsy();
     expect(activeSlide.getActiveElementIds()).toHaveLength(0);
   });
+
+  it.each(['{delete}', '{backspace}'])(
+    'should delete frame when it has element attached with the %s key',
+    async (key) => {
+      const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
+
+      activeSlide.updateElements([
+        {
+          elementId: 'frame-0',
+          patch: {
+            attachedElements: ['element-1'],
+          },
+        },
+        {
+          elementId: 'element-1',
+          patch: {
+            attachedFrame: 'frame-0',
+          },
+        },
+      ]);
+
+      activeSlide.setActiveElementIds(['frame-0']);
+
+      render(<DeleteShortcut />, { wrapper: Wrapper });
+
+      await userEvent.keyboard(key);
+
+      expect(activeSlide.getElement('frame-0')).toBeUndefined();
+      // Frame deletion should not delete the element
+      expect(activeSlide.getElement('element-1')).toEqual({
+        type: 'path',
+        kind: 'line',
+        position: { x: 0, y: 1 },
+        strokeColor: '#ffffff',
+        points: [
+          { x: 0, y: 1 },
+          { x: 2, y: 3 },
+        ],
+      });
+    },
+  );
 });

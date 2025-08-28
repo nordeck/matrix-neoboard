@@ -29,6 +29,7 @@ import { BoardBar } from '../BoardBar';
 import { CollaborationBar } from '../CollaborationBar';
 import { ConnectionPointProvider } from '../ConnectionPointProvider';
 import { DeveloperToolsDialog } from '../DeveloperTools';
+import { ElementAttachFrameProvider } from '../ElementAttachFrameProvider';
 import { ElementOverridesProvider } from '../ElementOverridesProvider';
 import { FullscreenModeBar } from '../FullscreenModeBar';
 import { GuidedTour } from '../GuidedTour';
@@ -114,7 +115,9 @@ export function Layout({ height = '100vh' }: LayoutProps) {
                   <SlideProvider slideId={slideId}>
                     <ElementOverridesProvider>
                       <ConnectionPointProvider>
-                        <ContentArea />
+                        <ElementAttachFrameProvider>
+                          <ContentArea />
+                        </ElementAttachFrameProvider>
                       </ConnectionPointProvider>
                     </ElementOverridesProvider>
                   </SlideProvider>

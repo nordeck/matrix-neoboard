@@ -14,23 +14,20 @@
  * limitations under the License.
  */
 
-import { Element } from '../../state';
-import { ElementOverride } from './ElementOverridesProvider';
+import { useContext } from 'react';
+import {
+  ElementAttachFrameGetterContext,
+  ElementAttachFrameGetterContextType,
+} from './ElementAttachFrameProvider';
 
-export function mergeElementAndOverride<T extends Element>(
-  element: T,
-  override: ElementOverride | undefined,
-): T {
-  return element.type === 'path'
-    ? {
-        ...element,
-        position: override?.position ?? element.position,
-        points: override?.points ?? element.points,
-      }
-    : {
-        ...element,
-        height: override?.height ?? element.height,
-        width: override?.width ?? element.width,
-        position: override?.position ?? element.position,
-      };
+export function useGetElementAttachFrame(): ElementAttachFrameGetterContextType {
+  const context = useContext(ElementAttachFrameGetterContext);
+
+  if (!context) {
+    throw new Error(
+      'useGetFrameAttachElements can only be used inside of <FrameAttachElementsProvider>',
+    );
+  }
+
+  return context;
 }
