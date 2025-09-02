@@ -191,6 +191,16 @@ export const SvgCanvas = function ({
     [applyKeyboardNavigation, enableShortcuts],
   );
 
+  // Handle auxiliary mouse button clicks (middle/right click)
+  // To prevent default paste clipboard action on firefox
+  const handleMouseAuxClick: MouseEventHandler<SVGSVGElement> = useCallback(
+    (e) => {
+      e.nativeEvent.preventDefault();
+      e.nativeEvent.stopPropagation();
+    },
+    [],
+  );
+
   const handleMouseMove: MouseEventHandler<SVGSVGElement> = useCallback(
     (e) => {
       const position = calculateSvgCoordsFunc({
@@ -254,6 +264,7 @@ export const SvgCanvas = function ({
           onKeyUp={infiniteCanvasMode ? handleKeyUp : undefined}
           tabIndex={infiniteCanvasMode ? -1 : undefined}
           onMouseLeave={onMouseLeave}
+          onAuxClick={handleMouseAuxClick}
           transform-origin={
             infiniteCanvasMode && !preview ? 'center center' : undefined
           }
