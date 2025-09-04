@@ -387,7 +387,7 @@ export function findFrameToAttach(
 ): string | undefined {
   const { position } = element;
   const { width, height } =
-    element.type == 'path'
+    element.type === 'path'
       ? calculateBoundingRectForPoints(element.points)
       : element;
 
