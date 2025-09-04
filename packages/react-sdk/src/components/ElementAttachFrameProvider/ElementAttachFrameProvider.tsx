@@ -45,12 +45,10 @@ export function ElementAttachFrameProvider({
 }: PropsWithChildren<{}>) {
   const [elementAttachFrame, setElementAttachFrame] = useState<
     Record<string, string>
-  >(() => ({}));
+  >({});
   const [attachedElementsMovedByFrame, setAttachedElementsMovedByFrame] =
-    useState<string[]>(() => []);
-  const [connectingPathIds, setConnectingPathIds] = useState<string[]>(
-    () => [],
-  );
+    useState<string[]>([]);
+  const [connectingPathIds, setConnectingPathIds] = useState<string[]>([]);
 
   const context = useMemo<ElementAttachFrameGetterContextType>(
     () => ({
