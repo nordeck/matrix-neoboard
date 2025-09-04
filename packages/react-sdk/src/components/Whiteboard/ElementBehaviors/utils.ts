@@ -494,6 +494,11 @@ export function findElementAttachFrame(
   return Object.fromEntries(
     Object.entries(elementAttachFrame).filter(([elementId, frameId]) => {
       const element = elements[elementId];
+
+      if (!element) {
+        return false;
+      }
+
       if (element.type !== 'path') {
         return true;
       }
@@ -511,7 +516,7 @@ export function findElementAttachFrame(
 
 /**
  * Find elements that were moved because the attached frame moved.
- * @param elements elements
+ * @param elements active, attached, connecting paths elements
  * @returns elements that moved because the attached frame moved
  */
 export function findAttachedElementsMovedByFrame(elements: Elements): string[] {
