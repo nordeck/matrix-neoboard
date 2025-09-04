@@ -367,8 +367,8 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
 
     /**
      * Modify elements with new ids.
-     * Update element ids in connections.
-     * Remove connections to unknown elements.
+     * Update element ids in relations.
+     * Remove relations to unknown elements.
      * */
     const newElements: Elements = {};
     const updates: ElementUpdate[] = [];

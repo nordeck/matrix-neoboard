@@ -248,11 +248,18 @@ describe('isValidElement', () => {
     { connectedElementStart: 111 },
     { connectedElementStart: null },
     { connectedElementStart: '' },
+    { connectedElementStart: '__proto__' },
+    { connectedElementStart: 'constructor' },
     { connectedElementEnd: 111 },
     { connectedElementEnd: null },
     { connectedElementEnd: '' },
+    { connectedElementEnd: '__proto__' },
+    { connectedElementEnd: 'constructor' },
     { attachedFrame: 111 },
     { attachedFrame: null },
+    { attachedFrame: '' },
+    { attachedFrame: '__proto__' },
+    { attachedFrame: 'constructor' },
   ])('should reject path event with patch %j', (patch: object) => {
     const data = {
       type: 'path',
@@ -304,8 +311,16 @@ describe('isValidElement', () => {
     { textItalic: 'other' },
     { connectedPaths: 111 },
     { connectedPaths: null },
+    { connectedPaths: [{}] },
+    { connectedPaths: [null] },
+    { connectedPaths: [111] },
+    { connectedPaths: ['__proto__'] },
+    { connectedPaths: ['constructor'] },
     { attachedFrame: 111 },
     { attachedFrame: null },
+    { attachedFrame: '' },
+    { attachedFrame: '__proto__' },
+    { attachedFrame: 'constructor' },
   ])('should reject shape event with patch %j', (patch: object) => {
     const data = {
       type: 'shape',
@@ -335,6 +350,9 @@ describe('isValidElement', () => {
     { attachedElements: null },
     { attachedElements: '111' },
     { attachedElements: [{}] },
+    { attachedElements: [111] },
+    { attachedElements: ['__proto__'] },
+    { attachedElements: ['constructor'] },
   ])('should reject frame event with patch %j', (patch: object) => {
     const data = {
       type: 'frame',
@@ -401,6 +419,9 @@ describe('isValidElement', () => {
     { height: '111' },
     { attachedFrame: 111 },
     { attachedFrame: null },
+    { attachedFrame: '' },
+    { attachedFrame: '__proto__' },
+    { attachedFrame: 'constructor' },
   ])('should reject an image event with patch %j', (patch: object) => {
     const data = {
       type: 'image',
