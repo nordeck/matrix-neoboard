@@ -14,23 +14,28 @@
  * limitations under the License.
  */
 
-import { Element } from '../../state';
-import { ElementOverride } from './ElementOverridesProvider';
+import { useTheme } from '@mui/material';
+import { BoundingRect } from '../../state';
 
-export function mergeElementAndOverride<T extends Element>(
-  element: T,
-  override: ElementOverride | undefined,
-): T {
-  return element.type === 'path'
-    ? {
-        ...element,
-        position: override?.position ?? element.position,
-        points: override?.points ?? element.points,
-      }
-    : {
-        ...element,
-        height: override?.height ?? element.height,
-        width: override?.width ?? element.width,
-        position: override?.position ?? element.position,
-      };
+/**
+ * An overlay that is shown when the element is moved over the frame.
+ */
+export function ElementFrameOverlay({
+  offsetX,
+  offsetY,
+  width,
+  height,
+}: BoundingRect) {
+  const theme = useTheme();
+
+  return (
+    <rect
+      x={offsetX}
+      y={offsetY}
+      fill={theme.palette.grey[500]}
+      fillOpacity={0.5}
+      height={height}
+      width={width}
+    />
+  );
 }

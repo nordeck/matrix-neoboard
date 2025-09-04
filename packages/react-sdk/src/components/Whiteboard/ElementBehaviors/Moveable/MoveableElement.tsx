@@ -26,14 +26,18 @@ import {
 import { DraggableCore, DraggableData, DraggableEvent } from 'react-draggable';
 import { useUnmount } from 'react-use';
 import {
+  BoundingRect,
   calculateBoundingRectForElements,
+  Elements,
   findConnectingPaths,
   PathElement,
   Point,
   useWhiteboardSlideInstance,
 } from '../../../../state';
-import { BoundingRect } from '../../../../state/crdt/documents/point';
-import { Elements } from '../../../../state/types';
+import {
+  useGetElementAttachFrame,
+  useSetElementAttachFrame,
+} from '../../../ElementAttachFrameProvider';
 import {
   createResetElementOverrides,
   ElementOverrideUpdate,
@@ -43,7 +47,14 @@ import { useLayoutState } from '../../../Layout';
 import { infiniteCanvasMode } from '../../constants';
 import { useSvgCanvasContext } from '../../SvgCanvas';
 import { useSvgScaleContext } from '../../SvgScaleContext';
-import { elementsUpdates, getPathElements } from '../utils';
+import {
+  elementsUpdates,
+  findAttachedElementsMovedByFrame,
+  findElementAttachFrame,
+  findElementFrameChanges,
+  getPathElements,
+  mergeElementsAndOverrides,
+} from '../utils';
 import { addUserSelectStyles, removeUserSelectStyles } from './DraggableStyles';
 import { ResizableProperties } from './types';
 import {
@@ -55,13 +66,13 @@ const DraggableGroup = styled('g')({});
 
 export type MoveableElementProps = PropsWithChildren<{
   elementId?: string;
-  overrides?: Elements;
+  elements?: Elements;
 }>;
 
 export function MoveableElement({
   children,
   elementId,
-  overrides = {},
+  elements = {},
 }: MoveableElementProps) {
   const { isShowGrid } = useLayoutState();
   const isDragging = useRef<boolean>(false);
@@ -79,6 +90,12 @@ export function MoveableElement({
   const [elementOverrideUpdates, setElementOverrideUpdates] = useState<
     ElementOverrideUpdate[]
   >([]);
+  const { elementAttachFrame } = useGetElementAttachFrame();
+  const {
+    setElementAttachFrame,
+    setAttachedElementsMovedByFrame,
+    setConnectingPathIds,
+  } = useSetElementAttachFrame();
 
   useUnmount(() => {
     if (isDragging.current) {
@@ -103,7 +120,7 @@ export function MoveableElement({
 
       if (!resizableProperties) {
         boundingRect = calculateBoundingRectForElements(
-          Object.values(overrides),
+          Object.values(elements),
         );
         const lastCursorPosition: Point = calculateSvgCoords({
           x: data.lastX * scale,
@@ -115,7 +132,7 @@ export function MoveableElement({
         };
         connectingPathElements = getPathElements(
           slideInstance,
-          findConnectingPaths(overrides),
+          findConnectingPaths(elements),
         );
         setResizableProperties({
           boundingRect,
@@ -142,7 +159,7 @@ export function MoveableElement({
 
       if (isMouseEvent(event) && isButtonToPan(event.buttons)) {
         const { offsetX, offsetY } = calculateBoundingRectForElements(
-          Object.values(overrides),
+          Object.values(elements),
         );
 
         const deltaX = cursorPosition.x - boundingRectCursorOffset.x - offsetX;
@@ -151,7 +168,7 @@ export function MoveableElement({
         updateTranslation(deltaX * scale, deltaY * scale);
       } else {
         const elementOverrideUpdates = calculateElementOverrideUpdates(
-          overrides,
+          elements,
           cursorPosition.x - boundingRectCursorOffset.x,
           cursorPosition.y - boundingRectCursorOffset.y,
           viewportWidth,
@@ -162,18 +179,51 @@ export function MoveableElement({
 
         setElementOverride(elementOverrideUpdates);
         setElementOverrideUpdates(elementOverrideUpdates);
+
+        const overrides = Object.fromEntries(
+          elementOverrideUpdates.map(({ elementId, elementOverride }) => [
+            elementId,
+            elementOverride,
+          ]),
+        );
+
+        // Apply updates to elements and connecting paths
+        const newElements: Elements = mergeElementsAndOverrides(
+          { ...elements, ...connectingPathElements },
+          overrides,
+        );
+
+        // Apply updates to frames
+        const movedFrameElements = mergeElementsAndOverrides(
+          slideInstance.getFrameElements(),
+          overrides,
+        );
+
+        const elementAttachFrame = findElementAttachFrame(
+          newElements,
+          movedFrameElements,
+        );
+        const attachedElementsMovedByFrame =
+          findAttachedElementsMovedByFrame(newElements);
+
+        setElementAttachFrame(elementAttachFrame);
+        setAttachedElementsMovedByFrame(attachedElementsMovedByFrame);
+        setConnectingPathIds(Object.keys(connectingPathElements));
       }
     },
     [
       setElementOverride,
       viewportHeight,
       viewportWidth,
-      overrides,
+      elements,
       resizableProperties,
       slideInstance,
       calculateSvgCoords,
       scale,
       updateTranslation,
+      setElementAttachFrame,
+      setAttachedElementsMovedByFrame,
+      setConnectingPathIds,
     ],
   );
 
@@ -184,15 +234,21 @@ export function MoveableElement({
       const newElementOverrideUpdates = isShowGrid
         ? snapToGridElementOverrideUpdates(
             elementOverrideUpdates,
-            overrides,
+            elements,
             connectingPathElements,
           )
         : elementOverrideUpdates;
 
+      const elementFrameChanges = findElementFrameChanges(elementAttachFrame, {
+        ...elements,
+        ...connectingPathElements,
+      });
+
       const updates = elementsUpdates(
         slideInstance,
-        overrides,
+        elements,
         newElementOverrideUpdates,
+        elementFrameChanges,
       );
 
       slideInstance.updateElements(updates);
@@ -203,15 +259,18 @@ export function MoveableElement({
     isDragging.current = false;
     removeUserSelectStyles();
     setCursor('move');
+    setElementAttachFrame({});
   }, [
     deltaX,
     deltaY,
     elementOverrideUpdates,
     isShowGrid,
-    overrides,
+    elements,
     setElementOverride,
     slideInstance,
     resizableProperties,
+    elementAttachFrame,
+    setElementAttachFrame,
   ]);
 
   return (

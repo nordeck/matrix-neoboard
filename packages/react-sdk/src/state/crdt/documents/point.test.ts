@@ -16,7 +16,11 @@
 
 import Joi from 'joi';
 import { describe, expect, it } from 'vitest';
-import { calculateBoundingRectForPoints, pointSchema } from './point';
+import {
+  calculateBoundingRectForPoints,
+  isPointWithinBoundingRect,
+  pointSchema,
+} from './point';
 
 describe('pointSchema', () => {
   it('should accept event', () => {
@@ -105,4 +109,40 @@ describe('calculateBoundingRectForPoints', () => {
       height: 0,
     });
   });
+});
+
+describe('isPointWithinBoundingRect', () => {
+  it('should determine that point is not within bounding rect', () => {
+    expect(
+      isPointWithinBoundingRect(
+        { x: 5, y: 5 },
+        { offsetX: 1, offsetY: 1, width: 10, height: 10 },
+      ),
+    ).toEqual(true);
+  });
+
+  it.each([
+    [0, 0],
+    [0, 1],
+    [1, 0],
+    [12, 0],
+    [11, 0],
+    [12, 1],
+    [12, 12],
+    [11, 12],
+    [12, 11],
+    [0, 12],
+    [1, 12],
+    [0, 11],
+  ])(
+    'should determine that point %s, %s is not within bounding rect',
+    (x, y) => {
+      expect(
+        isPointWithinBoundingRect(
+          { x, y },
+          { offsetX: 1, offsetY: 1, width: 10, height: 10 },
+        ),
+      ).toBe(false);
+    },
+  );
 });
