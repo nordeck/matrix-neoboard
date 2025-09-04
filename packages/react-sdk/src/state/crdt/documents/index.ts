@@ -19,7 +19,10 @@ export {
   calculateFittedElementSize,
   clampElementPosition,
   copyElementWithAttachedFrame,
+  disallowElementIds,
   findFrameToAttach,
+  frameElementSchema,
+  imageElementSchema,
   includesShapeWithText,
   includesTextShape,
   isShapeElementPair,
@@ -27,6 +30,8 @@ export {
   isTextShape,
   isValidElement,
   modifyElementPosition,
+  pathElementSchema,
+  shapeElementSchema,
 } from './elements';
 export type {
   Element,

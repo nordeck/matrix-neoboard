@@ -17,7 +17,7 @@
 import Joi from 'joi';
 import { describe, expect, it } from 'vitest';
 import * as Y from 'yjs';
-import { mockLineElement } from '../../../lib/testUtils/documentTestUtils';
+import { mockLineElement } from '../../../lib/testUtils';
 import { ChangeFn, Document } from '../types';
 import { YArray, YMap, YText, applyMigrations } from '../y';
 import {
@@ -159,6 +159,11 @@ describe('whiteboardDocumentSchema', () => {
     { slides: { s: { elements: [undefined], elementIds: [] } } },
     { slides: { s: { elements: [null], elementIds: [] } } },
     { slides: { s: { elements: [111], elementIds: [] } } },
+    {
+      slides: {
+        s: { elements: { constructor: mockLineElement() }, elementIds: [] },
+      },
+    },
     { slides: { s: { elements: [{}], elementIds: [] } } },
     { slides: { s: { elements: {}, elementIds: undefined } } },
     { slides: { s: { elements: {}, elementIds: null } } },
@@ -166,6 +171,8 @@ describe('whiteboardDocumentSchema', () => {
     { slides: { s: { elements: {}, elementIds: [undefined] } } },
     { slides: { s: { elements: {}, elementIds: [null] } } },
     { slides: { s: { elements: {}, elementIds: [111] } } },
+    { slides: { s: { elements: {}, elementIds: ['__proto__'] } } },
+    { slides: { s: { elements: {}, elementIds: ['constructor'] } } },
     { slides: { s: { elements: {}, elementIds: [], lock: null } } },
     { slides: { s: { elements: {}, elementIds: [], lock: 111 } } },
     { slides: { s: { elements: {}, elementIds: [], lock: {} } } },

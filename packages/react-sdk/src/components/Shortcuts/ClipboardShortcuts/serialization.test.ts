@@ -15,20 +15,63 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import {
-  mockEllipseElement,
-  mockLineElement,
-} from '../../../lib/testUtils/documentTestUtils';
+import { mockEllipseElement, mockLineElement } from '../../../lib/testUtils';
 import {
   ClipboardContent,
   deserializeFromClipboard,
   deserializeFromHtml,
   deserializeFromPlainText,
   escapeTextAsHtml,
+  isValidElementsObject,
   serializeAsHtml,
   serializeAsPlainText,
   serializeToClipboard,
 } from './serialization';
+
+describe('isValidElementsObject', () => {
+  it('should accept elements', () => {
+    const data = {
+      'element-0': {
+        type: 'path',
+        position: { x: 1, y: 2 },
+        kind: 'line',
+        points: [],
+        strokeColor: 'red',
+      },
+    };
+
+    expect(isValidElementsObject(data)).toBe(true);
+  });
+
+  it('should accept elements with additional properties', () => {
+    const data = {
+      'element-0': {
+        type: 'path',
+        position: { x: 1, y: 2 },
+        kind: 'line',
+        points: [],
+        strokeColor: 'red',
+        additional: 'data',
+      },
+    };
+
+    expect(isValidElementsObject(data)).toBe(true);
+  });
+
+  it('should reject elements', () => {
+    const data = {
+      constructor: {
+        type: 'path',
+        position: { x: 1, y: 2 },
+        kind: 'line',
+        points: [],
+        strokeColor: 'red',
+      },
+    };
+
+    expect(isValidElementsObject(data)).toBe(false);
+  });
+});
 
 describe('serializeToClipboard', () => {
   it('should serialize plain text and HTML', () => {

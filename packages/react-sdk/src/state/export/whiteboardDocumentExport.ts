@@ -16,12 +16,65 @@
 
 import Joi from 'joi';
 import loglevel from 'loglevel';
-import { Element } from '../crdt';
-import { elementSchema } from '../crdt/documents/elements';
+import {
+  disallowElementIds,
+  FrameElement,
+  frameElementSchema,
+  ImageElement,
+  imageElementSchema,
+  PathElement,
+  pathElementSchema,
+  ShapeElement,
+  shapeElementSchema,
+} from '../crdt';
 
-export type ElementExport = {
-  id?: string;
-} & Element;
+type ElementWithId = {
+  id?: string; // element id is exported if element is used in relations
+};
+
+type ShapeElementExport = ElementWithId & ShapeElement;
+
+type PathElementExport = ElementWithId & PathElement;
+
+type FrameElementExport = ElementWithId & FrameElement;
+
+type ImageElementExport = ElementWithId & ImageElement;
+
+const elementWithIdBaseSchema = {
+  id: Joi.string().not(...disallowElementIds),
+};
+
+const shapeElementExportSchema = shapeElementSchema
+  .append(elementWithIdBaseSchema)
+  .required();
+
+const pathElementExportSchema = pathElementSchema
+  .append(elementWithIdBaseSchema)
+  .required();
+
+const frameElementExportSchema = frameElementSchema
+  .append(elementWithIdBaseSchema)
+  .required();
+
+const imageElementExportSchema = imageElementSchema
+  .append(elementWithIdBaseSchema)
+  .required();
+
+export type ElementExport =
+  | ShapeElementExport
+  | PathElementExport
+  | FrameElementExport
+  | ImageElementExport;
+
+const elementExportSchema = Joi.alternatives<ElementExport>().conditional(
+  '.type',
+  [
+    { is: 'shape', then: shapeElementExportSchema },
+    { is: 'path', then: pathElementExportSchema },
+    { is: 'frame', then: frameElementExportSchema },
+    { is: 'image', then: imageElementExportSchema },
+  ],
+);
 
 export type SlideExport = {
   elements: Array<ElementExport>;
@@ -29,7 +82,7 @@ export type SlideExport = {
 };
 
 const slideExportSchema = Joi.object<SlideExport, true>({
-  elements: Joi.array().items(elementSchema).required(),
+  elements: Joi.array().items(elementExportSchema).required(),
   lock: Joi.object().unknown(),
 }).unknown();
 

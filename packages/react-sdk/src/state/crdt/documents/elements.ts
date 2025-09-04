@@ -28,6 +28,8 @@ import {
   pointSchema,
 } from './point';
 
+export const disallowElementIds = ['__proto__', 'constructor'];
+
 export type ElementBase = {
   type: string;
   position: Point;
@@ -74,7 +76,7 @@ export type ShapeElement = ElementBase & {
 
 const emptyCoordinateSchema = Joi.any().valid(null, 0, '');
 
-const shapeElementSchema = elementBaseSchema
+export const shapeElementSchema = elementBaseSchema
   .append<ShapeElement>({
     type: Joi.string().valid('shape').required(),
     kind: Joi.string()
@@ -94,8 +96,8 @@ const shapeElementSchema = elementBaseSchema
     stickyNote: Joi.boolean(),
     textSize: Joi.number().strict(),
     textFontFamily: Joi.string().strict().default('Inter'),
-    connectedPaths: Joi.array().items(Joi.string()),
-    attachedFrame: Joi.string(),
+    connectedPaths: Joi.array().items(Joi.string().not(...disallowElementIds)),
+    attachedFrame: Joi.string().not(...disallowElementIds),
   })
   .required();
 
@@ -115,7 +117,7 @@ export type PathElement = ElementBase & {
   attachedFrame?: string;
 };
 
-const pathElementSchema = elementBaseSchema
+export const pathElementSchema = elementBaseSchema
   .append<PathElement>({
     type: Joi.string().valid('path').required(),
     kind: Joi.string().valid('line', 'polyline').required(),
@@ -123,9 +125,9 @@ const pathElementSchema = elementBaseSchema
     strokeColor: Joi.string().required(),
     startMarker: Joi.string().valid('arrow-head-line'),
     endMarker: Joi.string().valid('arrow-head-line'),
-    connectedElementStart: Joi.string(),
-    connectedElementEnd: Joi.string(),
-    attachedFrame: Joi.string(),
+    connectedElementStart: Joi.string().not(...disallowElementIds),
+    connectedElementEnd: Joi.string().not(...disallowElementIds),
+    attachedFrame: Joi.string().not(...disallowElementIds),
   })
   .required();
 
@@ -136,12 +138,14 @@ export type FrameElement = ElementBase & {
   attachedElements?: string[];
 };
 
-const frameElementSchema = elementBaseSchema
+export const frameElementSchema = elementBaseSchema
   .append<FrameElement>({
     type: Joi.string().valid('frame').required(),
     width: Joi.number().strict().empty(emptyCoordinateSchema).default(1),
     height: Joi.number().strict().empty(emptyCoordinateSchema).default(1),
-    attachedElements: Joi.array().items(Joi.string()),
+    attachedElements: Joi.array().items(
+      Joi.string().not(...disallowElementIds),
+    ),
   })
   .required();
 
@@ -168,7 +172,7 @@ export type ImageElement = ElementBase & {
   attachedFrame?: string;
 };
 
-const imageElementSchema = elementBaseSchema
+export const imageElementSchema = elementBaseSchema
   .append<ImageElement>({
     type: Joi.string().valid('image').required(),
     mxc: Joi.string()
@@ -182,7 +186,7 @@ const imageElementSchema = elementBaseSchema
       .optional(),
     width: Joi.number().strict().empty(emptyCoordinateSchema).default(1),
     height: Joi.number().strict().empty(emptyCoordinateSchema).default(1),
-    attachedFrame: Joi.string(),
+    attachedFrame: Joi.string().not(...disallowElementIds),
   })
   .required();
 
