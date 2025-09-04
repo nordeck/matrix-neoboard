@@ -40,7 +40,7 @@ const FrameDisplay: React.FC<DisplayProps> = ({
       <rect
         x={frameProps.position.x}
         y={frameProps.position.y}
-        fill={theme.palette.common.white} //TODO: MA maybe fill transparent
+        fill={theme.palette.common.white}
         height={frameProps.height}
         stroke={
           frameHasElementMoved
