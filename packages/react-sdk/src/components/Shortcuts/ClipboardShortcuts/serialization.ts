@@ -16,7 +16,12 @@
 
 import Joi from 'joi';
 import { Base64 } from 'js-base64';
-import { Element, Elements, isValidElement } from '../../../state';
+import {
+  disallowElementIds,
+  Element,
+  Elements,
+  isValidElement,
+} from '../../../state';
 import { elementSchema } from '../../../state/crdt/documents/elements';
 import { whiteboardHeight, whiteboardWidth } from '../../Whiteboard';
 
@@ -33,10 +38,10 @@ export type IncomingWhiteboardClipboardContent = {
 };
 
 const elementsSchema = Joi.object()
-  .pattern(Joi.string(), elementSchema)
+  .pattern(Joi.string().not(...disallowElementIds), elementSchema)
   .required();
 
-function isValidElementsObject(elements: unknown): elements is Elements {
+export function isValidElementsObject(elements: unknown): elements is Elements {
   return !elementsSchema.validate(elements).error;
 }
 

@@ -192,8 +192,10 @@ export type WhiteboardSlideInstance = {
    */
   addElements(elements: Array<Element>): string[];
   /**
-   * Add new elements with relations.
-   * Each element will get a new id in the document. The ids in relations are then updated with the newly generated ids.
+   * Add new elements with their relations.
+   * Each element will be assigned a new id within the document.
+   * The ids in the relations are updated to match these new ids.
+   * Remove any id that correspond to unknown relations (connections, attachments).
    *
    * Connections for elements not included in the passed elements are ignored.
    * Attachments for elements can reference existing frames. These frames will be updated with attached elements.
