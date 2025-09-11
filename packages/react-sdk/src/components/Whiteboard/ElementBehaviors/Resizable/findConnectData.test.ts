@@ -14,12 +14,8 @@
  * limitations under the License.
  */
 
-import { beforeAll, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { findConnectData } from './findConnectData';
-
-beforeAll(() => {
-  document.elementsFromPoint = vi.fn().mockReturnValue([]);
-});
 
 describe('findConnectData', () => {
   it('should find no elements to connect', () => {
