@@ -38,7 +38,7 @@ import {
   initPDFJs,
   loadPDF,
   renderPDFToImages,
-} from '../../ImportWhiteboardDialog/pdfImportUtils';
+} from '../../ImportDialog/pdfImportUtils';
 import {
   useSvgScaleContext,
   whiteboardHeight,

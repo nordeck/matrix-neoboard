@@ -17,11 +17,6 @@
 import { DragEvent, useCallback } from 'react';
 import { DropEvent, FileRejection, useDropzone } from 'react-dropzone';
 import { Point, Size, useWhiteboardSlideInstance } from '../../state';
-import {
-  initPDFJs,
-  loadPDF,
-  renderPDFToImages,
-} from '../ImportWhiteboardDialog/pdfImportUtils';
 import { useSvgScaleContext } from '../Whiteboard';
 import { addImagesToSlide, ImageToAddData } from './addImagesToSlide';
 import { defaultAcceptedImageTypes } from './consts';
@@ -41,6 +36,8 @@ type UseSlideImageUploadArgs = {
    * @param position mouse clientX, clientY
    */
   calculateSvgCoords?: (position: Point) => Point;
+  /** Called when a PDF is dropped. If set, PDF files will not be handled as images. */
+  onPdfDrop?: (file: File) => void;
 };
 
 /**
@@ -52,6 +49,7 @@ export function useSlideImageUpload(
     noClick = false,
     noDrag = false,
     calculateSvgCoords,
+    onPdfDrop,
   }: UseSlideImageUploadArgs = {
     noClick: false,
     noDrag: false,
@@ -63,35 +61,14 @@ export function useSlideImageUpload(
 
   const handleDrop = useCallback(
     async (files: File[], rejectedFiles: FileRejection[], event: DropEvent) => {
-      const newFiles: File[] = [];
+      // Check for PDF
+      const pdfFile = files.find((file) => file.type === 'application/pdf');
+      if (pdfFile && onPdfDrop) {
+        onPdfDrop(pdfFile);
+        return;
+      }
+      const newFiles: File[] = files;
       const imageSizes: Size[] = [];
-
-      if (Array.from(files).some((file) => file.type === 'application/pdf')) {
-        await initPDFJs();
-      }
-
-      for (const file of files) {
-        if (file.type !== 'application/pdf') {
-          newFiles.push(file);
-        } else {
-          const pdf = await loadPDF(await file.arrayBuffer());
-          const images = await renderPDFToImages(pdf);
-
-          let count = 0;
-          for (const image of images) {
-            count++;
-            newFiles.push(
-              new File([image.blob], 'pdfSlide' + count, {
-                type: image.mimeType,
-              }),
-            );
-            imageSizes.push({
-              width: image.width,
-              height: image.height,
-            });
-          }
-        }
-      }
 
       const results = await imageUpload.handleDrop(newFiles, rejectedFiles);
 
@@ -122,7 +99,7 @@ export function useSlideImageUpload(
       }
       addImagesToSlide(slide, images, position);
     },
-    [imageUpload, slide, calculateSvgCoords, viewportCanvasCenter],
+    [imageUpload, slide, calculateSvgCoords, viewportCanvasCenter, onPdfDrop],
   );
 
   const { getInputProps, getRootProps } = useDropzone({

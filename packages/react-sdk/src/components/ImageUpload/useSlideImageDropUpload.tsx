@@ -15,6 +15,7 @@
  */
 
 import React, { useCallback, useState } from 'react';
+import ImportDialog from '../ImportDialog';
 import { SlideImageUploadOverlay } from './SlideImageUploadOverlay';
 
 type UseSlideImageDropUploadResult = {
@@ -26,10 +27,17 @@ type UseSlideImageDropUploadResult = {
    * The upload file overlay, shown if a file is dragged.
    */
   uploadDragOverlay: React.ReactElement | null;
+
+  /**
+   * The import dialog, shown if a PDF file is dropped.
+   */
+  importDialog: React.ReactElement | null;
 };
 
 export function useSlideImageDropUpload(): UseSlideImageDropUploadResult {
   const [dragging, setDragging] = useState(false);
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
+  const [importFile, setImportFile] = useState<File | null>(null);
 
   const handleUploadDragEnter = useCallback(() => {
     setDragging(true);
@@ -39,12 +47,37 @@ export function useSlideImageDropUpload(): UseSlideImageDropUploadResult {
     setDragging(false);
   }, []);
 
+  const onPdfDrop = useCallback(
+    (file: File) => {
+      setImportFile(file);
+      setImportDialogOpen(true);
+      console.log(
+        'PDF file dropped, opening import dialog for file:',
+        file.name,
+      );
+    },
+    [setImportFile, setImportDialogOpen],
+  );
+
   const uploadDragOverlay = dragging ? (
-    <SlideImageUploadOverlay onDragLeave={handleDragLeave} />
+    <SlideImageUploadOverlay
+      onDragLeave={handleDragLeave}
+      onPdfDrop={onPdfDrop}
+    />
+  ) : null;
+
+  const importDialog = importDialogOpen ? (
+    <ImportDialog
+      open={importDialogOpen}
+      onClose={() => setImportDialogOpen(false)}
+      initialFile={importFile}
+      initialStep="process"
+    />
   ) : null;
 
   return {
     handleUploadDragEnter,
     uploadDragOverlay,
+    importDialog,
   };
 }
