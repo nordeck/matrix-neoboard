@@ -46,7 +46,7 @@ import {
   whiteboardWidth,
 } from '../../Whiteboard';
 import { HOTKEY_SCOPE_WHITEBOARD } from '../../WhiteboardHotkeysProvider';
-import { selectActiveAndAttachedElementsInDocumentOrder } from '../utils';
+import { selectActiveAndAttachedOrderedElements } from '../utils';
 import {
   ClipboardContent,
   deserializeFromClipboard,
@@ -91,7 +91,7 @@ export function ClipboardShortcuts() {
       }
 
       const selectedElements =
-        selectActiveAndAttachedElementsInDocumentOrder(slideInstance);
+        selectActiveAndAttachedOrderedElements(slideInstance);
 
       if (Object.keys(selectedElements).length === 0) {
         return;
@@ -125,7 +125,7 @@ export function ClipboardShortcuts() {
       }
 
       const selectedElements =
-        selectActiveAndAttachedElementsInDocumentOrder(slideInstance);
+        selectActiveAndAttachedOrderedElements(slideInstance);
 
       if (Object.keys(selectedElements).length === 0) {
         return;

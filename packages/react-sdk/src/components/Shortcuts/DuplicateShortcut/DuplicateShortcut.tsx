@@ -24,14 +24,13 @@ import {
 import { duplicate } from '../../ElementBar/DuplicateActiveElementButton/DuplicateActiveElementButton';
 import { gridCellSize } from '../../Whiteboard';
 import { HOTKEY_SCOPE_WHITEBOARD } from '../../WhiteboardHotkeysProvider';
-import { selectActiveAndAttachedElementsInDocumentOrder } from '../utils';
+import { selectActiveAndAttachedOrderedElements } from '../utils';
 
 export function DuplicateShortcut() {
   const slideInstance = useWhiteboardSlideInstance();
 
   const handleDuplicate = useCallback(() => {
-    const elements =
-      selectActiveAndAttachedElementsInDocumentOrder(slideInstance);
+    const elements = selectActiveAndAttachedOrderedElements(slideInstance);
     const boundingRect = calculateBoundingRectForElements(
       Object.values(elements),
     );

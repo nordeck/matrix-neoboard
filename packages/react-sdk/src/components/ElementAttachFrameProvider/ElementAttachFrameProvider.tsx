@@ -17,12 +17,25 @@
 import { createContext, PropsWithChildren, useMemo, useState } from 'react';
 
 export type ElementAttachFrameSetterContextType = {
+  /**
+   * Set the calculated element to frame attachment mapping when any element is moved.
+   * @param elementAttachFrame
+   */
   setElementAttachFrame: (elementAttachFrame: Record<string, string>) => void;
 
+  /**
+   * Set element IDs that are moved because they are attached to the frame.
+   * @param attachedElementsMovedByFrame
+   */
   setAttachedElementsMovedByFrame: (
     attachedElementsMovedByFrame: string[],
   ) => void;
 
+  /**
+   * Set connecting path elements IDs: path elements that are NOT selected but
+   * at least on one end connected to the active or attached element that is moved.
+   * @param connectingPathIds
+   */
   setConnectingPathIds: (connectingPathIds: string[]) => void;
 };
 
@@ -31,8 +44,22 @@ export const ElementAttachFrameSetterContext = createContext<
 >(undefined);
 
 export type ElementAttachFrameGetterContextType = {
+  /**
+   * Contains the element-to-frame attachment mapping, which is calculated
+   * when elements are moved. The key is an element ID, and the value is a frame ID.
+   */
   elementAttachFrame: Record<string, string>;
+
+  /**
+   * Return true if the frame has the element that was moved to be attached inside of it.
+   * @param frameElementId a frame id to check if it has an element to be attached
+   */
   isFrameHasElementMoved: (frameElementId: string) => boolean;
+
+  /**
+   * Return true if the element is to be attached to the frame.
+   * @param elementId an element ID to check if it has a frame to attach to
+   */
   isElementMovedHasFrame: (elementId: string) => boolean;
 };
 

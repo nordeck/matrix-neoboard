@@ -21,11 +21,11 @@ import {
 } from '../../state';
 
 /**
- * Select active and attached element for each active element in the document order.
+ * Select active and attached elements in slide order.
  * @param slideInstance slide instance
- * @returns active and attached elements of each active element
+ * @returns active and attached elements of the slide
  */
-export function selectActiveAndAttachedElementsInDocumentOrder(
+export function selectActiveAndAttachedOrderedElements(
   slideInstance: WhiteboardSlideInstance,
 ): Elements {
   const activeElementIds = findActiveAndAttachedElementIds(

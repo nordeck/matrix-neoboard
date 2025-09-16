@@ -171,7 +171,7 @@ describe('findConnectingPaths', () => {
 });
 
 describe('findActiveAndAttachedElementIds', () => {
-  it('should find active together with attached elements', () => {
+  it('should find both active and attached elements', () => {
     expect(
       findActiveAndAttachedElementIds(
         ['element-id-0', 'frame-id-0', 'frame-id-2'],

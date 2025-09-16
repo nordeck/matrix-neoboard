@@ -3,4 +3,4 @@
 '@nordeck/matrix-neoboard-widget': minor
 ---
 
-Attach elements to the frame. Implement operations on the attached elements. Works when the `REACT_APP_INFINITE_CANVAS` feature flag is enabled.
+Add attachment / detachment of elements to frames. Implement resizing and moving of frames and how it affects attached / detached elements.

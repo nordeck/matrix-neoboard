@@ -47,7 +47,7 @@ const FrameDisplay: React.FC<DisplayProps> = ({
         stroke={
           frameHasElementMoved
             ? theme.palette.primary.main
-            : theme.palette.divider
+            : theme.palette.grey[500]
         }
         strokeWidth="2"
         width={frameProps.width}

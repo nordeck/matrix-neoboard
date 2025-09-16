@@ -305,7 +305,7 @@ Elements can be attached to frames through various operations, such as moving, r
 
 Frames apply changes to their attached elements when a frame is moved or resized or in the case of other operations.
 
-Rectangle shape with id: `E8LVfJCoYubKA-x2cuc0n` that is attached to the frame:
+Rectangle shape with id: `E8LVfJCoYubKA-x2cuc0n` that is attached to a frame:
 
 ```json
 {
