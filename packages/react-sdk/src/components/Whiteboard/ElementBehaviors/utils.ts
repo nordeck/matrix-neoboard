@@ -425,7 +425,11 @@ export function findElementFrameChanges(
 }
 
 /**
- * Take elements and frames and find the element to frame intersection via bounding rectangles.
+ * Take elements and frames moved and find the element to frame intersection considering the following:
+ * - intersection is calculated via bounding rectangles
+ * - if element is within several frames, the topmost frame is found
+ * - if element is attached to the frame and this frame is moved, then this frame of the element is found ignoring any other frame
+ *
  * @param elements elements to check
  * @param frameElements frame elements
  * @returns element to frame intersection
@@ -438,7 +442,11 @@ export function findElementAttachFrame(
 
   for (const [elementId, element] of Object.entries(elements)) {
     if (element && element.type !== 'frame') {
-      const frameElementId = findFrameToAttach(element, frameElements);
+      const { attachedFrame } = element;
+      const frameElementId =
+        attachedFrame !== undefined && elements[attachedFrame] !== undefined
+          ? attachedFrame
+          : findFrameToAttach(element, frameElements);
       if (frameElementId) {
         elementAttachFrame[elementId] = frameElementId;
       }

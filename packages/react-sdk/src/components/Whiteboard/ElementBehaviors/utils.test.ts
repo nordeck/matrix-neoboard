@@ -920,6 +920,63 @@ describe('findElementAttachFrame', () => {
     });
   });
 
+  it('should find another frame when attached element is moved to another frame', () => {
+    expect(
+      findElementAttachFrame(
+        {
+          'element-id-0': mockRectangleElement({
+            position: { x: 100, y: 101 },
+            attachedFrame: 'frame-id-0',
+          }),
+        },
+        {
+          'frame-id-0': mockFrameElement({
+            position: { x: 0, y: 1 },
+            width: 150,
+            height: 200,
+          }),
+          'frame-id-1': mockFrameElement({
+            position: { x: 100, y: 101 },
+            width: 50,
+            height: 100,
+          }),
+        },
+      ),
+    ).toEqual({
+      'element-id-0': 'frame-id-1',
+    });
+  });
+
+  it('should not find another frame when attached element is moved by the frame it is attached to', () => {
+    const frame = mockFrameElement({
+      position: { x: 0, y: 1 },
+      width: 150,
+      height: 200,
+    });
+
+    expect(
+      findElementAttachFrame(
+        {
+          'element-id-0': mockRectangleElement({
+            position: { x: 100, y: 101 },
+            attachedFrame: 'frame-id-0',
+          }),
+          'frame-id-0': frame,
+        },
+        {
+          'frame-id-0': frame,
+          'frame-id-1': mockFrameElement({
+            position: { x: 100, y: 101 },
+            width: 50,
+            height: 100,
+          }),
+        },
+      ),
+    ).toEqual({
+      'element-id-0': 'frame-id-0',
+    });
+  });
+
   it('should not attach frame element to frame', () => {
     expect(
       findElementAttachFrame(
