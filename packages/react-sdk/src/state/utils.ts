@@ -79,21 +79,15 @@ export function findActiveAndAttachedElementIds(
   frameElements: Elements<FrameElement>,
 ): string[] {
   return activeElementIds.flatMap((elementId) => {
-    const frameElement: FrameElement | undefined = frameElements[elementId];
-    if (
-      frameElement &&
-      frameElement.attachedElements &&
-      frameElement.attachedElements.length > 0
-    ) {
-      return [
-        elementId,
-        ...frameElement.attachedElements.filter(
-          (elementId) => !activeElementIds.includes(elementId),
-        ),
-      ];
-    } else {
-      return elementId;
-    }
+    const attachedElements: string[] | undefined =
+      frameElements[elementId]?.attachedElements;
+
+    return attachedElements?.length
+      ? [
+          elementId,
+          ...attachedElements.filter((id) => !activeElementIds.includes(id)),
+        ]
+      : elementId;
   });
 }
 
