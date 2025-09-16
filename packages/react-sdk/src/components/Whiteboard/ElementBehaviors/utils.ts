@@ -16,25 +16,24 @@
 
 import { uniq } from 'lodash';
 import {
-  disconnectPathElement,
-  disconnectShapeElement,
-  Element,
-  Elements,
-  findFrameToAttach,
-  FrameElement,
-  PathElement,
-  ShapeElement,
-  WhiteboardSlideInstance,
-} from '../../../state';
-import { ElementUpdate } from '../../../state/types';
-import {
   changeElementFrame,
   changeFrameElements,
   connectPathElement,
   connectShapeElement,
+  disconnectPathElement,
   disconnectPathElementOnPosition,
-  FrameElementsChange,
-} from '../../../state/utils';
+  disconnectShapeElement,
+  Element,
+  ElementFrameChange,
+  Elements,
+  ElementUpdate,
+  findFrameToAttach,
+  FrameElement,
+  invertChangeElementFrame,
+  PathElement,
+  ShapeElement,
+  WhiteboardSlideInstance,
+} from '../../../state';
 import {
   ElementOverride,
   ElementOverrideUpdate,
@@ -399,16 +398,6 @@ function findPathElementsToDisconnect(
   return res;
 }
 
-export type ElementFrameChange =
-  | {
-      oldFrameId?: string;
-      newFrameId: string;
-    }
-  | {
-      oldFrameId: string;
-      newFrameId?: string;
-    };
-
 /**
  * Find changes to be applied to elements regarding attaching to frame.
  * @param elementAttachFrame element to frame attachment
@@ -433,41 +422,6 @@ export function findElementFrameChanges(
   }
 
   return elementFrameChanges;
-}
-
-/**
- * Invert the changes to be based on frame.
- * @param changeElementFrame element to frame changes
- * @returns frame to elements changes
- */
-export function invertChangeElementFrame(
-  changeElementFrame: Record<string, ElementFrameChange>,
-): Record<string, FrameElementsChange> {
-  const changeFrameElements: Record<string, FrameElementsChange> = {};
-
-  for (const [elementId, change] of Object.entries(changeElementFrame)) {
-    const { oldFrameId, newFrameId } = change;
-    if (oldFrameId && changeFrameElements[oldFrameId] === undefined) {
-      changeFrameElements[oldFrameId] = {
-        attachElementIds: [],
-        detachElementIds: [],
-      };
-    }
-    if (newFrameId && changeFrameElements[newFrameId] === undefined) {
-      changeFrameElements[newFrameId] = {
-        attachElementIds: [],
-        detachElementIds: [],
-      };
-    }
-    if (oldFrameId) {
-      changeFrameElements[oldFrameId].detachElementIds.push(elementId);
-    }
-    if (newFrameId) {
-      changeFrameElements[newFrameId].attachElementIds.push(elementId);
-    }
-  }
-
-  return changeFrameElements;
 }
 
 /**

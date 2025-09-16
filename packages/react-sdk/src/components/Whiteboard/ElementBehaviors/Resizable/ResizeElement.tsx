@@ -19,13 +19,14 @@ import { useUnmount } from 'react-use';
 import { filterRecord } from '../../../../lib';
 import {
   calculateBoundingRectForElements,
+  ElementFrameChange,
+  ElementUpdate,
   findConnectingPaths,
   findFrameToAttach,
   FrameElement,
   PathElement,
   useWhiteboardSlideInstance,
 } from '../../../../state';
-import { ElementUpdate } from '../../../../state/types';
 import { useAppDispatch } from '../../../../store';
 import { setShapeSize } from '../../../../store/shapeSizesSlice';
 import { useConnectionPoint } from '../../../ConnectionPointProvider';
@@ -40,7 +41,6 @@ import { getRenderProperties } from '../../../elements/line/getRenderProperties'
 import { useSvgCanvasContext } from '../../SvgCanvas';
 import { gridCellSize } from '../../constants';
 import {
-  ElementFrameChange,
   elementsUpdates,
   findElementAttachFrame,
   findElementFrameChanges,

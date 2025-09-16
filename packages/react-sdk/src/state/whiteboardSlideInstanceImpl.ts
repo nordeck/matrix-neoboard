@@ -68,6 +68,7 @@ import {
   WhiteboardUndoManagerContext,
 } from './types';
 import {
+  ElementFrameChange,
   changeElementFrame,
   changeFrameElements,
   connectShapeElement,
@@ -78,6 +79,7 @@ import {
   findConnectingShapes,
   findElementDetachFrame,
   findNotSelectedAttachedElements,
+  invertChangeElementFrame,
   invertElementAttachFrame,
 } from './utils';
 
@@ -371,7 +373,7 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
      * Remove relations to unknown elements.
      * */
     const newElements: Elements = {};
-    const updates: ElementUpdate[] = [];
+    const elementFrameChanges: Record<string, ElementFrameChange> = {};
     for (const [elementId, element] of Object.entries(elements)) {
       let newElement: Element;
       if (element.type === 'shape') {
@@ -443,10 +445,9 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
               detachElementIds: [],
             });
             if (patch) {
-              updates.push({
-                elementId: attachedFrame,
-                patch: patch,
-              });
+              elementFrameChanges[newElementId] = {
+                newFrameId: attachedFrame,
+              };
             }
           } else if (elements[attachedFrame]?.type === 'frame') {
             // allow to reference a frame for elements, take new id
@@ -467,6 +468,25 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
       newElements[newElementId] = newElement;
     }
 
+    const frameElementsChanges = invertChangeElementFrame(elementFrameChanges);
+
+    // Attach elements to frame
+    const framesUpdates: ElementUpdate[] = [];
+    for (const [frameElementId, changes] of Object.entries(
+      frameElementsChanges,
+    )) {
+      const frameElement = this.getElement(frameElementId);
+      if (frameElement && frameElement.type === 'frame') {
+        const patch = changeFrameElements(frameElement, changes);
+        if (patch) {
+          framesUpdates.push({
+            elementId: frameElementId,
+            patch,
+          });
+        }
+      }
+    }
+
     const [addElementsChangeFn, elementIds] = generateAddElements(
       this.slideId,
       Object.values(newElements),
@@ -479,7 +499,7 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
     this.document.performChange(
       generate([
         addElementsChangeFn,
-        ...updates.map(({ elementId, patch }) =>
+        ...framesUpdates.map(({ elementId, patch }) =>
           generateUpdateElement(this.slideId, elementId, patch),
         ),
       ]),

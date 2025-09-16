@@ -160,6 +160,51 @@ export function invertElementAttachFrame(
   return frameElements;
 }
 
+export type ElementFrameChange =
+  | {
+      oldFrameId?: string;
+      newFrameId: string;
+    }
+  | {
+      oldFrameId: string;
+      newFrameId?: string;
+    };
+
+/**
+ * Invert the changes to be based on frame.
+ * @param changeElementFrame element to frame changes
+ * @returns frame to elements changes
+ */
+export function invertChangeElementFrame(
+  changeElementFrame: Record<string, ElementFrameChange>,
+): Record<string, FrameElementsChange> {
+  const changeFrameElements: Record<string, FrameElementsChange> = {};
+
+  for (const [elementId, change] of Object.entries(changeElementFrame)) {
+    const { oldFrameId, newFrameId } = change;
+    if (oldFrameId && changeFrameElements[oldFrameId] === undefined) {
+      changeFrameElements[oldFrameId] = {
+        attachElementIds: [],
+        detachElementIds: [],
+      };
+    }
+    if (newFrameId && changeFrameElements[newFrameId] === undefined) {
+      changeFrameElements[newFrameId] = {
+        attachElementIds: [],
+        detachElementIds: [],
+      };
+    }
+    if (oldFrameId) {
+      changeFrameElements[oldFrameId].detachElementIds.push(elementId);
+    }
+    if (newFrameId) {
+      changeFrameElements[newFrameId].attachElementIds.push(elementId);
+    }
+  }
+
+  return changeFrameElements;
+}
+
 export type FrameElementsChange = {
   attachElementIds: string[];
   detachElementIds: string[];

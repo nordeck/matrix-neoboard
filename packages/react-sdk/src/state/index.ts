@@ -17,6 +17,7 @@
 export * from './crdt';
 export * from './export';
 export type {
+  ElementUpdate,
   Elements,
   PresentationManager,
   PresentationState,
@@ -53,9 +54,16 @@ export {
   useWhiteboardSlideInstance,
 } from './useWhiteboardSlideInstance';
 export {
+  changeElementFrame,
+  changeFrameElements,
+  connectPathElement,
+  connectShapeElement,
   disconnectPathElement,
+  disconnectPathElementOnPosition,
   disconnectShapeElement,
   findActiveAndAttachedElementIds,
   findConnectingPaths,
+  invertChangeElementFrame,
 } from './utils';
+export type { ElementFrameChange } from './utils';
 export { createWhiteboardManager } from './whiteboardManagerImpl';

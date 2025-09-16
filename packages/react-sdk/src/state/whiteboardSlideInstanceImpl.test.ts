@@ -664,21 +664,42 @@ describe('WhiteboardSlideInstanceImpl', () => {
     );
 
     const frameElement1 = mockFrameElement();
+    const frameElement2 = mockFrameElement();
     const frameElementId1 = slideInstance.addElement(frameElement1);
+    const frameElementId2 = slideInstance.addElement(frameElement2);
 
     const shapeElement = mockRectangleElement({
       attachedFrame: frameElementId1,
     });
-    const [shapeElementId] = slideInstance.addElementsWithRelations({
-      'element-id-0': shapeElement,
+    const lineElement = mockLineElement({
+      attachedFrame: frameElementId1,
     });
+    const shapeElement2 = mockRectangleElement({
+      attachedFrame: frameElementId2,
+    });
+    const [shapeElementId, lineElementId, shapeElementId2] =
+      slideInstance.addElementsWithRelations({
+        'element-id-0': shapeElement,
+        'element-id-1': lineElement,
+        'element-id-2': shapeElement2,
+      });
 
     expect(slideInstance.getElement(shapeElementId)).toEqual(shapeElement);
+    expect(slideInstance.getElement(lineElementId)).toEqual(lineElement);
+    expect(slideInstance.getElement(shapeElementId2)).toEqual(shapeElement2);
     expect(slideInstance.getElement(frameElementId1)).toEqual({
       ...frameElement1,
-      attachedElements: [shapeElementId],
+      attachedElements: [shapeElementId, lineElementId],
     });
-    expect(slideInstance.getActiveElementIds()).toEqual([shapeElementId]);
+    expect(slideInstance.getElement(frameElementId2)).toEqual({
+      ...frameElement2,
+      attachedElements: [shapeElementId2],
+    });
+    expect(slideInstance.getActiveElementIds()).toEqual([
+      shapeElementId,
+      lineElementId,
+      shapeElementId2,
+    ]);
   });
 
   it('should throw when adding element to a locked slide', () => {
