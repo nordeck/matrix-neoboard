@@ -18,6 +18,7 @@ import { useTheme } from '@mui/material';
 import React from 'react';
 import { FrameElement } from '../../../state';
 import {
+  ElementContextMenu,
   MoveableElement,
   SelectableElement,
   WithExtendedSelectionProps,
@@ -27,6 +28,7 @@ type DisplayProps = FrameElement & WithExtendedSelectionProps;
 
 const FrameDisplay: React.FC<DisplayProps> = ({
   elementId,
+  activeElementIds = [],
   active,
   readOnly,
   elements = {},
@@ -64,7 +66,9 @@ const FrameDisplay: React.FC<DisplayProps> = ({
       elementId={elementId}
     >
       <MoveableElement elementId={elementId} elements={elements}>
-        {renderedChild}
+        <ElementContextMenu activeElementIds={activeElementIds}>
+          {renderedChild}
+        </ElementContextMenu>
       </MoveableElement>
     </SelectableElement>
   );
