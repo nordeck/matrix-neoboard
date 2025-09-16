@@ -29,7 +29,7 @@ import {
   ElementUpdate,
   findFrameToAttach,
   FrameElement,
-  invertChangeElementFrame,
+  getFrameElementsChanges,
   PathElement,
   ShapeElement,
   WhiteboardSlideInstance,
@@ -233,7 +233,7 @@ export function frameResizeUpdates(
 ): ElementUpdate[] {
   const updates: ElementUpdate[] = [];
 
-  const frameElementsChanges = invertChangeElementFrame(elementFrameChanges);
+  const frameElementsChanges = getFrameElementsChanges(elementFrameChanges);
 
   updates.push({
     elementId: resizeFrameElementId,
@@ -357,7 +357,7 @@ export function elementsUpdates(
     }
   }
 
-  const frameElementsChanges = invertChangeElementFrame(elementFrameChanges);
+  const frameElementsChanges = getFrameElementsChanges(elementFrameChanges);
 
   // Attach / detach elements to frame
   const framesUpdates: ElementUpdate[] = [];

@@ -63,7 +63,7 @@ export {
   disconnectShapeElement,
   findActiveAndAttachedElementIds,
   findConnectingPaths,
-  invertChangeElementFrame,
+  getFrameElementsChanges,
 } from './utils';
 export type { ElementFrameChange } from './utils';
 export { createWhiteboardManager } from './whiteboardManagerImpl';

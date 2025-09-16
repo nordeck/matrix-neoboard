@@ -79,8 +79,8 @@ import {
   findConnectingShapes,
   findElementDetachFrame,
   findNotSelectedAttachedElements,
-  invertChangeElementFrame,
-  invertElementAttachFrame,
+  getFrameAttachments,
+  getFrameElementsChanges,
 } from './utils';
 
 export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
@@ -468,7 +468,7 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
       newElements[newElementId] = newElement;
     }
 
-    const frameElementsChanges = invertChangeElementFrame(elementFrameChanges);
+    const frameElementsChanges = getFrameElementsChanges(elementFrameChanges);
 
     // Attach elements to frame
     const framesUpdates: ElementUpdate[] = [];
@@ -525,7 +525,7 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
 
     const detachElementIds = findNotSelectedAttachedElements(elements);
     const elementDetachFrame = findElementDetachFrame(elements);
-    const frameDetachElements = invertElementAttachFrame(elementDetachFrame);
+    const frameDetachElements = getFrameAttachments(elementDetachFrame);
 
     const changeElementIds = [
       ...detachElementIds,

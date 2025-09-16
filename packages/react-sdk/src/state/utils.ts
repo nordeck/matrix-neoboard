@@ -137,7 +137,11 @@ export function findElementDetachFrame(
   return elementDetachFrame;
 }
 
-export function invertElementAttachFrame(
+/**
+ * Take element-to-frame and calculate frame-to-elements attachment
+ * @param elementAttachFrame element-to-frame attachment mapping
+ */
+export function getFrameAttachments(
   elementAttachFrame: Record<string, string>,
 ): Record<string, string[]> {
   const frameElements: Record<string, string[]> = {};
@@ -165,11 +169,11 @@ export type ElementFrameChange =
     };
 
 /**
- * Invert the changes to be based on frame.
+ * Take element-to-frame and calculate frame-to-elements attachment changes
  * @param changeElementFrame element to frame changes
  * @returns frame to elements changes
  */
-export function invertChangeElementFrame(
+export function getFrameElementsChanges(
   changeElementFrame: Record<string, ElementFrameChange>,
 ): Record<string, FrameElementsChange> {
   const changeFrameElements: Record<string, FrameElementsChange> = {};
