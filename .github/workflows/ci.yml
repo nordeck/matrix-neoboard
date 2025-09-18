@@ -382,15 +382,7 @@ jobs:
         run: |
           helm upgrade --install matrix-neoboard ./charts/matrix-neoboard-widget -f ./valhalla/cluster/neotoolsuite-dev/neoboard/values-neotoolsuite-dev.yaml -n matrix --set image.tag="argo-${{ needs.build.outputs.ARGOCD_SHA }}"
 
-      - name: Restart rollout
-        run: |
-          kubectl rollout restart deployment matrix-neoboard -n matrix
-
       # Deploy infinite canvas
       - name: Deploy k8s to cluster (infinite canvas)
         run: |
           helm upgrade --install matrix-neoboard-infinite-canvas ./charts/matrix-neoboard-widget -f ./valhalla/cluster/neotoolsuite-dev/neoboard/values-neotoolsuite-dev.infinite-canvas.yaml -n matrix --set image.tag="argo-${{ needs.build.outputs.ARGOCD_SHA }}"
-
-      - name: Restart rollout (infinite canvas)
-        run: |
-          kubectl rollout restart deployment matrix-neoboard-widget-infinite-canvas -n matrix
