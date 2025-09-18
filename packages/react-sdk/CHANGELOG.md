@@ -1,5 +1,15 @@
 # @nordeck/matrix-neoboard-react-sdk
 
+## 1.4.0
+
+### Minor Changes
+
+- 1d385a6: Add attachment / detachment of elements to frames. Implement resizing and moving of frames and how it affects attached / detached elements.
+
+### Patch Changes
+
+- 1d385a6: Improve element ID validation to check for disallowed values. Fix the whiteboard import to validate incoming IDs.
+
 ## 1.3.0
 
 ### Minor Changes
