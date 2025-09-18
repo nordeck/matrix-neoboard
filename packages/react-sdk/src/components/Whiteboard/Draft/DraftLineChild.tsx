@@ -62,11 +62,12 @@ export const DraftLineChild = ({
   const handleMouseUp = useCallback(() => {
     if (cursorPoints) {
       if (cursorPoints.length > 1) {
-        slideInstance.addPathElementAndConnect(
+        slideInstance.addPathElementAndRelate(
           createShapeFromPoints({
             kind,
             cursorPoints,
             strokeColor,
+            frameElements: slideInstance.getFrameElements(),
             gridCellSize: isShowGrid ? gridCellSize : undefined,
             onlyStartAndEndPoints,
             startMarker,

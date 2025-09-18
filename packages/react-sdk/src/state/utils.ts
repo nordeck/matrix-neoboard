@@ -15,7 +15,13 @@
  */
 
 import { isEqual, uniq } from 'lodash';
-import { Element, PathElement, ShapeElement } from './crdt';
+import {
+  Element,
+  FrameElement,
+  ImageElement,
+  PathElement,
+  ShapeElement,
+} from './crdt';
 import { Elements } from './types';
 
 /**
@@ -60,6 +66,201 @@ export function findConnectingShapes(elements: Elements): string[] {
   }
 
   return uniq(elementIds);
+}
+
+/**
+ * Return the ids of the active elements and the ids of the attached elements for each active element.
+ * @param activeElementIds - active elements
+ * @param frameElements - frame elements
+ * @returns active and attached elements of each active element
+ */
+export function findActiveAndAttachedElementIds(
+  activeElementIds: string[],
+  frameElements: Elements<FrameElement>,
+): string[] {
+  return activeElementIds.flatMap((elementId) => {
+    const attachedElements: string[] | undefined =
+      frameElements[elementId]?.attachedElements;
+
+    return attachedElements?.length
+      ? [
+          elementId,
+          ...attachedElements.filter((id) => !activeElementIds.includes(id)),
+        ]
+      : elementId;
+  });
+}
+
+/**
+ * Find the elements that are attached to the frames within the passed selected elements but are not themselves selected.
+ * @param elements - selected elements
+ */
+export function findNotSelectedAttachedElements(elements: Elements): string[] {
+  const elementIds: string[] = [];
+
+  for (const element of Object.values(elements)) {
+    if (element.type === 'frame' && element.attachedElements) {
+      for (const attachedElement of element.attachedElements) {
+        if (!elements[attachedElement]) {
+          // Attached element, not selected
+          elementIds.push(attachedElement);
+        }
+      }
+    }
+  }
+
+  return elementIds;
+}
+
+/**
+ * Find attached elements to detach from frames when the passed elements are deleted.
+ * @param elements - elements to be deleted
+ */
+export function findElementDetachFrame(
+  elements: Elements,
+): Record<string, string> {
+  const elementDetachFrame: Record<string, string> = {};
+
+  for (const [elementId, element] of Object.entries(elements)) {
+    if (element.type !== 'frame' && element.attachedFrame) {
+      const frameId = element.attachedFrame;
+      if (!elements[frameId]) {
+        /**
+         * A non frame element is selected, its attached frame is not.
+         * Saving the element to be detached from the frame.
+         */
+        elementDetachFrame[elementId] = frameId;
+      }
+    }
+  }
+
+  return elementDetachFrame;
+}
+
+/**
+ * Take element-to-frame and calculate frame-to-elements attachment
+ * @param elementAttachFrame element-to-frame attachment mapping
+ */
+export function getFrameAttachments(
+  elementAttachFrame: Record<string, string>,
+): Record<string, string[]> {
+  const frameElements: Record<string, string[]> = {};
+
+  for (const [elementId, frameElementId] of Object.entries(
+    elementAttachFrame,
+  )) {
+    if (frameElements[frameElementId] === undefined) {
+      frameElements[frameElementId] = [];
+    }
+    frameElements[frameElementId].push(elementId);
+  }
+
+  return frameElements;
+}
+
+export type ElementFrameChange =
+  | {
+      oldFrameId?: string;
+      newFrameId: string;
+    }
+  | {
+      oldFrameId: string;
+      newFrameId?: string;
+    };
+
+/**
+ * Take element-to-frame and calculate frame-to-elements attachment changes
+ * @param changeElementFrame element to frame changes
+ * @returns frame to elements changes
+ */
+export function getFrameElementsChanges(
+  changeElementFrame: Record<string, ElementFrameChange>,
+): Record<string, FrameElementsChange> {
+  const changeFrameElements: Record<string, FrameElementsChange> = {};
+
+  for (const [elementId, change] of Object.entries(changeElementFrame)) {
+    const { oldFrameId, newFrameId } = change;
+    if (oldFrameId && changeFrameElements[oldFrameId] === undefined) {
+      changeFrameElements[oldFrameId] = {
+        attachElementIds: [],
+        detachElementIds: [],
+      };
+    }
+    if (newFrameId && changeFrameElements[newFrameId] === undefined) {
+      changeFrameElements[newFrameId] = {
+        attachElementIds: [],
+        detachElementIds: [],
+      };
+    }
+    if (oldFrameId) {
+      changeFrameElements[oldFrameId].detachElementIds.push(elementId);
+    }
+    if (newFrameId) {
+      changeFrameElements[newFrameId].attachElementIds.push(elementId);
+    }
+  }
+
+  return changeFrameElements;
+}
+
+export type FrameElementsChange = {
+  attachElementIds: string[];
+  detachElementIds: string[];
+};
+
+/**
+ * Create a patch to attach and detach elements to a frame element
+ */
+export function changeFrameElements(
+  { attachedElements }: FrameElement,
+  { attachElementIds, detachElementIds }: FrameElementsChange,
+): Pick<FrameElement, 'attachedElements'> | undefined {
+  let newAttachedElements = attachedElements ? [...attachedElements] : [];
+  let modified: boolean = false;
+
+  for (const elementId of attachElementIds) {
+    if (!newAttachedElements.includes(elementId)) {
+      newAttachedElements.push(elementId);
+      modified = true;
+    }
+  }
+
+  if (
+    detachElementIds.length > 0 &&
+    newAttachedElements.some((elementId) =>
+      detachElementIds.includes(elementId),
+    )
+  ) {
+    modified = true;
+    newAttachedElements = newAttachedElements.filter(
+      (elementId) => !detachElementIds.includes(elementId),
+    );
+  }
+
+  return modified
+    ? {
+        attachedElements:
+          newAttachedElements.length !== 0 ? newAttachedElements : undefined,
+      }
+    : undefined;
+}
+
+/**
+ * Create a patch to attach and detach a frame to an element
+ */
+export function changeElementFrame(
+  { attachedFrame }: ShapeElement | PathElement | ImageElement,
+  frameElementId: string | undefined,
+): Pick<ShapeElement, 'attachedFrame'> | undefined {
+  if (!frameElementId) {
+    return attachedFrame ? { attachedFrame: undefined } : undefined;
+  }
+
+  return attachedFrame !== frameElementId
+    ? {
+        attachedFrame: frameElementId,
+      }
+    : undefined;
 }
 
 export function connectPathElement(
@@ -204,14 +405,29 @@ export function disconnectShapeElement(
   }
 }
 
-export function deleteConnectionData(element: Element): Element {
+/**
+ * Deletes connection and attachment relations from the element
+ * @param element element to delete relations
+ * @returns a new element without relations
+ */
+export function deleteRelations(element: Element): Element {
   if (element.type === 'shape') {
-    const { connectedPaths, ...newElement } = element;
+    const { connectedPaths, attachedFrame, ...newElement } = element;
     return newElement;
   } else if (element.type === 'path') {
-    const { connectedElementStart, connectedElementEnd, ...newElement } =
-      element;
+    const {
+      connectedElementStart,
+      connectedElementEnd,
+      attachedFrame,
+      ...newElement
+    } = element;
     return newElement;
+  } else if (element.type === 'frame') {
+    const { attachedElements, ...newFrame } = element;
+    return newFrame;
+  } else if (element.type === 'image') {
+    const { attachedFrame, ...newImage } = element;
+    return newImage;
   } else {
     return element;
   }

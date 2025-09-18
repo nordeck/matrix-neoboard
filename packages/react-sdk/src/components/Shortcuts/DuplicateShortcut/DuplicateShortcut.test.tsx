@@ -22,9 +22,10 @@ import { Mocked, afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
   WhiteboardTestingContextProvider,
   mockEllipseElement,
+  mockFrameElement,
   mockLineElement,
   mockWhiteboardManager,
-} from '../../../lib/testUtils/documentTestUtils';
+} from '../../../lib/testUtils';
 import { WhiteboardInstance, WhiteboardManager } from '../../../state';
 import { WhiteboardHotkeysProvider } from '../../WhiteboardHotkeysProvider';
 import { DuplicateShortcut } from './DuplicateShortcut';
@@ -56,6 +57,14 @@ describe('<DuplicateShortcut>', () => {
             [
               'element-2',
               mockEllipseElement({ connectedPaths: ['element-1'] }),
+            ],
+            [
+              'frame-0',
+              mockFrameElement({
+                position: { x: 500, y: 500 },
+                width: 300,
+                height: 300,
+              }),
             ],
           ],
         ],
@@ -96,12 +105,12 @@ describe('<DuplicateShortcut>', () => {
       await userEvent.keyboard(key);
 
       // check that the elements have been duplicated
-      expect(activeSlide.getElementIds()).toHaveLength(3 + elementIds.length);
+      expect(activeSlide.getElementIds()).toHaveLength(4 + elementIds.length);
     },
   );
 
   it.each(['{Control>}d{/Control}', '{meta>}d'])(
-    'should copy connected elements with the %s keys',
+    'should duplicate connected elements with the %s key',
     async (key) => {
       const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
       activeSlide.setActiveElementIds(['element-1', 'element-2']);
@@ -111,9 +120,9 @@ describe('<DuplicateShortcut>', () => {
       await userEvent.keyboard(key);
 
       const elementIds = activeSlide.getElementIds();
-      expect(elementIds).toHaveLength(5);
+      expect(elementIds).toHaveLength(6);
 
-      const [newLineElementId, newShapeElementId] = elementIds.slice(3);
+      const [newLineElementId, newShapeElementId] = elementIds.slice(4);
 
       const newLineElement = activeSlide.getElement(newLineElementId);
       const newShapeElement = activeSlide.getElement(newShapeElementId);
@@ -128,6 +137,55 @@ describe('<DuplicateShortcut>', () => {
         expect.objectContaining({
           type: 'shape',
           connectedPaths: [newLineElementId],
+        }),
+      );
+    },
+  );
+
+  it.each(['{Control>}d{/Control}', '{meta>}d'])(
+    'should duplicate frame when it has element attached with the %s key keeping elements in the document order',
+    async (key) => {
+      const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
+
+      activeSlide.updateElements([
+        {
+          elementId: 'frame-0',
+          patch: {
+            attachedElements: ['element-1'],
+          },
+        },
+        {
+          elementId: 'element-1',
+          patch: {
+            attachedFrame: 'frame-0',
+          },
+        },
+      ]);
+
+      activeSlide.setActiveElementIds(['frame-0']);
+
+      render(<DuplicateShortcut />, { wrapper: Wrapper });
+
+      await userEvent.keyboard(key);
+
+      const elementIds = activeSlide.getElementIds();
+      expect(elementIds).toHaveLength(6);
+
+      const [newLineElementId, newFrameElementId] = elementIds.slice(4);
+
+      const newLineElement = activeSlide.getElement(newLineElementId);
+      const newFrameElement = activeSlide.getElement(newFrameElementId);
+
+      expect(newLineElement).toEqual(
+        expect.objectContaining({
+          type: 'path',
+          attachedFrame: newFrameElementId,
+        }),
+      );
+      expect(newFrameElement).toEqual(
+        expect.objectContaining({
+          type: 'frame',
+          attachedElements: [newLineElementId],
         }),
       );
     },

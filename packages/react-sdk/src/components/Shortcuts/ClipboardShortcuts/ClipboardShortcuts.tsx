@@ -20,6 +20,7 @@ import { useHotkeysContext } from 'react-hotkeys-hook';
 import {
   calculateBoundingRectForElements,
   clampElementPosition,
+  copyElementWithAttachedFrame,
   Element,
   Elements,
   modifyElementPosition,
@@ -45,6 +46,7 @@ import {
   whiteboardWidth,
 } from '../../Whiteboard';
 import { HOTKEY_SCOPE_WHITEBOARD } from '../../WhiteboardHotkeysProvider';
+import { selectActiveAndAttachedOrderedElements } from '../utils';
 import {
   ClipboardContent,
   deserializeFromClipboard,
@@ -88,22 +90,15 @@ export function ClipboardShortcuts() {
         return;
       }
 
-      const activeElementIds = slideInstance.getActiveElementIds();
+      const selectedElements =
+        selectActiveAndAttachedOrderedElements(slideInstance);
 
-      if (activeElementIds.length === 0) {
-        return;
-      }
-
-      const orderedActiveElementIds =
-        slideInstance.sortElementIds(activeElementIds);
-      const activeElements = slideInstance.getElements(orderedActiveElementIds);
-
-      if (Object.keys(activeElements).length === 0) {
+      if (Object.keys(selectedElements).length === 0) {
         return;
       }
 
       const content = serializeToClipboard({
-        elements: activeElements,
+        elements: selectedElements,
       });
       writeIntoClipboardData(event.clipboardData, content);
       event.preventDefault();
@@ -129,25 +124,18 @@ export function ClipboardShortcuts() {
         return;
       }
 
-      const activeElementIds = slideInstance.getActiveElementIds();
+      const selectedElements =
+        selectActiveAndAttachedOrderedElements(slideInstance);
 
-      if (activeElementIds.length === 0) {
-        return;
-      }
-
-      const orderedActiveElementIds =
-        slideInstance.sortElementIds(activeElementIds);
-      const activeElements = slideInstance.getElements(orderedActiveElementIds);
-
-      if (Object.keys(activeElements).length === 0) {
+      if (Object.keys(selectedElements).length === 0) {
         return;
       }
 
       const content = serializeToClipboard({
-        elements: activeElements,
+        elements: selectedElements,
       });
       writeIntoClipboardData(event.clipboardData, content);
-      slideInstance.removeElements(activeElementIds);
+      slideInstance.removeElements(Object.keys(selectedElements));
       event.preventDefault();
     };
 
@@ -218,15 +206,30 @@ export function ClipboardShortcuts() {
         } else {
           const newElements: Elements = {};
           for (const [elementId, element] of Object.entries(elements)) {
-            newElements[elementId] = modifyElementPosition(
+            let newElement = modifyElementPosition(
               element,
               positionClamp,
               offsetX,
               offsetY,
             );
+
+            /**
+             * If pasted element is not attached to frame, then
+             * try to find an existing frame to attach to.
+             */
+            if (
+              newElement.type !== 'frame' &&
+              newElement.attachedFrame === undefined
+            ) {
+              newElement = copyElementWithAttachedFrame(
+                newElement,
+                slideInstance.getFrameElements(),
+              );
+            }
+            newElements[elementId] = newElement;
           }
           pastedElementIds =
-            slideInstance.addElementsWithConnections(newElements);
+            slideInstance.addElementsWithRelations(newElements);
         }
         slideInstance.setActiveElementIds(pastedElementIds);
       }

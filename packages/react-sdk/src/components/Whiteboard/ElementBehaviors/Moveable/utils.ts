@@ -17,14 +17,17 @@
 import { clamp } from 'lodash';
 import { isDefined } from '../../../../lib';
 import {
+  BoundingRect,
   calculateBoundingRectForElements,
   Element,
   Elements,
   PathElement,
+  Point,
 } from '../../../../state';
-import { BoundingRect, Point } from '../../../../state/crdt/documents/point';
-import { ElementOverrideUpdate } from '../../../ElementOverridesProvider';
-import { ElementOverride } from '../../../ElementOverridesProvider/ElementOverridesProvider';
+import {
+  ElementOverride,
+  ElementOverrideUpdate,
+} from '../../../ElementOverridesProvider';
 import { snapToGrid } from '../../Grid';
 import { gridCellSize } from '../../constants';
 import {
