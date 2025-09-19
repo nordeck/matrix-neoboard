@@ -175,7 +175,10 @@ export const TextElement = ({
       const service =
         model.startsWith('deepseek') ||
         model.startsWith('gemma') ||
-        model.startsWith('llama')
+        model.startsWith('gpt-oss') ||
+        model.startsWith('llama') ||
+        model.startsWith('mistral') ||
+        model.startsWith('qwen')
           ? 'ollama'
           : (globalThis.localStorage.getItem('llm-service') ?? 'open-ai');
       let text: string;
