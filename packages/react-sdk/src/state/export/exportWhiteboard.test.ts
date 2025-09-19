@@ -20,6 +20,7 @@ import type { FetchMock } from 'vitest-fetch-mock';
 import * as lib from '../../lib';
 import {
   mockEllipseElement,
+  mockFrameElement,
   mockImageElement,
   mockLineElement,
   mockRectangleElement,
@@ -363,6 +364,79 @@ describe('convertWhiteboardToExportFormat', () => {
     );
   });
 
+  it('should export frames and attached elements with ids', async () => {
+    const document = createWhiteboardDocument();
+
+    const frameId = 'element-id-1';
+    const ellipseId = 'element-id-2';
+    const lineId = 'element-id-3';
+
+    document.performChange((doc) => {
+      const [addElement0] = generateAddElement(slide0, mockRectangleElement());
+      addElement0(doc);
+
+      const [addElement1] = generateAddElement(
+        slide0,
+        mockFrameElement({
+          attachedElements: [ellipseId, lineId],
+        }),
+        frameId,
+      );
+      addElement1(doc);
+
+      const [addElement2] = generateAddElement(
+        slide0,
+        mockEllipseElement({
+          attachedFrame: frameId,
+        }),
+        ellipseId,
+      );
+      addElement2(doc);
+
+      const [addElement3] = generateAddElement(
+        slide0,
+        mockLineElement({
+          attachedFrame: frameId,
+        }),
+        lineId,
+      );
+      addElement3(doc);
+    });
+
+    expect(await exportWhiteboard(document.getData(), mockWidgetApi())).toEqual(
+      {
+        version: 'net.nordeck.whiteboard@v1',
+        whiteboard: {
+          slides: [
+            {
+              elements: [
+                mockRectangleElement(),
+                {
+                  id: frameId,
+                  ...mockFrameElement({
+                    attachedElements: [ellipseId, lineId],
+                  }),
+                },
+                {
+                  id: ellipseId,
+                  ...mockEllipseElement({
+                    attachedFrame: frameId,
+                  }),
+                },
+                {
+                  id: lineId,
+                  ...mockLineElement({
+                    attachedFrame: frameId,
+                  }),
+                },
+              ],
+            },
+          ],
+        },
+      },
+    );
+  });
+
   it('should include the lock status of a slide', async () => {
     const document = createWhiteboardDocument();
 
@@ -370,7 +444,7 @@ describe('convertWhiteboardToExportFormat', () => {
       const [addSlide1, slide1] = generateAddSlide();
       addSlide1(doc);
 
-      const lockSlide1 = generateLockSlide(slide1, '@user-id');
+      const lockSlide1 = generateLockSlide(slide1, '@user-id:example.com');
       lockSlide1(doc);
     });
 

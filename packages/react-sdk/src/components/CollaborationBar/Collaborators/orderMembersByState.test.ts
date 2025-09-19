@@ -22,26 +22,26 @@ describe('orderMembersByState', () => {
     expect(
       orderMembersByState(
         [
-          { userId: '@user-alice' },
-          { userId: '@user-bob' },
-          { userId: '@user-charlie' },
-          { userId: '@user-dave' },
-          { userId: '@user-id' },
+          { userId: '@user-alice:example.com' },
+          { userId: '@user-bob:example.com' },
+          { userId: '@user-charlie:example.com' },
+          { userId: '@user-dave:example.com' },
+          { userId: '@user-id:example.com' },
         ],
-        '@user-id',
+        '@user-id:example.com',
       ),
     ).toEqual([
-      { userId: '@user-id' },
-      { userId: '@user-alice' },
-      { userId: '@user-bob' },
-      { userId: '@user-charlie' },
-      { userId: '@user-dave' },
+      { userId: '@user-id:example.com' },
+      { userId: '@user-alice:example.com' },
+      { userId: '@user-bob:example.com' },
+      { userId: '@user-charlie:example.com' },
+      { userId: '@user-dave:example.com' },
     ]);
   });
 
   it('should always include the own user if list is empty', () => {
-    expect(orderMembersByState([], '@user-id')).toEqual([
-      { userId: '@user-id' },
+    expect(orderMembersByState([], '@user-id:example.com')).toEqual([
+      { userId: '@user-id:example.com' },
     ]);
   });
 
@@ -49,22 +49,22 @@ describe('orderMembersByState', () => {
     expect(
       orderMembersByState(
         [
-          { userId: '@user-alice' },
-          { userId: '@user-bob' },
-          { userId: '@user-charlie' },
-          { userId: '@user-dave' },
-          { userId: '@user-id' },
+          { userId: '@user-alice:example.com' },
+          { userId: '@user-bob:example.com' },
+          { userId: '@user-charlie:example.com' },
+          { userId: '@user-dave:example.com' },
+          { userId: '@user-id:example.com' },
         ],
-        '@user-id',
-        '@user-paul',
+        '@user-id:example.com',
+        '@user-paul:example.com',
       ),
     ).toEqual([
-      { userId: '@user-paul' },
-      { userId: '@user-id' },
-      { userId: '@user-alice' },
-      { userId: '@user-bob' },
-      { userId: '@user-charlie' },
-      { userId: '@user-dave' },
+      { userId: '@user-paul:example.com' },
+      { userId: '@user-id:example.com' },
+      { userId: '@user-alice:example.com' },
+      { userId: '@user-bob:example.com' },
+      { userId: '@user-charlie:example.com' },
+      { userId: '@user-dave:example.com' },
     ]);
   });
 
@@ -72,21 +72,21 @@ describe('orderMembersByState', () => {
     expect(
       orderMembersByState(
         [
-          { userId: '@user-alice' },
-          { userId: '@user-bob' },
-          { userId: '@user-charlie' },
-          { userId: '@user-dave' },
-          { userId: '@user-id' },
+          { userId: '@user-alice:example.com' },
+          { userId: '@user-bob:example.com' },
+          { userId: '@user-charlie:example.com' },
+          { userId: '@user-dave:example.com' },
+          { userId: '@user-id:example.com' },
         ],
-        '@user-id',
-        '@user-id',
+        '@user-id:example.com',
+        '@user-id:example.com',
       ),
     ).toEqual([
-      { userId: '@user-id' },
-      { userId: '@user-alice' },
-      { userId: '@user-bob' },
-      { userId: '@user-charlie' },
-      { userId: '@user-dave' },
+      { userId: '@user-id:example.com' },
+      { userId: '@user-alice:example.com' },
+      { userId: '@user-bob:example.com' },
+      { userId: '@user-charlie:example.com' },
+      { userId: '@user-dave:example.com' },
     ]);
   });
 });

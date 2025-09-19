@@ -66,18 +66,18 @@ describe('<CursorRenderer>', () => {
       type: 'net.nordeck.whiteboard.cursor_update',
       content: { slideId: 'slide-0', position: { x: 10, y: 20 } },
       senderSessionId: 'session-id',
-      senderUserId: '@another-user-id',
+      senderUserId: '@another-user-id:example.com',
     });
     messageSubject.next({
       type: 'net.nordeck.whiteboard.cursor_update',
       content: { slideId: 'slide-0', position: { x: 30, y: 40 } },
       senderSessionId: 'session-id',
-      senderUserId: '@user-alice',
+      senderUserId: '@user-alice:example.com',
     });
 
     await expect(screen.findByText('Alice')).resolves.toBeInTheDocument();
     await expect(
-      screen.findByText('@another-user-id'),
+      screen.findByText('@another-user-id:example.com'),
     ).resolves.toBeInTheDocument();
   });
 });

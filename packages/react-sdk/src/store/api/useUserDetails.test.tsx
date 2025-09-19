@@ -50,11 +50,13 @@ describe('useUserDetails', () => {
     });
 
     await waitFor(() => {
-      expect(result.current.getUserDisplayName('@user-alice')).toBe('Alice');
+      expect(result.current.getUserDisplayName('@user-alice:example.com')).toBe(
+        'Alice',
+      );
     });
-    expect(result.current.getUserDisplayName('@other-user-id')).toBe(
-      '@other-user-id',
-    );
+    expect(
+      result.current.getUserDisplayName('@other-user-id:example.com'),
+    ).toBe('@other-user-id:example.com');
   });
 
   it('should generate avatar url', async () => {
@@ -63,10 +65,12 @@ describe('useUserDetails', () => {
     });
 
     await waitFor(() => {
-      expect(result.current.getUserAvatarUrl('@user-alice')).toBe(
+      expect(result.current.getUserAvatarUrl('@user-alice:example.com')).toBe(
         'mxc://alice.png',
       );
     });
-    expect(result.current.getUserAvatarUrl('@other-user-id')).toBeUndefined();
+    expect(
+      result.current.getUserAvatarUrl('@other-user-id:example.com'),
+    ).toBeUndefined();
   });
 });

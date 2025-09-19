@@ -19,11 +19,13 @@ import { getUserColor } from './userColor';
 
 describe('getUserColor', () => {
   it('should generate user color', () => {
-    expect(getUserColor('@user-id')).toEqual('#03a9f4');
-    expect(getUserColor('@another-user-id')).toEqual('#f44336');
+    expect(getUserColor('@user-id:example.com')).toEqual('#8bc34a');
+    expect(getUserColor('@another-user-id:example.com')).toEqual('#8bc34a');
   });
 
   it('should generate stable user color', () => {
-    expect(getUserColor('@user-id')).toEqual(getUserColor('@user-id'));
+    expect(getUserColor('@user-id:example.com')).toEqual(
+      getUserColor('@user-id:example.com'),
+    );
   });
 });

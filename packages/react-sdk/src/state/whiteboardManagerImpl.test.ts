@@ -68,7 +68,10 @@ describe('WhiteboardManagerImpl', () => {
     const whiteboardManager = createTestWhiteboardManager();
 
     const event = widgetApi.mockSendStateEvent(mockWhiteboard());
-    whiteboardManager.selectActiveWhiteboardInstance(event, '@user-id');
+    whiteboardManager.selectActiveWhiteboardInstance(
+      event,
+      '@user-id:example.com',
+    );
 
     expect(whiteboardManager.getActiveWhiteboardInstance()).toBeInstanceOf(
       WhiteboardInstanceImpl,
@@ -84,7 +87,10 @@ describe('WhiteboardManagerImpl', () => {
       mockWhiteboard({ event_id: '$event-id-1', state_key: 'whiteboard-1' }),
     );
 
-    whiteboardManager.selectActiveWhiteboardInstance(event0, '@user-id');
+    whiteboardManager.selectActiveWhiteboardInstance(
+      event0,
+      '@user-id:example.com',
+    );
 
     const destroySpy = vi.spyOn(
       whiteboardManager.getActiveWhiteboardInstance() as WhiteboardInstanceImpl,
@@ -92,11 +98,17 @@ describe('WhiteboardManagerImpl', () => {
     );
 
     // send same event
-    whiteboardManager.selectActiveWhiteboardInstance(event0, '@user-id');
+    whiteboardManager.selectActiveWhiteboardInstance(
+      event0,
+      '@user-id:example.com',
+    );
     expect(destroySpy).not.toHaveBeenCalled();
 
     // Select another whiteboard
-    whiteboardManager.selectActiveWhiteboardInstance(event1, '@user-id');
+    whiteboardManager.selectActiveWhiteboardInstance(
+      event1,
+      '@user-id:example.com',
+    );
     expect(destroySpy).toHaveBeenCalled();
   });
 

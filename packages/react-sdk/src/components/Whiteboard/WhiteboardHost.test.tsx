@@ -22,10 +22,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { WhiteboardHost } from '.';
 import {
   mockEllipseElement,
+  mockFrameElement,
+  mockLineElement,
   mockTextElement,
   mockWhiteboardManager,
   WhiteboardTestingContextProvider,
-} from '../../lib/testUtils/documentTestUtils';
+} from '../../lib/testUtils';
 import {
   Point,
   WhiteboardInstance,
@@ -69,6 +71,14 @@ describe('<WhiteboardHost/>', () => {
               'element-1',
               mockTextElement({
                 position: { x: 200, y: 200 },
+              }),
+            ],
+            [
+              'frame-0',
+              mockFrameElement({
+                position: { x: 500, y: 500 },
+                width: 300,
+                height: 300,
               }),
             ],
           ],
@@ -157,6 +167,34 @@ describe('<WhiteboardHost/>', () => {
     expect(screen.getByTestId('resize-element')).toBeInTheDocument();
   });
 
+  it('should resize element', () => {
+    activeSlide.setActiveElementIds(['element-0']);
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    const element = screen.getByTestId('resize-handle-bottomRight');
+    fireEvent.mouseDown(element, {
+      clientX: 50,
+      clientY: 101,
+      buttons: 1,
+    });
+    fireEvent.mouseMove(element, {
+      clientX: 100,
+      clientY: 151,
+      buttons: 1,
+    });
+    fireEvent.mouseUp(element);
+    expect(activeSlide.getElement('element-0')).toEqual(
+      expect.objectContaining({
+        position: {
+          x: 0,
+          y: 1,
+        },
+        width: 100,
+        height: 159,
+      }),
+    );
+  });
+
   it('should not show the resize handles if an element is selected and the drag selection start coordinates are set', () => {
     activeSlide.setActiveElementIds(['element-0']);
     render(<WhiteboardHost />, { wrapper: Wrapper });
@@ -200,6 +238,330 @@ describe('<WhiteboardHost/>', () => {
       x: 160,
       y: 260,
     });
+  });
+
+  it('should move the element to attach it to the frame', async () => {
+    activeSlide.setActiveElementIds(['element-0']);
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    const element = screen.getByTestId('element-ellipse-element-0');
+    fireEvent.mouseDown(element, {
+      clientX: 20,
+      clientY: 20,
+      buttons: 1,
+    });
+    fireEvent.mouseMove(element, {
+      clientX: 560,
+      clientY: 560,
+      buttons: 1,
+    });
+    fireEvent.mouseUp(element);
+
+    expect(activeSlide.getElement('frame-0')).toEqual(
+      expect.objectContaining({
+        attachedElements: ['element-0'],
+      }),
+    );
+    expect(activeSlide.getElement('element-0')).toEqual(
+      expect.objectContaining({
+        position: {
+          x: 540,
+          y: 540,
+        },
+        attachedFrame: 'frame-0',
+      }),
+    );
+  });
+
+  it('should move the element to detach it from the frame', async () => {
+    activeSlide.setActiveElementIds(['element-0']);
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    const element = screen.getByTestId('element-ellipse-element-0');
+    fireEvent.mouseDown(element, {
+      clientX: 20,
+      clientY: 20,
+      buttons: 1,
+    });
+    fireEvent.mouseMove(element, {
+      clientX: 560,
+      clientY: 560,
+      buttons: 1,
+    });
+    fireEvent.mouseUp(element);
+
+    expect(activeSlide.getElement('frame-0')).toEqual(
+      expect.objectContaining({
+        attachedElements: ['element-0'],
+      }),
+    );
+    expect(activeSlide.getElement('element-0')).toEqual(
+      expect.objectContaining({
+        position: {
+          x: 540,
+          y: 540,
+        },
+        attachedFrame: 'frame-0',
+      }),
+    );
+
+    fireEvent.mouseDown(element, {
+      clientX: 560,
+      clientY: 560,
+      buttons: 1,
+    });
+    fireEvent.mouseMove(element, {
+      clientX: 40,
+      clientY: 40,
+      buttons: 1,
+    });
+    fireEvent.mouseUp(element);
+
+    expect(activeSlide.getElement('frame-0')).toEqual(
+      expect.objectContaining({
+        attachedElements: undefined,
+      }),
+    );
+    expect(activeSlide.getElement('element-0')).toEqual(
+      expect.objectContaining({
+        position: {
+          x: 20,
+          y: 20,
+        },
+        attachedFrame: undefined,
+      }),
+    );
+  });
+
+  it('should move the element connected to line and attach both to frame', () => {
+    activeSlide.setActiveElementIds(['element-0']);
+    const lineElementId = activeSlide.addElement(
+      mockLineElement({
+        points: [
+          { x: 0, y: 1 },
+          { x: 600, y: 600 }, // the point is within the frame
+        ],
+      }),
+    );
+    activeSlide.updateElements([
+      {
+        elementId: 'element-0',
+        patch: {
+          connectedPaths: [lineElementId],
+        },
+      },
+      {
+        elementId: lineElementId,
+        patch: {
+          connectedElementStart: 'element-0',
+        },
+      },
+    ]);
+
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    const element = screen.getByTestId('element-ellipse-element-0');
+    fireEvent.mouseDown(element, {
+      clientX: 20,
+      clientY: 20,
+      buttons: 1,
+    });
+    fireEvent.mouseMove(element, {
+      clientX: 560,
+      clientY: 560,
+      buttons: 1,
+    });
+    fireEvent.mouseUp(element);
+
+    expect(activeSlide.getElement('frame-0')).toEqual(
+      expect.objectContaining({
+        attachedElements: ['element-0', lineElementId],
+      }),
+    );
+    expect(activeSlide.getElement('element-0')).toEqual(
+      expect.objectContaining({
+        position: {
+          x: 540,
+          y: 540,
+        },
+        attachedFrame: 'frame-0',
+      }),
+    );
+    expect(activeSlide.getElement(lineElementId)).toEqual(
+      expect.objectContaining({
+        attachedFrame: 'frame-0',
+      }),
+    );
+  });
+
+  it('should move an attached element if the frame is moved', () => {
+    activeSlide.setActiveElementIds(['element-0']);
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    const element = screen.getByTestId('element-ellipse-element-0');
+    fireEvent.mouseDown(element, {
+      clientX: 20,
+      clientY: 20,
+      buttons: 1,
+    });
+    fireEvent.mouseMove(element, {
+      clientX: 560,
+      clientY: 560,
+      buttons: 1,
+    });
+    fireEvent.mouseUp(element);
+
+    expect(activeSlide.getElement('frame-0')).toEqual(
+      expect.objectContaining({
+        attachedElements: ['element-0'],
+      }),
+    );
+    expect(activeSlide.getElement('element-0')).toEqual(
+      expect.objectContaining({
+        position: {
+          x: 540,
+          y: 540,
+        },
+        attachedFrame: 'frame-0',
+      }),
+    );
+
+    const frameElement = screen.getByTestId('element-frame-frame-0');
+    fireEvent.mouseDown(frameElement, {
+      clientX: 520,
+      clientY: 520,
+      buttons: 1,
+    });
+    fireEvent.mouseMove(frameElement, {
+      clientX: 40,
+      clientY: 40,
+      buttons: 1,
+    });
+    fireEvent.mouseUp(frameElement);
+
+    expect(activeSlide.getElement('frame-0')).toEqual(
+      expect.objectContaining({
+        position: {
+          x: 20,
+          y: 20,
+        },
+        attachedElements: ['element-0'],
+      }),
+    );
+    expect(activeSlide.getElement('element-0')).toEqual(
+      expect.objectContaining({
+        position: {
+          x: 60,
+          y: 60,
+        },
+        attachedFrame: 'frame-0',
+      }),
+    );
+  });
+
+  it('should resize the frame and attach the element', () => {
+    activeSlide.setActiveElementIds(['frame-0']);
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    const element = screen.getByTestId('resize-handle-topLeft');
+    fireEvent.mouseDown(element, {
+      clientX: 500,
+      clientY: 500,
+      buttons: 1,
+    });
+    fireEvent.mouseMove(element, {
+      clientX: 200,
+      clientY: 200,
+      buttons: 1,
+    });
+    fireEvent.mouseUp(element);
+
+    expect(activeSlide.getElement('frame-0')).toEqual(
+      expect.objectContaining({
+        position: {
+          x: 200,
+          y: 200,
+        },
+        attachedElements: ['element-1'],
+      }),
+    );
+    expect(activeSlide.getElement('element-1')).toEqual(
+      expect.objectContaining({
+        position: {
+          x: 200,
+          y: 200,
+        },
+        attachedFrame: 'frame-0',
+      }),
+    );
+  });
+
+  it('should resize the frame and detach the element', () => {
+    activeSlide.setActiveElementIds(['frame-0']);
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    const element = screen.getByTestId('resize-handle-topLeft');
+    fireEvent.mouseDown(element, {
+      clientX: 500,
+      clientY: 500,
+      buttons: 1,
+    });
+    fireEvent.mouseMove(element, {
+      clientX: 200,
+      clientY: 200,
+      buttons: 1,
+    });
+    fireEvent.mouseUp(element);
+
+    expect(activeSlide.getElement('frame-0')).toEqual(
+      expect.objectContaining({
+        position: {
+          x: 200,
+          y: 200,
+        },
+        attachedElements: ['element-1'],
+      }),
+    );
+    expect(activeSlide.getElement('element-1')).toEqual(
+      expect.objectContaining({
+        position: {
+          x: 200,
+          y: 200,
+        },
+        attachedFrame: 'frame-0',
+      }),
+    );
+
+    fireEvent.mouseDown(element, {
+      clientX: 200,
+      clientY: 200,
+      buttons: 1,
+    });
+    fireEvent.mouseMove(element, {
+      clientX: 500,
+      clientY: 500,
+      buttons: 1,
+    });
+    fireEvent.mouseUp(element);
+
+    expect(activeSlide.getElement('frame-0')).toEqual(
+      expect.objectContaining({
+        position: {
+          x: 500,
+          y: 500,
+        },
+        attachedElements: undefined,
+      }),
+    );
+    expect(activeSlide.getElement('element-1')).toEqual(
+      expect.objectContaining({
+        position: {
+          x: 200,
+          y: 200,
+        },
+        attachedFrame: undefined,
+      }),
+    );
   });
 
   it.each([

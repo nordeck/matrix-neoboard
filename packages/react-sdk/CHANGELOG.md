@@ -1,5 +1,20 @@
 # @nordeck/matrix-neoboard-react-sdk
 
+## 1.3.0
+
+### Minor Changes
+
+- 8cf2bf0: Pan the infinite canvas using the right or middle button when the mouse is over the element
+- 2a07714: Implement oldest membership selection type for the active focus when using MatrixRTC with a Livekit backend
+- 9d8cb41: Use delayed events to terminate Matrix RTC session
+
+### Patch Changes
+
+- 2151634: Update Matrix Widget Toolkit to support Matrix Room Version 12
+- f8bb468: Use `React.memo` for `ElementBar` to have smoother moving and resizing of multiple elements
+- a2294ae: Update jsdom package to remove form-data and mitigate CVE-2025-7783
+- bcd11c4: Fix communication channel to stop visibility handling when it is destroyed
+
 ## 1.2.1
 
 ### Patch Changes

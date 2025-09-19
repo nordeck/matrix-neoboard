@@ -17,10 +17,10 @@
 import { Element } from '../../state';
 import { ElementOverride } from './ElementOverridesProvider';
 
-export function mergeElementAndOverride(
-  element: Element,
+export function mergeElementAndOverride<T extends Element>(
+  element: T,
   override: ElementOverride | undefined,
-): Element {
+): T {
   return element.type === 'path'
     ? {
         ...element,

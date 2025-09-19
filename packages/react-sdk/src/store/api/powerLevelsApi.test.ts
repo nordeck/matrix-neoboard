@@ -17,7 +17,10 @@
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { mockPowerLevelsEvent } from '../../lib/testUtils/matrixTestUtils';
+import {
+  mockPowerLevelsEvent,
+  mockRoomVersion11CreateEvent,
+} from '../../lib/testUtils/matrixTestUtils';
 import { createStore } from '../store';
 import { powerLevelsApi } from './powerLevelsApi';
 
@@ -110,12 +113,99 @@ describe('getPowerLevels', () => {
   });
 });
 
+describe('getCreateEvent', () => {
+  it('should return no create event if state event is missing', async () => {
+    const store = createStore({ widgetApi });
+
+    await expect(
+      store
+        .dispatch(powerLevelsApi.endpoints.getCreateEvent.initiate())
+        .unwrap(),
+    ).resolves.toEqual({ event: undefined });
+  });
+
+  it('should return create event', async () => {
+    widgetApi.mockSendStateEvent(mockRoomVersion11CreateEvent());
+
+    const store = createStore({ widgetApi });
+
+    await expect(
+      store
+        .dispatch(powerLevelsApi.endpoints.getCreateEvent.initiate())
+        .unwrap(),
+    ).resolves.toEqual({
+      event: expect.objectContaining({
+        content: {
+          room_version: '11',
+        },
+      }),
+    });
+  });
+
+  it('should handle load errors', async () => {
+    widgetApi.receiveStateEvents.mockRejectedValue(new Error('Some Error'));
+
+    const store = createStore({ widgetApi });
+
+    await expect(
+      store
+        .dispatch(powerLevelsApi.endpoints.getCreateEvent.initiate())
+        .unwrap(),
+    ).rejects.toEqual({
+      message: 'Could not load create event: Some Error',
+      name: 'LoadFailed',
+    });
+  });
+
+  it('should observe create event', async () => {
+    widgetApi.mockSendStateEvent(mockRoomVersion11CreateEvent());
+
+    const store = createStore({ widgetApi });
+
+    store.dispatch(powerLevelsApi.endpoints.getCreateEvent.initiate());
+
+    await waitFor(() =>
+      expect(
+        powerLevelsApi.endpoints.getCreateEvent.select()(store.getState()).data,
+      ).toEqual({
+        event: expect.objectContaining({
+          content: {
+            room_version: '11',
+          },
+        }),
+      }),
+    );
+
+    widgetApi.mockSendStateEvent(
+      mockRoomVersion11CreateEvent({
+        content: {
+          // @ts-expect-error - We explicitly add mock data here which is not part of the type
+          extra: 'mock',
+        },
+      }),
+    );
+
+    await waitFor(() =>
+      expect(
+        powerLevelsApi.endpoints.getCreateEvent.select()(store.getState()).data,
+      ).toEqual({
+        event: expect.objectContaining({
+          content: {
+            room_version: '11',
+            extra: 'mock',
+          },
+        }),
+      }),
+    );
+  });
+});
+
 describe('patchPowerLevels', () => {
   it('should patch power levels event in current room', async () => {
     widgetApi.mockSendStateEvent(
       mockPowerLevelsEvent({
         content: {
-          users: { '@user-id': 100 },
+          users: { '@user-id:example.com': 100 },
           users_default: 100,
         },
       }),
@@ -132,7 +222,7 @@ describe('patchPowerLevels', () => {
     expect(widgetApi.sendStateEvent).toHaveBeenCalledWith(
       'm.room.power_levels',
       {
-        users: { '@user-id': 100 },
+        users: { '@user-id:example.com': 100 },
         users_default: 0,
         events_default: 0,
       },
@@ -143,7 +233,7 @@ describe('patchPowerLevels', () => {
     widgetApi.mockSendStateEvent(
       mockPowerLevelsEvent({
         content: {
-          users: { '@user-id': 100 },
+          users: { '@user-id:example.com': 100 },
           users_default: 100,
         },
       }),

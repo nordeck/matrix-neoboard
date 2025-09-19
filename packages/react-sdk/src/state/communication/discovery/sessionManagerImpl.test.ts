@@ -57,7 +57,7 @@ describe('SessionManagerImpl', () => {
           },
         ],
       },
-      { stateKey: '@user-id' },
+      { stateKey: '@user-id:example.com' },
     );
     expect(sessionManager.getSessions()).toEqual([]);
   });
@@ -77,7 +77,7 @@ describe('SessionManagerImpl', () => {
           },
         ],
       },
-      { stateKey: '@user-id' },
+      { stateKey: '@user-id:example.com' },
     );
 
     const { sessionId: secondSessionId } =
@@ -94,7 +94,7 @@ describe('SessionManagerImpl', () => {
           },
         ],
       },
-      { stateKey: '@user-id' },
+      { stateKey: '@user-id:example.com' },
     );
   });
 
@@ -119,7 +119,7 @@ describe('SessionManagerImpl', () => {
           },
         ],
       },
-      { stateKey: '@user-id' },
+      { stateKey: '@user-id:example.com' },
     );
   });
 
@@ -149,7 +149,7 @@ describe('SessionManagerImpl', () => {
           },
         ],
       },
-      { stateKey: '@user-id' },
+      { stateKey: '@user-id:example.com' },
     );
   });
 
@@ -180,7 +180,7 @@ describe('SessionManagerImpl', () => {
           },
         ],
       },
-      { stateKey: '@user-id' },
+      { stateKey: '@user-id:example.com' },
     );
   });
 
@@ -205,13 +205,13 @@ describe('SessionManagerImpl', () => {
           },
         ],
       },
-      { stateKey: '@user-id' },
+      { stateKey: '@user-id:example.com' },
     );
   });
 
   it('should handle new sessions while joining', async () => {
     widgetApi.mockSendStateEvent(
-      mockWhiteboardSessions({ state_key: '@another-user' }),
+      mockWhiteboardSessions({ state_key: '@another-user:example.com' }),
     );
 
     const joinedPromise = firstValueFrom(
@@ -220,7 +220,7 @@ describe('SessionManagerImpl', () => {
     await sessionManager.join('whiteboard-id');
 
     await expect(joinedPromise).resolves.toEqual([
-      { sessionId: 'session-id', userId: '@another-user' },
+      { sessionId: 'session-id', userId: '@another-user:example.com' },
     ]);
   });
 
@@ -231,11 +231,11 @@ describe('SessionManagerImpl', () => {
     await sessionManager.join('whiteboard-id');
 
     widgetApi.mockSendStateEvent(
-      mockWhiteboardSessions({ state_key: '@another-user' }),
+      mockWhiteboardSessions({ state_key: '@another-user:example.com' }),
     );
 
     await expect(joinedPromise).resolves.toEqual([
-      { sessionId: 'session-id', userId: '@another-user' },
+      { sessionId: 'session-id', userId: '@another-user:example.com' },
     ]);
   });
 
@@ -245,23 +245,26 @@ describe('SessionManagerImpl', () => {
     );
 
     widgetApi.mockSendStateEvent(
-      mockWhiteboardSessions({ state_key: '@another-user' }),
+      mockWhiteboardSessions({ state_key: '@another-user:example.com' }),
     );
 
     await sessionManager.join('whiteboard-id');
 
     widgetApi.mockSendStateEvent(
-      mockWhiteboardSessions({ state_key: '@another-user', sessions: [] }),
+      mockWhiteboardSessions({
+        state_key: '@another-user:example.com',
+        sessions: [],
+      }),
     );
 
     await expect(leftPromise).resolves.toEqual([
-      { sessionId: 'session-id', userId: '@another-user' },
+      { sessionId: 'session-id', userId: '@another-user:example.com' },
     ]);
   });
 
   it('should handle expiring sessions', async () => {
     widgetApi.mockSendStateEvent(
-      mockWhiteboardSessions({ state_key: '@another-user' }),
+      mockWhiteboardSessions({ state_key: '@another-user:example.com' }),
     );
 
     await sessionManager.join('whiteboard-id');
@@ -275,7 +278,7 @@ describe('SessionManagerImpl', () => {
     );
 
     await expect(leftPromise).resolves.toEqual([
-      { sessionId: 'session-id', userId: '@another-user' },
+      { sessionId: 'session-id', userId: '@another-user:example.com' },
     ]);
   });
 
@@ -283,10 +286,10 @@ describe('SessionManagerImpl', () => {
     await sessionManager.join('whiteboard-id');
 
     widgetApi.mockSendStateEvent(
-      mockWhiteboardSessions({ state_key: '@another-user' }),
+      mockWhiteboardSessions({ state_key: '@another-user:example.com' }),
     );
     widgetApi.mockSendStateEvent(
-      mockWhiteboardSessions({ state_key: '@expiring-user' }),
+      mockWhiteboardSessions({ state_key: '@expiring-user:example.com' }),
     );
 
     const leftPromise = firstValueFrom(
@@ -295,7 +298,7 @@ describe('SessionManagerImpl', () => {
 
     widgetApi.mockSendStateEvent(
       mockWhiteboardSessions({
-        state_key: '@another-user',
+        state_key: '@another-user:example.com',
         sessions: [
           {
             expiresTs: +new Date('2060-01-12T11:25:20.143Z'),
@@ -311,7 +314,7 @@ describe('SessionManagerImpl', () => {
     );
 
     await expect(leftPromise).resolves.toEqual([
-      { sessionId: 'session-id', userId: '@expiring-user' },
+      { sessionId: 'session-id', userId: '@expiring-user:example.com' },
     ]);
   });
 
@@ -326,15 +329,15 @@ describe('SessionManagerImpl', () => {
       mockWhiteboardSessions({
         // Invalid event
         sessions: {} as [],
-        state_key: '@invalid-user',
+        state_key: '@invalid-user:example.com',
       }),
     );
     widgetApi.mockSendStateEvent(
-      mockWhiteboardSessions({ state_key: '@another-user' }),
+      mockWhiteboardSessions({ state_key: '@another-user:example.com' }),
     );
 
     await expect(joinedPromise).resolves.toEqual([
-      { sessionId: 'session-id', userId: '@another-user' },
+      { sessionId: 'session-id', userId: '@another-user:example.com' },
     ]);
   });
 
@@ -350,7 +353,7 @@ describe('SessionManagerImpl', () => {
     await sessionManager.leave();
 
     await expect(leftPromise).resolves.toEqual([
-      { sessionId: 'session-id', userId: '@user-id' },
+      { sessionId: 'session-id', userId: '@user-id:example.com' },
     ]);
 
     expect(sessionManager.getSessions()).toEqual([]);
@@ -365,7 +368,7 @@ describe('SessionManagerImpl', () => {
           },
         ],
       },
-      { stateKey: '@user-id' },
+      { stateKey: '@user-id:example.com' },
     );
   });
 

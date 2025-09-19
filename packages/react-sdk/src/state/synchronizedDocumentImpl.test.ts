@@ -623,8 +623,8 @@ describe('SynchronizedDocumentImpl', () => {
             content,
             event_id: '$snapshot-event-id',
             origin_server_ts: 0,
-            room_id: '!room-id',
-            sender: '@user-id',
+            room_id: '!room-id:example.com',
+            sender: '@user-id:example.com',
           });
         }
 
@@ -637,8 +637,8 @@ describe('SynchronizedDocumentImpl', () => {
             content,
             event_id: '$chunk-event-id',
             origin_server_ts: 0,
-            room_id: '!room-id',
-            sender: '@user-id',
+            room_id: '!room-id:example.com',
+            sender: '@user-id:example.com',
           });
         }
 

@@ -22,7 +22,7 @@ describe('isValidFocusOnMessage', () => {
     expect(
       isValidFocusOnMessage({
         senderSessionId: 'sender-session-id',
-        senderUserId: '@sender-user-id',
+        senderUserId: '@sender-user-id:example.com',
         content: {
           slideId: 'slide-id',
         },
@@ -35,7 +35,7 @@ describe('isValidFocusOnMessage', () => {
     expect(
       isValidFocusOnMessage({
         senderSessionId: 'sender-session-id',
-        senderUserId: '@sender-user-id',
+        senderUserId: '@sender-user-id:example.com',
         content: {
           slideId: 'slide-id',
           additional: 'tmp',
@@ -54,7 +54,7 @@ describe('isValidFocusOnMessage', () => {
     expect(
       isValidFocusOnMessage({
         senderSessionId: 'sender-session-id',
-        senderUserId: '@sender-user-id',
+        senderUserId: '@sender-user-id:example.com',
         content: {
           slideId: 'slide-id',
           ...patch,

@@ -30,7 +30,7 @@ import {
   WhiteboardTestingContextProvider,
   mockLineElement,
   mockWhiteboardManager,
-} from '../../../lib/testUtils/documentTestUtils';
+} from '../../../lib/testUtils';
 import { LayoutStateProvider } from '../../Layout';
 import { SvgCanvas } from '../../Whiteboard/SvgCanvas';
 import Display from './Display';
@@ -81,7 +81,7 @@ describe('<Display />', () => {
       <Display
         elementId="element-0"
         activeElementIds={['element-0']}
-        overrides={{}}
+        elements={{}}
         {...element}
         active={false}
         readOnly={false}
@@ -124,7 +124,7 @@ describe('<Display />', () => {
       <Display
         elementId="element-0"
         activeElementIds={['element-0']}
-        overrides={{}}
+        elements={{}}
         {...element}
         active={false}
         readOnly={false}
@@ -187,7 +187,7 @@ describe('<Display />', () => {
       <Display
         elementId="element-0"
         activeElementIds={['element-0']}
-        overrides={{}}
+        elements={{}}
         {...element}
         active={false}
         readOnly={false}

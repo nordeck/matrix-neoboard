@@ -18,6 +18,7 @@ import { useTheme } from '@mui/material';
 import React from 'react';
 import { FrameElement } from '../../../state';
 import {
+  ElementContextMenu,
   MoveableElement,
   SelectableElement,
   WithExtendedSelectionProps,
@@ -25,11 +26,13 @@ import {
 
 type DisplayProps = FrameElement & WithExtendedSelectionProps;
 
-export const Display: React.FC<DisplayProps> = ({
+const FrameDisplay: React.FC<DisplayProps> = ({
   elementId,
+  activeElementIds = [],
   active,
   readOnly,
-  overrides = {},
+  elements = {},
+  frameHasElementMoved = false,
   ...frameProps
 }) => {
   const theme = useTheme();
@@ -41,7 +44,11 @@ export const Display: React.FC<DisplayProps> = ({
         y={frameProps.position.y}
         fill={theme.palette.common.white}
         height={frameProps.height}
-        stroke={theme.palette.divider}
+        stroke={
+          frameHasElementMoved
+            ? theme.palette.primary.main
+            : theme.palette.grey[500]
+        }
         strokeWidth="2"
         width={frameProps.width}
       />
@@ -58,11 +65,13 @@ export const Display: React.FC<DisplayProps> = ({
       readOnly={readOnly}
       elementId={elementId}
     >
-      <MoveableElement elementId={elementId} overrides={overrides}>
-        {renderedChild}
+      <MoveableElement elementId={elementId} elements={elements}>
+        <ElementContextMenu activeElementIds={activeElementIds}>
+          {renderedChild}
+        </ElementContextMenu>
       </MoveableElement>
     </SelectableElement>
   );
 };
 
-export default React.memo(Display);
+export default React.memo(FrameDisplay);

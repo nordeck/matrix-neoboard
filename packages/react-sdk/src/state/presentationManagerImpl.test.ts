@@ -40,12 +40,12 @@ describe('presentationManager', () => {
       localSessionId: 'own',
       peerConnections: {
         'peer-0': mockPeerConnectionStatistics(
-          '@user-bob',
+          '@user-bob:example.com',
           'connected',
           'session-0',
         ),
         'peer-1': mockPeerConnectionStatistics(
-          '@user-charlie',
+          '@user-charlie:example.com',
           'failed',
           'session-1',
         ),
@@ -153,7 +153,7 @@ describe('presentationManager', () => {
     );
 
     messageSubject.next({
-      senderUserId: '@user-bob',
+      senderUserId: '@user-bob:example.com',
       senderSessionId: 'session-0',
       type: 'net.nordeck.whiteboard.present_slide',
       content: {
@@ -163,7 +163,11 @@ describe('presentationManager', () => {
 
     expect(await states).toEqual([
       { type: 'idle' },
-      { type: 'presentation', presenterUserId: '@user-bob', isEditMode: false },
+      {
+        type: 'presentation',
+        presenterUserId: '@user-bob:example.com',
+        isEditMode: false,
+      },
     ]);
     expect(whiteboardInstance.clearUndoManager).not.toHaveBeenCalled();
     expect(whiteboardInstance.setActiveSlideId).toHaveBeenCalledWith('slide-0');
@@ -171,7 +175,7 @@ describe('presentationManager', () => {
 
   it('should accept presentation stop of a different user', async () => {
     messageSubject.next({
-      senderUserId: '@user-bob',
+      senderUserId: '@user-bob:example.com',
       senderSessionId: 'session-0',
       type: 'net.nordeck.whiteboard.present_slide',
       content: {
@@ -186,14 +190,18 @@ describe('presentationManager', () => {
     );
 
     messageSubject.next({
-      senderUserId: '@user-bob',
+      senderUserId: '@user-bob:example.com',
       senderSessionId: 'session-0',
       type: 'net.nordeck.whiteboard.present_slide',
       content: { view: undefined },
     });
 
     expect(await states).toEqual([
-      { type: 'presentation', presenterUserId: '@user-bob', isEditMode: false },
+      {
+        type: 'presentation',
+        presenterUserId: '@user-bob:example.com',
+        isEditMode: false,
+      },
       { type: 'idle' },
     ]);
     expect(whiteboardInstance.clearUndoManager).not.toHaveBeenCalled();
@@ -206,7 +214,7 @@ describe('presentationManager', () => {
     );
 
     messageSubject.next({
-      senderUserId: '@user-bob',
+      senderUserId: '@user-bob:example.com',
       senderSessionId: 'session-0',
       type: 'net.nordeck.whiteboard.present_slide',
       content: {
@@ -216,8 +224,16 @@ describe('presentationManager', () => {
 
     expect(await states).toEqual([
       { type: 'idle' },
-      { type: 'presentation', presenterUserId: '@user-bob', isEditMode: false },
-      { type: 'presentation', presenterUserId: '@user-bob', isEditMode: true },
+      {
+        type: 'presentation',
+        presenterUserId: '@user-bob:example.com',
+        isEditMode: false,
+      },
+      {
+        type: 'presentation',
+        presenterUserId: '@user-bob:example.com',
+        isEditMode: true,
+      },
     ]);
     expect(whiteboardInstance.clearUndoManager).toHaveBeenCalled();
     expect(whiteboardInstance.setActiveSlideId).toHaveBeenCalledWith('slide-0');
@@ -225,7 +241,7 @@ describe('presentationManager', () => {
 
   it('should update the presentation state when a presenting user becomes disconnected', async () => {
     messageSubject.next({
-      senderUserId: '@user-bob',
+      senderUserId: '@user-bob:example.com',
       senderSessionId: 'session-0',
       type: 'net.nordeck.whiteboard.present_slide',
       content: {
@@ -243,7 +259,7 @@ describe('presentationManager', () => {
       localSessionId: 'own',
       peerConnections: {
         'peer-0': mockPeerConnectionStatistics(
-          '@user-bob',
+          '@user-bob:example.com',
           'failed',
           'session-0',
         ),
@@ -252,7 +268,11 @@ describe('presentationManager', () => {
     observeCommunicationStatisticsSubject.next(communicationStatistics);
 
     expect(await states).toEqual([
-      { type: 'presentation', presenterUserId: '@user-bob', isEditMode: false },
+      {
+        type: 'presentation',
+        presenterUserId: '@user-bob:example.com',
+        isEditMode: false,
+      },
       { type: 'idle' },
     ]);
     expect(whiteboardInstance.setActiveSlideId).not.toHaveBeenCalled();
@@ -289,17 +309,17 @@ describe('presentationManager', () => {
       localSessionId: 'own',
       peerConnections: {
         'peer-0': mockPeerConnectionStatistics(
-          '@user-bob',
+          '@user-bob:example.com',
           'connected',
           'session-0',
         ),
         'peer-1': mockPeerConnectionStatistics(
-          '@user-charlie',
+          '@user-charlie:example.com',
           'failed',
           'session-1',
         ),
         'peer-2': mockPeerConnectionStatistics(
-          '@user-dave',
+          '@user-dave:example.com',
           'connected',
           'session-3',
         ),
@@ -349,7 +369,7 @@ describe('presentationManager', () => {
     presentationManager.stopPresentation();
 
     messageSubject.next({
-      senderUserId: '@user-bob',
+      senderUserId: '@user-bob:example.com',
       senderSessionId: 'session-0',
       type: 'net.nordeck.whiteboard.present_slide',
       content: {
@@ -438,7 +458,7 @@ describe('presentationManager', () => {
 
   it('should clear the undo manager', async () => {
     messageSubject.next({
-      senderUserId: '@user-bob',
+      senderUserId: '@user-bob:example.com',
       senderSessionId: 'session-0',
       type: 'net.nordeck.whiteboard.present_slide',
       content: {
@@ -453,7 +473,7 @@ describe('presentationManager', () => {
     presentationManager.toggleEditMode();
 
     messageSubject.next({
-      senderUserId: '@user-bob',
+      senderUserId: '@user-bob:example.com',
       senderSessionId: 'session-0',
       type: 'net.nordeck.whiteboard.present_slide',
       content: {

@@ -132,12 +132,12 @@ describe('getWhiteboards', () => {
     // Delete whiteboard
     widgetApi.mockSendStateEvent({
       type: 'net.nordeck.whiteboard',
-      sender: '@user-id',
+      sender: '@user-id:example.com',
       content: {},
       state_key: whiteboard.state_key,
       origin_server_ts: 0,
       event_id: '$event-id-0',
-      room_id: '!room-id',
+      room_id: '!room-id:example.com',
     });
 
     await waitFor(() =>

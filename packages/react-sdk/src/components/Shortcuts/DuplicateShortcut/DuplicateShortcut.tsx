@@ -19,21 +19,18 @@ import { useHotkeys } from 'react-hotkeys-hook';
 import {
   calculateBoundingRectForElements,
   Elements,
-  useActiveElements,
   useWhiteboardSlideInstance,
 } from '../../../state';
 import { duplicate } from '../../ElementBar/DuplicateActiveElementButton/DuplicateActiveElementButton';
 import { gridCellSize } from '../../Whiteboard';
 import { HOTKEY_SCOPE_WHITEBOARD } from '../../WhiteboardHotkeysProvider';
+import { selectActiveAndAttachedOrderedElements } from '../utils';
 
 export function DuplicateShortcut() {
-  const { activeElementIds } = useActiveElements();
   const slideInstance = useWhiteboardSlideInstance();
 
   const handleDuplicate = useCallback(() => {
-    const sortedActiveElementIds =
-      slideInstance.sortElementIds(activeElementIds);
-    const elements = slideInstance.getElements(sortedActiveElementIds);
+    const elements = selectActiveAndAttachedOrderedElements(slideInstance);
     const boundingRect = calculateBoundingRectForElements(
       Object.values(elements),
     );
@@ -45,8 +42,8 @@ export function DuplicateShortcut() {
         boundingRect,
       );
     }
-    slideInstance.addElementsWithConnections(duplicatedElements);
-  }, [activeElementIds, slideInstance]);
+    slideInstance.addElementsWithRelations(duplicatedElements);
+  }, [slideInstance]);
 
   useHotkeys(
     ['ctrl+d', 'meta+d'],

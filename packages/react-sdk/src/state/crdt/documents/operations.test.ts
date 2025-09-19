@@ -94,11 +94,11 @@ describe('getSlideLock', () => {
   it('should return the lock state', () => {
     const document = createWhiteboardDocument();
 
-    const lockSlide = generateLockSlide(slide0, '@user-id');
+    const lockSlide = generateLockSlide(slide0, '@user-id:example.com');
     document.performChange(lockSlide);
 
     expect(getSlideLock(document.getData(), slide0)).toEqual({
-      userId: '@user-id',
+      userId: '@user-id:example.com',
     });
   });
 
@@ -508,20 +508,20 @@ describe('generateLockSlide', () => {
   it('should lock the slide', () => {
     const document = createWhiteboardDocument();
 
-    const lockSlide = generateLockSlide(slide0, '@user-id');
+    const lockSlide = generateLockSlide(slide0, '@user-id:example.com');
     document.performChange(lockSlide);
 
     expect(getSlide(document.getData(), slide0)?.toJSON()).toEqual({
       elements: {},
       elementIds: [],
-      lock: { userId: '@user-id' },
+      lock: { userId: '@user-id:example.com' },
     });
   });
 
   it('should ignore missing slide', () => {
     const document = createWhiteboardDocument();
 
-    const lockSlide = generateLockSlide('not-exists', '@user-id');
+    const lockSlide = generateLockSlide('not-exists', '@user-id:example.com');
     document.performChange(lockSlide);
 
     expect(document.getData().toJSON()).toEqual({
@@ -534,10 +534,10 @@ describe('generateLockSlide', () => {
     const aliceDoc = createWhiteboardDocument();
     const bobDoc = createWhiteboardDocument();
 
-    const aliceLockSlide = generateLockSlide(slide0, '@user-alice');
+    const aliceLockSlide = generateLockSlide(slide0, '@user-alice:example.com');
     aliceDoc.performChange(aliceLockSlide);
 
-    const bobLockSlide = generateLockSlide(slide0, '@user-bob');
+    const bobLockSlide = generateLockSlide(slide0, '@user-bob:example.com');
     bobDoc.performChange(bobLockSlide);
 
     bobDoc.mergeFrom(aliceDoc.store());
@@ -551,7 +551,7 @@ describe('generateLockSlide', () => {
     expect(getSlide(bobDoc.getData(), slide0)?.toJSON().lock).toEqual({
       // There is no guarantee for the order of the two operations, as the
       // conflict resolution depends on the random actor ids.
-      userId: expect.stringMatching(/@user-(alice|bob)/),
+      userId: expect.stringMatching(/@user-(alice|bob):example.com/),
     });
   });
 });
@@ -560,7 +560,7 @@ describe('generateUnlockSlide', () => {
   it('should unlock the slide', () => {
     const document = createWhiteboardDocument();
 
-    const lockSlide = generateLockSlide(slide0, '@user-id');
+    const lockSlide = generateLockSlide(slide0, '@user-id:example.com');
     document.performChange(lockSlide);
     expect(getSlide(document.getData(), slide0)?.toJSON().lock).toBeDefined();
 

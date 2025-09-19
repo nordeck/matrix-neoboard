@@ -34,7 +34,7 @@ describe('getRoomMembers', () => {
     widgetApi.mockSendStateEvent(mockRoomMember());
     widgetApi.mockSendStateEvent(
       mockRoomMember({
-        state_key: '@user-bob',
+        state_key: '@user-bob:example.com',
         content: {
           displayname: 'Bob',
           avatar_url: undefined,
@@ -49,18 +49,18 @@ describe('getRoomMembers', () => {
         .dispatch(roomMemberApi.endpoints.getRoomMembers.initiate())
         .unwrap(),
     ).resolves.toEqual({
-      ids: ['@user-alice', '@user-bob'],
+      ids: ['@user-alice:example.com', '@user-bob:example.com'],
       entities: {
-        '@user-alice': expect.objectContaining({
-          state_key: '@user-alice',
+        '@user-alice:example.com': expect.objectContaining({
+          state_key: '@user-alice:example.com',
           content: {
             avatar_url: 'mxc://alice.png',
             membership: 'join',
             displayname: 'Alice',
           },
         }),
-        '@user-bob': expect.objectContaining({
-          state_key: '@user-bob',
+        '@user-bob:example.com': expect.objectContaining({
+          state_key: '@user-bob:example.com',
           content: {
             membership: 'join',
             displayname: 'Bob',
@@ -96,12 +96,12 @@ describe('getRoomMembers', () => {
     await waitFor(() =>
       expect(
         roomMemberApi.endpoints.getRoomMembers.select()(store.getState()).data,
-      ).toEqual(expect.objectContaining({ ids: ['@user-alice'] })),
+      ).toEqual(expect.objectContaining({ ids: ['@user-alice:example.com'] })),
     );
 
     widgetApi.mockSendStateEvent(
       mockRoomMember({
-        state_key: '@user-bob',
+        state_key: '@user-bob:example.com',
         content: {
           displayname: 'Bob',
         },
@@ -111,7 +111,11 @@ describe('getRoomMembers', () => {
     await waitFor(() =>
       expect(
         roomMemberApi.endpoints.getRoomMembers.select()(store.getState()).data,
-      ).toEqual(expect.objectContaining({ ids: ['@user-alice', '@user-bob'] })),
+      ).toEqual(
+        expect.objectContaining({
+          ids: ['@user-alice:example.com', '@user-bob:example.com'],
+        }),
+      ),
     );
   });
 });

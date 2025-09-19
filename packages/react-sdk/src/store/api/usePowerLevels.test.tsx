@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { StateEventCreateContent } from '@matrix-widget-toolkit/api';
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { ComponentType, PropsWithChildren } from 'react';
@@ -65,10 +66,10 @@ describe('usePowerLevels', () => {
         content: {
           events: {},
           users: {
-            '@user-id': 100,
-            '@user-id-1': 55,
-            '@user-id-2': 25,
-            '@user-id-3': 0,
+            '@user-id:example.com': 100,
+            '@user-id-1:example.com': 55,
+            '@user-id-2:example.com': 25,
+            '@user-id-3:example.com': 0,
           },
           events_default: 100,
           state_default: 100,
@@ -96,7 +97,7 @@ describe('usePowerLevels', () => {
         content: {
           events: {},
           users: {
-            '@user-id': 50,
+            '@user-id:example.com': 50,
           },
           events_default: 100,
           state_default: 100,
@@ -124,7 +125,7 @@ describe('usePowerLevels', () => {
         content: {
           events: {},
           users: {
-            '@user-id': 25,
+            '@user-id:example.com': 25,
           },
           events_default: 100,
           state_default: 100,
@@ -142,6 +143,91 @@ describe('usePowerLevels', () => {
         canInitializeWhiteboard: false,
         canImportWhiteboard: false,
         canStopPresentation: false,
+      });
+    });
+  });
+
+  it('should have no power if room creator without powerlevel in room version 11', async () => {
+    widgetApi.mockSendStateEvent(
+      mockPowerLevelsEvent({
+        content: {
+          events: {},
+          users: {
+            '@another-user:example.com': 100,
+          },
+          events_default: 100,
+          state_default: 100,
+          users_default: 0,
+        },
+      }),
+    );
+
+    const { result } = renderHook(() => usePowerLevels(), {
+      wrapper,
+    });
+
+    await waitFor(() => {
+      expect(result.current).toEqual({
+        canInitializeWhiteboard: false,
+        canImportWhiteboard: false,
+        canStopPresentation: false,
+      });
+    });
+  });
+
+  it('should have power if room creator without powerlevel in room version 12', async () => {
+    // We have different room ids in version 12 so we need a custom mock api
+    widgetApi = mockWidgetApi({
+      roomId: '!room-id',
+    });
+
+    wrapper = ({ children }: PropsWithChildren<{ userId?: string }>) => (
+      <WhiteboardTestingContextProvider
+        whiteboardManager={whiteboardManager}
+        widgetApi={widgetApi}
+      >
+        {children}
+      </WhiteboardTestingContextProvider>
+    );
+
+    // Room Create event
+    widgetApi.mockSendStateEvent<StateEventCreateContent>({
+      type: 'm.room.create',
+      content: {
+        room_version: '12',
+      },
+      state_key: '',
+      sender: '@user-id:example.com',
+      origin_server_ts: 0,
+      // This is technically invalid in room version 12, but our mocked widget API only works with this here.
+      room_id: '!room-id',
+      event_id: '$event-id',
+    });
+
+    // Powerlevel event
+    widgetApi.mockSendStateEvent(
+      mockPowerLevelsEvent({
+        content: {
+          events: {},
+          users: {
+            '@another-user:example.com': 100,
+          },
+          events_default: 100,
+          state_default: 100,
+          users_default: 0,
+        },
+      }),
+    );
+
+    const { result } = renderHook(() => usePowerLevels(), {
+      wrapper,
+    });
+
+    await waitFor(() => {
+      expect(result.current).toEqual({
+        canInitializeWhiteboard: true,
+        canImportWhiteboard: true,
+        canStopPresentation: true,
       });
     });
   });

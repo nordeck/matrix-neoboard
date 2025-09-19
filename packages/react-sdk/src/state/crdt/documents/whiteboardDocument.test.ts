@@ -17,7 +17,7 @@
 import Joi from 'joi';
 import { describe, expect, it } from 'vitest';
 import * as Y from 'yjs';
-import { mockLineElement } from '../../../lib/testUtils/documentTestUtils';
+import { mockLineElement } from '../../../lib/testUtils';
 import { ChangeFn, Document } from '../types';
 import { YArray, YMap, YText, applyMigrations } from '../y';
 import {
@@ -132,7 +132,7 @@ describe('whiteboardDocumentSchema', () => {
           },
           elementIds: ['element-0'],
           lock: {
-            userId: '@user-id:matrix',
+            userId: '@user-id:example.com',
             additional: 'data',
           },
           additional: 'data',
@@ -159,6 +159,11 @@ describe('whiteboardDocumentSchema', () => {
     { slides: { s: { elements: [undefined], elementIds: [] } } },
     { slides: { s: { elements: [null], elementIds: [] } } },
     { slides: { s: { elements: [111], elementIds: [] } } },
+    {
+      slides: {
+        s: { elements: { constructor: mockLineElement() }, elementIds: [] },
+      },
+    },
     { slides: { s: { elements: [{}], elementIds: [] } } },
     { slides: { s: { elements: {}, elementIds: undefined } } },
     { slides: { s: { elements: {}, elementIds: null } } },
@@ -166,6 +171,8 @@ describe('whiteboardDocumentSchema', () => {
     { slides: { s: { elements: {}, elementIds: [undefined] } } },
     { slides: { s: { elements: {}, elementIds: [null] } } },
     { slides: { s: { elements: {}, elementIds: [111] } } },
+    { slides: { s: { elements: {}, elementIds: ['__proto__'] } } },
+    { slides: { s: { elements: {}, elementIds: ['constructor'] } } },
     { slides: { s: { elements: {}, elementIds: [], lock: null } } },
     { slides: { s: { elements: {}, elementIds: [], lock: 111 } } },
     { slides: { s: { elements: {}, elementIds: [], lock: {} } } },
@@ -297,7 +304,7 @@ describe('keepWhiteboardUndoRedoItem', () => {
 
   it('should reject changes when slide is locked', () => {
     const document = createWhiteboardDocument();
-    document.performChange(generateLockSlide(slide0, '@user-id'));
+    document.performChange(generateLockSlide(slide0, '@user-id:example.com'));
 
     const hasKeepChanges = keepWhiteboardUndoRedoItem(document.getData());
 
@@ -314,7 +321,7 @@ describe('keepWhiteboardUndoRedoItem', () => {
 
   it('should accept undo changes when slide lock is part of the undo stack', () => {
     const document = createWhiteboardDocument();
-    document.performChange(generateLockSlide(slide0, '@user-id'));
+    document.performChange(generateLockSlide(slide0, '@user-id:example.com'));
 
     const hasKeepChanges = keepWhiteboardUndoRedoItem(document.getData());
 
@@ -443,7 +450,7 @@ describe('keepWhiteboardUndoRedoItem', () => {
       position: { x: 15, y: 100 },
     });
 
-    const lockSlide = generateLockSlide(slide0, '@user-id');
+    const lockSlide = generateLockSlide(slide0, '@user-id:example.com');
 
     document.performChange(addElement);
     document.performChange(moveElement);
@@ -490,7 +497,7 @@ describe('keepWhiteboardUndoRedoItem', () => {
               position: { x: 0, y: 1 },
             }),
           },
-          lock: { userId: '@user-id' },
+          lock: { userId: '@user-id:example.com' },
         },
       },
     });
@@ -508,7 +515,7 @@ describe('keepWhiteboardUndoRedoItem', () => {
       position: { x: 15, y: 100 },
     });
 
-    const lockSlide = generateLockSlide(slide0, '@user-id');
+    const lockSlide = generateLockSlide(slide0, '@user-id:example.com');
 
     document.performChange(addElement);
     document.performChange(moveElement);
@@ -553,7 +560,7 @@ describe('keepWhiteboardUndoRedoItem', () => {
               position: { x: 0, y: 1 },
             }),
           },
-          lock: { userId: '@user-id' },
+          lock: { userId: '@user-id:example.com' },
         },
       },
     });
@@ -562,7 +569,7 @@ describe('keepWhiteboardUndoRedoItem', () => {
   it('should undo consecutive locks and unlocks when called by the undo manager', () => {
     const document = createWhiteboardDocument();
 
-    const lockSlide = generateLockSlide(slide0, '@user-id');
+    const lockSlide = generateLockSlide(slide0, '@user-id:example.com');
     const unlockSlide = generateUnlockSlide(slide0);
 
     document.performChange(lockSlide);
@@ -576,7 +583,7 @@ describe('keepWhiteboardUndoRedoItem', () => {
 
     document.getUndoManager().undo();
     expect(document.getData().toJSON().slides[slide0].lock).toEqual({
-      userId: '@user-id',
+      userId: '@user-id:example.com',
     });
 
     document.getUndoManager().undo();
@@ -584,7 +591,7 @@ describe('keepWhiteboardUndoRedoItem', () => {
 
     document.getUndoManager().undo();
     expect(document.getData().toJSON().slides[slide0].lock).toEqual({
-      userId: '@user-id',
+      userId: '@user-id:example.com',
     });
 
     document.getUndoManager().undo();
@@ -592,7 +599,7 @@ describe('keepWhiteboardUndoRedoItem', () => {
 
     document.getUndoManager().undo();
     expect(document.getData().toJSON().slides[slide0].lock).toEqual({
-      userId: '@user-id',
+      userId: '@user-id:example.com',
     });
 
     document.getUndoManager().undo();

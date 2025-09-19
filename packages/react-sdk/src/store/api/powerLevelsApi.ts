@@ -16,8 +16,11 @@
 
 import {
   PowerLevelsStateEvent,
+  STATE_EVENT_CREATE,
   STATE_EVENT_POWER_LEVELS,
   StateEvent,
+  StateEventCreateContent,
+  isValidCreateEventSchema,
   isValidPowerLevelStateEvent,
 } from '@matrix-widget-toolkit/api';
 import { isEqual, isError, last, merge } from 'lodash';
@@ -96,6 +99,65 @@ export const powerLevelsApi = baseApi.injectEndpoints({
       },
     }),
 
+    getCreateEvent: builder.query<
+      { event: StateEvent<StateEventCreateContent> | undefined },
+      void
+    >({
+      queryFn: async (_, { extra }) => {
+        const widgetApi = await (extra as ThunkExtraArgument).widgetApi;
+
+        try {
+          const events = await widgetApi.receiveStateEvents(
+            STATE_EVENT_CREATE,
+            { stateKey: '' },
+          );
+
+          return {
+            data: { event: last(events.filter(isValidCreateEventSchema)) },
+          };
+        } catch (e) {
+          return {
+            error: {
+              name: 'LoadFailed',
+              message: `Could not load create event: ${
+                isError(e) ? e.message : e
+              }`,
+            },
+          };
+        }
+      },
+
+      async onCacheEntryAdded(
+        _,
+        { cacheDataLoaded, cacheEntryRemoved, extra, updateCachedData },
+      ) {
+        const widgetApi = await (extra as ThunkExtraArgument).widgetApi;
+
+        // wait until first data is cached
+        await cacheDataLoaded;
+
+        const subscription = widgetApi
+          .observeStateEvents(STATE_EVENT_CREATE, {
+            stateKey: '',
+          })
+          .pipe(
+            filter(isValidCreateEventSchema),
+            bufferTime(0),
+            filter((list) => list.length > 0),
+          )
+          .subscribe(async (events) => {
+            updateCachedData((state) => {
+              state.event = last(events);
+            });
+          });
+
+        // wait until subscription is cancelled
+        await cacheEntryRemoved;
+
+        subscription.unsubscribe();
+      },
+    }),
+
     patchPowerLevels: builder.mutation<
       null,
       { changes: Partial<PowerLevelsStateEvent> }
@@ -142,5 +204,8 @@ export const powerLevelsApi = baseApi.injectEndpoints({
   }),
 });
 
-export const { useGetPowerLevelsQuery, usePatchPowerLevelsMutation } =
-  powerLevelsApi;
+export const {
+  useGetPowerLevelsQuery,
+  useGetCreateEventQuery,
+  usePatchPowerLevelsMutation,
+} = powerLevelsApi;

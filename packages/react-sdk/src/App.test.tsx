@@ -67,7 +67,7 @@ describe('App', () => {
         content: {
           users_default: 0,
           users: {
-            '@moderator-user': 50,
+            '@moderator-user:example.com': 50,
           },
         },
       }),
@@ -86,8 +86,8 @@ describe('App', () => {
         content: {
           users_default: 0,
           users: {
-            '@moderator-user': 50,
-            '@user-id': 50,
+            '@moderator-user:example.com': 50,
+            '@user-id:example.com': 50,
           },
         },
       }),

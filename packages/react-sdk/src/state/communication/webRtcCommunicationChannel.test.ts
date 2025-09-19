@@ -66,7 +66,7 @@ afterEach(() => {
 describe('WebRtcCommunicationChannel', () => {
   const anotherSession = {
     sessionId: 'another-session-id',
-    userId: '@another-user-id',
+    userId: '@another-user-id:example.com',
   };
   const peerConnectionStatistics = {
     bytesReceived: 0,
@@ -79,7 +79,7 @@ describe('WebRtcCommunicationChannel', () => {
     signalingState: 'new',
     impolite: false,
     remoteSessionId: 'another-session-id',
-    remoteUserId: '@another-user-id',
+    remoteUserId: '@another-user-id:example.com',
   };
   let sessionManager: Mocked<SessionManager>;
   let signalingChannel: SignalingChannel;
@@ -266,14 +266,14 @@ describe('WebRtcCommunicationChannel', () => {
         type: 'example_type',
         content: { key: 'value' },
         senderSessionId: 'another-session-id',
-        senderUserId: '@another-user-id',
+        senderUserId: '@another-user-id:example.com',
       });
 
       await expect(messagesPromise).resolves.toEqual({
         type: 'example_type',
         content: { key: 'value' },
         senderSessionId: 'another-session-id',
-        senderUserId: '@another-user-id',
+        senderUserId: '@another-user-id:example.com',
       });
     });
 

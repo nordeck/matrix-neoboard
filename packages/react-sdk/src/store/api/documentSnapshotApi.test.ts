@@ -90,7 +90,7 @@ describe('getDocumentSnapshot', () => {
     const document = mockWhiteboardDocumentSnapshot();
     const { snapshot: snapshotEvent, chunks } = mockDocumentSnapshot({
       document,
-      room_id: '!room-id-1',
+      room_id: '!room-id-1:example.com',
     });
     widgetApi.mockSendRoomEvent(snapshotEvent);
     chunks.forEach(widgetApi.mockSendRoomEvent);
@@ -102,7 +102,7 @@ describe('getDocumentSnapshot', () => {
         .dispatch(
           documentSnapshotApi.endpoints.getDocumentSnapshot.initiate({
             documentId: '$document-0',
-            roomId: '!room-id-1',
+            roomId: '!room-id-1:example.com',
           }),
         )
         .unwrap(),
@@ -112,7 +112,7 @@ describe('getDocumentSnapshot', () => {
     });
 
     expect(widgetApi.readEventRelations).toHaveBeenCalledWith('$document-0', {
-      roomId: '!room-id-1',
+      roomId: '!room-id-1:example.com',
       limit: 50,
       relationType: 'm.reference',
       eventType: ROOM_EVENT_DOCUMENT_SNAPSHOT,
@@ -121,7 +121,7 @@ describe('getDocumentSnapshot', () => {
     expect(widgetApi.readEventRelations).toHaveBeenCalledWith(
       '$document-snapshot-0',
       {
-        roomId: '!room-id-1',
+        roomId: '!room-id-1:example.com',
         limit: 1,
         relationType: 'm.reference',
         eventType: ROOM_EVENT_DOCUMENT_CHUNK,
@@ -297,7 +297,7 @@ describe('getDocumentSnapshot', () => {
     const { snapshot: snapshotEvent1, chunks: chunks1 } = mockDocumentSnapshot({
       document: document1,
       origin_server_ts: 1000,
-      room_id: '!room-id-1',
+      room_id: '!room-id-1:example.com',
     });
     widgetApi.mockSendRoomEvent(snapshotEvent1);
     chunks1.forEach(widgetApi.mockSendRoomEvent);
@@ -307,7 +307,7 @@ describe('getDocumentSnapshot', () => {
     store.dispatch(
       documentSnapshotApi.endpoints.getDocumentSnapshot.initiate({
         documentId: '$document-0',
-        roomId: '!room-id-1',
+        roomId: '!room-id-1:example.com',
       }),
     );
 
@@ -315,7 +315,7 @@ describe('getDocumentSnapshot', () => {
       expect(
         documentSnapshotApi.endpoints.getDocumentSnapshot.select({
           documentId: '$document-0',
-          roomId: '!room-id-1',
+          roomId: '!room-id-1:example.com',
         })(store.getState()).data,
       ).toEqual({
         event: snapshotEvent1,
@@ -326,13 +326,13 @@ describe('getDocumentSnapshot', () => {
     expect(widgetApi.observeRoomEvents).toHaveBeenCalledWith(
       ROOM_EVENT_DOCUMENT_SNAPSHOT,
       {
-        roomIds: ['!room-id-1'],
+        roomIds: ['!room-id-1:example.com'],
       },
     );
     expect(widgetApi.observeRoomEvents).toHaveBeenCalledWith(
       ROOM_EVENT_DOCUMENT_CHUNK,
       {
-        roomIds: ['!room-id-1'],
+        roomIds: ['!room-id-1:example.com'],
       },
     );
 
@@ -340,7 +340,7 @@ describe('getDocumentSnapshot', () => {
     const { snapshot: snapshotEvent2, chunks: chunks2 } = mockDocumentSnapshot({
       document: document2,
       origin_server_ts: 2000,
-      room_id: '!room-id-1',
+      room_id: '!room-id-1:example.com',
     });
     // send snapshot first
     widgetApi.mockSendRoomEvent(snapshotEvent2);
@@ -350,7 +350,7 @@ describe('getDocumentSnapshot', () => {
       expect(
         documentSnapshotApi.endpoints.getDocumentSnapshot.select({
           documentId: '$document-0',
-          roomId: '!room-id-1',
+          roomId: '!room-id-1:example.com',
         })(store.getState()).data,
       ).toEqual({
         event: snapshotEvent2,
@@ -554,8 +554,8 @@ describe('createDocumentSnapshot', () => {
         content,
         event_id: '$snapshot-event-id',
         origin_server_ts: 0,
-        room_id: '!room-id',
-        sender: '@user-id',
+        room_id: ':example.com',
+        sender: '@user-id:example.com',
       }))
       .mockRejectedValueOnce(new Error('Timeout'));
 

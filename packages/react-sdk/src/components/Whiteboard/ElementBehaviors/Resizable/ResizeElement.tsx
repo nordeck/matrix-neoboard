@@ -16,13 +16,17 @@
 
 import { Dispatch, useCallback, useState } from 'react';
 import { useUnmount } from 'react-use';
+import { filterRecord } from '../../../../lib';
 import {
   calculateBoundingRectForElements,
+  ElementFrameChange,
+  ElementUpdate,
   findConnectingPaths,
+  findFrameToAttach,
+  FrameElement,
   PathElement,
   useWhiteboardSlideInstance,
 } from '../../../../state';
-import { ElementUpdate } from '../../../../state/types';
 import { useAppDispatch } from '../../../../store';
 import { setShapeSize } from '../../../../store/shapeSizesSlice';
 import { useConnectionPoint } from '../../../ConnectionPointProvider';
@@ -36,7 +40,14 @@ import { useLayoutState } from '../../../Layout';
 import { getRenderProperties } from '../../../elements/line/getRenderProperties';
 import { useSvgCanvasContext } from '../../SvgCanvas';
 import { gridCellSize } from '../../constants';
-import { elementsUpdates, getPathElements, lineResizeUpdates } from '../utils';
+import {
+  elementsUpdates,
+  findElementAttachFrame,
+  findElementFrameChanges,
+  frameResizeUpdates,
+  getPathElements,
+  lineResizeUpdates,
+} from '../utils';
 import { DragEvent, ResizeHandle } from './ResizeHandle';
 import { HandlePosition, ResizableProperties } from './types';
 import { computeResizing } from './utils';
@@ -152,18 +163,60 @@ export function ResizeElement({ elementIds }: ResizeElementProps) {
 
         const { lineHandlePositionName, connectToElementId } = connectData;
 
+        // Resizing the line could make it attached to the frame
+        const attachToFrameId = findFrameToAttach(
+          element,
+          slideInstance.getFrameElements(),
+        );
+
         updates = lineResizeUpdates(
           slideInstance,
           elementId,
           element,
           lineHandlePositionName,
           connectToElementId,
+          attachToFrameId,
+        );
+      } else if (
+        Object.values(elements).length === 1 &&
+        Object.values(elements)[0].type === 'frame' &&
+        elementOverrideUpdates.length === 1 &&
+        elementOverrideUpdates[0].elementOverride
+      ) {
+        const frameElementId = Object.keys(elements)[0];
+        const frameElement = Object.values(elements)[0] as FrameElement;
+        const allElements = slideInstance.getElements(
+          slideInstance.getElementIds(),
+        );
+        const detachedElements = filterRecord(
+          allElements,
+          (e) =>
+            e.type !== 'frame' &&
+            (e.attachedFrame === undefined ||
+              e.attachedFrame === frameElementId),
+        );
+
+        // Resizing the frame could change the attachment of elements.
+        const elementAttachFrame = findElementAttachFrame(detachedElements, {
+          [frameElementId]: frameElement,
+        });
+
+        const elementFrameChanges: Record<string, ElementFrameChange> =
+          findElementFrameChanges(elementAttachFrame, detachedElements);
+
+        updates = frameResizeUpdates(
+          slideInstance,
+          frameElementId,
+          frameElement,
+          elementOverrideUpdates[0].elementOverride,
+          elementFrameChanges,
         );
       } else {
         updates = elementsUpdates(
           slideInstance,
           elements,
           elementOverrideUpdates,
+          {},
         );
       }
 

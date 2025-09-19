@@ -20,7 +20,7 @@ import loglevel from 'loglevel';
 import { Document } from '../types';
 import { createMigrations, SharedMap, YArray, YDocument, YMap } from '../y';
 import { UndoRedoItemValidator } from '../y/yDocumentUndoManager';
-import { Element, elementSchema } from './elements';
+import { disallowElementIds, Element, elementSchema } from './elements';
 import { getNormalizedSlideIds, getSlideLock } from './operations';
 
 export type SlideLock = {
@@ -70,8 +70,12 @@ export function createWhiteboardDocument(): Document<WhiteboardDocument> {
 }
 
 const slideSchema = Joi.object({
-  elements: Joi.object().pattern(Joi.string(), elementSchema).required(),
-  elementIds: Joi.array().items(Joi.string()).required(),
+  elements: Joi.object()
+    .pattern(Joi.string().not(...disallowElementIds), elementSchema)
+    .required(),
+  elementIds: Joi.array()
+    .items(Joi.string().not(...disallowElementIds))
+    .required(),
   lock: Joi.object({
     userId: Joi.string().required(),
   }).unknown(),

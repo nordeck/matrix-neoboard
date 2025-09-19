@@ -19,6 +19,7 @@ import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { filterRecord } from '../../../lib';
 import {
+  BoundingRect,
   calculateBoundingRectForElements,
   Element,
   Elements,
@@ -26,7 +27,6 @@ import {
   useElements,
   useWhiteboardSlideInstance,
 } from '../../../state';
-import { BoundingRect } from '../../../state/crdt/documents/point';
 import { gridCellSize, whiteboardWidth } from '../../Whiteboard';
 import { ToolbarButton } from '../../common/Toolbar';
 
@@ -87,7 +87,7 @@ export function DuplicateActiveElementButton() {
         boundingRect,
       );
     }
-    slideInstance.addElementsWithConnections(duplicatedElements);
+    slideInstance.addElementsWithRelations(duplicatedElements);
   }, [activeElementIds, slideInstance]);
 
   const duplicateActiveElementLabel = t(

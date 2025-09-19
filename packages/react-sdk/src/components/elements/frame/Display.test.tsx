@@ -62,7 +62,7 @@ describe('<FrameDisplay />', () => {
       <FrameDisplay
         elementId="element-0"
         activeElementIds={[]}
-        overrides={{}}
+        elements={{}}
         {...element}
         active={false}
         readOnly={false}
@@ -80,7 +80,7 @@ describe('<FrameDisplay />', () => {
         <rect
           fill="#fff"
           height="100"
-          stroke="rgba(0, 0, 0, 0.12)"
+          stroke="#9e9e9e"
           stroke-width="2"
           width="200"
           x="10"

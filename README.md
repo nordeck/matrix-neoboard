@@ -200,6 +200,18 @@ cosign verify \
 ghcr.io/nordeck/matrix-neoboard-widget:<version> | jq
 ```
 
+## Matrix Room Upgrades
+
+The widget room can be [upgraded](https://matrix.org/docs/communities/administration/#room-upgrades).
+Before the upgrade, it is strongly recommended to download any whiteboard data by exporting it as NeoBoard file (.nwb).
+After the upgrade, the NeoBoard widget needs to be configured in the new room and the .nwb file can be imported.
+
+If you are using the widget as part of [NeoDateFix](https://github.com/nordeck/matrix-meetings) meetings, then
+please refer to its [documentation](https://github.com/nordeck/matrix-meetings/blob/main/README.md#matrix-room-upgrades)
+about room upgrades.
+
+Matrix room version 12 is supported from NeoBoard version [2.3.1](https://github.com/nordeck/matrix-neoboard/releases/tag/%40nordeck%2Fmatrix-neoboard-widget%402.3.1).
+
 ## License
 
 This project is licensed under [APACHE 2.0](./LICENSE).

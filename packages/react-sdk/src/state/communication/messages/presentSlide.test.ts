@@ -22,7 +22,7 @@ describe('isValidPresentSlideMessage', () => {
     expect(
       isValidPresentSlideMessage({
         senderSessionId: 'sender-session-id',
-        senderUserId: '@sender-user-id',
+        senderUserId: '@sender-user-id:example.com',
         content: {},
         type: 'net.nordeck.whiteboard.present_slide',
       }),
@@ -33,7 +33,7 @@ describe('isValidPresentSlideMessage', () => {
     expect(
       isValidPresentSlideMessage({
         senderSessionId: 'sender-session-id',
-        senderUserId: '@sender-user-id',
+        senderUserId: '@sender-user-id:example.com',
         content: { view: { isEditMode: false, slideId: 'slide-0' } },
         type: 'net.nordeck.whiteboard.present_slide',
       }),
@@ -44,7 +44,7 @@ describe('isValidPresentSlideMessage', () => {
     expect(
       isValidPresentSlideMessage({
         senderSessionId: 'sender-session-id',
-        senderUserId: '@sender-user-id',
+        senderUserId: '@sender-user-id:example.com',
         content: {
           view: { isEditMode: false, slideId: 'slide-0', additional: 'tmp' },
           additional: 'tmp',
@@ -70,9 +70,9 @@ describe('isValidPresentSlideMessage', () => {
     expect(
       isValidPresentSlideMessage({
         senderSessionId: 'sender-session-id',
-        senderUserId: '@sender-user-id',
+        senderUserId: '@sender-user-id:example.com',
         content: {
-          presenterUserId: '@presenter-user-id',
+          presenterUserId: '@presenter-user-id:example.com',
           ...patch,
         },
         type: 'net.nordeck.whiteboard.present_slide',

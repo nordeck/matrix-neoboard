@@ -30,8 +30,8 @@ describe('isValidDocumentSnapshotRoomEvent', () => {
         },
         event_id: '$event-id',
         origin_server_ts: 0,
-        room_id: '!room-id',
-        sender: '@user-id',
+        room_id: '!room-id:example.com',
+        sender: '@user-id:example.com',
         type: 'net.nordeck.whiteboard.document.snapshot',
       }),
     ).toBe(true);
@@ -51,8 +51,8 @@ describe('isValidDocumentSnapshotRoomEvent', () => {
         },
         event_id: '$event-id',
         origin_server_ts: 0,
-        room_id: '!room-id',
-        sender: '@user-id',
+        room_id: '!room-id:example.com',
+        sender: '@user-id:example.com',
         type: 'net.nordeck.whiteboard.document.snapshot',
       }),
     ).toBe(true);
@@ -87,8 +87,8 @@ describe('isValidDocumentSnapshotRoomEvent', () => {
         },
         event_id: '$event-id',
         origin_server_ts: 0,
-        room_id: '!room-id',
-        sender: '@user-id',
+        room_id: '!room-id:example.com',
+        sender: '@user-id:example.com',
         type: 'net.nordeck.whiteboard.document.snapshot',
       }),
     ).toBe(false);

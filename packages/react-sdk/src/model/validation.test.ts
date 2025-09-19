@@ -33,8 +33,8 @@ describe('isValidEvent', () => {
       },
       event_id: '$event-id',
       origin_server_ts: 1000,
-      room_id: '!room-id',
-      sender: '@user-id',
+      room_id: '!room-id:example.com',
+      sender: '@user-id:example.com',
       type: 'com.example.event',
     };
   });

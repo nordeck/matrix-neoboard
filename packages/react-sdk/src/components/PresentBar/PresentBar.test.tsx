@@ -293,7 +293,7 @@ describe('<PresentBar/>', () => {
 
     act(() => {
       messageSubject.next({
-        senderUserId: '@user-alice',
+        senderUserId: '@user-alice:example.com',
         senderSessionId: 'other',
         type: 'net.nordeck.whiteboard.present_slide',
         content: {
@@ -305,7 +305,7 @@ describe('<PresentBar/>', () => {
     widgetApi.mockSendStateEvent(
       mockPowerLevelsEvent({
         content: {
-          users: { '@user-id': 50 },
+          users: { '@user-id:example.com': 50 },
           users_default: 0,
         },
       }),
@@ -334,7 +334,7 @@ describe('<PresentBar/>', () => {
 
     act(() => {
       messageSubject.next({
-        senderUserId: '@user-alice',
+        senderUserId: '@user-alice:example.com',
         senderSessionId: 'other',
         type: 'net.nordeck.whiteboard.present_slide',
         content: {
@@ -346,7 +346,7 @@ describe('<PresentBar/>', () => {
     widgetApi.mockSendStateEvent(
       mockPowerLevelsEvent({
         content: {
-          users: { '@user-id': 50 },
+          users: { '@user-id:example.com': 50 },
           users_default: 0,
         },
       }),
@@ -359,7 +359,7 @@ describe('<PresentBar/>', () => {
     widgetApi.mockSendStateEvent(
       mockPowerLevelsEvent({
         content: {
-          users: { '@user-id': 0 },
+          users: { '@user-id:example.com': 0 },
           users_default: 0,
         },
       }),
