@@ -23,6 +23,7 @@ import {
   WheelEvent,
   WheelEventHandler,
 } from 'react';
+import { isMacOS } from '../../common/platform';
 import { zoomStep } from '../constants';
 import { useSvgScaleContext } from '../SvgScaleContext';
 import { calculateSvgCoords } from './utils';
@@ -34,6 +35,9 @@ type UseWheelZoomResult = {
 
 type Timeout = ReturnType<typeof setTimeout>;
 
+/**
+ * This method handles touchpad and scroll wheel mouse events only.
+ */
 export const useWheelZoom = (
   svgRef: RefObject<SVGSVGElement>,
 ): UseWheelZoomResult => {
@@ -52,7 +56,7 @@ export const useWheelZoom = (
     interactionModeRef.current = 'none';
   }, []);
 
-  const handleWheelZoom = useCallback(
+  const handleMacOSWheelZoom = useCallback(
     (event: WheelEvent) => {
       if (!svgRef.current) {
         return;
@@ -127,6 +131,64 @@ export const useWheelZoom = (
     [svgRef, scale, updateScale, updateTranslation, resetInteractionMode],
   );
 
+  const handleLinuxWheelZoom = useCallback(
+    (event: WheelEvent) => {
+      if (!svgRef.current) {
+        return;
+      }
+
+      // This is moved up because otherwise zooming with the touchpad and moving sideways
+      // may trigger the full browser window being zoomed instead
+      event.preventDefault();
+      event.stopPropagation();
+
+      setWheelZoomInProgress(true);
+      if (wheelZoomTimeoutRef.current) {
+        clearTimeout(wheelZoomTimeoutRef.current);
+        wheelZoomTimeoutRef.current = undefined;
+      }
+      wheelZoomTimeoutRef.current = setTimeout(() => {
+        setWheelZoomInProgress(false);
+      }, 300);
+
+      // Heuristic for zoom vs pan
+      const isZoom =
+        event.ctrlKey ||
+        event.metaKey ||
+        (event.deltaY !== 0 &&
+          event.deltaX < 1 &&
+          // This is for mouse wheel zooming - on Linux, the deltas are large values
+          // 120 is the delta reported by Chrome
+          // 138 is the delta reported by Firefox
+          //
+          // This approach doesn't work for macOS browsers, as they report smaller values
+          // which touchpad panning events also emit
+          [120, 138].some((divisor) => Math.abs(event.deltaY) % divisor === 0));
+
+      if (isZoom) {
+        if (event.deltaY === 0) {
+          return;
+        }
+        const zoomOriginOnCanvas = calculateSvgCoords(
+          {
+            x: event.clientX,
+            y: event.clientY,
+          },
+          svgRef.current,
+        );
+        // Increase stepping for Linux browsers
+        const wheelZoomStep = zoomStep * scale * 2;
+        updateScale(
+          event.deltaY < 0 ? wheelZoomStep : -wheelZoomStep,
+          zoomOriginOnCanvas,
+        );
+      } else {
+        updateTranslation(-event.deltaX, -event.deltaY);
+      }
+    },
+    [svgRef, scale, updateScale, updateTranslation],
+  );
+
   // Clean up timeout on unmount
   useEffect(() => {
     return () => {
@@ -139,8 +201,10 @@ export const useWheelZoom = (
     };
   }, []);
 
+  const systemHandler = isMacOS() ? handleMacOSWheelZoom : handleLinuxWheelZoom;
+
   return {
-    handleWheelZoom,
+    handleWheelZoom: systemHandler,
     wheelZoomInProgress,
   };
 };
