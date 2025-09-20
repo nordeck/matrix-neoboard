@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { useWidgetApi } from '@matrix-widget-toolkit/react';
 import { styled } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
 import { useUnmount } from 'react-use';
@@ -33,6 +34,21 @@ export type ForeignObjectNoInteractionProps = {
   paddingBottom?: number;
   fontFamily: TextFontFamily;
 };
+
+/**
+ * Replace with Uint8Array.fromBase64() as soon as our TpeScript allows it.
+ * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array/fromBase64
+ */
+function fromBase64(base64: string) {
+  const raw = window.atob(base64);
+  const rawLength = raw.length;
+  const array = new Uint8Array(rawLength);
+
+  for (let i = 0; i < rawLength; i++) {
+    array[i] = raw.charCodeAt(i);
+  }
+  return array.buffer;
+}
 
 const ForeignObjectNoInteraction = styled(
   'foreignObject',
@@ -85,6 +101,7 @@ export const TextElement = ({
   const [unsubmittedText, setUnsubmittedText] = useState(text);
   const activeElement = slideInstance.getElement(elementId);
   const color = textColor ?? findForegroundColor(fillColor);
+  const widgetApi = useWidgetApi();
 
   useEffect(() => {
     setUnsubmittedText(text);
@@ -181,7 +198,7 @@ export const TextElement = ({
         model.startsWith('qwen')
           ? 'ollama'
           : (globalThis.localStorage.getItem('llm-service') ?? 'open-ai');
-      let text: string;
+      let outputText: string;
       if (service === 'ollama') {
         const res = await fetch('http://localhost:11434/api/generate', {
           method: 'POST',
@@ -202,36 +219,93 @@ export const TextElement = ({
         }
         const data = await res.json();
         console.log(data);
-        text = data.response.replace(/<think>.*?<\/think>\W*/gs, '');
+        outputText = data.response.replace(/<think>.*?<\/think>\W*/gs, '');
       } else {
-        const res = await fetch('https://api.openai.com/v1/responses', {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${globalThis.localStorage.getItem('open-ai-api-token')}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            model,
-            input: `Answer in a short and precise way. Limit yourself to 2 sentences. ${prompt}`,
-            stream: false,
-          }),
-        });
-        if (!res.ok) {
+        const generateImage = text === 'image';
+        if (generateImage) {
+          const res = await fetch(
+            'https://api.openai.com/v1/images/generations',
+            {
+              method: 'POST',
+              headers: {
+                Authorization: `Bearer ${globalThis.localStorage.getItem('open-ai-api-token')}`,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                model: 'dall-e-3',
+                prompt,
+                n: 1,
+                response_format: 'b64_json',
+                size: '1024x1024',
+              }),
+            },
+          );
+          if (!res.ok) {
+            slideInstance.updateElement(elementId, {
+              text: `HTTP error ${res.status}`,
+            });
+            return;
+          }
+          const data = await res.json();
+          console.log(data);
+          const data0 = data.data[0];
+          let imageData: ArrayBuffer | undefined;
+          if ('b64_json' in data0) {
+            imageData = fromBase64(data.data[0].b64_json);
+          }
+          if (!imageData) {
+            slideInstance.updateElement(elementId, {
+              text: `The API responded, but we do not support the response yet.`,
+            });
+            return;
+          }
+          const uploadResult = await widgetApi.uploadFile(imageData);
+          slideInstance.addElement({
+            type: 'image',
+            position: {
+              x,
+              y,
+            },
+            width,
+            height: width,
+            mxc: uploadResult.content_uri,
+            mimeType: 'image/png',
+            fileName: `${Date.now()}.png`,
+          });
           slideInstance.updateElement(elementId, {
-            text: `HTTP error ${res.status}`,
+            text,
           });
           return;
+        } else {
+          const res = await fetch('https://api.openai.com/v1/responses', {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${globalThis.localStorage.getItem('open-ai-api-token')}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              model,
+              input: `Answer in a short and precise way. Limit yourself to 2 sentences. ${prompt}`,
+              stream: false,
+            }),
+          });
+          if (!res.ok) {
+            slideInstance.updateElement(elementId, {
+              text: `HTTP error ${res.status}`,
+            });
+            return;
+          }
+          const data = await res.json();
+          console.log(data);
+          outputText = data.output
+            .find((output: { type: string }) => output.type === 'message')
+            .content.find(
+              (content: { type: string }) => content.type === 'output_text',
+            ).text;
         }
-        const data = await res.json();
-        console.log(data);
-        text = data.output
-          .find((output: { type: string }) => output.type === 'message')
-          .content.find(
-            (content: { type: string }) => content.type === 'output_text',
-          ).text;
       }
       slideInstance.updateElement(elementId, {
-        text,
+        text: outputText,
       });
     } catch (err) {
       console.error(err);
@@ -239,7 +313,7 @@ export const TextElement = ({
         text: 'Try again later.',
       });
     }
-  }, [elementId, slideInstance, x, y, width, height]);
+  }, [elementId, slideInstance, x, y, width, height, text, widgetApi]);
 
   // If text editing is exited before the blur is received force a submit
   useUnmount(handleBlur);
