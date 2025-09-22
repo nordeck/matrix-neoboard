@@ -18,6 +18,7 @@ import {
   RefObject,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
   WheelEvent,
@@ -33,7 +34,15 @@ type UseWheelZoomResult = {
   wheelZoomInProgress: boolean;
 };
 
+type InteractionMode = 'none' | 'zooming' | 'panning';
 type Timeout = ReturnType<typeof setTimeout>;
+
+const WHEEL_ZOOM_TIMEOUT = 300;
+const TOUCHPAD_THRESHOLD = 4;
+const TOUCHPAD_INTERACTION_TIMEOUT = 50;
+const SCROLL_WHEEL_INTERACTION_TIMEOUT = 200;
+const PINCH_ZOOM_TIME_THRESHOLD = 50;
+const SCROLL_WHEEL_TIME_THRESHOLD = 200;
 
 /**
  * This method handles touchpad and scroll wheel mouse events only.
@@ -45,10 +54,11 @@ export const useWheelZoom = (
   const [wheelZoomInProgress, setWheelZoomInProgress] =
     useState<boolean>(false);
 
-  const wheelZoomTimeoutRef = useRef<Timeout>();
+  const macOS = useMemo(() => isMacOS(), []);
 
+  const wheelZoomTimeoutRef = useRef<Timeout>();
   const lastTimeRef = useRef<number>(0);
-  const interactionModeRef = useRef<'none' | 'zooming' | 'panning'>('none');
+  const interactionModeRef = useRef<InteractionMode>('none');
   const interactionTimeoutRef = useRef<Timeout | null>(null);
 
   // Reset interaction mode after a period of inactivity
@@ -56,21 +66,50 @@ export const useWheelZoom = (
     interactionModeRef.current = 'none';
   }, []);
 
-  const handleMacOSWheelZoom = useCallback(
+  // Shared zoom progress management
+  const setZoomProgressWithTimeout = useCallback(() => {
+    setWheelZoomInProgress(true);
+
+    if (wheelZoomTimeoutRef.current) {
+      clearTimeout(wheelZoomTimeoutRef.current);
+    }
+
+    wheelZoomTimeoutRef.current = setTimeout(() => {
+      setWheelZoomInProgress(false);
+    }, WHEEL_ZOOM_TIMEOUT);
+  }, []);
+
+  // Shared zoom logic
+  const performZoom = useCallback(
     (event: WheelEvent) => {
-      if (!svgRef.current) {
-        return;
-      }
+      if (event.deltaY === 0) return;
 
-      setWheelZoomInProgress(true);
-      if (wheelZoomTimeoutRef.current) {
-        clearTimeout(wheelZoomTimeoutRef.current);
-        wheelZoomTimeoutRef.current = undefined;
-      }
-      wheelZoomTimeoutRef.current = setTimeout(() => {
-        setWheelZoomInProgress(false);
-      }, 300);
+      const zoomOriginOnCanvas = calculateSvgCoords(
+        { x: event.clientX, y: event.clientY },
+        svgRef.current!,
+      );
 
+      const zoomMultiplier = macOS ? 1 : 2;
+      const wheelZoomStep = zoomStep * scale * zoomMultiplier;
+      updateScale(
+        event.deltaY < 0 ? wheelZoomStep : -wheelZoomStep,
+        zoomOriginOnCanvas,
+      );
+    },
+    [scale, updateScale, svgRef, macOS],
+  );
+
+  // Shared panning logic
+  const performPanning = useCallback(
+    (event: WheelEvent) => {
+      updateTranslation(-event.deltaX, -event.deltaY);
+    },
+    [updateTranslation],
+  );
+
+  // macOS-specific interaction mode detection
+  const determineMacOSInteractionMode = useCallback(
+    (event: WheelEvent) => {
       const now = Date.now();
       const timeDiff = now - lastTimeRef.current;
 
@@ -79,117 +118,91 @@ export const useWheelZoom = (
         clearTimeout(interactionTimeoutRef.current);
       }
 
-      // we need a fast timeout for touchpads, as interactions change faster between zooming and panning
-      const isLikelyTouchpad = Math.abs(event.deltaY) < 4;
+      // We need a fast timeout for touchpads, as interactions change faster between zooming and panning
+      const isLikelyTouchpad = Math.abs(event.deltaY) < TOUCHPAD_THRESHOLD;
       interactionTimeoutRef.current = setTimeout(
         resetInteractionMode,
-        isLikelyTouchpad ? 50 : 200,
+        isLikelyTouchpad
+          ? TOUCHPAD_INTERACTION_TIMEOUT
+          : SCROLL_WHEEL_INTERACTION_TIMEOUT,
       );
 
       if (interactionModeRef.current === 'none') {
         if (event.ctrlKey || event.metaKey) {
           interactionModeRef.current = 'zooming';
         } else {
-          // dark magic below
           const isLikelyScrollWheel =
-            !isLikelyTouchpad && timeDiff > 200 && Math.abs(event.deltaX) === 0;
-          const isPinchZoom = timeDiff < 50 && Math.abs(event.deltaX) === 0;
+            !isLikelyTouchpad &&
+            timeDiff > SCROLL_WHEEL_TIME_THRESHOLD &&
+            Math.abs(event.deltaX) === 0;
+          const isPinchZoom =
+            timeDiff < PINCH_ZOOM_TIME_THRESHOLD &&
+            Math.abs(event.deltaX) === 0;
 
           interactionModeRef.current =
             isLikelyScrollWheel || isPinchZoom ? 'zooming' : 'panning';
         }
       }
 
-      if (interactionModeRef.current === 'zooming') {
-        if (event.deltaY === 0) {
-          return;
-        }
-
-        const zoomOriginOnCanvas = calculateSvgCoords(
-          {
-            x: event.clientX,
-            y: event.clientY,
-          },
-          svgRef.current,
-        );
-
-        const wheelZoomStep = zoomStep * scale;
-
-        updateScale(
-          event.deltaY < 0 ? wheelZoomStep : -wheelZoomStep,
-          zoomOriginOnCanvas,
-        );
-      } else {
-        updateTranslation(-event.deltaX, -event.deltaY);
-      }
-
       lastTimeRef.current = now;
-
-      event.preventDefault();
-      event.stopPropagation();
+      return interactionModeRef.current === 'zooming';
     },
-    [svgRef, scale, updateScale, updateTranslation, resetInteractionMode],
+    [resetInteractionMode],
   );
 
-  const handleLinuxWheelZoom = useCallback(
+  // Linux-specific zoom detection
+  const isLinuxZoom = useCallback((event: WheelEvent) => {
+    return (
+      event.ctrlKey ||
+      event.metaKey ||
+      (event.deltaY !== 0 &&
+        event.deltaX < 1 &&
+        // on Linux, the wheel zoom deltas are large values
+        // 120 is the delta reported by Chrome
+        // 138 is the delta reported by Firefox
+        //
+        // This approach doesn't work for macOS browsers, as they report smaller values
+        // which touchpad panning events also emit
+        [120, 138].some((divisor) => Math.abs(event.deltaY) % divisor === 0))
+    );
+  }, []);
+
+  // Unified wheel event handler
+  const handleWheelZoom = useCallback(
     (event: WheelEvent) => {
-      if (!svgRef.current) {
-        return;
-      }
+      if (!svgRef.current) return;
 
-      // This is moved up because otherwise zooming with the touchpad and moving sideways
-      // may trigger the full browser window being zoomed instead
+      // Always prevent default to avoid browser zoom/scroll
       event.preventDefault();
       event.stopPropagation();
 
-      setWheelZoomInProgress(true);
-      if (wheelZoomTimeoutRef.current) {
-        clearTimeout(wheelZoomTimeoutRef.current);
-        wheelZoomTimeoutRef.current = undefined;
-      }
-      wheelZoomTimeoutRef.current = setTimeout(() => {
-        setWheelZoomInProgress(false);
-      }, 300);
+      // Shared zoom progress management
+      setZoomProgressWithTimeout();
 
-      // Heuristic for zoom vs pan
-      const isZoom =
-        event.ctrlKey ||
-        event.metaKey ||
-        (event.deltaY !== 0 &&
-          event.deltaX < 1 &&
-          // This is for mouse wheel zooming - on Linux, the deltas are large values
-          // 120 is the delta reported by Chrome
-          // 138 is the delta reported by Firefox
-          //
-          // This approach doesn't work for macOS browsers, as they report smaller values
-          // which touchpad panning events also emit
-          [120, 138].some((divisor) => Math.abs(event.deltaY) % divisor === 0));
+      // Determine if this should be zoom or pan based on OS
+      const shouldZoom = macOS
+        ? determineMacOSInteractionMode(event)
+        : isLinuxZoom(event);
 
-      if (isZoom) {
-        if (event.deltaY === 0) {
-          return;
-        }
-        const zoomOriginOnCanvas = calculateSvgCoords(
-          {
-            x: event.clientX,
-            y: event.clientY,
-          },
-          svgRef.current,
-        );
-        // Increase stepping for Linux browsers
-        const wheelZoomStep = zoomStep * scale * 2;
-        updateScale(
-          event.deltaY < 0 ? wheelZoomStep : -wheelZoomStep,
-          zoomOriginOnCanvas,
-        );
+      // Perform the action
+      if (shouldZoom) {
+        performZoom(event);
       } else {
-        updateTranslation(-event.deltaX, -event.deltaY);
+        performPanning(event);
       }
     },
-    [svgRef, scale, updateScale, updateTranslation],
+    [
+      svgRef,
+      macOS,
+      setZoomProgressWithTimeout,
+      determineMacOSInteractionMode,
+      isLinuxZoom,
+      performZoom,
+      performPanning,
+    ],
   );
 
-  // Clean up timeout on unmount
+  // Clean up timeouts on unmount
   useEffect(() => {
     return () => {
       if (wheelZoomTimeoutRef.current) {
@@ -201,10 +214,8 @@ export const useWheelZoom = (
     };
   }, []);
 
-  const systemHandler = isMacOS() ? handleMacOSWheelZoom : handleLinuxWheelZoom;
-
   return {
-    handleWheelZoom: systemHandler,
+    handleWheelZoom,
     wheelZoomInProgress,
   };
 };

@@ -22,12 +22,12 @@ import { isMacOS } from '../../common/platform';
 export const ZoomShortcuts: React.FC = function () {
   const { resetZoom, zoomIn, zoomOut } = useZoomControls();
 
-  const macOs = useMemo(() => isMacOS(), []);
+  const macOS = useMemo(() => isMacOS(), []);
 
   const hasKeyModifier = useCallback(
     (event: KeyboardEvent) =>
-      (macOs && event.metaKey) || (!macOs && event.ctrlKey),
-    [macOs],
+      (macOS && event.metaKey) || (!macOS && event.ctrlKey),
+    [macOS],
   );
 
   useHotkeys(
