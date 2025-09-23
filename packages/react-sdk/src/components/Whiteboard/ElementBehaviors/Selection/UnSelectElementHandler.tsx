@@ -15,7 +15,7 @@
  */
 
 import { Point } from 'pdfmake/interfaces';
-import { MouseEvent, useCallback, useState } from 'react';
+import { MouseEvent, useCallback, useEffect, useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import {
   useActiveElement,
@@ -78,22 +78,6 @@ export function UnSelectElementHandler() {
     ],
   );
 
-  const handleMouseMove = useCallback(
-    (event: MouseEvent<SVGRectElement>) => {
-      if (!panEnabled || previousPanCoordinates === undefined) {
-        return;
-      }
-
-      updateTranslation(
-        event.clientX - previousPanCoordinates.x,
-        event.clientY - previousPanCoordinates.y,
-      );
-
-      setPreviousPanCoordinates({ x: event.clientX, y: event.clientY });
-    },
-    [panEnabled, previousPanCoordinates, updateTranslation],
-  );
-
   const handleMouseUp = useCallback((event: MouseEvent<SVGRectElement>) => {
     if (event.button === 1 || event.button === 2) {
       // Middle and Right click
@@ -128,12 +112,35 @@ export function UnSelectElementHandler() {
     [unselectElement],
   );
 
+  // Add window-level event listeners when panning starts
+  useEffect(() => {
+    if (!panEnabled) return;
+
+    const handleMouseMove = (event: globalThis.MouseEvent) => {
+      if (previousPanCoordinates === undefined) {
+        return;
+      }
+
+      updateTranslation(
+        event.clientX - previousPanCoordinates.x,
+        event.clientY - previousPanCoordinates.y,
+      );
+
+      setPreviousPanCoordinates({ x: event.clientX, y: event.clientY });
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, [panEnabled, previousPanCoordinates, updateTranslation]);
+
   return (
     <rect
       fill="transparent"
       height="100%"
       onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onMouseEnter={handleMouseEnter}
       onContextMenu={(e) => {
