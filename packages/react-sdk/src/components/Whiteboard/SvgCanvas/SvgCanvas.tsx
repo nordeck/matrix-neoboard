@@ -195,8 +195,8 @@ export const SvgCanvas = function ({
   // To prevent default paste clipboard action on firefox
   const handleMouseAuxClick: MouseEventHandler<SVGSVGElement> = useCallback(
     (e) => {
-      e.nativeEvent.preventDefault();
-      e.nativeEvent.stopPropagation();
+      e.preventDefault();
+      e.stopPropagation();
     },
     [],
   );

@@ -82,11 +82,11 @@ export const useWheelZoom = (
   // Shared zoom logic
   const performZoom = useCallback(
     (event: WheelEvent) => {
-      if (event.deltaY === 0) return;
+      if (event.deltaY === 0 || !svgRef.current) return;
 
       const zoomOriginOnCanvas = calculateSvgCoords(
         { x: event.clientX, y: event.clientY },
-        svgRef.current!,
+        svgRef.current,
       );
 
       const zoomMultiplier = macOS ? 1 : 2;
