@@ -15,7 +15,7 @@
  */
 
 import { Point } from 'pdfmake/interfaces';
-import { MouseEvent, useCallback, useState } from 'react';
+import { MouseEvent, useCallback, useEffect, useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import {
   useActiveElement,
@@ -78,42 +78,12 @@ export function UnSelectElementHandler() {
     ],
   );
 
-  const handleMouseMove = useCallback(
-    (event: MouseEvent<SVGRectElement>) => {
-      if (!panEnabled || previousPanCoordinates === undefined) {
-        return;
-      }
-
-      updateTranslation(
-        event.clientX - previousPanCoordinates.x,
-        event.clientY - previousPanCoordinates.y,
-      );
-
-      setPreviousPanCoordinates({ x: event.clientX, y: event.clientY });
-    },
-    [panEnabled, previousPanCoordinates, updateTranslation],
-  );
-
-  const handleMouseUp = useCallback((event: MouseEvent<SVGRectElement>) => {
-    if (event.button === 1 || event.button === 2) {
-      // Middle and Right click
-      event.preventDefault();
-      event.stopPropagation();
-
-      if (!infiniteCanvasMode) {
-        return;
-      }
-
-      setPanEnabled(false);
-      document.body.style.cursor = 'default';
-    }
-  }, []);
-
   const handleMouseEnter = useCallback((event: MouseEvent<SVGRectElement>) => {
     if (event.buttons !== 2) {
       // Stop pan
       setPanEnabled(false);
       setPreviousPanCoordinates(undefined);
+      document.body.style.cursor = 'default';
     }
   }, []);
 
@@ -128,13 +98,52 @@ export function UnSelectElementHandler() {
     [unselectElement],
   );
 
+  // Add window-level event listeners when panning starts
+  useEffect(() => {
+    if (!panEnabled) return;
+
+    const handleMouseMove = (event: globalThis.MouseEvent) => {
+      if (previousPanCoordinates === undefined) {
+        return;
+      }
+
+      updateTranslation(
+        event.clientX - previousPanCoordinates.x,
+        event.clientY - previousPanCoordinates.y,
+      );
+
+      setPreviousPanCoordinates({ x: event.clientX, y: event.clientY });
+    };
+
+    const handleMouseUp = (event: globalThis.MouseEvent) => {
+      if (event.button === 1 || event.button === 2) {
+        // Middle and Right click
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (!infiniteCanvasMode) {
+          return;
+        }
+
+        setPanEnabled(false);
+        document.body.style.cursor = 'default';
+      }
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [panEnabled, previousPanCoordinates, updateTranslation]);
+
   return (
     <rect
       fill="transparent"
       height="100%"
       onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
       onMouseEnter={handleMouseEnter}
       onContextMenu={(e) => {
         e.preventDefault();
