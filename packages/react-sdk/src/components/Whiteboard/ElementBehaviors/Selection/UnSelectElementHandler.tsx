@@ -78,26 +78,12 @@ export function UnSelectElementHandler() {
     ],
   );
 
-  const handleMouseUp = useCallback((event: MouseEvent<SVGRectElement>) => {
-    if (event.button === 1 || event.button === 2) {
-      // Middle and Right click
-      event.preventDefault();
-      event.stopPropagation();
-
-      if (!infiniteCanvasMode) {
-        return;
-      }
-
-      setPanEnabled(false);
-      document.body.style.cursor = 'default';
-    }
-  }, []);
-
   const handleMouseEnter = useCallback((event: MouseEvent<SVGRectElement>) => {
     if (event.buttons !== 2) {
       // Stop pan
       setPanEnabled(false);
       setPreviousPanCoordinates(undefined);
+      document.body.style.cursor = 'default';
     }
   }, []);
 
@@ -129,10 +115,27 @@ export function UnSelectElementHandler() {
       setPreviousPanCoordinates({ x: event.clientX, y: event.clientY });
     };
 
+    const handleMouseUp = (event: globalThis.MouseEvent) => {
+      if (event.button === 1 || event.button === 2) {
+        // Middle and Right click
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (!infiniteCanvasMode) {
+          return;
+        }
+
+        setPanEnabled(false);
+        document.body.style.cursor = 'default';
+      }
+    };
+
     window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
 
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
     };
   }, [panEnabled, previousPanCoordinates, updateTranslation]);
 
@@ -141,7 +144,6 @@ export function UnSelectElementHandler() {
       fill="transparent"
       height="100%"
       onMouseDown={handleMouseDown}
-      onMouseUp={handleMouseUp}
       onMouseEnter={handleMouseEnter}
       onContextMenu={(e) => {
         e.preventDefault();
