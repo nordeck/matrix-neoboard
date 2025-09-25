@@ -380,9 +380,9 @@ jobs:
       # Deploy dev
       - name: Deploy k8s to cluster
         run: |
-          helm upgrade --install matrix-neoboard ./charts/matrix-neoboard-widget -f ./valhalla/cluster/neotoolsuite-dev/neoboard/values-neotoolsuite-dev.yaml -n matrix --set image.tag="argo-${{ needs.build.outputs.ARGOCD_SHA }}"
+          helm upgrade --atomic --install matrix-neoboard ./charts/matrix-neoboard-widget -f ./valhalla/cluster/neotoolsuite-dev/neoboard/values-neotoolsuite-dev.yaml -n matrix --set image.tag="argo-${{ needs.build.outputs.ARGOCD_SHA }}"
 
       # Deploy infinite canvas
       - name: Deploy k8s to cluster (infinite canvas)
         run: |
-          helm upgrade --install matrix-neoboard-infinite-canvas ./charts/matrix-neoboard-widget -f ./valhalla/cluster/neotoolsuite-dev/neoboard/values-neotoolsuite-dev.infinite-canvas.yaml -n matrix --set image.tag="argo-${{ needs.build.outputs.ARGOCD_SHA }}"
+          helm upgrade --atomic --install matrix-neoboard-infinite-canvas ./charts/matrix-neoboard-widget -f ./valhalla/cluster/neotoolsuite-dev/neoboard/values-neotoolsuite-dev.infinite-canvas.yaml -n matrix --set image.tag="argo-${{ needs.build.outputs.ARGOCD_SHA }}"
