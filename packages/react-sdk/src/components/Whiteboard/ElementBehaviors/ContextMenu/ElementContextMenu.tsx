@@ -51,6 +51,12 @@ export function ElementContextMenu({
 
   const handleContextMenu = useCallback((event: MouseEvent<SVGElement>) => {
     event.preventDefault();
+  }, []);
+
+  const handleMouseDown = useCallback((event: MouseEvent<SVGElement>) => {
+    if (event.button !== 2) {
+      return;
+    }
     mousePositionRef.current = {
       clientX: event.clientX,
       clientY: event.clientY,
@@ -87,7 +93,8 @@ export function ElementContextMenu({
     <>
       <Box
         component="g"
-        onContextMenu={handleContextMenu}
+        onContextMenu={handleContextMenu} // prevents context menu if context menu is fired before mouse up
+        onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUp}
         data-testid="element-context-menu-container"
       >
@@ -129,6 +136,10 @@ function ContextMenuOptions({
   const canMoveDown =
     activeElementIds.length === 1 && first(elementIds) !== activeElementIds[0];
   const canMoveBottom = canMoveDown || activeElementIds.length > 1;
+
+  const handleContextMenu = useCallback((event: MouseEvent<HTMLDivElement>) => {
+    event.preventDefault();
+  }, []);
 
   const handleClose = useCallback(() => {
     setOpen(false);
@@ -181,6 +192,7 @@ function ContextMenuOptions({
       onClose={handleClose}
       anchorReference="anchorPosition"
       anchorPosition={state?.position}
+      onContextMenu={handleContextMenu} // prevents context menu if context menu is fired after mouse up
     >
       {activeElementIds.length < 2 && (
         <MenuItem onClick={handleClickBringForward} disabled={!canMoveUp}>
