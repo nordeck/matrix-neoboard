@@ -1,4 +1,4 @@
-FROM aquasec/trivy:latest AS scanner
+FROM aquasec/trivy:latest@sha256:94711c60051c6cab848a292e3a67f62623fcee361b2bb661f43b17184f4afdac AS scanner
 
 # Copy yarn.lock to run SBOM scan
 COPY --from=root yarn.lock /tmp
