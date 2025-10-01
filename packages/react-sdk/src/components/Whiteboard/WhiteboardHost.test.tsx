@@ -217,7 +217,6 @@ describe('<WhiteboardHost/>', () => {
   });
 
   it('should move element by dragging with left button', async () => {
-    activeSlide.setActiveElementIds(['element-0']);
     render(<WhiteboardHost />, { wrapper: Wrapper });
 
     // move 150px on x and 250px on y axis
@@ -227,6 +226,7 @@ describe('<WhiteboardHost/>', () => {
       clientY: 150,
       buttons: 1,
     });
+    expect(activeSlide.getActiveElementIds()).toEqual(['element-0']);
     fireEvent.mouseMove(element, {
       clientX: 300,
       clientY: 400,
@@ -241,7 +241,6 @@ describe('<WhiteboardHost/>', () => {
   });
 
   it('should move the element to attach it to the frame', async () => {
-    activeSlide.setActiveElementIds(['element-0']);
     render(<WhiteboardHost />, { wrapper: Wrapper });
 
     const element = screen.getByTestId('element-ellipse-element-0');
@@ -274,7 +273,6 @@ describe('<WhiteboardHost/>', () => {
   });
 
   it('should move the element to detach it from the frame', async () => {
-    activeSlide.setActiveElementIds(['element-0']);
     render(<WhiteboardHost />, { wrapper: Wrapper });
 
     const element = screen.getByTestId('element-ellipse-element-0');
@@ -334,7 +332,6 @@ describe('<WhiteboardHost/>', () => {
   });
 
   it('should move the element connected to line and attach both to frame', () => {
-    activeSlide.setActiveElementIds(['element-0']);
     const lineElementId = activeSlide.addElement(
       mockLineElement({
         points: [
@@ -395,7 +392,6 @@ describe('<WhiteboardHost/>', () => {
   });
 
   it('should move an attached element if the frame is moved', () => {
-    activeSlide.setActiveElementIds(['element-0']);
     render(<WhiteboardHost />, { wrapper: Wrapper });
 
     const element = screen.getByTestId('element-ellipse-element-0');
@@ -565,16 +561,15 @@ describe('<WhiteboardHost/>', () => {
   });
 
   it.each([
-    ['right', 2],
-    ['middle', 4],
+    ['right', 2, 2],
+    ['middle', 1, 4],
   ])(
     'should pan the infinite canvas by dragging element with the %s mouse button',
-    async (_, buttons) => {
+    async (_, button, buttons) => {
       vi.spyOn(constants, 'infiniteCanvasMode', 'get').mockReturnValue(true);
       vi.spyOn(constants, 'whiteboardWidth', 'get').mockReturnValue(19200);
       vi.spyOn(constants, 'whiteboardHeight', 'get').mockReturnValue(10800);
 
-      activeSlide.setActiveElementIds(['element-0']);
       render(<WhiteboardHost />, { wrapper: Wrapper });
 
       // move 150px on x and 250px on y axis
@@ -582,6 +577,7 @@ describe('<WhiteboardHost/>', () => {
       fireEvent.mouseDown(element, {
         clientX: 150,
         clientY: 150,
+        button,
         buttons,
       });
       fireEvent.mouseMove(element, {
@@ -589,8 +585,13 @@ describe('<WhiteboardHost/>', () => {
         clientY: 400,
         buttons,
       });
-      fireEvent.mouseUp(element);
+      fireEvent.mouseUp(element, {
+        clientX: 300,
+        clientY: 400,
+        button,
+      });
 
+      expect(activeSlide.getActiveElementIds()).toEqual([]);
       expect(activeSlide.getElement('element-0')?.position).toEqual({
         x: 0,
         y: 1,

@@ -22,7 +22,7 @@ import {
   PopoverPosition,
   Typography,
 } from '@mui/material';
-import { first, isEqual, last } from 'lodash';
+import { first, last } from 'lodash';
 import {
   MouseEvent,
   PropsWithChildren,
@@ -31,6 +31,7 @@ import {
   useState,
 } from 'react';
 import { useTranslation } from 'react-i18next';
+import { isMousePositionEqual, MousePosition } from '../../../../lib';
 import {
   useSlideElementIds,
   useSlideIsLocked,
@@ -40,13 +41,12 @@ import { HotkeysHelp } from '../../../common/HotkeysHelp';
 import { isMacOS } from '../../../common/platform';
 
 type ContextMenuState = { position: PopoverPosition } | undefined;
-type MouseClientPosition = { clientX: number; clientY: number };
 
 export function ElementContextMenu({
   children,
   activeElementIds = [],
 }: PropsWithChildren<{ activeElementIds: string[] }>) {
-  const mousePositionRef = useRef<MouseClientPosition>();
+  const mousePositionRef = useRef<MousePosition>();
   const [state, setState] = useState<ContextMenuState>();
 
   const handleContextMenu = useCallback((event: MouseEvent<SVGElement>) => {
@@ -68,11 +68,11 @@ export function ElementContextMenu({
       return;
     }
 
-    const mousePosition: MouseClientPosition = {
+    const mousePosition: MousePosition = {
       clientX: event.clientX,
       clientY: event.clientY,
     };
-    if (isEqual(mousePositionRef.current, mousePosition)) {
+    if (isMousePositionEqual(mousePositionRef.current, mousePosition)) {
       setState((state) =>
         !state
           ? {

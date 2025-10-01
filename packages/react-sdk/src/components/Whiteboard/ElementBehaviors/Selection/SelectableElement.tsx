@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-import { MouseEvent, PropsWithChildren } from 'react';
+import { MouseEvent, PropsWithChildren, useRef } from 'react';
+import { isMousePositionEqual, MousePosition } from '../../../../lib';
 import { useWhiteboardSlideInstance } from '../../../../state';
 import { useLayoutState } from '../../../Layout';
 import { WithSelectionProps } from './types';
@@ -25,6 +26,7 @@ export function SelectableElement({
   children,
   elementId,
 }: SelectableElementProps) {
+  const mousePositionRef = useRef<MousePosition>();
   const slideInstance = useWhiteboardSlideInstance();
   const { activeTool } = useLayoutState();
   const isInSelectionMode = activeTool === 'select';
@@ -44,8 +46,13 @@ export function SelectableElement({
   function handleMouseDown(event: MouseEvent) {
     if (isInSelectionMode) {
       event.stopPropagation();
-      if (event.button !== 2) {
+      if (event.button === 0) {
         selectElement(event.shiftKey);
+      } else {
+        mousePositionRef.current = {
+          clientX: event.clientX,
+          clientY: event.clientY,
+        };
       }
     }
   }
@@ -53,7 +60,14 @@ export function SelectableElement({
   function handleMouseUp(event: MouseEvent) {
     if (isInSelectionMode) {
       event.stopPropagation();
-      if (event.button === 2) {
+      if (
+        event.button !== 0 &&
+        mousePositionRef.current &&
+        isMousePositionEqual(mousePositionRef.current, {
+          clientX: event.clientX,
+          clientY: event.clientY,
+        })
+      ) {
         selectElement(event.shiftKey);
       }
     }
