@@ -29,21 +29,39 @@ export function SelectableElement({
   const { activeTool } = useLayoutState();
   const isInSelectionMode = activeTool === 'select';
 
+  function selectElement(shiftKey: boolean) {
+    if (!shiftKey) {
+      if (!slideInstance.getActiveElementIds().includes(elementId)) {
+        slideInstance.setActiveElementId(elementId);
+      }
+    } else if (slideInstance.getActiveElementIds().includes(elementId)) {
+      slideInstance.unselectActiveElementId(elementId);
+    } else {
+      slideInstance.addActiveElementId(elementId);
+    }
+  }
+
   function handleMouseDown(event: MouseEvent) {
     if (isInSelectionMode) {
       event.stopPropagation();
-
-      if (!event.shiftKey) {
-        if (!slideInstance.getActiveElementIds().includes(elementId)) {
-          slideInstance.setActiveElementId(elementId);
-        }
-      } else if (slideInstance.getActiveElementIds().includes(elementId)) {
-        slideInstance.unselectActiveElementId(elementId);
-      } else {
-        slideInstance.addActiveElementId(elementId);
+      if (event.button !== 2) {
+        selectElement(event.shiftKey);
       }
     }
   }
 
-  return <g onMouseDown={handleMouseDown}>{children}</g>;
+  function handleMouseUp(event: MouseEvent) {
+    if (isInSelectionMode) {
+      event.stopPropagation();
+      if (event.button === 2) {
+        selectElement(event.shiftKey);
+      }
+    }
+  }
+
+  return (
+    <g onMouseDown={handleMouseDown} onMouseUp={handleMouseUp}>
+      {children}
+    </g>
+  );
 }

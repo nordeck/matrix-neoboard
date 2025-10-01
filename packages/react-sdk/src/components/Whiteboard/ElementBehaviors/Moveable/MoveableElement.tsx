@@ -256,6 +256,7 @@ export function MoveableElement({
 
     setElementOverride(undefined);
     setResizableProperties(undefined);
+    setElementOverrideUpdates([]);
     isDragging.current = false;
     removeUserSelectStyles();
     setCursor('move');
