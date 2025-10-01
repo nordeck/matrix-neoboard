@@ -22,7 +22,7 @@ import {
   PopoverPosition,
   Typography,
 } from '@mui/material';
-import { first, isEqual, last } from 'lodash';
+import { first, last } from 'lodash';
 import {
   MouseEvent,
   PropsWithChildren,
@@ -31,6 +31,7 @@ import {
   useState,
 } from 'react';
 import { useTranslation } from 'react-i18next';
+import { isMousePositionEqual, MousePosition } from '../../../../lib';
 import {
   useSlideElementIds,
   useSlideIsLocked,
@@ -40,17 +41,22 @@ import { HotkeysHelp } from '../../../common/HotkeysHelp';
 import { isMacOS } from '../../../common/platform';
 
 type ContextMenuState = { position: PopoverPosition } | undefined;
-type MouseClientPosition = { clientX: number; clientY: number };
 
 export function ElementContextMenu({
   children,
   activeElementIds = [],
 }: PropsWithChildren<{ activeElementIds: string[] }>) {
-  const mousePositionRef = useRef<MouseClientPosition>();
+  const mousePositionRef = useRef<MousePosition>();
   const [state, setState] = useState<ContextMenuState>();
 
   const handleContextMenu = useCallback((event: MouseEvent<SVGElement>) => {
     event.preventDefault();
+  }, []);
+
+  const handleMouseDown = useCallback((event: MouseEvent<SVGElement>) => {
+    if (event.button !== 2) {
+      return;
+    }
     mousePositionRef.current = {
       clientX: event.clientX,
       clientY: event.clientY,
@@ -62,11 +68,11 @@ export function ElementContextMenu({
       return;
     }
 
-    const mousePosition: MouseClientPosition = {
+    const mousePosition: MousePosition = {
       clientX: event.clientX,
       clientY: event.clientY,
     };
-    if (isEqual(mousePositionRef.current, mousePosition)) {
+    if (isMousePositionEqual(mousePositionRef.current, mousePosition)) {
       setState((state) =>
         !state
           ? {
@@ -87,7 +93,8 @@ export function ElementContextMenu({
     <>
       <Box
         component="g"
-        onContextMenu={handleContextMenu}
+        onContextMenu={handleContextMenu} // prevents context menu if context menu is fired before mouse up
+        onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUp}
         data-testid="element-context-menu-container"
       >
@@ -129,6 +136,10 @@ function ContextMenuOptions({
   const canMoveDown =
     activeElementIds.length === 1 && first(elementIds) !== activeElementIds[0];
   const canMoveBottom = canMoveDown || activeElementIds.length > 1;
+
+  const handleContextMenu = useCallback((event: MouseEvent<HTMLDivElement>) => {
+    event.preventDefault();
+  }, []);
 
   const handleClose = useCallback(() => {
     setOpen(false);
@@ -181,6 +192,7 @@ function ContextMenuOptions({
       onClose={handleClose}
       anchorReference="anchorPosition"
       anchorPosition={state?.position}
+      onContextMenu={handleContextMenu} // prevents context menu if context menu is fired after mouse up
     >
       {activeElementIds.length < 2 && (
         <MenuItem onClick={handleClickBringForward} disabled={!canMoveUp}>

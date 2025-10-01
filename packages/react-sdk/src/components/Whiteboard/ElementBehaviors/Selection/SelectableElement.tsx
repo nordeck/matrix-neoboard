@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-import { MouseEvent, PropsWithChildren } from 'react';
+import { MouseEvent, PropsWithChildren, useRef } from 'react';
+import { isMousePositionEqual, MousePosition } from '../../../../lib';
 import { useWhiteboardSlideInstance } from '../../../../state';
 import { useLayoutState } from '../../../Layout';
 import { WithSelectionProps } from './types';
@@ -25,25 +26,56 @@ export function SelectableElement({
   children,
   elementId,
 }: SelectableElementProps) {
+  const mousePositionRef = useRef<MousePosition>();
   const slideInstance = useWhiteboardSlideInstance();
   const { activeTool } = useLayoutState();
   const isInSelectionMode = activeTool === 'select';
 
+  function selectElement(shiftKey: boolean) {
+    if (!shiftKey) {
+      if (!slideInstance.getActiveElementIds().includes(elementId)) {
+        slideInstance.setActiveElementId(elementId);
+      }
+    } else if (slideInstance.getActiveElementIds().includes(elementId)) {
+      slideInstance.unselectActiveElementId(elementId);
+    } else {
+      slideInstance.addActiveElementId(elementId);
+    }
+  }
+
   function handleMouseDown(event: MouseEvent) {
     if (isInSelectionMode) {
       event.stopPropagation();
-
-      if (!event.shiftKey) {
-        if (!slideInstance.getActiveElementIds().includes(elementId)) {
-          slideInstance.setActiveElementId(elementId);
-        }
-      } else if (slideInstance.getActiveElementIds().includes(elementId)) {
-        slideInstance.unselectActiveElementId(elementId);
+      if (event.button === 0) {
+        selectElement(event.shiftKey);
       } else {
-        slideInstance.addActiveElementId(elementId);
+        mousePositionRef.current = {
+          clientX: event.clientX,
+          clientY: event.clientY,
+        };
       }
     }
   }
 
-  return <g onMouseDown={handleMouseDown}>{children}</g>;
+  function handleMouseUp(event: MouseEvent) {
+    if (isInSelectionMode) {
+      event.stopPropagation();
+      if (
+        event.button !== 0 &&
+        mousePositionRef.current &&
+        isMousePositionEqual(mousePositionRef.current, {
+          clientX: event.clientX,
+          clientY: event.clientY,
+        })
+      ) {
+        selectElement(event.shiftKey);
+      }
+    }
+  }
+
+  return (
+    <g onMouseDown={handleMouseDown} onMouseUp={handleMouseUp}>
+      {children}
+    </g>
+  );
 }
