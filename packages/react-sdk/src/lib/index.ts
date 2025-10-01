@@ -23,6 +23,8 @@ export { isInfiniteCanvasMode } from './isInfiniteCanvasMode';
 export { setLocale } from './locale';
 export { WidgetApiActionError, convertMxcToHttpUrl } from './matrix';
 export { isMatrixRtcMode } from './matrixRtcMode';
+export { isMousePositionEqual } from './mousePosition';
+export type { MousePosition } from './mousePosition';
 export { findColor, useColorPalette } from './useColorPalette';
 export type { Color } from './useColorPalette';
 export { FontsLoadedContextProvider, useFontsLoaded } from './useFontsLoaded';
