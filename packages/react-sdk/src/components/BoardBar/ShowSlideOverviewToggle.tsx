@@ -16,6 +16,7 @@
 
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import { isInfiniteCanvasMode } from '../../lib';
 import { useLayoutState } from '../Layout';
 import { ToolbarToggle } from '../common/Toolbar';
 import { SidebarLeftIcon } from '../icons/SidebarLeftIcon';
@@ -25,8 +26,12 @@ export function ShowSlideOverviewToggle() {
   const { isSlideOverviewVisible, setSlideOverviewVisible } = useLayoutState();
 
   const title = isSlideOverviewVisible
-    ? t('boardBar.hideSlideBarTitle', 'Close slide overview')
-    : t('boardBar.showSlideBarTitle', 'Open slide overview');
+    ? isInfiniteCanvasMode()
+      ? t('boardBar.hideFrameBarTitle', 'Close frame overview')
+      : t('boardBar.hideSlideBarTitle', 'Close slide overview')
+    : isInfiniteCanvasMode()
+      ? t('boardBar.showFrameBarTitle', 'Open frame overview')
+      : t('boardBar.showSlideBarTitle', 'Open slide overview');
 
   const handleVisibilityChange = useCallback(
     (_: unknown, checked: boolean) => {

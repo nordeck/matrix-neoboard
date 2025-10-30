@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-import React, { PropsWithChildren, useContext, useMemo } from 'react';
+import { createContext, PropsWithChildren, useContext, useMemo } from 'react';
 import { EMPTY } from 'rxjs';
-import { useLatestValue } from '../lib';
-import { Element } from './crdt';
+import { isInfiniteCanvasMode, useLatestValue } from '../lib';
+import { Element, FrameElement } from './crdt';
 import { Elements, WhiteboardSlideInstance } from './types';
 import { useActiveWhiteboardInstance } from './useActiveWhiteboardInstance';
 
-const SlideContext = React.createContext<string | undefined>(undefined);
+const SlideContext = createContext<string | undefined>(undefined);
 
 export function SlideProvider({
   slideId,
@@ -45,6 +45,21 @@ export function useWhiteboardSlideInstance(): WhiteboardSlideInstance {
   return whiteboardInstance.getSlide(slideId);
 }
 
+export function useActiveWhiteboardInstanceSlideOrFrameIds(): string[] {
+  const whiteboardInstance = useActiveWhiteboardInstance();
+  const slideInstance = useWhiteboardSlideInstance();
+
+  return useLatestValue(
+    () =>
+      isInfiniteCanvasMode()
+        ? slideInstance.getFrameElementIds()
+        : whiteboardInstance.getSlideIds(),
+    isInfiniteCanvasMode()
+      ? slideInstance.observeFrameElementIds()
+      : whiteboardInstance.observeSlideIds(),
+  );
+}
+
 export function useSlideElementIds(): string[] {
   const slideInstance = useWhiteboardSlideInstance();
 
@@ -66,6 +81,18 @@ export function useElement(elementId: string | undefined): Element | undefined {
     () => (elementId ? slideInstance.getElement(elementId) : undefined),
     observable,
   );
+}
+
+export function useFrameElement(
+  frameElementId: string | undefined,
+): FrameElement | undefined {
+  const element = useElement(frameElementId);
+
+  if (element && element.type !== 'frame') {
+    throw new Error('Element must be of type frame');
+  }
+
+  return element;
 }
 
 export function useElements(elementIds: string[]): Elements {
