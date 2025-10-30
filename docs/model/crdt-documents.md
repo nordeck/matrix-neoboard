@@ -91,12 +91,13 @@ A slide contains a collection of ordered elements.
 
 #### Fields
 
-| Field         | Type                                                   | Description                                                                     |
-| ------------- | ------------------------------------------------------ | ------------------------------------------------------------------------------- |
-| `elements`    | `Record<string, ShapeElement \| PathElement>` / `YMap` | A map from element IDs to elements.                                             |
-| `elementIds`  | `string[]` / `YArray<string>`                          | The display order of the elements, from back to front.                          |
-| `lock`        | `object \| undefined`                                  | If defined, the slide is locked and all edit operations are disabled in the UI. |
-| `lock.userId` | `string`                                               | The user that locked the slide.                                                 |
+| Field            | Type                                                   | Description                                                                     |
+| ---------------- | ------------------------------------------------------ | ------------------------------------------------------------------------------- |
+| `elements`       | `Record<string, ShapeElement \| PathElement>` / `YMap` | A map from element IDs to elements.                                             |
+| `elementIds`     | `string[]` / `YArray<string>`                          | The display order of the elements, from back to front.                          |
+| `frameElementId` | `string[]` / `YArray<string>`                          | The display order of the frames.                                                |
+| `lock`           | `object \| undefined`                                  | If defined, the slide is locked and all edit operations are disabled in the UI. |
+| `lock.userId`    | `string`                                               | The user that locked the slide.                                                 |
 
 The separation of elements and their order is explained in [ADR004][adr004].
 

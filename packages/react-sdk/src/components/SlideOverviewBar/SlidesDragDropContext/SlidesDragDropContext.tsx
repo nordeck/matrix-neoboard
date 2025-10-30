@@ -25,6 +25,7 @@ import {
   useTouchSensor,
 } from 'react-beautiful-dnd';
 import { useTranslation } from 'react-i18next';
+import { isInfiniteCanvasMode } from '../../../lib';
 import { useActiveWhiteboardInstance } from '../../../state';
 import { useCustomKeyboardSensor } from './useCustomKeyboardSensor';
 import { useFixLiveRegionAfterModals } from './useFixLiveRegionAfterModals';
@@ -38,14 +39,26 @@ export function SlidesDragDropContext({ children }: PropsWithChildren<{}>) {
   const handleDragStart = useCallback(
     (initial: DragStart, { announce }: ResponderProvided) => {
       announce(
-        t(
-          'slideOverviewBar.dragAndDrop.dragStart',
-          'You have lifted a slide. It is in position {{startPosition}} of {{totalCount}} in the list. Use the arrow keys to move, the M key to drop, and escape to cancel.',
-          {
-            startPosition: initial.source.index + 1,
-            totalCount: whiteboardInstance.getSlideIds().length,
-          },
-        ),
+        !isInfiniteCanvasMode()
+          ? t(
+              'slideOverviewBar.dragAndDrop.dragStart',
+              'You have lifted a slide. It is in position {{startPosition}} of {{totalCount}} in the list. Use the arrow keys to move, the M key to drop, and escape to cancel.',
+              {
+                startPosition: initial.source.index + 1,
+                totalCount: whiteboardInstance.getSlideIds().length,
+              },
+            )
+          : t(
+              'slideOverviewBar.dragAndDrop.dragStart',
+              'You have lifted a frame. It is in position {{startPosition}} of {{totalCount}} in the list. Use the arrow keys to move, the M key to drop, and escape to cancel.',
+              {
+                context: 'frame',
+                startPosition: initial.source.index + 1,
+                totalCount: whiteboardInstance
+                  .getActiveSlide()
+                  ?.getFrameElementIds().length,
+              },
+            ),
       );
     },
     [t, whiteboardInstance],
@@ -62,14 +75,26 @@ export function SlidesDragDropContext({ children }: PropsWithChildren<{}>) {
         );
       } else {
         announce(
-          t(
-            'slideOverviewBar.dragAndDrop.movedPosition',
-            `You have moved the slide to position {{position}} of {{totalCount}}.`,
-            {
-              position: update.destination.index + 1,
-              totalCount: whiteboardInstance.getSlideIds().length,
-            },
-          ),
+          !isInfiniteCanvasMode()
+            ? t(
+                'slideOverviewBar.dragAndDrop.movedPosition',
+                `You have moved the slide to position {{position}} of {{totalCount}}.`,
+                {
+                  position: update.destination.index + 1,
+                  totalCount: whiteboardInstance.getSlideIds().length,
+                },
+              )
+            : t(
+                'slideOverviewBar.dragAndDrop.movedPosition',
+                `You have moved the frame to position {{position}} of {{totalCount}}.`,
+                {
+                  context: 'frame',
+                  position: update.destination.index + 1,
+                  totalCount: whiteboardInstance
+                    .getActiveSlide()
+                    ?.getFrameElementIds().length,
+                },
+              ),
         );
       }
     },
@@ -84,37 +109,62 @@ export function SlidesDragDropContext({ children }: PropsWithChildren<{}>) {
 
       if (result.reason === 'CANCEL') {
         announce(
-          t(
-            'slideOverviewBar.dragAndDrop.movementCanceled',
-            'Movement cancelled. The slide has returned to its starting position of {{startPosition}}.',
-            {
-              startPosition: result.source.index + 1,
-            },
-          ),
+          !isInfiniteCanvasMode()
+            ? t(
+                'slideOverviewBar.dragAndDrop.movementCanceled',
+                'Movement cancelled. The slide has returned to its starting position of {{startPosition}}.',
+                {
+                  startPosition: result.source.index + 1,
+                },
+              )
+            : t(
+                'slideOverviewBar.dragAndDrop.movementCanceled',
+                'Movement cancelled. The frame has returned to its starting position of {{startPosition}}.',
+                {
+                  context: 'frame',
+                  startPosition: result.source.index + 1,
+                },
+              ),
         );
         return;
       }
 
       if (!result.destination) {
         announce(
-          t(
-            'slideOverviewBar.dragAndDrop.droppedOnNoDropTarget',
-            'The slide has been dropped while not over a location. The slide has returned to its starting position of {{startPosition}}.',
-            { startPosition: result.source.index + 1 },
-          ),
+          !isInfiniteCanvasMode()
+            ? t(
+                'slideOverviewBar.dragAndDrop.droppedOnNoDropTarget',
+                'The slide has been dropped while not over a location. The slide has returned to its starting position of {{startPosition}}.',
+                { startPosition: result.source.index + 1 },
+              )
+            : t(
+                'slideOverviewBar.dragAndDrop.droppedOnNoDropTarget',
+                'The frame has been dropped while not over a location. The frame has returned to its starting position of {{startPosition}}.',
+                { context: 'frame', startPosition: result.source.index + 1 },
+              ),
         );
         return;
       }
 
       announce(
-        t(
-          'slideOverviewBar.dragAndDrop.dropped',
-          'You have dropped the slide. It has moved from position {{startPosition}} to {{destinationPosition}}.',
-          {
-            startPosition: result.source.index + 1,
-            destinationPosition: result.destination.index + 1,
-          },
-        ),
+        !isInfiniteCanvasMode()
+          ? t(
+              'slideOverviewBar.dragAndDrop.dropped',
+              'You have dropped the slide. It has moved from position {{startPosition}} to {{destinationPosition}}.',
+              {
+                startPosition: result.source.index + 1,
+                destinationPosition: result.destination.index + 1,
+              },
+            )
+          : t(
+              'slideOverviewBar.dragAndDrop.dropped',
+              'You have dropped the frame. It has moved from position {{startPosition}} to {{destinationPosition}}.',
+              {
+                context: 'frame',
+                startPosition: result.source.index + 1,
+                destinationPosition: result.destination.index + 1,
+              },
+            ),
       );
 
       if (result.destination.index === result.source.index) {
@@ -123,9 +173,17 @@ export function SlidesDragDropContext({ children }: PropsWithChildren<{}>) {
 
       const sourceIndex = result.source.index;
       const targetIndex = result.destination.index;
-      const sourceSlideId = whiteboardInstance.getSlideIds()[sourceIndex];
-
-      whiteboardInstance.moveSlide(sourceSlideId, targetIndex);
+      if (isInfiniteCanvasMode()) {
+        const whiteboardSlideInstance = whiteboardInstance.getActiveSlide();
+        if (whiteboardSlideInstance) {
+          const frameElementId =
+            whiteboardSlideInstance.getFrameElementIds()[sourceIndex];
+          whiteboardSlideInstance.moveFrame(frameElementId, targetIndex);
+        }
+      } else {
+        const sourceSlideId = whiteboardInstance.getSlideIds()[sourceIndex];
+        whiteboardInstance.moveSlide(sourceSlideId, targetIndex);
+      }
     },
     [t, whiteboardInstance],
   );

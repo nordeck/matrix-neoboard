@@ -16,16 +16,24 @@
 
 import { Tabs } from '@mui/base';
 import { PropsWithChildren, useCallback } from 'react';
-import { useActiveSlide, useActiveWhiteboardInstance } from '../../state';
+import { isInfiniteCanvasMode } from '../../lib';
+import {
+  useActiveSlideOrFrame,
+  useActiveWhiteboardInstance,
+} from '../../state';
 
 export function SlidesProvider({ children }: PropsWithChildren<{}>) {
   const whiteboardInstance = useActiveWhiteboardInstance();
-  const { activeSlideId } = useActiveSlide();
+  const { activeId } = useActiveSlideOrFrame();
 
   const handleSelectSlide = useCallback(
-    (_: unknown, slideId: string | number | boolean | null) => {
-      if (typeof slideId === 'string') {
-        whiteboardInstance.setActiveSlideId(slideId);
+    (_: unknown, slideOrFrameElementId: string | number | boolean | null) => {
+      if (typeof slideOrFrameElementId === 'string') {
+        if (isInfiniteCanvasMode()) {
+          whiteboardInstance.setActiveFrameElementId(slideOrFrameElementId);
+        } else {
+          whiteboardInstance.setActiveSlideId(slideOrFrameElementId);
+        }
       }
     },
     [whiteboardInstance],
@@ -35,7 +43,7 @@ export function SlidesProvider({ children }: PropsWithChildren<{}>) {
     <Tabs
       id="widget-root"
       orientation="vertical"
-      value={activeSlideId}
+      value={activeId ?? null}
       onChange={handleSelectSlide}
     >
       {children}

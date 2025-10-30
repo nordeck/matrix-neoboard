@@ -29,6 +29,7 @@ import {
 } from '@mui/material';
 import React, { MouseEvent, Ref, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { isInfiniteCanvasMode } from '../../lib';
 import {
   useActiveWhiteboardInstance,
   useActiveWhiteboardInstanceSlideIds,
@@ -61,7 +62,9 @@ export const withContextMenu = <P extends object>(
     const importContext = useImportWhiteboardDialog();
     const whiteboardInstance = useActiveWhiteboardInstance();
     const slideIds = useActiveWhiteboardInstanceSlideIds();
-    const isLocked = useSlideIsLocked(slideId);
+    const isLocked = useSlideIsLocked(
+      isInfiniteCanvasMode() ? undefined : slideId,
+    );
     const canDelete = slideIds.length > 1 && !isLocked;
     const canDuplicate = !isLocked;
 
@@ -115,6 +118,11 @@ export const withContextMenu = <P extends object>(
 
     const handleContextMenu = useCallback(
       (event: MouseEvent<HTMLButtonElement>) => {
+        if (isInfiniteCanvasMode()) {
+          // not implemented for frames yet
+          return;
+        }
+
         event.preventDefault();
         setState((state) =>
           !state

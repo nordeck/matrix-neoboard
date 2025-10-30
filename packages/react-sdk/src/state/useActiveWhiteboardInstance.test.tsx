@@ -29,6 +29,7 @@ import {
 } from './types';
 import {
   useActiveSlide,
+  useActiveSlideOrFrame,
   useActiveWhiteboardInstance,
   useActiveWhiteboardInstanceSlideIds,
   useActiveWhiteboardInstanceStatistics,
@@ -36,6 +37,7 @@ import {
   useUndoRedoState,
 } from './useActiveWhiteboardInstance';
 import { WhiteboardManagerProvider } from './useWhiteboardManager';
+import { SlideProvider } from './useWhiteboardSlideInstance';
 
 let Wrapper: ComponentType<PropsWithChildren<{}>>;
 let whiteboardManager: Mocked<WhiteboardManager>;
@@ -219,43 +221,13 @@ describe('useActiveSlide', () => {
     activeWhiteboardInstance = whiteboardManager.getActiveWhiteboardInstance()!;
   });
 
-  it('should return first slide', () => {
+  it('should return active slide', () => {
     const { result } = renderHook(() => useActiveSlide(), {
       wrapper: Wrapper,
     });
 
     expect(result.current).toEqual({
       activeSlideId: 'slide-0',
-      isFirstSlideActive: true,
-      isLastSlideActive: false,
-    });
-  });
-
-  it('should return middle slide', () => {
-    activeWhiteboardInstance.setActiveSlideId('slide-1');
-
-    const { result } = renderHook(() => useActiveSlide(), {
-      wrapper: Wrapper,
-    });
-
-    expect(result.current).toEqual({
-      activeSlideId: 'slide-1',
-      isFirstSlideActive: false,
-      isLastSlideActive: false,
-    });
-  });
-
-  it('should return last slide', () => {
-    activeWhiteboardInstance.setActiveSlideId('slide-2');
-
-    const { result } = renderHook(() => useActiveSlide(), {
-      wrapper: Wrapper,
-    });
-
-    expect(result.current).toEqual({
-      activeSlideId: 'slide-2',
-      isFirstSlideActive: false,
-      isLastSlideActive: true,
     });
   });
 
@@ -268,8 +240,6 @@ describe('useActiveSlide', () => {
 
     expect(result.current).toEqual({
       activeSlideId: undefined,
-      isFirstSlideActive: false,
-      isLastSlideActive: false,
     });
   });
 
@@ -280,8 +250,6 @@ describe('useActiveSlide', () => {
 
     expect(result.current).toEqual({
       activeSlideId: 'slide-0',
-      isFirstSlideActive: true,
-      isLastSlideActive: false,
     });
 
     act(() => {
@@ -290,8 +258,6 @@ describe('useActiveSlide', () => {
 
     expect(result.current).toEqual({
       activeSlideId: 'slide-2',
-      isFirstSlideActive: false,
-      isLastSlideActive: true,
     });
 
     act(() => {
@@ -300,8 +266,93 @@ describe('useActiveSlide', () => {
 
     expect(result.current).toEqual({
       activeSlideId: 'slide-2',
-      isFirstSlideActive: false,
-      isLastSlideActive: false,
+    });
+  });
+});
+
+describe('useActiveSlideOrFrame', () => {
+  beforeEach(() => {
+    ({ whiteboardManager } = mockWhiteboardManager({ slideCount: 3 }));
+    activeWhiteboardInstance = whiteboardManager.getActiveWhiteboardInstance()!;
+
+    Wrapper = ({ children }) => {
+      return (
+        <WhiteboardManagerProvider whiteboardManager={whiteboardManager}>
+          <SlideProvider slideId="slide-0">{children}</SlideProvider>
+        </WhiteboardManagerProvider>
+      );
+    };
+  });
+
+  it('should return first slide', () => {
+    const { result } = renderHook(() => useActiveSlideOrFrame(), {
+      wrapper: Wrapper,
+    });
+
+    expect(result.current).toEqual({
+      activeId: 'slide-0',
+      isFirstActive: true,
+      isLastActive: false,
+    });
+  });
+
+  it('should return middle slide', () => {
+    activeWhiteboardInstance.setActiveSlideId('slide-1');
+
+    const { result } = renderHook(() => useActiveSlideOrFrame(), {
+      wrapper: Wrapper,
+    });
+
+    expect(result.current).toEqual({
+      activeId: 'slide-1',
+      isFirstActive: false,
+      isLastActive: false,
+    });
+  });
+
+  it('should return last slide', () => {
+    activeWhiteboardInstance.setActiveSlideId('slide-2');
+
+    const { result } = renderHook(() => useActiveSlideOrFrame(), {
+      wrapper: Wrapper,
+    });
+
+    expect(result.current).toEqual({
+      activeId: 'slide-2',
+      isFirstActive: false,
+      isLastActive: true,
+    });
+  });
+
+  it('should observe slides', () => {
+    const { result } = renderHook(() => useActiveSlideOrFrame(), {
+      wrapper: Wrapper,
+    });
+
+    expect(result.current).toEqual({
+      activeId: 'slide-0',
+      isFirstActive: true,
+      isLastActive: false,
+    });
+
+    act(() => {
+      activeWhiteboardInstance.setActiveSlideId('slide-2');
+    });
+
+    expect(result.current).toEqual({
+      activeId: 'slide-2',
+      isFirstActive: false,
+      isLastActive: true,
+    });
+
+    act(() => {
+      activeWhiteboardInstance.addSlide();
+    });
+
+    expect(result.current).toEqual({
+      activeId: 'slide-2',
+      isFirstActive: false,
+      isLastActive: false,
     });
   });
 });

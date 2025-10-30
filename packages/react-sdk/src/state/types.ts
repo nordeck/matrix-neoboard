@@ -98,10 +98,19 @@ export type WhiteboardInstance = {
 
   /** Return the active slide */
   getActiveSlideId(): string | undefined;
+  /** Return the active slide instance */
+  getActiveSlide(): WhiteboardSlideInstance | undefined;
   /** Observe the active slide */
   observeActiveSlideId(): Observable<string | undefined>;
   /** Select the active slide */
   setActiveSlideId(slideId: string): void;
+
+  /** Return the active frame element id */
+  getActiveFrameElementId(): string | undefined;
+  /** Observe the active frame element id */
+  observeActiveFrameElementId(): Observable<string | undefined>;
+  /** Set the active frame element id */
+  setActiveFrameElementId(frameElementId: string | undefined): void;
 
   /**
    * Get the whiteboard loading state, true as the whiteboard is loading data
@@ -224,6 +233,8 @@ export type WhiteboardSlideInstance = {
   moveElementUp(elementId: string): void;
   /** Move the elements to the top of the slide. Moved elements retain their order on the slide.*/
   moveElementsToTop(elementIds: string[]): void;
+  /** Move frame into another presentation position. */
+  moveFrame(frameElementId: string, index: number): void;
   /** Returns the element or undefined if it not exists. */
   getElement(elementId: string): Element | undefined;
   /** Returns elements by ids. */
@@ -240,6 +251,10 @@ export type WhiteboardSlideInstance = {
   getElementIds(): string[];
   /** Observe the element ids to react to changes */
   observeElementIds(): Observable<string[]>;
+  /** Returns the list of frame element ids in the presentation order. */
+  getFrameElementIds(): string[];
+  /** Observe the frame element ids in the presentation order to react to the changes */
+  observeFrameElementIds(): Observable<string[]>;
   /** Set cursor position */
   setCursorPosition(position: Point | undefined): void;
   /** Get cursor position */
@@ -308,7 +323,7 @@ export type PresentationState =
 /** Creates and holds the currently selected {@link WhiteboardInstance} based on a whiteboard state event */
 export type PresentationManager = {
   /** Start the presentation and let all other users follow me. */
-  startPresentation(): void;
+  startPresentation(activeFrameElementId?: string): void;
   /** Start the presentation and let all other users follow me. */
   stopPresentation(): void;
   /** Observe whether a presentation is active. */

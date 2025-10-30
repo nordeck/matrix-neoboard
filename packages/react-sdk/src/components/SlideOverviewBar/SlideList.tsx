@@ -18,9 +18,10 @@ import { TabsListProps, TabsListProvider, useTabsList } from '@mui/base';
 import { Box } from '@mui/material';
 import { forwardRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { isInfiniteCanvasMode } from '../../lib';
 import {
-  useActiveSlide,
-  useActiveWhiteboardInstanceSlideIds,
+  useActiveSlideOrFrame,
+  useActiveWhiteboardInstanceSlideOrFrameIds,
 } from '../../state';
 import { SlideListItem } from './SlideListItem';
 import { SlidesDragDropContext } from './SlidesDragDropContext';
@@ -28,10 +29,12 @@ import { StrictModeDroppable } from './StrictModeDroppable';
 
 export function SlideList() {
   const { t } = useTranslation('neoboard');
-  const slideIds = useActiveWhiteboardInstanceSlideIds();
-  const { activeSlideId } = useActiveSlide();
+  const slideOrFrameIds = useActiveWhiteboardInstanceSlideOrFrameIds();
+  const { activeId } = useActiveSlideOrFrame();
 
-  const slideListTitle = t('slideOverviewBar.slideListTitle', 'Slides');
+  const slideListTitle = isInfiniteCanvasMode()
+    ? t('slideOverviewBar.frameListTitle', 'Frames')
+    : t('slideOverviewBar.slideListTitle', 'Slides');
 
   return (
     <SlidesDragDropContext>
@@ -43,11 +46,11 @@ export function SlideList() {
             ref={provided.innerRef}
             {...provided.droppableProps}
           >
-            {slideIds.map((slideId, index) => (
+            {slideOrFrameIds.map((slideOrFrameId, index) => (
               <SlideListItem
-                active={slideId === activeSlideId}
-                key={slideId}
-                slideId={slideId}
+                active={slideOrFrameId === activeId}
+                key={slideOrFrameId}
+                slideOrFrameId={slideOrFrameId}
                 slideIndex={index}
               />
             ))}
