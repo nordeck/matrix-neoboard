@@ -19,6 +19,7 @@ import React, {
   PropsWithChildren,
   useCallback,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import { Point } from '../../../state';
@@ -74,18 +75,16 @@ function fitFunc(
 
   const fittedScale = fitScale(state.scale, containerDimensions);
 
-  const clampXStart = (whiteboardWidth / 2) * fittedScale;
-  const clampXEnd =
-    containerDimensions.width - (whiteboardWidth / 2) * fittedScale;
-  const clampYStart = (whiteboardHeight / 2) * fittedScale;
-  const clampYEnd =
-    containerDimensions.height - (whiteboardHeight / 2) * fittedScale;
+  const clampX =
+    (whiteboardWidth / 2) * fittedScale - containerDimensions.width / 2;
+  const clampY =
+    (whiteboardHeight / 2) * fittedScale - containerDimensions.height / 2;
 
   return {
     scale: fittedScale,
     translation: {
-      x: clamp(state.translation.x, clampXEnd, clampXStart),
-      y: clamp(state.translation.y, clampYEnd, clampYStart),
+      x: clamp(state.translation.x, -clampX, clampX),
+      y: clamp(state.translation.y, -clampY, clampY),
     },
   };
 }
@@ -111,8 +110,12 @@ export const SvgScaleContextProvider: React.FC<PropsWithChildren> = ({
   });
 
   const [containerDimensions, setContainerDimensionsState] =
-    // Start with something not 0
-    useState<ContainerDimensions>({ width: 1920, height: 1080 });
+    useState<ContainerDimensions>({ width: 0, height: 0 });
+
+  const containerDimensionsRef = useRef<ContainerDimensions>({
+    width: 0,
+    height: 0,
+  });
 
   const setScale = useCallback(
     (newScale: number, origin?: Point) => {
@@ -172,6 +175,7 @@ export const SvgScaleContextProvider: React.FC<PropsWithChildren> = ({
     (dimensions: ContainerDimensions) => {
       if (!isEqual(dimensions, containerDimensions)) {
         setContainerDimensionsState(dimensions);
+        containerDimensionsRef.current = dimensions;
       }
 
       // Update state directly after setting the container dimensions to prevent an extra effect run.
@@ -185,28 +189,25 @@ export const SvgScaleContextProvider: React.FC<PropsWithChildren> = ({
     [containerDimensions, stateValues],
   );
 
-  const updateTranslation = useCallback(
-    (changeX: number, changeY: number) => {
-      setStateValues((old) => {
-        const newState = {
-          scale: old.scale,
-          translation: {
-            x: old.translation.x + changeX,
-            y: old.translation.y + changeY,
-          },
-        };
+  const updateTranslation = useCallback((changeX: number, changeY: number) => {
+    setStateValues((old) => {
+      const newState = {
+        scale: old.scale,
+        translation: {
+          x: old.translation.x + changeX,
+          y: old.translation.y + changeY,
+        },
+      };
 
-        const fittedNewState = fitFunc(newState, containerDimensions);
+      const fittedNewState = fitFunc(newState, containerDimensionsRef.current);
 
-        if (!isEqual(fittedNewState, old)) {
-          return fittedNewState;
-        }
+      if (!isEqual(fittedNewState, old)) {
+        return fittedNewState;
+      }
 
-        return old;
-      });
-    },
-    [containerDimensions],
-  );
+      return old;
+    });
+  }, []);
 
   const transformPointSvgToContainer = useCallback(
     (point: { x: number; y: number }) => {
@@ -229,19 +230,36 @@ export const SvgScaleContextProvider: React.FC<PropsWithChildren> = ({
 
   const viewportCanvasCenter = useMemo(() => {
     const x =
-      whiteboardWidth / 2 -
-      stateValues.translation.x / stateValues.scale +
-      containerDimensions.width / stateValues.scale / 2;
+      whiteboardWidth / 2 - stateValues.translation.x / stateValues.scale;
     const y =
-      whiteboardHeight / 2 -
-      stateValues.translation.y / stateValues.scale +
-      containerDimensions.height / stateValues.scale / 2;
+      whiteboardHeight / 2 - stateValues.translation.y / stateValues.scale;
 
     return {
       x,
       y,
     };
-  }, [containerDimensions, stateValues]);
+  }, [stateValues]);
+
+  const moveToPoint = useCallback(
+    (position: Point, scale: number) => {
+      const translationX = (whiteboardWidth / 2 - position.x) * scale;
+      const translationY = (whiteboardHeight / 2 - position.y) * scale;
+
+      const stateValues = {
+        scale,
+        translation: {
+          x: translationX,
+          y: translationY,
+        },
+      };
+      const newStateValues = fitFunc(
+        stateValues,
+        containerDimensionsRef.current,
+      );
+      setStateValues(newStateValues);
+    },
+    [containerDimensionsRef],
+  );
 
   const state: SvgScaleContextType = useMemo(() => {
     return {
@@ -250,7 +268,9 @@ export const SvgScaleContextProvider: React.FC<PropsWithChildren> = ({
       updateScale,
       translation: stateValues.translation,
       updateTranslation,
+      moveToPoint,
       containerDimensions,
+      containerDimensionsRef: containerDimensionsRef,
       setContainerDimensions,
       transformPointSvgToContainer,
       viewportCanvasCenter,
@@ -263,6 +283,7 @@ export const SvgScaleContextProvider: React.FC<PropsWithChildren> = ({
     stateValues.translation,
     transformPointSvgToContainer,
     updateScale,
+    moveToPoint,
     updateTranslation,
     viewportCanvasCenter,
   ]);

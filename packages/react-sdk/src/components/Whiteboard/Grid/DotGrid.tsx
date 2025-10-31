@@ -15,7 +15,7 @@
  */
 
 import { useLayoutState } from '../../Layout';
-import { gridCellSize } from '../constants';
+import { gridCellSize, whiteboardHeight, whiteboardWidth } from '../constants';
 
 export function DotGrid() {
   const { isShowGrid } = useLayoutState();
@@ -43,8 +43,8 @@ export function DotGrid() {
       <rect
         data-testid="grid"
         fill="url(#pattern-circles)"
-        height="100%"
-        width="100%"
+        height={whiteboardHeight}
+        width={whiteboardWidth}
         x="0"
         y="0"
       />

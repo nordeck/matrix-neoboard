@@ -29,6 +29,7 @@ export type {
 export { useActiveCursors } from './useActiveCursors';
 export {
   useActiveSlide,
+  useActiveSlideOrFrame,
   useActiveWhiteboardInstance,
   useActiveWhiteboardInstanceSlideIds,
   useActiveWhiteboardInstanceStatistics,
@@ -47,8 +48,10 @@ export {
   SlideProvider,
   useActiveElement,
   useActiveElements,
+  useActiveWhiteboardInstanceSlideOrFrameIds,
   useElement,
   useElements,
+  useFrameElement,
   useSlideElementIds,
   useSlideIsLocked,
   useWhiteboardSlideInstance,
