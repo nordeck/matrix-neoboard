@@ -316,7 +316,7 @@ export const SvgCanvas = function ({
   if (viewBox) {
     const { minX, minY, width, height } = viewBox;
     svgViewBox = `${minX} ${minY} ${width} ${height}`;
-  } else if (infiniteCanvasMode) {
+  } else if (infiniteCanvasMode && !preview) {
     const minX = (whiteboardWidth - width / scale) / 2 - translation.x / scale;
     const minY =
       (whiteboardHeight - height / scale) / 2 - translation.y / scale;
