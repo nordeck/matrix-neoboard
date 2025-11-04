@@ -145,12 +145,12 @@ describe('<ElementBar/>', () => {
 
     expect(
       within(toolbar).getByRole('button', {
-        name: 'Duplicate the active element',
+        name: 'Duplicate the active elements',
       }),
     ).toBeInTheDocument();
 
     expect(
-      within(toolbar).getByRole('button', { name: 'Delete element' }),
+      within(toolbar).getByRole('button', { name: 'Delete elements' }),
     ).toBeInTheDocument();
   });
 

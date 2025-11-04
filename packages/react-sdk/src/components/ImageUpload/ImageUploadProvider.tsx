@@ -169,6 +169,7 @@ export function ImageUploadProvider({ children }: PropsWithChildren<{}>) {
           'The file is being uploaded…',
           {
             count: files.length,
+            defaultValue_other: 'The files are being uploaded…',
           },
         );
 
@@ -245,6 +246,8 @@ function showErrorSnackbars(
           (maxUploadSizeBytes / 1048576).toLocaleString(undefined, {
             maximumFractionDigits: 2,
           }) + ' MiB',
+        defaultValue_other:
+          'The files {{fileNames}} cannot be uploaded due to their size. The upload is possible for a maximum of {{limit}} per file.',
       },
     );
 
@@ -267,6 +270,8 @@ function showErrorSnackbars(
           (maxResolutionPixels / 1_000_000).toLocaleString(undefined, {
             maximumFractionDigits: 2,
           }) + ' MP',
+        defaultValue_other:
+          'The files {{fileNames}} cannot be uploaded due to their resolution. The upload is possible for a maximum of {{limit}} per file.',
       },
     );
 
@@ -285,6 +290,7 @@ function showErrorSnackbars(
       {
         count: !overrideFile ? errors.other.length : 1,
         fileNames: !overrideFile ? errors.other.join(', ') : overrideFile,
+        defaultValue_other: 'The files {{fileNames}} could not be uploaded.',
       },
     );
 
