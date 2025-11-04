@@ -185,30 +185,30 @@
   "guidedTour": {
     "back": "Back",
     "collaborationBar": {
-      "content": "<p>To see who is currently active on the NeoBoard, just look here. You will see all participants who are currently online or have been online recently. And in case it gets crowded, click on the number to the right of the first five participants to see who else is online. With the small eye you can show or hide the cursors of the others.</p>",
+      "content": "<p> To see who is currently active on the NeoBoard, just look here. You will see all participants who are currently online or have been online recently. And in case it gets crowded, click on the number to the right of the first five participants to see who else is online. With the small eye you can show or hide the cursors of the others. </p>",
       "title": "Collaboration"
     },
     "complete": "Complete",
     "helpCenter": {
-      "content": "<p>The help center offers easy access to the user guide and an overview of all keyboard shortcuts. You can also restart this tour at any time so you can explore everything in more detail.</p><p>Have fun, creative ideas and success with the NeoBoard!</p>",
+      "content": "<p> The help center offers easy access to the user guide and an overview of all keyboard shortcuts. You can also restart this tour at any time so you can explore everything in more detail. </p><p>Have fun, creative ideas and success with the NeoBoard!</p>",
       "title": "Help center"
     },
     "introduction": {
-      "content": "<p>Welcome to the NeoBoard. In this introduction, you'll get tips on how to use the NeoBoard so you can start designing in no time. Let's go!</p>",
+      "content": "<p> Welcome to the NeoBoard. In this introduction, you'll get tips on how to use the NeoBoard so you can start designing in no time. Let's go! </p>",
       "title": "Welcome"
     },
     "next": "Next",
     "settings": {
-      "content": "<p>Using the settings, you can export the NeoBoard and the work done and import it again (e.g. in another room) or save it as a backup. You can also (de)activate the grid.</p>",
+      "content": "<p> Using the settings, you can export the NeoBoard and the work done and import it again (e.g. in another room) or save it as a backup. You can also (de)activate the grid. </p>",
       "title": "Settings"
     },
     "slideCount": "{{index}} of {{total}}",
     "slideOverview": {
-      "content": "<p>This is where you can find the slides of all participants. Click on the button to add a slide. With the right mouse button you can open the context menu and delete existing slides, lock them to prevent changes or bring all participants here. Hold down the left mouse button to change the order of the slides.</p>",
+      "content": "<p> This is where you can find the slides of all participants. Click on the button to add a slide. With the right mouse button you can open the context menu and delete existing slides, lock them to prevent changes or bring all participants here. Hold down the left mouse button to change the order of the slides. </p>",
       "title": "Slide overview"
     },
     "toolsbar": {
-      "content": "<p>The toolbar contains all the tools and objects available for designing your slide. Select an object and move the mouse anywhere on the slide to place it. Draw shapes by moving the mouse while holding down the left mouse button. You can place text in the same way and start typing right away.</p>",
+      "content": "<p> The toolbar contains all the tools and objects available for designing your slide. Select an object and move the mouse anywhere on the slide to place it. Draw shapes by moving the mouse while holding down the left mouse button. You can place text in the same way and start typing right away. </p>",
       "title": "Tools"
     }
   },

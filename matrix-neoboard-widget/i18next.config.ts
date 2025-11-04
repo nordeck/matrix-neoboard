@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Nordeck IT + Consulting GmbH
+ * Copyright 2025 Nordeck IT + Consulting GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-const i18NextParserConfig = {
-  locales: ['en', 'de'],
-  output: 'public/locales/$LOCALE/$NAMESPACE.json',
-  sort: true,
-  resetDefaultValueLocale: 'en',
-  lexers: {
-    tsx: [{ lexer: 'JsxLexer', transSupportBasicHtmlNodes: true }],
-  },
-};
+import { defineConfig } from 'i18next-cli';
 
-export default i18NextParserConfig;
+export default defineConfig({
+  locales: ['en', 'de'],
+  extract: {
+    input: 'src/**/*.{js,jsx,ts,tsx}',
+    output: 'public/locales/{{language}}/{{namespace}}.json',
+  },
+});

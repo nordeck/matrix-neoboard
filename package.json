@@ -75,7 +75,7 @@
       "bash -c \"yarn depcheck\""
     ],
     "*.{json,js,jsx,ts,tsx}": [
-      "bash -c \"yarn translate --fail-on-update\""
+      "bash -c \"yarn translate --ci --dry-run\""
     ],
     "*.{yaml,yml,json,md}": [
       "prettier --write"
