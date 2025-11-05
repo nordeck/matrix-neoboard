@@ -343,7 +343,7 @@ export function isShapeElementPair(
   return pair[1].type === 'shape';
 }
 
-export function modifyElementPosition<T extends Element>(
+export function modifyElementPosition<T extends ElementBase>(
   element: T,
   positionClamp: Point,
   offsetX: number,
@@ -422,4 +422,121 @@ export function findFrameToAttach(
   } else {
     return undefined;
   }
+}
+
+/**
+ * Position elements to gird
+ * @param elements elements
+ * @param gridWidth grid width
+ * @param gridHeight grid height
+ */
+function positionElementsToGrid<
+  T extends ElementBase & {
+    width: number;
+    height: number;
+  },
+>(
+  elements: T[],
+  gridWidth: number,
+  gridHeight: number,
+): {
+  elements: T[];
+  rect: BoundingRect;
+} {
+  const margin = 20;
+  const maxWidth = gridWidth - margin;
+  const maxHeight = gridHeight - margin;
+
+  let currentX = margin;
+  let currentY = margin;
+  let rowMaxHeight = 0;
+
+  let rectWidth: number = 0;
+  let rectHeight: number = 0;
+
+  const newElements: T[] = [];
+
+  for (let i = 0; i < elements.length; i++) {
+    const element = elements[i];
+
+    // are we exceeding the whiteboard height?
+    if (currentY + element.height > maxHeight) {
+      break;
+    }
+
+    if (currentX + element.width > maxWidth) {
+      currentX = margin;
+      currentY += rowMaxHeight + margin;
+      rowMaxHeight = 0;
+
+      // Check again after moving to new row if we'd exceed vertical space
+      if (currentY + element.height > maxHeight) {
+        break;
+      }
+    }
+
+    const newElement: T = {
+      ...element,
+      position: {
+        x: currentX,
+        y: currentY,
+      },
+    };
+    rectWidth = Math.max(rectWidth, currentX + element.width - margin);
+    rectHeight = Math.max(rectHeight, currentY + element.height - margin);
+
+    newElements.push(newElement);
+
+    currentX += element.width + margin;
+    rowMaxHeight = Math.max(rowMaxHeight, element.height);
+  }
+
+  return {
+    elements: newElements,
+    rect: {
+      offsetX: margin,
+      offsetY: margin,
+      width: rectWidth,
+      height: rectHeight,
+    },
+  };
+}
+
+/**
+ * Position elements to the whiteboard in a grid and centered.
+ * @param elements elements
+ * @param whiteboardWidth whiteboard width
+ * @param whiteboardHeight whiteboard height
+ * @param centerX the elements grid center x on whiteboard
+ * @param centerY the elements grid center y on whiteboard
+ */
+export function positionElementsToWhiteboard<
+  T extends ElementBase & {
+    width: number;
+    height: number;
+  },
+>(
+  elements: T[],
+  whiteboardWidth: number,
+  whiteboardHeight: number,
+  centerX: number,
+  centerY: number,
+): T[] {
+  const {
+    elements: positionedElements,
+    rect: { offsetX, offsetY, width, height },
+  } = positionElementsToGrid(elements, whiteboardWidth, whiteboardHeight);
+
+  const position: Point = {
+    x: centerX - width / 2,
+    y: centerY - height / 2,
+  };
+  const positionClamp = clampElementPosition(
+    position,
+    { width, height },
+    { width: whiteboardWidth, height: whiteboardHeight },
+  );
+  return positionedElements.map((element) =>
+    modifyElementPosition(element, positionClamp, offsetX, offsetY),
+  );
 }
