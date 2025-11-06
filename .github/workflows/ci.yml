@@ -247,7 +247,7 @@ jobs:
 
       - name: Check translations
         working-directory: ./matrix-neoboard-standalone/
-        run: yarn translate --fail-on-update
+        run: yarn translate --ci --dry-run
 
       - name: test
         working-directory: ./matrix-neoboard-standalone/
