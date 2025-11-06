@@ -93,7 +93,10 @@ export function DuplicateActiveElementButton() {
   const duplicateActiveElementLabel = t(
     'elementBar.duplicateActiveElement',
     'Duplicate the active element',
-    { count: activeElementIds.length },
+    {
+      count: activeElementIds.length,
+      defaultValue_other: 'Duplicate the active elements',
+    },
   );
 
   const onlyFramesSelected = activeElements.every((e) => e.type === 'frame');

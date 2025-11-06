@@ -34,7 +34,7 @@ export function DeleteActiveElementButton() {
   const deleteActiveElementLabel = t(
     'elementBar.deleteElement',
     'Delete element',
-    { count: activeElementIds.length },
+    { count: activeElementIds.length, defaultValue_other: 'Delete elements' },
   );
 
   return (
