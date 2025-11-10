@@ -16,7 +16,6 @@
 
 import CloseIcon from '@mui/icons-material/Close';
 import {
-  Alert,
   Button,
   Dialog,
   DialogActions,
@@ -73,15 +72,12 @@ function AISettingsDialogContent({
 }) {
   const { t } = useTranslation('neoboard');
 
-  const [error, setError] = useState<string>();
-
   const [apiKey, setAPIKey] = useState('');
 
   const handleAPIKeyChange: React.ChangeEventHandler<HTMLTextAreaElement> = (
     event,
   ) => {
     setAPIKey(event.target.value);
-    setError(undefined);
   };
 
   return (
@@ -115,15 +111,6 @@ function AISettingsDialogContent({
           style={{ resize: 'vertical', width: '100%' }}
           value={apiKey}
         ></TextareaAutosize>
-
-        {error && (
-          <Alert role="status" severity="error" sx={{ mt: 2 }}>
-            {t(
-              'boardBar.aiAssistant.pdfError',
-              'Something went wrong while generating the PDF.',
-            )}
-          </Alert>
-        )}
       </DialogContent>
 
       <DialogActions>
@@ -133,7 +120,7 @@ function AISettingsDialogContent({
           sx={{ marginRight: 1 }}
           variant="contained"
         >
-          {t('boardBar.aiAssistant.cancel', 'Start')}
+          {t('boardBar.aiAssistant.close', 'Close')}
         </Button>
       </DialogActions>
     </>

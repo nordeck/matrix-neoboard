@@ -8,10 +8,8 @@
       "apiKey": {
         "title": "OpenAI API-Schlüssel"
       },
-      "cancel": "Start",
       "close": "Abbrechen",
-      "description": "Bitte wähle einen KI-Dienst. Für OpenAIist ein API-Schlüssel erforderlich.",
-      "pdfError": "Something went wrong while generating the PDF.",
+      "description": "Bitte wähle einen KI-Dienst. Für OpenAI ist ein API-Schlüssel erforderlich.",
       "service": {
         "ollama": "Ollama",
         "open-ai": "OpenAI",

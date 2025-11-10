@@ -16,7 +16,6 @@
 
 import CloseIcon from '@mui/icons-material/Close';
 import {
-  Alert,
   Dialog,
   DialogContent,
   DialogContentText,
@@ -74,8 +73,6 @@ function AISettingsDialogContent({
 }) {
   const { t } = useTranslation('neoboard');
 
-  const [error, setError] = useState<string>();
-
   const [service, setService] = useState(
     globalThis.localStorage.getItem('llm-service') ?? 'open-ai',
   );
@@ -91,7 +88,6 @@ function AISettingsDialogContent({
   const handleServiceChange = (event: SelectChangeEvent) => {
     event.stopPropagation();
     setService(event.target.value);
-    setError(undefined);
   };
 
   const handleAPIKeyChange: React.ChangeEventHandler<HTMLInputElement> = (
@@ -100,7 +96,6 @@ function AISettingsDialogContent({
     event.stopPropagation();
     event.preventDefault();
     setAPIKey(event.target.value);
-    setError(undefined);
   };
 
   const selectLabelId = useId();
@@ -156,27 +151,7 @@ function AISettingsDialogContent({
           onChange={handleAPIKeyChange}
           value={apiKey}
         ></TextField>
-
-        {error && (
-          <Alert role="status" severity="error" sx={{ mt: 2 }}>
-            {t(
-              'boardBar.aiAssistant.pdfError',
-              'Something went wrong while generating the PDF.',
-            )}
-          </Alert>
-        )}
       </DialogContent>
-
-      {/* <DialogActions>
-        <Button
-          autoFocus
-          onClick={onClose}
-          variant="outlined"
-          sx={{ marginRight: 1 }}
-        >
-          {t('boardBar.aiAssistant.cancel', 'Cancel')}
-        </Button>
-      </DialogActions> */}
     </>
   );
 }
