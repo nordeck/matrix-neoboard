@@ -36,7 +36,7 @@ export type ForeignObjectNoInteractionProps = {
 };
 
 /**
- * Replace with Uint8Array.fromBase64() as soon as our TpeScript allows it.
+ * Replace with Uint8Array.fromBase64() as soon as our TypeScript allows it.
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array/fromBase64
  */
 function fromBase64(base64: string) {
