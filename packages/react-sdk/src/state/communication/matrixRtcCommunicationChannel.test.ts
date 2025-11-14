@@ -111,6 +111,10 @@ describe('MatrixRtcCommunicationChannel', () => {
     connectionStateSubject.next(ConnectionState.Connected);
 
     expect(sessionManager.join).toHaveBeenCalledTimes(1);
+    expect(sessionManager.getSessionId()).toBe('session-id');
+    await vi.waitFor(() => {
+      expect(channel.getStatistics().localSessionId).toBe('session-id');
+    });
   });
 
   it('should disconnect while the browser is hidden', async () => {
@@ -171,6 +175,29 @@ describe('MatrixRtcCommunicationChannel', () => {
     mockDocumentVisibilityState('visible');
 
     expect(sessionManager.getActiveFocus).not.toHaveBeenCalled();
+  });
+
+  it('should not attempt to connect when enable visibility observation emits and document visibility is visible and user is connected', async () => {
+    await waitForHandlers();
+    connectionStateSubject.next(ConnectionState.Connected);
+
+    expect(sessionManager.join).toHaveBeenCalledTimes(1);
+
+    expect(sessionManager.getSessionId()).toBe('session-id');
+    await vi.waitFor(() => {
+      expect(channel.getStatistics().localSessionId).toBe('session-id');
+    });
+
+    // Emits a new distinct value
+    enableObserveVisibilityStateSubject.next(false);
+
+    // forcefully clear the event loop
+    // needed to make sure the leave mock below holds proper called times
+    for (let i = 0; i < 100; i++) {
+      await Promise.resolve();
+    }
+
+    expect(sessionManager.leave).toHaveBeenCalledTimes(1);
   });
 
   it('should skip disconnect while the browser is hidden if disabled', async () => {

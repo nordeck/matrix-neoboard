@@ -112,6 +112,11 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
             takeUntil(this.destroySubject),
             mergeMap(async (v) => {
               if (v === 'visible') {
+                if (this.statistics.localSessionId) {
+                  // already connected
+                  return;
+                }
+
                 try {
                   const activeFocus = this.sessionManager.getActiveFocus();
                   if (activeFocus) {
