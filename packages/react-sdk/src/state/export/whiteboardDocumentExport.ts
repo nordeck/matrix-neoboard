@@ -36,7 +36,7 @@ type ShapeElementExport = ElementWithId & ShapeElement;
 
 type PathElementExport = ElementWithId & PathElement;
 
-type FrameElementExport = ElementWithId & FrameElement;
+export type FrameElementExport = ElementWithId & FrameElement;
 
 type ImageElementExport = ElementWithId & ImageElement;
 
