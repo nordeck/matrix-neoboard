@@ -1,5 +1,22 @@
 # @nordeck/matrix-neoboard-react-sdk
 
+## 1.4.0
+
+### Minor Changes
+
+- 1d385a6: Add attachment / detachment of elements to frames. Implement resizing and moving of frames and how it affects attached / detached elements.
+- 27235f4: Improve touchpad and mouse wheel zooming and panning
+- f323172: Import slides content into frames in infinite canvas mode
+
+### Patch Changes
+
+- 7166039: Do not select the element when panning the board with a mouse
+- 1d385a6: Improve element ID validation to check for disallowed values. Fix the whiteboard import to validate incoming IDs.
+- 977af9d: Fix an issue when panning with the pointer moving over a shape
+- e3b048c: Prevent the context menu from being shown when user right clicks top-middle part of the element
+- a51c1a6: Prevent the context menu from being shown on top of the element menu
+- 4c74efe: Use i18next-cli instead of i18next-parser
+
 ## 1.3.0
 
 ### Minor Changes
