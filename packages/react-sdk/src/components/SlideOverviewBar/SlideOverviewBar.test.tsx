@@ -14,14 +14,25 @@
  * limitations under the License.
  */
 
+import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { TabPanel } from '@mui/base';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import axe from 'axe-core';
 import { act, ComponentType, PropsWithChildren } from 'react';
-import { afterEach, beforeEach, describe, expect, it, Mocked } from 'vitest';
 import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  Mocked,
+  vi,
+} from 'vitest';
+import {
+  mockEllipseElement,
+  mockFrameElement,
   mockWhiteboardManager,
   WhiteboardTestingContextProvider,
 } from '../../lib/testUtils/documentTestUtils';
@@ -35,11 +46,22 @@ import { SnackbarProvider } from '../Snackbar';
 import { WhiteboardHotkeysProvider } from '../WhiteboardHotkeysProvider';
 import { SlideOverviewBar } from './SlideOverviewBar';
 
+vi.mock('@matrix-widget-toolkit/mui', async () => ({
+  ...(await vi.importActual<typeof import('@matrix-widget-toolkit/mui')>(
+    '@matrix-widget-toolkit/mui',
+  )),
+  getEnvironment: vi.fn(),
+}));
+
 let widgetApi: MockedWidgetApi;
 
 afterEach(() => widgetApi.stop());
 
 beforeEach(() => {
+  vi.mocked(getEnvironment).mockImplementation(
+    (_, defaultValue) => defaultValue,
+  );
+
   widgetApi = mockWidgetApi();
 });
 
@@ -50,7 +72,19 @@ describe('<SideOverviewBar/>', () => {
 
   beforeEach(() => {
     ({ whiteboardManager, communicationChannel } = mockWhiteboardManager({
-      slideCount: 3,
+      slides: [
+        [
+          'slide-0',
+          [
+            ['element-0', mockEllipseElement()],
+            ['frame-0', mockFrameElement()],
+            ['frame-1', mockFrameElement()],
+            ['frame-2', mockFrameElement()],
+          ],
+        ],
+        ['slide-1', [['element-1', mockEllipseElement()]]],
+        ['slide-2', [['element-2', mockEllipseElement()]]],
+      ],
     }));
 
     Wrapper = ({ children }) => (
@@ -118,7 +152,57 @@ describe('<SideOverviewBar/>', () => {
     expect(tabs[2]).toHaveAttribute('aria-haspopup', 'menu');
   });
 
+  it('should render without exploding for frames', async () => {
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
+    );
+
+    render(<SlideOverviewBar />, { wrapper: Wrapper });
+
+    const nav = screen.getByRole('navigation', { name: 'Frame Overview' });
+
+    const tabList = await within(nav).findByRole('tablist', { name: 'Frames' });
+    const tabs = within(tabList).getAllByRole('tab');
+
+    expect(tabs).toHaveLength(3);
+
+    expect(tabs[0]).toHaveAccessibleName('Frame 1');
+    expect(tabs[0]).toHaveAccessibleDescription(
+      /Press the M key to start a drag./,
+    );
+
+    // Currently initially no frame is selected
+    expect(tabs[0]).toHaveAttribute('aria-selected', 'false');
+    expect(tabs[0]).toHaveAttribute('aria-haspopup', 'menu');
+
+    expect(tabs[1]).toHaveAccessibleName('Frame 2');
+    expect(tabs[1]).toHaveAccessibleDescription(
+      /Press the M key to start a drag./,
+    );
+    expect(tabs[1]).toHaveAttribute('aria-selected', 'false');
+    expect(tabs[1]).toHaveAttribute('aria-haspopup', 'menu');
+
+    expect(tabs[2]).toHaveAccessibleName('Frame 3');
+    expect(tabs[2]).toHaveAccessibleDescription(
+      /Press the M key to start a drag./,
+    );
+    expect(tabs[2]).toHaveAttribute('aria-selected', 'false');
+    expect(tabs[2]).toHaveAttribute('aria-haspopup', 'menu');
+  });
+
   it('should have no accessibility violations', async () => {
+    const { container } = render(<SlideOverviewBar />, { wrapper: Wrapper });
+
+    await act(async () => {
+      expect(await axe.run(container)).toHaveNoViolations();
+    });
+  });
+
+  it('should have no accessibility violations for frames', async () => {
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
+    );
+
     const { container } = render(<SlideOverviewBar />, { wrapper: Wrapper });
 
     await act(async () => {
@@ -325,6 +409,19 @@ describe('<SideOverviewBar/>', () => {
     expect(tab).toHaveAttribute('aria-selected', 'true');
   });
 
+  it('should select the active frame', async () => {
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
+    );
+
+    render(<SlideOverviewBar />, { wrapper: Wrapper });
+
+    const tab = await screen.findByRole('tab', { name: 'Frame 2' });
+    await userEvent.click(tab);
+
+    expect(tab).toHaveAttribute('aria-selected', 'true');
+  });
+
   it('should select the active slide via keyboard', async () => {
     render(<SlideOverviewBar />, { wrapper: Wrapper });
 
@@ -342,6 +439,35 @@ describe('<SideOverviewBar/>', () => {
     // Navigating with arrow keys doesn't change the selected tab…
     await userEvent.keyboard('{ArrowDown}');
     expect(firstTab).toHaveAttribute('aria-selected', 'true');
+    expect(secondTab).toHaveFocus();
+
+    // … pressing space does
+    await userEvent.keyboard('[Space]');
+    expect(secondTab).toHaveAttribute('aria-selected', 'true');
+    expect(secondTab).toHaveFocus();
+  });
+
+  it('should select the active frame via keyboard', async () => {
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
+    );
+
+    render(<SlideOverviewBar />, { wrapper: Wrapper });
+
+    const firstTab = await screen.findByRole('tab', {
+      name: 'Frame 1',
+      selected: false,
+    });
+    const secondTab = await screen.findByRole('tab', {
+      name: 'Frame 2',
+      selected: false,
+    });
+
+    await waitFor(() => firstTab.focus());
+
+    // Navigating with arrow keys doesn't change the selected tab…
+    await userEvent.keyboard('{ArrowDown}');
+    expect(firstTab).toHaveAttribute('aria-selected', 'false');
     expect(secondTab).toHaveFocus();
 
     // … pressing space does
@@ -387,6 +513,50 @@ describe('<SideOverviewBar/>', () => {
     // Moving the slide should not influence which slide is active
     expect(
       screen.getByRole('tab', { name: 'Slide 2', selected: true }),
+    ).toBeInTheDocument();
+  });
+
+  it('should reorder frames via keyboard', async () => {
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
+    );
+
+    const { baseElement } = render(<SlideOverviewBar />, { wrapper: Wrapper });
+
+    const tab = await screen.findByRole('tab', {
+      name: 'Frame 2',
+      selected: false,
+      description: /Press the M key to start a drag./,
+    });
+
+    await waitFor(() => tab.focus());
+
+    await userEvent.keyboard('M');
+
+    await waitForAnnouncement(
+      baseElement,
+      /You have lifted a frame\. It is in position 2 of 3 in the list\./,
+    );
+
+    await userEvent.keyboard('{ArrowUp}');
+
+    await waitForAnnouncement(
+      baseElement,
+      'You have moved the frame to position 1 of 3.',
+    );
+
+    await userEvent.keyboard('M');
+
+    await waitForAnnouncement(
+      baseElement,
+      /You have dropped the frame\. It has moved from position 2 to 1\./,
+    );
+
+    expect(tab).toHaveAccessibleName('Frame 1');
+
+    // Moving the slide should not influence which slide is active
+    expect(
+      screen.getByRole('tab', { name: 'Frame 2', selected: false }),
     ).toBeInTheDocument();
   });
 
