@@ -191,11 +191,8 @@ describe('MatrixRtcCommunicationChannel', () => {
     // Emits a new distinct value
     enableObserveVisibilityStateSubject.next(false);
 
-    // forcefully clear the event loop
     // needed to make sure the leave mock below holds proper called times
-    for (let i = 0; i < 100; i++) {
-      await Promise.resolve();
-    }
+    await Promise.resolve();
 
     expect(sessionManager.leave).toHaveBeenCalledTimes(1);
   });
