@@ -23,10 +23,11 @@ import {
   frameHeight,
   frameWidth,
   gridCellSize,
+  useSvgScaleContext,
   whiteboardHeight,
   whiteboardWidth,
 } from '../Whiteboard';
-import { useSvgScaleContext } from '../Whiteboard/SvgScaleContext';
+import { calculatePositionAndScaleForElement } from '../Whiteboard/SvgScaleContext';
 
 const frameGap = gridCellSize;
 
@@ -42,7 +43,8 @@ type UseCreateFrameResult = {
 
 export const useCreateFrame = (): UseCreateFrameResult => {
   const slideInstance = useWhiteboardSlideInstance();
-  const { viewportCanvasCenter } = useSvgScaleContext();
+  const { viewportCanvasCenter, moveToPoint, containerDimensions } =
+    useSvgScaleContext();
 
   const createFrame = useCallback(() => {
     const maxX = whiteboardWidth - frameWidth;
@@ -102,7 +104,15 @@ export const useCreateFrame = (): UseCreateFrameResult => {
     }
 
     slideInstance.addElement(frameProps);
-  }, [slideInstance, viewportCanvasCenter]);
+
+    const { position: positionToMove, scale } =
+      calculatePositionAndScaleForElement(
+        frameProps,
+        containerDimensions,
+        0.75,
+      );
+    moveToPoint(positionToMove, scale);
+  }, [slideInstance, viewportCanvasCenter, moveToPoint, containerDimensions]);
 
   return {
     createFrame,
