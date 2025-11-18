@@ -14,6 +14,4 @@
  * limitations under the License.
  */
 
-export function isInfiniteCanvasMode(): boolean {
-  return true;
-}
+export { AIBar } from './AIBar';
