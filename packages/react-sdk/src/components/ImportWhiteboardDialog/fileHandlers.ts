@@ -19,15 +19,15 @@ import {
   ImageElement,
   ImageMimeType,
   isValidWhiteboardExportDocument,
+  positionElementsToWhiteboard,
   WhiteboardDocumentExport,
 } from '../../state';
-import { BoundingRect } from '../../state/crdt/documents/point';
 import { SlideExport } from '../../state/export/whiteboardDocumentExport';
 import {
   infiniteCanvasMode,
   whiteboardHeight,
   whiteboardWidth,
-} from '../Whiteboard/constants';
+} from '../Whiteboard';
 import { initPDFJs, loadPDF, renderPDFToImages } from './pdfImportUtils';
 
 /**
@@ -86,7 +86,13 @@ export async function readPDF(file: File): Promise<WhiteboardDocumentExport> {
     }
 
     // Add all elements to a single slide
-    const { elements } = positionImageElements(newImages);
+    const elements = positionElementsToWhiteboard(
+      newImages,
+      whiteboardWidth,
+      whiteboardHeight,
+      whiteboardWidth / 2,
+      whiteboardHeight / 2,
+    );
     slideContent.push({
       elements,
     });
@@ -129,69 +135,6 @@ export async function readPDF(file: File): Promise<WhiteboardDocumentExport> {
           data: base64,
         };
       }),
-    },
-  };
-}
-
-export function positionImageElements(newImages: ImageElement[]): {
-  elements: ImageElement[];
-  rect: BoundingRect;
-} {
-  const margin = 10;
-  const maxWidth = whiteboardWidth - margin;
-  const maxHeight = whiteboardHeight - margin;
-
-  let currentX = margin;
-  let currentY = margin;
-  let rowMaxHeight = 0;
-
-  let rectWidth: number = 0;
-  let rectHeight: number = 0;
-
-  const elements: ImageElement[] = [];
-
-  for (let i = 0; i < newImages.length; i++) {
-    const data = newImages[i];
-
-    // are we exceeding the whiteboard height?
-    if (currentY + data.height > maxHeight) {
-      break;
-    }
-
-    if (currentX + data.width > maxWidth) {
-      currentX = margin;
-      currentY += rowMaxHeight + margin;
-      rowMaxHeight = 0;
-
-      // Check again after moving to new row if we'd exceed vertical space
-      if (currentY + data.height > maxHeight) {
-        break;
-      }
-    }
-
-    const element: ImageElement = {
-      ...data,
-      position: {
-        x: currentX,
-        y: currentY,
-      },
-    };
-    rectWidth = Math.max(rectWidth, currentX + data.width - margin);
-    rectHeight = Math.max(rectHeight, currentY + data.height - margin);
-
-    elements.push(element);
-
-    currentX += data.width + margin;
-    rowMaxHeight = Math.max(rowMaxHeight, data.height);
-  }
-
-  return {
-    elements: elements,
-    rect: {
-      offsetX: margin,
-      offsetY: margin,
-      width: rectWidth,
-      height: rectHeight,
     },
   };
 }

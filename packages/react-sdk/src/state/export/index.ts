@@ -17,4 +17,8 @@
 export { exportWhiteboard } from './exportWhiteboard';
 export { generateLoadWhiteboardFromExport } from './loadWhiteboardFromExport';
 export { isValidWhiteboardExportDocument } from './whiteboardDocumentExport';
-export type { WhiteboardDocumentExport } from './whiteboardDocumentExport';
+export type {
+  ElementExport,
+  FrameElementExport,
+  WhiteboardDocumentExport,
+} from './whiteboardDocumentExport';
