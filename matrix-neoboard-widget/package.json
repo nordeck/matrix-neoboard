@@ -40,7 +40,7 @@
     "depcheck": "^1.4.7",
     "dotenv-cli": "^8.0.0",
     "eslint": "^8.57.1",
-    "i18next-cli": "^1.20.4",
+    "i18next-cli": "^1.22.2",
     "jsdom": "^26.1.0",
     "prettier": "^3.5.2",
     "typescript": "^5.7.3",
