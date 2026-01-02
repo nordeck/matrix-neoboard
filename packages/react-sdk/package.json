@@ -77,7 +77,7 @@
     "jsdom": "^26.1.0",
     "pdfjs-dist": "^4.6.82",
     "prettier": "^3.5.2",
-    "react-i18next": "^15.5.2",
+    "react-i18next": "^15.5.3",
     "typescript": "^5.7.3",
     "vite": "^5.4.19",
     "vitest": "^2.1.9",
