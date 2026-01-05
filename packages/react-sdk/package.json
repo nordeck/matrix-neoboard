@@ -52,7 +52,7 @@
     "react-i18next": "^15.5.2"
   },
   "devDependencies": {
-    "@matrix-widget-toolkit/testing": "^4.0.0",
+    "@matrix-widget-toolkit/testing": "^4.0.1",
     "@testing-library/dom": "10.4.1",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
