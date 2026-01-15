@@ -22,7 +22,7 @@ import pluginPromise from 'eslint-plugin-promise';
 import react from 'eslint-plugin-react';
 import hooksPlugin from 'eslint-plugin-react-hooks';
 import testingLibrary from 'eslint-plugin-testing-library';
-import vitest from 'eslint-plugin-vitest';
+import vitest from '@vitest/eslint-plugin';
 import path from 'path';
 import ts from 'typescript-eslint';
 import { fileURLToPath } from 'url';
