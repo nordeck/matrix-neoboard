@@ -84,8 +84,6 @@ describe('MatrixRtcPeerConnection', () => {
       mockRoom.eventEmitter.on(RoomEvent.DataReceived, (...args) => {
         connection.handleDataReceived(args[0], args[1]);
       });
-
-      expect(connection.room).toBe(mockRoom);
     });
 
     afterEach(() => {
@@ -182,8 +180,6 @@ describe('MatrixRtcPeerConnection', () => {
       mockRoom.eventEmitter.on(RoomEvent.ConnectionStateChanged, (...args) => {
         connection.updateStatistics({ connectionState: args[0] });
       });
-
-      expect(connection.room).toBe(mockRoom);
     });
 
     afterEach(() => {

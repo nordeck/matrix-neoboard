@@ -39,7 +39,6 @@
     "@vitest/coverage-v8": "^2.1.9",
     "depcheck": "^1.4.7",
     "dotenv-cli": "^8.0.0",
-    "eslint": "^8.57.1",
     "i18next-cli": "^1.20.4",
     "jsdom": "^26.1.0",
     "prettier": "^3.5.2",

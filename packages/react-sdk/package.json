@@ -70,7 +70,6 @@
     "@vitest/coverage-v8": "^2.1.9",
     "axe-core": "^4.10.2",
     "depcheck": "^1.4.7",
-    "eslint": "^8.57.1",
     "i18next": "^25.2.1",
     "i18next-cli": "^1.20.4",
     "i18next-resources-to-backend": "^1.2.1",

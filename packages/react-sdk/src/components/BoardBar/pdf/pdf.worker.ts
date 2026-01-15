@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-/* eslint-disable no-restricted-globals */
-
 import { TDocumentDefinitions } from 'pdfmake/interfaces';
 import { generatePdf } from './pdf.local';
 
