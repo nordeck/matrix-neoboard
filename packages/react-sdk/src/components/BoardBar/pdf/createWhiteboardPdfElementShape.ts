@@ -120,7 +120,7 @@ function createElementShapeBlockArrow(element: ShapeElement): Content {
   const arrowHeadWidth = Math.max(width * 0.35, 10);
   const bodyWidth = width - arrowHeadWidth;
 
-  const inset = height * 0.35;
+  const inset = height * 0.25;
   const bodyTop = position.y + inset;
   const bodyBottom = position.y + height - inset;
   const centerY = position.y + height / 2;
