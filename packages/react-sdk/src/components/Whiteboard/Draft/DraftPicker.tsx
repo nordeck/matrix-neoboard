@@ -17,6 +17,7 @@
 import { ReactElement, useEffect } from 'react';
 import { useConnectionPoint } from '../../ConnectionPointProvider';
 import { useLayoutState } from '../../Layout';
+import BlockArrowDraft from '../../elements/block-arrow/Draft';
 import EllipseDraft from '../../elements/ellipse/Draft';
 import LineDraft from '../../elements/line/Draft';
 import PolylineDraft from '../../elements/polyline/Draft';
@@ -65,6 +66,9 @@ export const DraftPicker = (): ReactElement | null => {
 
     case 'triangle':
       return <TriangleDraft />;
+
+    case 'block-arrow':
+      return <BlockArrowDraft />;
 
     case 'sticky-note':
       return <RectangleDraft fixedColor={stickyColor} stickyNote={true} />;

@@ -295,6 +295,22 @@ export function mockTriangleElement(
   };
 }
 
+export function mockBlockArrowElement(
+  shape: Partial<ShapeElement> = {},
+): ShapeElement {
+  return {
+    type: 'shape',
+    kind: 'block-arrow',
+    position: { x: 0, y: 1 },
+    fillColor: '#ffffff',
+    height: 100,
+    width: 50,
+    text: '',
+    textFontFamily: 'Inter',
+    ...shape,
+  };
+}
+
 export function mockEllipseElement(
   shape: Partial<ShapeElement> = {},
 ): ShapeElement {

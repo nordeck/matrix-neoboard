@@ -16,6 +16,7 @@
 
 import { Content } from 'pdfmake/interfaces';
 import { ShapeElement } from '../../../state';
+import { getRenderProperties as getRenderBlockArrowProperties } from '../../elements/block-arrow/getRenderProperties';
 import { getRenderProperties as getRenderEllipseProperties } from '../../elements/ellipse/getRenderProperties';
 import { getRenderProperties as getRenderRectangleProperties } from '../../elements/rectangle/getRenderProperties';
 import { getRenderProperties as getRenderTriangleProperties } from '../../elements/triangle/getRenderProperties';
@@ -34,6 +35,9 @@ export function createWhiteboardPdfElementShape(
 
     case 'triangle':
       return createElementShapeTriangle(element);
+
+    case 'block-arrow':
+      return createElementShapeBlockArrow(element);
   }
 }
 
@@ -102,6 +106,45 @@ function createElementShapeTriangle(element: ShapeElement): Content {
       lineColor: strokeColor,
       lineWidth: strokeWidth,
       closePath: true,
+    }),
+    text ? textContent(element, text) : [],
+  ];
+}
+
+function createElementShapeBlockArrow(element: ShapeElement): Content {
+  const { strokeColor, strokeWidth, text } =
+    getRenderBlockArrowProperties(element);
+
+  const { position, width, height } = element;
+
+  const arrowHeadWidth = Math.max(width * 0.35, 10);
+  const bodyWidth = width - arrowHeadWidth;
+
+  const inset = height * 0.35;
+  const bodyTop = position.y + inset;
+  const bodyBottom = position.y + height - inset;
+  const centerY = position.y + height / 2;
+
+  const points = [
+    { x: position.x, y: bodyTop },
+    { x: position.x + bodyWidth, y: bodyTop },
+    { x: position.x + bodyWidth, y: position.y },
+    { x: position.x + width, y: centerY },
+    { x: position.x + bodyWidth, y: position.y + height },
+    { x: position.x + bodyWidth, y: bodyBottom },
+    { x: position.x, y: bodyBottom },
+  ];
+
+  return [
+    canvas({
+      type: 'polyline',
+      points,
+      closePath: true,
+      color:
+        element.fillColor !== 'transparent' ? element.fillColor : undefined,
+      lineWidth: strokeWidth,
+      lineColor: strokeColor !== 'transparent' ? strokeColor : undefined,
+      strokeOpacity: strokeColor === 'transparent' ? 0 : 1,
     }),
     text ? textContent(element, text) : [],
   ];
