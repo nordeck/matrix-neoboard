@@ -46,8 +46,6 @@ const BlockArrowDisplay = ({
   const { x, y } = shape.position;
   const width = shape.width;
   const height = shape.height;
-  const verticalOverflow = 0.35 * height;
-
   // Arrowhead width (proportional)
   const arrowHeadWidth = Math.max(width * 0.35, 10);
   const bodyWidth = width - arrowHeadWidth;
@@ -58,8 +56,8 @@ const BlockArrowDisplay = ({
   const bodyBottom = y + height - inset;
   const centerY = y + height / 2;
 
-  const frameOffsetY = y - verticalOverflow;
-  const frameHeight = height + verticalOverflow * 2;
+  const frameOffsetY = y - inset;
+  const frameHeight = height + inset * 2;
   // Points for block arrow polygon (narrow body, wide tip)
   const points = [
     // Left-top of body
