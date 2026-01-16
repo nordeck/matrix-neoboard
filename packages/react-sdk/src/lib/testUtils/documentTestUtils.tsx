@@ -409,12 +409,10 @@ export function mockTextElement(shape: Partial<ShapeElement> = {}): Element {
  */
 export function mockFullscreenApi(): void {
   // @ts-expect-error Ignore TS and linter here for setting a mocked API
-  // eslint-disable-next-line
   document.fullscreenElement = null;
 
   document.exitFullscreen = vi.fn(function () {
     // @ts-expect-error Ignore TS and linter here for setting a mocked API
-    // eslint-disable-next-line
     document.fullscreenElement = null;
     document.dispatchEvent(new Event('fullscreenchange'));
     return Promise.resolve();
@@ -422,7 +420,6 @@ export function mockFullscreenApi(): void {
 
   document.documentElement.requestFullscreen = vi.fn(function () {
     // @ts-expect-error Ignore TS and linter here for setting a mocked API
-    // eslint-disable-next-line
     document.fullscreenElement = {};
     document.dispatchEvent(new Event('fullscreenchange'));
     return Promise.resolve();

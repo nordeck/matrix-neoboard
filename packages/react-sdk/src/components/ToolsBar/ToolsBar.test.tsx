@@ -207,6 +207,7 @@ describe('<ToolsBar/>', () => {
   });
 
   // TODO: enable test when adding frames back in
+  // eslint-disable-next-line
   it.skip('should show the create frame button, if Infinite Ianvas is enabled', () => {
     vi.spyOn(whiteboardConstants, 'infiniteCanvasMode', 'get').mockReturnValue(
       true,
