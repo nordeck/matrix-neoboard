@@ -16,6 +16,7 @@
 
 import CircleIcon from '@mui/icons-material/Circle';
 import EditRoundedIcon from '@mui/icons-material/EditRounded';
+import ForwardIcon from '@mui/icons-material/Forward';
 import NorthEastIcon from '@mui/icons-material/NorthEast';
 import SquareIcon from '@mui/icons-material/Square';
 import TitleRoundedIcon from '@mui/icons-material/TitleRounded';
@@ -83,6 +84,11 @@ export function ToolsBar() {
         label: t('toolsBar.triangleTool', 'Triangle'),
         icon: <TriangleIcon />,
         value: 'triangle',
+      },
+      {
+        label: t('toolsBar.blockArrowTool', 'Block Arrow'),
+        icon: <ForwardIcon />,
+        value: 'block-arrow',
       },
       {
         label: t('toolsBar.arrowTool', 'Arrow'),

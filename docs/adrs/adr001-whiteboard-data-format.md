@@ -377,7 +377,7 @@ The proposed design will result in the following data model:
 >
 > ##### Shape
 >
-> Additional properties when `type` is one of `circle`, `ellipse`, `rectangle`, `triangle`.
+> Additional properties when `type` is one of `circle`, `ellipse`, `rectangle`, `triangle`, `block-arrow`.
 >
 > | Field       | Type       | Description                                           |
 > | ----------- | ---------- | ----------------------------------------------------- |

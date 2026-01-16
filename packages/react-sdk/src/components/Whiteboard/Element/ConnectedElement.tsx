@@ -22,6 +22,7 @@ import {
   ElementOverride,
   mergeElementAndOverride,
 } from '../../ElementOverridesProvider';
+import BlockArrowDisplay from '../../elements/block-arrow/Display';
 import EllipseDisplay from '../../elements/ellipse/Display';
 import FrameDisplay from '../../elements/frame/Display';
 import ImageDisplay from '../../elements/image/ImageDisplay';
@@ -102,6 +103,14 @@ const ConnectedElement = ({
       } else if (element.kind === 'triangle') {
         shapeChild = (
           <TriangleDisplay
+            {...element}
+            {...otherProps}
+            setTextToolsEnabled={setTextToolsEnabled}
+          />
+        );
+      } else if (element.kind === 'block-arrow') {
+        shapeChild = (
+          <BlockArrowDisplay
             {...element}
             {...otherProps}
             setTextToolsEnabled={setTextToolsEnabled}

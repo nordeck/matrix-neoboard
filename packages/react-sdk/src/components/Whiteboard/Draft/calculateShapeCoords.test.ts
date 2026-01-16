@@ -24,6 +24,7 @@ const shapeSizes: ShapeSizesState = {
   triangle: { width: 100, height: 500 },
   ellipse: { width: 500, height: 250 },
   circle: { width: 400, height: 100 },
+  'block-arrow': { width: 160, height: 120 },
 };
 
 describe('calculateShapeCoords', () => {
@@ -70,6 +71,15 @@ describe('calculateShapeCoords', () => {
           y: 475,
         },
         endCoords: { x: 750, y: 725 },
+      },
+      'block-arrow',
+      { x: 500, y: 600 },
+      {
+        startCoords: {
+          x: 420,
+          y: 540,
+        },
+        endCoords: { x: 580, y: 660 },
       },
     ],
   ] as [ShapeKind, Point, ReturnType<typeof calculateShapeCoords>][])(

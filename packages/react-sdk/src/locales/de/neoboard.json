@@ -326,6 +326,7 @@
   },
   "toolsBar": {
     "arrowTool": "Pfeil",
+    "blockArrowTool": "Blockpfeil",
     "ellipseTool": "Ellipse",
     "frameTool": "Rahmen erstellen",
     "imageUploadTool": "Bild hochladen",
