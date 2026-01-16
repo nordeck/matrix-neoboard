@@ -26,13 +26,13 @@
     "@reduxjs/toolkit": "^2.5.1",
     "emoji-regex": "^10.3.0",
     "joi": "^17.13.3",
-    "js-base64": "^3.7.7",
-    "livekit-client": "^2.9.3",
+    "js-base64": "^3.7.8",
+    "livekit-client": "^2.9.9",
     "localforage": "^1.10.0",
     "lodash": "^4.17.21",
     "loglevel": "^1.9.2",
-    "matrix-widget-api": "^1.13.0",
-    "pdfmake": "^0.2.18",
+    "matrix-widget-api": "^1.13.1",
+    "pdfmake": "^0.2.21",
     "react-beautiful-dnd": "^13.1.1",
     "react-draggable": "^4.4.6",
     "react-dropzone": "^14.3.8",
@@ -43,7 +43,7 @@
     "react-use": "^17.6.0",
     "rxjs": "^7.8.2",
     "tinycolor2": "^1.6.0",
-    "yjs": "^13.6.23"
+    "yjs": "^13.6.28"
   },
   "peerDependencies": {
     "i18next": "^24.2.2",

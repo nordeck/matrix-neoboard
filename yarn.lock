@@ -987,10 +987,10 @@
   resolved "https://registry.yarnpkg.com/@livekit/mutex/-/mutex-1.1.1.tgz#72492b611d55be8130ba2271b7a436d94b1bc6d4"
   integrity sha512-EsshAucklmpuUAfkABPxJNhzj9v2sG7JuzFDL4ML1oJQSV14sqrpTYnsaOudMAw9yOaW53NU3QQTlUQoRs4czw==
 
-"@livekit/protocol@1.39.3":
-  version "1.39.3"
-  resolved "https://registry.yarnpkg.com/@livekit/protocol/-/protocol-1.39.3.tgz#dfbb801f6de232d64d918e0ad796268ff709cc35"
-  integrity sha512-hfOnbwPCeZBEvMRdRhU2sr46mjGXavQcrb3BFRfG+Gm0Z7WUSeFdy5WLstXJzEepz17Iwp/lkGwJ4ZgOOYfPuA==
+"@livekit/protocol@1.42.2":
+  version "1.42.2"
+  resolved "https://registry.yarnpkg.com/@livekit/protocol/-/protocol-1.42.2.tgz#2932e2cc8f2100b49d3ce154a521cd26b2a95fe2"
+  integrity sha512-0jeCwoMJKcwsZICg5S6RZM4xhJoF78qMvQELjACJQn6/VB+jmiySQKOSELTXvPBVafHfEbMlqxUw2UR1jTXs2g==
   dependencies:
     "@bufbuild/protobuf" "^1.10.0"
 
@@ -3687,7 +3687,7 @@ i18next@^25.2.1, i18next@^25.7.3:
   dependencies:
     "@babel/runtime" "^7.28.4"
 
-iconv-lite@0.6.3, iconv-lite@^0.6.3:
+iconv-lite@0.6.3:
   version "0.6.3"
   resolved "https://registry.yarnpkg.com/iconv-lite/-/iconv-lite-0.6.3.tgz#a52f80bf38da1952eb5c681790719871a1a72501"
   integrity sha512-4fCk79wshMdzMp2rH06qWrJE4iolqLhCUH+OiuIgU++RB0+94NlDL81atO7GX55uUKueo0txHNtvEyI6D7WdMw==
@@ -3705,6 +3705,13 @@ iconv-lite@^0.7.0:
   version "0.7.0"
   resolved "https://registry.yarnpkg.com/iconv-lite/-/iconv-lite-0.7.0.tgz#c50cd80e6746ca8115eb98743afa81aa0e147a3e"
   integrity sha512-cf6L2Ds3h57VVmkZe+Pn+5APsT7FpqJtEhhieDCvrE2MK5Qk9MyffgQyuxQTm6BChfeZNtcOLHp9IcWRVcIcBQ==
+  dependencies:
+    safer-buffer ">= 2.1.2 < 3.0.0"
+
+iconv-lite@^0.7.1:
+  version "0.7.2"
+  resolved "https://registry.yarnpkg.com/iconv-lite/-/iconv-lite-0.7.2.tgz#d0bdeac3f12b4835b7359c2ad89c422a4d1cc72e"
+  integrity sha512-im9DjEDQ55s9fL4EYzOAv0yMqmMBSZp6G0VvFyTMPKWxiSBHUj9NW/qqLmXUwXrrM7AvqSlTCfvqRb0cM8yYqw==
   dependencies:
     safer-buffer ">= 2.1.2 < 3.0.0"
 
@@ -4122,12 +4129,17 @@ joi@^17.13.3:
     "@sideway/formula" "^3.0.1"
     "@sideway/pinpoint" "^2.0.0"
 
+jose@^6.1.0:
+  version "6.1.3"
+  resolved "https://registry.yarnpkg.com/jose/-/jose-6.1.3.tgz#8453d7be88af7bb7d64a0481d6a35a0145ba3ea5"
+  integrity sha512-0TpaTfihd4QMNwrz/ob2Bp7X04yuxJkjRGi4aKmOqwhov54i6u79oCv7T+C7lo70MKH6BesI3vscD1yb/yzKXQ==
+
 jpeg-exif@^1.1.4:
   version "1.1.4"
   resolved "https://registry.yarnpkg.com/jpeg-exif/-/jpeg-exif-1.1.4.tgz#781a65b6cd74f62cb1c493511020f8d3577a1c2b"
   integrity sha512-a+bKEcCjtuW5WTdgeXFzswSrdqi0jk4XlEtZlx5A94wCoBpFjfFTbo/Tra5SpNCl/YFZPvcV1dJc+TAYeg6ROQ==
 
-js-base64@^3.7.7:
+js-base64@^3.7.8:
   version "3.7.8"
   resolved "https://registry.yarnpkg.com/js-base64/-/js-base64-3.7.8.tgz#af44496bc09fa178ed9c4adf67eb2b46f5c6d2a4"
   integrity sha512-hNngCeKxIUQiEUN3GPJOkz4wF/YvdUdbNL9hsBcMQTkKzboD7T/q3OYOuuPZLUE6dBxSGpwhk5mwuDud7JVAow==
@@ -4302,14 +4314,15 @@ listr2@^8.2.5:
     rfdc "^1.4.1"
     wrap-ansi "^9.0.0"
 
-livekit-client@^2.9.3:
-  version "2.15.6"
-  resolved "https://registry.yarnpkg.com/livekit-client/-/livekit-client-2.15.6.tgz#6cfd919d36221680b58917d156a1cae6a85ca7da"
-  integrity sha512-bLdNXklpMfWofw9pCF2XGyYA3OUddXXG4KY+gTN7dh+YvG7TX+YaP/Kt9ugdZ3KziQLqK2HG1ict4s7uD0JAiQ==
+livekit-client@^2.9.9:
+  version "2.17.0"
+  resolved "https://registry.yarnpkg.com/livekit-client/-/livekit-client-2.17.0.tgz#ece2d782580f36c62debe6d919288e2fee9cdad1"
+  integrity sha512-BD1QUS44ancVTBdnAher0aO7DV5holFYH2lYradYT/HgXtn6R8xPyvtDAH3UH40jGcesDo9fEopCFwEdOgrIhg==
   dependencies:
     "@livekit/mutex" "1.1.1"
-    "@livekit/protocol" "1.39.3"
+    "@livekit/protocol" "1.42.2"
     events "^3.3.0"
+    jose "^6.1.0"
     loglevel "^1.9.2"
     sdp-transform "^2.15.0"
     ts-debounce "^4.0.0"
@@ -4446,7 +4459,7 @@ math-intrinsics@^1.1.0:
   resolved "https://registry.yarnpkg.com/math-intrinsics/-/math-intrinsics-1.1.0.tgz#a0dd74be81e2aa5c2f27e65ce283605ee4e2b7f9"
   integrity sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g==
 
-matrix-widget-api@^1.13.0, matrix-widget-api@^1.13.1:
+matrix-widget-api@^1.13.1:
   version "1.13.1"
   resolved "https://registry.yarnpkg.com/matrix-widget-api/-/matrix-widget-api-1.13.1.tgz#5b1caeed2fc58148bcd2984e0546d2d06a1713ad"
   integrity sha512-mkOHUVzaN018TCbObfGOSaMW2GoUxOfcxNNlTVx5/HeMk3OSQPQM0C9oEME5Liiv/dBUoSrEB64V8wF7e/gb1w==
@@ -4900,15 +4913,15 @@ pdfjs-dist@^4.6.82:
   optionalDependencies:
     "@napi-rs/canvas" "^0.1.65"
 
-pdfmake@^0.2.18:
-  version "0.2.20"
-  resolved "https://registry.yarnpkg.com/pdfmake/-/pdfmake-0.2.20.tgz#a2e37114e46247c9a295df2fc1c7184942de567e"
-  integrity sha512-bGbxbGFP5p8PWNT3Phsu1ZcRLnRfF6jmnuKTkgmt6i5PZzSdX6JaB+NeTz9q+aocfW8SE9GUjL3o/5GroBqGcQ==
+pdfmake@^0.2.21:
+  version "0.2.23"
+  resolved "https://registry.yarnpkg.com/pdfmake/-/pdfmake-0.2.23.tgz#249ce735fbc58e212ea3343d60f388408b8f2f02"
+  integrity sha512-A/IksoKb/ikOZH1edSDJ/2zBbqJKDghD4+fXn3rT7quvCJDlsZMs3NmIB3eajLMMFU9Bd3bZPVvlUMXhvFI+bQ==
   dependencies:
     "@foliojs-fork/linebreak" "^1.1.2"
     "@foliojs-fork/pdfkit" "^0.15.3"
-    iconv-lite "^0.6.3"
-    xmldoc "^2.0.1"
+    iconv-lite "^0.7.1"
+    xmldoc "^2.0.3"
 
 picocolors@1.1.1, picocolors@^1.0.0, picocolors@^1.1.0, picocolors@^1.1.1:
   version "1.1.1"
@@ -5454,10 +5467,10 @@ safe-regex-test@^1.1.0:
   resolved "https://registry.yarnpkg.com/safer-buffer/-/safer-buffer-2.1.2.tgz#44fa161b0187b9549dd84bb91802f9bd8385cd6a"
   integrity sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==
 
-sax@^1.2.4:
-  version "1.4.1"
-  resolved "https://registry.yarnpkg.com/sax/-/sax-1.4.1.tgz#44cc8988377f126304d3b3fc1010c733b929ef0f"
-  integrity sha512-+aWOz7yVScEGoKNd4PA10LZ8sk0A/z5+nXQG5giUO5rprX9jgYsTdov9qCchZiPIZezbZH+jRut8nPodFAX4Jg==
+sax@^1.4.3:
+  version "1.4.4"
+  resolved "https://registry.yarnpkg.com/sax/-/sax-1.4.4.tgz#f29c2bba80ce5b86f4343b4c2be9f2b96627cf8b"
+  integrity sha512-1n3r/tGXO6b6VXMdFT54SHzT9ytu9yr7TaELowdYpMqY/Ao7EnlQGmAQ1+RatX7Tkkdm6hONI2owqNx2aZj5Sw==
 
 saxes@^6.0.0:
   version "6.0.0"
@@ -6450,12 +6463,12 @@ xmlchars@^2.2.0:
   resolved "https://registry.yarnpkg.com/xmlchars/-/xmlchars-2.2.0.tgz#060fe1bcb7f9c76fe2a17db86a9bc3ab894210cb"
   integrity sha512-JZnDKK8B0RCDw84FNdDAIpZK+JuJw+s7Lz8nksI7SIuU3UXJJslUthsi+uWBUYOwPFwW7W7PRLRfUKpxjtjFCw==
 
-xmldoc@^2.0.1:
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/xmldoc/-/xmldoc-2.0.2.tgz#1ad89f9054cc8b1c500135e746da2a608b7bca6b"
-  integrity sha512-UiRwoSStEXS3R+YE8OqYv3jebza8cBBAI2y8g3B15XFkn3SbEOyyLnmPHjLBPZANrPJKEzxxB7A3XwcLikQVlQ==
+xmldoc@^2.0.3:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/xmldoc/-/xmldoc-2.0.3.tgz#65b4226b753ea6cd4601f3f56d52338941d38380"
+  integrity sha512-6gRk4NY/Jvg67xn7OzJuxLRsGgiXBaPUQplVJ/9l99uIugxh4FTOewYz5ic8WScj7Xx/2WvhENiQKwkK9RpE4w==
   dependencies:
-    sax "^1.2.4"
+    sax "^1.4.3"
 
 y18n@^5.0.5:
   version "5.0.8"
@@ -6500,10 +6513,10 @@ yarn-deduplicate@^6.0.2:
     semver "^7.5.0"
     tslib "^2.5.0"
 
-yjs@^13.6.23:
-  version "13.6.27"
-  resolved "https://registry.yarnpkg.com/yjs/-/yjs-13.6.27.tgz#8899be929d57da05a0aa112d044a5c204393ab7b"
-  integrity sha512-OIDwaflOaq4wC6YlPBy2L6ceKeKuF7DeTxx+jPzv1FHn9tCZ0ZwSRnUBxD05E3yed46fv/FWJbvR+Ud7x0L7zw==
+yjs@^13.6.28:
+  version "13.6.29"
+  resolved "https://registry.yarnpkg.com/yjs/-/yjs-13.6.29.tgz#bdc3e8379ff36603bcd6d3a1889752e4dd00f637"
+  integrity sha512-kHqDPdltoXH+X4w1lVmMtddE3Oeqq48nM40FD5ojTd8xYhQpzIDcfE2keMSU5bAgRPJBe225WTUdyUgj1DtbiQ==
   dependencies:
     lib0 "^0.2.99"
 
