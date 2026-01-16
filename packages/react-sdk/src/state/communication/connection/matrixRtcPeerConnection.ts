@@ -93,7 +93,7 @@ export class MatrixRtcPeerConnection implements PeerConnection {
         takeUntil(this.destroySubject),
         switchMap(
           async () =>
-            await this.room.localParticipant.engine?.pcManager?.subscriber.getStats(),
+            await this.room.localParticipant.engine?.pcManager?.subscriber?.getStats(),
         ),
       )
       .subscribe((report) => {
