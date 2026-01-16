@@ -54,6 +54,7 @@ const BlockArrowDisplay = ({
 
   const bodyTop = y + inset;
   const bodyBottom = y + height - inset;
+  const bodyHeight = bodyBottom - bodyTop;
   const centerY = y + height / 2;
 
   const frameOffsetY = y - inset;
@@ -87,6 +88,9 @@ const BlockArrowDisplay = ({
     .map((pt) => pt.join(','))
     .join(' ');
 
+  const textHeight = text ? Math.min(text.height, bodyHeight) : 0;
+  const textY = bodyTop + (bodyHeight - textHeight) / 2;
+
   const renderedChild = (
     <g data-testid={dataTestid}>
       {/* Block arrow shape with narrow body */}
@@ -106,9 +110,9 @@ const BlockArrowDisplay = ({
           textItalic={text.italic}
           elementId={elementId}
           x={text.position.x}
-          y={text.position.y}
-          width={text.width}
-          height={text.height}
+          y={textY}
+          width={bodyWidth}
+          height={textHeight}
           fillColor={shape.fillColor}
           textColor={shape.textColor}
           fontSize={text.fontSize}
