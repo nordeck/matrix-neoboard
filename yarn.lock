@@ -5098,13 +5098,22 @@ react-hotkeys-hook@^5.0.1:
   resolved "https://registry.yarnpkg.com/react-hotkeys-hook/-/react-hotkeys-hook-5.0.1.tgz#9c0495d2958201e9fea087fed6d86a69e5297eca"
   integrity sha512-TysTwXrUSj6QclMZIEoxCfvy/6EsoZcrfE970aUVa9fO3c3vcms+IVjv3ljbhUPM/oY1iEoun7O2W8v8INl5hw==
 
-react-i18next@*, react-i18next@^15.5.2, react-i18next@^15.7.4:
+react-i18next@*, react-i18next@^15.7.4:
   version "15.7.4"
   resolved "https://registry.yarnpkg.com/react-i18next/-/react-i18next-15.7.4.tgz#146e50f220d204b842e22c75d1a3d23c6c589a30"
   integrity sha512-nyU8iKNrI5uDJch0z9+Y5XEr34b0wkyYj3Rp+tfbahxtlswxSCjcUL9H0nqXo9IR3/t5Y5PKIA3fx3MfUyR9Xw==
   dependencies:
     "@babel/runtime" "^7.27.6"
     html-parse-stringify "^3.0.1"
+
+react-i18next@^16.0.0, react-i18next@^16.5.1:
+  version "16.5.3"
+  resolved "https://registry.yarnpkg.com/react-i18next/-/react-i18next-16.5.3.tgz#1f102c8e8e7b0c9069e21ac40cd730f32a64e180"
+  integrity sha512-fo+/NNch37zqxOzlBYrWMx0uy/yInPkRfjSuy4lqKdaecR17nvCHnEUt3QyzA8XjQ2B/0iW/5BhaHR3ZmukpGw==
+  dependencies:
+    "@babel/runtime" "^7.28.4"
+    html-parse-stringify "^3.0.1"
+    use-sync-external-store "^1.6.0"
 
 react-innertext@^1.1.5:
   version "1.1.5"
@@ -6206,6 +6215,11 @@ use-sync-external-store@^1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/use-sync-external-store/-/use-sync-external-store-1.4.0.tgz#adbc795d8eeb47029963016cefdf89dc799fcebc"
   integrity sha512-9WXSPC5fMv61vaupRkCKCxsPxBocVnwakBEkMIHHpkTTg6icbJtg6jzgtLDm4bl3cSHAca52rYWih0k4K3PfHw==
+
+use-sync-external-store@^1.6.0:
+  version "1.6.0"
+  resolved "https://registry.yarnpkg.com/use-sync-external-store/-/use-sync-external-store-1.6.0.tgz#b174bfa65cb2b526732d9f2ac0a408027876f32d"
+  integrity sha512-Pp6GSwGP/NrPIrxVFAIkOQeyw8lFenOHijQWkUTrDvrF4ALqylP2C/KCkeS9dpUM3KvYRQhna5vt7IL95+ZQ9w==
 
 vite-node@2.1.9:
   version "2.1.9"
