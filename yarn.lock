@@ -1084,14 +1084,14 @@
   resolved "https://registry.yarnpkg.com/@mui/core-downloads-tracker/-/core-downloads-tracker-6.5.0.tgz#e9f7049d7e7bb1ee05839f7a0ce813755f137432"
   integrity sha512-LGb8t8i6M2ZtS3Drn3GbTI1DVhDY6FJ9crEey2lZ0aN2EMZo8IZBZj9wRf4vqbZHaWjsYgtbOnJw5V8UWbmK2Q==
 
-"@mui/icons-material@^6.3.1", "@mui/icons-material@^6.5.0":
+"@mui/icons-material@^6.5.0":
   version "6.5.0"
   resolved "https://registry.yarnpkg.com/@mui/icons-material/-/icons-material-6.5.0.tgz#26bfa7c8574cc4e57c2f2835bfd6b1efa7f310fa"
   integrity sha512-VPuPqXqbBPlcVSA0BmnoE4knW4/xG6Thazo8vCLWkOKusko6DtwFV6B665MMWJ9j0KFohTIf3yx2zYtYacvG1g==
   dependencies:
     "@babel/runtime" "^7.26.0"
 
-"@mui/lab@^6.0.1-beta.35":
+"@mui/lab@^6.0.1-beta.36":
   version "6.0.1-beta.36"
   resolved "https://registry.yarnpkg.com/@mui/lab/-/lab-6.0.1-beta.36.tgz#f91fa618e2d4e72e5c56a62304daf2663986a17c"
   integrity sha512-af9lDmA9SZGEWF1XXk0EVBpfCITk9IKsvh9lLOZGdYaaHfQeCsqxGEDMvNO66j0P8EYoxpyry84LFCJYuLVtVw==
@@ -1104,7 +1104,7 @@
     clsx "^2.1.1"
     prop-types "^15.8.1"
 
-"@mui/material@^6.3.1", "@mui/material@^6.5.0":
+"@mui/material@^6.5.0":
   version "6.5.0"
   resolved "https://registry.yarnpkg.com/@mui/material/-/material-6.5.0.tgz#c7eccfe260030433c51b7aec17574bae4504cacc"
   integrity sha512-yjvtXoFcrPLGtgKRxFaH6OQPtcLPhkloC0BML6rBG5UeldR0nPULR/2E2BfXdo5JNV7j7lOzrrLX2Qf/iSidow==
@@ -1162,7 +1162,7 @@
   resolved "https://registry.yarnpkg.com/@mui/types/-/types-7.2.24.tgz#5eff63129d9c29d80bbf2d2e561bd0690314dec2"
   integrity sha512-3c8tRt/CbWZ+pEg7QpSwbdxOk36EfmhbKf6AGZsD1EcLDLTSZoxxJ86FVtcjxvjuhdyBiWKSTGZFaXCnidO2kw==
 
-"@mui/utils@^6.0.2", "@mui/utils@^6.4.8", "@mui/utils@^6.4.9":
+"@mui/utils@^6.4.8", "@mui/utils@^6.4.9":
   version "6.4.9"
   resolved "https://registry.yarnpkg.com/@mui/utils/-/utils-6.4.9.tgz#b0df01daa254c7c32a1a30b30a5179e19ef071a7"
   integrity sha512-Y12Q9hbK9g+ZY0T3Rxrx9m2m10gaphDuUMgWxyV5kNJevVxXYCLclYUCC9vXaIk1/NdNDTcW2Yfr2OGvNFNmHg==
