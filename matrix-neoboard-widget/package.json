@@ -22,9 +22,6 @@
     "react-i18next": "^15.5.3",
     "react-redux": "^9.2.0"
   },
-  "resolutions": {
-    "fork-ts-checker-webpack-plugin": "^6.5.3"
-  },
   "devDependencies": {
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.9.1",
