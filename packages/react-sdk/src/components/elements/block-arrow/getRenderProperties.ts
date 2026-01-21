@@ -20,27 +20,39 @@ import { ElementRenderProperties } from '../../Whiteboard';
 export function getRenderProperties(
   shape: ShapeElement,
 ): ElementRenderProperties {
-  const width = shape.width;
-  const height = shape.height;
+  const {
+    width,
+    height,
+    position,
+    textAlignment,
+    textBold,
+    textItalic,
+    textSize,
+    textFontFamily,
+  } = shape;
 
-  const verticalPadding = height > 40 ? 10 : 2;
-  const horizontalPadding = width > 40 ? 10 : 2;
+  // Padding inside the arrow body
+  const verticalPadding = height * 0.25; // space from top/bottom of arrow body
+  const horizontalPadding = 0;
+
+  const textHeight = height - verticalPadding * 2;
+  const textWidth = width * 0.8;
 
   return {
     strokeColor: shape.strokeColor ?? shape.fillColor,
     strokeWidth: shape.strokeWidth ?? 2,
     text: {
       position: {
-        x: shape.position.x + horizontalPadding,
-        y: shape.position.y + verticalPadding,
+        x: position.x + horizontalPadding,
+        y: position.y + verticalPadding, // top of arrow body
       },
-      width: width - horizontalPadding * 2,
-      height: height - verticalPadding * 2,
-      alignment: shape.textAlignment ?? 'center',
-      bold: shape.textBold ?? false,
-      italic: shape.textItalic ?? false,
-      fontSize: shape.textSize,
-      fontFamily: shape.textFontFamily,
+      width: textWidth - horizontalPadding, // horizontal space inside arrow body
+      height: textHeight,
+      alignment: textAlignment ?? 'center',
+      bold: textBold ?? false,
+      italic: textItalic ?? false,
+      fontSize: textSize,
+      fontFamily: textFontFamily,
     },
   };
 }

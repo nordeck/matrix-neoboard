@@ -44,21 +44,19 @@ const BlockArrowDisplay = ({
   const { strokeColor, strokeWidth, text } = getRenderProperties(shape);
 
   const { x, y } = shape.position;
-  const width = shape.width;
-  const height = shape.height;
-  // Arrowhead width (proportional)
-  const arrowHeadWidth = Math.max(width * 0.35, 10);
+  const { width, height } = shape;
+
+  const arrowHeadWidth = width * 0.35;
   const bodyWidth = width - arrowHeadWidth;
 
-  const inset = height * 0.25;
-
-  const bodyTop = y + inset;
-  const bodyBottom = y + height - inset;
-  const bodyHeight = bodyBottom - bodyTop;
+  const verticalPadding = height * 0.25;
+  const bodyTop = y + verticalPadding;
+  const bodyBottom = y + height - verticalPadding;
   const centerY = y + height / 2;
 
-  const frameOffsetY = y - inset;
-  const frameHeight = height + inset * 2;
+  // Selection bounding box
+  const selectionBoundingTopY = y - verticalPadding;
+  const selectionBoundingHeight = height + verticalPadding * 2;
   // Points for block arrow polygon (narrow body, wide tip)
   const points = [
     // Left-top of body
@@ -88,9 +86,6 @@ const BlockArrowDisplay = ({
     .map((pt) => pt.join(','))
     .join(' ');
 
-  const textHeight = text ? Math.min(text.height, bodyHeight) : 0;
-  const textY = bodyTop + (bodyHeight - textHeight) / 2;
-
   const renderedChild = (
     <g data-testid={dataTestid}>
       {/* Block arrow shape with narrow body */}
@@ -110,9 +105,9 @@ const BlockArrowDisplay = ({
           textItalic={text.italic}
           elementId={elementId}
           x={text.position.x}
-          y={textY}
-          width={bodyWidth}
-          height={textHeight}
+          y={text.position.y}
+          width={text.width}
+          height={text.height}
           fillColor={shape.fillColor}
           textColor={shape.textColor}
           fontSize={text.fontSize}
@@ -139,9 +134,9 @@ const BlockArrowDisplay = ({
           {elementMovedHasFrame && (
             <ElementFrameOverlay
               offsetX={shape.position.x}
-              offsetY={frameOffsetY}
+              offsetY={selectionBoundingTopY}
               width={shape.width}
-              height={frameHeight}
+              height={selectionBoundingHeight}
             />
           )}
         </ElementContextMenu>

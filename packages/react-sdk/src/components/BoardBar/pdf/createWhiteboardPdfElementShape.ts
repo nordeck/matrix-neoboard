@@ -117,22 +117,22 @@ function createElementShapeBlockArrow(element: ShapeElement): Content {
 
   const { position, width, height } = element;
 
-  const arrowHeadWidth = Math.max(width * 0.35, 10);
+  const arrowHeadWidth = width * 0.35; // proportional;
   const bodyWidth = width - arrowHeadWidth;
 
-  const inset = height * 0.25;
-  const bodyTop = position.y + inset;
-  const bodyBottom = position.y + height - inset;
+  const verticalPadding = height * 0.25;
+  const bodyTop = position.y + verticalPadding;
+  const bodyBottom = position.y + height - verticalPadding;
   const centerY = position.y + height / 2;
 
   const points = [
-    { x: position.x, y: bodyTop },
-    { x: position.x + bodyWidth, y: bodyTop },
-    { x: position.x + bodyWidth, y: position.y },
-    { x: position.x + width, y: centerY },
-    { x: position.x + bodyWidth, y: position.y + height },
-    { x: position.x + bodyWidth, y: bodyBottom },
-    { x: position.x, y: bodyBottom },
+    { x: position.x, y: bodyTop }, // left-top of body
+    { x: position.x + bodyWidth, y: bodyTop }, // right-top of body
+    { x: position.x + bodyWidth, y: position.y }, // arrow head top
+    { x: position.x + width, y: centerY }, // tip
+    { x: position.x + bodyWidth, y: position.y + height }, // arrow head bottom
+    { x: position.x + bodyWidth, y: bodyBottom }, // right-bottom of body
+    { x: position.x, y: bodyBottom }, // left-bottom of body
   ];
 
   return [
