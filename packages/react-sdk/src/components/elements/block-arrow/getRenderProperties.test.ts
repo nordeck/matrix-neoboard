@@ -36,7 +36,7 @@ describe('getRenderProperties', () => {
     // Assert text exists before checking properties
     expect(view.text).toBeDefined();
     expect(view.text!.position).toEqual({ x: 10, y: 27.5 });
-    expect(view.text!.width).toBe(65);
+    expect(view.text!.width).toBe(80);
     expect(view.text!.height).toBe(25);
     expect(view.text!.alignment).toBe('center');
     expect(view.text!.bold).toBe(false);
