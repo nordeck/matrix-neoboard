@@ -110,6 +110,9 @@ describe('<ToolsBar/>', () => {
       within(radiogroup).getByRole('radio', { name: 'Arrow' }),
     ).not.toBeChecked();
     expect(
+      within(radiogroup).getByRole('radio', { name: 'Block arrow' }),
+    ).not.toBeChecked();
+    expect(
       screen.getByRole('button', { name: 'Upload image' }),
     ).toBeInTheDocument();
   });
