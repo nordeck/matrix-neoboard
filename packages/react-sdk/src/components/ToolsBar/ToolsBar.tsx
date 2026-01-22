@@ -86,7 +86,7 @@ export function ToolsBar() {
         value: 'triangle',
       },
       {
-        label: t('toolsBar.blockArrowTool', 'Block Arrow'),
+        label: t('toolsBar.blockArrowTool', 'Block arrow'),
         icon: <ForwardIcon />,
         value: 'block-arrow',
       },
