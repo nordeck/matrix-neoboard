@@ -185,30 +185,30 @@
   "guidedTour": {
     "back": "Zurück",
     "collaborationBar": {
-      "content": "<p>Um zu sehen, wer aktuell auf dem NeoBoard aktiv ist, schaue einfach hier nach. Es werden dir alle Teilnehmer:innen angezeigt, die gerade online sind oder es kürzlich waren. Und wenn es mal voll wird, klicke auf die Zahl rechts neben den ersten fünf Teilnehmer:innen um zu sehen, wer außerdem online ist. Mit dem kleinen Auge kannst du die Mauszeiger der anderen ein- oder ausblenden.</p>",
+      "content": "<0>Um zu sehen, wer aktuell auf dem NeoBoard aktiv ist, schaue einfach hier nach. Es werden dir alle Teilnehmer:innen angezeigt, die gerade online sind oder es kürzlich waren. Und wenn es mal voll wird, klicke auf die Zahl rechts neben den ersten fünf Teilnehmer:innen um zu sehen, wer außerdem online ist. Mit dem kleinen Auge kannst du die Mauszeiger der anderen ein- oder ausblenden.</0>",
       "title": "Kollaboration"
     },
     "complete": "Abschließen",
     "helpCenter": {
-      "content": "<p>Der Hilfebereich bietet dir einen schnellen Zugriff auf das Benutzerhandbuch und eine Übersicht aller Tastaturbefehle. Außerdem kannst du dort auch jederzeit diese Tour neu starten, um nochmal in Ruhe alles zu erkunden.</p><p>Viel Spaß, kreative Ideen und viel Erfolg mit dem NeoBoard!</p>",
+      "content": "<0>Der Hilfebereich bietet dir einen schnellen Zugriff auf das Benutzerhandbuch und eine Übersicht aller Tastaturbefehle. Außerdem kannst du dort auch jederzeit diese Tour neu starten, um nochmal in Ruhe alles zu erkunden.</p><p>Viel Spaß, kreative Ideen und viel Erfolg mit dem NeoBoard!</0>",
       "title": "Hilfebereich"
     },
     "introduction": {
-      "content": "<p>Herzlich willkommen auf dem NeoBoard. In dieser Einführung erhältst du Tipps zur Verwendung des NeoBoards, damit du im Handumdrehen mit der Gestaltung beginnen kannst. Los geht's!</p>",
+      "content": "<0>Herzlich willkommen auf dem NeoBoard. In dieser Einführung erhältst du Tipps zur Verwendung des NeoBoards, damit du im Handumdrehen mit der Gestaltung beginnen kannst. Los geht's!</0>",
       "title": "Willkommen"
     },
     "next": "Weiter",
     "settings": {
-      "content": "<p>Du kannst das NeoBoard und damit die geleistete Arbeit exportieren und (bspw. in einem anderen Raum) wieder importieren oder als Sicherungskopie ablegen. Außerdem kannst du das Raster (de-)aktivieren.</p>",
+      "content": "<0>Du kannst das NeoBoard und damit die geleistete Arbeit exportieren und (bspw. in einem anderen Raum) wieder importieren oder als Sicherungskopie ablegen. Außerdem kannst du das Raster (de-)aktivieren.</0>",
       "title": "Einstellungen"
     },
     "slideCount": "{{index}} von {{total}}",
     "slideOverview": {
-      "content": "<p>Hier findest du die Folien aller Teilnehmer:innen. Klicke auf den Button, um eine Folie hinzuzufügen. Mit der rechten Maustaste öffnest du das Kontextmenü und kannst vorhandene Folien löschen, gegen Veränderungen schützen, indem du sie sperrst oder alle Teilnehmer:innen hierher holen. Mit gedrückter linker Maustaste kannst du die Reihenfolge der Folien verändern.</p>",
+      "content": "<0>Hier findest du die Folien aller Teilnehmer:innen. Klicke auf den Button, um eine Folie hinzuzufügen. Mit der rechten Maustaste öffnest du das Kontextmenü und kannst vorhandene Folien löschen, gegen Veränderungen schützen, indem du sie sperrst oder alle Teilnehmer:innen hierher holen. Mit gedrückter linker Maustaste kannst du die Reihenfolge der Folien verändern.</0>",
       "title": "Folienübersicht"
     },
     "toolsbar": {
-      "content": "<p>Die Werkzeugleiste enthält alle Werkzeuge und Objekte, die zur Gestaltung deiner Folie zur Verfügung stehen. Wähle ein Objekt aus und bewege die Maus an eine beliebige Stelle auf der Folie, um es zu platzieren. Formen zeichnest du mit der Mausbewegung bei gedrückter linker Maustaste. Text platzierst du auf die gleiche Weise und kannst direkt lostippen.</p>",
+      "content": "<0>Die Werkzeugleiste enthält alle Werkzeuge und Objekte, die zur Gestaltung deiner Folie zur Verfügung stehen. Wähle ein Objekt aus und bewege die Maus an eine beliebige Stelle auf der Folie, um es zu platzieren. Formen zeichnest du mit der Mausbewegung bei gedrückter linker Maustaste. Text platzierst du auf die gleiche Weise und kannst direkt lostippen.</0>",
       "title": "Werkzeuge"
     }
   },
