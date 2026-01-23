@@ -15,7 +15,7 @@
  */
 
 import React from 'react';
-import { ShapeElement } from '../../../state';
+import { calculateBoundingRectForPoints, ShapeElement } from '../../../state';
 import {
   ElementContextMenu,
   MoveableElement,
@@ -41,56 +41,14 @@ const BlockArrowDisplay = ({
   'data-testid': dataTestid,
   ...shape
 }: BlockArrowElementProps) => {
-  const { strokeColor, strokeWidth, text } = getRenderProperties(shape);
-
-  const { x, y } = shape.position;
-  const { width, height } = shape;
-
-  const arrowHeadWidth = width * 0.35;
-  const bodyWidth = width - arrowHeadWidth;
-
-  const verticalPadding = height * 0.25;
-  const bodyTop = y + verticalPadding;
-  const bodyBottom = y + height - verticalPadding;
-  const centerY = y + height / 2;
-
-  // Selection bounding box
-  const selectionBoundingTopY = y - verticalPadding;
-  const selectionBoundingHeight = height + verticalPadding * 2;
-  // Points for block arrow polygon (narrow body, wide tip)
-  const points = [
-    // Left-top of body
-    [x, bodyTop],
-
-    // Right-top of body
-    [x + bodyWidth, bodyTop],
-
-    // Arrow head top
-    [x + bodyWidth, y],
-
-    // Tip
-    [x + width, centerY],
-
-    // Arrow head bottom
-    [x + bodyWidth, y + height],
-
-    // Right-bottom of body
-    [x + bodyWidth, bodyBottom],
-
-    // Left-bottom of body
-    [x, bodyBottom],
-
-    // Close
-    [x, bodyTop],
-  ]
-    .map((pt) => pt.join(','))
-    .join(' ');
+  const { strokeColor, strokeWidth, text, points } = getRenderProperties(shape);
+  const boundingRect = calculateBoundingRectForPoints(points);
 
   const renderedChild = (
     <g data-testid={dataTestid}>
       {/* Block arrow shape with narrow body */}
       <polygon
-        points={points}
+        points={points.map(({ x, y }) => `${x},${y}`).join(' ')}
         fill={shape.fillColor}
         stroke={strokeColor}
         strokeWidth={strokeWidth}
@@ -134,9 +92,9 @@ const BlockArrowDisplay = ({
           {elementMovedHasFrame && (
             <ElementFrameOverlay
               offsetX={shape.position.x}
-              offsetY={selectionBoundingTopY}
-              width={shape.width}
-              height={selectionBoundingHeight}
+              offsetY={shape.position.y}
+              width={boundingRect.width}
+              height={boundingRect.height}
             />
           )}
         </ElementContextMenu>

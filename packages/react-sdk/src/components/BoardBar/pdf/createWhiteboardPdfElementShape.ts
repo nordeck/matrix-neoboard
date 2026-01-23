@@ -112,33 +112,19 @@ function createElementShapeTriangle(element: ShapeElement): Content {
 }
 
 function createElementShapeBlockArrow(element: ShapeElement): Content {
-  const { strokeColor, strokeWidth, text } =
+  const { strokeColor, strokeWidth, text, points } =
     getRenderBlockArrowProperties(element);
 
-  const { position, width, height } = element;
-
-  const arrowHeadWidth = width * 0.35; // proportional;
-  const bodyWidth = width - arrowHeadWidth;
-
-  const verticalPadding = height * 0.25;
-  const bodyTop = position.y + verticalPadding;
-  const bodyBottom = position.y + height - verticalPadding;
-  const centerY = position.y + height / 2;
-
-  const points = [
-    { x: position.x, y: bodyTop }, // left-top of body
-    { x: position.x + bodyWidth, y: bodyTop }, // right-top of body
-    { x: position.x + bodyWidth, y: position.y }, // arrow head top
-    { x: position.x + width, y: centerY }, // tip
-    { x: position.x + bodyWidth, y: position.y + height }, // arrow head bottom
-    { x: position.x + bodyWidth, y: bodyBottom }, // right-bottom of body
-    { x: position.x, y: bodyBottom }, // left-bottom of body
-  ];
+  const isClosed =
+    points.length > 1 &&
+    points[0]?.x === points[points.length - 1]?.x &&
+    points[0]?.y === points[points.length - 1]?.y;
+  const pdfPoints = isClosed ? points.slice(0, -1) : points;
 
   return [
     canvas({
       type: 'polyline',
-      points,
+      points: pdfPoints,
       closePath: true,
       color:
         element.fillColor !== 'transparent' ? element.fillColor : undefined,

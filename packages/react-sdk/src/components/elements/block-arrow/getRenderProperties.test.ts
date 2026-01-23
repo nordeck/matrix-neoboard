@@ -35,13 +35,23 @@ describe('getRenderProperties', () => {
 
     // Assert text exists before checking properties
     expect(view.text).toBeDefined();
-    expect(view.text!.position).toEqual({ x: 10, y: 27.5 });
-    expect(view.text!.width).toBe(80);
+    expect(view.text!.position).toEqual({ x: 20, y: 27.5 });
+    expect(view.text!.width).toBe(75);
     expect(view.text!.height).toBe(25);
     expect(view.text!.alignment).toBe('center');
     expect(view.text!.bold).toBe(false);
     expect(view.text!.italic).toBe(false);
     expect(view.text!.fontFamily).toBe('Inter');
+    expect(view.points).toEqual([
+      { x: 10, y: 27.5 },
+      { x: 75, y: 27.5 },
+      { x: 75, y: 15 },
+      { x: 110, y: 40 },
+      { x: 75, y: 65 },
+      { x: 75, y: 52.5 },
+      { x: 10, y: 52.5 },
+      { x: 10, y: 27.5 },
+    ]);
   });
 
   it('should respect custom text alignment', () => {

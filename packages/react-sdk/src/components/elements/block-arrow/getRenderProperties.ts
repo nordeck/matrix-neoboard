@@ -17,9 +17,13 @@
 import { ShapeElement } from '../../../state';
 import { ElementRenderProperties } from '../../Whiteboard';
 
+type BlockArrowRenderProperties = {
+  points: { x: number; y: number }[];
+};
+
 export function getRenderProperties(
   shape: ShapeElement,
-): ElementRenderProperties {
+): ElementRenderProperties & BlockArrowRenderProperties {
   const {
     width,
     height,
@@ -31,12 +35,22 @@ export function getRenderProperties(
     textFontFamily,
   } = shape;
 
-  // Padding inside the arrow body
-  const verticalPadding = height * 0.25; // space from top/bottom of arrow body
-  const horizontalPadding = 0;
+  // Layout ratios, Chosen to visually match design spec
+  const VERTICAL_PADDING_RATIO = 0.25;
+  const TEXT_WIDTH_RATIO = 0.85;
+  const ARROW_HEAD_WIDTH_RATIO = 0.35;
+
+  const verticalPadding = height * VERTICAL_PADDING_RATIO; // space from top/bottom of arrow body
+  const horizontalPadding = width > 40 ? 10 : 2;
 
   const textHeight = height - verticalPadding * 2;
-  const textWidth = width * 0.8;
+  const textWidth = width * TEXT_WIDTH_RATIO;
+
+  const arrowHeadWidth = width * ARROW_HEAD_WIDTH_RATIO;
+  const bodyWidth = width - arrowHeadWidth;
+  const bodyTop = position.y + verticalPadding;
+  const bodyBottom = position.y + height - verticalPadding;
+  const centerY = position.y + height / 2;
 
   return {
     strokeColor: shape.strokeColor ?? shape.fillColor,
@@ -54,5 +68,23 @@ export function getRenderProperties(
       fontSize: textSize,
       fontFamily: textFontFamily,
     },
+    points: [
+      // Left-top of body
+      { x: position.x, y: bodyTop },
+      // Right-top of body
+      { x: position.x + bodyWidth, y: bodyTop },
+      // Arrow head top
+      { x: position.x + bodyWidth, y: position.y },
+      // Tip
+      { x: position.x + width, y: centerY },
+      // Arrow head bottom
+      { x: position.x + bodyWidth, y: position.y + height },
+      // Right-bottom of body
+      { x: position.x + bodyWidth, y: bodyBottom },
+      // Left-bottom of body
+      { x: position.x, y: bodyBottom },
+      // Close
+      { x: position.x, y: bodyTop },
+    ],
   };
 }
