@@ -4368,7 +4368,7 @@ listr2@^8.2.5:
     rfdc "^1.4.1"
     wrap-ansi "^9.0.0"
 
-livekit-client@^2.9.9:
+livekit-client@^2.17.0:
   version "2.17.0"
   resolved "https://registry.yarnpkg.com/livekit-client/-/livekit-client-2.17.0.tgz#ece2d782580f36c62debe6d919288e2fee9cdad1"
   integrity sha512-BD1QUS44ancVTBdnAher0aO7DV5holFYH2lYradYT/HgXtn6R8xPyvtDAH3UH40jGcesDo9fEopCFwEdOgrIhg==
@@ -4951,7 +4951,7 @@ pdfjs-dist@^4.6.82:
   optionalDependencies:
     "@napi-rs/canvas" "^0.1.65"
 
-pdfmake@^0.2.22:
+pdfmake@^0.2.23:
   version "0.2.23"
   resolved "https://registry.yarnpkg.com/pdfmake/-/pdfmake-0.2.23.tgz#249ce735fbc58e212ea3343d60f388408b8f2f02"
   integrity sha512-A/IksoKb/ikOZH1edSDJ/2zBbqJKDghD4+fXn3rT7quvCJDlsZMs3NmIB3eajLMMFU9Bd3bZPVvlUMXhvFI+bQ==
@@ -6540,7 +6540,7 @@ yarn-deduplicate@^6.0.2:
     semver "^7.5.0"
     tslib "^2.5.0"
 
-yjs@^13.6.28:
+yjs@^13.6.29:
   version "13.6.29"
   resolved "https://registry.yarnpkg.com/yjs/-/yjs-13.6.29.tgz#bdc3e8379ff36603bcd6d3a1889752e4dd00f637"
   integrity sha512-kHqDPdltoXH+X4w1lVmMtddE3Oeqq48nM40FD5ojTd8xYhQpzIDcfE2keMSU5bAgRPJBe225WTUdyUgj1DtbiQ==
