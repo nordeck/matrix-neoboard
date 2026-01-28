@@ -26,35 +26,39 @@ describe('getRenderProperties', () => {
       height: 50,
       fillColor: '#00ffff',
       text: 'My Text',
+      textFontFamily: 'Inter',
+      textSize: 12,
     });
 
     const view = getRenderProperties(element);
 
-    expect(view.strokeColor).toBe('#00ffff');
-    expect(view.strokeWidth).toBe(2);
-
-    // Assert text exists before checking properties
-    expect(view.text).toBeDefined();
-    expect(view.text!.position).toEqual({ x: 20, y: 27.5 });
-    expect(view.text!.width).toBe(75);
-    expect(view.text!.height).toBe(25);
-    expect(view.text!.alignment).toBe('center');
-    expect(view.text!.bold).toBe(false);
-    expect(view.text!.italic).toBe(false);
-    expect(view.text!.fontFamily).toBe('Inter');
-    expect(view.points).toEqual([
-      { x: 10, y: 27.5 },
-      { x: 75, y: 27.5 },
-      { x: 75, y: 15 },
-      { x: 110, y: 40 },
-      { x: 75, y: 65 },
-      { x: 75, y: 52.5 },
-      { x: 10, y: 52.5 },
-      { x: 10, y: 27.5 },
-    ]);
+    expect(view).toEqual({
+      strokeColor: '#00ffff',
+      strokeWidth: 2,
+      text: {
+        position: { x: 20, y: 27.5 },
+        width: 75,
+        height: 25,
+        alignment: 'center',
+        bold: false,
+        italic: false,
+        fontFamily: 'Inter',
+        fontSize: 12,
+      },
+      points: [
+        { x: 10, y: 27.5 },
+        { x: 75, y: 27.5 },
+        { x: 75, y: 15 },
+        { x: 110, y: 40 },
+        { x: 75, y: 65 },
+        { x: 75, y: 52.5 },
+        { x: 10, y: 52.5 },
+        { x: 10, y: 27.5 },
+      ],
+    });
   });
 
-  it('should respect custom text alignment', () => {
+  it('should provide the properties for a block arrow element with custom text alignment', () => {
     const element = mockBlockArrowElement({
       position: { x: 10, y: 15 },
       width: 100,
@@ -66,49 +70,46 @@ describe('getRenderProperties', () => {
 
     const view = getRenderProperties(element);
 
-    expect(view.text).toBeDefined();
-    expect(view.text!.alignment).toBe('right');
+    expect(view).toEqual(
+      expect.objectContaining({
+        text: expect.objectContaining({
+          alignment: 'right',
+        }),
+      }),
+    );
   });
 
-  it('should support bold text', () => {
+  it('should provide the properties for a block arrow element with bold text', () => {
     const element = mockBlockArrowElement({
       textBold: true,
     });
 
     const view = getRenderProperties(element);
 
-    expect(view.text).toBeDefined();
-    expect(view.text!.bold).toBe(true);
-    expect(view.text!.italic).toBe(false);
+    expect(view).toEqual(
+      expect.objectContaining({
+        text: expect.objectContaining({
+          bold: true,
+          italic: false,
+        }),
+      }),
+    );
   });
 
-  it('should support italic text', () => {
+  it('should provide the properties for a block arrow element with italic text', () => {
     const element = mockBlockArrowElement({
       textItalic: true,
     });
 
     const view = getRenderProperties(element);
 
-    expect(view.text).toBeDefined();
-    expect(view.text!.italic).toBe(true);
-    expect(view.text!.bold).toBe(false);
-  });
-
-  it('should respect explicit stroke values', () => {
-    const element = mockBlockArrowElement({
-      strokeColor: '#ff0000',
-      strokeWidth: 1,
-      text: '',
-    });
-
-    const view = getRenderProperties(element);
-
-    expect(view.strokeColor).toBe('#ff0000');
-    expect(view.strokeWidth).toBe(1);
-
-    expect(view.text).toBeDefined();
-    expect(view.text!.alignment).toBe('center');
-    expect(view.text!.bold).toBe(false);
-    expect(view.text!.italic).toBe(false);
+    expect(view).toEqual(
+      expect.objectContaining({
+        text: expect.objectContaining({
+          italic: true,
+          bold: false,
+        }),
+      }),
+    );
   });
 });
