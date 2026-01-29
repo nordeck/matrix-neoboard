@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 
+import { first } from 'lodash';
 import { useMemo } from 'react';
 import { useObservable } from 'react-use';
 import { Subject } from 'rxjs';
-import { PresentationState } from './types';
+import { FrameElement, Point } from './crdt';
+import { Elements, PresentationState } from './types';
 import { useActiveWhiteboardInstance } from './useActiveWhiteboardInstance';
 
 type UsePresentationMode = {
   state: PresentationState;
   toggleEditMode: () => void;
-  togglePresentation: () => void;
+  togglePresentation: (viewBoxCenter?: Point) => void;
 };
 
 export function usePresentationMode(): UsePresentationMode {
@@ -45,11 +47,22 @@ export function usePresentationMode(): UsePresentationMode {
       toggleEditMode: () => {
         activeWhiteboardInstance.getPresentationManager()?.toggleEditMode();
       },
-      togglePresentation: () => {
+      togglePresentation: (viewBoxCenter?: Point) => {
         if (presentationState.type === 'idle') {
+          const activeSlideId = activeWhiteboardInstance.getActiveSlideId();
+          let activeFrameElementId: string | undefined = undefined;
+          if (activeSlideId && viewBoxCenter) {
+            const whiteboardSlideInstance =
+              activeWhiteboardInstance.getSlide(activeSlideId);
+            activeFrameElementId = findNearestFrame(
+              whiteboardSlideInstance.getFrameElements(),
+              viewBoxCenter,
+            );
+          }
+
           activeWhiteboardInstance
             .getPresentationManager()
-            ?.startPresentation();
+            ?.startPresentation(activeFrameElementId);
         } else if (
           presentationState.type === 'presenting' ||
           presentationState.type === 'presentation'
@@ -60,4 +73,30 @@ export function usePresentationMode(): UsePresentationMode {
     }),
     [activeWhiteboardInstance, presentationState],
   );
+}
+
+function findNearestFrame(
+  frameElements: Elements<FrameElement>,
+  viewBoxCenter: Point,
+): string | undefined {
+  const { x: viewBoxCenterX, y: viewBoxCenterY } = viewBoxCenter;
+  const frameIdsOrdered = Object.entries(frameElements)
+    .map(
+      ([
+        frameElementId,
+        {
+          position: { x, y },
+          width,
+          height,
+        },
+      ]) => {
+        const deltaX = Math.abs(x + width / 2 - viewBoxCenterX);
+        const deltaY = Math.abs(y + height / 2 - viewBoxCenterY);
+        const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+        return [frameElementId, distance] as [string, number];
+      },
+    )
+    .sort(([_id1, distance1], [_id2, distance2]) => distance1 - distance2);
+  const firstFrameIdsOrdered = first(frameIdsOrdered);
+  return firstFrameIdsOrdered ? firstFrameIdsOrdered[0] : undefined;
 }

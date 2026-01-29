@@ -37,7 +37,10 @@ import {
   WhiteboardSlideInstance,
 } from '../../state';
 import * as whiteboardConstants from '../Whiteboard/constants';
-import { useSvgScaleContext } from '../Whiteboard/SvgScaleContext/context';
+import {
+  SvgScaleContextType,
+  useSvgScaleContext,
+} from '../Whiteboard/SvgScaleContext/context';
 import { useCreateFrame } from './useCreateFrame';
 
 vi.mock('../Whiteboard/SvgScaleContext/context', async (importActual) => ({
@@ -49,6 +52,7 @@ describe('useCreateFrame', () => {
   let widgetApi: MockedWidgetApi;
   let whiteboardManager: Mocked<WhiteboardManager>;
   let slide: WhiteboardSlideInstance;
+  let svgScaleContextPartial: Partial<SvgScaleContextType>;
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
 
   beforeEach(() => {
@@ -62,6 +66,13 @@ describe('useCreateFrame', () => {
     vi.spyOn(whiteboardConstants, 'whiteboardHeight', 'get').mockReturnValue(
       10800,
     );
+    svgScaleContextPartial = {
+      containerDimensions: {
+        width: 600,
+        height: 300,
+      },
+      moveToPoint: vi.fn(),
+    };
 
     widgetApi = mockWidgetApi();
 
@@ -89,6 +100,7 @@ describe('useCreateFrame', () => {
   it('should add a 1920 x 1080 px frame to the centre of the viewport', () => {
     // @ts-ignore
     vi.mocked(useSvgScaleContext).mockReturnValue({
+      ...svgScaleContextPartial,
       viewportCanvasCenter: {
         x: 3000,
         y: 4000,
@@ -113,6 +125,7 @@ describe('useCreateFrame', () => {
   it("should place a second frame aligned with it' top left corner to the top right corner of the first one", () => {
     // @ts-ignore
     vi.mocked(useSvgScaleContext).mockReturnValue({
+      ...svgScaleContextPartial,
       viewportCanvasCenter: {
         x: 0,
         y: 0,
@@ -224,6 +237,7 @@ describe('useCreateFrame', () => {
     (_where, viewportCanvasCenter, expectedFramePosition) => {
       // @ts-ignore
       vi.mocked(useSvgScaleContext).mockReturnValue({
+        ...svgScaleContextPartial,
         viewportCanvasCenter,
       });
       const { result } = renderHook(() => useCreateFrame(), {
