@@ -53,7 +53,6 @@ describe('getRenderProperties', () => {
         { x: 75, y: 65 },
         { x: 75, y: 52.5 },
         { x: 10, y: 52.5 },
-        { x: 10, y: 27.5 },
       ],
     });
   });

@@ -19,21 +19,6 @@ import { mockBlockArrowElement } from '../../../lib/testUtils';
 import { getRenderProperties as getRenderBlockArrowProperties } from '../../elements/block-arrow/getRenderProperties';
 import { createWhiteboardPdfElementShape } from './createWhiteboardPdfElementShape';
 
-describe('rectangle', () => {
-  it.todo('renders rectangle canvas element');
-  it.todo('handles transparent fill correctly');
-  it.todo('renders text when provided');
-});
-
-describe('ellipse / circle', () => {
-  it.todo('renders ellipse for circle kind');
-  it.todo('renders ellipse for ellipse kind');
-});
-
-describe('triangle', () => {
-  it.todo('renders closed polyline triangle');
-});
-
 describe('createWhiteboardPdfElementShape', () => {
   it('should use render points for block-arrow shapes', () => {
     const element = mockBlockArrowElement({
@@ -47,11 +32,6 @@ describe('createWhiteboardPdfElementShape', () => {
     });
 
     const { points } = getRenderBlockArrowProperties(element);
-    const isClosed =
-      points.length > 1 &&
-      points[0]?.x === points[points.length - 1]?.x &&
-      points[0]?.y === points[points.length - 1]?.y;
-    const pdfPoints = isClosed ? points.slice(0, -1) : points;
 
     const result = createWhiteboardPdfElementShape(element);
 
@@ -60,7 +40,7 @@ describe('createWhiteboardPdfElementShape', () => {
         canvas: [
           {
             type: 'polyline',
-            points: pdfPoints,
+            points,
             closePath: true,
             color: '#00ffff',
             lineWidth: 3,

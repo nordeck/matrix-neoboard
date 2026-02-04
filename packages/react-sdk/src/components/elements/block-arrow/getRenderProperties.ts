@@ -83,8 +83,6 @@ export function getRenderProperties(
       { x: position.x + bodyWidth, y: bodyBottom },
       // Left-bottom of body
       { x: position.x, y: bodyBottom },
-      // Close
-      { x: position.x, y: bodyTop },
     ],
   };
 }

@@ -115,16 +115,10 @@ function createElementShapeBlockArrow(element: ShapeElement): Content {
   const { strokeColor, strokeWidth, text, points } =
     getRenderBlockArrowProperties(element);
 
-  const isClosed =
-    points.length > 1 &&
-    points[0]?.x === points[points.length - 1]?.x &&
-    points[0]?.y === points[points.length - 1]?.y;
-  const pdfPoints = isClosed ? points.slice(0, -1) : points;
-
   return [
     canvas({
       type: 'polyline',
-      points: pdfPoints,
+      points,
       closePath: true,
       color:
         element.fillColor !== 'transparent' ? element.fillColor : undefined,
