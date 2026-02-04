@@ -37,30 +37,63 @@ export function getRenderProperties(
 
   // Layout ratios, Chosen to visually match design spec
   const VERTICAL_PADDING_RATIO = 0.25;
-  const TEXT_WIDTH_RATIO = 0.85;
   const ARROW_HEAD_WIDTH_RATIO = 0.35;
 
-  const verticalPadding = height * VERTICAL_PADDING_RATIO; // space from top/bottom of arrow body
+  const x = position.x;
+  const y = position.y;
+  const verticalPadding = height * VERTICAL_PADDING_RATIO;
   const horizontalPadding = width > 40 ? 10 : 2;
-
-  const textHeight = height - verticalPadding * 2;
-  const textWidth = width * TEXT_WIDTH_RATIO;
 
   const arrowHeadWidth = width * ARROW_HEAD_WIDTH_RATIO;
   const bodyWidth = width - arrowHeadWidth;
-  const bodyTop = position.y + verticalPadding;
-  const bodyBottom = position.y + height - verticalPadding;
-  const centerY = position.y + height / 2;
+  const bodyRight = x + bodyWidth;
+  const bodyTop = y + verticalPadding;
+  const bodyBottom = y + height - verticalPadding;
+  const bodyHeight = bodyBottom - bodyTop;
+  const centerY = y + height / 2;
+
+  const verticalTextPadding = bodyHeight > 40 ? 10 : 2;
+  const textTop = bodyTop + verticalTextPadding;
+  const textBottom = bodyBottom - verticalTextPadding;
+  const textHeight = Math.max(textBottom - textTop, 0);
+  const halfHeight = height / 2;
+
+  // Clamp utility to keep values inside bounds.
+  const clamp = (value: number, min: number, max: number) =>
+    Math.min(Math.max(value, min), max);
+
+  // Rightmost x inside the arrow head at a given y.
+  const headBoundaryAtY = (yPos: number) => {
+    if (halfHeight === 0) {
+      return x + bodyWidth;
+    }
+    const clampedY = clamp(yPos, y, y + height);
+    const distanceToTop = clampedY - y;
+    const distanceToBottom = y + height - clampedY;
+    const t = Math.min(distanceToTop, distanceToBottom) / halfHeight;
+    return bodyRight + arrowHeadWidth * t;
+  };
+
+  // Use the tighter boundary so the full text box fits.
+  const textRightBoundary = Math.min(
+    headBoundaryAtY(textTop),
+    headBoundaryAtY(textBottom),
+  );
+
+  const availableWidth = Math.max(textRightBoundary - x, 0);
+  const safePadding = Math.min(horizontalPadding, availableWidth / 2);
+  const textWidth = Math.max(availableWidth - safePadding * 2, 0);
+  const textX = x + safePadding;
 
   return {
     strokeColor: shape.strokeColor ?? shape.fillColor,
     strokeWidth: shape.strokeWidth ?? 2,
     text: {
       position: {
-        x: position.x + horizontalPadding,
-        y: position.y + verticalPadding, // top of arrow body
+        x: textX,
+        y: textTop,
       },
-      width: textWidth - horizontalPadding, // horizontal space inside arrow body
+      width: textWidth,
       height: textHeight,
       alignment: textAlignment ?? 'center',
       bold: textBold ?? false,
@@ -70,19 +103,19 @@ export function getRenderProperties(
     },
     points: [
       // Left-top of body
-      { x: position.x, y: bodyTop },
+      { x, y: bodyTop },
       // Right-top of body
-      { x: position.x + bodyWidth, y: bodyTop },
+      { x: bodyRight, y: bodyTop },
       // Arrow head top
-      { x: position.x + bodyWidth, y: position.y },
+      { x: bodyRight, y: y },
       // Tip
-      { x: position.x + width, y: centerY },
+      { x: x + width, y: centerY },
       // Arrow head bottom
-      { x: position.x + bodyWidth, y: position.y + height },
+      { x: bodyRight, y: y + height },
       // Right-bottom of body
-      { x: position.x + bodyWidth, y: bodyBottom },
+      { x: bodyRight, y: bodyBottom },
       // Left-bottom of body
-      { x: position.x, y: bodyBottom },
+      { x: x, y: bodyBottom },
     ],
   };
 }
