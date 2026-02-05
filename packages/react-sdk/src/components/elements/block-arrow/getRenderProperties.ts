@@ -14,11 +14,22 @@
  * limitations under the License.
  */
 
+import { clamp } from 'lodash';
 import { ShapeElement } from '../../../state';
 import { ElementRenderProperties } from '../../Whiteboard';
 
 type BlockArrowRenderProperties = {
   points: { x: number; y: number }[];
+};
+
+type HeadBoundaryArgs = {
+  yPos: number;
+  x: number;
+  y: number;
+  height: number;
+  bodyWidth: number;
+  arrowHeadWidth: number;
+  halfHeight: number;
 };
 
 export function getRenderProperties(
@@ -58,26 +69,26 @@ export function getRenderProperties(
   const textHeight = Math.max(textBottom - textTop, 0);
   const halfHeight = height / 2;
 
-  // Clamp utility to keep values inside bounds.
-  const clamp = (value: number, min: number, max: number) =>
-    Math.min(Math.max(value, min), max);
-
-  // Rightmost x inside the arrow head at a given y.
-  const headBoundaryAtY = (yPos: number) => {
-    if (halfHeight === 0) {
-      return x + bodyWidth;
-    }
-    const clampedY = clamp(yPos, y, y + height);
-    const distanceToTop = clampedY - y;
-    const distanceToBottom = y + height - clampedY;
-    const t = Math.min(distanceToTop, distanceToBottom) / halfHeight;
-    return bodyRight + arrowHeadWidth * t;
-  };
-
   // Use the tighter boundary so the full text box fits.
   const textRightBoundary = Math.min(
-    headBoundaryAtY(textTop),
-    headBoundaryAtY(textBottom),
+    getHeadBoundaryAtY({
+      yPos: textTop,
+      x,
+      y,
+      height,
+      bodyWidth,
+      arrowHeadWidth,
+      halfHeight,
+    }),
+    getHeadBoundaryAtY({
+      yPos: textBottom,
+      x,
+      y,
+      height,
+      bodyWidth,
+      arrowHeadWidth,
+      halfHeight,
+    }),
   );
 
   const availableWidth = Math.max(textRightBoundary - x, 0);
@@ -119,3 +130,24 @@ export function getRenderProperties(
     ],
   };
 }
+
+// Rightmost x inside the arrow head at a given y.
+const getHeadBoundaryAtY = ({
+  yPos,
+  x,
+  y,
+  height,
+  bodyWidth,
+  arrowHeadWidth,
+  halfHeight,
+}: HeadBoundaryArgs): number => {
+  if (halfHeight === 0) {
+    return x + bodyWidth;
+  }
+  const bodyRight = x + bodyWidth;
+  const clampedY = clamp(yPos, y, y + height);
+  const distanceToTop = clampedY - y;
+  const distanceToBottom = y + height - clampedY;
+  const t = Math.min(distanceToTop, distanceToBottom) / halfHeight;
+  return bodyRight + arrowHeadWidth * t;
+};
