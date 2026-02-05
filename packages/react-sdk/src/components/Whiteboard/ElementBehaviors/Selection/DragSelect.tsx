@@ -26,6 +26,7 @@ import {
 import { useLayoutState } from '../../../Layout';
 import RectangleDisplay from '../../../elements/rectangle/Display';
 import { useSvgCanvasContext } from '../../SvgCanvas';
+import { whiteboardHeight, whiteboardWidth } from '../../constants';
 import { calculateIntersect } from './calculateIntersect';
 
 const NoInteraction = styled('g')({
@@ -136,10 +137,10 @@ export function DragSelect() {
       )}
       <rect
         fill="transparent"
-        height="100%"
+        height={whiteboardHeight}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
-        width="100%"
+        width={whiteboardWidth}
         data-testid="drag-select-layer"
       />
     </>

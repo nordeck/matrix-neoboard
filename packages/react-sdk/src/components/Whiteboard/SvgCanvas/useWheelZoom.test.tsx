@@ -100,8 +100,12 @@ describe('useWheelZoom', () => {
       updateTranslation: mockUpdateTranslation,
       containerDimensions: { width: 800, height: 600 },
       setContainerDimensions: vi.fn(),
+      containerDimensionsRef: {
+        current: { width: 800, height: 600 },
+      },
       transformPointSvgToContainer: vi.fn(),
       viewportCanvasCenter: { x: 0, y: 0 },
+      moveToPoint: vi.fn(),
     });
 
     mockCalculateSvgCoords.mockReturnValue({ x: 100, y: 200 });

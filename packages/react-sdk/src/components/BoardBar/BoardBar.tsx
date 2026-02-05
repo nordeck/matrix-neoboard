@@ -14,16 +14,31 @@
  * limitations under the License.
  */
 
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { isInfiniteCanvasMode } from '../../lib';
+import { useActiveWhiteboardInstanceSlideOrFrameIds } from '../../state';
 import { Toolbar } from '../common/Toolbar';
-import { infiniteCanvasMode } from '../Whiteboard';
+import { useLayoutState } from '../Layout';
 import { SettingsMenu } from './SettingsMenu';
 import { ShowSlideOverviewToggle } from './ShowSlideOverviewToggle';
 
 export function BoardBar() {
   const { t } = useTranslation('neoboard');
+  const slideOrFrameIds = useActiveWhiteboardInstanceSlideOrFrameIds();
+  const { setSlideOverviewVisible, isSlideOverviewVisible } = useLayoutState();
 
   const toolbarTitle = t('boardBar.title', 'Board');
+
+  useEffect(() => {
+    if (
+      isInfiniteCanvasMode() &&
+      isSlideOverviewVisible &&
+      slideOrFrameIds.length === 0
+    ) {
+      setSlideOverviewVisible(false);
+    }
+  }, [isSlideOverviewVisible, setSlideOverviewVisible, slideOrFrameIds]);
 
   return (
     <Toolbar
@@ -31,7 +46,7 @@ export function BoardBar() {
       sx={{ pointerEvents: 'initial', marginRight: 'auto' }}
       data-guided-tour-target="settings"
     >
-      {!infiniteCanvasMode && <ShowSlideOverviewToggle />}
+      {slideOrFrameIds.length > 0 && <ShowSlideOverviewToggle />}
       <SettingsMenu />
     </Toolbar>
   );
