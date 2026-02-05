@@ -16,6 +16,7 @@
 
 import { Content } from 'pdfmake/interfaces';
 import { ShapeElement } from '../../../state';
+import { getRenderProperties as getRenderBlockArrowProperties } from '../../elements/block-arrow/getRenderProperties';
 import { getRenderProperties as getRenderEllipseProperties } from '../../elements/ellipse/getRenderProperties';
 import { getRenderProperties as getRenderRectangleProperties } from '../../elements/rectangle/getRenderProperties';
 import { getRenderProperties as getRenderTriangleProperties } from '../../elements/triangle/getRenderProperties';
@@ -34,6 +35,9 @@ export function createWhiteboardPdfElementShape(
 
     case 'triangle':
       return createElementShapeTriangle(element);
+
+    case 'block-arrow':
+      return createElementShapeBlockArrow(element);
   }
 }
 
@@ -102,6 +106,25 @@ function createElementShapeTriangle(element: ShapeElement): Content {
       lineColor: strokeColor,
       lineWidth: strokeWidth,
       closePath: true,
+    }),
+    text ? textContent(element, text) : [],
+  ];
+}
+
+function createElementShapeBlockArrow(element: ShapeElement): Content {
+  const { strokeColor, strokeWidth, text, points } =
+    getRenderBlockArrowProperties(element);
+
+  return [
+    canvas({
+      type: 'polyline',
+      points,
+      closePath: true,
+      color:
+        element.fillColor !== 'transparent' ? element.fillColor : undefined,
+      lineWidth: strokeWidth,
+      lineColor: strokeColor !== 'transparent' ? strokeColor : undefined,
+      strokeOpacity: strokeColor === 'transparent' ? 0 : 1,
     }),
     text ? textContent(element, text) : [],
   ];
