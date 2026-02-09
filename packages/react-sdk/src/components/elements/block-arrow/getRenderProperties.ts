@@ -39,6 +39,7 @@ export function getRenderProperties(
     width,
     height,
     position,
+    blockArrowHead,
     textAlignment,
     textBold,
     textItalic,
@@ -94,7 +95,35 @@ export function getRenderProperties(
   const availableWidth = Math.max(textRightBoundary - x, 0);
   const safePadding = Math.min(horizontalPadding, availableWidth / 2);
   const textWidth = Math.max(availableWidth - safePadding * 2, 0);
-  const textX = x + safePadding;
+  let textX = x + safePadding;
+
+  const flipXWithinBounds = (value: number) => x + width - (value - x);
+  const points = [
+    // Left-top of body
+    { x, y: bodyTop },
+    // Right-top of body
+    { x: bodyRight, y: bodyTop },
+    // Arrow head top
+    { x: bodyRight, y: y },
+    // Tip
+    { x: x + width, y: centerY },
+    // Arrow head bottom
+    { x: bodyRight, y: y + height },
+    // Right-bottom of body
+    { x: bodyRight, y: bodyBottom },
+    // Left-bottom of body
+    { x: x, y: bodyBottom },
+  ];
+
+  const isLeft = blockArrowHead === 'start';
+
+  if (isLeft) {
+    textX = flipXWithinBounds(textX + textWidth);
+  }
+
+  const renderPoints = isLeft
+    ? points.map((point) => ({ x: flipXWithinBounds(point.x), y: point.y }))
+    : points;
 
   return {
     strokeColor: shape.strokeColor ?? shape.fillColor,
@@ -112,22 +141,7 @@ export function getRenderProperties(
       fontSize: textSize,
       fontFamily: textFontFamily,
     },
-    points: [
-      // Left-top of body
-      { x, y: bodyTop },
-      // Right-top of body
-      { x: bodyRight, y: bodyTop },
-      // Arrow head top
-      { x: bodyRight, y: y },
-      // Tip
-      { x: x + width, y: centerY },
-      // Arrow head bottom
-      { x: bodyRight, y: y + height },
-      // Right-bottom of body
-      { x: bodyRight, y: bodyBottom },
-      // Left-bottom of body
-      { x: x, y: bodyBottom },
-    ],
+    points: renderPoints,
   };
 }
 

@@ -57,6 +57,40 @@ describe('getRenderProperties', () => {
     });
   });
 
+  it('should mirror the block arrow when direction is left', () => {
+    const element = mockBlockArrowElement({
+      position: { x: 10, y: 15 },
+      width: 100,
+      height: 50,
+      fillColor: '#00ffff',
+      text: 'My Text',
+      textFontFamily: 'Inter',
+      textSize: 12,
+      blockArrowHead: 'start',
+    });
+
+    const view = getRenderProperties(element);
+
+    expect(view).toEqual(
+      expect.objectContaining({
+        text: expect.objectContaining({
+          position: { x: 34.7, y: 29.5 },
+          width: 65.3,
+          height: 21,
+        }),
+        points: [
+          { x: 110, y: 27.5 },
+          { x: 45, y: 27.5 },
+          { x: 45, y: 15 },
+          { x: 10, y: 40 },
+          { x: 45, y: 65 },
+          { x: 45, y: 52.5 },
+          { x: 110, y: 52.5 },
+        ],
+      }),
+    );
+  });
+
   it('should provide the properties for a block arrow element with custom text alignment', () => {
     const element = mockBlockArrowElement({
       position: { x: 10, y: 15 },

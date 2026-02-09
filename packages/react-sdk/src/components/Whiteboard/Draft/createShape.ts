@@ -113,6 +113,11 @@ export function createShape({
   width = Math.max(width, 1);
   height = Math.max(height, 1);
 
+  const blockArrowHead =
+    kind === 'block-arrow' && normalizedEnd.x < normalizedStart.x
+      ? 'start'
+      : 'end';
+
   const shapeElement: ShapeElement = {
     fillColor,
     height,
@@ -120,6 +125,7 @@ export function createShape({
     type: 'shape',
     kind,
     width,
+    blockArrowHead: kind === 'block-arrow' ? blockArrowHead : undefined,
     text: '',
     textColor,
     textFontFamily,

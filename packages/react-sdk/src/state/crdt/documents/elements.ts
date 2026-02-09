@@ -67,6 +67,7 @@ export type ShapeElement = ElementBase & {
   strokeColor?: string;
   strokeWidth?: number;
   borderRadius?: number;
+  blockArrowHead?: 'start' | 'end';
   text: string;
   textAlignment?: TextAlignment;
   textColor?: string;
@@ -93,6 +94,7 @@ export const shapeElementSchema = elementBaseSchema
     strokeColor: Joi.string().strict(),
     strokeWidth: Joi.number().strict(),
     borderRadius: Joi.number().strict(),
+    blockArrowHead: Joi.string().valid('start', 'end'),
     text: Joi.string().min(0).required(),
     textAlignment: Joi.string().valid('left', 'center', 'right'),
     textColor: Joi.string().strict(),
