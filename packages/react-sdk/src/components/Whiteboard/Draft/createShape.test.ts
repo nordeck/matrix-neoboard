@@ -240,6 +240,36 @@ describe('createShape', () => {
       textFontFamily: 'Inter',
     });
   });
+
+  it('should set block arrow head to end when dragging right', () => {
+    const result = createShape({
+      kind: 'block-arrow',
+      startCoords: { x: 10, y: 20 },
+      endCoords: { x: 30, y: 40 },
+      fillColor: '#ffffff',
+      textFontFamily: 'Inter',
+    });
+    expect(result).toEqual(
+      expect.objectContaining({
+        blockArrowHead: 'end',
+      }),
+    );
+  });
+
+  it('should set block arrow head to start when dragging left', () => {
+    const result = createShape({
+      kind: 'block-arrow',
+      startCoords: { x: 30, y: 20 },
+      endCoords: { x: 10, y: 40 },
+      fillColor: '#ffffff',
+      textFontFamily: 'Inter',
+    });
+    expect(result).toEqual(
+      expect.objectContaining({
+        blockArrowHead: 'start',
+      }),
+    );
+  });
 });
 
 describe('createShapeFromPoints', () => {
