@@ -14,22 +14,11 @@
  * limitations under the License.
  */
 
-import { clamp } from 'lodash';
 import { ShapeElement } from '../../../state';
 import { ElementRenderProperties } from '../../Whiteboard';
 
 type BlockArrowRenderProperties = {
   points: { x: number; y: number }[];
-};
-
-type HeadBoundaryArgs = {
-  yPos: number;
-  x: number;
-  y: number;
-  height: number;
-  bodyWidth: number;
-  arrowHeadWidth: number;
-  halfHeight: number;
 };
 
 export function getRenderProperties(
@@ -48,53 +37,32 @@ export function getRenderProperties(
 
   // Layout ratios, Chosen to visually match design spec
   const VERTICAL_PADDING_RATIO = 0.25;
-  const ARROW_HEAD_WIDTH_RATIO = 0.35;
+  const headWidthRatio = 0.35;
 
   const x = position.x;
   const y = position.y;
   const verticalPadding = height * VERTICAL_PADDING_RATIO;
   const horizontalPadding = width > 40 ? 10 : 2;
 
-  const arrowHeadWidth = width * ARROW_HEAD_WIDTH_RATIO;
-  const bodyWidth = width - arrowHeadWidth;
-  const bodyRight = x + bodyWidth;
+  const headWidth = width * headWidthRatio;
+
   const bodyTop = y + verticalPadding;
   const bodyBottom = y + height - verticalPadding;
+
   const bodyHeight = bodyBottom - bodyTop;
-  const centerY = y + height / 2;
+  const bodyWidth = width - headWidth;
+
+  const bodyRightX = x + bodyWidth;
 
   const verticalTextPadding = bodyHeight > 40 ? 10 : 2;
-  const textTop = bodyTop + verticalTextPadding;
-  const textBottom = bodyBottom - verticalTextPadding;
-  const textHeight = Math.max(textBottom - textTop, 0);
-  const halfHeight = height / 2;
 
-  // Use the tighter boundary so the full text box fits.
-  const textRightBoundary = Math.min(
-    getHeadBoundaryAtY({
-      yPos: textTop,
-      x,
-      y,
-      height,
-      bodyWidth,
-      arrowHeadWidth,
-      halfHeight,
-    }),
-    getHeadBoundaryAtY({
-      yPos: textBottom,
-      x,
-      y,
-      height,
-      bodyWidth,
-      arrowHeadWidth,
-      halfHeight,
-    }),
+  const textHeight = Math.max(bodyHeight - verticalTextPadding * 2, 0);
+  const textWidth = Math.max(
+    bodyWidth + headWidth * (1 - bodyHeight / height) - horizontalPadding * 2,
+    0,
   );
-
-  const availableWidth = Math.max(textRightBoundary - x, 0);
-  const safePadding = Math.min(horizontalPadding, availableWidth / 2);
-  const textWidth = Math.max(availableWidth - safePadding * 2, 0);
-  const textX = x + safePadding;
+  const textY = bodyTop + verticalTextPadding;
+  const textX = x + horizontalPadding;
 
   return {
     strokeColor: shape.strokeColor ?? shape.fillColor,
@@ -102,7 +70,7 @@ export function getRenderProperties(
     text: {
       position: {
         x: textX,
-        y: textTop,
+        y: textY,
       },
       width: textWidth,
       height: textHeight,
@@ -116,38 +84,17 @@ export function getRenderProperties(
       // Left-top of body
       { x, y: bodyTop },
       // Right-top of body
-      { x: bodyRight, y: bodyTop },
+      { x: bodyRightX, y: bodyTop },
       // Arrow head top
-      { x: bodyRight, y: y },
+      { x: bodyRightX, y: y },
       // Tip
-      { x: x + width, y: centerY },
+      { x: x + width, y: y + height / 2 },
       // Arrow head bottom
-      { x: bodyRight, y: y + height },
+      { x: bodyRightX, y: y + height },
       // Right-bottom of body
-      { x: bodyRight, y: bodyBottom },
+      { x: bodyRightX, y: bodyBottom },
       // Left-bottom of body
       { x: x, y: bodyBottom },
     ],
   };
 }
-
-// Rightmost x inside the arrow head at a given y.
-const getHeadBoundaryAtY = ({
-  yPos,
-  x,
-  y,
-  height,
-  bodyWidth,
-  arrowHeadWidth,
-  halfHeight,
-}: HeadBoundaryArgs): number => {
-  if (halfHeight === 0) {
-    return x + bodyWidth;
-  }
-  const bodyRight = x + bodyWidth;
-  const clampedY = clamp(yPos, y, y + height);
-  const distanceToTop = clampedY - y;
-  const distanceToBottom = y + height - clampedY;
-  const t = Math.min(distanceToTop, distanceToBottom) / halfHeight;
-  return bodyRight + arrowHeadWidth * t;
-};

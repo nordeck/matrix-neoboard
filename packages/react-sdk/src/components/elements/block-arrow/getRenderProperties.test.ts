@@ -37,7 +37,7 @@ describe('getRenderProperties', () => {
       strokeWidth: 2,
       text: {
         position: { x: 20, y: 29.5 },
-        width: 65.3,
+        width: 62.5,
         height: 21,
         alignment: 'center',
         bold: false,
