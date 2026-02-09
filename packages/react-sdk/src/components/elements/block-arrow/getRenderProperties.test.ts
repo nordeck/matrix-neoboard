@@ -37,7 +37,7 @@ describe('getRenderProperties', () => {
       strokeWidth: 2,
       text: {
         position: { x: 20, y: 29.5 },
-        width: 65.3,
+        width: 62.5,
         height: 21,
         alignment: 'center',
         bold: false,
@@ -74,8 +74,8 @@ describe('getRenderProperties', () => {
     expect(view).toEqual(
       expect.objectContaining({
         text: expect.objectContaining({
-          position: { x: 34.7, y: 29.5 },
-          width: 65.3,
+          position: { x: 37.5, y: 29.5 },
+          width: 62.5,
           height: 21,
         }),
         points: [
