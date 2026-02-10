@@ -16,10 +16,11 @@
 
 import { useMemo } from 'react';
 import { useObservable } from 'react-use';
-import { useLatestValue } from '../lib';
+import { isInfiniteCanvasMode, useLatestValue } from '../lib';
 import { WhiteboardInstance, WhiteboardStatistics } from './types';
 import { useDistinctObserveBehaviorSubject } from './useDistinctObserveBehaviorSubject';
 import { useWhiteboardManager } from './useWhiteboardManager';
+import { useActiveWhiteboardInstanceSlideOrFrameIds } from './useWhiteboardSlideInstance';
 
 /**
  * @throws an Error, if there is no active whiteboard
@@ -67,13 +68,9 @@ export function useActiveWhiteboardInstanceStatistics(): WhiteboardStatistics {
 
 type ActiveSlide = {
   activeSlideId: string | undefined;
-  isLastSlideActive: boolean;
-  isFirstSlideActive: boolean;
 };
 
 export function useActiveSlide(): ActiveSlide {
-  const slideIds = useActiveWhiteboardInstanceSlideIds();
-
   const whiteboardInstance = useActiveWhiteboardInstance();
   const observable = useMemo(
     () => whiteboardInstance.observeActiveSlideId(),
@@ -86,11 +83,40 @@ export function useActiveSlide(): ActiveSlide {
 
   return {
     activeSlideId,
-    isFirstSlideActive:
-      activeSlideId !== undefined && slideIds[0] === activeSlideId,
-    isLastSlideActive:
-      activeSlideId !== undefined &&
-      slideIds[slideIds.length - 1] === activeSlideId,
+  };
+}
+
+type ActiveSlideOrFrame = {
+  activeId: string | undefined;
+  isLastActive: boolean;
+  isFirstActive: boolean;
+};
+
+export function useActiveSlideOrFrame(): ActiveSlideOrFrame {
+  const slideOrFrameIds = useActiveWhiteboardInstanceSlideOrFrameIds();
+
+  const whiteboardInstance = useActiveWhiteboardInstance();
+  const observable = useMemo(
+    () =>
+      isInfiniteCanvasMode()
+        ? whiteboardInstance.observeActiveFrameElementId()
+        : whiteboardInstance.observeActiveSlideId(),
+    [whiteboardInstance],
+  );
+  const activeId = useLatestValue(
+    () =>
+      isInfiniteCanvasMode()
+        ? whiteboardInstance.getActiveFrameElementId()
+        : whiteboardInstance.getActiveSlideId(),
+    observable,
+  );
+
+  return {
+    activeId,
+    isFirstActive: activeId !== undefined && slideOrFrameIds[0] === activeId,
+    isLastActive:
+      activeId !== undefined &&
+      slideOrFrameIds[slideOrFrameIds.length - 1] === activeId,
   };
 }
 

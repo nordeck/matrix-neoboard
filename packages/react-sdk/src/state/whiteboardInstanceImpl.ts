@@ -81,6 +81,8 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
 
   private readonly activeSlideIdSubject = new Subject<string | undefined>();
   private activeSlideId: string | undefined = undefined;
+  private readonly activeFrameIdSubject = new Subject<string | undefined>();
+  private activeFrameId: string | undefined = undefined;
   private loading: boolean = true;
   private loadingSubject = new BehaviorSubject<boolean>(true);
 
@@ -395,6 +397,10 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
     return this.activeSlideId;
   }
 
+  getActiveSlide(): WhiteboardSlideInstance | undefined {
+    return this.activeSlideId ? this.getSlide(this.activeSlideId) : undefined;
+  }
+
   observeActiveSlideId(): Observable<string | undefined> {
     return concat(
       defer(() => of(this.getActiveSlideId())),
@@ -408,6 +414,33 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
 
       this.activeSlideId = slideId;
       this.activeSlideIdSubject.next(slideId);
+    }
+  }
+
+  getActiveFrameElementId(): string | undefined {
+    return this.activeFrameId;
+  }
+
+  observeActiveFrameElementId(): Observable<string | undefined> {
+    return concat(
+      defer(() => of(this.getActiveFrameElementId())),
+      this.activeFrameIdSubject,
+    ).pipe(distinctUntilChanged());
+  }
+
+  setActiveFrameElementId(frameElementId: string | undefined): void {
+    if (
+      frameElementId &&
+      this.activeSlideId &&
+      this.getSlide(this.activeSlideId)
+        .getFrameElementIds()
+        .includes(frameElementId)
+    ) {
+      this.activeFrameId = frameElementId;
+      this.activeFrameIdSubject.next(frameElementId);
+    } else if (frameElementId === undefined) {
+      this.activeFrameId = undefined;
+      this.activeFrameIdSubject.next(undefined);
     }
   }
 
