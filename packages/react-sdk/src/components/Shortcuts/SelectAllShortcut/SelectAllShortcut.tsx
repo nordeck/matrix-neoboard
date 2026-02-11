@@ -31,6 +31,7 @@ export function SelectAllShortcut() {
     handleSelectAll,
     {
       preventDefault: true,
+      enableOnContentEditable: true,
       scopes: HOTKEY_SCOPE_WHITEBOARD,
     },
     [handleSelectAll],
