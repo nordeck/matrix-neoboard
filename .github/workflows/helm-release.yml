@@ -1,4 +1,4 @@
-name: Release Charts
+name: Release Chart
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - '@nordeck/helm-matrix-neoboard-widget-*'
 
 jobs:
-  helm-release-charts:
+  helm-release-chart:
     runs-on: ubuntu-latest
     permissions:
       contents: write
