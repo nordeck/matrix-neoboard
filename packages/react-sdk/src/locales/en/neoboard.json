@@ -326,6 +326,7 @@
   },
   "toolsBar": {
     "arrowTool": "Arrow",
+    "blockArrowTool": "Block arrow",
     "ellipseTool": "Ellipse",
     "frameTool": "Create frame",
     "imageUploadTool": "Upload image",
