@@ -1,0 +1,84 @@
+name: Release Chart
+
+on:
+  push:
+    tags:
+      - '@nordeck/helm-matrix-neoboard-widget-*'
+
+jobs:
+  helm-release-chart:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+      id-token: write
+    env:
+      REPOSITORY: ghcr.io/nordeck/charts
+      CHART_NAME: matrix-neoboard-widget
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Login to ghcr.io
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@3454372f43399081ed03b604cb2d021dabca52bb # v3.8.2
+
+      - name: Read chart version
+        id: vars
+        run: |
+          CHART_VERSION=$(grep '^version:' ./charts/$CHART_NAME/Chart.yaml | awk '{print $2}' | tr -d '"')
+
+          echo "$CHART_VERSION"
+
+          if [[ -n "$CHART_VERSION" ]]; then
+            echo "chart_version=$CHART_VERSION" >> $GITHUB_OUTPUT
+          else
+            echo "Empty chart version"
+            exit 1
+          fi
+
+      - name: Run Helm package and push
+        id: build_and_push
+        env:
+          CHART_VERSION: ${{ steps.vars.outputs.chart_version }}
+        run: |
+          helm package ./charts/$CHART_NAME
+
+          CHART_FILE_NAME="$CHART_NAME-$CHART_VERSION.tgz"
+          OUTPUT=$(helm push $CHART_FILE_NAME oci://$REPOSITORY 2>&1)
+
+          echo "$OUTPUT"
+
+          DIGEST=$(echo "$OUTPUT" | grep '^Digest: ' | awk '{print $2}')
+
+          echo "Digest: $DIGEST"
+
+          if [[ -n "$DIGEST" ]]; then
+            echo "digest=$DIGEST" >> $GITHUB_OUTPUT
+            echo "chart_file_name=$CHART_FILE_NAME" >> $GITHUB_OUTPUT
+          else
+            echo "Empty digest"
+            exit 1
+          fi
+
+      - name: Sign the images with GitHub OIDC Token
+        env:
+          DIGEST: ${{ steps.build_and_push.outputs.digest }}
+        run: cosign sign --yes "$REPOSITORY/$CHART_NAME@$DIGEST"
+
+      - name: Create release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CHART_VERSION: ${{ steps.vars.outputs.chart_version }}
+          CHART_FILE_NAME: ${{ steps.build_and_push.outputs.chart_file_name }}
+        run: |
+          TAG="@nordeck/helm-$CHART_NAME-$CHART_VERSION"
+
+          gh release create $TAG --title $TAG --notes "NeoBoard widget helm chart" --verify-tag
+          gh release upload $TAG $CHART_FILE_NAME
