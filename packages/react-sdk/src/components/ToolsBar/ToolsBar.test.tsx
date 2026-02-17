@@ -110,6 +110,9 @@ describe('<ToolsBar/>', () => {
       within(radiogroup).getByRole('radio', { name: 'Arrow' }),
     ).not.toBeChecked();
     expect(
+      within(radiogroup).getByRole('radio', { name: 'Block arrow' }),
+    ).not.toBeChecked();
+    expect(
       screen.getByRole('button', { name: 'Upload image' }),
     ).toBeInTheDocument();
   });
@@ -151,6 +154,7 @@ describe('<ToolsBar/>', () => {
     expect(screen.getByRole('radio', { name: 'Line' })).toBeDisabled();
     expect(screen.getByRole('radio', { name: 'Arrow' })).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Upload image' })).toBeDisabled();
+    expect(screen.getByRole('radio', { name: 'Block arrow' })).toBeDisabled();
 
     expect(screen.getByRole('radio', { name: 'Select' })).not.toBeChecked();
     expect(screen.getByRole('radio', { name: 'Text' })).not.toBeChecked();
@@ -166,6 +170,9 @@ describe('<ToolsBar/>', () => {
     expect(screen.getByRole('radio', { name: 'Triangle' })).not.toBeChecked();
     expect(screen.getByRole('radio', { name: 'Line' })).not.toBeChecked();
     expect(screen.getByRole('radio', { name: 'Arrow' })).not.toBeChecked();
+    expect(
+      screen.getByRole('radio', { name: 'Block arrow' }),
+    ).not.toBeChecked();
   });
 
   it('should have no accessibility violations', async () => {

@@ -75,6 +75,18 @@ export function ActivationArea({
         points={`${p0X},${p0Y} ${p1X},${p1Y} ${p2X},${p2Y}`}
       />
     );
+  } else if (kind === 'block-arrow') {
+    return (
+      <rect
+        data-connect-type={`activation-area`}
+        data-connect-element-id={elementId}
+        x={x - shapeMargin}
+        y={y - shapeMargin}
+        width={width + 2 * shapeMargin}
+        height={height + 2 * shapeMargin}
+        fill="transparent"
+      />
+    );
   } else {
     return null;
   }

@@ -58,7 +58,7 @@ export function ConnectableElement({
     () =>
       [
         kind === 'rectangle' ? [x, y] : undefined,
-        [x + width / 2, y],
+        kind !== 'block-arrow' ? [x + width / 2, y] : undefined,
         kind === 'rectangle' ? [x + width, y] : undefined,
         kind !== 'triangle' ? [x, y + height / 2] : undefined,
         kind !== 'triangle' ? [x + width, y + height / 2] : undefined,
@@ -67,7 +67,7 @@ export function ConnectableElement({
         kind === 'rectangle' || kind === 'triangle'
           ? [x, y + height]
           : undefined,
-        [x + width / 2, y + height],
+        kind !== 'block-arrow' ? [x + width / 2, y + height] : undefined,
         kind === 'rectangle' || kind === 'triangle'
           ? [x + width, y + height]
           : undefined,
