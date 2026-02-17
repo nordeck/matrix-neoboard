@@ -75,7 +75,7 @@
     "i18next-resources-to-backend": "^1.2.1",
     "jsdom": "^26.1.0",
     "pdfjs-dist": "^4.6.82",
-    "prettier": "^3.5.2",
+    "prettier": "^3.8.1",
     "react-i18next": "^15.5.2",
     "typescript": "^5.7.3",
     "vitest": "^3.2.4",
