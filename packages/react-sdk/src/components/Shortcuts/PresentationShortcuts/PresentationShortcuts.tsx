@@ -16,46 +16,58 @@
 
 import React, { useCallback } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
+import { isInfiniteCanvasMode } from '../../../lib';
 import {
-  useActiveSlide,
+  useActiveSlideOrFrame,
   useActiveWhiteboardInstance,
+  useActiveWhiteboardInstanceSlideOrFrameIds,
   usePresentationMode,
 } from '../../../state';
 
 export const PresentationShortcuts: React.FC = function () {
   const { state } = usePresentationMode();
-  const { activeSlideId } = useActiveSlide();
+  const { activeId } = useActiveSlideOrFrame();
   const whiteboardInstance = useActiveWhiteboardInstance();
+  const slideOrFrameIds = useActiveWhiteboardInstanceSlideOrFrameIds();
 
   const handleHotkey = useCallback(
     (event: KeyboardEvent) => {
-      if (activeSlideId === undefined) {
+      if (activeId === undefined) {
         return;
       }
 
+      let newActive: string | undefined;
       if (['ArrowRight', ' '].includes(event.key)) {
-        const slideIds = whiteboardInstance.getSlideIds();
-        const activeSlideIndex = slideIds.indexOf(activeSlideId);
+        const activeIndex = slideOrFrameIds.indexOf(activeId);
 
-        if (activeSlideIndex === slideIds.length - 1) {
+        if (activeIndex === slideOrFrameIds.length - 1) {
           // There is now next slide
           return;
         }
 
-        whiteboardInstance.setActiveSlideId(slideIds[activeSlideIndex + 1]);
+        newActive = slideOrFrameIds[activeIndex + 1];
       } else if (event.key === 'ArrowLeft') {
-        const slideIds = whiteboardInstance.getSlideIds();
-        const activeSlideIndex = slideIds.indexOf(activeSlideId);
+        const activeIndex = slideOrFrameIds.indexOf(activeId);
 
-        if (activeSlideIndex === 0) {
+        if (activeIndex === 0) {
           // There is no previous slide
           return;
         }
 
-        whiteboardInstance.setActiveSlideId(slideIds[activeSlideIndex - 1]);
+        newActive = slideOrFrameIds[activeIndex - 1];
+      }
+
+      if (!newActive) {
+        return;
+      }
+
+      if (isInfiniteCanvasMode()) {
+        whiteboardInstance.setActiveFrameElementId(newActive);
+      } else {
+        whiteboardInstance.setActiveSlideId(newActive);
       }
     },
-    [activeSlideId, whiteboardInstance],
+    [activeId, whiteboardInstance, slideOrFrameIds],
   );
 
   useHotkeys(['ArrowLeft', 'ArrowRight', 'space'], handleHotkey, {

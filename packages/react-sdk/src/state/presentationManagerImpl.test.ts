@@ -77,6 +77,8 @@ describe('presentationManager', () => {
       getActiveSlideId: vi
         .fn()
         .mockImplementation(() => observeActiveSlideIdSubject.value),
+      getActiveSlide: vi.fn(),
+      getActiveFrameElementId: vi.fn(),
       getPresentationManager: vi.fn(),
       getSlide: vi.fn(),
       getSlideIds: vi.fn(),
@@ -88,6 +90,7 @@ describe('presentationManager', () => {
       observeActiveSlideId: vi
         .fn()
         .mockReturnValue(observeActiveSlideIdSubject),
+      observeActiveFrameElementId: vi.fn(),
 
       observeIsLoading: vi.fn(),
       observeSlideIds: vi.fn(),
@@ -96,6 +99,7 @@ describe('presentationManager', () => {
       redo: vi.fn(),
       removeSlide: vi.fn(),
       setActiveSlideId: vi.fn(),
+      setActiveFrameElementId: vi.fn(),
       undo: vi.fn(),
       destroy: vi.fn(),
       persist: vi.fn(),

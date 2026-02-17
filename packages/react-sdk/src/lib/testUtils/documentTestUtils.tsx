@@ -97,6 +97,14 @@ export function mockWhiteboardManager(
             ),
           );
           slide.set('elementIds', YArray.from(elements.map(([id]) => id)));
+          slide.set(
+            'frameElementIds',
+            YArray.from(
+              elements
+                .filter(([_, element]) => element.type === 'frame')
+                .map(([id]) => id),
+            ),
+          );
           return [slideId, slide];
         }),
       ),

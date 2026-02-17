@@ -17,6 +17,7 @@
 import { Box, Stack } from '@mui/material';
 import { CSSProperties, forwardRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { isInfiniteCanvasMode } from '../../lib';
 import { AddSlideButton } from './AddSlideButton';
 import { SlideList } from './SlideList';
 
@@ -32,16 +33,22 @@ export const SlideOverviewBar = forwardRef<
       style={style}
       component="nav"
       width={220}
-      aria-label={t('slideOverviewBar.title', 'Slide Overview')}
+      aria-label={
+        isInfiniteCanvasMode()
+          ? t('slideOverviewBar.title', 'Frame Overview', { context: 'frame' })
+          : t('slideOverviewBar.title', 'Slide Overview')
+      }
       bgcolor="background.default"
       mr={1}
       borderRadius={1}
       height="100%"
       data-guided-tour-target="slide-overview"
     >
-      <Box m={1}>
-        <AddSlideButton />
-      </Box>
+      {!isInfiniteCanvasMode() && (
+        <Box m={1}>
+          <AddSlideButton />
+        </Box>
+      )}
 
       <Box pt={1} px={1} flex="1" sx={{ overflowY: 'auto' }}>
         <SlideList />

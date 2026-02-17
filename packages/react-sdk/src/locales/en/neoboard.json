@@ -61,6 +61,7 @@
       "pdfError": "Something went wrong while generating the PDF.",
       "title": "Export the content"
     },
+    "hideFrameBarTitle": "Close frame overview",
     "hideSlideBarTitle": "Close slide overview",
     "importWhiteboardDialog": {
       "close": "Close",
@@ -83,6 +84,7 @@
       "import": "Import…",
       "title": "Settings"
     },
+    "showFrameBarTitle": "Open frame overview",
     "showSlideBarTitle": "Open slide overview",
     "title": "Board"
   },
@@ -275,7 +277,9 @@
     "title": "Present"
   },
   "presentToolsBar": {
+    "nextFrame": "Next frame",
     "nextSlide": "Next slide",
+    "previousFrame": "Previous frame",
     "previousSlide": "Previous slide"
   },
   "slideOverviewBar": {
@@ -292,17 +296,25 @@
     "dragAndDrop": {
       "dragInstructions": "Press the M key to start a drag. When dragging you can use the arrow keys to move the item around and escape to cancel. Ensure your screen reader is in focus mode or forms mode.",
       "dragStart": "You have lifted a slide. It is in position {{startPosition}} of {{totalCount}} in the list. Use the arrow keys to move, the M key to drop, and escape to cancel.",
+      "dragStart_frame": "You have lifted a frame. It is in position {{startPosition}} of {{totalCount}} in the list. Use the arrow keys to move, the M key to drop, and escape to cancel.",
       "dropped": "You have dropped the slide. It has moved from position {{startPosition}} to {{destinationPosition}}.",
+      "dropped_frame": "You have dropped the frame. It has moved from position {{startPosition}} to {{destinationPosition}}.",
       "droppedOnNoDropTarget": "The slide has been dropped while not over a location. The slide has returned to its starting position of {{startPosition}}.",
+      "droppedOnNoDropTarget_frame": "The frame has been dropped while not over a location. The frame has returned to its starting position of {{startPosition}}.",
       "movedPosition": "You have moved the slide to position {{position}} of {{totalCount}}.",
+      "movedPosition_frame": "You have moved the frame to position {{position}} of {{totalCount}}.",
       "movementCanceled": "Movement cancelled. The slide has returned to its starting position of {{startPosition}}.",
+      "movementCanceled_frame": "Movement cancelled. The frame has returned to its starting position of {{startPosition}}.",
       "notOverDropTarget": "You are currently not dragging over any droppable area."
     },
+    "frameListTitle": "Frames",
+    "frameTitle": "Frame",
     "slideListTitle": "Slides",
     "slideLockedTooltip": "Locked",
     "slideTitle": "Slide",
     "slideTitleLocked": "(locked)",
-    "title": "Slide Overview"
+    "title": "Slide Overview",
+    "title_frame": "Frame Overview"
   },
   "snackbar": {
     "dismissAction": "Dismiss"

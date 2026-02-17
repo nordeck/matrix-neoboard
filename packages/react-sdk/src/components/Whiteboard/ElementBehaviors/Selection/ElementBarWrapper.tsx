@@ -132,7 +132,13 @@ const InfiniteElementBarWrapper: React.FC<ElementBarWrapperProps> = ({
 
   const position = useMemo(() => {
     const pointOnSvg = { x, y };
-    const elementOnContainer = transformPointSvgToContainer(pointOnSvg);
+    let elementOnContainer = transformPointSvgToContainer(pointOnSvg);
+    const viewBoxMinX = (whiteboardWidth - containerDimensions.width) / 2;
+    const viewBoxMinY = (whiteboardHeight - containerDimensions.height) / 2;
+    elementOnContainer = {
+      x: elementOnContainer.x - viewBoxMinX,
+      y: elementOnContainer.y - viewBoxMinY,
+    };
 
     const elementWidthOnDiv = width * scale;
     const elementHeightOnDiv = height * scale;
@@ -146,9 +152,13 @@ const InfiniteElementBarWrapper: React.FC<ElementBarWrapperProps> = ({
      * because when rendering the SVG everything is shifted half a width.
      * {@see SvgCanvas}
      */
-    const minX = whiteboardWidth / 2;
+    const minX =
+      whiteboardWidth / 2 - containerDimensions.width / 2 - viewBoxMinX;
     const maxX =
-      containerDimensions.width - elementBarWidth + whiteboardWidth / 2;
+      containerDimensions.width / 2 -
+      elementBarWidth +
+      whiteboardWidth / 2 -
+      viewBoxMinX;
     const clampedPositionX = clamp(elementBarCenterOnDivX, minX, maxX);
 
     // Y
@@ -163,7 +173,10 @@ const InfiniteElementBarWrapper: React.FC<ElementBarWrapperProps> = ({
      * because when rendering the SVG everything is shifted half a width.
      * {@see SvgCanvas}
      */
-    if (positionAbove >= whiteboardHeight / 2) {
+    if (
+      positionAbove >=
+      (whiteboardHeight - containerDimensions.height) / 2 - viewBoxMinY
+    ) {
       newYPosition = positionAbove;
     } else if (positionBelow + elementBarHeight < containerDimensions.height) {
       newYPosition = positionBelow;

@@ -30,6 +30,7 @@ export type SlideLock = {
 export type Slide = {
   elements: YMap<SharedMap<Element>>;
   elementIds: YArray<string>;
+  frameElementIds?: YArray<string>;
   lock?: SlideLock;
 };
 

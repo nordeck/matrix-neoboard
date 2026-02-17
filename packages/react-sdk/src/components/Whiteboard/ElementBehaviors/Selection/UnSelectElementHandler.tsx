@@ -25,7 +25,11 @@ import { useLayoutState } from '../../../Layout';
 import { HOTKEY_SCOPE_WHITEBOARD } from '../../../WhiteboardHotkeysProvider';
 import { useSvgCanvasContext } from '../../SvgCanvas';
 import { useSvgScaleContext } from '../../SvgScaleContext';
-import { infiniteCanvasMode } from '../../constants';
+import {
+  infiniteCanvasMode,
+  whiteboardHeight,
+  whiteboardWidth,
+} from '../../constants';
 
 export function UnSelectElementHandler() {
   const { activeElementId } = useActiveElement();
@@ -142,14 +146,14 @@ export function UnSelectElementHandler() {
   return (
     <rect
       fill="transparent"
-      height="100%"
+      height={whiteboardHeight}
       onMouseDown={handleMouseDown}
       onMouseEnter={handleMouseEnter}
       onContextMenu={(e) => {
         e.preventDefault();
         e.stopPropagation();
       }}
-      width="100%"
+      width={whiteboardWidth}
       data-testid="unselect-element-layer"
     />
   );

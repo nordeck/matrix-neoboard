@@ -28,7 +28,13 @@ import React, {
   useRef,
 } from 'react';
 import { useHotkeysContext } from 'react-hotkeys-hook';
-import { Point, usePresentationMode } from '../../../state';
+import {
+  Point,
+  useActiveSlideOrFrame,
+  useActiveWhiteboardInstance,
+  usePresentationMode,
+  useWhiteboardSlideInstance,
+} from '../../../state';
 import { HOTKEY_SCOPE_WHITEBOARD } from '../../WhiteboardHotkeysProvider';
 import {
   gridCellSize,
@@ -36,7 +42,10 @@ import {
   whiteboardHeight,
   whiteboardWidth,
 } from '../constants';
-import { useSvgScaleContext } from '../SvgScaleContext';
+import {
+  calculatePositionAndScaleForElement,
+  useSvgScaleContext,
+} from '../SvgScaleContext';
 import { SvgCanvasContext, SvgCanvasContextType } from './context';
 import { useMeasure } from './useMeasure';
 import { useWheelZoom } from './useWheelZoom';
@@ -54,20 +63,34 @@ const Canvas = styled('svg', {
 export type SvgCanvasProps = PropsWithChildren<{
   viewportWidth: number;
   viewportHeight: number;
+  /**
+   * If provided overrides viewBox calculation based on viewport
+   */
+  viewBox?: ViewBox;
   rounded?: boolean;
   additionalChildren?: ReactNode;
   topLevelChildren?: ReactNode;
   withOutline?: boolean;
   preview?: boolean;
+  x?: number;
+  y?: number;
 
   onMouseDown?: MouseEventHandler<SVGSVGElement> | undefined;
   onMouseMove?: (position: Point) => void | undefined;
   onMouseLeave?: MouseEventHandler<SVGSVGElement>;
 }>;
 
+export type ViewBox = {
+  minX: number;
+  minY: number;
+  width: number;
+  height: number;
+};
+
 export const SvgCanvas = function ({
-  viewportHeight,
   viewportWidth,
+  viewportHeight,
+  viewBox,
   children,
   rounded,
   additionalChildren,
@@ -77,13 +100,25 @@ export const SvgCanvas = function ({
   onMouseMove,
   onMouseLeave,
   preview,
+  x,
+  y,
 }: SvgCanvasProps) {
   const [sizeRef, { width, height }] = useMeasure<HTMLDivElement>();
   const svgRef = useRef<SVGSVGElement>(null);
-  const { scale, translation, setContainerDimensions, updateTranslation } =
-    useSvgScaleContext();
-  const { state } = usePresentationMode();
-  const isPresenting = state.type === 'presenting';
+  const whiteboardInstance = useActiveWhiteboardInstance();
+  const slideInstance = useWhiteboardSlideInstance();
+  const {
+    scale,
+    translation,
+    setContainerDimensions,
+    updateTranslation,
+    moveToPoint,
+    containerDimensions,
+    containerDimensionsRef,
+  } = useSvgScaleContext();
+  const { state: presentationState } = usePresentationMode();
+  const { activeId: activeSlideOrFrameId } = useActiveSlideOrFrame();
+  const isPresenting = presentationState.type === 'presenting';
   // Do avoid issues where users are interacting the content editable part
   // of the whiteboard canvas, we should disable our listeners.
   const { activeScopes } = useHotkeysContext();
@@ -136,7 +171,9 @@ export const SvgCanvas = function ({
   );
 
   useLayoutEffect(() => {
-    setContainerDimensions({ width, height });
+    if (width > 0 && height > 0) {
+      setContainerDimensions({ width, height });
+    }
   }, [width, height, setContainerDimensions]);
 
   // Focus the canvas element when it is mounted
@@ -145,6 +182,61 @@ export const SvgCanvas = function ({
       svgRef.current.focus();
     }
   }, [svgRef, preview]);
+
+  useEffect(() => {
+    // Translate and scale to active frame when active frame changes
+    if (infiniteCanvasMode && activeSlideOrFrameId) {
+      const frameElement =
+        slideInstance.getFrameElements()[activeSlideOrFrameId];
+      const containerDimensions = containerDimensionsRef.current;
+      if (
+        frameElement &&
+        containerDimensions.width > 0 &&
+        containerDimensions.height > 0
+      ) {
+        const { position, scale } = calculatePositionAndScaleForElement(
+          frameElement,
+          containerDimensions,
+        );
+        moveToPoint(position, scale);
+      }
+    }
+  }, [
+    slideInstance,
+    activeSlideOrFrameId,
+    moveToPoint,
+    containerDimensionsRef,
+  ]);
+
+  useEffect(() => {
+    // During presentation, translate and scale to active frame when container dims changes
+    const activeFrameElementId = whiteboardInstance.getActiveFrameElementId();
+    if (
+      infiniteCanvasMode &&
+      presentationState.type !== 'idle' &&
+      activeFrameElementId
+    ) {
+      const frameElement =
+        slideInstance.getFrameElements()[activeFrameElementId];
+      if (
+        frameElement &&
+        containerDimensions.width > 0 &&
+        containerDimensions.height > 0
+      ) {
+        const { position, scale } = calculatePositionAndScaleForElement(
+          frameElement,
+          containerDimensions,
+        );
+        moveToPoint(position, scale);
+      }
+    }
+  }, [
+    whiteboardInstance,
+    slideInstance,
+    moveToPoint,
+    containerDimensions,
+    presentationState.type,
+  ]);
 
   const getKeyboardOffset = useCallback(() => {
     const scrollStep = gridCellSize * scale;
@@ -220,6 +312,19 @@ export const SvgCanvas = function ({
     ? InfiniteCanvasWrapper
     : FiniteCanvasWrapper;
 
+  let svgViewBox: string;
+  if (viewBox) {
+    const { minX, minY, width, height } = viewBox;
+    svgViewBox = `${minX} ${minY} ${width} ${height}`;
+  } else if (infiniteCanvasMode && !preview) {
+    const minX = (whiteboardWidth - width / scale) / 2 - translation.x / scale;
+    const minY =
+      (whiteboardHeight - height / scale) / 2 - translation.y / scale;
+    svgViewBox = `${minX} ${minY} ${width / scale} ${height / scale}`;
+  } else {
+    svgViewBox = `0 0 ${viewportWidth} ${viewportHeight}`;
+  }
+
   return (
     <SvgCanvasContext.Provider value={value}>
       <CanvasWrapper
@@ -239,25 +344,10 @@ export const SvgCanvas = function ({
                   aspectRatio,
                 }
               : {
-                  ...(withOutline
-                    ? {
-                        borderWidth: 2,
-                        borderStyle: 'solid',
-                        borderColor: 'primary.main',
-                        borderRadius: 1,
-                      }
-                    : {
-                        outline: 'none',
-                      }),
-                  ...(preview
-                    ? {}
-                    : {
-                        width: `${whiteboardWidth}px`,
-                        height: `${whiteboardHeight}px`,
-                      }),
+                  outline: 'none',
                 }
           }
-          viewBox={`0 0 ${viewportWidth} ${viewportHeight}`}
+          viewBox={svgViewBox}
           onMouseDown={onMouseDown}
           onMouseMove={handleMouseMove}
           onKeyDown={infiniteCanvasMode ? handleKeyDown : undefined}
@@ -265,14 +355,8 @@ export const SvgCanvas = function ({
           tabIndex={infiniteCanvasMode ? -1 : undefined}
           onMouseLeave={onMouseLeave}
           onAuxClick={handleMouseAuxClick}
-          transform-origin={
-            infiniteCanvasMode && !preview ? 'center center' : undefined
-          }
-          transform={
-            infiniteCanvasMode && !preview
-              ? `translate(${translation.x}, ${translation.y}) scale(${scale})`
-              : undefined
-          }
+          x={x}
+          y={y}
         >
           {children}
         </Canvas>
@@ -339,6 +423,7 @@ const FiniteCanvasWrapper: React.FC<CanvasWrapperProps> = ({
 
 const InfiniteCanvasWrapper: React.FC<CanvasWrapperProps> = ({
   sizeRef,
+  withOutline,
   preview,
   children,
 }) => {
@@ -350,20 +435,17 @@ const InfiniteCanvasWrapper: React.FC<CanvasWrapperProps> = ({
     <Box
       ref={sizeRef}
       sx={{
-        flex: 1,
-        height: '100%',
-        maxWidth: '100%',
+        width: `100%`,
+        height: `100%`,
+        ...(withOutline && {
+          borderWidth: 2,
+          borderStyle: 'solid',
+          borderColor: 'primary.main',
+          borderRadius: 1,
+        }),
       }}
     >
-      <Box
-        sx={{
-          position: 'relative',
-          top: `-${whiteboardHeight / 2}px`,
-          left: `-${whiteboardWidth / 2}px`,
-        }}
-      >
-        {children}
-      </Box>
+      {children}
     </Box>
   );
 };
