@@ -313,6 +313,86 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
+  create-chart-tag:
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    needs: build
+    env:
+      REPOSITORY: ghcr.io/nordeck/charts
+      CHART_NAME: matrix-neoboard-widget
+    steps:
+      - name: Generate GitHub token
+        id: generate_token
+        uses: tibdex/github-app-token@3beb63f4bd073e61482598c45c71c1019b59b73a # @v2.1.0
+        with:
+          app_id: ${{ secrets.GH_APP_OS_APP_ID }}
+          private_key: ${{ secrets.GH_APP_OS_PRIVATE_KEY }}
+
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          token: ${{ steps.generate_token.outputs.token }}
+
+      - name: Login to ghcr.io
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Read chart version
+        id: vars
+        run: |
+          CHART_VERSION=$(grep '^version:' ./charts/$CHART_NAME/Chart.yaml | awk '{print $2}' | tr -d '"')
+
+          echo "$CHART_VERSION"
+
+          if [[ -n "$CHART_VERSION" ]]; then
+            echo "chart_version=$CHART_VERSION" >> $GITHUB_OUTPUT
+          else
+            echo "Empty chart version"
+            exit 1
+          fi
+
+      - name: Check if helm chart exists in OCI registry
+        id: chart-exists
+        env:
+          CHART_VERSION: ${{ steps.vars.outputs.chart_version }}
+        run: |
+          # don't fail the action if the 'helm show chart' call exits with 1.
+          # We handle the error manually. Similar to 'buildContainers' in Matrix Widget Toolkit.
+          set +e
+
+          OUTPUT=$(helm show chart oci://$REPOSITORY/$CHART_NAME --version $CHART_VERSION 2>&1)
+          RESULT=$([[ "$?" == 0 ]] && echo "true" || echo "false")
+
+          echo "$OUTPUT"
+
+          if [[ $RESULT == "true" ]]; then
+            echo "Chart $CHART_NAME with version $CHART_VERSION already exists."
+          else
+            if [[ $OUTPUT != "Error: failed to perform \"FetchReference\" on source: $REPOSITORY/$CHART_NAME:$CHART_VERSION: not found" ]]; then
+              echo "Unexpected error"
+              exit 1
+            fi
+          fi
+
+          echo "result=$RESULT" >> $GITHUB_OUTPUT
+
+      - name: Create tag
+        if: ${{ steps.chart-exists.outputs.result == 'false' }}
+        env:
+          CHART_VERSION: ${{ steps.vars.outputs.chart_version }}
+          GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          TAG="@nordeck/helm-$CHART_NAME-$CHART_VERSION"
+
+          git tag $TAG
+          git push origin $TAG
+
   deploy:
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     name: Deploy to Dev
