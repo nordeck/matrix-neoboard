@@ -14,6 +14,23 @@
  * limitations under the License.
  */
 
-export function isInfiniteCanvasMode(): boolean {
-  return true;
+import { useTranslation } from 'react-i18next';
+import { Toolbar } from '../common/Toolbar';
+// import { AIAssistantButton } from './AIAssistantButton';
+import { AISettingsButton } from './AISettingsButton';
+
+export function AIBar() {
+  const { t } = useTranslation('neoboard');
+  const toolbarTitle = t('boardBar.aiAssistant.title', 'AI Assistant');
+
+  return (
+    <Toolbar
+      aria-label={toolbarTitle}
+      sx={{ pointerEvents: 'initial' }}
+      data-guided-tour-target="aibar"
+    >
+      {/* <AIAssistantButton /> */}
+      <AISettingsButton />
+    </Toolbar>
+  );
 }
