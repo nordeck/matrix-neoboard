@@ -83,7 +83,7 @@ For a list of available options, see [Configuration](./docs/configuration.md).
 ### Running the Widget Locally
 
 Follow the [instructions to run the widget locally](https://github.com/nordeck/matrix-widget-toolkit/tree/main/example-widget-mui#running-the-widget-locally).
-Visit the widget url follow the further instructions: `http://localhost:5273/` or `https://localhost:5274/` .
+Visit the widget url follow the further instructions: `http(s)://localhost:5273/`.
 
 ### Running with a local version of the matrix-widget-toolkit
 
