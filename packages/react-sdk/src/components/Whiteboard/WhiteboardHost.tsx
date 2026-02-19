@@ -52,6 +52,7 @@ import {
   ResizeElement,
   UnSelectElementHandler,
 } from './ElementBehaviors';
+import { RotateElement } from './ElementBehaviors/Rotatable/RotateElement';
 import { DragSelect } from './ElementBehaviors/Selection/DragSelect';
 import { DotGrid } from './Grid';
 import { SlideSkeleton } from './SlideSkeleton';
@@ -71,7 +72,7 @@ const WhiteboardHost = ({
   withOutline?: boolean;
 }) => {
   const slideInstance = useWhiteboardSlideInstance();
-  const { isShowCollaboratorsCursors, dragSelectStartCoords } =
+  const { isShowCollaboratorsCursors, dragSelectStartCoords, isRotating } =
     useLayoutState();
   const { activeElementIds } = useActiveElements();
 
@@ -122,6 +123,7 @@ const WhiteboardHost = ({
         additionalChildren={
           dragSelectStartCoords === undefined &&
           !readOnly &&
+          !isRotating &&
           activeElementIds.length > 0 && (
             <ElementBarWrapper elementIds={activeElementIds}>
               <ElementBar showTextTools={showTextTools} />
@@ -188,6 +190,10 @@ const WhiteboardHost = ({
               />
             )}
           </>
+        )}
+
+        {!readOnly && activeElementIds.length === 1 && (
+          <RotateElement elementId={activeElementIds[0]} />
         )}
 
         {isShowCollaboratorsCursors && !hideCursors && <CursorRenderer />}

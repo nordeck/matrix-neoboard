@@ -18,6 +18,7 @@ import { Box } from '@mui/material';
 import { clamp } from 'lodash';
 import React, { PropsWithChildren, useMemo } from 'react';
 import {
+  BoundingRect,
   calculateBoundingRectForElements,
   useSlideIsLocked,
 } from '../../../../state';
@@ -29,6 +30,7 @@ import {
   whiteboardHeight,
   whiteboardWidth,
 } from '../../constants';
+import { calculateBoundaryForRotatedElement } from '../Rotatable/rotatorMath';
 
 type ElementBarWrapperProps = PropsWithChildren<{ elementIds: string[] }>;
 
@@ -75,11 +77,30 @@ const FiniteElementBarWrapper: React.FC<ElementBarWrapperProps> = ({
 
   const offset = 10;
 
+  function getBoundaryForRotatedElement(): BoundingRect | null {
+    if (elements.length !== 1) return null;
+    return calculateBoundaryForRotatedElement(elements[0]);
+  }
+
   function calculateTopPosition() {
     const position = y * scale;
-    const positionAbove = position - elementBarHeight - offset;
-    const positionBelow = position + height * scale + offset;
     const positionInElement = position + offset;
+
+    let positionAbove = position - elementBarHeight - offset;
+    let positionBelow = position + height * scale + offset;
+
+    // adjust for rotated objects
+    const rotatedBoundary = getBoundaryForRotatedElement();
+    if (rotatedBoundary) {
+      positionAbove = Math.min(
+        positionAbove,
+        rotatedBoundary.offsetY * scale - elementBarHeight - offset,
+      );
+      positionBelow = Math.max(
+        positionBelow,
+        (rotatedBoundary.offsetY + rotatedBoundary.height) * scale + offset,
+      );
+    }
 
     if (positionAbove >= 0) {
       return positionAbove;
