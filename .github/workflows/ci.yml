@@ -115,7 +115,7 @@ jobs:
         if: ${{ success() && steps.build_and_push.outputs.digest }}
         env:
           IMAGE_REF: ${{ env.DOCKER_IMAGE }}@${{ steps.build_and_push.outputs.digest }}
-        uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 # 0.33.1
+        uses: aquasecurity/trivy-action@e368e328979b113139d6f9068e03accaed98a518 # 0.34.1
         with:
           scan-type: 'image'
           scanners: 'license'
@@ -142,7 +142,7 @@ jobs:
 
       - name: Create Release Pull Request or Publish Packages
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
-        uses: changesets/action@e0145edc7d9d8679003495b11f87bd8ef63c0cba # v1.5.3
+        uses: changesets/action@6a0a831ff30acef54f2c6aa1cbbc1096b066edaf # v1.7.0
         with:
           publish: yarn changeset tag
         env:
@@ -177,7 +177,7 @@ jobs:
         run: ct lint --validate-maintainers=false --target-branch ${{ github.event.repository.default_branch }}
       - name: Create kind cluster
         if: steps.list-changed.outputs.changed == 'true'
-        uses: helm/kind-action@92086f6be054225fa813e0a4b13787fc9088faab # v1.13.0
+        uses: helm/kind-action@ef37e7f390d99f746eb8b610417061a60e82a6cc # v1.14.0
       - name: Prepare k8s cluster
         if: steps.list-changed.outputs.changed == 'true'
         run: |
