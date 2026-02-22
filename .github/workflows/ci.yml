@@ -16,7 +16,7 @@ jobs:
       docker-tag: ${{ steps.meta.outputs.version }}
       ARGOCD_SHA: ${{ steps.get_argo_cd_sha.outputs.ARGOCD_SHA }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           # required for changesets
           fetch-depth: '0'
@@ -25,7 +25,7 @@ jobs:
           persist-credentials: false
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6
         with:
           node-version-file: 'package.json'
           cache: 'yarn'
@@ -126,7 +126,7 @@ jobs:
 
       - name: Upload SBOM report as a build artifact
         if: ${{ success() && steps.build_and_push.outputs.digest }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: sbom-spdx-report
           path: 'sbom.spdx.json'
@@ -153,12 +153,12 @@ jobs:
     needs: build
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           fetch-depth: 0 # need main branch to diff against
       - name: Set up Helm
         uses: azure/setup-helm@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6
         with:
           python-version: '3.14'
           check-latest: true
@@ -192,7 +192,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           path: matrix-neoboard
           # required for changesets
@@ -201,7 +201,7 @@ jobs:
           # github actions token but the git token provided via environment variable
           persist-credentials: false
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           repository: nordeck/matrix-neoboard-standalone
           path: matrix-neoboard-standalone
@@ -213,7 +213,7 @@ jobs:
           ssh-key: ${{ secrets.STANDALONE_DEPLOY_KEY }}
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6
         with:
           node-version-file: 'matrix-neoboard-standalone/package.json'
           cache: 'yarn'
@@ -278,10 +278,10 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6
         with:
           node-version-file: 'package.json'
           cache: 'yarn'
@@ -305,7 +305,7 @@ jobs:
         uses: actions/configure-pages@v5
 
       - name: Upload artifact to GitHub pages
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4
         with:
           path: 'matrix-neoboard-widget/build'
 
@@ -329,7 +329,7 @@ jobs:
           private_key: ${{ secrets.GH_APP_OS_PRIVATE_KEY }}
 
       - name: Trigger Workflow
-        uses: actions/github-script@v7
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
         with:
           github-token: ${{ steps.generate_token.outputs.token }}
           script: |
@@ -352,10 +352,10 @@ jobs:
     timeout-minutes: 5
     needs: build
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - name: Checkout valhalla for values
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           ref: dev
           sparse-checkout: |
