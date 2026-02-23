@@ -163,6 +163,12 @@ For example, this allows running the image in an IPv4-only environment, as demon
 
 We also provide a [HELM chart](./charts/).
 
+Install via OCI Registry:
+
+```sh
+helm install matrix-neoboard-widget oci://ghcr.io/nordeck/charts/matrix-neoboard-widget
+```
+
 ### Important notes
 
 **TURN server**
@@ -198,6 +204,15 @@ cosign verify \
 --certificate-identity-regexp https://github.com/nordeck/matrix-neoboard/.github/workflows/publish-release.yml@refs/tags/v \
 --certificate-oidc-issuer https://token.actions.githubusercontent.com \
 ghcr.io/nordeck/matrix-neoboard-widget:<version> | jq
+```
+
+Execute the following command to verify the signature of a chart container image (example for version: `@nordeck/helm-matrix-neoboard-widget-0.2.0`):
+
+```sh
+cosign verify \
+--certificate-identity-regexp https://github.com/nordeck/matrix-neoboard-widget/.github/workflows/helm-release.yml@refs/tags/@nordeck/helm-matrix-neoboard-widget-0.2.0 \
+--certificate-oidc-issuer https://token.actions.githubusercontent.com \
+ghcr.io/nordeck/charts/matrix-neoboard-widget:0.2.0 | jq
 ```
 
 ## Matrix Room Upgrades
