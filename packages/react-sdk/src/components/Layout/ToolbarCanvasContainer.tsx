@@ -16,6 +16,7 @@
 
 import { Box } from '@mui/material';
 import { PropsWithChildren, forwardRef } from 'react';
+import { isInfiniteCanvasMode } from '../../lib';
 import { whiteboardHeight, whiteboardWidth } from '../Whiteboard';
 
 /**
@@ -29,13 +30,19 @@ export const ToolbarCanvasContainer = forwardRef<
     <Box
       ref={ref}
       sx={{
-        aspectRatio: whiteboardWidth / whiteboardHeight,
         left: 0,
-        maxHeight: '100%',
         pointerEvents: 'none',
         position: 'absolute',
         top: 0,
-        minWidth: '100%',
+        width: '100%',
+        ...(isInfiniteCanvasMode()
+          ? {
+              height: '100%',
+            }
+          : {
+              aspectRatio: whiteboardWidth / whiteboardHeight,
+              maxHeight: '100%',
+            }),
       }}
     >
       {children}

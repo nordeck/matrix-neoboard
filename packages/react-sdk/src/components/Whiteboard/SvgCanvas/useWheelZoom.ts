@@ -93,6 +93,7 @@ export const useWheelZoom = (
       const wheelZoomStep = zoomStep * scale * zoomMultiplier;
       updateScale(
         event.deltaY < 0 ? wheelZoomStep : -wheelZoomStep,
+        'add',
         zoomOriginOnCanvas,
       );
     },

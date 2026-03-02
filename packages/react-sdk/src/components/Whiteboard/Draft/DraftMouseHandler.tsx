@@ -18,6 +18,7 @@ import { styled } from '@mui/material';
 import { Dispatch, MouseEvent, PropsWithChildren, useCallback } from 'react';
 import { Point } from '../../../state';
 import { ActiveTool, useLayoutState } from '../../Layout';
+import { whiteboardHeight, whiteboardWidth } from '../constants';
 import { useSvgCanvasContext } from '../SvgCanvas';
 import editRoundedUrl from './editRounded.svg?url';
 
@@ -123,13 +124,13 @@ export function DraftMouseHandler({
 
       <rect
         fill="transparent"
-        height="100%"
+        height={whiteboardHeight}
         onClick={handleClick}
         onMouseDown={handleMouseDown}
         onMouseLeave={handleMouseLeave}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
-        width="100%"
+        width={whiteboardWidth}
         cursor={shapeCursor}
       />
     </>

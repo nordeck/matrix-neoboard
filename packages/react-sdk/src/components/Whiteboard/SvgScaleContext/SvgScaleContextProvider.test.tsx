@@ -91,8 +91,8 @@ describe('SvgScaleContextProvider', () => {
 
       expect(contextState.scale).toBe(1);
       expect(contextState.translation).toEqual({
-        x: 1920 / 2,
-        y: 1080 / 2,
+        x: 0,
+        y: 0,
       });
     });
 
@@ -108,8 +108,8 @@ describe('SvgScaleContextProvider', () => {
       expect(contextState.scale).toBe(0.5);
       // Board should be centred
       expect(contextState.translation).toEqual({
-        x: 480,
-        y: 270,
+        x: 0,
+        y: 0,
       });
     });
 
@@ -125,8 +125,8 @@ describe('SvgScaleContextProvider', () => {
       expect(contextState.scale).toBe(2.0);
       // Board should be centred
       expect(contextState.translation).toEqual({
-        x: 1920,
-        y: 1080,
+        x: 0,
+        y: 0,
       });
     });
   });

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Nordeck IT + Consulting GmbH
+ * Copyright 2026 Nordeck IT + Consulting GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,19 @@
  * limitations under the License.
  */
 
-export { useSvgScaleContext } from './context';
-export type { ContainerDimensions, Translation } from './context';
-export { SvgScaleContextProvider } from './SvgScaleContextProvider';
+import { Operation } from './context';
+
+export function applyOperation(
+  currentValue: number,
+  newValue: number,
+  operation: Operation,
+): number {
+  switch (operation) {
+    case 'set':
+      return newValue;
+    case 'add':
+      return currentValue + newValue;
+    default:
+      throw new Error(`unexpected operation: ${operation}`);
+  }
+}

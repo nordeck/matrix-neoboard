@@ -23,19 +23,18 @@ import { zoomStep } from '../components/Whiteboard/constants';
  * @returns Object containing zoom control functions and current scale
  */
 export const useZoomControls = () => {
-  const { scale, setScale, updateScale, viewportCanvasCenter } =
-    useSvgScaleContext();
+  const { scale, updateScale, viewportCanvasCenter } = useSvgScaleContext();
 
   const resetZoom = useCallback(() => {
-    setScale(1, viewportCanvasCenter);
-  }, [setScale, viewportCanvasCenter]);
+    updateScale(1, 'set', viewportCanvasCenter);
+  }, [updateScale, viewportCanvasCenter]);
 
   const zoomOut = useCallback(() => {
-    updateScale(-zoomStep, viewportCanvasCenter);
+    updateScale(-zoomStep, 'add', viewportCanvasCenter);
   }, [updateScale, viewportCanvasCenter]);
 
   const zoomIn = useCallback(() => {
-    updateScale(zoomStep, viewportCanvasCenter);
+    updateScale(zoomStep, 'add', viewportCanvasCenter);
   }, [updateScale, viewportCanvasCenter]);
 
   return {
