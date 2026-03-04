@@ -224,6 +224,11 @@ function ContextMenuOptions({
         <ListItemText>
           {t('elementContextMenu.bringToFront', 'Bring to front')}
         </ListItemText>
+        <Typography variant="body2" color="text.secondary">
+          <HotkeysHelp
+            keys={isMacOS() ? 'meta+shift+arrowup' : 'ctrl+shift+arrowup'}
+          />
+        </Typography>
       </MenuItem>
       <MenuItem
         divider
@@ -233,6 +238,11 @@ function ContextMenuOptions({
         <ListItemText>
           {t('elementContextMenu.bringToBack', 'Bring to back')}
         </ListItemText>
+        <Typography variant="body2" color="text.secondary">
+          <HotkeysHelp
+            keys={isMacOS() ? 'meta+shift+arrowdown' : 'ctrl+shift+arrowdown'}
+          />
+        </Typography>
       </MenuItem>
 
       <MenuItem onClick={handleDelete}>
