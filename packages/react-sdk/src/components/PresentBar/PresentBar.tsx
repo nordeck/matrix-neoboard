@@ -21,39 +21,56 @@ import LockOpenIcon from '@mui/icons-material/LockOpen';
 import PresentToAllIcon from '@mui/icons-material/PresentToAll';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import { isInfiniteCanvasMode } from '../../lib';
 import {
-  useActiveSlide,
+  useActiveSlideOrFrame,
   useActiveWhiteboardInstance,
+  useActiveWhiteboardInstanceSlideOrFrameIds,
   usePresentationMode,
 } from '../../state';
 import { usePowerLevels } from '../../store/api/usePowerLevels';
 import { Toolbar, ToolbarButton, ToolbarToggle } from '../common/Toolbar';
 import { useLayoutState } from '../Layout';
+import { useSvgScaleContext } from '../Whiteboard';
 
 export function PresentBar() {
   const { t } = useTranslation('neoboard');
   const whiteboardInstance = useActiveWhiteboardInstance();
-  const { activeSlideId, isFirstSlideActive, isLastSlideActive } =
-    useActiveSlide();
+  const { activeId, isFirstActive, isLastActive } = useActiveSlideOrFrame();
+  console.log('ma.useActiveSlideOrFrame', {
+    activeId,
+    isFirstActive,
+    isLastActive,
+  });
   const { isShowGrid, setShowGrid } = useLayoutState();
   const { state, toggleEditMode, togglePresentation } = usePresentationMode();
   const { canStopPresentation } = usePowerLevels();
+  const { viewportCanvasCenter } = useSvgScaleContext();
+  const slideOrFrameIds = useActiveWhiteboardInstanceSlideOrFrameIds();
 
   const handleToNextSlideClick = useCallback(() => {
-    if (activeSlideId) {
-      const slideIds = whiteboardInstance.getSlideIds();
-      const activeSlideIndex = slideIds.indexOf(activeSlideId);
-      whiteboardInstance.setActiveSlideId(slideIds[activeSlideIndex + 1]);
+    if (activeId) {
+      const activeIndex = slideOrFrameIds.indexOf(activeId);
+      const newActive = slideOrFrameIds[activeIndex + 1];
+      if (isInfiniteCanvasMode()) {
+        whiteboardInstance.setActiveFrameElementId(newActive);
+      } else {
+        whiteboardInstance.setActiveSlideId(newActive);
+      }
     }
-  }, [activeSlideId, whiteboardInstance]);
+  }, [activeId, slideOrFrameIds, whiteboardInstance]);
 
   const handleToPreviousSlideClick = useCallback(() => {
-    if (activeSlideId) {
-      const slideIds = whiteboardInstance.getSlideIds();
-      const activeSlideIndex = slideIds.indexOf(activeSlideId);
-      whiteboardInstance.setActiveSlideId(slideIds[activeSlideIndex - 1]);
+    if (activeId) {
+      const activeIndex = slideOrFrameIds.indexOf(activeId);
+      const newActive = slideOrFrameIds[activeIndex - 1];
+      if (isInfiniteCanvasMode()) {
+        whiteboardInstance.setActiveFrameElementId(newActive);
+      } else {
+        whiteboardInstance.setActiveSlideId(newActive);
+      }
     }
-  }, [activeSlideId, whiteboardInstance]);
+  }, [activeId, slideOrFrameIds, whiteboardInstance]);
 
   const isPresenting = state.type === 'presenting';
   const isPresentingInEditMode = isPresenting && state.isEditMode;
@@ -66,8 +83,14 @@ export function PresentBar() {
     } else {
       setShowGrid(storedGridStatus === 'true');
     }
-    togglePresentation();
-  }, [isPresenting, isShowGrid, setShowGrid, togglePresentation]);
+    togglePresentation(viewportCanvasCenter);
+  }, [
+    isPresenting,
+    isShowGrid,
+    setShowGrid,
+    togglePresentation,
+    viewportCanvasCenter,
+  ]);
 
   const presentBarTitle = t('presentBar.title', 'Present');
   const buttonTitle =
@@ -75,11 +98,12 @@ export function PresentBar() {
       ? t('presentBar.endPresentation', 'End presentation')
       : t('presentBar.startPresentation', 'Start presentation');
 
-  const presentToolsBarNextSlide = t('presentToolsBar.nextSlide', 'Next slide');
-  const presentToolsBarPreviousSlide = t(
-    'presentToolsBar.previousSlide',
-    'Previous slide',
-  );
+  const presentToolsBarNextSlide = isInfiniteCanvasMode()
+    ? t('presentToolsBar.nextFrame', 'Next frame')
+    : t('presentToolsBar.nextSlide', 'Next slide');
+  const presentToolsBarPreviousSlide = isInfiniteCanvasMode()
+    ? t('presentToolsBar.previousFrame', 'Previous frame')
+    : t('presentToolsBar.previousSlide', 'Previous slide');
 
   const lockOpenButtonTitle = isPresentingInEditMode
     ? t('presentBar.disableEditing', 'Disable editing')
@@ -119,7 +143,7 @@ export function PresentBar() {
         <>
           <ToolbarButton
             aria-label={presentToolsBarPreviousSlide}
-            disabled={isFirstSlideActive}
+            disabled={isFirstActive || activeId === undefined}
             onClick={handleToPreviousSlideClick}
             placement="left"
           >
@@ -127,7 +151,7 @@ export function PresentBar() {
           </ToolbarButton>
           <ToolbarButton
             aria-label={presentToolsBarNextSlide}
-            disabled={isLastSlideActive}
+            disabled={isLastActive || activeId === undefined}
             onClick={handleToNextSlideClick}
             placement="left"
           >
