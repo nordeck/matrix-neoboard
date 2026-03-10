@@ -21,6 +21,8 @@ export type Translation = { x: number; y: number };
 
 export type ContainerDimensions = { width: number; height: number };
 
+export type Operation = 'set' | 'add';
+
 /**
  * This context provides data and functions to handle a scaled SVG element inside a container.
  */
@@ -29,22 +31,25 @@ export type SvgScaleContextType = {
    * Scale that is applied to the SVG
    */
   scale: number;
-  /**
-   * Set the scale that is applied to the SVG
-   */
-  setScale: (newScale: number, origin?: Point) => void;
+
   /**
    * Update the scale that is applied to the SVG
    *
    * @param scaleChange - value to add to the current scale
-   * @param origin - optional scale origin, that should stay in the same place when scaling
+   * @param operation - either 'set' a scale or 'add' a value to the current scale value
+   * @param origin - canvas coordinates of the point that should stay in the same place when scaling
    */
-  updateScale: (scaleChange: number, origin?: Point) => void;
+  updateScale: (
+    scaleChange: number,
+    operation: Operation,
+    origin: Point,
+  ) => void;
 
   /**
    * Translation that is applied to the SVG
    */
   translation: Translation;
+
   /**
    * Update the translation that is applied to the SVG
    *
@@ -57,6 +62,7 @@ export type SvgScaleContextType = {
    * Dimensions of the container holing the SVG
    */
   containerDimensions: ContainerDimensions;
+
   /**
    * Set the dimensions of the container holing the SVG
    */

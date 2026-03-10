@@ -45,7 +45,8 @@ vi.mock('./SvgCanvas/useMeasure', () => ({
   useMeasure: vi.fn().mockReturnValue([vi.fn(), { width: 1920, height: 1080 }]),
 }));
 
-vi.mock('./SvgCanvas/utils', () => ({
+vi.mock('./SvgCanvas/utils', async () => ({
+  ...(await vi.importActual('./SvgCanvas/utils')),
   calculateSvgCoords: (position: Point) => position,
 }));
 

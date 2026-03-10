@@ -33,8 +33,8 @@ export function SlidePreview() {
       ) : (
         <SvgScaleContextProvider>
           <SvgCanvas
-            viewportHeight={whiteboardHeight}
             viewportWidth={whiteboardWidth}
+            viewportHeight={whiteboardHeight}
             preview={true}
           >
             {elementIds.map((e) => {

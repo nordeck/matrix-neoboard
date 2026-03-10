@@ -37,7 +37,6 @@ import { WhiteboardHotkeysProvider } from '../../WhiteboardHotkeysProvider';
 import { ZoomShortcuts } from './ZoomShortcuts';
 
 const mockUpdateScale = vi.fn();
-const mockSetScale = vi.fn();
 const mockViewportCanvasCenter = {
   x: 0,
   y: 0,
@@ -48,7 +47,6 @@ vi.mock('../../Whiteboard/SvgScaleContext', () => {
     SvgScaleContextProvider: vi.fn(({ children }) => children),
     useSvgScaleContext: vi.fn(() => ({
       updateScale: mockUpdateScale,
-      setScale: mockSetScale,
       viewportCanvasCenter: mockViewportCanvasCenter,
     })),
   };
@@ -89,6 +87,7 @@ describe('ZoomShortcuts', () => {
       await userEvent.keyboard(shortcut);
       expect(mockUpdateScale).toHaveBeenCalledWith(
         zoomStep,
+        'add',
         mockViewportCanvasCenter,
       );
     },
@@ -106,6 +105,7 @@ describe('ZoomShortcuts', () => {
       await userEvent.keyboard(shortcut);
       expect(mockUpdateScale).toHaveBeenCalledWith(
         zoomStep,
+        'add',
         mockViewportCanvasCenter,
       );
     },
@@ -115,7 +115,11 @@ describe('ZoomShortcuts', () => {
     render(<ZoomShortcuts />, { wrapper: Wrapper });
 
     await userEvent.keyboard(shortcut);
-    expect(mockUpdateScale).toHaveBeenCalledWith(-zoomStep, expect.any(Object));
+    expect(mockUpdateScale).toHaveBeenCalledWith(
+      -zoomStep,
+      'add',
+      expect.any(Object),
+    );
   });
 
   it.each([['{Meta>}-']])('%s should zoom out on mac os', async (shortcut) => {
@@ -128,6 +132,7 @@ describe('ZoomShortcuts', () => {
     await userEvent.keyboard(shortcut);
     expect(mockUpdateScale).toHaveBeenCalledWith(
       -zoomStep,
+      'add',
       mockViewportCanvasCenter,
     );
   });
@@ -136,7 +141,11 @@ describe('ZoomShortcuts', () => {
     render(<ZoomShortcuts />, { wrapper: Wrapper });
 
     await userEvent.keyboard(shortcut);
-    expect(mockSetScale).toHaveBeenCalledWith(1.0, mockViewportCanvasCenter);
+    expect(mockUpdateScale).toHaveBeenCalledWith(
+      1.0,
+      'set',
+      mockViewportCanvasCenter,
+    );
   });
 
   it.each([['{Meta>}0']])('%s should reset zoomon mac os', async (shortcut) => {
@@ -147,6 +156,10 @@ describe('ZoomShortcuts', () => {
     render(<ZoomShortcuts />, { wrapper: Wrapper });
 
     await userEvent.keyboard(shortcut);
-    expect(mockSetScale).toHaveBeenCalledWith(1.0, mockViewportCanvasCenter);
+    expect(mockUpdateScale).toHaveBeenCalledWith(
+      1.0,
+      'set',
+      mockViewportCanvasCenter,
+    );
   });
 });

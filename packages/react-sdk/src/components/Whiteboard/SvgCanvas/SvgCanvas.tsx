@@ -23,7 +23,6 @@ import React, {
   Ref,
   useCallback,
   useEffect,
-  useLayoutEffect,
   useMemo,
   useRef,
 } from 'react';
@@ -66,8 +65,8 @@ export type SvgCanvasProps = PropsWithChildren<{
 }>;
 
 export const SvgCanvas = function ({
-  viewportHeight,
   viewportWidth,
+  viewportHeight,
   children,
   rounded,
   additionalChildren,
@@ -82,8 +81,8 @@ export const SvgCanvas = function ({
   const svgRef = useRef<SVGSVGElement>(null);
   const { scale, translation, setContainerDimensions, updateTranslation } =
     useSvgScaleContext();
-  const { state } = usePresentationMode();
-  const isPresenting = state.type === 'presenting';
+  const { state: presentationState } = usePresentationMode();
+  const isPresenting = presentationState.type === 'presenting';
   // Do avoid issues where users are interacting the content editable part
   // of the whiteboard canvas, we should disable our listeners.
   const { activeScopes } = useHotkeysContext();
@@ -135,7 +134,7 @@ export const SvgCanvas = function ({
     [calculateSvgCoordsFunc, height, viewportHeight, viewportWidth, width],
   );
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     setContainerDimensions({ width, height });
   }, [width, height, setContainerDimensions]);
 
@@ -220,6 +219,16 @@ export const SvgCanvas = function ({
     ? InfiniteCanvasWrapper
     : FiniteCanvasWrapper;
 
+  let svgViewBox: string;
+  if (!preview && infiniteCanvasMode) {
+    const minX = (whiteboardWidth - width / scale) / 2 - translation.x / scale;
+    const minY =
+      (whiteboardHeight - height / scale) / 2 - translation.y / scale;
+    svgViewBox = `${minX} ${minY} ${width / scale} ${height / scale}`;
+  } else {
+    svgViewBox = `0 0 ${viewportWidth} ${viewportHeight}`;
+  }
+
   return (
     <SvgCanvasContext.Provider value={value}>
       <CanvasWrapper
@@ -239,25 +248,10 @@ export const SvgCanvas = function ({
                   aspectRatio,
                 }
               : {
-                  ...(withOutline
-                    ? {
-                        borderWidth: 2,
-                        borderStyle: 'solid',
-                        borderColor: 'primary.main',
-                        borderRadius: 1,
-                      }
-                    : {
-                        outline: 'none',
-                      }),
-                  ...(preview
-                    ? {}
-                    : {
-                        width: `${whiteboardWidth}px`,
-                        height: `${whiteboardHeight}px`,
-                      }),
+                  outline: 'none',
                 }
           }
-          viewBox={`0 0 ${viewportWidth} ${viewportHeight}`}
+          viewBox={svgViewBox}
           onMouseDown={onMouseDown}
           onMouseMove={handleMouseMove}
           onKeyDown={infiniteCanvasMode ? handleKeyDown : undefined}
@@ -265,14 +259,6 @@ export const SvgCanvas = function ({
           tabIndex={infiniteCanvasMode ? -1 : undefined}
           onMouseLeave={onMouseLeave}
           onAuxClick={handleMouseAuxClick}
-          transform-origin={
-            infiniteCanvasMode && !preview ? 'center center' : undefined
-          }
-          transform={
-            infiniteCanvasMode && !preview
-              ? `translate(${translation.x}, ${translation.y}) scale(${scale})`
-              : undefined
-          }
         >
           {children}
         </Canvas>
@@ -339,6 +325,7 @@ const FiniteCanvasWrapper: React.FC<CanvasWrapperProps> = ({
 
 const InfiniteCanvasWrapper: React.FC<CanvasWrapperProps> = ({
   sizeRef,
+  withOutline,
   preview,
   children,
 }) => {
@@ -350,20 +337,17 @@ const InfiniteCanvasWrapper: React.FC<CanvasWrapperProps> = ({
     <Box
       ref={sizeRef}
       sx={{
-        flex: 1,
-        height: '100%',
-        maxWidth: '100%',
+        width: `100%`,
+        height: `100%`,
+        ...(withOutline && {
+          borderWidth: 2,
+          borderStyle: 'solid',
+          borderColor: 'primary.main',
+          borderRadius: 1,
+        }),
       }}
     >
-      <Box
-        sx={{
-          position: 'relative',
-          top: `-${whiteboardHeight / 2}px`,
-          left: `-${whiteboardWidth / 2}px`,
-        }}
-      >
-        {children}
-      </Box>
+      {children}
     </Box>
   );
 };
