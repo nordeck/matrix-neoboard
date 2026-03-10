@@ -1,5 +1,11 @@
 # @nordeck/matrix-neoboard-react-sdk
 
+## 1.4.1
+
+### Patch Changes
+
+- ef0749c: Refactor infinite canvas to use `viewBox` for transformations and simplify API
+
 ## 1.4.0
 
 ### Minor Changes
