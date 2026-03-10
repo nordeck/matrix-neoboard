@@ -4512,7 +4512,7 @@ listr2@^8.2.5:
     rfdc "^1.4.1"
     wrap-ansi "^9.0.0"
 
-livekit-client@^2.17.1:
+livekit-client@^2.17.2:
   version "2.17.2"
   resolved "https://registry.yarnpkg.com/livekit-client/-/livekit-client-2.17.2.tgz#5f4393240fb5ceaca256d297e8bc92f2ac4311b3"
   integrity sha512-+67y2EtAWZabARlY7kANl/VT1Uu1EJYR5a8qwpT2ub/uBCltsEgEDOxCIMwE9HFR5w+z41HR6GL9hyEvW/y6CQ==
