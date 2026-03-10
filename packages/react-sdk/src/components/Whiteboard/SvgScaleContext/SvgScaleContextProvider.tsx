@@ -198,21 +198,24 @@ export const SvgScaleContextProvider: React.FC<PropsWithChildren> = ({
 
   const transformPointSvgToContainer = useCallback(
     (point: { x: number; y: number }) => {
-      const matrix = new DOMMatrix();
-      matrix.translateSelf(
-        stateValues.translation.x,
-        stateValues.translation.y,
-      );
-      matrix.scaleSelf(
-        stateValues.scale,
-        stateValues.scale,
-        undefined,
-        whiteboardWidth / 2,
-        whiteboardHeight / 2,
-      );
-      return matrix.transformPoint(point);
+      return {
+        x:
+          (point.x - whiteboardWidth / 2) * stateValues.scale +
+          containerDimensions.width / 2 +
+          stateValues.translation.x,
+        y:
+          (point.y - whiteboardHeight / 2) * stateValues.scale +
+          containerDimensions.height / 2 +
+          stateValues.translation.y,
+      };
     },
-    [stateValues.scale, stateValues.translation.x, stateValues.translation.y],
+    [
+      stateValues.scale,
+      stateValues.translation.x,
+      stateValues.translation.y,
+      containerDimensions.width,
+      containerDimensions.height,
+    ],
   );
 
   const viewportCanvasCenter = useMemo(() => {
