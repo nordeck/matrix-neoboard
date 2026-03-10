@@ -1,5 +1,15 @@
 # @nordeck/matrix-neoboard-widget
 
+## 2.4.1
+
+### Patch Changes
+
+- 3728736: Update `widget-server` base image to v1.2.2
+- 1d61887: Upload helm chart to OCI Registry, release helm chart
+- ef0749c: Refactor infinite canvas to use `viewBox` for transformations and simplify API
+- Updated dependencies [ef0749c]
+  - @nordeck/matrix-neoboard-react-sdk@1.4.1
+
 ## 2.4.0
 
 ### Minor Changes
