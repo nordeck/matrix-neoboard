@@ -20,12 +20,11 @@ import {
   clampElementPosition,
   copyElementWithAttachedFrame,
   ImageElement,
-  modifyElementPosition,
   Point,
+  positionElementsToWhiteboard,
   Size,
   WhiteboardSlideInstance,
 } from '../../state';
-import { positionImageElements } from '../ImportWhiteboardDialog';
 import { whiteboardHeight, whiteboardWidth } from '../Whiteboard';
 import { ImageUploadResult } from './ImageUploadProvider';
 
@@ -57,27 +56,14 @@ export function addImagesToSlide(
         mxc: uploadResult.mxc,
         fileName: uploadResult.fileName,
       });
-
-      const {
-        elements,
-        rect: { offsetX, offsetY, width, height },
-      } = positionImageElements(images);
-      images = elements;
-
-      const position: Point = {
-        x: centerPosition.x - width / 2,
-        y: centerPosition.y - height / 2,
-      };
-      const positionClamp = clampElementPosition(
-        position,
-        { width, height },
-        { width: whiteboardWidth, height: whiteboardHeight },
-      );
-
-      images = images.map((element) =>
-        modifyElementPosition(element, positionClamp, offsetX, offsetY),
-      );
     }
+    images = positionElementsToWhiteboard(
+      images,
+      whiteboardWidth,
+      whiteboardHeight,
+      centerPosition.x,
+      centerPosition.y,
+    );
   } else {
     images = uploadResults.map(({ uploadResult }) => {
       const fittedSize = calculateFittedElementSize(uploadResult.size, {

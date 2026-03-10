@@ -31,6 +31,7 @@ export {
   isValidElement,
   modifyElementPosition,
   pathElementSchema,
+  positionElementsToWhiteboard,
   shapeElementSchema,
 } from './elements';
 export type {

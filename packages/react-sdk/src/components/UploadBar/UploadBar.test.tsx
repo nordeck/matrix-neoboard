@@ -84,6 +84,4 @@ describe('<UploadBar/>', () => {
 
     expect(await axe.run(container)).toHaveNoViolations();
   });
-
-  it.todo('should upload image');
 });

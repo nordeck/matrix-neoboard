@@ -24,11 +24,7 @@ import {
 import { useElementOverrides } from '../../../ElementOverridesProvider';
 import { useMeasure } from '../../SvgCanvas';
 import { useSvgScaleContext } from '../../SvgScaleContext';
-import {
-  infiniteCanvasMode,
-  whiteboardHeight,
-  whiteboardWidth,
-} from '../../constants';
+import { infiniteCanvasMode } from '../../constants';
 
 type ElementBarWrapperProps = PropsWithChildren<{ elementIds: string[] }>;
 
@@ -131,14 +127,7 @@ const InfiniteElementBarWrapper: React.FC<ElementBarWrapperProps> = ({
   const { scale, transformPointSvgToContainer } = useSvgScaleContext();
 
   const position = useMemo(() => {
-    const pointOnSvg = { x, y };
-    let elementOnContainer = transformPointSvgToContainer(pointOnSvg);
-    const viewBoxMinX = (whiteboardWidth - containerDimensions.width) / 2;
-    const viewBoxMinY = (whiteboardHeight - containerDimensions.height) / 2;
-    elementOnContainer = {
-      x: elementOnContainer.x - viewBoxMinX,
-      y: elementOnContainer.y - viewBoxMinY,
-    };
+    const elementOnContainer = transformPointSvgToContainer({ x, y });
 
     const elementWidthOnDiv = width * scale;
     const elementHeightOnDiv = height * scale;
@@ -147,41 +136,21 @@ const InfiniteElementBarWrapper: React.FC<ElementBarWrapperProps> = ({
     const elementCenterOnDivX = elementOnContainer.x + elementWidthOnDiv / 2;
     const elementBarCenterOnDivX = elementCenterOnDivX - elementBarWidth / 2;
 
-    /**
-     * Min and max need half of the whiteboard width to be added,
-     * because when rendering the SVG everything is shifted half a width.
-     * {@see SvgCanvas}
-     */
-    const minX =
-      whiteboardWidth / 2 - containerDimensions.width / 2 - viewBoxMinX;
-    const maxX =
-      containerDimensions.width / 2 -
-      elementBarWidth +
-      whiteboardWidth / 2 -
-      viewBoxMinX;
-    const clampedPositionX = clamp(elementBarCenterOnDivX, minX, maxX);
+    const maxX = containerDimensions.width - elementBarWidth;
+    const clampedPositionX = clamp(elementBarCenterOnDivX, 0, maxX);
 
     // Y
     const positionAbove = elementOnContainer.y - elementBarHeight - offsetOnDiv;
     const positionBelow =
       elementOnContainer.y + elementHeightOnDiv + offsetOnDiv;
-    const positionInElement = elementOnContainer.y + offsetOnDiv;
 
-    let newYPosition = positionInElement;
-    /**
-     * The above position has to be checked against the whiteboardHeight / 2,
-     * because when rendering the SVG everything is shifted half a width.
-     * {@see SvgCanvas}
-     */
-    if (
-      positionAbove >=
-      (whiteboardHeight - containerDimensions.height) / 2 - viewBoxMinY
-    ) {
+    let newYPosition: number;
+    if (positionAbove >= 0) {
       newYPosition = positionAbove;
     } else if (positionBelow + elementBarHeight < containerDimensions.height) {
       newYPosition = positionBelow;
     } else {
-      newYPosition = positionInElement;
+      newYPosition = elementOnContainer.y + offsetOnDiv;
     }
 
     return {

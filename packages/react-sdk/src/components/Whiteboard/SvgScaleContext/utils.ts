@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Nordeck IT + Consulting GmbH
+ * Copyright 2026 Nordeck IT + Consulting GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,19 @@
  * limitations under the License.
  */
 
-const i18NextParserConfig = {
-  locales: ['en', 'de'],
-  output: 'public/locales/$LOCALE/$NAMESPACE.json',
-  sort: true,
-  resetDefaultValueLocale: 'en',
-  lexers: {
-    tsx: [{ lexer: 'JsxLexer', transSupportBasicHtmlNodes: true }],
-  },
-};
+import { Operation } from './context';
 
-export default i18NextParserConfig;
+export function applyOperation(
+  currentValue: number,
+  newValue: number,
+  operation: Operation,
+): number {
+  switch (operation) {
+    case 'set':
+      return newValue;
+    case 'add':
+      return currentValue + newValue;
+    default:
+      throw new Error(`unexpected operation: ${operation}`);
+  }
+}

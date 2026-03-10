@@ -3,4 +3,4 @@
 '@nordeck/matrix-neoboard-widget': patch
 ---
 
-Do not select the element when panning the board with a mouse
+Refactor infinite canvas to use `viewBox` for transformations and simplify API

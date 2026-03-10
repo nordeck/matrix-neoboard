@@ -23,7 +23,6 @@ import React, {
   Ref,
   useCallback,
   useEffect,
-  useLayoutEffect,
   useMemo,
   useRef,
 } from 'react';
@@ -170,10 +169,8 @@ export const SvgCanvas = function ({
     [calculateSvgCoordsFunc, height, viewportHeight, viewportWidth, width],
   );
 
-  useLayoutEffect(() => {
-    if (width > 0 && height > 0) {
-      setContainerDimensions({ width, height });
-    }
+  useEffect(() => {
+    setContainerDimensions({ width, height });
   }, [width, height, setContainerDimensions]);
 
   // Focus the canvas element when it is mounted
@@ -316,7 +313,7 @@ export const SvgCanvas = function ({
   if (viewBox) {
     const { minX, minY, width, height } = viewBox;
     svgViewBox = `${minX} ${minY} ${width} ${height}`;
-  } else if (infiniteCanvasMode && !preview) {
+  } else if (!preview && infiniteCanvasMode) {
     const minX = (whiteboardWidth - width / scale) / 2 - translation.x / scale;
     const minY =
       (whiteboardHeight - height / scale) / 2 - translation.y / scale;

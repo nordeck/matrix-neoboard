@@ -19,3 +19,4 @@ export type { SvgCanvasContextType } from './context';
 export { SvgCanvas } from './SvgCanvas';
 export type { ViewBox } from './SvgCanvas';
 export { useMeasure } from './useMeasure';
+export { calculateScale } from './utils';

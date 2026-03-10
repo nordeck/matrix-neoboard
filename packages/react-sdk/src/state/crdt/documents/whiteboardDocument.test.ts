@@ -254,6 +254,7 @@ describe('isValidWhiteboardDocument', () => {
     });
     // @ts-expect-error - We have unclear types here
     if (!(patch.slides instanceof YArray)) {
+      // eslint-disable-next-line vitest/no-conditional-expect
       expect(error).toBeInstanceOf(Error);
     }
   });

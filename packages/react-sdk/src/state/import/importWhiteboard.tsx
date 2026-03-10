@@ -16,9 +16,11 @@
 
 import log from 'loglevel';
 import { ImageUploadState } from '../../components/ImageUpload/ImageUploadProvider';
+import { isInfiniteCanvasMode } from '../../lib';
 import { ImageElement } from '../crdt';
 import { WhiteboardDocumentExport } from '../export';
 import { WhiteboardInstance } from '../types';
+import { transformSlidesToFrames } from './transformSlidesToFrames';
 
 /**
  * Import a whiteboard including images.
@@ -42,6 +44,10 @@ export async function importWhiteboard(
   atSlideIndex?: number,
   overrideFile?: string,
 ): Promise<Map<string, Error>> {
+  if (isInfiniteCanvasMode()) {
+    data = transformSlidesToFrames(data);
+  }
+
   const [mxcMap, errors] = await uploadImages(data, handleDrop, overrideFile);
   if (errors.size > 0) {
     log.warn('Failed to upload images', errors);

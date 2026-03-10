@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Nordeck IT + Consulting GmbH
+ * Copyright 2026 Nordeck IT + Consulting GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,15 @@
  * limitations under the License.
  */
 
-export { exportWhiteboard } from './exportWhiteboard';
-export { generateLoadWhiteboardFromExport } from './loadWhiteboardFromExport';
-export { isValidWhiteboardExportDocument } from './whiteboardDocumentExport';
-export type {
-  ElementExport,
-  FrameElementExport,
-  WhiteboardDocumentExport,
-} from './whiteboardDocumentExport';
+import { describe, expect, it } from 'vitest';
+import { applyOperation } from './utils';
+
+describe('applyOperation', () => {
+  it('should return the same value when operation is set', () => {
+    expect(applyOperation(10, 12, 'set')).toBe(12);
+  });
+
+  it('should add to the current value whe  operation is add', () => {
+    expect(applyOperation(10, 12, 'add')).toBe(22);
+  });
+});

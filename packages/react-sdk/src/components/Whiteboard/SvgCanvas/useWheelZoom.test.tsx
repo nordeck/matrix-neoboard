@@ -94,7 +94,6 @@ describe('useWheelZoom', () => {
     // Setup default mocks
     mockUseSvgScaleContext.mockReturnValue({
       scale: 1,
-      setScale: vi.fn(),
       translation: { x: 0, y: 0 },
       updateScale: mockUpdateScale,
       updateTranslation: mockUpdateTranslation,
@@ -153,6 +152,7 @@ describe('useWheelZoom', () => {
       );
       expect(mockUpdateScale).toHaveBeenCalledWith(
         0.2, // zoomStep * scale * 2 (Linux multiplier)
+        'add',
         { x: 100, y: 200 },
       );
       expect(mockUpdateTranslation).not.toHaveBeenCalled();
@@ -176,6 +176,7 @@ describe('useWheelZoom', () => {
 
       expect(mockUpdateScale).toHaveBeenCalledWith(
         -0.2, // negative for zoom out
+        'add',
         { x: 100, y: 200 },
       );
     });
@@ -222,6 +223,7 @@ describe('useWheelZoom', () => {
 
       expect(mockUpdateScale).toHaveBeenCalledWith(
         0.1, // No 2x multiplier on macOS
+        'add',
         { x: 100, y: 200 },
       );
     });
@@ -242,7 +244,10 @@ describe('useWheelZoom', () => {
         result.current.handleWheelZoom(wheelEvent);
       });
 
-      expect(mockUpdateScale).toHaveBeenCalledWith(0.1, { x: 100, y: 200 });
+      expect(mockUpdateScale).toHaveBeenCalledWith(0.1, 'add', {
+        x: 100,
+        y: 200,
+      });
     });
 
     it('should pan by default on trackpad without modifier keys', () => {
