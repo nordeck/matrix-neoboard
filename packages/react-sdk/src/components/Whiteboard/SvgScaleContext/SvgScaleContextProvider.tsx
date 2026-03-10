@@ -91,14 +91,14 @@ export const SvgScaleContextProvider: React.FC<PropsWithChildren> = ({
   const updateStateValues = useCallback(
     (
       fun: (old: StateValues) => StateValues,
-      containerDimensions: ContainerDimensions,
+      dimensions: ContainerDimensions,
     ) => {
       setStateValues((old) => {
         const newState = fun(old);
 
         const fittedNewState: StateValues = {
           scale: newState.scale,
-          translation: fitTranslation(newState, containerDimensions),
+          translation: fitTranslation(newState, dimensions),
         };
 
         if (!isEqual(fittedNewState, old)) {
