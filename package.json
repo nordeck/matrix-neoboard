@@ -26,7 +26,7 @@
     "prettier-plugin-organize-imports": "^4.1.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-i18next": "^15.5.2",
+    "react-i18next": "^16.0.0",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.53.0",
     "vitest": "^3.2.4",
