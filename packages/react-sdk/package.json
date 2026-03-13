@@ -46,7 +46,7 @@
     "yjs": "^13.6.29"
   },
   "peerDependencies": {
-    "i18next": "^24.2.2",
+    "i18next": "^24.2.2 || ^25.0.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-i18next": "^15.5.2"
@@ -76,7 +76,7 @@
     "jsdom": "^26.1.0",
     "pdfjs-dist": "^4.6.82",
     "prettier": "^3.5.2",
-    "react-i18next": "^15.5.2",
+    "react-i18next": "^16.0.0",
     "typescript": "^5.7.3",
     "vitest": "^3.2.4",
     "vitest-fetch-mock": "^0.4.3",
