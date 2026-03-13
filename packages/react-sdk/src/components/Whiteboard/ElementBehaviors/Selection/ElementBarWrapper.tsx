@@ -21,10 +21,12 @@ import {
   calculateBoundingRectForElements,
   useSlideIsLocked,
 } from '../../../../state';
+import { isRotateableElement } from '../../../../state/crdt/documents/elements';
 import { useElementOverrides } from '../../../ElementOverridesProvider';
 import { useMeasure } from '../../SvgCanvas';
 import { useSvgScaleContext } from '../../SvgScaleContext';
 import { infiniteCanvasMode } from '../../constants';
+import { calculateBoundaryWithRotationHandle } from '../Rotatable/rotatorMath';
 
 type ElementBarWrapperProps = PropsWithChildren<{ elementIds: string[] }>;
 
@@ -71,11 +73,31 @@ const FiniteElementBarWrapper: React.FC<ElementBarWrapperProps> = ({
 
   const offset = 10;
 
+  function getBoundaryForRotatedElement() {
+    if (elements.length !== 1) return null;
+    if (!isRotateableElement(elements[0])) return null;
+    return calculateBoundaryWithRotationHandle(elements[0], scale);
+  }
+
   function calculateTopPosition() {
     const position = y * scale;
-    const positionAbove = position - elementBarHeight - offset;
-    const positionBelow = position + height * scale + offset;
     const positionInElement = position + offset;
+
+    let positionAbove = position - elementBarHeight - offset;
+    let positionBelow = position + height * scale + offset;
+
+    // adjust if the object is rotateable
+    const rotatedBoundary = getBoundaryForRotatedElement();
+    if (rotatedBoundary) {
+      positionAbove = Math.min(
+        positionAbove,
+        rotatedBoundary.min.y * scale - elementBarHeight - offset,
+      );
+      positionBelow = Math.max(
+        positionBelow,
+        rotatedBoundary.max.y * scale + offset,
+      );
+    }
 
     if (positionAbove >= 0) {
       return positionAbove;

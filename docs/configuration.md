@@ -39,6 +39,9 @@ REACT_APP_RTC_LIVEKIT_SERVICE_URL=https://lk-jwt.example.org
 
 # optional: Use infinite canvas instead of slides mode (defaults to `false`)
 REACT_APP_INFINITE_CANVAS=false
+
+# optional: Enable the object rotation experimental feature
+REACT_APP_ENABLE_ROTATION=false
 ```
 
 ## Room power level

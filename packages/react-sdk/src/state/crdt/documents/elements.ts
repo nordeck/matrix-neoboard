@@ -72,6 +72,7 @@ export type ShapeElement = ElementBase & {
   textFontFamily: TextFontFamily;
   connectedPaths?: string[];
   attachedFrame?: string;
+  rotation?: number;
 };
 
 const emptyCoordinateSchema = Joi.any().valid(null, 0, '');
@@ -170,6 +171,7 @@ export type ImageElement = ElementBase & {
    */
   mimeType?: ImageMimeType;
   attachedFrame?: string;
+  rotation?: number;
 };
 
 export const imageElementSchema = elementBaseSchema
@@ -341,6 +343,12 @@ export function isShapeElementPair(
   pair: [string, Element],
 ): pair is [string, ShapeElement] {
   return pair[1].type === 'shape';
+}
+
+export function isRotateableElement(
+  element: Element,
+): element is ShapeElement | ImageElement {
+  return element.type === 'shape' || element.type === 'image';
 }
 
 export function modifyElementPosition<T extends ElementBase>(
