@@ -20,6 +20,7 @@ import { isDefined } from '../../../../lib';
 import { ShapeElement } from '../../../../state';
 import { useConnectionPoint } from '../../../ConnectionPointProvider';
 import { useSvgScaleContext } from '../../SvgScaleContext';
+import { rotatePoint } from '../Rotatable/rotatorMath';
 import { ActivationArea } from './ActivationArea';
 
 export type ConnectableElementProps = {
@@ -34,6 +35,7 @@ export function ConnectableElement({
     position: { x, y },
     width,
     height,
+    rotation,
   },
 }: ConnectableElementProps) {
   const theme = useTheme();
@@ -75,6 +77,23 @@ export function ConnectableElement({
     [x, y, height, width, kind],
   );
 
+  const rotatedPoints = points.map((p) => {
+    if (rotation && p) {
+      const point = {
+        x: p[0],
+        y: p[1],
+      };
+      const center = {
+        x: x + width / 2,
+        y: y + height / 2,
+      };
+      const rotated = rotatePoint(point, center, rotation);
+      return [rotated.x, rotated.y];
+    }
+
+    return p;
+  });
+
   return (
     <>
       <ActivationArea
@@ -86,7 +105,7 @@ export function ConnectableElement({
         height={height}
       />
 
-      {points.map(([pointX, pointY], idx) => (
+      {rotatedPoints.map(([pointX, pointY], idx) => (
         <Fragment key={idx}>
           <rect
             data-connect-type="connection-point-area"

@@ -132,7 +132,7 @@ describe('calculateDimensions', () => {
     ${'topLeft'}     | ${25} | ${20} | ${25}     | ${20}     | ${10}         | ${50}
     ${'topLeft'}     | ${5}  | ${50} | ${5}      | ${50}     | ${30}         | ${20}
   `(
-    'should calculate dimensions for drag at $position to $dragX,$dragY',
+    'should calculate dimensions for drag at $handlePosition to $dragX,$dragY',
     ({
       handlePosition,
       dragX,
@@ -152,6 +152,7 @@ describe('calculateDimensions', () => {
       expect(
         calculateDimensions(
           handlePosition,
+          {}, // skip rotation related logic
           event,
           startDimension,
           viewportWidth,
@@ -205,6 +206,7 @@ describe('calculateDimensions', () => {
       expect(
         calculateDimensions(
           handlePosition,
+          {}, // skip rotation related logic
           event,
           startDimension,
           viewportWidth,
@@ -247,6 +249,7 @@ describe('calculateDimensions', () => {
       expect(
         calculateDimensions(
           handlePosition,
+          {}, // skip rotation related logic
           event,
           startDimension,
           viewportWidth,
@@ -272,6 +275,7 @@ describe('calculateDimensions', () => {
     expect(
       calculateDimensions(
         'bottomRight',
+        {}, // skip rotation related logic
         event,
         startDimension,
         viewportWidth,
@@ -324,6 +328,7 @@ describe('calculateDimensions', () => {
       expect(
         calculateDimensions(
           handlePosition,
+          {}, // skip rotation related logic
           event,
           startDimension,
           viewportWidth,
@@ -373,6 +378,7 @@ describe('calculateDimensions', () => {
       expect(
         calculateDimensions(
           handlePosition,
+          {}, // skip rotation related logic
           event,
           startDimension,
           viewportWidth,
@@ -414,6 +420,7 @@ describe('calculateDimensions', () => {
       expect(
         calculateDimensions(
           handlePosition,
+          {}, // skip rotation related logic
           event,
           startDimension,
           viewportWidth,

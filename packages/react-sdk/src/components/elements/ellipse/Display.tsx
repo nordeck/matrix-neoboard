@@ -47,8 +47,13 @@ const EllipseDisplay = ({
 
   const { strokeColor, strokeWidth, text } = getRenderProperties(shape);
 
+  const rot = shape.rotation ?? 0;
+
   const renderedChild = (
-    <g data-testid={`element-ellipse-${elementId}`}>
+    <g
+      data-testid={`element-ellipse-${elementId}`}
+      transform={`rotate(${rot} ${shape.position.x + shape.width / 2} ${shape.position.y + shape.height / 2})`}
+    >
       <ellipse
         data-connect-type={`connectable-element`}
         cx={shape.position.x + cx}
