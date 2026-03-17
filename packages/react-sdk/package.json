@@ -58,7 +58,7 @@
     "@testing-library/react": "^16.2.0",
     "@testing-library/user-event": "^14.6.1",
     "@types/lodash": "^4.17.15",
-    "@types/node": "^22.19.7",
+    "@types/node": "^22.19.11",
     "@types/pdfmake": "^0.2.11",
     "@types/react": "^18.3.12",
     "@types/react-beautiful-dnd": "^13.1.8",
