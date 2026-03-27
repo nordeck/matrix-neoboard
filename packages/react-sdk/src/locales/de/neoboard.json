@@ -4,6 +4,7 @@
     "waitModeratorJoin": "Bitte warte auf den Moderator."
   },
   "boardBar": {
+    "addFrameToEnableOverview": "Add first frame to enable frame overview",
     "developerToolsDialog": {
       "closeAriaLabel": "Schließen",
       "communicationChannelStatistics": {
@@ -61,7 +62,6 @@
       "pdfError": "Bei der Erstellung des PDFs ist ein Fehler aufgetreten.",
       "title": "Inhalt exportieren"
     },
-    "hideFrameBarTitle": "Close frame overview",
     "hideSlideBarTitle": "Folienübersicht schließen",
     "importWhiteboardDialog": {
       "close": "Schließen",
@@ -270,6 +270,7 @@
     "sent": "Gesendet"
   },
   "presentBar": {
+    "addFrameToEnablePresentationMode": "Add first frame to enable presentation mode",
     "disableEditing": "Bearbeitung sperren",
     "enableEditing": "Bearbeitung freigeben",
     "endPresentation": "Präsentation beenden",

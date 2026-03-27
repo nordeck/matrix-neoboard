@@ -33,11 +33,12 @@ export function SlidePreview({
 }: PropsWithChildren<{ frameElementId?: string }>) {
   const { loading } = useIsWhiteboardLoading();
   const elementIds = useSlideElementIds();
+  const isInfiniteCanvasModeEnabled = isInfiniteCanvasMode();
   const frameElement = useFrameElement(frameElementId);
 
   let viewBox: ViewBox | undefined;
 
-  if (isInfiniteCanvasMode() && frameElement) {
+  if (isInfiniteCanvasModeEnabled && frameElement) {
     // Calculate viewBox to show the frame
     const {
       position: { x, y },
@@ -75,7 +76,19 @@ export function SlidePreview({
             preview={true}
           >
             {elementIds.map((e) => {
-              return <ConnectedElement id={e} key={e} readOnly />;
+              if (isInfiniteCanvasModeEnabled) {
+                if (
+                  !frameElement ||
+                  frameElement.attachedElements?.includes(e)
+                ) {
+                  // Keep element if no frame is selected or if attached to selected frame
+                  return <ConnectedElement id={e} key={e} readOnly />;
+                } else {
+                  return null;
+                }
+              } else {
+                return <ConnectedElement id={e} key={e} readOnly />;
+              }
             })}
           </SvgCanvas>
         </SvgScaleContextProvider>

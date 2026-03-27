@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { createContext, MutableRefObject, useContext } from 'react';
+import { createContext, useContext } from 'react';
 import { Point } from '../../../state';
 
 export type Translation = { x: number; y: number };
@@ -46,11 +46,6 @@ export type SvgScaleContextType = {
   ) => void;
 
   /**
-   * Move center to the specific point and scale
-   */
-  moveToPoint: (position: Point, scale: number) => void;
-
-  /**
    * Translation that is applied to the SVG
    */
   translation: Translation;
@@ -69,10 +64,6 @@ export type SvgScaleContextType = {
   containerDimensions: ContainerDimensions;
 
   /**
-   * Ref with container dimensions
-   */
-  containerDimensionsRef: MutableRefObject<ContainerDimensions>;
-  /**
    * Set the dimensions of the container holing the SVG
    */
   setContainerDimensions: (dimensions: ContainerDimensions) => void;
@@ -86,6 +77,11 @@ export type SvgScaleContextType = {
    * Center point of the canvas on the current viewport.
    */
   viewportCanvasCenter: Point;
+
+  /**
+   * Move the viewport center to a specific canvas position and scale
+   */
+  moveToPositionAndScale: (position: Point, scale: number) => void;
 };
 
 export const SvgScaleContext = createContext<SvgScaleContextType | undefined>(

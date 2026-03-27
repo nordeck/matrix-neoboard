@@ -16,7 +16,8 @@
 
 import { useTheme } from '@mui/material';
 import React from 'react';
-import { FrameElement } from '../../../state';
+import { isInfiniteCanvasMode } from '../../../lib';
+import { FrameElement, usePresentationMode } from '../../../state';
 import {
   ElementContextMenu,
   MoveableElement,
@@ -36,6 +37,12 @@ const FrameDisplay: React.FC<DisplayProps> = ({
   ...frameProps
 }) => {
   const theme = useTheme();
+  const { state } = usePresentationMode();
+
+  if (isInfiniteCanvasMode() && state.type !== 'idle' && !state.isEditMode) {
+    // Do not display frame during presentation
+    return null;
+  }
 
   const renderedChild = (
     <g data-testid={`element-frame-${elementId}`}>

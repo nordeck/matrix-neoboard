@@ -77,6 +77,7 @@ const slideSchema = Joi.object({
   elementIds: Joi.array()
     .items(Joi.string().not(...disallowElementIds))
     .required(),
+  frameElementIds: Joi.array().items(Joi.string().not(...disallowElementIds)),
   lock: Joi.object({
     userId: Joi.string().required(),
   }).unknown(),

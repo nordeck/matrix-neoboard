@@ -23,10 +23,11 @@ import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { isInfiniteCanvasMode } from '../../lib';
 import {
+  findNearestFrameElement,
   useActiveSlideOrFrame,
   useActiveWhiteboardInstance,
-  useActiveWhiteboardInstanceSlideOrFrameIds,
   usePresentationMode,
+  useWhiteboardSlideOrFrameIds,
 } from '../../state';
 import { usePowerLevels } from '../../store/api/usePowerLevels';
 import { Toolbar, ToolbarButton, ToolbarToggle } from '../common/Toolbar';
@@ -37,16 +38,11 @@ export function PresentBar() {
   const { t } = useTranslation('neoboard');
   const whiteboardInstance = useActiveWhiteboardInstance();
   const { activeId, isFirstActive, isLastActive } = useActiveSlideOrFrame();
-  console.log('ma.useActiveSlideOrFrame', {
-    activeId,
-    isFirstActive,
-    isLastActive,
-  });
   const { isShowGrid, setShowGrid } = useLayoutState();
   const { state, toggleEditMode, togglePresentation } = usePresentationMode();
   const { canStopPresentation } = usePowerLevels();
   const { viewportCanvasCenter } = useSvgScaleContext();
-  const slideOrFrameIds = useActiveWhiteboardInstanceSlideOrFrameIds();
+  const slideOrFrameIds = useWhiteboardSlideOrFrameIds();
 
   const handleToNextSlideClick = useCallback(() => {
     if (activeId) {
@@ -83,20 +79,36 @@ export function PresentBar() {
     } else {
       setShowGrid(storedGridStatus === 'true');
     }
-    togglePresentation(viewportCanvasCenter);
+
+    const activeSlide = whiteboardInstance.getActiveSlide();
+    const frameElementId =
+      isInfiniteCanvasMode() && activeSlide
+        ? findNearestFrameElement(
+            activeSlide.getFrameElements(),
+            viewportCanvasCenter,
+          )
+        : undefined;
+
+    togglePresentation(frameElementId);
   }, [
     isPresenting,
     isShowGrid,
     setShowGrid,
     togglePresentation,
+    whiteboardInstance,
     viewportCanvasCenter,
   ]);
 
   const presentBarTitle = t('presentBar.title', 'Present');
   const buttonTitle =
-    state.type === 'presenting'
-      ? t('presentBar.endPresentation', 'End presentation')
-      : t('presentBar.startPresentation', 'Start presentation');
+    isInfiniteCanvasMode() && slideOrFrameIds.length === 0
+      ? t(
+          'presentBar.addFrameToEnablePresentationMode',
+          'Add first frame to enable presentation mode',
+        )
+      : state.type === 'presenting'
+        ? t('presentBar.endPresentation', 'End presentation')
+        : t('presentBar.startPresentation', 'Start presentation');
 
   const presentToolsBarNextSlide = isInfiniteCanvasMode()
     ? t('presentToolsBar.nextFrame', 'Next frame')
@@ -137,6 +149,7 @@ export function PresentBar() {
           icon={<PresentToAllIcon />}
           checkedIcon={<PresentToAllIcon />}
           placement={isPresenting ? 'left' : 'bottom'}
+          disabled={isInfiniteCanvasMode() && slideOrFrameIds.length === 0}
         />
       )}
       {state.type === 'presenting' && (

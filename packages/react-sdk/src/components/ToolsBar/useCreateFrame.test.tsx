@@ -40,7 +40,7 @@ import * as whiteboardConstants from '../Whiteboard/constants';
 import {
   SvgScaleContextType,
   useSvgScaleContext,
-} from '../Whiteboard/SvgScaleContext/context';
+} from '../Whiteboard/SvgScaleContext';
 import { useCreateFrame } from './useCreateFrame';
 
 vi.mock('../Whiteboard/SvgScaleContext/context', async (importActual) => ({
@@ -71,7 +71,7 @@ describe('useCreateFrame', () => {
         width: 600,
         height: 300,
       },
-      moveToPoint: vi.fn(),
+      moveToPositionAndScale: vi.fn(),
     };
 
     widgetApi = mockWidgetApi();

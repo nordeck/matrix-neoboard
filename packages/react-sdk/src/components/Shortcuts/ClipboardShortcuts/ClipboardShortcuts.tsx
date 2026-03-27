@@ -17,7 +17,6 @@
 import { useWidgetApi } from '@matrix-widget-toolkit/react';
 import { useCallback, useEffect } from 'react';
 import { useHotkeysContext } from 'react-hotkeys-hook';
-import { isInfiniteCanvasMode } from '../../../lib';
 import {
   calculateBoundingRectForElements,
   clampElementPosition,
@@ -180,10 +179,7 @@ export function ClipboardShortcuts() {
       const { elements } = deserializeFromClipboard(content);
 
       const centerPosition =
-        slideInstance.getCursorPosition() ??
-        (isInfiniteCanvasMode()
-          ? viewportCanvasCenter
-          : { x: whiteboardWidth / 2, y: whiteboardHeight / 2 });
+        slideInstance.getCursorPosition() ?? viewportCanvasCenter;
 
       if (elements) {
         const elementsArray: Element[] | undefined = Array.isArray(elements)

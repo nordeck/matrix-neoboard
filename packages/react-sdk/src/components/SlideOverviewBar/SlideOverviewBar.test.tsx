@@ -35,7 +35,7 @@ import {
   mockFrameElement,
   mockWhiteboardManager,
   WhiteboardTestingContextProvider,
-} from '../../lib/testUtils/documentTestUtils';
+} from '../../lib/testUtils';
 import { WhiteboardManager } from '../../state';
 import { CommunicationChannel } from '../../state/communication';
 import { ImageUploadProvider } from '../ImageUpload';

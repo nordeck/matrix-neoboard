@@ -21,7 +21,7 @@ import { useTranslation } from 'react-i18next';
 import { isInfiniteCanvasMode } from '../../lib';
 import {
   useActiveSlideOrFrame,
-  useActiveWhiteboardInstanceSlideOrFrameIds,
+  useWhiteboardSlideOrFrameIds,
 } from '../../state';
 import { SlideListItem } from './SlideListItem';
 import { SlidesDragDropContext } from './SlidesDragDropContext';
@@ -29,7 +29,7 @@ import { StrictModeDroppable } from './StrictModeDroppable';
 
 export function SlideList() {
   const { t } = useTranslation('neoboard');
-  const slideOrFrameIds = useActiveWhiteboardInstanceSlideOrFrameIds();
+  const slideOrFrameIds = useWhiteboardSlideOrFrameIds();
   const { activeId } = useActiveSlideOrFrame();
 
   const slideListTitle = isInfiniteCanvasMode()
@@ -50,7 +50,7 @@ export function SlideList() {
               <SlideListItem
                 active={slideOrFrameId === activeId}
                 key={slideOrFrameId}
-                slideOrFrameId={slideOrFrameId}
+                slideId={slideOrFrameId}
                 slideIndex={index}
               />
             ))}

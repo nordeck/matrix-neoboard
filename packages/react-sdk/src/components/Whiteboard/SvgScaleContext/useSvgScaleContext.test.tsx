@@ -827,6 +827,28 @@ describe('useSvgScaleContext', () => {
         }),
       );
     });
+
+    it('should move viewport center to specific canvas position and scale', () => {
+      const { result } = renderHook(() => useSvgScaleContext(), {
+        wrapper: Wrapper,
+      });
+
+      act(() => {
+        result.current.setContainerDimensions({ width: 600, height: 300 });
+      });
+
+      act(() => {
+        result.current.moveToPositionAndScale({ x: 9700, y: 5600 }, 1);
+      });
+
+      expect(result.current).toEqual(
+        expect.objectContaining({
+          scale: 1,
+          translation: { x: -100, y: -200 },
+          viewportCanvasCenter: { x: 9700, y: 5600 },
+        }),
+      );
+    });
   });
 
   describe('in finite canvas mode', () => {

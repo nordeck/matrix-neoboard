@@ -20,15 +20,15 @@ import { isInfiniteCanvasMode } from '../../../lib';
 import {
   useActiveSlideOrFrame,
   useActiveWhiteboardInstance,
-  useActiveWhiteboardInstanceSlideOrFrameIds,
   usePresentationMode,
+  useWhiteboardSlideOrFrameIds,
 } from '../../../state';
 
 export const PresentationShortcuts: React.FC = function () {
   const { state } = usePresentationMode();
   const { activeId } = useActiveSlideOrFrame();
   const whiteboardInstance = useActiveWhiteboardInstance();
-  const slideOrFrameIds = useActiveWhiteboardInstanceSlideOrFrameIds();
+  const slideOrFrameIds = useWhiteboardSlideOrFrameIds();
 
   const handleHotkey = useCallback(
     (event: KeyboardEvent) => {
@@ -36,7 +36,7 @@ export const PresentationShortcuts: React.FC = function () {
         return;
       }
 
-      let newActive: string | undefined;
+      let newActive: string;
       if (['ArrowRight', ' '].includes(event.key)) {
         const activeIndex = slideOrFrameIds.indexOf(activeId);
 
@@ -55,9 +55,7 @@ export const PresentationShortcuts: React.FC = function () {
         }
 
         newActive = slideOrFrameIds[activeIndex - 1];
-      }
-
-      if (!newActive) {
+      } else {
         return;
       }
 

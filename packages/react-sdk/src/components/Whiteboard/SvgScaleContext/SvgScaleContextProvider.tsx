@@ -19,7 +19,6 @@ import React, {
   PropsWithChildren,
   useCallback,
   useMemo,
-  useRef,
   useState,
 } from 'react';
 import { Point } from '../../../state';
@@ -89,11 +88,6 @@ export const SvgScaleContextProvider: React.FC<PropsWithChildren> = ({
   const [containerDimensions, setContainerDimensionsState] =
     useState<ContainerDimensions>({ width: 0, height: 0 });
 
-  const containerDimensionsRef = useRef<ContainerDimensions>({
-    width: 0,
-    height: 0,
-  });
-
   const updateStateValues = useCallback(
     (
       fun: (old: StateValues) => StateValues,
@@ -160,7 +154,6 @@ export const SvgScaleContextProvider: React.FC<PropsWithChildren> = ({
       }
 
       setContainerDimensionsState(dimensions);
-      containerDimensionsRef.current = dimensions;
 
       if (infiniteCanvasMode) {
         updateStateValues((old) => old, dimensions);
@@ -237,7 +230,7 @@ export const SvgScaleContextProvider: React.FC<PropsWithChildren> = ({
     };
   }, [stateValues]);
 
-  const moveToPoint = useCallback(
+  const moveToPositionAndScale = useCallback(
     (position: Point, scale: number) => {
       const translationX = (whiteboardWidth / 2 - position.x) * scale;
       const translationY = (whiteboardHeight / 2 - position.y) * scale;
@@ -249,9 +242,9 @@ export const SvgScaleContextProvider: React.FC<PropsWithChildren> = ({
           y: translationY,
         },
       };
-      updateStateValues(() => stateValues, containerDimensionsRef.current);
+      updateStateValues(() => stateValues, containerDimensions);
     },
-    [containerDimensionsRef, updateStateValues],
+    [containerDimensions, updateStateValues],
   );
 
   const state: SvgScaleContextType = useMemo(() => {
@@ -260,9 +253,8 @@ export const SvgScaleContextProvider: React.FC<PropsWithChildren> = ({
       updateScale,
       translation: stateValues.translation,
       updateTranslation,
-      moveToPoint,
+      moveToPositionAndScale,
       containerDimensions,
-      containerDimensionsRef: containerDimensionsRef,
       setContainerDimensions,
       transformPointSvgToContainer,
       viewportCanvasCenter,
@@ -274,7 +266,7 @@ export const SvgScaleContextProvider: React.FC<PropsWithChildren> = ({
     stateValues.translation,
     transformPointSvgToContainer,
     updateScale,
-    moveToPoint,
+    moveToPositionAndScale,
     updateTranslation,
     viewportCanvasCenter,
   ]);

@@ -43,7 +43,7 @@ type UseCreateFrameResult = {
 
 export const useCreateFrame = (): UseCreateFrameResult => {
   const slideInstance = useWhiteboardSlideInstance();
-  const { viewportCanvasCenter, moveToPoint, containerDimensions } =
+  const { viewportCanvasCenter, moveToPositionAndScale, containerDimensions } =
     useSvgScaleContext();
 
   const createFrame = useCallback(() => {
@@ -106,13 +106,15 @@ export const useCreateFrame = (): UseCreateFrameResult => {
     slideInstance.addElement(frameProps);
 
     const { position: positionToMove, scale } =
-      calculatePositionAndScaleForElement(
-        frameProps,
-        containerDimensions,
-        0.75,
-      );
-    moveToPoint(positionToMove, scale);
-  }, [slideInstance, viewportCanvasCenter, moveToPoint, containerDimensions]);
+      calculatePositionAndScaleForElement(frameProps, containerDimensions);
+    const newScale = scale * 0.75; // reduce scale a bit to see the area around the frame
+    moveToPositionAndScale(positionToMove, newScale);
+  }, [
+    slideInstance,
+    viewportCanvasCenter,
+    moveToPositionAndScale,
+    containerDimensions,
+  ]);
 
   return {
     createFrame,

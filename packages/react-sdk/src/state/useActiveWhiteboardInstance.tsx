@@ -20,7 +20,7 @@ import { isInfiniteCanvasMode, useLatestValue } from '../lib';
 import { WhiteboardInstance, WhiteboardStatistics } from './types';
 import { useDistinctObserveBehaviorSubject } from './useDistinctObserveBehaviorSubject';
 import { useWhiteboardManager } from './useWhiteboardManager';
-import { useActiveWhiteboardInstanceSlideOrFrameIds } from './useWhiteboardSlideInstance';
+import { useWhiteboardSlideOrFrameIds } from './useWhiteboardSlideInstance';
 
 /**
  * @throws an Error, if there is no active whiteboard
@@ -67,7 +67,7 @@ export function useActiveWhiteboardInstanceStatistics(): WhiteboardStatistics {
 }
 
 type ActiveSlide = {
-  activeSlideId: string | undefined;
+  activeSlideId: string;
 };
 
 export function useActiveSlide(): ActiveSlide {
@@ -81,6 +81,10 @@ export function useActiveSlide(): ActiveSlide {
     observable,
   );
 
+  if (!activeSlideId) {
+    throw new Error('No active slide');
+  }
+
   return {
     activeSlideId,
   };
@@ -93,7 +97,7 @@ type ActiveSlideOrFrame = {
 };
 
 export function useActiveSlideOrFrame(): ActiveSlideOrFrame {
-  const slideOrFrameIds = useActiveWhiteboardInstanceSlideOrFrameIds();
+  const slideOrFrameIds = useWhiteboardSlideOrFrameIds();
 
   const whiteboardInstance = useActiveWhiteboardInstance();
   const observable = useMemo(

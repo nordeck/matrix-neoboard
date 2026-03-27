@@ -14,36 +14,68 @@
  * limitations under the License.
  */
 
+import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import axe from 'axe-core';
 import { ComponentType, PropsWithChildren } from 'react';
-import { Mocked, afterEach, beforeEach, describe, expect, it } from 'vitest';
+import {
+  Mocked,
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
 import {
   WhiteboardTestingContextProvider,
+  mockFrameElement,
   mockWhiteboardManager,
 } from '../../lib/testUtils/documentTestUtils';
 import { mockPowerLevelsEvent } from '../../lib/testUtils/matrixTestUtils';
-import { WhiteboardDocumentExport, WhiteboardManager } from '../../state';
+import {
+  WhiteboardDocumentExport,
+  WhiteboardInstance,
+  WhiteboardManager,
+  WhiteboardSlideInstance,
+} from '../../state';
 import { ImageUploadProvider } from '../ImageUpload';
 import { ImportWhiteboardDialogProvider } from '../ImportWhiteboardDialog/ImportWhiteboardDialogProvider';
 import { LayoutStateProvider } from '../Layout/useLayoutState';
 import { SnackbarProvider } from '../Snackbar';
 import { BoardBar } from './BoardBar';
 
+vi.mock('@matrix-widget-toolkit/mui', async () => ({
+  ...(await vi.importActual<typeof import('@matrix-widget-toolkit/mui')>(
+    '@matrix-widget-toolkit/mui',
+  )),
+  getEnvironment: vi.fn(),
+}));
+
 let widgetApi: MockedWidgetApi;
 
 afterEach(() => widgetApi.stop());
 
-beforeEach(() => (widgetApi = mockWidgetApi()));
+beforeEach(() => {
+  vi.mocked(getEnvironment).mockImplementation(
+    (_, defaultValue) => defaultValue,
+  );
+
+  widgetApi = mockWidgetApi();
+});
 
 describe('<BoardBar/>', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
   let whiteboardManager: Mocked<WhiteboardManager>;
+  let activeWhiteboard: WhiteboardInstance;
+  let activeSlide: WhiteboardSlideInstance;
 
   beforeEach(() => {
     ({ whiteboardManager } = mockWhiteboardManager());
+    activeWhiteboard = whiteboardManager.getActiveWhiteboardInstance()!;
+    activeSlide = activeWhiteboard.getSlide('slide-0');
 
     Wrapper = ({ children }) => (
       <WhiteboardTestingContextProvider
@@ -66,17 +98,72 @@ describe('<BoardBar/>', () => {
 
     const toolbar = screen.getByRole('toolbar', { name: 'Board' });
 
-    await act(() => {
-      expect(
-        within(toolbar).getByRole('checkbox', {
-          name: 'Open slide overview',
-        }),
-      ).toBeInTheDocument();
+    expect(
+      within(toolbar).getByRole('checkbox', {
+        name: 'Open slide overview',
+      }),
+    ).toBeInTheDocument();
 
-      expect(
-        within(toolbar).getByRole('button', { name: 'Settings' }),
-      ).toBeInTheDocument();
+    expect(
+      within(toolbar).getByRole('button', { name: 'Settings' }),
+    ).toBeInTheDocument();
+  });
+
+  it('should render without frames in infinite canvas mode', async () => {
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
+    );
+
+    render(<BoardBar />, { wrapper: Wrapper });
+
+    const toolbar = screen.getByRole('toolbar', { name: 'Board' });
+
+    expect(
+      within(toolbar).getByRole('checkbox', {
+        name: 'Add first frame to enable frame overview',
+      }),
+    ).toBeDisabled();
+
+    expect(
+      within(toolbar).getByRole('button', { name: 'Settings' }),
+    ).toBeInTheDocument();
+  });
+
+  it('should render with frames in infinite canvas mode', async () => {
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
+    );
+
+    ({ whiteboardManager } = mockWhiteboardManager({
+      slides: [['slide-0', [['frame-0', mockFrameElement()]]]],
+    }));
+
+    const activeWhiteboard = whiteboardManager.getActiveWhiteboardInstance()!;
+    const activeSlide = activeWhiteboard.getSlide('slide-0');
+
+    render(<BoardBar />, { wrapper: Wrapper });
+
+    const toolbar = screen.getByRole('toolbar', { name: 'Board' });
+
+    expect(
+      within(toolbar).getByRole('checkbox', {
+        name: 'Open frame overview',
+      }),
+    ).toBeInTheDocument();
+
+    expect(
+      within(toolbar).getByRole('button', { name: 'Settings' }),
+    ).toBeInTheDocument();
+
+    act(() => {
+      activeSlide.removeElements(['frame-0']);
     });
+
+    expect(
+      within(toolbar).getByRole('checkbox', {
+        name: 'Add first frame to enable frame overview',
+      }),
+    ).toBeDisabled();
   });
 
   it('should have no accessibility violations', async () => {
@@ -92,9 +179,7 @@ describe('<BoardBar/>', () => {
 
     const toolbar = screen.getByRole('toolbar', { name: 'Board' });
 
-    await act(() => {
-      expect(toolbar).toHaveAttribute('data-guided-tour-target', 'settings');
-    });
+    expect(toolbar).toHaveAttribute('data-guided-tour-target', 'settings');
   });
 
   it('should toggle the slide overview bar', async () => {
@@ -112,6 +197,32 @@ describe('<BoardBar/>', () => {
     expect(
       within(toolbar).getByRole('checkbox', {
         name: 'Close slide overview',
+        checked: true,
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it('should toggle the frame overview in infinite canvas mode', async () => {
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
+    );
+
+    activeSlide.addElement(mockFrameElement());
+
+    render(<BoardBar />, { wrapper: Wrapper });
+
+    const toolbar = screen.getByRole('toolbar', { name: 'Board' });
+
+    await userEvent.click(
+      within(toolbar).getByRole('checkbox', {
+        name: 'Open frame overview',
+        checked: false,
+      }),
+    );
+
+    expect(
+      within(toolbar).getByRole('checkbox', {
+        name: 'Close frame overview',
         checked: true,
       }),
     ).toBeInTheDocument();

@@ -20,6 +20,7 @@ import { ReactElement, useCallback } from 'react';
 import { useMeasure } from '../../lib';
 import {
   SlideProvider,
+  useActiveSlide,
   useActiveWhiteboardInstanceSlideIds,
   useIsWhiteboardLoading,
   usePresentationMode,
@@ -73,6 +74,7 @@ export function Layout({ height = '100vh' }: LayoutProps) {
     isFullscreenMode,
     isSlideOverviewVisible,
   } = useLayoutState();
+  const { activeSlideId } = useActiveSlide();
   const slideIds = useActiveWhiteboardInstanceSlideIds();
   const { state: presentationState } = usePresentationMode();
   const isViewingPresentation = presentationState.type === 'presentation';
@@ -86,7 +88,7 @@ export function Layout({ height = '100vh' }: LayoutProps) {
   }
 
   return (
-    <SlideProvider slideId={slideIds[0]}>
+    <SlideProvider slideId={activeSlideId}>
       <SlidesProvider>
         <ImageUploadProvider>
           <ImportWhiteboardDialogProvider>
@@ -106,7 +108,7 @@ export function Layout({ height = '100vh' }: LayoutProps) {
 
               <Box component="main" flex={1} display="flex" position="relative">
                 {infiniteCanvasMode && (
-                  <SlideProvider slideId={slideIds[0]}>
+                  <SlideProvider slideId={activeSlideId}>
                     <ElementOverridesProvider>
                       <ConnectionPointProvider>
                         <ElementAttachFrameProvider>
@@ -197,7 +199,9 @@ function ContentArea() {
       {(!isViewingPresentation || isViewingPresentationInEditMode) && (
         <ToolbarCanvasContainer ref={sizeRef}>
           <ToolbarContainer bottom={(theme) => theme.spacing(1)}>
-            {infiniteCanvasMode && <ZoomBar />}
+            {infiniteCanvasMode && presentationState.type === 'idle' && (
+              <ZoomBar />
+            )}
 
             <Box flex="1" />
 

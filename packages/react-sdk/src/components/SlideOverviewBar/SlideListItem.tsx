@@ -21,11 +21,7 @@ import { unstable_useId as useId, visuallyHidden } from '@mui/utils';
 import { Draggable } from 'react-beautiful-dnd';
 import { useTranslation } from 'react-i18next';
 import { isInfiniteCanvasMode } from '../../lib';
-import {
-  SlideProvider,
-  useActiveWhiteboardInstanceSlideIds,
-  useSlideIsLocked,
-} from '../../state';
+import { SlideProvider, useActiveSlide, useSlideIsLocked } from '../../state';
 import { SlidePreview } from '../Whiteboard';
 import { withContextMenu } from './withContextMenu';
 
@@ -51,20 +47,20 @@ const TabStyled = styled(Tab)(({ theme, 'aria-selected': ariaSelected }) => ({
 const TabWithContextMenu = withContextMenu(TabStyled);
 
 export type SlideListItemProps = {
-  slideOrFrameId: string;
+  slideId: string;
   slideIndex: number;
   active?: boolean;
 };
 
 export function SlideListItem({
-  slideOrFrameId,
+  slideId,
   slideIndex,
   active = false,
 }: SlideListItemProps) {
-  const slideIds = useActiveWhiteboardInstanceSlideIds();
+  const { activeSlideId } = useActiveSlide();
   const { t } = useTranslation('neoboard');
   const isLocked = useSlideIsLocked(
-    isInfiniteCanvasMode() ? undefined : slideOrFrameId,
+    isInfiniteCanvasMode() ? undefined : slideId,
   );
 
   const titleId = useId();
@@ -72,7 +68,7 @@ export function SlideListItem({
 
   return (
     <Draggable
-      draggableId={slideOrFrameId}
+      draggableId={slideId}
       index={slideIndex}
       disableInteractiveElementBlocking={true}
     >
@@ -88,11 +84,11 @@ export function SlideListItem({
           disabled={snapshot.isDragging || snapshot.isDropAnimating}
           role="tab"
           tabIndex={active ? 0 : -1}
-          value={slideOrFrameId}
+          value={slideId}
           aria-labelledby={titleId}
           aria-describedby={descriptionId}
           aria-haspopup="menu"
-          slideId={slideOrFrameId}
+          slideId={slideId}
           slideIndex={slideIndex}
         >
           <Typography sx={visuallyHidden} id={descriptionId}>
@@ -103,12 +99,10 @@ export function SlideListItem({
           </Typography>
 
           <SlideProvider
-            slideId={isInfiniteCanvasMode() ? slideIds[0] : slideOrFrameId}
+            slideId={isInfiniteCanvasMode() ? activeSlideId : slideId}
           >
             <SlidePreview
-              frameElementId={
-                isInfiniteCanvasMode() ? slideOrFrameId : undefined
-              }
+              frameElementId={isInfiniteCanvasMode() ? slideId : undefined}
             />
           </SlideProvider>
 

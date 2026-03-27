@@ -323,7 +323,7 @@ export type PresentationState =
 /** Creates and holds the currently selected {@link WhiteboardInstance} based on a whiteboard state event */
 export type PresentationManager = {
   /** Start the presentation and let all other users follow me. */
-  startPresentation(activeFrameElementId?: string): void;
+  startPresentation(frameElementId?: string): void;
   /** Start the presentation and let all other users follow me. */
   stopPresentation(): void;
   /** Observe whether a presentation is active. */

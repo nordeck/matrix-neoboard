@@ -48,13 +48,13 @@ export {
   SlideProvider,
   useActiveElement,
   useActiveElements,
-  useActiveWhiteboardInstanceSlideOrFrameIds,
   useElement,
   useElements,
   useFrameElement,
   useSlideElementIds,
   useSlideIsLocked,
   useWhiteboardSlideInstance,
+  useWhiteboardSlideOrFrameIds,
 } from './useWhiteboardSlideInstance';
 export {
   changeElementFrame,
@@ -66,6 +66,7 @@ export {
   disconnectShapeElement,
   findActiveAndAttachedElementIds,
   findConnectingPaths,
+  findNearestFrameElement,
   getFrameElementsChanges,
 } from './utils';
 export type { ElementFrameChange } from './utils';

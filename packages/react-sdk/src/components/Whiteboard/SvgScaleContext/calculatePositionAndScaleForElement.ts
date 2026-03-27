@@ -21,12 +21,10 @@ import { ContainerDimensions } from './context';
  * Calculate position and scale to show element within container.
  * @param element element for calculation
  * @param containerDimensions container dimensions
- * @param scaleModifier modifies the scale when further scaling to element needed, defaults to 1
  */
 export function calculatePositionAndScaleForElement(
   element: ElementBase & { width: number; height: number },
   containerDimensions: ContainerDimensions,
-  scaleModifier: number = 1,
 ): {
   position: Point;
   scale: number;
@@ -44,8 +42,8 @@ export function calculatePositionAndScaleForElement(
     y: y + elementHeight / 2,
   };
   const scale = Math.min(
-    (containerWidth / elementWidth) * scaleModifier,
-    (containerHeight / elementHeight) * scaleModifier,
+    containerWidth / elementWidth,
+    containerHeight / elementHeight,
   );
 
   return {

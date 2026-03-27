@@ -24,6 +24,7 @@ import {
   WheelEvent,
   WheelEventHandler,
 } from 'react';
+import { usePresentationMode } from '../../../state';
 import { isMacOS } from '../../common/platform';
 import { zoomStep } from '../constants';
 import { useSvgScaleContext } from '../SvgScaleContext';
@@ -51,6 +52,8 @@ export const useWheelZoom = (
   svgRef: RefObject<SVGSVGElement>,
 ): UseWheelZoomResult => {
   const { scale, updateScale, updateTranslation } = useSvgScaleContext();
+  const { state: presentationState } = usePresentationMode();
+  const isPresentationMode = presentationState.type !== 'idle';
   const [wheelZoomInProgress, setWheelZoomInProgress] =
     useState<boolean>(false);
 
@@ -82,7 +85,7 @@ export const useWheelZoom = (
   // Shared zoom logic
   const performZoom = useCallback(
     (event: WheelEvent) => {
-      if (event.deltaY === 0 || !svgRef.current) return;
+      if (event.deltaY === 0 || !svgRef.current || isPresentationMode) return;
 
       const zoomOriginOnCanvas = calculateSvgCoords(
         { x: event.clientX, y: event.clientY },
@@ -97,15 +100,18 @@ export const useWheelZoom = (
         zoomOriginOnCanvas,
       );
     },
-    [scale, updateScale, svgRef, macOS],
+    [scale, updateScale, svgRef, macOS, isPresentationMode],
   );
 
   // Shared panning logic
   const performPanning = useCallback(
     (event: WheelEvent) => {
+      if (isPresentationMode) {
+        return;
+      }
       updateTranslation(-event.deltaX, -event.deltaY);
     },
-    [updateTranslation],
+    [updateTranslation, isPresentationMode],
   );
 
   // macOS-specific interaction mode detection

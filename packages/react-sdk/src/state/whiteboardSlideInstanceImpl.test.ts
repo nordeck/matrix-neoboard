@@ -43,6 +43,7 @@ import {
   Document,
   generateAddElement,
   generateRemoveElement,
+  generateSetSlideFrameElementIds,
   getSlideLock,
   WhiteboardDocument,
 } from './crdt';
@@ -195,6 +196,8 @@ describe('WhiteboardSlideInstanceImpl', () => {
       document,
       '@user-id',
     );
+
+    document.performChange(generateSetSlideFrameElementIds(slide0));
 
     const frameElement1 = mockFrameElement();
     const frameElementId1 = slideInstance.addElement(frameElement1);
@@ -904,6 +907,8 @@ describe('WhiteboardSlideInstanceImpl', () => {
       '@user-id',
     );
 
+    document.performChange(generateSetSlideFrameElementIds(slide0));
+
     const elementFrame = mockFrameElement();
     const elementFrameId = slideInstance.addElement(elementFrame);
     const elementShape = mockRectangleElement();
@@ -1363,6 +1368,8 @@ describe('WhiteboardSlideInstanceImpl', () => {
       '@user-id:example.com',
     );
 
+    document.performChange(generateSetSlideFrameElementIds(slide0));
+
     const element = mockLineElement();
     const element0 = slideInstance.addElement(element);
     const element1 = slideInstance.addElement(element);
@@ -1370,8 +1377,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
     const frameElement = mockFrameElement();
     const frameElement0 = slideInstance.addElement(frameElement);
     const frameElement1 = slideInstance.addElement(frameElement);
-
-    console.log({ element0, element1, element2, frameElement0, frameElement1 });
 
     expect(slideInstance.getElementIds()).toEqual([
       element0,
@@ -1541,6 +1546,8 @@ describe('WhiteboardSlideInstanceImpl', () => {
       document,
       '@user-id:example.com',
     );
+
+    document.performChange(generateSetSlideFrameElementIds(slide0));
 
     const frameElementIds = firstValueFrom(
       slideInstance.observeFrameElementIds().pipe(take(3), toArray()),

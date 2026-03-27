@@ -4,6 +4,7 @@
     "waitModeratorJoin": "Wait for the moderator to join."
   },
   "boardBar": {
+    "addFrameToEnableOverview": "Add first frame to enable frame overview",
     "developerToolsDialog": {
       "closeAriaLabel": "Close",
       "communicationChannelStatistics": {
@@ -61,8 +62,7 @@
       "pdfError": "Something went wrong while generating the PDF.",
       "title": "Export the content"
     },
-    "hideFrameBarTitle": "Close frame overview",
-    "hideSlideBarTitle": "Close slide overview",
+    "hideSlideBarTitle": "Close frame overview",
     "importWhiteboardDialog": {
       "close": "Close",
       "errorDescription": "Your file can't be loaded. Please try again by selecting a different file.",
@@ -270,6 +270,7 @@
     "sent": "Sent"
   },
   "presentBar": {
+    "addFrameToEnablePresentationMode": "Add first frame to enable presentation mode",
     "disableEditing": "Disable editing",
     "enableEditing": "Enable editing",
     "endPresentation": "End presentation",

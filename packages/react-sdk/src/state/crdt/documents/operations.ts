@@ -28,17 +28,6 @@ export function getSlide(
   return doc.get('slides').get(slideId);
 }
 
-function getInitializedSlideFrameElementIds(
-  slide: SharedMap<Slide>,
-): YArray<string> {
-  let frameElementIds = slide.get('frameElementIds');
-  if (!frameElementIds) {
-    frameElementIds = new YArray();
-    slide.set('frameElementIds', frameElementIds);
-  }
-  return frameElementIds;
-}
-
 /** Get the ordered list of slides. */
 export function getNormalizedSlideIds(
   doc: SharedMap<WhiteboardDocument>,
@@ -141,29 +130,6 @@ export function generateMoveSlide(
     if (currentIndex >= 0) {
       slideIds.delete(currentIndex, 1);
       slideIds.insert(index, [slideId]);
-    }
-  };
-}
-
-export function generateMoveSlideFrame(
-  slideId: string,
-  frameElementId: string,
-  index: number,
-): ChangeFn<WhiteboardDocument> {
-  return (doc) => {
-    cleanupSlideIds(doc);
-
-    const frameElementIds = doc
-      .get('slides')
-      .get(slideId)
-      ?.get('frameElementIds');
-    if (frameElementIds) {
-      const currentIndex = frameElementIds.toArray().indexOf(frameElementId);
-
-      if (currentIndex >= 0) {
-        frameElementIds.delete(currentIndex, 1);
-        frameElementIds.insert(index, [frameElementId]);
-      }
     }
   };
 }
@@ -271,26 +237,6 @@ export function getNormalizedElementIds(
   return uniq(elementIds).filter((e) => elements.get(e));
 }
 
-export function getNormalizedFrameElementIds(
-  doc: SharedMap<WhiteboardDocument>,
-  slideId: string,
-): string[] {
-  const slide = getSlide(doc, slideId);
-
-  if (!slide) {
-    return [];
-  }
-
-  const frameElementIds = slide.get('frameElementIds')?.toArray();
-
-  if (!frameElementIds) {
-    return [];
-  }
-
-  const elements = slide.get('elements');
-  return uniq(frameElementIds).filter((e) => elements.get(e));
-}
-
 /**
  * Add a new element at the end of the list of elements and returns the new
  * element ID.
@@ -316,7 +262,7 @@ export function generateAddElement(
     slide.get('elements').set(newElementId, elementMap);
     slide.get('elementIds').push([newElementId]);
     if (element.type === 'frame') {
-      getInitializedSlideFrameElementIds(slide).push([newElementId]);
+      slide.get('frameElementIds')?.push([newElementId]);
     }
   };
 
@@ -351,7 +297,7 @@ export function generateAddElements(
       slide.get('elements').set(newElementIds[index], elementMap);
       slide.get('elementIds').push([newElementIds[index]]);
       if (element.type === 'frame') {
-        getInitializedSlideFrameElementIds(slide).push([newElementIds[index]]);
+        slide.get('frameElementIds')?.push([newElementIds[index]]);
       }
     });
   };
@@ -533,6 +479,101 @@ export function generateRemoveElements(
 
     elementIds.forEach((elementId) => slide.get('elements').delete(elementId));
     cleanupElementIds(slide);
+  };
+}
+
+/**
+ * Set frame element ids for the slide from the frame elements.
+ */
+export function generateSetSlideFrameElementIds(
+  slideId: string,
+): ChangeFn<WhiteboardDocument> {
+  return (doc: SharedMap<WhiteboardDocument>) => {
+    const slide = getSlide(doc, slideId);
+
+    if (!slide) {
+      throw new Error(`Slide not found: ${slideId}`);
+    }
+
+    const frameElementIds: string[] = [];
+
+    for (const [elementId, element] of slide.get('elements')) {
+      if (element.get('type') === 'frame') {
+        frameElementIds.push(elementId);
+      }
+    }
+
+    slide.set('frameElementIds', YArray.from(frameElementIds));
+  };
+}
+
+/**
+ * Return the ordered list of frame elements for the presentation as are stored in the slide.
+ * A normalized version should normally be used, however this operation is useful when need to get a value as it is.
+ */
+export function getFrameElementIds(
+  doc: SharedMap<WhiteboardDocument>,
+  slideId: string,
+): string[] | undefined {
+  const slide = getSlide(doc, slideId);
+
+  if (!slide) {
+    return undefined;
+  }
+
+  return slide.get('frameElementIds')?.toArray();
+}
+
+/**
+ * Return the ordered list of frame elements for the presentation.
+ */
+export function getNormalizedFrameElementIds(
+  doc: SharedMap<WhiteboardDocument>,
+  slideId: string,
+): string[] {
+  const slide = getSlide(doc, slideId);
+
+  if (!slide) {
+    return [];
+  }
+
+  const frameElementIds = slide.get('frameElementIds')?.toArray();
+
+  if (!frameElementIds) {
+    return [];
+  }
+
+  const elements = slide.get('elements');
+  return uniq(frameElementIds).filter((e) => elements.get(e));
+}
+
+/** Move a frame identified by its id to a different position */
+export function generateMoveSlideFrame(
+  slideId: string,
+  frameElementId: string,
+  index: number,
+): ChangeFn<WhiteboardDocument> {
+  return (doc) => {
+    const slide = getSlide(doc, slideId);
+
+    if (!slide) {
+      return;
+    }
+
+    cleanupElementIds(slide);
+
+    const frameElementIds = doc
+      .get('slides')
+      .get(slideId)
+      ?.get('frameElementIds');
+    if (frameElementIds) {
+      const currentIndex = frameElementIds.toArray().indexOf(frameElementId);
+
+      if (currentIndex >= 0) {
+        frameElementIds.delete(currentIndex, 1);
+        frameElementIds.insert(index, [frameElementId]);
+      }
+    }
   };
 }
 

@@ -17,7 +17,7 @@
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { isInfiniteCanvasMode } from '../../lib';
-import { useActiveWhiteboardInstanceSlideOrFrameIds } from '../../state';
+import { useWhiteboardSlideOrFrameIds } from '../../state';
 import { Toolbar } from '../common/Toolbar';
 import { useLayoutState } from '../Layout';
 import { SettingsMenu } from './SettingsMenu';
@@ -25,7 +25,7 @@ import { ShowSlideOverviewToggle } from './ShowSlideOverviewToggle';
 
 export function BoardBar() {
   const { t } = useTranslation('neoboard');
-  const slideOrFrameIds = useActiveWhiteboardInstanceSlideOrFrameIds();
+  const slideOrFrameIds = useWhiteboardSlideOrFrameIds();
   const { setSlideOverviewVisible, isSlideOverviewVisible } = useLayoutState();
 
   const toolbarTitle = t('boardBar.title', 'Board');
@@ -46,7 +46,7 @@ export function BoardBar() {
       sx={{ pointerEvents: 'initial', marginRight: 'auto' }}
       data-guided-tour-target="settings"
     >
-      {slideOrFrameIds.length > 0 && <ShowSlideOverviewToggle />}
+      <ShowSlideOverviewToggle />
       <SettingsMenu />
     </Toolbar>
   );

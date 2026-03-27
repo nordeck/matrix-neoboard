@@ -38,8 +38,7 @@ import { ElementOverridesProvider } from '../ElementOverridesProvider';
 import { LayoutStateProvider, useLayoutState } from '../Layout';
 import { WhiteboardHotkeysProvider } from '../WhiteboardHotkeysProvider';
 import * as constants from './constants';
-import { useSvgScaleContext } from './SvgScaleContext';
-import { SvgScaleContextType } from './SvgScaleContext/context';
+import { SvgScaleContextType, useSvgScaleContext } from './SvgScaleContext';
 
 vi.mock('./SvgCanvas/useMeasure', () => ({
   useMeasure: vi.fn().mockReturnValue([vi.fn(), { width: 1920, height: 1080 }]),

@@ -231,16 +231,14 @@ describe('useActiveSlide', () => {
     });
   });
 
-  it('should handle missing slide', () => {
+  it('should thrown when no active slide', () => {
     ({ whiteboardManager } = mockWhiteboardManager({ slideCount: 0 }));
 
-    const { result } = renderHook(() => useActiveSlide(), {
-      wrapper: Wrapper,
-    });
-
-    expect(result.current).toEqual({
-      activeSlideId: undefined,
-    });
+    expect(() =>
+      renderHook(() => useActiveSlide(), {
+        wrapper: Wrapper,
+      }),
+    ).toThrow(Error('No active slide'));
   });
 
   it('should observe slides', () => {

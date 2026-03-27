@@ -45,7 +45,10 @@ export function useWhiteboardSlideInstance(): WhiteboardSlideInstance {
   return whiteboardInstance.getSlide(slideId);
 }
 
-export function useActiveWhiteboardInstanceSlideOrFrameIds(): string[] {
+/**
+ * Provide frame ids in infinite canvas mode, slide ids otherwise.
+ */
+export function useWhiteboardSlideOrFrameIds(): string[] {
   const whiteboardInstance = useActiveWhiteboardInstance();
   const slideInstance = useWhiteboardSlideInstance();
 

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { BehaviorSubject, firstValueFrom, Subject, take, toArray } from 'rxjs';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
 import { mockPeerConnectionStatistics } from '../lib/testUtils/documentTestUtils';
@@ -25,10 +26,18 @@ import {
 import { PresentationManagerImpl } from './presentationManagerImpl';
 import { WhiteboardInstance } from './types';
 
+vi.mock('@matrix-widget-toolkit/mui', async () => ({
+  ...(await vi.importActual<typeof import('@matrix-widget-toolkit/mui')>(
+    '@matrix-widget-toolkit/mui',
+  )),
+  getEnvironment: vi.fn(),
+}));
+
 describe('presentationManager', () => {
   let communicationStatistics: CommunicationChannelStatistics;
   let observeCommunicationStatisticsSubject: Subject<CommunicationChannelStatistics>;
   let observeActiveSlideIdSubject: BehaviorSubject<string | undefined>;
+  let observeActiveFrameElementIdSubject: BehaviorSubject<string | undefined>;
   let communicationChannel: Mocked<CommunicationChannel>;
   let messageSubject: Subject<Message>;
   let whiteboardInstance: Mocked<WhiteboardInstance>;
@@ -36,6 +45,10 @@ describe('presentationManager', () => {
   let presentationManager: PresentationManagerImpl;
 
   beforeEach(async () => {
+    vi.mocked(getEnvironment).mockImplementation(
+      (_, defaultValue) => defaultValue,
+    );
+
     communicationStatistics = {
       localSessionId: 'own',
       peerConnections: {
@@ -57,6 +70,9 @@ describe('presentationManager', () => {
     observeActiveSlideIdSubject = new BehaviorSubject<string | undefined>(
       'slide-0',
     );
+    observeActiveFrameElementIdSubject = new BehaviorSubject<
+      string | undefined
+    >(undefined);
 
     communicationChannel = {
       broadcastMessage: vi.fn(),
@@ -78,7 +94,9 @@ describe('presentationManager', () => {
         .fn()
         .mockImplementation(() => observeActiveSlideIdSubject.value),
       getActiveSlide: vi.fn(),
-      getActiveFrameElementId: vi.fn(),
+      getActiveFrameElementId: vi
+        .fn()
+        .mockImplementation(() => observeActiveFrameElementIdSubject.value),
       getPresentationManager: vi.fn(),
       getSlide: vi.fn(),
       getSlideIds: vi.fn(),
@@ -90,8 +108,9 @@ describe('presentationManager', () => {
       observeActiveSlideId: vi
         .fn()
         .mockReturnValue(observeActiveSlideIdSubject),
-      observeActiveFrameElementId: vi.fn(),
-
+      observeActiveFrameElementId: vi
+        .fn()
+        .mockReturnValue(observeActiveFrameElementIdSubject),
       observeIsLoading: vi.fn(),
       observeSlideIds: vi.fn(),
       observeUndoRedoState: vi.fn(),
@@ -99,7 +118,11 @@ describe('presentationManager', () => {
       redo: vi.fn(),
       removeSlide: vi.fn(),
       setActiveSlideId: vi.fn(),
-      setActiveFrameElementId: vi.fn(),
+      setActiveFrameElementId: vi
+        .fn()
+        .mockImplementation((activeFrameElementId) =>
+          observeActiveFrameElementIdSubject.next(activeFrameElementId),
+        ),
       undo: vi.fn(),
       destroy: vi.fn(),
       persist: vi.fn(),
@@ -131,6 +154,28 @@ describe('presentationManager', () => {
     expect(whiteboardInstance.setActiveSlideId).not.toHaveBeenCalled();
   });
 
+  it('should start the presentation for active frame in infinite canvas mode', async () => {
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
+    );
+
+    const states = firstValueFrom(
+      presentationManager.observePresentationState().pipe(take(2), toArray()),
+    );
+
+    presentationManager.startPresentation('frame-0');
+
+    expect(await states).toEqual([
+      { type: 'idle' },
+      { type: 'presenting', isEditMode: false },
+    ]);
+    expect(communicationChannel.broadcastMessage).toHaveBeenCalledWith(
+      'net.nordeck.whiteboard.present_frame',
+      { view: { isEditMode: false, frameId: 'frame-0' } },
+    );
+    expect(whiteboardInstance.setActiveSlideId).not.toHaveBeenCalled();
+  });
+
   it('should stop the presentation', async () => {
     presentationManager.startPresentation();
 
@@ -149,6 +194,29 @@ describe('presentationManager', () => {
       { view: undefined },
     );
     expect(whiteboardInstance.setActiveSlideId).not.toHaveBeenCalled();
+  });
+
+  it('should stop the presentation for active frame in infinite canvas mode', async () => {
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
+    );
+
+    presentationManager.startPresentation('frame-0');
+
+    const states = firstValueFrom(
+      presentationManager.observePresentationState().pipe(take(2), toArray()),
+    );
+
+    presentationManager.stopPresentation();
+
+    expect(await states).toEqual([
+      { type: 'presenting', isEditMode: false },
+      { type: 'idle' },
+    ]);
+    expect(communicationChannel.broadcastMessage).toHaveBeenCalledWith(
+      'net.nordeck.whiteboard.present_frame',
+      { view: undefined },
+    );
   });
 
   it('should accept presentation start of a different user', async () => {
@@ -175,6 +243,39 @@ describe('presentationManager', () => {
     ]);
     expect(whiteboardInstance.clearUndoManager).not.toHaveBeenCalled();
     expect(whiteboardInstance.setActiveSlideId).toHaveBeenCalledWith('slide-0');
+  });
+
+  it('should accept presentation start of a different user in infinite canvas mode', async () => {
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
+    );
+
+    const states = firstValueFrom(
+      presentationManager.observePresentationState().pipe(take(2), toArray()),
+    );
+
+    messageSubject.next({
+      senderUserId: '@user-bob:example.com',
+      senderSessionId: 'session-0',
+      type: 'net.nordeck.whiteboard.present_frame',
+      content: {
+        view: { isEditMode: false, frameId: 'frame-0' },
+      },
+    });
+
+    expect(await states).toEqual([
+      { type: 'idle' },
+      {
+        type: 'presentation',
+        presenterUserId: '@user-bob:example.com',
+        isEditMode: false,
+      },
+    ]);
+    expect(whiteboardInstance.clearUndoManager).not.toHaveBeenCalled();
+    expect(whiteboardInstance.setActiveSlideId).not.toHaveBeenCalled();
+    expect(whiteboardInstance.setActiveFrameElementId).toHaveBeenCalledWith(
+      'frame-0',
+    );
   });
 
   it('should accept presentation stop of a different user', async () => {
@@ -212,6 +313,49 @@ describe('presentationManager', () => {
     expect(whiteboardInstance.setActiveSlideId).not.toHaveBeenCalled();
   });
 
+  it('should accept presentation stop of a different user in infinite canvas mode', async () => {
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
+    );
+
+    messageSubject.next({
+      senderUserId: '@user-bob:example.com',
+      senderSessionId: 'session-0',
+      type: 'net.nordeck.whiteboard.present_frame',
+      content: {
+        view: { isEditMode: false, frameId: 'frame-0' },
+      },
+    });
+
+    whiteboardInstance.setActiveSlideId.mockReset();
+    whiteboardInstance.setActiveFrameElementId.mockReset();
+
+    const states = firstValueFrom(
+      presentationManager.observePresentationState().pipe(take(2), toArray()),
+    );
+
+    messageSubject.next({
+      senderUserId: '@user-bob:example.com',
+      senderSessionId: 'session-0',
+      type: 'net.nordeck.whiteboard.present_frame',
+      content: { view: undefined },
+    });
+
+    expect(await states).toEqual([
+      {
+        type: 'presentation',
+        presenterUserId: '@user-bob:example.com',
+        isEditMode: false,
+      },
+      { type: 'idle' },
+    ]);
+    expect(whiteboardInstance.clearUndoManager).not.toHaveBeenCalled();
+    expect(whiteboardInstance.setActiveSlideId).not.toHaveBeenCalled();
+    expect(whiteboardInstance.setActiveFrameElementId).toHaveBeenCalledWith(
+      undefined,
+    );
+  });
+
   it('should accept the edit mode from a different user', async () => {
     const states = firstValueFrom(
       presentationManager.observePresentationState().pipe(take(3), toArray()),
@@ -241,6 +385,44 @@ describe('presentationManager', () => {
     ]);
     expect(whiteboardInstance.clearUndoManager).toHaveBeenCalled();
     expect(whiteboardInstance.setActiveSlideId).toHaveBeenCalledWith('slide-0');
+  });
+
+  it('should accept the edit mode from a different user in infinite canvas mode', async () => {
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
+    );
+
+    const states = firstValueFrom(
+      presentationManager.observePresentationState().pipe(take(3), toArray()),
+    );
+
+    messageSubject.next({
+      senderUserId: '@user-bob:example.com',
+      senderSessionId: 'session-0',
+      type: 'net.nordeck.whiteboard.present_frame',
+      content: {
+        view: { isEditMode: true, frameId: 'frame-0' },
+      },
+    });
+
+    expect(await states).toEqual([
+      { type: 'idle' },
+      {
+        type: 'presentation',
+        presenterUserId: '@user-bob:example.com',
+        isEditMode: false,
+      },
+      {
+        type: 'presentation',
+        presenterUserId: '@user-bob:example.com',
+        isEditMode: true,
+      },
+    ]);
+    expect(whiteboardInstance.clearUndoManager).toHaveBeenCalled();
+    expect(whiteboardInstance.setActiveSlideId).not.toHaveBeenCalled();
+    expect(whiteboardInstance.setActiveFrameElementId).toHaveBeenCalledWith(
+      'frame-0',
+    );
   });
 
   it('should update the presentation state when a presenting user becomes disconnected', async () => {
@@ -306,6 +488,34 @@ describe('presentationManager', () => {
     );
   });
 
+  it('should broadcast the active frame when it changes in infinite canvas mode', async () => {
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
+    );
+
+    presentationManager.startPresentation('frame-0');
+    observeActiveFrameElementIdSubject.next('frame-1');
+    observeActiveFrameElementIdSubject.next('frame-2');
+
+    expect(communicationChannel.broadcastMessage).toHaveBeenCalledTimes(3);
+
+    expect(communicationChannel.broadcastMessage).toHaveBeenNthCalledWith(
+      1,
+      'net.nordeck.whiteboard.present_frame',
+      { view: { isEditMode: false, frameId: 'frame-0' } },
+    );
+    expect(communicationChannel.broadcastMessage).toHaveBeenNthCalledWith(
+      2,
+      'net.nordeck.whiteboard.present_frame',
+      { view: { isEditMode: false, frameId: 'frame-1' } },
+    );
+    expect(communicationChannel.broadcastMessage).toHaveBeenNthCalledWith(
+      3,
+      'net.nordeck.whiteboard.present_frame',
+      { view: { isEditMode: false, frameId: 'frame-2' } },
+    );
+  });
+
   it('should broadcast the active slide when a new session is connected', async () => {
     presentationManager.startPresentation();
 
@@ -339,6 +549,43 @@ describe('presentationManager', () => {
     );
   });
 
+  it('should broadcast the active frame when a new session is connected in infinite canvas mode', async () => {
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
+    );
+
+    presentationManager.startPresentation('frame-0');
+
+    communicationStatistics = {
+      localSessionId: 'own',
+      peerConnections: {
+        'peer-0': mockPeerConnectionStatistics(
+          '@user-bob:example.com',
+          'connected',
+          'session-0',
+        ),
+        'peer-1': mockPeerConnectionStatistics(
+          '@user-charlie:example.com',
+          'failed',
+          'session-1',
+        ),
+        'peer-2': mockPeerConnectionStatistics(
+          '@user-dave:example.com',
+          'connected',
+          'session-3',
+        ),
+      },
+    };
+    observeCommunicationStatisticsSubject.next(communicationStatistics);
+
+    expect(communicationChannel.broadcastMessage).toHaveBeenCalledTimes(2);
+
+    expect(communicationChannel.broadcastMessage).toHaveBeenCalledWith(
+      'net.nordeck.whiteboard.present_frame',
+      { view: { isEditMode: false, frameId: 'frame-0' } },
+    );
+  });
+
   it('should skip broadcasting the active slide when the presentation was cancelled', async () => {
     presentationManager.startPresentation();
     observeActiveSlideIdSubject.next('slide-1');
@@ -361,6 +608,35 @@ describe('presentationManager', () => {
       2,
       'net.nordeck.whiteboard.present_slide',
       { view: { isEditMode: false, slideId: 'slide-1' } },
+    );
+  });
+
+  it('should skip broadcasting the active frame when the presentation was cancelled in infinite canvas mode', async () => {
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
+    );
+
+    presentationManager.startPresentation('frame-0');
+    observeActiveFrameElementIdSubject.next('frame-1');
+
+    communicationStatistics = {
+      localSessionId: 'own-new',
+      peerConnections: {},
+    };
+    observeCommunicationStatisticsSubject.next(communicationStatistics);
+
+    observeActiveFrameElementIdSubject.next('frame-2');
+    expect(communicationChannel.broadcastMessage).toHaveBeenCalledTimes(2);
+
+    expect(communicationChannel.broadcastMessage).toHaveBeenNthCalledWith(
+      1,
+      'net.nordeck.whiteboard.present_frame',
+      { view: { isEditMode: false, frameId: 'frame-0' } },
+    );
+    expect(communicationChannel.broadcastMessage).toHaveBeenNthCalledWith(
+      2,
+      'net.nordeck.whiteboard.present_frame',
+      { view: { isEditMode: false, frameId: 'frame-1' } },
     );
   });
 
@@ -427,6 +703,43 @@ describe('presentationManager', () => {
     );
   });
 
+  it('should toggle the edit mode in infinite canvas mode', async () => {
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
+    );
+
+    const states = firstValueFrom(
+      presentationManager.observePresentationState().pipe(take(4), toArray()),
+    );
+
+    presentationManager.startPresentation('frame-0');
+    presentationManager.toggleEditMode();
+    presentationManager.toggleEditMode();
+
+    expect(await states).toEqual([
+      { type: 'idle' },
+      { type: 'presenting', isEditMode: false },
+      { type: 'presenting', isEditMode: true },
+      { type: 'presenting', isEditMode: false },
+    ]);
+    expect(communicationChannel.broadcastMessage).toHaveBeenCalledTimes(3);
+    expect(communicationChannel.broadcastMessage).toHaveBeenNthCalledWith(
+      1,
+      'net.nordeck.whiteboard.present_frame',
+      { view: { isEditMode: false, frameId: 'frame-0' } },
+    );
+    expect(communicationChannel.broadcastMessage).toHaveBeenNthCalledWith(
+      2,
+      'net.nordeck.whiteboard.present_frame',
+      { view: { isEditMode: true, frameId: 'frame-0' } },
+    );
+    expect(communicationChannel.broadcastMessage).toHaveBeenNthCalledWith(
+      3,
+      'net.nordeck.whiteboard.present_frame',
+      { view: { isEditMode: false, frameId: 'frame-0' } },
+    );
+  });
+
   it('should deactivate the edit mode when the slide changes', async () => {
     const states = firstValueFrom(
       presentationManager.observePresentationState().pipe(take(4), toArray()),
@@ -460,6 +773,43 @@ describe('presentationManager', () => {
     );
   });
 
+  it('should deactivate the edit mode when the frame changes in infinite canvas mode', async () => {
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
+    );
+
+    const states = firstValueFrom(
+      presentationManager.observePresentationState().pipe(take(4), toArray()),
+    );
+
+    presentationManager.startPresentation('frame-0');
+    presentationManager.toggleEditMode();
+    observeActiveFrameElementIdSubject.next('frame-1');
+
+    expect(await states).toEqual([
+      { type: 'idle' },
+      { type: 'presenting', isEditMode: false },
+      { type: 'presenting', isEditMode: true },
+      { type: 'presenting', isEditMode: false },
+    ]);
+    expect(communicationChannel.broadcastMessage).toHaveBeenCalledTimes(3);
+    expect(communicationChannel.broadcastMessage).toHaveBeenNthCalledWith(
+      1,
+      'net.nordeck.whiteboard.present_frame',
+      { view: { isEditMode: false, frameId: 'frame-0' } },
+    );
+    expect(communicationChannel.broadcastMessage).toHaveBeenNthCalledWith(
+      2,
+      'net.nordeck.whiteboard.present_frame',
+      { view: { isEditMode: true, frameId: 'frame-0' } },
+    );
+    expect(communicationChannel.broadcastMessage).toHaveBeenNthCalledWith(
+      3,
+      'net.nordeck.whiteboard.present_frame',
+      { view: { isEditMode: false, frameId: 'frame-1' } },
+    );
+  });
+
   it('should clear the undo manager', async () => {
     messageSubject.next({
       senderUserId: '@user-bob:example.com',
@@ -467,6 +817,23 @@ describe('presentationManager', () => {
       type: 'net.nordeck.whiteboard.present_slide',
       content: {
         view: { isEditMode: true, slideId: 'slide-0' },
+      },
+    });
+
+    expect(whiteboardInstance.clearUndoManager).toHaveBeenCalled();
+  });
+
+  it('should clear the undo manager in infinite canvas mode', async () => {
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
+    );
+
+    messageSubject.next({
+      senderUserId: '@user-bob:example.com',
+      senderSessionId: 'session-0',
+      type: 'net.nordeck.whiteboard.present_frame',
+      content: {
+        view: { isEditMode: true, frameId: 'frame-0' },
       },
     });
 
@@ -482,6 +849,25 @@ describe('presentationManager', () => {
       type: 'net.nordeck.whiteboard.present_slide',
       content: {
         view: { isEditMode: true, slideId: 'slide-0' },
+      },
+    });
+
+    expect(whiteboardInstance.clearUndoManager).not.toHaveBeenCalled();
+  });
+
+  it('should not clear the undo manager in infinite canvas mode', async () => {
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
+    );
+
+    presentationManager.toggleEditMode();
+
+    messageSubject.next({
+      senderUserId: '@user-bob:example.com',
+      senderSessionId: 'session-0',
+      type: 'net.nordeck.whiteboard.present_frame',
+      content: {
+        view: { isEditMode: true, frameId: 'frame-0' },
       },
     });
 
