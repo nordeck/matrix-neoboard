@@ -84,7 +84,7 @@
       "import": "Importieren…",
       "title": "Einstellungen"
     },
-    "showFrameBarTitle": "Open frame overview",
+    "showFrameBarTitle": "Rahmenübersicht öffnen",
     "showSlideBarTitle": "Folienübersicht öffnen",
     "title": "Tafel"
   },
@@ -278,9 +278,9 @@
     "title": "Präsentieren"
   },
   "presentToolsBar": {
-    "nextFrame": "Next frame",
+    "nextFrame": "Nächster Rahmen",
     "nextSlide": "Nächste Folie",
-    "previousFrame": "Previous frame",
+    "previousFrame": "Vorheriger Rahmen",
     "previousSlide": "Vorherige Folie"
   },
   "slideOverviewBar": {
@@ -297,25 +297,25 @@
     "dragAndDrop": {
       "dragInstructions": "Drücke die M-Taste um diese Folie zu verschieben. Während des Verschiebens, nutze die Pfeiltasten um den Eintrag zu verschieben und Escape um es abzubrechen. Stelle sicher das dein Screen Reader im Fokus oder Formular Modus ist.",
       "dragStart": "Du hast eine Folie aufgehoben. Sie befindet sich an Position {{startPosition}} von {{totalCount}} in der Liste. Nutze die Pfeiltasten zum verschieben, die M-Taste zum Ablegen und Escape zum Abbrechen.",
-      "dragStart_frame": "You have lifted a frame. It is in position {{startPosition}} of {{totalCount}} in the list. Use the arrow keys to move, the M key to drop, and escape to cancel.",
+      "dragStart_frame": "Du hast einen Rahmen aufgehoben. Er befindet sich an Position {{startPosition}} von {{totalCount}} in der Liste. Nutze die Pfeiltasten zum verschieben, die M-Taste zum Ablegen und Escape zum Abbrechen.",
       "dropped": "Du hast die Folie abgelegt. Sie wurde von Position {{startPosition}} nach {{destinationPosition}} verschoben.",
-      "dropped_frame": "You have dropped the frame. It has moved from position {{startPosition}} to {{destinationPosition}}.",
+      "dropped_frame": "Du hast den Rahmen abgelegt. Er wurde von Position {{startPosition}} nach {{destinationPosition}} verschoben.",
       "droppedOnNoDropTarget": "Du hast die Folie abgelegt während du nicht über einer gültigen Ablagestelle gewesen bist. Die Folie ist zu ihrer ursprünglichen Position {{startPosition}} zurückgekehrt.",
-      "droppedOnNoDropTarget_frame": "The frame has been dropped while not over a location. The frame has returned to its starting position of {{startPosition}}.",
+      "droppedOnNoDropTarget_frame": "Du hast den Rahmen abgelegt während du nicht über einer gültigen Ablagestelle gewesen bist. Der Rahmen ist zu seiner ursprünglichen Position {{startPosition}} zurückgekehrt.",
       "movedPosition": "Du hast die Folie zu Position {{position}} von {{totalCount}} verschoben.",
-      "movedPosition_frame": "You have moved the frame to position {{position}} of {{totalCount}}.",
+      "movedPosition_frame": "Du hast den Rahmen zu Position {{position}} von {{totalCount}} verschoben.",
       "movementCanceled": "Verschieben abgebrochen. Die Folie ist zu ihrer ursprünglichen Position {{startPosition}} zurückgekehrt.",
-      "movementCanceled_frame": "Movement cancelled. The frame has returned to its starting position of {{startPosition}}.",
+      "movementCanceled_frame": "Verschieben abgebrochen. Der Rahmen ist zu seiner ursprünglichen Position {{startPosition}} zurückgekehrt.",
       "notOverDropTarget": "Du befindest dich aktuell nicht über einer gültigen Ablagestelle."
     },
-    "frameListTitle": "Frames",
-    "frameTitle": "Frame",
+    "frameListTitle": "Rahmen",
+    "frameTitle": "Rahmen",
     "slideListTitle": "Folien",
     "slideLockedTooltip": "Gesperrt",
     "slideTitle": "Folie",
     "slideTitleLocked": "(gesperrt)",
     "title": "Folienübersicht",
-    "title_frame": "Frame Overview"
+    "title_frame": "Rahmenübersicht"
   },
   "snackbar": {
     "dismissAction": "Ausblenden"
