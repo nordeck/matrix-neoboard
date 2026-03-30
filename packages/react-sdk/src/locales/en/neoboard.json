@@ -62,7 +62,8 @@
       "pdfError": "Something went wrong while generating the PDF.",
       "title": "Export the content"
     },
-    "hideSlideBarTitle": "Close frame overview",
+    "hideFrameBarTitle": "Close frame overview",
+    "hideSlideBarTitle": "Close slide overview",
     "importWhiteboardDialog": {
       "close": "Close",
       "errorDescription": "Your file can't be loaded. Please try again by selecting a different file.",

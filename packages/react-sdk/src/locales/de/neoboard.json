@@ -62,6 +62,7 @@
       "pdfError": "Bei der Erstellung des PDFs ist ein Fehler aufgetreten.",
       "title": "Inhalt exportieren"
     },
+    "hideFrameBarTitle": "Rahmenübersicht schließen",
     "hideSlideBarTitle": "Folienübersicht schließen",
     "importWhiteboardDialog": {
       "close": "Schließen",

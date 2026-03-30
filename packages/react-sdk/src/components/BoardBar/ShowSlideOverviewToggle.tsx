@@ -57,7 +57,7 @@ function getTitle(
 ): string {
   if (isInfiniteCanvasMode()) {
     if (isSlideOverviewVisible) {
-      return t('boardBar.hideSlideBarTitle', 'Close frame overview');
+      return t('boardBar.hideFrameBarTitle', 'Close frame overview');
     } else if (slideOrFrameIds.length === 0) {
       return t(
         'boardBar.addFrameToEnableOverview',
