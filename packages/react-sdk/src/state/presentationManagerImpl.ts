@@ -30,7 +30,7 @@ import {
   takeUntil,
   takeWhile,
 } from 'rxjs';
-import { isDefined, isInfiniteCanvasMode } from '../lib';
+import { isDefined, isInfiniteCanvasMode, isMatrixRtcMode } from '../lib';
 import {
   CommunicationChannel,
   isValidPresentFrameMessage,
@@ -251,12 +251,6 @@ export class PresentationManagerImpl implements PresentationManager {
     ]).pipe(
       takeUntil(this.destroySubject),
       map(([statistics, presenterSessionId, isEditMode]): PresentationState => {
-        const presenterSession = presenterSessionId
-          ? Object.values(statistics.peerConnections).find(
-              (c) => c.remoteSessionId === presenterSessionId,
-            )
-          : undefined;
-
         if (
           presenterSessionId &&
           presenterSessionId === statistics.localSessionId
@@ -264,10 +258,31 @@ export class PresentationManagerImpl implements PresentationManager {
           return { type: 'presenting', isEditMode };
         }
 
-        if (presenterSession && isPeerConnected(presenterSession)) {
+        let presenterUserId: string | undefined = undefined;
+        if (isMatrixRtcMode()) {
+          const presenterSession = statistics.sessions?.find(
+            (session) => session.sessionId === presenterSessionId,
+          );
+
+          if (presenterSession) {
+            presenterUserId = presenterSession.userId;
+          }
+        } else {
+          const peerConnection = presenterSessionId
+            ? Object.values(statistics.peerConnections).find(
+                (c) => c.remoteSessionId === presenterSessionId,
+              )
+            : undefined;
+
+          if (peerConnection && isPeerConnected(peerConnection)) {
+            presenterUserId = peerConnection.remoteUserId;
+          }
+        }
+
+        if (presenterUserId) {
           return {
             type: 'presentation',
-            presenterUserId: presenterSession.remoteUserId,
+            presenterUserId,
             isEditMode,
           };
         }

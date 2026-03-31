@@ -176,6 +176,41 @@ describe('presentationManager', () => {
     expect(whiteboardInstance.setActiveSlideId).not.toHaveBeenCalled();
   });
 
+  it('should start the presentation for active frame in infinite canvas mode in matrix rtc mode', async () => {
+    communicationStatistics = {
+      localSessionId: 'own',
+      peerConnections: {},
+      sessions: [],
+    };
+
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) => {
+      switch (name) {
+        case 'REACT_APP_INFINITE_CANVAS':
+          return 'true';
+        case 'REACT_APP_RTC':
+          return 'matrixrtc';
+        default:
+          return defaultValue;
+      }
+    });
+
+    const states = firstValueFrom(
+      presentationManager.observePresentationState().pipe(take(2), toArray()),
+    );
+
+    presentationManager.startPresentation('frame-0');
+
+    expect(await states).toEqual([
+      { type: 'idle' },
+      { type: 'presenting', isEditMode: false },
+    ]);
+    expect(communicationChannel.broadcastMessage).toHaveBeenCalledWith(
+      'net.nordeck.whiteboard.present_frame',
+      { view: { isEditMode: false, frameId: 'frame-0' } },
+    );
+    expect(whiteboardInstance.setActiveSlideId).not.toHaveBeenCalled();
+  });
+
   it('should stop the presentation', async () => {
     presentationManager.startPresentation();
 
@@ -200,6 +235,42 @@ describe('presentationManager', () => {
     vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
       name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
     );
+
+    presentationManager.startPresentation('frame-0');
+
+    const states = firstValueFrom(
+      presentationManager.observePresentationState().pipe(take(2), toArray()),
+    );
+
+    presentationManager.stopPresentation();
+
+    expect(await states).toEqual([
+      { type: 'presenting', isEditMode: false },
+      { type: 'idle' },
+    ]);
+    expect(communicationChannel.broadcastMessage).toHaveBeenCalledWith(
+      'net.nordeck.whiteboard.present_frame',
+      { view: undefined },
+    );
+  });
+
+  it('should stop the presentation for active frame in infinite canvas mode in matrix rtc mode', async () => {
+    communicationStatistics = {
+      localSessionId: 'own',
+      peerConnections: {},
+      sessions: [],
+    };
+
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) => {
+      switch (name) {
+        case 'REACT_APP_INFINITE_CANVAS':
+          return 'true';
+        case 'REACT_APP_RTC':
+          return 'matrixrtc';
+        default:
+          return defaultValue;
+      }
+    });
 
     presentationManager.startPresentation('frame-0');
 
@@ -257,6 +328,59 @@ describe('presentationManager', () => {
     messageSubject.next({
       senderUserId: '@user-bob:example.com',
       senderSessionId: 'session-0',
+      type: 'net.nordeck.whiteboard.present_frame',
+      content: {
+        view: { isEditMode: false, frameId: 'frame-0' },
+      },
+    });
+
+    expect(await states).toEqual([
+      { type: 'idle' },
+      {
+        type: 'presentation',
+        presenterUserId: '@user-bob:example.com',
+        isEditMode: false,
+      },
+    ]);
+    expect(whiteboardInstance.clearUndoManager).not.toHaveBeenCalled();
+    expect(whiteboardInstance.setActiveSlideId).not.toHaveBeenCalled();
+    expect(whiteboardInstance.setActiveFrameElementId).toHaveBeenCalledWith(
+      'frame-0',
+    );
+  });
+
+  it('should accept presentation start of a different user in infinite canvas mode in matrix rtc mode', async () => {
+    communicationStatistics = {
+      localSessionId: 'own',
+      peerConnections: {},
+      sessions: [
+        {
+          userId: '@user-bob:example.com',
+          expiresTs: 2525599520143,
+          sessionId: '_@user-bob:example.com_6jjRubIAWv',
+          whiteboardId: 'whiteboard-id',
+        },
+      ],
+    };
+
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) => {
+      switch (name) {
+        case 'REACT_APP_INFINITE_CANVAS':
+          return 'true';
+        case 'REACT_APP_RTC':
+          return 'matrixrtc';
+        default:
+          return defaultValue;
+      }
+    });
+
+    const states = firstValueFrom(
+      presentationManager.observePresentationState().pipe(take(2), toArray()),
+    );
+
+    messageSubject.next({
+      senderUserId: '@user-bob:example.com',
+      senderSessionId: '_@user-bob:example.com_6jjRubIAWv',
       type: 'net.nordeck.whiteboard.present_frame',
       content: {
         view: { isEditMode: false, frameId: 'frame-0' },
@@ -337,6 +461,69 @@ describe('presentationManager', () => {
     messageSubject.next({
       senderUserId: '@user-bob:example.com',
       senderSessionId: 'session-0',
+      type: 'net.nordeck.whiteboard.present_frame',
+      content: { view: undefined },
+    });
+
+    expect(await states).toEqual([
+      {
+        type: 'presentation',
+        presenterUserId: '@user-bob:example.com',
+        isEditMode: false,
+      },
+      { type: 'idle' },
+    ]);
+    expect(whiteboardInstance.clearUndoManager).not.toHaveBeenCalled();
+    expect(whiteboardInstance.setActiveSlideId).not.toHaveBeenCalled();
+    expect(whiteboardInstance.setActiveFrameElementId).toHaveBeenCalledWith(
+      undefined,
+    );
+  });
+
+  it('should accept presentation stop of a different user in infinite canvas mode in matrix rtc mode', async () => {
+    communicationStatistics = {
+      localSessionId: 'own',
+      peerConnections: {},
+      sessions: [
+        {
+          userId: '@user-bob:example.com',
+          expiresTs: 2525599520143,
+          sessionId: '_@user-bob:example.com_6jjRubIAWv',
+          whiteboardId: 'whiteboard-id',
+        },
+      ],
+    };
+
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) => {
+      switch (name) {
+        case 'REACT_APP_INFINITE_CANVAS':
+          return 'true';
+        case 'REACT_APP_RTC':
+          return 'matrixrtc';
+        default:
+          return defaultValue;
+      }
+    });
+
+    messageSubject.next({
+      senderUserId: '@user-bob:example.com',
+      senderSessionId: '_@user-bob:example.com_6jjRubIAWv',
+      type: 'net.nordeck.whiteboard.present_frame',
+      content: {
+        view: { isEditMode: false, frameId: 'frame-0' },
+      },
+    });
+
+    whiteboardInstance.setActiveSlideId.mockReset();
+    whiteboardInstance.setActiveFrameElementId.mockReset();
+
+    const states = firstValueFrom(
+      presentationManager.observePresentationState().pipe(take(2), toArray()),
+    );
+
+    messageSubject.next({
+      senderUserId: '@user-bob:example.com',
+      senderSessionId: '_@user-bob:example.com_6jjRubIAWv',
       type: 'net.nordeck.whiteboard.present_frame',
       content: { view: undefined },
     });
