@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { isInfiniteCanvasMode } from '../../lib';
 import {
   ChangeFn,
   generateAddElement,
@@ -21,6 +22,7 @@ import {
   generateLockSlide,
   generateMoveSlide,
   generateRemoveSlide,
+  generateSetSlideFrameElementIds,
   getNormalizedSlideIds,
   WhiteboardDocument,
 } from '../crdt';
@@ -50,6 +52,12 @@ export function generateLoadWhiteboardFromExport(
     whiteboard.whiteboard.slides.forEach((slide, index) => {
       const [addSlide, slideId] = generateAddSlide();
       addSlide(doc);
+
+      if (isInfiniteCanvasMode()) {
+        const setSlideFrameElementIds =
+          generateSetSlideFrameElementIds(slideId);
+        setSlideFrameElementIds(doc);
+      }
 
       slide.elements.forEach((exportElement) => {
         const { id, ...element } = exportElement;
