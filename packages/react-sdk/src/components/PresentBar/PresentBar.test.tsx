@@ -127,7 +127,7 @@ describe('<PresentBar/>', () => {
 
     expect(
       within(toolbar).getByRole('checkbox', {
-        name: 'Add first frame to enable presentation mode',
+        name: 'Add a frame to enable presentation mode',
         checked: false,
       }),
     ).toBeDisabled();

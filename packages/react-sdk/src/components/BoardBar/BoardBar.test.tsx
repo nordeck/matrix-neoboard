@@ -120,7 +120,7 @@ describe('<BoardBar/>', () => {
 
     expect(
       within(toolbar).getByRole('checkbox', {
-        name: 'Add first frame to enable frame overview',
+        name: 'Add a frame to enable frame overview',
       }),
     ).toBeDisabled();
 
@@ -161,7 +161,7 @@ describe('<BoardBar/>', () => {
 
     expect(
       within(toolbar).getByRole('checkbox', {
-        name: 'Add first frame to enable frame overview',
+        name: 'Add a frame to enable frame overview',
       }),
     ).toBeDisabled();
   });

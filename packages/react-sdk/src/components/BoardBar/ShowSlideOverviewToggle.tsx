@@ -61,7 +61,7 @@ function getTitle(
     } else if (slideOrFrameIds.length === 0) {
       return t(
         'boardBar.addFrameToEnableOverview',
-        'Add first frame to enable frame overview',
+        'Add a frame to enable frame overview',
       );
     } else {
       return t('boardBar.showFrameBarTitle', 'Open frame overview');

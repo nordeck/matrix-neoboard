@@ -104,7 +104,7 @@ export function PresentBar() {
     isInfiniteCanvasMode() && slideOrFrameIds.length === 0
       ? t(
           'presentBar.addFrameToEnablePresentationMode',
-          'Add first frame to enable presentation mode',
+          'Add a frame to enable presentation mode',
         )
       : state.type === 'presenting'
         ? t('presentBar.endPresentation', 'End presentation')
