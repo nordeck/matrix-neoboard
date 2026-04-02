@@ -4,7 +4,7 @@
     "waitModeratorJoin": "Bitte warte auf den Moderator."
   },
   "boardBar": {
-    "addFrameToEnableOverview": "Add first frame to enable frame overview",
+    "addFrameToEnableOverview": "Rahmen erstellen, um Rahmenübersicht zu aktivieren",
     "developerToolsDialog": {
       "closeAriaLabel": "Schließen",
       "communicationChannelStatistics": {
@@ -271,7 +271,7 @@
     "sent": "Gesendet"
   },
   "presentBar": {
-    "addFrameToEnablePresentationMode": "Add first frame to enable presentation mode",
+    "addFrameToEnablePresentationMode": "Rahmen erstellen, um Präsentationsmodus zu aktivieren",
     "disableEditing": "Bearbeitung sperren",
     "enableEditing": "Bearbeitung freigeben",
     "endPresentation": "Präsentation beenden",
