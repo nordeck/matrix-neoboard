@@ -773,6 +773,48 @@ describe('presentationManager', () => {
     );
   });
 
+  it('should broadcast the active frame when a new session is connected in infinite canvas mode in matrix rtc mode', async () => {
+    communicationStatistics = {
+      localSessionId: 'own',
+      peerConnections: {},
+      sessions: [],
+    };
+
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) => {
+      switch (name) {
+        case 'REACT_APP_INFINITE_CANVAS':
+          return 'true';
+        case 'REACT_APP_RTC':
+          return 'matrixrtc';
+        default:
+          return defaultValue;
+      }
+    });
+
+    presentationManager.startPresentation('frame-0');
+
+    communicationStatistics = {
+      localSessionId: 'own',
+      peerConnections: {},
+      sessions: [
+        {
+          userId: '@user-bob:example.com',
+          expiresTs: 2525599520143,
+          sessionId: '_@user-bob:example.com_6jjRubIAWv',
+          whiteboardId: 'whiteboard-id',
+        },
+      ],
+    };
+    observeCommunicationStatisticsSubject.next(communicationStatistics);
+
+    expect(communicationChannel.broadcastMessage).toHaveBeenCalledTimes(2);
+
+    expect(communicationChannel.broadcastMessage).toHaveBeenCalledWith(
+      'net.nordeck.whiteboard.present_frame',
+      { view: { isEditMode: false, frameId: 'frame-0' } },
+    );
+  });
+
   it('should skip broadcasting the active slide when the presentation was cancelled', async () => {
     presentationManager.startPresentation();
     observeActiveSlideIdSubject.next('slide-1');

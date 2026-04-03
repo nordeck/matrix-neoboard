@@ -31,6 +31,7 @@ import {
   takeWhile,
 } from 'rxjs';
 import { isDefined, isInfiniteCanvasMode, isMatrixRtcMode } from '../lib';
+import { isNotExpired } from '../model';
 import {
   CommunicationChannel,
   isValidPresentFrameMessage,
@@ -73,12 +74,25 @@ export class PresentationManagerImpl implements PresentationManager {
             this.currentPresenterSessionId !== undefined &&
             this.currentPresenterSessionId === statistics.localSessionId,
         ),
-        map((statistics) =>
-          Object.values(statistics.peerConnections)
-            .filter(isPeerConnected)
-            .map((peer) => peer.remoteSessionId),
-        ),
-        distinctUntilChanged((a, b) => isEqual(a, b)),
+        map((statistics) => {
+          if (isMatrixRtcMode()) {
+            return (
+              statistics.sessions
+                ?.filter(
+                  (session) =>
+                    session.sessionId !== statistics.localSessionId &&
+                    isNotExpired(session),
+                )
+                .map((session) => session.sessionId) ?? []
+            );
+          } else {
+            return Object.values(statistics.peerConnections)
+              .filter(isPeerConnected)
+              .map((peer) => peer.remoteSessionId);
+          }
+        }),
+        distinctUntilChanged(isEqual),
+        filter((v) => v.length > 0), // skip when no one to send to
       )
       .subscribe(() => {
         // broadcast the current presentation state to also update users
@@ -261,7 +275,8 @@ export class PresentationManagerImpl implements PresentationManager {
         let presenterUserId: string | undefined = undefined;
         if (isMatrixRtcMode()) {
           const presenterSession = statistics.sessions?.find(
-            (session) => session.sessionId === presenterSessionId,
+            (session) =>
+              session.sessionId === presenterSessionId && isNotExpired(session),
           );
 
           if (presenterSession) {
