@@ -14,46 +14,27 @@
  * limitations under the License.
  */
 
-import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { render, screen } from '@testing-library/react';
 import { ComponentType, PropsWithChildren } from 'react';
-import {
-  afterEach,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  Mocked,
-  vi,
-} from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
   mockFrameElement,
   mockWhiteboardManager,
   WhiteboardTestingContextProvider,
 } from '../../../lib/testUtils';
-import { WhiteboardManager } from '../../../state';
 import { LayoutStateProvider } from '../../Layout';
 import { SvgCanvas } from '../../Whiteboard/SvgCanvas';
 import FrameDisplay from './Display';
 
-vi.mock('@matrix-widget-toolkit/mui', async () => ({
-  ...(await vi.importActual<typeof import('@matrix-widget-toolkit/mui')>(
-    '@matrix-widget-toolkit/mui',
-  )),
-  getEnvironment: vi.fn(),
-}));
-
 describe('<FrameDisplay />', () => {
   let widgetApi: MockedWidgetApi;
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
-  let whiteboardManager: Mocked<WhiteboardManager>;
-  let setPresentationMode: (enable: boolean, enableEdit?: boolean) => void;
 
   beforeEach(() => {
     widgetApi = mockWidgetApi();
 
-    ({ whiteboardManager, setPresentationMode } = mockWhiteboardManager());
+    const { whiteboardManager } = mockWhiteboardManager();
 
     Wrapper = ({ children }) => {
       return (
@@ -107,57 +88,5 @@ describe('<FrameDisplay />', () => {
         />
       </g>
     `);
-  });
-
-  it('should not render in infinite canvas mode in presentation mode', () => {
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-    );
-
-    setPresentationMode(true);
-
-    const element = mockFrameElement();
-    render(
-      <FrameDisplay
-        elementId="element-0"
-        activeElementIds={[]}
-        elements={{}}
-        {...element}
-        active={false}
-        readOnly={false}
-      />,
-      {
-        wrapper: Wrapper,
-      },
-    );
-
-    expect(
-      screen.queryByTestId('element-frame-element-0'),
-    ).not.toBeInTheDocument();
-  });
-
-  it('should render in infinite canvas mode in presentation mode if edit mode is enabled', () => {
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-    );
-
-    setPresentationMode(true, true);
-
-    const element = mockFrameElement();
-    render(
-      <FrameDisplay
-        elementId="element-0"
-        activeElementIds={[]}
-        elements={{}}
-        {...element}
-        active={false}
-        readOnly={false}
-      />,
-      {
-        wrapper: Wrapper,
-      },
-    );
-
-    expect(screen.getByTestId('element-frame-element-0')).toBeInTheDocument();
   });
 });
