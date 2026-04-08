@@ -16,7 +16,11 @@
 
 import { useTheme } from '@mui/material';
 import React from 'react';
-import { FrameElement } from '../../../state';
+import {
+  FrameElement,
+  isInfiniteCanvasPresentationEdit,
+  usePresentationMode,
+} from '../../../state';
 import {
   ElementContextMenu,
   MoveableElement,
@@ -36,6 +40,7 @@ const FrameDisplay: React.FC<DisplayProps> = ({
   ...frameProps
 }) => {
   const theme = useTheme();
+  const { state: presentationState } = usePresentationMode();
 
   const renderedChild = (
     <g data-testid={`element-frame-${elementId}`}>
@@ -55,7 +60,8 @@ const FrameDisplay: React.FC<DisplayProps> = ({
     </g>
   );
 
-  if (readOnly) {
+  // Do not allow to select frames during presentation if edit is enabled in infinite canvas mode
+  if (readOnly || isInfiniteCanvasPresentationEdit(presentationState)) {
     return renderedChild;
   }
 

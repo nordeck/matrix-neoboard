@@ -30,8 +30,10 @@ import {
   calculateBoundingRectForElements,
   Elements,
   findConnectingPaths,
+  isInfiniteCanvasPresentationEdit,
   PathElement,
   Point,
+  usePresentationMode,
   useWhiteboardSlideInstance,
 } from '../../../../state';
 import {
@@ -83,6 +85,7 @@ export function MoveableElement({
   const { calculateSvgCoords } = useSvgCanvasContext();
   const { scale, updateTranslation } = useSvgScaleContext();
   const [cursor, setCursor] = useState<string>('move');
+  const { state: presentationState } = usePresentationMode();
 
   const [{ deltaX, deltaY }, setDelta] = useState({ deltaX: 0, deltaY: 0 });
   const [resizableProperties, setResizableProperties] =
@@ -140,7 +143,10 @@ export function MoveableElement({
           connectingPathElements,
         });
         if (isMouseEvent(event) && isButtonToPan(event.buttons)) {
-          setCursor('grabbing');
+          if (!isInfiniteCanvasPresentationEdit(presentationState)) {
+            // don't change cursor
+            setCursor('grabbing');
+          }
         }
       } else {
         ({ boundingRect, boundingRectCursorOffset, connectingPathElements } =
@@ -158,6 +164,11 @@ export function MoveableElement({
       });
 
       if (isMouseEvent(event) && isButtonToPan(event.buttons)) {
+        if (isInfiniteCanvasPresentationEdit(presentationState)) {
+          // don't apply translation
+          return;
+        }
+
         const { offsetX, offsetY } = calculateBoundingRectForElements(
           Object.values(elements),
         );
@@ -224,6 +235,7 @@ export function MoveableElement({
       setElementAttachFrame,
       setAttachedElementsMovedByFrame,
       setConnectingPathIds,
+      presentationState,
     ],
   );
 

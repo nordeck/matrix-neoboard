@@ -16,6 +16,7 @@
 
 export * from './crdt';
 export * from './export';
+export { isInfiniteCanvasPresentationEdit } from './types';
 export type {
   ElementUpdate,
   Elements,

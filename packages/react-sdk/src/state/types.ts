@@ -16,6 +16,7 @@
 
 import { StateEvent, WidgetApi } from '@matrix-widget-toolkit/api';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { isInfiniteCanvasMode } from '../lib';
 import { Whiteboard } from '../model';
 import { CommunicationChannelStatistics } from './communication';
 import {
@@ -319,6 +320,17 @@ export type PresentationState =
   | { type: 'idle' }
   | { type: 'presenting'; isEditMode: boolean }
   | { type: 'presentation'; presenterUserId: string; isEditMode: boolean };
+
+/**
+ * Check if we are running in infinite canvas in presentation state and editing is enabled.
+ */
+export function isInfiniteCanvasPresentationEdit(
+  state: PresentationState,
+): boolean {
+  return (
+    isInfiniteCanvasMode() && state.type === 'presentation' && state.isEditMode
+  );
+}
 
 /** Creates and holds the currently selected {@link WhiteboardInstance} based on a whiteboard state event */
 export type PresentationManager = {
