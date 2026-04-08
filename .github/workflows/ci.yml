@@ -207,10 +207,6 @@ jobs:
           path: matrix-neoboard-standalone
           # required for changesets
           fetch-depth: '0'
-          # don't persist the credentials so the changesets action doesn't use the
-          # github actions token but the git token provided via environment variable
-          persist-credentials: false
-          ssh-key: ${{ secrets.STANDALONE_DEPLOY_KEY }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
