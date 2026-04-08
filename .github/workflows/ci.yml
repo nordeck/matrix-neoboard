@@ -411,11 +411,11 @@ jobs:
           script: |
             github.rest.actions.createWorkflowDispatch({
               owner: 'nordeck',
-              repo: '${{ secrets.GITOPS_DEPLOY_REPOSITORY }}',
+              repo: '${{ vars.GITOPS_DEPLOY_REPOSITORY }}',
               workflow_id: 'deployment.yml',
               ref: 'main',
               inputs: {
-                environment: '${{ secrets.GITOPS_DEPLOY_ENVIRONMENT}}',
+                environment: '${{ vars.GITOPS_DEPLOY_ENVIRONMENT}}',
                 application: 'matrix-neoboard',
                 tag: '${{ github.sha }}'
               }
