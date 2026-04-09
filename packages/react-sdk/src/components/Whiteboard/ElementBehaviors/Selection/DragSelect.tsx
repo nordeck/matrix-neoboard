@@ -21,6 +21,9 @@ import {
   Point,
   ShapeElement,
   calculateBoundingRectForPoints,
+  isInfiniteCanvasPresentationEdit,
+  useActiveSlideOrFrame,
+  usePresentationMode,
   useWhiteboardSlideInstance,
 } from '../../../../state';
 import { useLayoutState } from '../../../Layout';
@@ -40,6 +43,8 @@ export function DragSelect() {
     useLayoutState();
   const { calculateSvgCoords } = useSvgCanvasContext();
   const [endCoords, setEndCoords] = useState<Point>();
+  const { state: presentationState } = usePresentationMode();
+  const { activeId } = useActiveSlideOrFrame();
 
   const shape: ShapeElement | undefined = useMemo(() => {
     if (dragSelectStartCoords === undefined || endCoords === undefined) {
@@ -80,12 +85,17 @@ export function DragSelect() {
       const allElements = slideInstance.getElements(
         slideInstance.getElementIds(),
       );
-      const nonFrameElements = filterRecord(
+      const filteredElements = filterRecord(
         allElements,
-        (e) => e.type !== 'frame',
+        (e) =>
+          e.type !== 'frame' &&
+          !(
+            isInfiniteCanvasPresentationEdit(presentationState) &&
+            e.attachedFrame !== activeId
+          ),
       );
 
-      const activeElementIds = calculateIntersect(shape, nonFrameElements);
+      const activeElementIds = calculateIntersect(shape, filteredElements);
 
       // Add active elements in the order of their selection
       const sortedActiveElementIds: string[] = [];
@@ -108,7 +118,7 @@ export function DragSelect() {
 
       slideInstance.setActiveElementIds(sortedActiveElementIds);
     }
-  }, [shape, slideInstance]);
+  }, [shape, slideInstance, presentationState, activeId]);
 
   const handlePointerUp = useCallback(() => {
     setDragSelectStartCoords();

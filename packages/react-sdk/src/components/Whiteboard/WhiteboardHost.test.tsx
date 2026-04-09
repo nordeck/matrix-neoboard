@@ -297,6 +297,40 @@ describe('<WhiteboardHost/>', () => {
     expect(activeSlide.getActiveElementIds()).toEqual(['element-0']);
   });
 
+  it('should select an element attached to active frame with left button in infinite canvas mode in the presentation mode if edit mode is enabled', () => {
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
+    );
+
+    // attached existing element to new frame
+    activeSlide.updateElements([
+      {
+        elementId: 'frame-0',
+        patch: {
+          attachedElements: ['element-0'],
+        },
+      },
+      {
+        elementId: 'element-0',
+        patch: {
+          attachedFrame: 'frame-0',
+        },
+      },
+    ]);
+
+    setPresentationMode(true, true);
+
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    const element = screen.getByTestId('element-ellipse-element-0');
+    fireEvent.mouseDown(element, {
+      clientX: 50,
+      clientY: 101,
+      buttons: 1,
+    });
+    expect(activeSlide.getActiveElementIds()).toEqual(['element-0']);
+  });
+
   it('should not select an element without frame with left button in infinite canvas mode in the presentation mode if edit mode is enabled', () => {
     vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
       name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
@@ -328,11 +362,11 @@ describe('<WhiteboardHost/>', () => {
       {
         elementId: frameId1,
         patch: {
-          attachedElements: ['element-1'],
+          attachedElements: ['element-0'],
         },
       },
       {
-        elementId: 'element-1',
+        elementId: 'element-0',
         patch: {
           attachedFrame: frameId1,
         },
