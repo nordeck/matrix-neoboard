@@ -174,6 +174,9 @@ describe('presentationManager', () => {
       { view: { isEditMode: false, frameId: 'frame-0' } },
     );
     expect(whiteboardInstance.setActiveSlideId).not.toHaveBeenCalled();
+    expect(whiteboardInstance.setActiveFrameElementId).toHaveBeenCalledWith(
+      'frame-0',
+    );
   });
 
   it('should start the presentation for active frame in infinite canvas mode in matrix rtc mode', async () => {
@@ -209,6 +212,9 @@ describe('presentationManager', () => {
       { view: { isEditMode: false, frameId: 'frame-0' } },
     );
     expect(whiteboardInstance.setActiveSlideId).not.toHaveBeenCalled();
+    expect(whiteboardInstance.setActiveFrameElementId).toHaveBeenCalledWith(
+      'frame-0',
+    );
   });
 
   it('should stop the presentation', async () => {
@@ -252,6 +258,9 @@ describe('presentationManager', () => {
       'net.nordeck.whiteboard.present_frame',
       { view: undefined },
     );
+    expect(whiteboardInstance.setActiveFrameElementId).toHaveBeenCalledWith(
+      undefined,
+    );
   });
 
   it('should stop the presentation for active frame in infinite canvas mode in matrix rtc mode', async () => {
@@ -287,6 +296,9 @@ describe('presentationManager', () => {
     expect(communicationChannel.broadcastMessage).toHaveBeenCalledWith(
       'net.nordeck.whiteboard.present_frame',
       { view: undefined },
+    );
+    expect(whiteboardInstance.setActiveFrameElementId).toHaveBeenCalledWith(
+      undefined,
     );
   });
 

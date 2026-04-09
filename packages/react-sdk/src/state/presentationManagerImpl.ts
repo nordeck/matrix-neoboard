@@ -238,9 +238,7 @@ export class PresentationManagerImpl implements PresentationManager {
 
     if (isInfiniteCanvasMode()) {
       this.whiteboardInstance.setActiveFrameElementId(undefined);
-    }
 
-    if (isInfiniteCanvasMode()) {
       this.communicationChannel.broadcastMessage<PresentFrame>(
         PRESENT_FRAME_MESSAGE,
         { view: undefined },

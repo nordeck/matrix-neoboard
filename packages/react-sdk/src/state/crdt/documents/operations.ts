@@ -625,7 +625,7 @@ function cleanupElementIds(slide: SharedMap<Slide>): void {
       if (isDuplicate || isLeftover) {
         frameElementIds.delete(i);
       } else {
-        discoveredElementIds.add(elementId);
+        discoveredFrameElementIds.add(elementId);
         ++i;
       }
     }
