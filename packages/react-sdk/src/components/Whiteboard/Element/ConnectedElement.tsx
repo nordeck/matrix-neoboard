@@ -16,7 +16,13 @@
 
 import { useWidgetApi } from '@matrix-widget-toolkit/react';
 import React, { JSX } from 'react';
-import { Elements, useElement } from '../../../state';
+import {
+  Elements,
+  isInfiniteCanvasPresentationEdit,
+  useActiveSlideOrFrame,
+  useElement,
+  usePresentationMode,
+} from '../../../state';
 import { useConnectionPoint } from '../../ConnectionPointProvider';
 import {
   ElementOverride,
@@ -36,7 +42,7 @@ import {
 
 const ConnectedElement = ({
   id,
-  readOnly = false,
+  readOnly: connectedElementReadOnly = false,
   override,
   activeElementIds = [],
   elements = {},
@@ -55,23 +61,30 @@ const ConnectedElement = ({
 }) => {
   const widgetApi = useWidgetApi();
   let element = useElement(id);
-
-  const isActive =
-    !readOnly && id
-      ? activeElementIds.length === 1 && activeElementIds[0] === id
-      : false;
-  const otherProps = {
-    // TODO: Align names
-    active: isActive,
-    readOnly,
-    elementId: id,
-    activeElementIds,
-    elements,
-    frameHasElementMoved,
-    elementMovedHasFrame,
-  };
+  const { state: presentationState } = usePresentationMode();
+  const { activeId } = useActiveSlideOrFrame();
 
   if (element) {
+    const presentationElementReadOnly =
+      isInfiniteCanvasPresentationEdit(presentationState) &&
+      (element.type === 'frame' || element.attachedFrame !== activeId);
+
+    const readOnly = connectedElementReadOnly || presentationElementReadOnly;
+
+    const isActive =
+      !readOnly && id
+        ? activeElementIds.length === 1 && activeElementIds[0] === id
+        : false;
+    const otherProps = {
+      active: isActive,
+      readOnly,
+      elementId: id,
+      activeElementIds,
+      elements,
+      frameHasElementMoved,
+      elementMovedHasFrame,
+    };
+
     element = mergeElementAndOverride(element, override);
 
     if (element.type === 'path') {
