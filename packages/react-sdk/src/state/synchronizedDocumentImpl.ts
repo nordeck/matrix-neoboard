@@ -53,9 +53,9 @@ import { Document, DocumentValidator } from './crdt';
 import { DocumentStorage } from './storage';
 import { DocumentSyncStatistics, SynchronizedDocument } from './types';
 
-export class SynchronizedDocumentImpl<T extends Record<string, unknown>>
-  implements SynchronizedDocument<T>
-{
+export class SynchronizedDocumentImpl<
+  T extends Record<string, unknown>,
+> implements SynchronizedDocument<T> {
   private readonly logger = getLogger('SynchronizedDocument');
   private readonly loadingSubject = new BehaviorSubject<boolean>(true);
   private readonly destroySubject = new Subject<void>();

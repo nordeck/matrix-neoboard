@@ -32,9 +32,9 @@ import {
   YDocumentUndoManager,
 } from './yDocumentUndoManager';
 
-export class YDocument<T extends Record<string, unknown>>
-  implements Document<T>
-{
+export class YDocument<
+  T extends Record<string, unknown>,
+> implements Document<T> {
   private readonly logger = getLogger('YDocument');
   private readonly changesSubject = new Subject<SharedMap<T>>();
   private readonly publishSubject = new Subject<Uint8Array>();
