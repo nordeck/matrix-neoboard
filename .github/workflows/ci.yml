@@ -16,7 +16,7 @@ jobs:
       docker-tag: ${{ steps.meta.outputs.version }}
       ARGOCD_SHA: ${{ steps.get_argo_cd_sha.outputs.ARGOCD_SHA }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           # required for changesets
           fetch-depth: '0'
@@ -115,7 +115,7 @@ jobs:
         if: ${{ success() && steps.build_and_push.outputs.digest }}
         env:
           IMAGE_REF: ${{ env.DOCKER_IMAGE }}@${{ steps.build_and_push.outputs.digest }}
-        uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 # 0.33.1
+        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1 # v0.35.0
         with:
           scan-type: 'image'
           scanners: 'license'
@@ -153,11 +153,11 @@ jobs:
     needs: build
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           fetch-depth: 0 # need main branch to diff against
       - name: Set up Helm
-        uses: azure/setup-helm@v4
+        uses: azure/setup-helm@dda3372f752e03dde6b3237bc9431cdc2f7a02a2 # v5
       - uses: actions/setup-python@v5
         with:
           python-version: '3.14'
@@ -192,7 +192,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           path: matrix-neoboard
           # required for changesets
@@ -201,16 +201,12 @@ jobs:
           # github actions token but the git token provided via environment variable
           persist-credentials: false
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           repository: nordeck/matrix-neoboard-standalone
           path: matrix-neoboard-standalone
           # required for changesets
           fetch-depth: '0'
-          # don't persist the credentials so the changesets action doesn't use the
-          # github actions token but the git token provided via environment variable
-          persist-credentials: false
-          ssh-key: ${{ secrets.STANDALONE_DEPLOY_KEY }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -278,7 +274,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -313,6 +309,86 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
+  create-chart-tag:
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    needs: build
+    env:
+      REPOSITORY: ghcr.io/nordeck/charts
+      CHART_NAME: matrix-neoboard-widget
+    steps:
+      - name: Generate GitHub token
+        id: generate_token
+        uses: tibdex/github-app-token@3beb63f4bd073e61482598c45c71c1019b59b73a # @v2.1.0
+        with:
+          app_id: ${{ secrets.GH_APP_OS_APP_ID }}
+          private_key: ${{ secrets.GH_APP_OS_PRIVATE_KEY }}
+
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          token: ${{ steps.generate_token.outputs.token }}
+
+      - name: Login to ghcr.io
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Read chart version
+        id: vars
+        run: |
+          CHART_VERSION=$(grep '^version:' ./charts/$CHART_NAME/Chart.yaml | awk '{print $2}' | tr -d '"')
+
+          echo "$CHART_VERSION"
+
+          if [[ -n "$CHART_VERSION" ]]; then
+            echo "chart_version=$CHART_VERSION" >> $GITHUB_OUTPUT
+          else
+            echo "Empty chart version"
+            exit 1
+          fi
+
+      - name: Check if helm chart exists in OCI registry
+        id: chart-exists
+        env:
+          CHART_VERSION: ${{ steps.vars.outputs.chart_version }}
+        run: |
+          # don't fail the action if the 'helm show chart' call exits with 1.
+          # We handle the error manually. Similar to 'buildContainers' in Matrix Widget Toolkit.
+          set +e
+
+          OUTPUT=$(helm show chart oci://$REPOSITORY/$CHART_NAME --version $CHART_VERSION 2>&1)
+          RESULT=$([[ "$?" == 0 ]] && echo "true" || echo "false")
+
+          echo "$OUTPUT"
+
+          if [[ $RESULT == "true" ]]; then
+            echo "Chart $CHART_NAME with version $CHART_VERSION already exists."
+          else
+            if [[ $OUTPUT != "Error: failed to perform \"FetchReference\" on source: $REPOSITORY/$CHART_NAME:$CHART_VERSION: not found" ]]; then
+              echo "Unexpected error"
+              exit 1
+            fi
+          fi
+
+          echo "result=$RESULT" >> $GITHUB_OUTPUT
+
+      - name: Create tag
+        if: ${{ steps.chart-exists.outputs.result == 'false' }}
+        env:
+          CHART_VERSION: ${{ steps.vars.outputs.chart_version }}
+          GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          TAG="@nordeck/helm-$CHART_NAME-$CHART_VERSION"
+
+          git tag $TAG
+          git push origin $TAG
+
   deploy:
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     name: Deploy to Dev
@@ -335,11 +411,11 @@ jobs:
           script: |
             github.rest.actions.createWorkflowDispatch({
               owner: 'nordeck',
-              repo: '${{ secrets.GITOPS_DEPLOY_REPOSITORY }}',
+              repo: '${{ vars.GITOPS_DEPLOY_REPOSITORY }}',
               workflow_id: 'deployment.yml',
               ref: 'main',
               inputs: {
-                environment: '${{ secrets.GITOPS_DEPLOY_ENVIRONMENT}}',
+                environment: '${{ vars.GITOPS_DEPLOY_ENVIRONMENT}}',
                 application: 'matrix-neoboard',
                 tag: '${{ github.sha }}'
               }
@@ -352,10 +428,10 @@ jobs:
     timeout-minutes: 5
     needs: build
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - name: Checkout valhalla for values
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           ref: dev
           sparse-checkout: |
@@ -368,7 +444,7 @@ jobs:
           persist-credentials: false
 
       - name: Set up Helm
-        uses: azure/setup-helm@1a275c3b69536ee54be43f2070a358922e12c8d4 # v4.3.1
+        uses: azure/setup-helm@dda3372f752e03dde6b3237bc9431cdc2f7a02a2 # v5
 
       - name: Create Kubeconfig
         run: |
