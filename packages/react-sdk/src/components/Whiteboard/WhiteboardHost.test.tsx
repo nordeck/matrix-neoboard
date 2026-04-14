@@ -788,12 +788,17 @@ describe('<WhiteboardHost/>', () => {
     },
   );
 
-  it.each([
-    ['right', 2, 2],
-    ['middle', 1, 4],
+  it.each<{ type: 'presenting' | 'presentation'; isEditMode: boolean }>([
+    { type: 'presentation', isEditMode: false },
+    { type: 'presentation', isEditMode: true },
+    { type: 'presenting', isEditMode: false },
+    { type: 'presenting', isEditMode: true },
   ])(
-    'should not pan the infinite canvas by dragging element with the %s mouse button in presentation mode if edit mode is enabled',
-    async (_, button, buttons) => {
+    'should not pan the infinite canvas by dragging element with the right mouse button in presentation mode type $type and edit mode is $isEditMode',
+    async ({ type: presentationType, isEditMode }) => {
+      const button = 2;
+      const buttons = 2;
+
       vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
         name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
       );
@@ -802,7 +807,7 @@ describe('<WhiteboardHost/>', () => {
       vi.spyOn(constants, 'whiteboardWidth', 'get').mockReturnValue(19200);
       vi.spyOn(constants, 'whiteboardHeight', 'get').mockReturnValue(10800);
 
-      setPresentationMode(true, true);
+      setPresentationMode(true, isEditMode, presentationType);
 
       render(<WhiteboardHost />, { wrapper: Wrapper });
 
@@ -864,12 +869,15 @@ describe('<WhiteboardHost/>', () => {
     },
   );
 
-  it.each([
-    ['right', 2],
-    ['middle', 1],
+  it.each<{ type: 'presenting' | 'presentation'; isEditMode: boolean }>([
+    { type: 'presentation', isEditMode: true },
+    { type: 'presenting', isEditMode: true },
+    { type: 'presenting', isEditMode: false },
   ])(
-    'should not pan the infinite canvas by dragging canvas with the %s mouse button in presentation mode if edit mode is enabled',
-    async (_, button) => {
+    'should not pan the infinite canvas by dragging canvas with the right mouse button in presentation mode type $type if edit mode is $isEditMode',
+    async ({ type: presentationType, isEditMode }) => {
+      const button = 2;
+
       vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
         name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
       );
@@ -878,7 +886,7 @@ describe('<WhiteboardHost/>', () => {
       vi.spyOn(constants, 'whiteboardWidth', 'get').mockReturnValue(19200);
       vi.spyOn(constants, 'whiteboardHeight', 'get').mockReturnValue(10800);
 
-      setPresentationMode(true, true);
+      setPresentationMode(true, isEditMode, presentationType);
 
       render(<WhiteboardHost />, { wrapper: Wrapper });
 
@@ -899,6 +907,23 @@ describe('<WhiteboardHost/>', () => {
       expect(svgScaleContextState.translation).toBe(initialTranslation);
     },
   );
+
+  it("should not pan the infinite canvas by dragging canvas with the right mouse button in presentation mode type 'presentation' if edit mode is not active", async () => {
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
+    );
+
+    vi.spyOn(constants, 'infiniteCanvasMode', 'get').mockReturnValue(true);
+    vi.spyOn(constants, 'whiteboardWidth', 'get').mockReturnValue(19200);
+    vi.spyOn(constants, 'whiteboardHeight', 'get').mockReturnValue(10800);
+
+    setPresentationMode(true, false);
+
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    const element = screen.queryByTestId('unselect-element-layer');
+    expect(element).not.toBeInTheDocument();
+  });
 
   it('should move multiple selected elements by dragging the border', () => {
     activeSlide.setActiveElementIds(['element-0', 'element-1']);

@@ -18,7 +18,6 @@ import { Point } from 'pdfmake/interfaces';
 import { MouseEvent, useCallback, useEffect, useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import {
-  isInfiniteCanvasPresentationEdit,
   useActiveElement,
   usePresentationMode,
   useWhiteboardSlideInstance,
@@ -69,7 +68,7 @@ export function UnSelectElementHandler() {
 
         if (
           !infiniteCanvasMode ||
-          isInfiniteCanvasPresentationEdit(presentationState)
+          (infiniteCanvasMode && presentationState.type !== 'idle')
         ) {
           // don't enable panning
           return;

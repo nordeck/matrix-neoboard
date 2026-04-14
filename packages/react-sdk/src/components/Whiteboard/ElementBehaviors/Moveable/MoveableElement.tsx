@@ -25,12 +25,12 @@ import {
 } from 'react';
 import { DraggableCore, DraggableData, DraggableEvent } from 'react-draggable';
 import { useUnmount } from 'react-use';
+import { isInfiniteCanvasMode } from '../../../../lib';
 import {
   BoundingRect,
   calculateBoundingRectForElements,
   Elements,
   findConnectingPaths,
-  isInfiniteCanvasPresentationEdit,
   PathElement,
   Point,
   usePresentationMode,
@@ -142,11 +142,12 @@ export function MoveableElement({
           boundingRectCursorOffset,
           connectingPathElements,
         });
-        if (isMouseEvent(event) && isButtonToPan(event.buttons)) {
-          if (!isInfiniteCanvasPresentationEdit(presentationState)) {
-            // don't change cursor
-            setCursor('grabbing');
-          }
+        if (
+          isMouseEvent(event) &&
+          isButtonToPan(event.buttons) &&
+          !(isInfiniteCanvasMode() && presentationState.type !== 'idle')
+        ) {
+          setCursor('grabbing');
         }
       } else {
         ({ boundingRect, boundingRectCursorOffset, connectingPathElements } =
@@ -164,7 +165,7 @@ export function MoveableElement({
       });
 
       if (isMouseEvent(event) && isButtonToPan(event.buttons)) {
-        if (isInfiniteCanvasPresentationEdit(presentationState)) {
+        if (isInfiniteCanvasMode() && presentationState.type !== 'idle') {
           // don't apply translation
           return;
         }
