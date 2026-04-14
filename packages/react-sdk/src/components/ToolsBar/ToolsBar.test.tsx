@@ -63,7 +63,11 @@ afterEach(() => {
 
 describe('<ToolsBar/>', () => {
   let whiteboardManager: Mocked<WhiteboardManager>;
-  let setPresentationMode: (enable: boolean, enableEdit?: boolean) => void;
+  let setPresentationMode: (
+    enable: boolean,
+    enableEdit?: boolean,
+    presentationType?: 'presentation' | 'presenting',
+  ) => void;
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
 
   beforeEach(() => {
@@ -230,15 +234,25 @@ describe('<ToolsBar/>', () => {
     ).toBeInTheDocument();
   });
 
-  it('should disable the create frame button in infinite canvas mode in presentation mode and edit is enabled', () => {
-    setPresentationMode(true, true);
+  it.each<{ type: 'presenting' | 'presentation'; isEditMode: boolean }>([
+    { type: 'presentation', isEditMode: true },
+    { type: 'presenting', isEditMode: true },
+    { type: 'presenting', isEditMode: true },
+    { type: 'presenting', isEditMode: false },
+  ])(
+    'should disable the create frame button in infinite canvas mode in presentation mode type $type and edit mode is $isEditMode',
+    ({ type: presentationType, isEditMode }) => {
+      setPresentationMode(true, isEditMode, presentationType);
 
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-    );
+      vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+        name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
+      );
 
-    render(<ToolsBar />, { wrapper: Wrapper });
+      render(<ToolsBar />, { wrapper: Wrapper });
 
-    expect(screen.getByRole('button', { name: 'Create frame' })).toBeDisabled();
-  });
+      expect(
+        screen.getByRole('button', { name: 'Create frame' }),
+      ).toBeDisabled();
+    },
+  );
 });

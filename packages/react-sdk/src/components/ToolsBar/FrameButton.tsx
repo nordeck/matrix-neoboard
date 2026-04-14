@@ -17,10 +17,7 @@
 import { SvgIcon } from '@mui/material';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  isInfiniteCanvasPresentationEdit,
-  usePresentationMode,
-} from '../../state';
+import { usePresentationMode } from '../../state';
 import { ToolbarButton } from '../common/Toolbar';
 import { useCreateFrame } from './useCreateFrame';
 
@@ -32,7 +29,7 @@ export const FrameButton: React.FC = () => {
   return (
     <ToolbarButton
       aria-label={t('toolsBar.frameTool', 'Create frame')}
-      disabled={isInfiniteCanvasPresentationEdit(presentationState)}
+      disabled={presentationState.type !== 'idle'}
       onClick={createFrame}
     >
       <SvgIcon>
