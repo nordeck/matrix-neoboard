@@ -207,10 +207,6 @@ jobs:
           path: matrix-neoboard-standalone
           # required for changesets
           fetch-depth: '0'
-          # don't persist the credentials so the changesets action doesn't use the
-          # github actions token but the git token provided via environment variable
-          persist-credentials: false
-          ssh-key: ${{ secrets.STANDALONE_DEPLOY_KEY }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -415,11 +411,11 @@ jobs:
           script: |
             github.rest.actions.createWorkflowDispatch({
               owner: 'nordeck',
-              repo: '${{ secrets.GITOPS_DEPLOY_REPOSITORY }}',
+              repo: '${{ vars.GITOPS_DEPLOY_REPOSITORY }}',
               workflow_id: 'deployment.yml',
               ref: 'main',
               inputs: {
-                environment: '${{ secrets.GITOPS_DEPLOY_ENVIRONMENT}}',
+                environment: '${{ vars.GITOPS_DEPLOY_ENVIRONMENT}}',
                 application: 'matrix-neoboard',
                 tag: '${{ github.sha }}'
               }
