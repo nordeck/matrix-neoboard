@@ -4,6 +4,7 @@
     "waitModeratorJoin": "Bitte warte auf den Moderator."
   },
   "boardBar": {
+    "addFrameToEnableOverview": "Rahmen erstellen, um Rahmenübersicht zu aktivieren",
     "developerToolsDialog": {
       "closeAriaLabel": "Schließen",
       "communicationChannelStatistics": {
@@ -61,6 +62,7 @@
       "pdfError": "Bei der Erstellung des PDFs ist ein Fehler aufgetreten.",
       "title": "Inhalt exportieren"
     },
+    "hideFrameBarTitle": "Rahmenübersicht schließen",
     "hideSlideBarTitle": "Folienübersicht schließen",
     "importWhiteboardDialog": {
       "close": "Schließen",
@@ -83,6 +85,7 @@
       "import": "Importieren…",
       "title": "Einstellungen"
     },
+    "showFrameBarTitle": "Rahmenübersicht öffnen",
     "showSlideBarTitle": "Folienübersicht öffnen",
     "title": "Tafel"
   },
@@ -268,6 +271,7 @@
     "sent": "Gesendet"
   },
   "presentBar": {
+    "addFrameToEnablePresentationMode": "Rahmen erstellen, um Präsentationsmodus zu aktivieren",
     "disableEditing": "Bearbeitung sperren",
     "enableEditing": "Bearbeitung freigeben",
     "endPresentation": "Präsentation beenden",
@@ -275,7 +279,9 @@
     "title": "Präsentieren"
   },
   "presentToolsBar": {
+    "nextFrame": "Nächster Rahmen",
     "nextSlide": "Nächste Folie",
+    "previousFrame": "Vorheriger Rahmen",
     "previousSlide": "Vorherige Folie"
   },
   "slideOverviewBar": {
@@ -292,17 +298,25 @@
     "dragAndDrop": {
       "dragInstructions": "Drücke die M-Taste um diese Folie zu verschieben. Während des Verschiebens, nutze die Pfeiltasten um den Eintrag zu verschieben und Escape um es abzubrechen. Stelle sicher das dein Screen Reader im Fokus oder Formular Modus ist.",
       "dragStart": "Du hast eine Folie aufgehoben. Sie befindet sich an Position {{startPosition}} von {{totalCount}} in der Liste. Nutze die Pfeiltasten zum verschieben, die M-Taste zum Ablegen und Escape zum Abbrechen.",
+      "dragStart_frame": "Du hast einen Rahmen aufgehoben. Er befindet sich an Position {{startPosition}} von {{totalCount}} in der Liste. Nutze die Pfeiltasten zum verschieben, die M-Taste zum Ablegen und Escape zum Abbrechen.",
       "dropped": "Du hast die Folie abgelegt. Sie wurde von Position {{startPosition}} nach {{destinationPosition}} verschoben.",
+      "dropped_frame": "Du hast den Rahmen abgelegt. Er wurde von Position {{startPosition}} nach {{destinationPosition}} verschoben.",
       "droppedOnNoDropTarget": "Du hast die Folie abgelegt während du nicht über einer gültigen Ablagestelle gewesen bist. Die Folie ist zu ihrer ursprünglichen Position {{startPosition}} zurückgekehrt.",
+      "droppedOnNoDropTarget_frame": "Du hast den Rahmen abgelegt während du nicht über einer gültigen Ablagestelle gewesen bist. Der Rahmen ist zu seiner ursprünglichen Position {{startPosition}} zurückgekehrt.",
       "movedPosition": "Du hast die Folie zu Position {{position}} von {{totalCount}} verschoben.",
+      "movedPosition_frame": "Du hast den Rahmen zu Position {{position}} von {{totalCount}} verschoben.",
       "movementCanceled": "Verschieben abgebrochen. Die Folie ist zu ihrer ursprünglichen Position {{startPosition}} zurückgekehrt.",
+      "movementCanceled_frame": "Verschieben abgebrochen. Der Rahmen ist zu seiner ursprünglichen Position {{startPosition}} zurückgekehrt.",
       "notOverDropTarget": "Du befindest dich aktuell nicht über einer gültigen Ablagestelle."
     },
+    "frameListTitle": "Rahmen",
+    "frameTitle": "Rahmen",
     "slideListTitle": "Folien",
     "slideLockedTooltip": "Gesperrt",
     "slideTitle": "Folie",
     "slideTitleLocked": "(gesperrt)",
-    "title": "Folienübersicht"
+    "title": "Folienübersicht",
+    "title_frame": "Rahmenübersicht"
   },
   "snackbar": {
     "dismissAction": "Ausblenden"

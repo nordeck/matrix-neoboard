@@ -98,3 +98,29 @@ This message is used to notify the peers that a slide if currently presented.
   }
 }
 ```
+
+## `net.nordeck.whiteboard.present_frame` - Present Frame
+
+In infinite canvas mode, this message is used to notify the peers that a frame if currently presented.
+
+### Content
+
+| Field             | Type                  | Description                                            |
+| ----------------- | --------------------- | ------------------------------------------------------ |
+| `view`            | `object \| undefined` | If defined, the sender is presenting.                  |
+| `view.isEditMode` | `boolean`             | The edit mode is disabled/enabled during presentation. |
+| `view.frameId`    | `string`              | The id of the presented frame.                         |
+
+### Example
+
+```json
+{
+  "type": "net.nordeck.whiteboard.present_frame",
+  "content": {
+    "view": {
+      "isEditMode": false,
+      "frameId": "<frame-id>"
+    }
+  }
+}
+```

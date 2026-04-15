@@ -19,6 +19,7 @@ import { MouseEvent, useCallback, useEffect, useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import {
   useActiveElement,
+  usePresentationMode,
   useWhiteboardSlideInstance,
 } from '../../../../state';
 import { useLayoutState } from '../../../Layout';
@@ -39,6 +40,7 @@ export function UnSelectElementHandler() {
   const [previousPanCoordinates, setPreviousPanCoordinates] = useState<Point>();
   const [panEnabled, setPanEnabled] = useState(false);
   const { updateTranslation } = useSvgScaleContext();
+  const { state: presentationState } = usePresentationMode();
 
   const unselectElement = useCallback(() => {
     if (activeElementId) {
@@ -64,7 +66,11 @@ export function UnSelectElementHandler() {
         event.preventDefault();
         event.stopPropagation();
 
-        if (!infiniteCanvasMode) {
+        if (
+          !infiniteCanvasMode ||
+          (infiniteCanvasMode && presentationState.type !== 'idle')
+        ) {
+          // don't enable panning
           return;
         }
 
@@ -79,6 +85,7 @@ export function UnSelectElementHandler() {
       calculateSvgCoords,
       setDragSelectStartCoords,
       setPreviousPanCoordinates,
+      presentationState,
     ],
   );
 

@@ -94,6 +94,21 @@ describe('whiteboardDocumentSchema', () => {
     expect(whiteboardDocumentSchema.validate(data).error).toBeUndefined();
   });
 
+  it('should accept empty slide with empty frame element ids', () => {
+    const data = {
+      slides: {
+        'slide-0': {
+          elements: {},
+          elementIds: [],
+          frameElementIds: [],
+        },
+      },
+      slideIds: ['slide-0'],
+    };
+
+    expect(whiteboardDocumentSchema.validate(data).error).toBeUndefined();
+  });
+
   it('should accept document', () => {
     const data = {
       slides: {
@@ -108,6 +123,35 @@ describe('whiteboardDocumentSchema', () => {
             },
           },
           elementIds: ['element-0'],
+        },
+      },
+      slideIds: ['slide-0'],
+    };
+
+    expect(whiteboardDocumentSchema.validate(data).error).toBeUndefined();
+  });
+
+  it('should accept document with frames', () => {
+    const data = {
+      slides: {
+        'slide-0': {
+          elements: {
+            'element-0': {
+              type: 'path',
+              position: { x: 1, y: 2 },
+              kind: 'line',
+              points: [],
+              strokeColor: 'red',
+            },
+            'element-1': {
+              type: 'frame',
+              position: { x: 10, y: 20 },
+              width: 200,
+              height: 100,
+            },
+          },
+          elementIds: ['element-0'],
+          frameElementIds: ['element-1'],
         },
       },
       slideIds: ['slide-0'],
@@ -173,6 +217,14 @@ describe('whiteboardDocumentSchema', () => {
     { slides: { s: { elements: {}, elementIds: [111] } } },
     { slides: { s: { elements: {}, elementIds: ['__proto__'] } } },
     { slides: { s: { elements: {}, elementIds: ['constructor'] } } },
+    { slides: { s: { elements: {}, frameElementIds: undefined } } },
+    { slides: { s: { elements: {}, frameElementIds: null } } },
+    { slides: { s: { elements: {}, frameElementIds: 111 } } },
+    { slides: { s: { elements: {}, frameElementIds: [undefined] } } },
+    { slides: { s: { elements: {}, frameElementIds: [null] } } },
+    { slides: { s: { elements: {}, frameElementIds: [111] } } },
+    { slides: { s: { elements: {}, frameElementIds: ['__proto__'] } } },
+    { slides: { s: { elements: {}, frameElementIds: ['constructor'] } } },
     { slides: { s: { elements: {}, elementIds: [], lock: null } } },
     { slides: { s: { elements: {}, elementIds: [], lock: 111 } } },
     { slides: { s: { elements: {}, elementIds: [], lock: {} } } },

@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
+import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { act, renderHook } from '@testing-library/react';
 import { ComponentType, PropsWithChildren } from 'react';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
 import {
   mockEllipseElement,
+  mockFrameElement,
   mockLineElement,
   mockWhiteboardManager,
 } from '../lib/testUtils/documentTestUtils';
@@ -30,17 +32,40 @@ import {
   useActiveElements,
   useElement,
   useElements,
+  useFrameElement,
   useSlideElementIds,
   useSlideIsLocked,
   useWhiteboardSlideInstance,
+  useWhiteboardSlideOrFrameIds,
 } from './useWhiteboardSlideInstance';
+
+vi.mock('@matrix-widget-toolkit/mui', async () => ({
+  ...(await vi.importActual<typeof import('@matrix-widget-toolkit/mui')>(
+    '@matrix-widget-toolkit/mui',
+  )),
+  getEnvironment: vi.fn(),
+}));
 
 let Wrapper: ComponentType<PropsWithChildren<{}>>;
 let whiteboardManager: Mocked<WhiteboardManager>;
 let activeWhiteboardInstance: WhiteboardInstance;
 
 beforeEach(() => {
-  ({ whiteboardManager } = mockWhiteboardManager());
+  vi.mocked(getEnvironment).mockImplementation(
+    (_, defaultValue) => defaultValue,
+  );
+
+  ({ whiteboardManager } = mockWhiteboardManager({
+    slides: [
+      [
+        'slide-0',
+        [
+          ['element-0', mockEllipseElement()],
+          ['frame-0', mockFrameElement()],
+        ],
+      ],
+    ],
+  }));
   activeWhiteboardInstance = whiteboardManager.getActiveWhiteboardInstance()!;
 
   Wrapper = ({ children }) => {
@@ -103,13 +128,46 @@ describe('useWhiteboardSlideInstance', () => {
   });
 });
 
+describe('useWhiteboardSlideOrFrameIds', () => {
+  it('should return slide ids', () => {
+    const { result } = renderHook(() => useWhiteboardSlideOrFrameIds(), {
+      wrapper: Wrapper,
+    });
+    expect(result.current).toEqual(['slide-0']);
+  });
+
+  it('should return frame ids', () => {
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
+    );
+
+    const { result } = renderHook(() => useWhiteboardSlideOrFrameIds(), {
+      wrapper: Wrapper,
+    });
+
+    expect(result.current).toEqual(['frame-0']);
+  });
+
+  it('hook should throw without context', () => {
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    expect(() => renderHook(() => useWhiteboardSlideOrFrameIds())).toThrow(
+      Error(
+        'useWhiteboardManager can only be used inside of <WhiteboardManagerProvider>',
+      ),
+    );
+
+    consoleSpy.mockRestore();
+  });
+});
+
 describe('useSlideElementIds', () => {
   it('should return the elements of the selected slide', () => {
     const { result } = renderHook(() => useSlideElementIds(), {
       wrapper: Wrapper,
     });
 
-    expect(result.current).toEqual(['element-0']);
+    expect(result.current).toEqual(['element-0', 'frame-0']);
   });
 
   it('should update if the element ids change', () => {
@@ -124,7 +182,7 @@ describe('useSlideElementIds', () => {
         .addElement(mockLineElement());
     });
 
-    expect(result.current).toEqual(['element-0', elementId]);
+    expect(result.current).toEqual(['element-0', 'frame-0', elementId]);
   });
 });
 
@@ -195,6 +253,62 @@ describe('useElement(s)', () => {
     expect(result.current).toEqual({
       ...mockEllipseElement(),
       strokeColor: '#ff0000',
+    });
+  });
+});
+
+describe('useFrameElement', () => {
+  it('should return undefined if frame element does not exists', () => {
+    const { result } = renderHook(() => useFrameElement('frame-1'), {
+      wrapper: Wrapper,
+    });
+
+    expect(result.current).toBeUndefined();
+  });
+
+  it('should handle undefined element id', () => {
+    const { result } = renderHook(() => useFrameElement(undefined), {
+      wrapper: Wrapper,
+    });
+
+    expect(result.current).toBeUndefined();
+  });
+
+  it('should return the frame element', () => {
+    const whiteboardSlideInstance =
+      activeWhiteboardInstance.getSlide('slide-0');
+    const getElement = vi.spyOn(whiteboardSlideInstance, 'getElement');
+
+    const { result } = renderHook(() => useFrameElement('frame-0'), {
+      wrapper: Wrapper,
+    });
+
+    expect(result.current).toEqual(mockFrameElement());
+    expect(getElement).toHaveBeenCalledWith('frame-0');
+  });
+
+  it('should throw if return element that is not frame', () => {
+    expect(() =>
+      renderHook(() => useFrameElement('element-0'), {
+        wrapper: Wrapper,
+      }),
+    ).toThrow(Error('Element must be of type frame'));
+  });
+
+  it('should update if the frame element change', () => {
+    const { result } = renderHook(() => useElement('frame-0'), {
+      wrapper: Wrapper,
+    });
+
+    act(() => {
+      activeWhiteboardInstance
+        .getSlide('slide-0')
+        .updateElement('frame-0', { width: 500 });
+    });
+
+    expect(result.current).toEqual({
+      ...mockFrameElement(),
+      width: 500,
     });
   });
 });

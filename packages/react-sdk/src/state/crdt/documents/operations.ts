@@ -261,6 +261,9 @@ export function generateAddElement(
 
     slide.get('elements').set(newElementId, elementMap);
     slide.get('elementIds').push([newElementId]);
+    if (element.type === 'frame') {
+      slide.get('frameElementIds')?.push([newElementId]);
+    }
   };
 
   return [changeFn, newElementId];
@@ -293,6 +296,9 @@ export function generateAddElements(
 
       slide.get('elements').set(newElementIds[index], elementMap);
       slide.get('elementIds').push([newElementIds[index]]);
+      if (element.type === 'frame') {
+        slide.get('frameElementIds')?.push([newElementIds[index]]);
+      }
     });
   };
 
@@ -476,6 +482,101 @@ export function generateRemoveElements(
   };
 }
 
+/**
+ * Set frame element ids for the slide from the frame elements.
+ */
+export function generateSetSlideFrameElementIds(
+  slideId: string,
+): ChangeFn<WhiteboardDocument> {
+  return (doc: SharedMap<WhiteboardDocument>) => {
+    const slide = getSlide(doc, slideId);
+
+    if (!slide) {
+      throw new Error(`Slide not found: ${slideId}`);
+    }
+
+    const frameElementIds: string[] = [];
+
+    for (const [elementId, element] of slide.get('elements')) {
+      if (element.get('type') === 'frame') {
+        frameElementIds.push(elementId);
+      }
+    }
+
+    slide.set('frameElementIds', YArray.from(frameElementIds));
+  };
+}
+
+/**
+ * Return the ordered list of frame elements for the presentation as are stored in the slide.
+ * A normalized version should normally be used, however this operation is useful when need to get a value as it is.
+ */
+export function getFrameElementIds(
+  doc: SharedMap<WhiteboardDocument>,
+  slideId: string,
+): string[] | undefined {
+  const slide = getSlide(doc, slideId);
+
+  if (!slide) {
+    return undefined;
+  }
+
+  return slide.get('frameElementIds')?.toArray();
+}
+
+/**
+ * Return the ordered list of frame elements for the presentation.
+ */
+export function getNormalizedFrameElementIds(
+  doc: SharedMap<WhiteboardDocument>,
+  slideId: string,
+): string[] {
+  const slide = getSlide(doc, slideId);
+
+  if (!slide) {
+    return [];
+  }
+
+  const frameElementIds = slide.get('frameElementIds')?.toArray();
+
+  if (!frameElementIds) {
+    return [];
+  }
+
+  const elements = slide.get('elements');
+  return uniq(frameElementIds).filter((e) => elements.get(e));
+}
+
+/** Move a frame identified by its id to a different position */
+export function generateMoveSlideFrame(
+  slideId: string,
+  frameElementId: string,
+  index: number,
+): ChangeFn<WhiteboardDocument> {
+  return (doc) => {
+    const slide = getSlide(doc, slideId);
+
+    if (!slide) {
+      return;
+    }
+
+    cleanupElementIds(slide);
+
+    const frameElementIds = doc
+      .get('slides')
+      .get(slideId)
+      ?.get('frameElementIds');
+    if (frameElementIds) {
+      const currentIndex = frameElementIds.toArray().indexOf(frameElementId);
+
+      if (currentIndex >= 0) {
+        frameElementIds.delete(currentIndex, 1);
+        frameElementIds.insert(index, [frameElementId]);
+      }
+    }
+  };
+}
+
 /** Apply all changes one by one. */
 export function generate(
   changes: ChangeFn<WhiteboardDocument>[],
@@ -499,15 +600,34 @@ function cleanupElementIds(slide: SharedMap<Slide>): void {
   const elements = slide.get('elements');
 
   while (i < elementIds.length) {
-    const slideId = elementIds.get(i);
-    const isDuplicate = discoveredElementIds.has(slideId);
-    const isLeftover = !elements.has(slideId);
+    const elementId = elementIds.get(i);
+    const isDuplicate = discoveredElementIds.has(elementId);
+    const isLeftover = !elements.has(elementId);
 
     if (isDuplicate || isLeftover) {
       elementIds.delete(i);
     } else {
-      discoveredElementIds.add(slideId);
+      discoveredElementIds.add(elementId);
       ++i;
+    }
+  }
+
+  const frameElementIds = slide.get('frameElementIds');
+  if (frameElementIds) {
+    const discoveredFrameElementIds = new Set();
+    i = 0;
+
+    while (i < frameElementIds.length) {
+      const elementId = frameElementIds.get(i);
+      const isDuplicate = discoveredFrameElementIds.has(elementId);
+      const isLeftover = !elements.has(elementId);
+
+      if (isDuplicate || isLeftover) {
+        frameElementIds.delete(i);
+      } else {
+        discoveredFrameElementIds.add(elementId);
+        ++i;
+      }
     }
   }
 }

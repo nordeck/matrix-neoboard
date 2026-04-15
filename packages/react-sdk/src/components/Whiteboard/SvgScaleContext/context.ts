@@ -77,6 +77,11 @@ export type SvgScaleContextType = {
    * Center point of the canvas on the current viewport.
    */
   viewportCanvasCenter: Point;
+
+  /**
+   * Move the viewport center to a specific canvas position and scale
+   */
+  moveToPositionAndScale: (position: Point, scale: number) => void;
 };
 
 export const SvgScaleContext = createContext<SvgScaleContextType | undefined>(

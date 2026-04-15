@@ -230,12 +230,30 @@ export const SvgScaleContextProvider: React.FC<PropsWithChildren> = ({
     };
   }, [stateValues]);
 
+  const moveToPositionAndScale = useCallback(
+    (position: Point, scale: number) => {
+      const translationX = (whiteboardWidth / 2 - position.x) * scale;
+      const translationY = (whiteboardHeight / 2 - position.y) * scale;
+
+      const stateValues = {
+        scale,
+        translation: {
+          x: translationX,
+          y: translationY,
+        },
+      };
+      updateStateValues(() => stateValues, containerDimensions);
+    },
+    [containerDimensions, updateStateValues],
+  );
+
   const state: SvgScaleContextType = useMemo(() => {
     return {
       scale: stateValues.scale,
       updateScale,
       translation: stateValues.translation,
       updateTranslation,
+      moveToPositionAndScale,
       containerDimensions,
       setContainerDimensions,
       transformPointSvgToContainer,
@@ -248,6 +266,7 @@ export const SvgScaleContextProvider: React.FC<PropsWithChildren> = ({
     stateValues.translation,
     transformPointSvgToContainer,
     updateScale,
+    moveToPositionAndScale,
     updateTranslation,
     viewportCanvasCenter,
   ]);

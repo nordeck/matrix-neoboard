@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -36,12 +37,22 @@ import { WhiteboardManager } from '../../state';
 import { ImageUploadProvider } from '../ImageUpload';
 import { LayoutStateProvider } from '../Layout';
 import { SnackbarProvider } from '../Snackbar';
-import * as whiteboardConstants from '../Whiteboard/constants';
 import { ToolsBar } from './ToolsBar';
+
+vi.mock('@matrix-widget-toolkit/mui', async () => ({
+  ...(await vi.importActual<typeof import('@matrix-widget-toolkit/mui')>(
+    '@matrix-widget-toolkit/mui',
+  )),
+  getEnvironment: vi.fn(),
+}));
 
 let widgetApi: MockedWidgetApi;
 
 beforeEach(() => {
+  vi.mocked(getEnvironment).mockImplementation(
+    (_, defaultValue) => defaultValue,
+  );
+
   widgetApi = mockWidgetApi();
 });
 
@@ -52,10 +63,15 @@ afterEach(() => {
 
 describe('<ToolsBar/>', () => {
   let whiteboardManager: Mocked<WhiteboardManager>;
+  let setPresentationMode: (
+    enable: boolean,
+    enableEdit?: boolean,
+    presentationType?: 'presentation' | 'presenting',
+  ) => void;
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
 
   beforeEach(() => {
-    ({ whiteboardManager } = mockWhiteboardManager());
+    ({ whiteboardManager, setPresentationMode } = mockWhiteboardManager());
 
     Wrapper = ({ children }) => (
       <LayoutStateProvider>
@@ -206,11 +222,9 @@ describe('<ToolsBar/>', () => {
     ).not.toBeInTheDocument();
   });
 
-  // TODO: enable test when adding frames back in
-  // eslint-disable-next-line
-  it.skip('should show the create frame button, if Infinite Ianvas is enabled', () => {
-    vi.spyOn(whiteboardConstants, 'infiniteCanvasMode', 'get').mockReturnValue(
-      true,
+  it('should show the create frame button in infinite canvas mode', () => {
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
     );
 
     render(<ToolsBar />, { wrapper: Wrapper });
@@ -219,4 +233,26 @@ describe('<ToolsBar/>', () => {
       screen.getByRole('button', { name: 'Create frame' }),
     ).toBeInTheDocument();
   });
+
+  it.each<{ type: 'presenting' | 'presentation'; isEditMode: boolean }>([
+    { type: 'presentation', isEditMode: true },
+    { type: 'presenting', isEditMode: true },
+    { type: 'presenting', isEditMode: true },
+    { type: 'presenting', isEditMode: false },
+  ])(
+    'should disable the create frame button in infinite canvas mode in presentation mode type $type and edit mode is $isEditMode',
+    ({ type: presentationType, isEditMode }) => {
+      setPresentationMode(true, isEditMode, presentationType);
+
+      vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+        name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
+      );
+
+      render(<ToolsBar />, { wrapper: Wrapper });
+
+      expect(
+        screen.getByRole('button', { name: 'Create frame' }),
+      ).toBeDisabled();
+    },
+  );
 });

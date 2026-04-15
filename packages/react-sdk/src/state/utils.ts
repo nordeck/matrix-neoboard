@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-import { isEqual, uniq } from 'lodash';
+import { first, isEqual, uniq } from 'lodash';
 import {
   Element,
   FrameElement,
   ImageElement,
   PathElement,
+  Point,
   ShapeElement,
 } from './crdt';
 import { Elements } from './types';
@@ -431,4 +432,37 @@ export function deleteRelations(element: Element): Element {
   } else {
     return element;
   }
+}
+
+/**
+ * Find the frame with the nearest center to the passed position
+ * @param frameElements frame elements
+ * @param position position
+ */
+export function findNearestFrameElement(
+  frameElements: Elements<FrameElement>,
+  position: Point,
+): string | undefined {
+  const { x: positionX, y: positionY } = position;
+
+  const frameIdsOrdered = Object.entries(frameElements)
+    .map(
+      ([
+        elementId,
+        {
+          position: { x, y },
+          width,
+          height,
+        },
+      ]) => {
+        const deltaX = Math.abs(x + width / 2 - positionX);
+        const deltaY = Math.abs(y + height / 2 - positionY);
+        const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+        return [elementId, distance] as [string, number];
+      },
+    )
+    .sort(([_id1, distance1], [_id2, distance2]) => distance1 - distance2);
+
+  const firstFrameIdsOrdered = first(frameIdsOrdered);
+  return firstFrameIdsOrdered ? firstFrameIdsOrdered[0] : undefined;
 }

@@ -34,7 +34,10 @@ import {
 import { Session } from '../discovery';
 import { SFUConfig } from '../matrixRtcCommunicationChannel';
 import { Message, PeerConnection, PeerConnectionStatistics } from './types';
-import { extractPeerConnectionStatistics } from './utils';
+import {
+  extractPeerConnectionStatistics,
+  parseLivekitJwtTokenIdentity,
+} from './utils';
 
 export class MatrixRtcPeerConnection implements PeerConnection {
   private readonly logger = getLogger('PeerConnection');
@@ -187,11 +190,16 @@ export class MatrixRtcPeerConnection implements PeerConnection {
       const message = JSON.parse(this.decoder.decode(payload));
 
       if (typeof message.type === 'string' && message.content && participant) {
-        this.messageSubject.next({
-          senderSessionId: this.session.sessionId,
-          senderUserId: participant.identity,
-          ...message,
-        });
+        const { userId, deviceId } = parseLivekitJwtTokenIdentity(
+          participant.identity,
+        );
+        if (userId && deviceId) {
+          this.messageSubject.next({
+            senderSessionId: `_${userId}_${deviceId}`,
+            senderUserId: userId,
+            ...message,
+          });
+        }
       } else {
         this.logger.warn(
           `Received invalid message for connection ${this.connectionId}`,

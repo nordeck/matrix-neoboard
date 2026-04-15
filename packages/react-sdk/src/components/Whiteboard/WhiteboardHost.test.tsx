@@ -15,10 +15,19 @@
  * limitations under the License.
  */
 
+import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { act, ComponentType, PropsWithChildren } from 'react';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  Mocked,
+  vi,
+} from 'vitest';
 import { WhiteboardHost } from '.';
 import {
   mockEllipseElement,
@@ -31,6 +40,7 @@ import {
 import {
   Point,
   WhiteboardInstance,
+  WhiteboardManager,
   WhiteboardSlideInstance,
 } from '../../state';
 import { ConnectionPointProvider } from '../ConnectionPointProvider';
@@ -38,8 +48,7 @@ import { ElementOverridesProvider } from '../ElementOverridesProvider';
 import { LayoutStateProvider, useLayoutState } from '../Layout';
 import { WhiteboardHotkeysProvider } from '../WhiteboardHotkeysProvider';
 import * as constants from './constants';
-import { useSvgScaleContext } from './SvgScaleContext';
-import { SvgScaleContextType } from './SvgScaleContext/context';
+import { SvgScaleContextType, useSvgScaleContext } from './SvgScaleContext';
 
 vi.mock('./SvgCanvas/useMeasure', () => ({
   useMeasure: vi.fn().mockReturnValue([vi.fn(), { width: 1920, height: 1080 }]),
@@ -50,6 +59,13 @@ vi.mock('./SvgCanvas/utils', async () => ({
   calculateSvgCoords: (position: Point) => position,
 }));
 
+vi.mock('@matrix-widget-toolkit/mui', async () => ({
+  ...(await vi.importActual<typeof import('@matrix-widget-toolkit/mui')>(
+    '@matrix-widget-toolkit/mui',
+  )),
+  getEnvironment: vi.fn(),
+}));
+
 describe('<WhiteboardHost/>', () => {
   let activeWhiteboard: WhiteboardInstance;
   let activeSlide: WhiteboardSlideInstance;
@@ -58,11 +74,21 @@ describe('<WhiteboardHost/>', () => {
   let svgScaleContextState: SvgScaleContextType;
   let widgetApi: MockedWidgetApi;
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
+  let whiteboardManager: Mocked<WhiteboardManager>;
+  let setPresentationMode: (
+    enable: boolean,
+    enableEdit?: boolean,
+    presentationType?: 'presentation' | 'presenting',
+  ) => void;
 
   beforeEach(() => {
+    vi.mocked(getEnvironment).mockImplementation(
+      (_, defaultValue) => defaultValue,
+    );
+
     widgetApi = mockWidgetApi();
 
-    const { whiteboardManager } = mockWhiteboardManager({
+    ({ whiteboardManager, setPresentationMode } = mockWhiteboardManager({
       slides: [
         [
           'slide-0',
@@ -85,7 +111,7 @@ describe('<WhiteboardHost/>', () => {
           ],
         ],
       ],
-    });
+    }));
     activeWhiteboard = whiteboardManager.getActiveWhiteboardInstance()!;
     activeSlide = activeWhiteboard.getSlide('slide-0');
 
@@ -215,6 +241,167 @@ describe('<WhiteboardHost/>', () => {
         screen.getByTestId(`element-0-border-${side}`),
       ).toBeInTheDocument();
     }
+  });
+
+  it('should select element with left button', () => {
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    const element = screen.getByTestId('element-ellipse-element-0');
+    fireEvent.mouseDown(element, {
+      clientX: 50,
+      clientY: 101,
+      buttons: 1,
+    });
+    expect(activeSlide.getActiveElementIds()).toEqual(['element-0']);
+  });
+
+  it('should not select element with left button in the presentation mode', () => {
+    setPresentationMode(true);
+
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    const element = screen.getByTestId('element-ellipse-element-0');
+    fireEvent.mouseDown(element, {
+      clientX: 50,
+      clientY: 101,
+      buttons: 1,
+    });
+    expect(activeSlide.getActiveElementIds()).toEqual([]);
+  });
+
+  it('should select element with left button in the presentation mode if presenting', () => {
+    setPresentationMode(true, false, 'presenting');
+
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    const element = screen.getByTestId('element-ellipse-element-0');
+    fireEvent.mouseDown(element, {
+      clientX: 50,
+      clientY: 101,
+      buttons: 1,
+    });
+    expect(activeSlide.getActiveElementIds()).toEqual(['element-0']);
+  });
+
+  it('should select element with left button in the presentation mode if edit mode is enabled', () => {
+    setPresentationMode(true, true);
+
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    const element = screen.getByTestId('element-ellipse-element-0');
+    fireEvent.mouseDown(element, {
+      clientX: 50,
+      clientY: 101,
+      buttons: 1,
+    });
+    expect(activeSlide.getActiveElementIds()).toEqual(['element-0']);
+  });
+
+  it('should select an element attached to active frame with left button in infinite canvas mode in the presentation mode if edit mode is enabled', () => {
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
+    );
+
+    // attached existing element to new frame
+    activeSlide.updateElements([
+      {
+        elementId: 'frame-0',
+        patch: {
+          attachedElements: ['element-0'],
+        },
+      },
+      {
+        elementId: 'element-0',
+        patch: {
+          attachedFrame: 'frame-0',
+        },
+      },
+    ]);
+
+    setPresentationMode(true, true);
+
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    const element = screen.getByTestId('element-ellipse-element-0');
+    fireEvent.mouseDown(element, {
+      clientX: 50,
+      clientY: 101,
+      buttons: 1,
+    });
+    expect(activeSlide.getActiveElementIds()).toEqual(['element-0']);
+  });
+
+  it('should not select an element without frame with left button in infinite canvas mode in the presentation mode if edit mode is enabled', () => {
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
+    );
+
+    setPresentationMode(true, true);
+
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    const element = screen.getByTestId('element-ellipse-element-0');
+    fireEvent.mouseDown(element, {
+      clientX: 50,
+      clientY: 101,
+      buttons: 1,
+    });
+    expect(activeSlide.getActiveElementIds()).toEqual([]);
+  });
+
+  it('should not select an element attached to non active frame with left button in infinite canvas mode in the presentation mode if edit mode is enabled', () => {
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
+    );
+
+    // create one more frame
+    const frameId1 = activeSlide.addElement(mockFrameElement());
+
+    // attached existing element to new frame
+    activeSlide.updateElements([
+      {
+        elementId: frameId1,
+        patch: {
+          attachedElements: ['element-0'],
+        },
+      },
+      {
+        elementId: 'element-0',
+        patch: {
+          attachedFrame: frameId1,
+        },
+      },
+    ]);
+
+    setPresentationMode(true, true);
+
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    const element = screen.getByTestId('element-ellipse-element-0');
+    fireEvent.mouseDown(element, {
+      clientX: 50,
+      clientY: 101,
+      buttons: 1,
+    });
+    expect(activeSlide.getActiveElementIds()).toEqual([]);
+  });
+
+  it('should not select a frame element with left button in infinite canvas mode in the presentation mode if edit mode is enabled', () => {
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
+    );
+
+    setPresentationMode(true, true);
+
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    const element = screen.getByTestId('element-frame-frame-0');
+    fireEvent.mouseDown(element, {
+      clientX: 50,
+      clientY: 101,
+      buttons: 1,
+    });
+    expect(activeSlide.getActiveElementIds()).toEqual([]);
   });
 
   it('should move element by dragging with left button', async () => {
@@ -601,6 +788,59 @@ describe('<WhiteboardHost/>', () => {
     },
   );
 
+  it.each<{ type: 'presenting' | 'presentation'; isEditMode: boolean }>([
+    { type: 'presentation', isEditMode: false },
+    { type: 'presentation', isEditMode: true },
+    { type: 'presenting', isEditMode: false },
+    { type: 'presenting', isEditMode: true },
+  ])(
+    'should not pan the infinite canvas by dragging element with the right mouse button in presentation mode type $type and edit mode is $isEditMode',
+    async ({ type: presentationType, isEditMode }) => {
+      const button = 2;
+      const buttons = 2;
+
+      vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+        name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
+      );
+
+      vi.spyOn(constants, 'infiniteCanvasMode', 'get').mockReturnValue(true);
+      vi.spyOn(constants, 'whiteboardWidth', 'get').mockReturnValue(19200);
+      vi.spyOn(constants, 'whiteboardHeight', 'get').mockReturnValue(10800);
+
+      setPresentationMode(true, isEditMode, presentationType);
+
+      render(<WhiteboardHost />, { wrapper: Wrapper });
+
+      const initialTranslation = svgScaleContextState.translation;
+
+      // move 150px on x and 250px on y axis
+      const element = screen.getByTestId('element-ellipse-element-0');
+      fireEvent.mouseDown(element, {
+        clientX: 150,
+        clientY: 150,
+        button,
+        buttons,
+      });
+      fireEvent.mouseMove(element, {
+        clientX: 300,
+        clientY: 400,
+        buttons,
+      });
+      fireEvent.mouseUp(element, {
+        clientX: 300,
+        clientY: 400,
+        button,
+      });
+
+      expect(activeSlide.getActiveElementIds()).toEqual([]);
+      expect(activeSlide.getElement('element-0')?.position).toEqual({
+        x: 0,
+        y: 1,
+      });
+      expect(svgScaleContextState.translation).toBe(initialTranslation);
+    },
+  );
+
   it.each([
     ['right', 2],
     ['middle', 1],
@@ -628,6 +868,62 @@ describe('<WhiteboardHost/>', () => {
       expect(svgScaleContextState.translation).toEqual({ x: 150, y: 250 });
     },
   );
+
+  it.each<{ type: 'presenting' | 'presentation'; isEditMode: boolean }>([
+    { type: 'presentation', isEditMode: true },
+    { type: 'presenting', isEditMode: true },
+    { type: 'presenting', isEditMode: false },
+  ])(
+    'should not pan the infinite canvas by dragging canvas with the right mouse button in presentation mode type $type if edit mode is $isEditMode',
+    async ({ type: presentationType, isEditMode }) => {
+      const button = 2;
+
+      vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+        name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
+      );
+
+      vi.spyOn(constants, 'infiniteCanvasMode', 'get').mockReturnValue(true);
+      vi.spyOn(constants, 'whiteboardWidth', 'get').mockReturnValue(19200);
+      vi.spyOn(constants, 'whiteboardHeight', 'get').mockReturnValue(10800);
+
+      setPresentationMode(true, isEditMode, presentationType);
+
+      render(<WhiteboardHost />, { wrapper: Wrapper });
+
+      const initialTranslation = svgScaleContextState.translation;
+
+      const element = screen.getByTestId('unselect-element-layer');
+      fireEvent.mouseDown(element, {
+        clientX: 150,
+        clientY: 150,
+        button,
+      });
+      fireEvent.mouseMove(element, {
+        clientX: 300,
+        clientY: 400,
+      });
+      fireEvent.mouseUp(element);
+
+      expect(svgScaleContextState.translation).toBe(initialTranslation);
+    },
+  );
+
+  it("should not pan the infinite canvas by dragging canvas with the right mouse button in presentation mode type 'presentation' if edit mode is not active", async () => {
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
+    );
+
+    vi.spyOn(constants, 'infiniteCanvasMode', 'get').mockReturnValue(true);
+    vi.spyOn(constants, 'whiteboardWidth', 'get').mockReturnValue(19200);
+    vi.spyOn(constants, 'whiteboardHeight', 'get').mockReturnValue(10800);
+
+    setPresentationMode(true, false);
+
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    const element = screen.queryByTestId('unselect-element-layer');
+    expect(element).not.toBeInTheDocument();
+  });
 
   it('should move multiple selected elements by dragging the border', () => {
     activeSlide.setActiveElementIds(['element-0', 'element-1']);

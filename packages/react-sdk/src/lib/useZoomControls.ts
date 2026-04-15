@@ -17,6 +17,7 @@
 import { useCallback } from 'react';
 import { useSvgScaleContext } from '../components/Whiteboard';
 import { zoomStep } from '../components/Whiteboard/constants';
+import { usePresentationMode } from '../state';
 
 /**
  * Hook that provides zoom control functionality
@@ -24,18 +25,31 @@ import { zoomStep } from '../components/Whiteboard/constants';
  */
 export const useZoomControls = () => {
   const { scale, updateScale, viewportCanvasCenter } = useSvgScaleContext();
+  const { state: presentationState } = usePresentationMode();
+  const isPresentationMode = presentationState.type !== 'idle';
 
   const resetZoom = useCallback(() => {
+    if (isPresentationMode) {
+      return;
+    }
     updateScale(1, 'set', viewportCanvasCenter);
-  }, [updateScale, viewportCanvasCenter]);
+  }, [updateScale, viewportCanvasCenter, isPresentationMode]);
 
   const zoomOut = useCallback(() => {
+    if (isPresentationMode) {
+      return;
+    }
+
     updateScale(-zoomStep, 'add', viewportCanvasCenter);
-  }, [updateScale, viewportCanvasCenter]);
+  }, [updateScale, viewportCanvasCenter, isPresentationMode]);
 
   const zoomIn = useCallback(() => {
+    if (isPresentationMode) {
+      return;
+    }
+
     updateScale(zoomStep, 'add', viewportCanvasCenter);
-  }, [updateScale, viewportCanvasCenter]);
+  }, [updateScale, viewportCanvasCenter, isPresentationMode]);
 
   return {
     scale,

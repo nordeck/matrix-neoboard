@@ -20,6 +20,7 @@ import { ReactElement, useCallback } from 'react';
 import { useMeasure } from '../../lib';
 import {
   SlideProvider,
+  useActiveSlide,
   useActiveWhiteboardInstanceSlideIds,
   useIsWhiteboardLoading,
   usePresentationMode,
@@ -73,6 +74,7 @@ export function Layout({ height = '100vh' }: LayoutProps) {
     isFullscreenMode,
     isSlideOverviewVisible,
   } = useLayoutState();
+  const { activeSlideId } = useActiveSlide();
   const slideIds = useActiveWhiteboardInstanceSlideIds();
   const { state: presentationState } = usePresentationMode();
   const isViewingPresentation = presentationState.type === 'presentation';
@@ -86,27 +88,27 @@ export function Layout({ height = '100vh' }: LayoutProps) {
   }
 
   return (
-    <SlidesProvider>
-      <ImageUploadProvider>
-        <ImportWhiteboardDialogProvider>
-          <GuidedTour disabled={isViewingPresentation} />
+    <SlideProvider slideId={activeSlideId}>
+      <SlidesProvider>
+        <ImageUploadProvider>
+          <ImportWhiteboardDialogProvider>
+            <GuidedTour disabled={isViewingPresentation} />
 
-          <Stack
-            height={!isFullscreenMode ? height : '100vh'}
-            direction="row"
-            bgcolor="background.paper"
-          >
-            <AnimatedSidebar
-              visible={isSlideOverviewVisible && !isViewingPresentation}
-              direction="right"
+            <Stack
+              height={!isFullscreenMode ? height : '100vh'}
+              direction="row"
+              bgcolor="background.paper"
             >
-              <SlideOverviewBar />
-            </AnimatedSidebar>
+              <AnimatedSidebar
+                visible={isSlideOverviewVisible && !isViewingPresentation}
+                direction="right"
+              >
+                <SlideOverviewBar />
+              </AnimatedSidebar>
 
-            <Box component="main" flex={1} display="flex" position="relative">
-              {slideIds.map((slideId) => (
-                <TabPanelStyled value={slideId} key={slideId}>
-                  <SlideProvider slideId={slideId}>
+              <Box component="main" flex={1} display="flex" position="relative">
+                {infiniteCanvasMode && (
+                  <SlideProvider slideId={activeSlideId}>
                     <ElementOverridesProvider>
                       <ConnectionPointProvider>
                         <ElementAttachFrameProvider>
@@ -115,17 +117,31 @@ export function Layout({ height = '100vh' }: LayoutProps) {
                       </ConnectionPointProvider>
                     </ElementOverridesProvider>
                   </SlideProvider>
-                </TabPanelStyled>
-              ))}
-            </Box>
-            <DeveloperToolsDialog
-              open={isDeveloperToolsVisible}
-              handleClose={handleClose}
-            />
-          </Stack>
-        </ImportWhiteboardDialogProvider>
-      </ImageUploadProvider>
-    </SlidesProvider>
+                )}
+                {!infiniteCanvasMode &&
+                  slideIds.map((slideId) => (
+                    <TabPanelStyled value={slideId} key={slideId}>
+                      <SlideProvider slideId={slideId}>
+                        <ElementOverridesProvider>
+                          <ConnectionPointProvider>
+                            <ElementAttachFrameProvider>
+                              <ContentArea />
+                            </ElementAttachFrameProvider>
+                          </ConnectionPointProvider>
+                        </ElementOverridesProvider>
+                      </SlideProvider>
+                    </TabPanelStyled>
+                  ))}
+              </Box>
+              <DeveloperToolsDialog
+                open={isDeveloperToolsVisible}
+                handleClose={handleClose}
+              />
+            </Stack>
+          </ImportWhiteboardDialogProvider>
+        </ImageUploadProvider>
+      </SlidesProvider>
+    </SlideProvider>
   );
 }
 
@@ -174,8 +190,7 @@ function ContentArea() {
           right={0}
         >
           <FullscreenModeBar />
-          {!infiniteCanvasMode &&
-            (!isViewingPresentation || canStopPresentation) && <PresentBar />}
+          {(!isViewingPresentation || canStopPresentation) && <PresentBar />}
         </ToolbarContainer>
       </ToolbarContainer>
 
@@ -184,7 +199,9 @@ function ContentArea() {
       {(!isViewingPresentation || isViewingPresentationInEditMode) && (
         <ToolbarCanvasContainer ref={sizeRef}>
           <ToolbarContainer bottom={(theme) => theme.spacing(1)}>
-            {infiniteCanvasMode && <ZoomBar />}
+            {infiniteCanvasMode && presentationState.type === 'idle' && (
+              <ZoomBar />
+            )}
 
             <Box flex="1" />
 

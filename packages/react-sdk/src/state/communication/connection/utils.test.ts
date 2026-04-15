@@ -19,6 +19,7 @@ import {
   extractPeerConnectionStatistics,
   isImpolite,
   isPeerConnected,
+  parseLivekitJwtTokenIdentity,
 } from './utils';
 
 describe('isImpolite', () => {
@@ -188,4 +189,37 @@ describe('isPeerConnected', () => {
       }),
     ).toBe(false);
   });
+});
+
+describe('parseLivekitJwtTokenIdentity', () => {
+  it('should parse identity', () => {
+    expect(
+      parseLivekitJwtTokenIdentity('@user:example.com:6jjRubIAWv'),
+    ).toEqual({
+      userId: '@user:example.com',
+      deviceId: '6jjRubIAWv',
+    });
+  });
+
+  it.each(['@user:6jjRubIAWv', 'user:example.com:6jjRubIAWv'])(
+    'should parse unexpected identity %s with wrong user id',
+    (identity) => {
+      expect(parseLivekitJwtTokenIdentity(identity)).toEqual({
+        deviceId: '6jjRubIAWv',
+      });
+    },
+  );
+
+  it('should parse unexpected identity with wrong device id', () => {
+    expect(parseLivekitJwtTokenIdentity('@user:example.com:')).toEqual({
+      userId: '@user:example.com',
+    });
+  });
+
+  it.each(['something', ':', 'something::'])(
+    'should parse unexpected identity',
+    (identity) => {
+      expect(parseLivekitJwtTokenIdentity(identity)).toEqual({});
+    },
+  );
 });

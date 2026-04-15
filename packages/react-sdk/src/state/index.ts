@@ -16,6 +16,7 @@
 
 export * from './crdt';
 export * from './export';
+export { isInfiniteCanvasPresentationEdit } from './types';
 export type {
   ElementUpdate,
   Elements,
@@ -29,6 +30,7 @@ export type {
 export { useActiveCursors } from './useActiveCursors';
 export {
   useActiveSlide,
+  useActiveSlideOrFrame,
   useActiveWhiteboardInstance,
   useActiveWhiteboardInstanceSlideIds,
   useActiveWhiteboardInstanceStatistics,
@@ -49,9 +51,11 @@ export {
   useActiveElements,
   useElement,
   useElements,
+  useFrameElement,
   useSlideElementIds,
   useSlideIsLocked,
   useWhiteboardSlideInstance,
+  useWhiteboardSlideOrFrameIds,
 } from './useWhiteboardSlideInstance';
 export {
   changeElementFrame,
@@ -63,6 +67,7 @@ export {
   disconnectShapeElement,
   findActiveAndAttachedElementIds,
   findConnectingPaths,
+  findNearestFrameElement,
   getFrameElementsChanges,
 } from './utils';
 export type { ElementFrameChange } from './utils';
