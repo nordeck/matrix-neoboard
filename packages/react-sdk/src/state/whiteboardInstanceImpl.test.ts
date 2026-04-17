@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
+import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { firstValueFrom, Subject, take, toArray } from 'rxjs';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
-import { mockLineElement } from '../lib/testUtils/documentTestUtils';
+import { mockFrameElement, mockLineElement } from '../lib/testUtils';
 import { mockWhiteboard } from '../lib/testUtils/matrixTestUtils';
 import {
   CommunicationChannel,
@@ -28,17 +29,28 @@ import {
   createWhiteboardDocument,
   Document,
   DocumentStatistics,
+  generateAddElement,
   generateAddSlide,
   generateMoveSlide,
   generateRemoveSlide,
+  getFrameElementIds,
+  getSlide,
   WhiteboardDocument,
 } from './crdt';
+import { YArray } from './crdt/y';
 import { PresentationState, SynchronizedDocument } from './types';
 import {
   findNewActiveSlideId,
   WhiteboardInstanceImpl,
 } from './whiteboardInstanceImpl';
 import { WhiteboardSlideInstanceImpl } from './whiteboardSlideInstanceImpl';
+
+vi.mock('@matrix-widget-toolkit/mui', async () => ({
+  ...(await vi.importActual<typeof import('@matrix-widget-toolkit/mui')>(
+    '@matrix-widget-toolkit/mui',
+  )),
+  getEnvironment: vi.fn(),
+}));
 
 // createWhiteboardDocument() always contains a slide with this id
 const slide0 = 'IN4h74suMiIAK4AVMAdl_';
@@ -53,6 +65,10 @@ describe('WhiteboardInstanceImpl', () => {
   let document: Document<WhiteboardDocument>;
 
   beforeEach(async () => {
+    vi.mocked(getEnvironment).mockImplementation(
+      (_, defaultValue) => defaultValue,
+    );
+
     observeCommunicationStatisticsSubject =
       new Subject<CommunicationChannelStatistics>();
     observeIsLoadingSubject = new Subject<boolean>();
@@ -250,6 +266,9 @@ describe('WhiteboardInstanceImpl', () => {
     // initially, the whiteboard is initiated with the initial slide
     expect(whiteboardInstance.isLoading()).toBe(true);
     expect(whiteboardInstance.getActiveSlideId()).toBe(slide0);
+    expect(whiteboardInstance.getActiveSlide()).toBeInstanceOf(
+      WhiteboardSlideInstanceImpl,
+    );
 
     // create a new document where new slide is added as the first slide
     // this simulates a document that is loaded from the element room
@@ -268,6 +287,75 @@ describe('WhiteboardInstanceImpl', () => {
     // now the first slide of the updated document should be selected
     expect(whiteboardInstance.isLoading()).toBe(false);
     expect(whiteboardInstance.getActiveSlideId()).toBe(slide1);
+  });
+
+  it('should set frame element ids for active slide when loaded document without frames in infinite canvas mode', async () => {
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
+    );
+
+    const whiteboardInstance = new WhiteboardInstanceImpl(
+      synchronizedDocument,
+      communicationChannel,
+      mockWhiteboard(),
+      '@user-id:example.com',
+    );
+
+    observeIsLoadingSubject.next(false);
+    expect(whiteboardInstance.isLoading()).toBe(false);
+
+    expect(getFrameElementIds(document.getData(), slide0)).toEqual([]);
+  });
+
+  it('should set frame element ids for active slide if not set when loaded document with frames in infinite canvas mode', async () => {
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
+    );
+
+    const whiteboardInstance = new WhiteboardInstanceImpl(
+      synchronizedDocument,
+      communicationChannel,
+      mockWhiteboard(),
+      '@user-id:example.com',
+    );
+
+    const [changeFn, elementId] = generateAddElement(
+      slide0,
+      mockFrameElement(),
+    );
+    document.performChange(changeFn);
+
+    observeIsLoadingSubject.next(false);
+    expect(whiteboardInstance.isLoading()).toBe(false);
+
+    expect(getFrameElementIds(document.getData(), slide0)).toEqual([elementId]);
+  });
+
+  it('should not set frame element ids for active slide when loaded document with existing frame element ids in infinite canvas mode', async () => {
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
+    );
+
+    const whiteboardInstance = new WhiteboardInstanceImpl(
+      synchronizedDocument,
+      communicationChannel,
+      mockWhiteboard(),
+      '@user-id:example.com',
+    );
+
+    const [changeFn] = generateAddElement(slide0, mockFrameElement());
+    document.performChange(changeFn);
+
+    // explicitly set frameElementIds to value without frame id to test for it later
+    document.performChange((doc) => {
+      getSlide(doc, slide0)?.set('frameElementIds', new YArray());
+    });
+
+    observeIsLoadingSubject.next(false);
+    expect(whiteboardInstance.isLoading()).toBe(false);
+
+    // check that it is not modified
+    expect(getFrameElementIds(document.getData(), slide0)).toEqual([]);
   });
 
   it('should add a new slide', async () => {
@@ -490,6 +578,41 @@ describe('WhiteboardInstanceImpl', () => {
     expect(await observedActiveSlides).toEqual([slide0, slide1]);
   });
 
+  it('should switch a specific active frame', async () => {
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
+    );
+
+    const whiteboardInstance = new WhiteboardInstanceImpl(
+      synchronizedDocument,
+      communicationChannel,
+      mockWhiteboard(),
+      '@user-id:example.com',
+    );
+
+    const observedActiveFrameElements = firstValueFrom(
+      whiteboardInstance.observeActiveFrameElementId().pipe(take(3), toArray()),
+    );
+
+    observeIsLoadingSubject.next(false);
+
+    const slideInstance = whiteboardInstance.getSlide(slide0);
+    const frameId1 = slideInstance.addElement(mockFrameElement());
+    whiteboardInstance.setActiveFrameElementId('not-exists');
+    whiteboardInstance.setActiveFrameElementId(frameId1);
+
+    expect(whiteboardInstance.getActiveFrameElementId()).toEqual(frameId1);
+
+    whiteboardInstance.setActiveFrameElementId(undefined);
+    expect(whiteboardInstance.getActiveFrameElementId()).toBeUndefined();
+
+    expect(await observedActiveFrameElements).toEqual([
+      undefined,
+      frameId1,
+      undefined,
+    ]);
+  });
+
   it('should reset active element selection when selecting a slide', async () => {
     const whiteboardInstance = new WhiteboardInstanceImpl(
       synchronizedDocument,
@@ -505,9 +628,33 @@ describe('WhiteboardInstanceImpl', () => {
 
     whiteboardInstance.setActiveSlideId(slide1);
 
-    expect(
-      whiteboardInstance.getSlide(slide1).getActiveElementId(),
-    ).toBeUndefined();
+    expect(whiteboardInstance.getSlide(slide1).getActiveElementIds()).toEqual(
+      [],
+    );
+  });
+
+  it('should reset active element selection when switching a frame', () => {
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
+    );
+
+    const whiteboardInstance = new WhiteboardInstanceImpl(
+      synchronizedDocument,
+      communicationChannel,
+      mockWhiteboard(),
+      '@user-id:example.com',
+    );
+
+    observeIsLoadingSubject.next(false);
+
+    const slideInstance = whiteboardInstance.getSlide(slide0);
+    const element0 = slideInstance.addElement(mockLineElement());
+    const frameId1 = slideInstance.addElement(mockFrameElement());
+    slideInstance.setActiveElementId(element0);
+
+    whiteboardInstance.setActiveFrameElementId(frameId1);
+
+    expect(slideInstance.getActiveElementIds()).toEqual([]);
   });
 
   it('should undo and redo change', () => {
@@ -554,16 +701,16 @@ describe('WhiteboardInstanceImpl', () => {
 
     expect(whiteboardInstance.getSlideIds()).toEqual([slide1]);
     expect(whiteboardInstance.getActiveSlideId()).toEqual(slide1);
-    expect(slide1Instance.getActiveElementId()).toEqual(undefined);
+    expect(slide1Instance.getActiveElementIds()).toEqual([]);
 
     whiteboardInstance.undo();
 
     expect(whiteboardInstance.getSlideIds()).toEqual([slide0, slide1]);
     expect(whiteboardInstance.getActiveSlideId()).toEqual(slide0);
-    expect(whiteboardInstance.getSlide(slide0).getActiveElementId()).toEqual(
-      undefined,
+    expect(whiteboardInstance.getSlide(slide0).getActiveElementIds()).toEqual(
+      [],
     );
-    expect(slide1Instance.getActiveElementId()).toEqual(undefined);
+    expect(slide1Instance.getActiveElementIds()).toEqual([]);
     expect(slide1Instance.getElement(element0)).toMatchObject({
       strokeColor: '#ff0000',
     });
@@ -572,7 +719,7 @@ describe('WhiteboardInstanceImpl', () => {
 
     expect(whiteboardInstance.getSlideIds()).toEqual([slide0, slide1]);
     expect(whiteboardInstance.getActiveSlideId()).toEqual(slide1);
-    expect(slide1Instance.getActiveElementId()).toEqual(element0);
+    expect(slide1Instance.getActiveElementIds()).toEqual([element0]);
     expect(slide1Instance.getElement(element0)).toMatchObject({
       strokeColor: '#ffffff',
     });
@@ -624,6 +771,9 @@ describe('WhiteboardInstanceImpl', () => {
     const activeSlideId = firstValueFrom(
       whiteboardInstance.observeActiveSlideId().pipe(toArray()),
     );
+    const activeFrameElementId = firstValueFrom(
+      whiteboardInstance.observeActiveFrameElementId().pipe(toArray()),
+    );
     const destroySlideSpy = vi.spyOn(
       whiteboardInstance.getSlide(slide0) as WhiteboardSlideInstanceImpl,
       'destroy',
@@ -644,6 +794,7 @@ describe('WhiteboardInstanceImpl', () => {
     expect(await statistics).toEqual([]);
     expect(await slideIds).toEqual([[slide0]]);
     expect(await activeSlideId).toEqual([slide0]);
+    expect(await activeFrameElementId).toEqual([undefined]);
     expect(await undoRedoState).toEqual([{ canUndo: false, canRedo: false }]);
     expect(await presentationState).toEqual([{ type: 'idle' }]);
 

@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
+import { TFunction } from 'i18next';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import { isInfiniteCanvasMode } from '../../lib';
+import { useWhiteboardSlideOrFrameIds } from '../../state';
 import { useLayoutState } from '../Layout';
 import { ToolbarToggle } from '../common/Toolbar';
 import { SidebarLeftIcon } from '../icons/SidebarLeftIcon';
@@ -23,10 +26,9 @@ import { SidebarLeftIcon } from '../icons/SidebarLeftIcon';
 export function ShowSlideOverviewToggle() {
   const { t } = useTranslation('neoboard');
   const { isSlideOverviewVisible, setSlideOverviewVisible } = useLayoutState();
+  const slideOrFrameIds = useWhiteboardSlideOrFrameIds();
 
-  const title = isSlideOverviewVisible
-    ? t('boardBar.hideSlideBarTitle', 'Close slide overview')
-    : t('boardBar.showSlideBarTitle', 'Open slide overview');
+  const title = getTitle(isSlideOverviewVisible, slideOrFrameIds, t);
 
   const handleVisibilityChange = useCallback(
     (_: unknown, checked: boolean) => {
@@ -43,6 +45,30 @@ export function ShowSlideOverviewToggle() {
       icon={<SidebarLeftIcon />}
       checkedIcon={<SidebarLeftIcon />}
       onChange={handleVisibilityChange}
+      disabled={isInfiniteCanvasMode() && slideOrFrameIds.length === 0}
     />
   );
+}
+
+function getTitle(
+  isSlideOverviewVisible: boolean,
+  slideOrFrameIds: string[],
+  t: TFunction,
+): string {
+  if (isInfiniteCanvasMode()) {
+    if (isSlideOverviewVisible) {
+      return t('boardBar.hideFrameBarTitle', 'Close frame overview');
+    } else if (slideOrFrameIds.length === 0) {
+      return t(
+        'boardBar.addFrameToEnableOverview',
+        'Add a frame to enable frame overview',
+      );
+    } else {
+      return t('boardBar.showFrameBarTitle', 'Open frame overview');
+    }
+  } else if (isSlideOverviewVisible) {
+    return t('boardBar.hideSlideBarTitle', 'Close slide overview');
+  } else {
+    return t('boardBar.showSlideBarTitle', 'Open slide overview');
+  }
 }

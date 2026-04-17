@@ -46,6 +46,7 @@ import { SharedMap, YArray, YMap } from '../../state/crdt/y';
 import { SynchronizedDocument, WhiteboardInstance } from '../../state/types';
 import { WhiteboardInstanceImpl } from '../../state/whiteboardInstanceImpl';
 import { createStore } from '../../store';
+import { isInfiniteCanvasMode } from '../isInfiniteCanvasMode';
 import { mockWhiteboard } from './matrixTestUtils';
 
 type MockWhiteboardOptions =
@@ -66,7 +67,11 @@ export function mockWhiteboardManager(
   whiteboardManager: Mocked<WhiteboardManager>;
   communicationChannel: Mocked<CommunicationChannel>;
   messageSubject: Subject<Message>;
-  setPresentationMode: (enable: boolean, enableEdit?: boolean) => void;
+  setPresentationMode: (
+    enable: boolean,
+    enableEdit?: boolean,
+    presentationType?: 'presentation' | 'presenting',
+  ) => void;
   synchronizedDocument: SynchronizedDocument<WhiteboardDocument>;
 } {
   const document = createWhiteboardDocument();
@@ -97,6 +102,14 @@ export function mockWhiteboardManager(
             ),
           );
           slide.set('elementIds', YArray.from(elements.map(([id]) => id)));
+          slide.set(
+            'frameElementIds',
+            YArray.from(
+              elements
+                .filter(([_, element]) => element.type === 'frame')
+                .map(([id]) => id),
+            ),
+          );
           return [slideId, slide];
         }),
       ),
@@ -167,20 +180,49 @@ export function mockWhiteboardManager(
     communicationChannel,
     messageSubject,
     synchronizedDocument,
-    setPresentationMode: (enable, enableEdit) => {
-      messageSubject.next({
-        senderUserId: '@user-alice:example.com',
-        senderSessionId: 'other',
-        type: 'net.nordeck.whiteboard.present_slide',
-        content: {
-          view: enable
-            ? {
-                isEditMode: enableEdit ? enableEdit : false,
-                slideId: 'slide-0',
-              }
-            : undefined,
-        },
-      });
+    setPresentationMode: (enable, enableEdit, presentationType) => {
+      let senderUserId: string;
+      let senderSessionId: string;
+
+      if (!presentationType || presentationType === 'presentation') {
+        senderUserId = '@user-alice:example.com';
+        senderSessionId = 'other';
+      } else if (presentationType === 'presenting') {
+        senderUserId = '@user-id:example.com';
+        senderSessionId = 'own';
+      } else {
+        throw new Error(`unexpected presentation type ${presentationType}`);
+      }
+
+      if (isInfiniteCanvasMode()) {
+        messageSubject.next({
+          senderUserId,
+          senderSessionId,
+          type: 'net.nordeck.whiteboard.present_frame',
+          content: {
+            view: enable
+              ? {
+                  isEditMode: enableEdit ? enableEdit : false,
+                  frameId: 'frame-0',
+                }
+              : undefined,
+          },
+        });
+      } else {
+        messageSubject.next({
+          senderUserId,
+          senderSessionId,
+          type: 'net.nordeck.whiteboard.present_slide',
+          content: {
+            view: enable
+              ? {
+                  isEditMode: enableEdit ? enableEdit : false,
+                  slideId: 'slide-0',
+                }
+              : undefined,
+          },
+        });
+      }
     },
   };
 }

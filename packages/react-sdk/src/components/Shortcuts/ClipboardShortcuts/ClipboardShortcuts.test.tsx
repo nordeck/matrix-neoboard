@@ -657,6 +657,11 @@ describe('<CopyAndPasteShortcuts>', () => {
       activeSlide.sortElementIds([elementId, pastedFrameElementId]),
     ).toEqual([pastedFrameElementId, elementId]);
 
+    expect(activeSlide.getFrameElementIds()).toEqual([
+      'frame-0',
+      pastedFrameElementId,
+    ]);
+
     const frameElement = activeSlide.getElement('frame-0');
     expect((frameElement as FrameElement).attachedElements).toBeUndefined();
     expect(activeSlide.getElement('element-id-0')).toBeUndefined();

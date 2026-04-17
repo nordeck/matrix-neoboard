@@ -17,9 +17,11 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import {
   mockEllipseElement,
+  mockFrameElement,
   mockLineElement,
 } from '../../../lib/testUtils/documentTestUtils';
 import { Document } from '../types';
+import { YArray } from '../y';
 import {
   generate,
   generateAddElement,
@@ -31,14 +33,18 @@ import {
   generateMoveElement,
   generateMoveElements,
   generateMoveSlide,
+  generateMoveSlideFrame,
   generateMoveUp,
   generateRemoveElement,
   generateRemoveElements,
   generateRemoveSlide,
+  generateSetSlideFrameElementIds,
   generateUnlockSlide,
   generateUpdateElement,
   getElement,
+  getFrameElementIds,
   getNormalizedElementIds,
+  getNormalizedFrameElementIds,
   getNormalizedSlideIds,
   getSlide,
   getSlideLock,
@@ -671,6 +677,49 @@ describe('generateAddElement', () => {
       element,
     );
     expect(getNormalizedElementIds(doc.getData(), slide0)).toEqual([elementId]);
+
+    expect(getFrameElementIds(doc.getData(), slide0)).toBeUndefined();
+    expect(getNormalizedFrameElementIds(doc.getData(), slide0)).toEqual([]);
+  });
+
+  it('should add frame element when frame element ids are not set', () => {
+    const doc = createWhiteboardDocument();
+
+    const element = mockFrameElement();
+    const [changeFn, elementId] = generateAddElement(slide0, element);
+
+    doc.performChange(changeFn);
+
+    expect(elementId).toEqual(expect.any(String));
+    expect(getElement(doc.getData(), slide0, elementId)?.toJSON()).toEqual(
+      element,
+    );
+    expect(getNormalizedElementIds(doc.getData(), slide0)).toEqual([elementId]);
+
+    expect(getFrameElementIds(doc.getData(), slide0)).toBeUndefined();
+    expect(getNormalizedFrameElementIds(doc.getData(), slide0)).toEqual([]);
+  });
+
+  it('should add frame element when frame element ids are set', () => {
+    const doc = createWhiteboardDocument();
+
+    doc.performChange(generateSetSlideFrameElementIds(slide0));
+
+    const element = mockFrameElement();
+    const [changeFn, elementId] = generateAddElement(slide0, element);
+
+    doc.performChange(changeFn);
+
+    expect(elementId).toEqual(expect.any(String));
+    expect(getElement(doc.getData(), slide0, elementId)?.toJSON()).toEqual(
+      element,
+    );
+    expect(getNormalizedElementIds(doc.getData(), slide0)).toEqual([elementId]);
+
+    expect(getFrameElementIds(doc.getData(), slide0)).toEqual([elementId]);
+    expect(getNormalizedFrameElementIds(doc.getData(), slide0)).toEqual([
+      elementId,
+    ]);
   });
 
   it('should add element with id', () => {
@@ -690,6 +739,7 @@ describe('generateAddElement', () => {
       element,
     );
     expect(getNormalizedElementIds(doc.getData(), slide0)).toEqual([elementId]);
+    expect(getNormalizedFrameElementIds(doc.getData(), slide0)).toEqual([]);
   });
 
   it('should throw if the slide does not exist', () => {
@@ -1422,6 +1472,416 @@ describe('generateRemoveElements', () => {
     expect(getNormalizedElementIds(doc.getData(), slide0)).toEqual([element2]);
     expect(getElement(doc.getData(), slide0, element0)).toBeUndefined();
     expect(getElement(doc.getData(), slide0, element1)).toBeUndefined();
+  });
+});
+
+describe('generateSetSlideFrameElementIds', () => {
+  it('should set slide frame element ids', () => {
+    const doc = createWhiteboardDocument();
+
+    const lineElement = mockLineElement();
+    const frameElement1 = mockFrameElement();
+    const frameElement2 = mockFrameElement();
+    const [addElement0, element0] = generateAddElement(slide0, lineElement);
+    doc.performChange(addElement0);
+    const [addElement1, element1] = generateAddElement(slide0, frameElement1);
+    doc.performChange(addElement1);
+    const [addElement2, element2] = generateAddElement(slide0, frameElement2);
+    doc.performChange(addElement2);
+
+    doc.performChange(generateSetSlideFrameElementIds(slide0));
+
+    expect(getSlide(doc.getData(), slide0)?.toJSON()).toEqual({
+      elements: {
+        [element0]: lineElement,
+        [element1]: frameElement1,
+        [element2]: frameElement2,
+      },
+      elementIds: [element0, element1, element2],
+      frameElementIds: [element1, element2],
+    });
+  });
+
+  it('should set slide frame ids to empty array if no frames', () => {
+    const doc = createWhiteboardDocument();
+
+    const lineElement = mockLineElement();
+    const [addElement0, element0] = generateAddElement(slide0, lineElement);
+    doc.performChange(addElement0);
+
+    doc.performChange(generateSetSlideFrameElementIds(slide0));
+
+    expect(getSlide(doc.getData(), slide0)?.toJSON()).toEqual({
+      elements: {
+        [element0]: lineElement,
+      },
+      elementIds: [element0],
+      frameElementIds: [],
+    });
+  });
+});
+
+describe('getFrameElementIds', () => {
+  it('should return frame element ids', () => {
+    const document = createWhiteboardDocument();
+
+    document.performChange((doc) => {
+      getSlide(doc, slide0)?.set('frameElementIds', YArray.from(['element-0']));
+    });
+
+    expect(getFrameElementIds(document.getData(), slide0)).toEqual([
+      'element-0',
+    ]);
+  });
+
+  it('should return empty array', () => {
+    const document = createWhiteboardDocument();
+
+    document.performChange((doc) => {
+      getSlide(doc, slide0)?.set('frameElementIds', new YArray());
+    });
+
+    expect(getFrameElementIds(document.getData(), slide0)).toEqual([]);
+  });
+
+  it('should return undefined for empty document', () => {
+    const document = createWhiteboardDocument();
+
+    expect(getFrameElementIds(document.getData(), slide0)).toBeUndefined();
+  });
+
+  it('should return undefined if slide does not exist', () => {
+    const document = createWhiteboardDocument();
+
+    expect(getFrameElementIds(document.getData(), 'unknown')).toBeUndefined();
+  });
+});
+
+describe('getNormalizedFrameElementIds', () => {
+  it('should skip duplicate frame element ids', () => {
+    const document = createWhiteboardDocument();
+    document.performChange(generateSetSlideFrameElementIds(slide0));
+
+    const element = mockFrameElement();
+    const [addElement, elementId] = generateAddElement(slide0, element);
+
+    document.performChange((doc) => {
+      addElement(doc);
+      getSlide(doc, slide0)?.get('frameElementIds')?.push([elementId]);
+    });
+
+    expect(getNormalizedFrameElementIds(document.getData(), slide0)).toEqual([
+      elementId,
+    ]);
+  });
+
+  it('should skip deleted elements', () => {
+    const document = createWhiteboardDocument();
+    document.performChange(generateSetSlideFrameElementIds(slide0));
+
+    const element = mockFrameElement();
+    const [addElement, elementId] = generateAddElement(slide0, element);
+
+    document.performChange((doc) => {
+      addElement(doc);
+      getSlide(doc, slide0)?.get('elements').delete(elementId);
+    });
+
+    expect(getNormalizedFrameElementIds(document.getData(), slide0)).toEqual(
+      [],
+    );
+  });
+
+  it('should handle a missing slide', () => {
+    const document = createWhiteboardDocument();
+
+    expect(
+      getNormalizedFrameElementIds(document.getData(), 'not-exists'),
+    ).toEqual([]);
+  });
+});
+
+describe('generateMoveSlideFrame', () => {
+  it('should reorder frames', () => {
+    const doc = createWhiteboardDocument();
+
+    doc.performChange(generateSetSlideFrameElementIds(slide0));
+
+    const element = mockFrameElement();
+    const [changeFn0, element0] = generateAddElement(slide0, element);
+    doc.performChange(changeFn0);
+    const [changeFn1, element1] = generateAddElement(slide0, element);
+    doc.performChange(changeFn1);
+    const [changeFn2, element2] = generateAddElement(slide0, element);
+    doc.performChange(changeFn2);
+    const [changeFn3, element3] = generateAddElement(slide0, element);
+    doc.performChange(changeFn3);
+
+    doc.performChange(generateMoveSlideFrame(slide0, element1, 0));
+
+    expect(getNormalizedFrameElementIds(doc.getData(), slide0)).toEqual([
+      element1,
+      element0,
+      element2,
+      element3,
+    ]);
+  });
+
+  it('should ignore missing frame', () => {
+    const doc = createWhiteboardDocument();
+
+    doc.performChange(generateSetSlideFrameElementIds(slide0));
+
+    const element = mockFrameElement();
+    const [changeFn0, element0] = generateAddElement(slide0, element);
+    doc.performChange(changeFn0);
+    const [changeFn1, element1] = generateAddElement(slide0, element);
+    doc.performChange(changeFn1);
+
+    doc.performChange(generateMoveElement(slide0, 'not-exists', 0));
+
+    expect(getNormalizedFrameElementIds(doc.getData(), slide0)).toEqual([
+      element0,
+      element1,
+    ]);
+  });
+
+  it('should ignore a negative index', () => {
+    const doc = createWhiteboardDocument();
+
+    doc.performChange(generateSetSlideFrameElementIds(slide0));
+
+    const element = mockFrameElement();
+    const [changeFn0, element0] = generateAddElement(slide0, element);
+    doc.performChange(changeFn0);
+    const [changeFn1, element1] = generateAddElement(slide0, element);
+    doc.performChange(changeFn1);
+    const [changeFn2, element2] = generateAddElement(slide0, element);
+    doc.performChange(changeFn2);
+    const [changeFn3, element3] = generateAddElement(slide0, element);
+    doc.performChange(changeFn3);
+
+    doc.performChange(generateMoveElement(slide0, element2, -1));
+
+    expect(getNormalizedFrameElementIds(doc.getData(), slide0)).toEqual([
+      element0,
+      element1,
+      element2,
+      element3,
+    ]);
+  });
+
+  describe('should handle conflicts while reordering frames', () => {
+    let aliceDoc: Document<WhiteboardDocument>;
+    let bobDoc: Document<WhiteboardDocument>;
+    let element0: string;
+    let element1: string;
+    let element2: string;
+    let element3: string;
+
+    beforeEach(() => {
+      aliceDoc = createWhiteboardDocument();
+      aliceDoc.performChange(generateSetSlideFrameElementIds(slide0));
+
+      const element = mockFrameElement();
+      const change0 = generateAddElement(slide0, element);
+      element0 = change0[1];
+      aliceDoc.performChange(change0[0]);
+      const change1 = generateAddElement(slide0, element);
+      element1 = change1[1];
+      aliceDoc.performChange(change1[0]);
+      const change2 = generateAddElement(slide0, element);
+      element2 = change2[1];
+      aliceDoc.performChange(change2[0]);
+      const change3 = generateAddElement(slide0, element);
+      element3 = change3[1];
+      aliceDoc.performChange(change3[0]);
+
+      bobDoc = createWhiteboardDocument();
+      bobDoc.mergeFrom(aliceDoc.store());
+    });
+
+    it('should handle two users moving the same frame', () => {
+      aliceDoc.performChange(generateMoveSlideFrame(slide0, element1, 0));
+
+      expect(getNormalizedFrameElementIds(aliceDoc.getData(), slide0)).toEqual([
+        element1,
+        element0,
+        element2,
+        element3,
+      ]);
+
+      bobDoc.performChange(generateMoveSlideFrame(slide0, element1, 0));
+      expect(getNormalizedFrameElementIds(bobDoc.getData(), slide0)).toEqual([
+        element1,
+        element0,
+        element2,
+        element3,
+      ]);
+
+      bobDoc.mergeFrom(aliceDoc.store());
+      expect(getNormalizedFrameElementIds(bobDoc.getData(), slide0)).toEqual([
+        element1,
+        element0,
+        element2,
+        element3,
+      ]);
+    });
+
+    it('should handle two users moving different frames', () => {
+      aliceDoc.performChange(generateMoveSlideFrame(slide0, element1, 0));
+      expect(getNormalizedFrameElementIds(aliceDoc.getData(), slide0)).toEqual([
+        element1,
+        element0,
+        element2,
+        element3,
+      ]);
+
+      bobDoc.performChange(generateMoveSlideFrame(slide0, element3, 0));
+      expect(getNormalizedFrameElementIds(bobDoc.getData(), slide0)).toEqual([
+        element3,
+        element0,
+        element1,
+        element2,
+      ]);
+
+      bobDoc.mergeFrom(aliceDoc.store());
+      const bobElementIds = getNormalizedFrameElementIds(
+        bobDoc.getData(),
+        slide0,
+      );
+      expect(bobElementIds.slice(0, 2)).toEqual(
+        // There is no guarantee for the order of the two operations, as the
+        // conflict resolution depends on the random actor ids.
+        expect.arrayContaining([element1, element3]),
+      );
+      expect(bobElementIds.slice(2)).toEqual([element0, element2]);
+    });
+
+    it('should handle user adding new frame while another user is moving', () => {
+      aliceDoc.performChange(generateMoveSlideFrame(slide0, element0, 3));
+      expect(getNormalizedFrameElementIds(aliceDoc.getData(), slide0)).toEqual([
+        element1,
+        element2,
+        element3,
+        element0,
+      ]);
+
+      const element = mockFrameElement();
+      const [changeFn4, element4] = generateAddElement(slide0, element);
+      bobDoc.performChange(changeFn4);
+      expect(getNormalizedFrameElementIds(bobDoc.getData(), slide0)).toEqual([
+        element0,
+        element1,
+        element2,
+        element3,
+        element4,
+      ]);
+
+      bobDoc.mergeFrom(aliceDoc.store());
+
+      const bobElementIds = getNormalizedFrameElementIds(
+        bobDoc.getData(),
+        slide0,
+      );
+      expect(bobElementIds.slice(0, 3)).toEqual([element1, element2, element3]);
+      expect(bobElementIds.slice(3)).toEqual(
+        // There is no guarantee for the order of the two operations, as the
+        // conflict resolution depends on the random actor ids.
+        expect.arrayContaining([element0, element4]),
+      );
+    });
+
+    it('should handle user removing frame while another user is moving it', () => {
+      aliceDoc.performChange(generateMoveSlideFrame(slide0, element0, 3));
+      expect(getNormalizedFrameElementIds(aliceDoc.getData(), slide0)).toEqual([
+        element1,
+        element2,
+        element3,
+        element0,
+      ]);
+
+      bobDoc.performChange(generateRemoveElement(slide0, element0));
+      expect(getNormalizedFrameElementIds(bobDoc.getData(), slide0)).toEqual([
+        element1,
+        element2,
+        element3,
+      ]);
+
+      bobDoc.mergeFrom(aliceDoc.store());
+      expect(getNormalizedFrameElementIds(bobDoc.getData(), slide0)).toEqual([
+        element1,
+        element2,
+        element3,
+      ]);
+    });
+
+    it('should handle both users moving the same frame and then one user removing it', () => {
+      aliceDoc.performChange(generateMoveSlideFrame(slide0, element1, 3));
+      expect(getNormalizedFrameElementIds(aliceDoc.getData(), slide0)).toEqual([
+        element0,
+        element2,
+        element3,
+        element1,
+      ]);
+
+      aliceDoc.performChange(generateMoveSlideFrame(slide0, element1, 0));
+      bobDoc.performChange(generateRemoveElement(slide0, element1));
+      expect(getNormalizedFrameElementIds(bobDoc.getData(), slide0)).toEqual([
+        element0,
+        element2,
+        element3,
+      ]);
+
+      bobDoc.mergeFrom(aliceDoc.store());
+      expect(getNormalizedFrameElementIds(bobDoc.getData(), slide0)).toEqual([
+        element0,
+        element2,
+        element3,
+      ]);
+    });
+
+    it('should cleanup conflicts on next move', () => {
+      aliceDoc.performChange(generateMoveSlideFrame(slide0, element1, 3));
+      expect(getNormalizedFrameElementIds(aliceDoc.getData(), slide0)).toEqual([
+        element0,
+        element2,
+        element3,
+        element1,
+      ]);
+
+      bobDoc.performChange(generateMoveSlideFrame(slide0, element1, 3));
+      expect(getNormalizedFrameElementIds(bobDoc.getData(), slide0)).toEqual([
+        element0,
+        element2,
+        element3,
+        element1,
+      ]);
+
+      bobDoc.mergeFrom(aliceDoc.store());
+      expect(getNormalizedFrameElementIds(bobDoc.getData(), slide0)).toEqual([
+        element0,
+        element2,
+        element3,
+        element1,
+      ]);
+
+      bobDoc.performChange(generateMoveSlideFrame(slide0, element1, 0));
+      expect(getNormalizedFrameElementIds(bobDoc.getData(), slide0)).toEqual([
+        element1,
+        element0,
+        element2,
+        element3,
+      ]);
+
+      bobDoc.mergeFrom(aliceDoc.store());
+      expect(getNormalizedFrameElementIds(bobDoc.getData(), slide0)).toEqual([
+        element1,
+        element0,
+        element2,
+        element3,
+      ]);
+    });
   });
 });
 

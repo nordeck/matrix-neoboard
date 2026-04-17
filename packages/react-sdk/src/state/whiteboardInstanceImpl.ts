@@ -32,6 +32,7 @@ import {
   tap,
 } from 'rxjs';
 import { matrixRtcMode } from '../components/Whiteboard';
+import { isInfiniteCanvasMode } from '../lib';
 import { Whiteboard } from '../model';
 import { StoreType } from '../store';
 import {
@@ -53,6 +54,8 @@ import {
   generateDuplicateSlide,
   generateMoveSlide,
   generateRemoveSlide,
+  generateSetSlideFrameElementIds,
+  getFrameElementIds,
   getNormalizedSlideIds,
   getSlide,
   isValidWhiteboardDocument,
@@ -81,6 +84,10 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
 
   private readonly activeSlideIdSubject = new Subject<string | undefined>();
   private activeSlideId: string | undefined = undefined;
+  private readonly activeFrameElementIdSubject = new Subject<
+    string | undefined
+  >();
+  private activeFrameElementId: string | undefined = undefined;
   private loading: boolean = true;
   private loadingSubject = new BehaviorSubject<boolean>(true);
 
@@ -311,9 +318,25 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
         this.loading = loading;
         this.loadingSubject.next(loading);
 
+        const activeSlideId = this.getSlideIds()[0];
+
         // Reset the slide after the initial loading finished
-        this.activeSlideId = this.getSlideIds()[0];
-        this.activeSlideIdSubject.next(this.activeSlideId);
+        this.activeSlideId = activeSlideId;
+        this.activeSlideIdSubject.next(activeSlideId);
+
+        // On load in infinite canvas mode, generate and set frame element ids (if missing) for active slide.
+        if (
+          isInfiniteCanvasMode() &&
+          !loading &&
+          getFrameElementIds(
+            this.synchronizedDocument.getDocument().getData(),
+            activeSlideId,
+          ) === undefined
+        ) {
+          this.synchronizedDocument
+            .getDocument()
+            .performChange(generateSetSlideFrameElementIds(activeSlideId));
+        }
       });
 
     // ensure that the slide IDs are kept up-to-date
@@ -395,6 +418,10 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
     return this.activeSlideId;
   }
 
+  getActiveSlide(): WhiteboardSlideInstance | undefined {
+    return this.activeSlideId ? this.getSlide(this.activeSlideId) : undefined;
+  }
+
   observeActiveSlideId(): Observable<string | undefined> {
     return concat(
       defer(() => of(this.getActiveSlideId())),
@@ -408,6 +435,36 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
 
       this.activeSlideId = slideId;
       this.activeSlideIdSubject.next(slideId);
+    }
+  }
+
+  getActiveFrameElementId(): string | undefined {
+    return this.activeFrameElementId;
+  }
+
+  observeActiveFrameElementId(): Observable<string | undefined> {
+    return concat(
+      defer(() => of(this.getActiveFrameElementId())),
+      this.activeFrameElementIdSubject,
+    ).pipe(distinctUntilChanged());
+  }
+
+  setActiveFrameElementId(frameElementId: string | undefined): void {
+    if (frameElementId) {
+      if (
+        this.activeSlideId &&
+        this.getSlide(this.activeSlideId)
+          .getFrameElementIds()
+          .includes(frameElementId)
+      ) {
+        this.getSlide(this.activeSlideId).setActiveElementId(undefined);
+
+        this.activeFrameElementId = frameElementId;
+        this.activeFrameElementIdSubject.next(frameElementId);
+      }
+    } else {
+      this.activeFrameElementId = undefined;
+      this.activeFrameElementIdSubject.next(undefined);
     }
   }
 
@@ -469,6 +526,7 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
     this.slides.forEach((s) => s.destroy());
     this.whiteboardStatisticsSubject.complete();
     this.activeSlideIdSubject.complete();
+    this.activeFrameElementIdSubject.complete();
     this.loadingSubject.complete();
     this.destroySubject.next();
     this.synchronizedDocument.destroy();
