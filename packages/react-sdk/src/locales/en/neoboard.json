@@ -318,6 +318,12 @@
     "title": "Slide Overview",
     "title_frame": "Frame Overview"
   },
+  "slidesMigrationDialog": {
+    "content": "Your existing slides will be migrated to frames. To enable migration, please download a backup of your whiteboard content first.",
+    "migrate": "Migrate",
+    "migrationFailed": "Failed to migrate the slides",
+    "title": "Migrate slides to frames"
+  },
   "snackbar": {
     "dismissAction": "Dismiss"
   },

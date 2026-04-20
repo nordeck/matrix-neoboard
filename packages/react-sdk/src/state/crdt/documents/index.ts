@@ -73,7 +73,10 @@ export {
   getSlide,
   getSlideLock,
 } from './operations';
-export type { UpdateElementPatch } from './operations';
+export type {
+  TransformSlidesToFramesParameters,
+  UpdateElementPatch,
+} from './operations';
 export {
   calculateBoundingRectForPoints,
   isPointWithinBoundingRect,

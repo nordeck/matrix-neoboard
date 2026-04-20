@@ -19,6 +19,7 @@ import {
   mockEllipseElement,
   mockFrameElement,
   mockLineElement,
+  mockRectangleElement,
 } from '../../../lib/testUtils/documentTestUtils';
 import { Document } from '../types';
 import { YArray } from '../y';
@@ -39,6 +40,7 @@ import {
   generateRemoveElements,
   generateRemoveSlide,
   generateSetSlideFrameElementIds,
+  generateTransformSlidesToFrames,
   generateUnlockSlide,
   generateUpdateElement,
   getElement,
@@ -1881,6 +1883,94 @@ describe('generateMoveSlideFrame', () => {
         element2,
         element3,
       ]);
+    });
+  });
+});
+
+describe('generateTransformSlidesToFrames', () => {
+  const whiteboardConstants = {
+    whiteboardWidth: 19200,
+    whiteboardHeight: 10800,
+    frameWidth: 1920,
+    frameHeight: 1080,
+  };
+
+  it('should transform slides to frames', () => {
+    const doc = createWhiteboardDocument();
+
+    const element0 = mockRectangleElement();
+    const [changeFn] = generateAddElement(slide0, element0);
+    doc.performChange(changeFn);
+
+    const [changeFn1, slide1] = generateAddSlide();
+    doc.performChange(changeFn1);
+
+    const element1 = mockEllipseElement();
+    const [changeFn2] = generateAddElement(slide1, element1);
+    doc.performChange(changeFn2);
+
+    const [changeFnTransform, slide2] =
+      generateTransformSlidesToFrames(whiteboardConstants);
+    doc.performChange(changeFnTransform);
+
+    expect(getNormalizedSlideIds(doc.getData())).toEqual([slide2]);
+    const elementIds = getNormalizedElementIds(doc.getData(), slide2);
+
+    expect(elementIds).toHaveLength(4);
+
+    const [slideElement0, slideElement1, slideElement2, slideElement3] =
+      elementIds;
+
+    expect(doc.getData().toJSON()).toEqual({
+      slideIds: [slide2],
+      slides: {
+        [slide2]: {
+          elements: {
+            [slideElement0]: {
+              type: 'frame',
+              position: { x: 7670, y: 4860 },
+              width: 1920,
+              height: 1080,
+              attachedElements: [slideElement1],
+            },
+            [slideElement1]: {
+              ...mockRectangleElement({
+                position: { x: 7670, y: 4861 },
+              }),
+              attachedFrame: slideElement0,
+            },
+            [slideElement2]: {
+              type: 'frame',
+              position: { x: 9610, y: 4860 },
+              width: 1920,
+              height: 1080,
+              attachedElements: [slideElement3],
+            },
+            [slideElement3]: {
+              ...mockEllipseElement({
+                position: { x: 9610, y: 4861 },
+              }),
+              attachedFrame: slideElement2,
+            },
+          },
+          elementIds,
+          frameElementIds: [slideElement0, slideElement2],
+        },
+      },
+    });
+  });
+
+  it('should not transform a document with a single slide', () => {
+    const doc = createWhiteboardDocument();
+
+    const [changeFnTransform] =
+      generateTransformSlidesToFrames(whiteboardConstants);
+    doc.performChange(changeFnTransform);
+
+    expect(getNormalizedSlideIds(doc.getData())).toEqual([slide0]);
+    expect(doc.getData().toJSON()).toEqual({
+      slideIds: [slide0],
+      slides: { [slide0]: { elements: {}, elementIds: [] } },
     });
   });
 });

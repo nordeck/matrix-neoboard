@@ -318,6 +318,12 @@
     "title": "Folienübersicht",
     "title_frame": "Rahmenübersicht"
   },
+  "slidesMigrationDialog": {
+    "content": "",
+    "migrate": "",
+    "migrationFailed": "",
+    "title": ""
+  },
   "snackbar": {
     "dismissAction": "Ausblenden"
   },
