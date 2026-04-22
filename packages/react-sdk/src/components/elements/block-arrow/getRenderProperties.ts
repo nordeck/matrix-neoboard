@@ -14,19 +14,33 @@
  * limitations under the License.
  */
 
-import { ShapeElement } from '../../../state';
+import { Point, ShapeElement } from '../../../state';
 import { ElementRenderProperties } from '../../Whiteboard';
 
 type BlockArrowRenderProperties = {
   points: { x: number; y: number }[];
 };
 
+type ArrowConfig = {
+  tailThicknessRatio?: number;
+  arrowSizeRatio?: number;
+  arrowSizeMaxPx?: number;
+  tailThicknessMaxPx?: number;
+  textPaddingPx?: number;
+};
+
+// hardcoded arrow params
+const TAIL_THICKNESS_RATIO = 0.5;
+const ARROW_SIZE_RATIO = 0.35;
+const ARROW_SIZE_MAX_PX = 500;
+const TAIL_THICKNESS_MAX_PX = 1000;
+const TEXT_PADDING_PX = 10;
+
 export function getRenderProperties(
   shape: ShapeElement,
+  arrowConfig?: ArrowConfig,
 ): ElementRenderProperties & BlockArrowRenderProperties {
   const {
-    width,
-    height,
     position,
     textAlignment,
     textBold,
@@ -35,66 +49,120 @@ export function getRenderProperties(
     textFontFamily,
   } = shape;
 
-  // Layout ratios, Chosen to visually match design spec
-  const VERTICAL_PADDING_RATIO = 0.25;
-  const headWidthRatio = 0.35;
+  const getTailThicknessPx = (shape: ShapeElement) => {
+    const { height } = shape;
+    const thicknessLimit =
+      arrowConfig?.tailThicknessMaxPx ?? TAIL_THICKNESS_MAX_PX;
+    const px =
+      height * (arrowConfig?.tailThicknessRatio ?? TAIL_THICKNESS_RATIO);
+    return px > thicknessLimit ? thicknessLimit : px;
+  };
 
-  const x = position.x;
-  const y = position.y;
-  const verticalPadding = height * VERTICAL_PADDING_RATIO;
-  const horizontalPadding = width > 40 ? 10 : 2;
+  const getArrowSizePx = (shape: ShapeElement) => {
+    const { width } = shape;
+    const px = width * (arrowConfig?.arrowSizeRatio ?? ARROW_SIZE_RATIO);
+    const sizeLimit = arrowConfig?.arrowSizeMaxPx ?? ARROW_SIZE_MAX_PX;
+    return px > sizeLimit ? sizeLimit : px;
+  };
 
-  const headWidth = width * headWidthRatio;
+  const getTextPadding = (shape: ShapeElement) => {
+    const tail = getTailThicknessPx(shape);
+    const padding = arrowConfig?.textPaddingPx ?? TEXT_PADDING_PX;
+    return {
+      horizontal: tail > 40 ? padding : 0,
+      vertical: tail > 40 ? padding : 0,
+    };
+  };
 
-  const bodyTop = y + verticalPadding;
-  const bodyBottom = y + height - verticalPadding;
+  // returns points in the shape's local coordinate system
+  const getIndividualShapePointsLocal = (shape: ShapeElement) => {
+    const { width, height } = shape;
+    const tailSize = getTailThicknessPx(shape);
+    const arrowSize = getArrowSizePx(shape);
 
-  const bodyHeight = bodyBottom - bodyTop;
-  const bodyWidth = width - headWidth;
+    // start with top-left clockwise
+    const tailRect: Point[] = [
+      { x: 0, y: Math.max(0, (height - tailSize) / 2) },
+      {
+        x: Math.max(0, width - arrowSize),
+        y: Math.max(0, (height - tailSize) / 2),
+      },
+      {
+        x: Math.max(0, width - arrowSize),
+        y: Math.max(0, (height - tailSize) / 2) + tailSize,
+      },
+      { x: 0, y: Math.max(0, (height - tailSize) / 2) + tailSize },
+    ];
 
-  const bodyRightX = x + bodyWidth;
+    // start with top point clockwise, the arrow points to the right
+    const arrowTriangleRight: Point[] = [
+      { x: Math.max(0, width - arrowSize), y: 0 },
+      { x: width, y: height / 2 },
+      { x: Math.max(0, width - arrowSize), y: height },
+    ];
 
-  const verticalTextPadding = bodyHeight > 40 ? 10 : 2;
+    return {
+      tailRect,
+      arrowTriangleRight,
+    };
+  };
 
-  const textHeight = Math.max(bodyHeight - verticalTextPadding * 2, 0);
-  const textWidth = Math.max(
-    bodyWidth + headWidth * (1 - bodyHeight / height) - horizontalPadding * 2,
-    0,
-  );
-  const textY = bodyTop + verticalTextPadding;
-  const textX = x + horizontalPadding;
+  const getShapePointsPathLocal = (shape: ShapeElement): Point[] => {
+    const { tailRect, arrowTriangleRight } =
+      getIndividualShapePointsLocal(shape);
+    return [
+      tailRect[0],
+      tailRect[1],
+      arrowTriangleRight[0],
+      arrowTriangleRight[1],
+      arrowTriangleRight[2],
+      tailRect[2],
+      tailRect[3],
+      tailRect[0],
+    ];
+  };
+
+  const getTextBoxPositionLocal = (shape: ShapeElement) => {
+    const tailThickness = getTailThicknessPx(shape);
+    const arrowSize = getArrowSizePx(shape);
+    const { height, width } = shape;
+    const extensionPx = arrowSize - (arrowSize * tailThickness) / height;
+    const padding = getTextPadding(shape);
+    const { tailRect } = getIndividualShapePointsLocal(shape);
+
+    return {
+      x: tailRect[0].x + padding.horizontal,
+      y: tailRect[0].y + padding.vertical,
+      width: width - arrowSize - padding.horizontal * 2 + extensionPx,
+      height: tailThickness - padding.vertical * 2,
+    };
+  };
+
+  const addShapePositionOffsets = (p: Point[]) => {
+    return p.map((p) => ({
+      x: p.x + position.x,
+      y: p.y + position.y,
+    }));
+  };
+
+  const textBoxLocal = getTextBoxPositionLocal(shape);
 
   return {
     strokeColor: shape.strokeColor ?? shape.fillColor,
     strokeWidth: shape.strokeWidth ?? 2,
     text: {
       position: {
-        x: textX,
-        y: textY,
+        x: textBoxLocal.x + position.x,
+        y: textBoxLocal.y + position.y,
       },
-      width: textWidth,
-      height: textHeight,
+      width: textBoxLocal.width,
+      height: textBoxLocal.height,
       alignment: textAlignment ?? 'center',
       bold: textBold ?? false,
       italic: textItalic ?? false,
       fontSize: textSize,
       fontFamily: textFontFamily,
     },
-    points: [
-      // Left-top of body
-      { x, y: bodyTop },
-      // Right-top of body
-      { x: bodyRightX, y: bodyTop },
-      // Arrow head top
-      { x: bodyRightX, y: y },
-      // Tip
-      { x: x + width, y: y + height / 2 },
-      // Arrow head bottom
-      { x: bodyRightX, y: y + height },
-      // Right-bottom of body
-      { x: bodyRightX, y: bodyBottom },
-      // Left-bottom of body
-      { x: x, y: bodyBottom },
-    ],
+    points: addShapePositionOffsets(getShapePointsPathLocal(shape)),
   };
 }

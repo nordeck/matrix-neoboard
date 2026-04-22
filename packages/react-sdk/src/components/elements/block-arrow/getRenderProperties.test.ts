@@ -36,9 +36,9 @@ describe('getRenderProperties', () => {
       strokeColor: '#00ffff',
       strokeWidth: 2,
       text: {
-        position: { x: 20, y: 29.5 },
-        width: 62.5,
-        height: 21,
+        position: { x: 10, y: 27.5 },
+        width: 82.5,
+        height: 25,
         alignment: 'center',
         bold: false,
         italic: false,
@@ -53,6 +53,50 @@ describe('getRenderProperties', () => {
         { x: 75, y: 65 },
         { x: 75, y: 52.5 },
         { x: 10, y: 52.5 },
+        { x: 10, y: 27.5 },
+      ],
+    });
+  });
+
+  it('should provide the properties for a block arrow element customized', () => {
+    const element = mockBlockArrowElement({
+      position: { x: 10, y: 15 },
+      width: 100,
+      height: 50,
+      fillColor: '#00ffff',
+      text: 'My Text',
+      textFontFamily: 'Inter',
+      textSize: 12,
+    });
+
+    const view = getRenderProperties(element, {
+      arrowSizeRatio: 0.5,
+      tailThicknessRatio: 0.5,
+      textPaddingPx: 5,
+    });
+
+    expect(view).toEqual({
+      strokeColor: '#00ffff',
+      strokeWidth: 2,
+      text: {
+        position: { x: 10, y: 27.5 },
+        width: 75,
+        height: 25,
+        alignment: 'center',
+        bold: false,
+        italic: false,
+        fontFamily: 'Inter',
+        fontSize: 12,
+      },
+      points: [
+        { x: 10, y: 27.5 },
+        { x: 60, y: 27.5 },
+        { x: 60, y: 15 },
+        { x: 110, y: 40 },
+        { x: 60, y: 65 },
+        { x: 60, y: 52.5 },
+        { x: 10, y: 52.5 },
+        { x: 10, y: 27.5 },
       ],
     });
   });
