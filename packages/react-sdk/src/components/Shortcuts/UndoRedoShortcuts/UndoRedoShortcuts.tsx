@@ -15,39 +15,49 @@
  */
 
 import { useHotkeys } from 'react-hotkeys-hook';
-import { usePresentationMode, useWhiteboardManager } from '../../../state';
+import {
+  useActiveWhiteboardInstance,
+  usePresentationMode,
+} from '../../../state';
 import { HOTKEY_SCOPE_WHITEBOARD } from '../../WhiteboardHotkeysProvider';
 import { isMacOS } from '../../common/platform';
 
 export function UndoRedoShortcuts() {
-  const whiteboardManager = useWhiteboardManager();
+  const whiteboardInstance = useActiveWhiteboardInstance();
   const { state: presentationState } = usePresentationMode();
   const isViewingPresentation = presentationState.type === 'presentation';
 
   useHotkeys(
     isMacOS() ? 'meta+z' : 'ctrl+z',
-    () => {
+    (e) => {
       if (isViewingPresentation) {
         return;
       }
-
-      whiteboardManager.getActiveWhiteboardInstance()?.undo();
+      // this is a workaround for non qwerty keyboards
+      // see issue here: https://github.com/PostHog/code/issues/1797
+      if (e.shiftKey) {
+        whiteboardInstance.redo();
+      } else {
+        whiteboardInstance.undo();
+      }
     },
-    { scopes: HOTKEY_SCOPE_WHITEBOARD, enableOnContentEditable: true },
-    [isViewingPresentation, whiteboardManager],
+    {
+      scopes: HOTKEY_SCOPE_WHITEBOARD,
+      enableOnContentEditable: true,
+      useKey: true,
+    },
   );
 
   useHotkeys(
-    isMacOS() ? ['meta+shift+z'] : ['ctrl+shift+z', 'ctrl+y'],
+    'ctrl+y',
     () => {
       if (isViewingPresentation) {
         return;
       }
 
-      whiteboardManager.getActiveWhiteboardInstance()?.redo();
+      whiteboardInstance.redo();
     },
     { scopes: HOTKEY_SCOPE_WHITEBOARD, enableOnContentEditable: true },
-    [isViewingPresentation, whiteboardManager],
   );
 
   return null;
