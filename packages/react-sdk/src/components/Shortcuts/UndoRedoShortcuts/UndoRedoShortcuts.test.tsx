@@ -30,7 +30,7 @@ import {
 import {
   WhiteboardTestingContextProvider,
   mockWhiteboardManager,
-} from '../../../lib/testUtils/documentTestUtils';
+} from '../../../lib/testUtils';
 import { WhiteboardManager } from '../../../state';
 import {
   HOTKEY_SCOPE_WHITEBOARD,
