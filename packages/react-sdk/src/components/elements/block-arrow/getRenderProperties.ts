@@ -172,22 +172,21 @@ function getShapePath({ tailRect, headTriangleRight }: ShapePoints): Point[] {
 }
 
 function getTextPositionLocal(
-  shape: ShapeElement,
+  { height, width }: ShapeElement,
   { tailHeight, headWidth, tailTextPadding }: ArrowRenderConfig,
-  shapeFirstPoint: Point,
+  tailTopLeftPosition: Point,
 ): {
   x: number;
   y: number;
   width: number;
   height: number;
 } {
-  const { height, width } = shape;
-  const extensionPx = headWidth - (headWidth * tailHeight) / height;
+  const headExtension = headWidth - (headWidth * tailHeight) / height;
 
   return {
-    x: shapeFirstPoint.x + tailTextPadding,
-    y: shapeFirstPoint.y + tailTextPadding,
-    width: width - headWidth - tailTextPadding * 2 + extensionPx,
+    x: tailTopLeftPosition.x + tailTextPadding,
+    y: tailTopLeftPosition.y + tailTextPadding,
+    width: width - headWidth + headExtension - tailTextPadding * 2,
     height: tailHeight - tailTextPadding * 2,
   };
 }
