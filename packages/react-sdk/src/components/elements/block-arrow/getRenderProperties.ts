@@ -22,22 +22,22 @@ type BlockArrowRenderProperties = {
 };
 
 type ArrowConfig = {
-  tailThicknessRatio: number;
-  tailThicknessLimit: number;
-  arrowWidthRatio: number;
-  arrowWidthLimit: number;
-  textPadding: number;
+  tailHeightRatio: number;
+  tailHeightLimit: number;
+  headWidthRatio: number;
+  headWidthLimit: number;
+  tailTextPadding: number;
 };
 
 function createArrowConfig(
   arrowConfig: Partial<ArrowConfig> = {},
 ): ArrowConfig {
   return {
-    tailThicknessRatio: 0.5,
-    tailThicknessLimit: 1000,
-    arrowWidthRatio: 0.35,
-    arrowWidthLimit: 500,
-    textPadding: 10,
+    tailHeightRatio: 0.5,
+    tailHeightLimit: 1000,
+    headWidthRatio: 0.35,
+    headWidthLimit: 500,
+    tailTextPadding: 10,
     ...arrowConfig,
   };
 }
@@ -84,32 +84,32 @@ export function getRenderProperties(
   };
 }
 
-function getTailThickness(
+function getTailHeight(
   { height }: ShapeElement,
-  { tailThicknessRatio, tailThicknessLimit }: ArrowConfig,
+  { tailHeightRatio, tailHeightLimit }: ArrowConfig,
 ): number {
-  const px = height * tailThicknessRatio;
-  return px > tailThicknessLimit ? tailThicknessLimit : px;
+  const px = height * tailHeightRatio;
+  return px > tailHeightLimit ? tailHeightLimit : px;
 }
 
-function getArrowSize(
+function getHeadWidth(
   { width }: ShapeElement,
-  { arrowWidthRatio, arrowWidthLimit }: ArrowConfig,
+  { headWidthRatio, headWidthLimit }: ArrowConfig,
 ): number {
-  const px = width * arrowWidthRatio;
-  return px > arrowWidthLimit ? arrowWidthLimit : px;
+  const px = width * headWidthRatio;
+  return px > headWidthLimit ? headWidthLimit : px;
 }
 
-function getTextPadding(
-  tailThickness: number,
-  { textPadding }: ArrowConfig,
+function getTailTextPadding(
+  tailHeight: number,
+  { tailTextPadding }: ArrowConfig,
 ): number {
-  return tailThickness > 40 ? textPadding : 0;
+  return tailHeight > 40 ? tailTextPadding : 0;
 }
 
 type ShapePoints = {
   tailRect: Point[];
-  arrowTriangleRight: Point[];
+  headTriangleRight: Point[];
 };
 
 // returns points in the shape's local coordinate system
@@ -118,43 +118,43 @@ function getShapePointsLocal(
   arrowConfig: ArrowConfig,
 ): ShapePoints {
   const { width, height } = shape;
-  const tailSize = getTailThickness(shape, arrowConfig);
-  const arrowSize = getArrowSize(shape, arrowConfig);
+  const tailHeight = getTailHeight(shape, arrowConfig);
+  const headWidth = getHeadWidth(shape, arrowConfig);
 
   // start with top-left clockwise
   const tailRect: Point[] = [
-    { x: 0, y: Math.max(0, (height - tailSize) / 2) },
+    { x: 0, y: Math.max(0, (height - tailHeight) / 2) },
     {
-      x: Math.max(0, width - arrowSize),
-      y: Math.max(0, (height - tailSize) / 2),
+      x: Math.max(0, width - headWidth),
+      y: Math.max(0, (height - tailHeight) / 2),
     },
     {
-      x: Math.max(0, width - arrowSize),
-      y: Math.max(0, (height - tailSize) / 2) + tailSize,
+      x: Math.max(0, width - headWidth),
+      y: Math.max(0, (height - tailHeight) / 2) + tailHeight,
     },
-    { x: 0, y: Math.max(0, (height - tailSize) / 2) + tailSize },
+    { x: 0, y: Math.max(0, (height - tailHeight) / 2) + tailHeight },
   ];
 
   // start with top point clockwise, the arrow points to the right
   const arrowTriangleRight: Point[] = [
-    { x: Math.max(0, width - arrowSize), y: 0 },
+    { x: Math.max(0, width - headWidth), y: 0 },
     { x: width, y: height / 2 },
-    { x: Math.max(0, width - arrowSize), y: height },
+    { x: Math.max(0, width - headWidth), y: height },
   ];
 
   return {
     tailRect,
-    arrowTriangleRight,
+    headTriangleRight: arrowTriangleRight,
   };
 }
 
-function getShapePath({ tailRect, arrowTriangleRight }: ShapePoints): Point[] {
+function getShapePath({ tailRect, headTriangleRight }: ShapePoints): Point[] {
   return [
     tailRect[0],
     tailRect[1],
-    arrowTriangleRight[0],
-    arrowTriangleRight[1],
-    arrowTriangleRight[2],
+    headTriangleRight[0],
+    headTriangleRight[1],
+    headTriangleRight[2],
     tailRect[2],
     tailRect[3],
     tailRect[0],
@@ -178,16 +178,16 @@ function getTextPositionLocal(
   width: number;
   height: number;
 } {
-  const tailThickness = getTailThickness(shape, arrowConfig);
-  const arrowSize = getArrowSize(shape, arrowConfig);
+  const tailHeight = getTailHeight(shape, arrowConfig);
+  const headWidth = getHeadWidth(shape, arrowConfig);
   const { height, width } = shape;
-  const extensionPx = arrowSize - (arrowSize * tailThickness) / height;
-  const padding = getTextPadding(tailThickness, arrowConfig);
+  const extensionPx = headWidth - (headWidth * tailHeight) / height;
+  const tailTextPadding = getTailTextPadding(tailHeight, arrowConfig);
 
   return {
-    x: shapeFirstPoint.x + padding,
-    y: shapeFirstPoint.y + padding,
-    width: width - arrowSize - padding * 2 + extensionPx,
-    height: tailThickness - padding * 2,
+    x: shapeFirstPoint.x + tailTextPadding,
+    y: shapeFirstPoint.y + tailTextPadding,
+    width: width - headWidth - tailTextPadding * 2 + extensionPx,
+    height: tailHeight - tailTextPadding * 2,
   };
 }
