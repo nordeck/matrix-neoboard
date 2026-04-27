@@ -80,10 +80,7 @@ export function getRenderProperties(
       fontSize: textSize,
       fontFamily: textFontFamily,
     },
-    points: addShapePositionOffsets(
-      getShapePointsPathLocal(shapePoints),
-      shape.position,
-    ),
+    points: addOffsetToShapePath(getShapePath(shapePoints), shape.position),
   };
 }
 
@@ -100,8 +97,7 @@ function getArrowSize(
   { arrowWidthRatio, arrowWidthLimit }: ArrowConfig,
 ): number {
   const px = width * arrowWidthRatio;
-  const sizeLimit = arrowWidthLimit;
-  return px > sizeLimit ? sizeLimit : px;
+  return px > arrowWidthLimit ? arrowWidthLimit : px;
 }
 
 function getTextPadding(
@@ -152,10 +148,7 @@ function getShapePointsLocal(
   };
 }
 
-function getShapePointsPathLocal({
-  tailRect,
-  arrowTriangleRight,
-}: ShapePoints): Point[] {
+function getShapePath({ tailRect, arrowTriangleRight }: ShapePoints): Point[] {
   return [
     tailRect[0],
     tailRect[1],
@@ -168,7 +161,7 @@ function getShapePointsPathLocal({
   ];
 }
 
-function addShapePositionOffsets(points: Point[], position: Point): Point[] {
+function addOffsetToShapePath(points: Point[], position: Point): Point[] {
   return points.map((p) => ({
     x: p.x + position.x,
     y: p.y + position.y,
