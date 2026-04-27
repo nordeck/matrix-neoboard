@@ -63,7 +63,7 @@ function createArrowRenderConfig(
   return {
     tailHeight: tailHeight > tailHeightLimit ? tailHeightLimit : tailHeight,
     headWidth: headWidth > headWidthLimit ? headWidthLimit : headWidth,
-    tailTextPadding: tailHeight > 40 ? tailTextPadding : 0,
+    tailTextPadding: tailHeight > 40 ? tailTextPadding : 2,
   };
 }
 

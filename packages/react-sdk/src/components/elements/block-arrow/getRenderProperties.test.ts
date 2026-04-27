@@ -36,9 +36,9 @@ describe('getRenderProperties', () => {
       strokeColor: '#00ffff',
       strokeWidth: 2,
       text: {
-        position: { x: 10, y: 27.5 },
-        width: 82.5,
-        height: 25,
+        position: { x: 12, y: 29.5 },
+        width: 78.5,
+        height: 21,
         alignment: 'center',
         bold: false,
         italic: false,
@@ -71,17 +71,15 @@ describe('getRenderProperties', () => {
 
     const view = getRenderProperties(element, {
       headWidthRatio: 0.5,
-      tailHeightRatio: 0.5,
-      tailTextPadding: 5,
     });
 
     expect(view).toEqual({
       strokeColor: '#00ffff',
       strokeWidth: 2,
       text: {
-        position: { x: 10, y: 27.5 },
-        width: 75,
-        height: 25,
+        position: { x: 12, y: 29.5 },
+        width: 71,
+        height: 21,
         alignment: 'center',
         bold: false,
         italic: false,
