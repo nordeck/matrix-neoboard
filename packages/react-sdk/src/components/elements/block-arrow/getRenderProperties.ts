@@ -174,7 +174,6 @@ function getShapePath({ tailRect, headTriangleRight }: ShapePoints): Point[] {
     headTriangleRight[2],
     tailRect[2],
     tailRect[3],
-    tailRect[0],
   ];
 }
 
