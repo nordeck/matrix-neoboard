@@ -26,7 +26,6 @@ type ArrowConfig = {
   tailHeightLimit: number;
   headWidthRatio: number;
   headWidthLimit: number;
-  tailTextPadding: number;
 };
 
 function createArrowConfig(
@@ -37,7 +36,6 @@ function createArrowConfig(
     tailHeightLimit: 1000,
     headWidthRatio: 0.35,
     headWidthLimit: 500,
-    tailTextPadding: 10,
     ...arrowConfig,
   };
 }
@@ -55,7 +53,6 @@ function createArrowRenderConfig(
     tailHeightLimit,
     headWidthRatio,
     headWidthLimit,
-    tailTextPadding,
   }: ArrowConfig,
 ): ArrowRenderConfig {
   const headWidth = width * headWidthRatio;
@@ -63,7 +60,7 @@ function createArrowRenderConfig(
   return {
     tailHeight: tailHeight > tailHeightLimit ? tailHeightLimit : tailHeight,
     headWidth: headWidth > headWidthLimit ? headWidthLimit : headWidth,
-    tailTextPadding: tailHeight > 40 ? tailTextPadding : 2,
+    tailTextPadding: tailHeight > 40 ? 10 : 2,
   };
 }
 
