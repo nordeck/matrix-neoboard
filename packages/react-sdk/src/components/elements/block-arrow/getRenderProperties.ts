@@ -49,14 +49,21 @@ type ArrowRenderConfig = {
 };
 
 function createArrowRenderConfig(
-  shape: ShapeElement,
-  arrowConfig: ArrowConfig,
+  { width, height }: ShapeElement,
+  {
+    tailHeightRatio,
+    tailHeightLimit,
+    headWidthRatio,
+    headWidthLimit,
+    tailTextPadding,
+  }: ArrowConfig,
 ): ArrowRenderConfig {
-  const tailHeight = getTailHeight(shape, arrowConfig);
+  const headWidth = width * headWidthRatio;
+  const tailHeight = height * tailHeightRatio;
   return {
-    tailHeight,
-    headWidth: getHeadWidth(shape, arrowConfig),
-    tailTextPadding: getTailTextPadding(tailHeight, arrowConfig),
+    tailHeight: tailHeight > tailHeightLimit ? tailHeightLimit : tailHeight,
+    headWidth: headWidth > headWidthLimit ? headWidthLimit : headWidth,
+    tailTextPadding: tailHeight > 40 ? tailTextPadding : 0,
   };
 }
 
@@ -103,29 +110,6 @@ export function getRenderProperties(
     },
     points: addOffsetToShapePath(getShapePath(shapePoints), shape.position),
   };
-}
-
-function getTailHeight(
-  { height }: ShapeElement,
-  { tailHeightRatio, tailHeightLimit }: ArrowConfig,
-): number {
-  const px = height * tailHeightRatio;
-  return px > tailHeightLimit ? tailHeightLimit : px;
-}
-
-function getHeadWidth(
-  { width }: ShapeElement,
-  { headWidthRatio, headWidthLimit }: ArrowConfig,
-): number {
-  const px = width * headWidthRatio;
-  return px > headWidthLimit ? headWidthLimit : px;
-}
-
-function getTailTextPadding(
-  tailHeight: number,
-  { tailTextPadding }: ArrowConfig,
-): number {
-  return tailHeight > 40 ? tailTextPadding : 0;
 }
 
 type ShapePoints = {
