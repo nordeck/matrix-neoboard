@@ -57,118 +57,144 @@ export function getRenderProperties(
     textFontFamily,
   } = shape;
 
-  const getTailThickness = (shape: ShapeElement) => {
-    const { height } = shape;
-    const thicknessLimit = arrowConfig.tailThicknessLimit;
-    const px = height * arrowConfig.tailThicknessRatio;
-    return px > thicknessLimit ? thicknessLimit : px;
-  };
-
-  const getArrowSize = (shape: ShapeElement) => {
-    const { width } = shape;
-    const px = width * arrowConfig.arrowWidthRatio;
-    const sizeLimit = arrowConfig.arrowWidthLimit;
-    return px > sizeLimit ? sizeLimit : px;
-  };
-
-  const getTextPadding = (shape: ShapeElement) => {
-    const tail = getTailThickness(shape);
-    const padding = arrowConfig.textPadding;
-    return {
-      horizontal: tail > 40 ? padding : 0,
-      vertical: tail > 40 ? padding : 0,
-    };
-  };
-
-  // returns points in the shape's local coordinate system
-  const getIndividualShapePointsLocal = (shape: ShapeElement) => {
-    const { width, height } = shape;
-    const tailSize = getTailThickness(shape);
-    const arrowSize = getArrowSize(shape);
-
-    // start with top-left clockwise
-    const tailRect: Point[] = [
-      { x: 0, y: Math.max(0, (height - tailSize) / 2) },
-      {
-        x: Math.max(0, width - arrowSize),
-        y: Math.max(0, (height - tailSize) / 2),
-      },
-      {
-        x: Math.max(0, width - arrowSize),
-        y: Math.max(0, (height - tailSize) / 2) + tailSize,
-      },
-      { x: 0, y: Math.max(0, (height - tailSize) / 2) + tailSize },
-    ];
-
-    // start with top point clockwise, the arrow points to the right
-    const arrowTriangleRight: Point[] = [
-      { x: Math.max(0, width - arrowSize), y: 0 },
-      { x: width, y: height / 2 },
-      { x: Math.max(0, width - arrowSize), y: height },
-    ];
-
-    return {
-      tailRect,
-      arrowTriangleRight,
-    };
-  };
-
-  const getShapePointsPathLocal = (shape: ShapeElement): Point[] => {
-    const { tailRect, arrowTriangleRight } =
-      getIndividualShapePointsLocal(shape);
-    return [
-      tailRect[0],
-      tailRect[1],
-      arrowTriangleRight[0],
-      arrowTriangleRight[1],
-      arrowTriangleRight[2],
-      tailRect[2],
-      tailRect[3],
-      tailRect[0],
-    ];
-  };
-
-  const getTextBoxPositionLocal = (shape: ShapeElement) => {
-    const tailThickness = getTailThickness(shape);
-    const arrowSize = getArrowSize(shape);
-    const { height, width } = shape;
-    const extensionPx = arrowSize - (arrowSize * tailThickness) / height;
-    const padding = getTextPadding(shape);
-    const { tailRect } = getIndividualShapePointsLocal(shape);
-
-    return {
-      x: tailRect[0].x + padding.horizontal,
-      y: tailRect[0].y + padding.vertical,
-      width: width - arrowSize - padding.horizontal * 2 + extensionPx,
-      height: tailThickness - padding.vertical * 2,
-    };
-  };
-
-  const addShapePositionOffsets = (p: Point[]) => {
-    return p.map((p) => ({
-      x: p.x + position.x,
-      y: p.y + position.y,
-    }));
-  };
-
-  const textBoxLocal = getTextBoxPositionLocal(shape);
+  const shapePoints = getShapePointsLocal(shape, arrowConfig);
+  const textBox = getTextPositionLocal(
+    shape,
+    arrowConfig,
+    shapePoints.tailRect[0],
+  );
 
   return {
     strokeColor: shape.strokeColor ?? shape.fillColor,
     strokeWidth: shape.strokeWidth ?? 2,
     text: {
       position: {
-        x: textBoxLocal.x + position.x,
-        y: textBoxLocal.y + position.y,
+        x: position.x + textBox.x,
+        y: position.y + textBox.y,
       },
-      width: textBoxLocal.width,
-      height: textBoxLocal.height,
+      width: textBox.width,
+      height: textBox.height,
       alignment: textAlignment ?? 'center',
       bold: textBold ?? false,
       italic: textItalic ?? false,
       fontSize: textSize,
       fontFamily: textFontFamily,
     },
-    points: addShapePositionOffsets(getShapePointsPathLocal(shape)),
+    points: addShapePositionOffsets(
+      getShapePointsPathLocal(shapePoints),
+      shape.position,
+    ),
+  };
+}
+
+function getTailThickness(
+  { height }: ShapeElement,
+  { tailThicknessRatio, tailThicknessLimit }: ArrowConfig,
+): number {
+  const px = height * tailThicknessRatio;
+  return px > tailThicknessLimit ? tailThicknessLimit : px;
+}
+
+function getArrowSize(
+  { width }: ShapeElement,
+  { arrowWidthRatio, arrowWidthLimit }: ArrowConfig,
+): number {
+  const px = width * arrowWidthRatio;
+  const sizeLimit = arrowWidthLimit;
+  return px > sizeLimit ? sizeLimit : px;
+}
+
+function getTextPadding(
+  tailThickness: number,
+  { textPadding }: ArrowConfig,
+): number {
+  return tailThickness > 40 ? textPadding : 0;
+}
+
+type ShapePoints = {
+  tailRect: Point[];
+  arrowTriangleRight: Point[];
+};
+
+// returns points in the shape's local coordinate system
+function getShapePointsLocal(
+  shape: ShapeElement,
+  arrowConfig: ArrowConfig,
+): ShapePoints {
+  const { width, height } = shape;
+  const tailSize = getTailThickness(shape, arrowConfig);
+  const arrowSize = getArrowSize(shape, arrowConfig);
+
+  // start with top-left clockwise
+  const tailRect: Point[] = [
+    { x: 0, y: Math.max(0, (height - tailSize) / 2) },
+    {
+      x: Math.max(0, width - arrowSize),
+      y: Math.max(0, (height - tailSize) / 2),
+    },
+    {
+      x: Math.max(0, width - arrowSize),
+      y: Math.max(0, (height - tailSize) / 2) + tailSize,
+    },
+    { x: 0, y: Math.max(0, (height - tailSize) / 2) + tailSize },
+  ];
+
+  // start with top point clockwise, the arrow points to the right
+  const arrowTriangleRight: Point[] = [
+    { x: Math.max(0, width - arrowSize), y: 0 },
+    { x: width, y: height / 2 },
+    { x: Math.max(0, width - arrowSize), y: height },
+  ];
+
+  return {
+    tailRect,
+    arrowTriangleRight,
+  };
+}
+
+function getShapePointsPathLocal({
+  tailRect,
+  arrowTriangleRight,
+}: ShapePoints): Point[] {
+  return [
+    tailRect[0],
+    tailRect[1],
+    arrowTriangleRight[0],
+    arrowTriangleRight[1],
+    arrowTriangleRight[2],
+    tailRect[2],
+    tailRect[3],
+    tailRect[0],
+  ];
+}
+
+function addShapePositionOffsets(points: Point[], position: Point): Point[] {
+  return points.map((p) => ({
+    x: p.x + position.x,
+    y: p.y + position.y,
+  }));
+}
+
+function getTextPositionLocal(
+  shape: ShapeElement,
+  arrowConfig: ArrowConfig,
+  shapeFirstPoint: Point,
+): {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+} {
+  const tailThickness = getTailThickness(shape, arrowConfig);
+  const arrowSize = getArrowSize(shape, arrowConfig);
+  const { height, width } = shape;
+  const extensionPx = arrowSize - (arrowSize * tailThickness) / height;
+  const padding = getTextPadding(tailThickness, arrowConfig);
+
+  return {
+    x: shapeFirstPoint.x + padding,
+    y: shapeFirstPoint.y + padding,
+    width: width - arrowSize - padding * 2 + extensionPx,
+    height: tailThickness - padding * 2,
   };
 }
