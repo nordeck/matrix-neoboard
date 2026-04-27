@@ -42,11 +42,32 @@ function createArrowConfig(
   };
 }
 
+type ArrowRenderConfig = {
+  tailHeight: number;
+  headWidth: number;
+  tailTextPadding: number;
+};
+
+function createArrowRenderConfig(
+  shape: ShapeElement,
+  arrowConfig: ArrowConfig,
+): ArrowRenderConfig {
+  const tailHeight = getTailHeight(shape, arrowConfig);
+  return {
+    tailHeight,
+    headWidth: getHeadWidth(shape, arrowConfig),
+    tailTextPadding: getTailTextPadding(tailHeight, arrowConfig),
+  };
+}
+
 export function getRenderProperties(
   shape: ShapeElement,
   arrowConfigOptions?: Partial<ArrowConfig>,
 ): ElementRenderProperties & BlockArrowRenderProperties {
-  const arrowConfig = createArrowConfig(arrowConfigOptions);
+  const arrowConfig = createArrowRenderConfig(
+    shape,
+    createArrowConfig(arrowConfigOptions),
+  );
 
   const {
     position,
@@ -115,11 +136,9 @@ type ShapePoints = {
 // returns points in the shape's local coordinate system
 function getShapePointsLocal(
   shape: ShapeElement,
-  arrowConfig: ArrowConfig,
+  { tailHeight, headWidth }: ArrowRenderConfig,
 ): ShapePoints {
   const { width, height } = shape;
-  const tailHeight = getTailHeight(shape, arrowConfig);
-  const headWidth = getHeadWidth(shape, arrowConfig);
 
   // start with top-left clockwise
   const tailRect: Point[] = [
@@ -170,7 +189,7 @@ function addOffsetToShapePath(points: Point[], position: Point): Point[] {
 
 function getTextPositionLocal(
   shape: ShapeElement,
-  arrowConfig: ArrowConfig,
+  { tailHeight, headWidth, tailTextPadding }: ArrowRenderConfig,
   shapeFirstPoint: Point,
 ): {
   x: number;
@@ -178,11 +197,8 @@ function getTextPositionLocal(
   width: number;
   height: number;
 } {
-  const tailHeight = getTailHeight(shape, arrowConfig);
-  const headWidth = getHeadWidth(shape, arrowConfig);
   const { height, width } = shape;
   const extensionPx = headWidth - (headWidth * tailHeight) / height;
-  const tailTextPadding = getTailTextPadding(tailHeight, arrowConfig);
 
   return {
     x: shapeFirstPoint.x + tailTextPadding,
