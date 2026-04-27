@@ -22,61 +22,36 @@ type BlockArrowRenderProperties = {
 };
 
 type ArrowConfig = {
+  /** Tail to shape height ratio */
   tailHeightRatio: number;
+  /** Max tail height */
   tailHeightLimit: number;
+  /** Arrow triangle (head) to shape width ratio */
   headWidthRatio: number;
+  /** Max arrow triangle (head) width */
   headWidthLimit: number;
 };
 
-function createArrowConfig(
-  arrowConfig: Partial<ArrowConfig> = {},
-): ArrowConfig {
-  return {
-    tailHeightRatio: 0.5,
-    tailHeightLimit: 1000,
-    headWidthRatio: 0.35,
-    headWidthLimit: 500,
-    ...arrowConfig,
-  };
-}
-
-type ArrowRenderConfig = {
-  tailHeight: number;
-  headWidth: number;
-  tailTextPadding: number;
+const defaultArrowConfig: ArrowConfig = {
+  tailHeightRatio: 0.5,
+  tailHeightLimit: 1000,
+  headWidthRatio: 0.35,
+  headWidthLimit: 500,
 };
-
-function createArrowRenderConfig(
-  { width, height }: ShapeElement,
-  {
-    tailHeightRatio,
-    tailHeightLimit,
-    headWidthRatio,
-    headWidthLimit,
-  }: ArrowConfig,
-): ArrowRenderConfig {
-  const headWidth = width * headWidthRatio;
-  const tailHeight = height * tailHeightRatio;
-  return {
-    tailHeight: tailHeight > tailHeightLimit ? tailHeightLimit : tailHeight,
-    headWidth: headWidth > headWidthLimit ? headWidthLimit : headWidth,
-    tailTextPadding: tailHeight > 40 ? 10 : 2,
-  };
-}
 
 export function getRenderProperties(
   shape: ShapeElement,
   arrowConfigOptions?: Partial<ArrowConfig>,
 ): ElementRenderProperties & BlockArrowRenderProperties {
-  const arrowConfig = createArrowRenderConfig(
+  const arrowParameters = createArrowParameters(
     shape,
     createArrowConfig(arrowConfigOptions),
   );
 
-  const shapePoints = getShapePointsLocal(shape, arrowConfig);
+  const shapePoints = getShapePointsLocal(shape, arrowParameters);
   const textBox = getTextPositionLocal(
     shape,
-    arrowConfig,
+    arrowParameters,
     shapePoints.tailRect[0],
   );
 
@@ -115,6 +90,41 @@ export function getRenderProperties(
   };
 }
 
+function createArrowConfig(
+  arrowConfigOptions: Partial<ArrowConfig> | undefined,
+): ArrowConfig {
+  return arrowConfigOptions
+    ? {
+        ...defaultArrowConfig,
+        ...arrowConfigOptions,
+      }
+    : defaultArrowConfig;
+}
+
+type ArrowParameters = {
+  tailHeight: number;
+  headWidth: number;
+  tailTextPadding: number;
+};
+
+function createArrowParameters(
+  { width, height }: ShapeElement,
+  {
+    tailHeightRatio,
+    tailHeightLimit,
+    headWidthRatio,
+    headWidthLimit,
+  }: ArrowConfig,
+): ArrowParameters {
+  const headWidth = width * headWidthRatio;
+  const tailHeight = height * tailHeightRatio;
+  return {
+    tailHeight: tailHeight > tailHeightLimit ? tailHeightLimit : tailHeight,
+    headWidth: headWidth > headWidthLimit ? headWidthLimit : headWidth,
+    tailTextPadding: tailHeight > 40 ? 10 : 2,
+  };
+}
+
 type ShapePoints = {
   tailRect: Point[];
   headTriangleRight: Point[];
@@ -123,7 +133,7 @@ type ShapePoints = {
 // returns points in the shape's local coordinate system
 function getShapePointsLocal(
   { width, height }: ShapeElement,
-  { tailHeight, headWidth }: ArrowRenderConfig,
+  { tailHeight, headWidth }: ArrowParameters,
 ): ShapePoints {
   const tailWidth = width - headWidth;
   const tailTopLeftY = (height - tailHeight) / 2;
@@ -170,7 +180,7 @@ function getShapePath({ tailRect, headTriangleRight }: ShapePoints): Point[] {
 
 function getTextPositionLocal(
   { height, width }: ShapeElement,
-  { tailHeight, headWidth, tailTextPadding }: ArrowRenderConfig,
+  { tailHeight, headWidth, tailTextPadding }: ArrowParameters,
   tailTopLeftPosition: Point,
 ): {
   x: number;
