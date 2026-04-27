@@ -70,9 +70,9 @@ describe('getRenderProperties', () => {
     });
 
     const view = getRenderProperties(element, {
-      arrowSizeRatio: 0.5,
+      arrowWidthRatio: 0.5,
       tailThicknessRatio: 0.5,
-      textPaddingPx: 5,
+      textPadding: 5,
     });
 
     expect(view).toEqual({

@@ -23,10 +23,10 @@ type BlockArrowRenderProperties = {
 
 type ArrowConfig = {
   tailThicknessRatio: number;
-  arrowSizeRatio: number;
-  arrowSizeMaxPx: number;
-  tailThicknessMaxPx: number;
-  textPaddingPx: number;
+  tailThicknessLimit: number;
+  arrowWidthRatio: number;
+  arrowWidthLimit: number;
+  textPadding: number;
 };
 
 function createArrowConfig(
@@ -34,10 +34,10 @@ function createArrowConfig(
 ): ArrowConfig {
   return {
     tailThicknessRatio: 0.5,
-    arrowSizeRatio: 0.35,
-    arrowSizeMaxPx: 500,
-    tailThicknessMaxPx: 1000,
-    textPaddingPx: 10,
+    tailThicknessLimit: 1000,
+    arrowWidthRatio: 0.35,
+    arrowWidthLimit: 500,
+    textPadding: 10,
     ...arrowConfig,
   };
 }
@@ -57,23 +57,23 @@ export function getRenderProperties(
     textFontFamily,
   } = shape;
 
-  const getTailThicknessPx = (shape: ShapeElement) => {
+  const getTailThickness = (shape: ShapeElement) => {
     const { height } = shape;
-    const thicknessLimit = arrowConfig.tailThicknessMaxPx;
+    const thicknessLimit = arrowConfig.tailThicknessLimit;
     const px = height * arrowConfig.tailThicknessRatio;
     return px > thicknessLimit ? thicknessLimit : px;
   };
 
-  const getArrowSizePx = (shape: ShapeElement) => {
+  const getArrowSize = (shape: ShapeElement) => {
     const { width } = shape;
-    const px = width * arrowConfig.arrowSizeRatio;
-    const sizeLimit = arrowConfig.arrowSizeMaxPx;
+    const px = width * arrowConfig.arrowWidthRatio;
+    const sizeLimit = arrowConfig.arrowWidthLimit;
     return px > sizeLimit ? sizeLimit : px;
   };
 
   const getTextPadding = (shape: ShapeElement) => {
-    const tail = getTailThicknessPx(shape);
-    const padding = arrowConfig.textPaddingPx;
+    const tail = getTailThickness(shape);
+    const padding = arrowConfig.textPadding;
     return {
       horizontal: tail > 40 ? padding : 0,
       vertical: tail > 40 ? padding : 0,
@@ -83,8 +83,8 @@ export function getRenderProperties(
   // returns points in the shape's local coordinate system
   const getIndividualShapePointsLocal = (shape: ShapeElement) => {
     const { width, height } = shape;
-    const tailSize = getTailThicknessPx(shape);
-    const arrowSize = getArrowSizePx(shape);
+    const tailSize = getTailThickness(shape);
+    const arrowSize = getArrowSize(shape);
 
     // start with top-left clockwise
     const tailRect: Point[] = [
@@ -129,8 +129,8 @@ export function getRenderProperties(
   };
 
   const getTextBoxPositionLocal = (shape: ShapeElement) => {
-    const tailThickness = getTailThicknessPx(shape);
-    const arrowSize = getArrowSizePx(shape);
+    const tailThickness = getTailThickness(shape);
+    const arrowSize = getArrowSize(shape);
     const { height, width } = shape;
     const extensionPx = arrowSize - (arrowSize * tailThickness) / height;
     const padding = getTextPadding(shape);
