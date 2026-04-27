@@ -22,24 +22,32 @@ type BlockArrowRenderProperties = {
 };
 
 type ArrowConfig = {
-  tailThicknessRatio?: number;
-  arrowSizeRatio?: number;
-  arrowSizeMaxPx?: number;
-  tailThicknessMaxPx?: number;
-  textPaddingPx?: number;
+  tailThicknessRatio: number;
+  arrowSizeRatio: number;
+  arrowSizeMaxPx: number;
+  tailThicknessMaxPx: number;
+  textPaddingPx: number;
 };
 
-// hardcoded arrow params
-const TAIL_THICKNESS_RATIO = 0.5;
-const ARROW_SIZE_RATIO = 0.35;
-const ARROW_SIZE_MAX_PX = 500;
-const TAIL_THICKNESS_MAX_PX = 1000;
-const TEXT_PADDING_PX = 10;
+function createArrowConfig(
+  arrowConfig: Partial<ArrowConfig> = {},
+): ArrowConfig {
+  return {
+    tailThicknessRatio: 0.5,
+    arrowSizeRatio: 0.35,
+    arrowSizeMaxPx: 500,
+    tailThicknessMaxPx: 1000,
+    textPaddingPx: 10,
+    ...arrowConfig,
+  };
+}
 
 export function getRenderProperties(
   shape: ShapeElement,
-  arrowConfig?: ArrowConfig,
+  arrowConfigOptions?: Partial<ArrowConfig>,
 ): ElementRenderProperties & BlockArrowRenderProperties {
+  const arrowConfig = createArrowConfig(arrowConfigOptions);
+
   const {
     position,
     textAlignment,
@@ -51,23 +59,21 @@ export function getRenderProperties(
 
   const getTailThicknessPx = (shape: ShapeElement) => {
     const { height } = shape;
-    const thicknessLimit =
-      arrowConfig?.tailThicknessMaxPx ?? TAIL_THICKNESS_MAX_PX;
-    const px =
-      height * (arrowConfig?.tailThicknessRatio ?? TAIL_THICKNESS_RATIO);
+    const thicknessLimit = arrowConfig.tailThicknessMaxPx;
+    const px = height * arrowConfig.tailThicknessRatio;
     return px > thicknessLimit ? thicknessLimit : px;
   };
 
   const getArrowSizePx = (shape: ShapeElement) => {
     const { width } = shape;
-    const px = width * (arrowConfig?.arrowSizeRatio ?? ARROW_SIZE_RATIO);
-    const sizeLimit = arrowConfig?.arrowSizeMaxPx ?? ARROW_SIZE_MAX_PX;
+    const px = width * arrowConfig.arrowSizeRatio;
+    const sizeLimit = arrowConfig.arrowSizeMaxPx;
     return px > sizeLimit ? sizeLimit : px;
   };
 
   const getTextPadding = (shape: ShapeElement) => {
     const tail = getTailThicknessPx(shape);
-    const padding = arrowConfig?.textPaddingPx ?? TEXT_PADDING_PX;
+    const padding = arrowConfig.textPaddingPx;
     return {
       horizontal: tail > 40 ? padding : 0,
       vertical: tail > 40 ? padding : 0,
