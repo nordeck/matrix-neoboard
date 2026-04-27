@@ -129,17 +129,17 @@ function getShapePointsLocal(
   { tailHeight, headWidth }: ArrowRenderConfig,
 ): ShapePoints {
   const tailWidth = width - headWidth;
-  const tailTopLeftY = Math.max(0, (height - tailHeight) / 2);
+  const tailTopLeftY = (height - tailHeight) / 2;
 
   // start with top-left clockwise
   const tailRect: Point[] = [
     { x: 0, y: tailTopLeftY },
     {
-      x: Math.max(0, tailWidth),
+      x: tailWidth,
       y: tailTopLeftY,
     },
     {
-      x: Math.max(0, tailWidth),
+      x: tailWidth,
       y: tailTopLeftY + tailHeight,
     },
     { x: 0, y: tailTopLeftY + tailHeight },
@@ -147,9 +147,9 @@ function getShapePointsLocal(
 
   // start with top point clockwise, the arrow points to the right
   const arrowTriangleRight: Point[] = [
-    { x: Math.max(0, tailWidth), y: 0 },
+    { x: tailWidth, y: 0 },
     { x: width, y: height / 2 },
-    { x: Math.max(0, tailWidth), y: height },
+    { x: tailWidth, y: height },
   ];
 
   return {
