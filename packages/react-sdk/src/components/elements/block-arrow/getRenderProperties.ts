@@ -76,7 +76,17 @@ export function getRenderProperties(
     createArrowConfig(arrowConfigOptions),
   );
 
+  const shapePoints = getShapePointsLocal(shape, arrowConfig);
+  const textBox = getTextPositionLocal(
+    shape,
+    arrowConfig,
+    shapePoints.tailRect[0],
+  );
+
   const {
+    fillColor,
+    strokeWidth,
+    strokeColor,
     position,
     textAlignment,
     textBold,
@@ -85,16 +95,9 @@ export function getRenderProperties(
     textFontFamily,
   } = shape;
 
-  const shapePoints = getShapePointsLocal(shape, arrowConfig);
-  const textBox = getTextPositionLocal(
-    shape,
-    arrowConfig,
-    shapePoints.tailRect[0],
-  );
-
   return {
-    strokeColor: shape.strokeColor ?? shape.fillColor,
-    strokeWidth: shape.strokeWidth ?? 2,
+    strokeColor: strokeColor ?? fillColor,
+    strokeWidth: strokeWidth ?? 2,
     text: {
       position: {
         x: position.x + textBox.x,
@@ -108,7 +111,10 @@ export function getRenderProperties(
       fontSize: textSize,
       fontFamily: textFontFamily,
     },
-    points: addOffsetToShapePath(getShapePath(shapePoints), shape.position),
+    points: getShapePath(shapePoints).map((p) => ({
+      x: position.x + p.x,
+      y: position.y + p.y,
+    })),
   };
 }
 
@@ -119,30 +125,31 @@ type ShapePoints = {
 
 // returns points in the shape's local coordinate system
 function getShapePointsLocal(
-  shape: ShapeElement,
+  { width, height }: ShapeElement,
   { tailHeight, headWidth }: ArrowRenderConfig,
 ): ShapePoints {
-  const { width, height } = shape;
+  const tailWidth = width - headWidth;
+  const tailTopLeftY = Math.max(0, (height - tailHeight) / 2);
 
   // start with top-left clockwise
   const tailRect: Point[] = [
-    { x: 0, y: Math.max(0, (height - tailHeight) / 2) },
+    { x: 0, y: tailTopLeftY },
     {
-      x: Math.max(0, width - headWidth),
-      y: Math.max(0, (height - tailHeight) / 2),
+      x: Math.max(0, tailWidth),
+      y: tailTopLeftY,
     },
     {
-      x: Math.max(0, width - headWidth),
-      y: Math.max(0, (height - tailHeight) / 2) + tailHeight,
+      x: Math.max(0, tailWidth),
+      y: tailTopLeftY + tailHeight,
     },
-    { x: 0, y: Math.max(0, (height - tailHeight) / 2) + tailHeight },
+    { x: 0, y: tailTopLeftY + tailHeight },
   ];
 
   // start with top point clockwise, the arrow points to the right
   const arrowTriangleRight: Point[] = [
-    { x: Math.max(0, width - headWidth), y: 0 },
+    { x: Math.max(0, tailWidth), y: 0 },
     { x: width, y: height / 2 },
-    { x: Math.max(0, width - headWidth), y: height },
+    { x: Math.max(0, tailWidth), y: height },
   ];
 
   return {
@@ -162,13 +169,6 @@ function getShapePath({ tailRect, headTriangleRight }: ShapePoints): Point[] {
     tailRect[3],
     tailRect[0],
   ];
-}
-
-function addOffsetToShapePath(points: Point[], position: Point): Point[] {
-  return points.map((p) => ({
-    x: p.x + position.x,
-    y: p.y + position.y,
-  }));
 }
 
 function getTextPositionLocal(
