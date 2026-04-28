@@ -1,5 +1,25 @@
 # @nordeck/matrix-neoboard-widget
 
+## 2.5.0
+
+### Minor Changes
+
+- 3c6f791: Presentation mode for frames
+
+### Patch Changes
+
+- 3728736: Update `widget-server` base image to v1.2.2
+- 1d61887: Upload helm chart to OCI Registry, release helm chart
+- c7360e1: Set trivy version to 0.69.3 instead of latest.
+- 29457e8: Update lodash to 4.18.1 for CVEs: `CVE-2026-2950`, `CVE-2026-4800`
+- 2c8c78a: Include sha256 digest for trivy image
+  Pin trivy-action to v0.35.0
+- ef0749c: Refactor infinite canvas to use `viewBox` for transformations and simplify API
+- Updated dependencies [29457e8]
+- Updated dependencies [ef0749c]
+- Updated dependencies [3c6f791]
+  - @nordeck/matrix-neoboard-react-sdk@1.5.0
+
 ## 2.4.0
 
 ### Minor Changes
