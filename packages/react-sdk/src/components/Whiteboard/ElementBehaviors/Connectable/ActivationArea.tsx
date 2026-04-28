@@ -45,7 +45,7 @@ export function ActivationArea({
         ry={height / 2 + shapeMargin}
       />
     );
-  } else if (kind === 'rectangle') {
+  } else if (kind === 'rectangle' || kind === 'block-arrow') {
     return (
       <rect
         data-connect-type={`activation-area`}
@@ -73,18 +73,6 @@ export function ActivationArea({
         data-connect-element-id={elementId}
         fill="transparent"
         points={`${p0X},${p0Y} ${p1X},${p1Y} ${p2X},${p2Y}`}
-      />
-    );
-  } else if (kind === 'block-arrow') {
-    return (
-      <rect
-        data-connect-type={`activation-area`}
-        data-connect-element-id={elementId}
-        x={x - shapeMargin}
-        y={y - shapeMargin}
-        width={width + 2 * shapeMargin}
-        height={height + 2 * shapeMargin}
-        fill="transparent"
       />
     );
   } else {
