@@ -79,7 +79,7 @@
   dependencies:
     "@babel/types" "^7.28.6"
 
-"@babel/runtime@^7.1.2", "@babel/runtime@^7.12.5", "@babel/runtime@^7.15.4", "@babel/runtime@^7.18.3", "@babel/runtime@^7.23.2", "@babel/runtime@^7.26.0", "@babel/runtime@^7.27.6", "@babel/runtime@^7.28.6", "@babel/runtime@^7.29.2", "@babel/runtime@^7.5.5", "@babel/runtime@^7.8.7", "@babel/runtime@^7.9.2":
+"@babel/runtime@^7.1.2", "@babel/runtime@^7.12.5", "@babel/runtime@^7.15.4", "@babel/runtime@^7.18.3", "@babel/runtime@^7.23.2", "@babel/runtime@^7.26.0", "@babel/runtime@^7.27.6", "@babel/runtime@^7.28.4", "@babel/runtime@^7.28.6", "@babel/runtime@^7.29.2", "@babel/runtime@^7.5.5", "@babel/runtime@^7.8.7", "@babel/runtime@^7.9.2":
   version "7.29.2"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.29.2.tgz#9a6e2d05f4b6692e1801cd4fb176ad823930ed5e"
   integrity sha512-JiDShH45zKHWyGe4ZNVRrCjBz8Nh9TMmZG1kh4QTK8hCBTWBi8Da+i7s1fJw7/lYpM4ccepSNfqzZ/QvABBi5g==
@@ -3709,12 +3709,12 @@ i18next-browser-languagedetector@^8.2.0, i18next-browser-languagedetector@^8.2.1
   dependencies:
     "@babel/runtime" "^7.23.2"
 
-i18next-chained-backend@^4.6.3:
-  version "4.6.3"
-  resolved "https://registry.yarnpkg.com/i18next-chained-backend/-/i18next-chained-backend-4.6.3.tgz#3a4cc3a396dd04f50846743ea4e987489dd8a0cf"
-  integrity sha512-Yg4hAKg/98zRAMQs87vJSNevTzaPPrYF3Eb7Kpx+UEaaXLd3p69g7dulAL+hpmZQHeMQ/5gFqHVtdwva53mB0Q==
+i18next-chained-backend@^5.0.3:
+  version "5.0.3"
+  resolved "https://registry.yarnpkg.com/i18next-chained-backend/-/i18next-chained-backend-5.0.3.tgz#723bd7d8d7fafe016270f1349cfd98f5dd52dc50"
+  integrity sha512-VUwc+yFpZzmIvtPfSdTv1+CjgZGZwGug6qHyIuSES/n7RDhVARFxthjML0anUMJVjlvLfRW/x6+U4UrxXBflmw==
   dependencies:
-    "@babel/runtime" "^7.23.2"
+    "@babel/runtime" "^7.28.4"
 
 i18next-cli@^1.51.4:
   version "1.51.7"
@@ -3762,12 +3762,17 @@ i18next-resources-to-backend@^1.2.1:
   dependencies:
     "@babel/runtime" "^7.23.2"
 
-i18next@^25.10.10, i18next@^25.7.3:
+i18next@^25.7.3:
   version "25.10.10"
   resolved "https://registry.yarnpkg.com/i18next/-/i18next-25.10.10.tgz#d610511c87150e7a98c58fa780e93f90603fe187"
   integrity sha512-cqUW2Z3EkRx7NqSyywjkgCLK7KLCL6IFVFcONG7nVYIJ3ekZ1/N5jUsihHV6Bq37NfhgtczxJcxduELtjTwkuQ==
   dependencies:
     "@babel/runtime" "^7.29.2"
+
+i18next@^26.0.0, i18next@^26.0.5:
+  version "26.0.8"
+  resolved "https://registry.yarnpkg.com/i18next/-/i18next-26.0.8.tgz#be27c02733962574cb47156d190ac8d0ff5365c4"
+  integrity sha512-BRzLom0mhDhV9v0QhgUUHWQJuwFmnr1194xEcNLYD6ym8y8s542n4jXUvRLnhNTbh9PmpU6kGZamyuGHQMsGjw==
 
 iconv-lite@0.6.3:
   version "0.6.3"
@@ -5157,13 +5162,22 @@ react-i18next@*, react-i18next@^17.0.2:
     html-parse-stringify "^3.0.1"
     use-sync-external-store "^1.6.0"
 
-react-i18next@^15.5.2, react-i18next@^15.7.4:
+react-i18next@^15.7.4:
   version "15.7.4"
   resolved "https://registry.yarnpkg.com/react-i18next/-/react-i18next-15.7.4.tgz#146e50f220d204b842e22c75d1a3d23c6c589a30"
   integrity sha512-nyU8iKNrI5uDJch0z9+Y5XEr34b0wkyYj3Rp+tfbahxtlswxSCjcUL9H0nqXo9IR3/t5Y5PKIA3fx3MfUyR9Xw==
   dependencies:
     "@babel/runtime" "^7.27.6"
     html-parse-stringify "^3.0.1"
+
+react-i18next@^17.0.0, react-i18next@^17.0.3:
+  version "17.0.6"
+  resolved "https://registry.yarnpkg.com/react-i18next/-/react-i18next-17.0.6.tgz#a12e7587325de688f0c6ccd55654f24d3a9f7717"
+  integrity sha512-WzJ6SMKF+GTD7JZZqxSR1AKKmXjaSu39sClUrNlwxS4Tl7a99O+ltFy6yhPMO+wgZuxpQjJ2PZkfrQKmAqrLhw==
+  dependencies:
+    "@babel/runtime" "^7.29.2"
+    html-parse-stringify "^3.0.1"
+    use-sync-external-store "^1.6.0"
 
 react-innertext@^1.1.5:
   version "1.1.5"
