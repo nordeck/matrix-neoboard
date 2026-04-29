@@ -20,6 +20,7 @@ import { DraggableCore, DraggableData, DraggableEvent } from 'react-draggable';
 import { useConnectionPoint } from '../../../ConnectionPointProvider';
 import { useSvgCanvasContext } from '../../SvgCanvas';
 import { useSvgScaleContext } from '../../SvgScaleContext';
+import { rotateCursor } from '../Rotatable/rotatorMath';
 import { findConnectData } from './findConnectData';
 import { HandlePosition, LineElementHandlePositionName } from './types';
 import { isLineElementHandlePosition } from './utils';
@@ -158,6 +159,7 @@ export type DragConnectData = {
 
 export type ResizeHandleProps = {
   position: HandlePosition;
+  rotation?: number;
   onDrag?: Dispatch<DragEvent>;
   onDragStart?: Dispatch<DragEvent>;
   onDragStop?: Dispatch<DragEvent>;
@@ -172,6 +174,7 @@ export function ResizeHandle(props: ResizeHandleProps) {
 
   const {
     position: { name },
+    rotation,
     onDrag,
     onDragStart,
     onDragStop,
@@ -181,6 +184,10 @@ export function ResizeHandle(props: ResizeHandleProps) {
     ...props,
     scale,
   });
+
+  const getRotatedCursor = () => {
+    return rotateCursor(cursor, rotation ?? 0);
+  };
 
   const dispatchDragEvent = useCallback(
     (
@@ -287,7 +294,7 @@ export function ResizeHandle(props: ResizeHandleProps) {
     >
       <rect
         data-testid={`resize-handle-${name}`}
-        cursor={cursor}
+        cursor={getRotatedCursor()}
         fill="transparent"
         height={height}
         ref={nodeRef}
