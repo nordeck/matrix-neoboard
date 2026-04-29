@@ -45,7 +45,7 @@ export function ActivationArea({
         ry={height / 2 + shapeMargin}
       />
     );
-  } else if (kind === 'rectangle') {
+  } else if (kind === 'rectangle' || kind === 'block-arrow') {
     return (
       <rect
         data-connect-type={`activation-area`}
