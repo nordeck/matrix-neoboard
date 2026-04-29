@@ -143,3 +143,12 @@ export function useUndoRedoState(): { canUndo: boolean; canRedo: boolean } {
 
   return useObservable(observable, { canUndo: false, canRedo: false });
 }
+
+export function useWhiteboardSlideIds(): string[] {
+  const whiteboardInstance = useActiveWhiteboardInstance();
+
+  return useLatestValue(
+    () => whiteboardInstance.getSlideIds(),
+    whiteboardInstance.observeSlideIds(),
+  );
+}

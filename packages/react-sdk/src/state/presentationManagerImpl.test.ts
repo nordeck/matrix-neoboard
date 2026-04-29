@@ -124,6 +124,7 @@ describe('presentationManager', () => {
           observeActiveFrameElementIdSubject.next(activeFrameElementId),
         ),
       undo: vi.fn(),
+      transformSlidesToFrames: vi.fn(),
       destroy: vi.fn(),
       persist: vi.fn(),
     };

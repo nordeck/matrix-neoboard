@@ -36,6 +36,7 @@ export {
   useActiveWhiteboardInstanceStatistics,
   useIsWhiteboardLoading,
   useUndoRedoState,
+  useWhiteboardSlideIds,
 } from './useActiveWhiteboardInstance';
 export { useActiveWhiteboardMembers } from './useActiveWhiteboardMembers';
 export type { ActiveWhiteboardMember } from './useActiveWhiteboardMembers';
