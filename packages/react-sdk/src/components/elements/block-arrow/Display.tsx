@@ -48,6 +48,7 @@ const BlockArrowDisplay = ({
     <g data-testid={dataTestid}>
       {/* Block arrow shape with narrow body */}
       <polygon
+        data-connect-type="connectable-element"
         points={points.map(({ x, y }) => `${x},${y}`).join(' ')}
         fill={shape.fillColor}
         stroke={strokeColor}
