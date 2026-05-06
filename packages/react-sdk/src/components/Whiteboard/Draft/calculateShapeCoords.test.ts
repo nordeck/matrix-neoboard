@@ -72,6 +72,8 @@ describe('calculateShapeCoords', () => {
         },
         endCoords: { x: 750, y: 725 },
       },
+    ],
+    [
       'block-arrow',
       { x: 500, y: 600 },
       {
