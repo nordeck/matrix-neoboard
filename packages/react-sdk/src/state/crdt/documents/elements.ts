@@ -42,7 +42,12 @@ const elementBaseSchema = Joi.object<ElementBase, true>({
   .unknown()
   .required();
 
-export type ShapeKind = 'rectangle' | 'circle' | 'ellipse' | 'triangle';
+export type ShapeKind =
+  | 'rectangle'
+  | 'circle'
+  | 'ellipse'
+  | 'triangle'
+  | 'block-arrow';
 export type TextAlignment = 'left' | 'center' | 'right';
 export type TextFontFamily =
   | 'Abel'
@@ -80,7 +85,7 @@ export const shapeElementSchema = elementBaseSchema
   .append<ShapeElement>({
     type: Joi.string().valid('shape').required(),
     kind: Joi.string()
-      .valid('rectangle', 'circle', 'ellipse', 'triangle')
+      .valid('rectangle', 'circle', 'ellipse', 'triangle', 'block-arrow')
       .required(),
     width: Joi.number().strict().empty(emptyCoordinateSchema).default(1),
     height: Joi.number().strict().empty(emptyCoordinateSchema).default(1),

@@ -36,7 +36,7 @@ export function ActivationArea({
   if (kind === 'circle' || kind === 'ellipse') {
     return (
       <ellipse
-        data-connect-type={`activation-area`}
+        data-connect-type="activation-area"
         data-connect-element-id={elementId}
         cx={x + width / 2}
         cy={y + height / 2}
@@ -45,10 +45,10 @@ export function ActivationArea({
         ry={height / 2 + shapeMargin}
       />
     );
-  } else if (kind === 'rectangle') {
+  } else if (kind === 'rectangle' || kind === 'block-arrow') {
     return (
       <rect
-        data-connect-type={`activation-area`}
+        data-connect-type="activation-area"
         data-connect-element-id={elementId}
         x={x - shapeMargin}
         y={y - shapeMargin}
@@ -69,7 +69,7 @@ export function ActivationArea({
 
     return (
       <polygon
-        data-connect-type={`activation-area`}
+        data-connect-type="activation-area"
         data-connect-element-id={elementId}
         fill="transparent"
         points={`${p0X},${p0Y} ${p1X},${p1Y} ${p2X},${p2Y}`}

@@ -129,7 +129,7 @@ An Element that has a shape attached, that has a text and a fill color.
 | Field            | Type                                                                                               | Description                                                                |
 | ---------------- | -------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
 | `type`           | `'shape'`                                                                                          | Identifies the element as a shape.                                         |
-| `kind`           | `'rectangle' \| 'circle' \| 'ellipse' \| 'triangle'`                                               | The kind of shape, defining its look.                                      |
+| `kind`           | `'rectangle' \| 'circle' \| 'ellipse' \| 'triangle' \| 'block-arrow'`                              | The kind of shape, defining its look.                                      |
 | `position`       | `Point`                                                                                            | The position of the shape on the whiteboard canvas.                        |
 | `width`          | `number`                                                                                           | Scaling of the shape on the x-axis.                                        |
 | `height`         | `number`                                                                                           | Scaling of the shape on the y-axis.                                        |

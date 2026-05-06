@@ -103,7 +103,7 @@ describe('isValidElement', () => {
     expect(isValidElement(data)).toBe(true);
   });
 
-  it.each(['rectangle', 'circle', 'ellipse', 'triangle'])(
+  it.each(['rectangle', 'circle', 'ellipse', 'triangle', 'block-arrow'])(
     'should accept %j shape event',
     (kind) => {
       const data = {
@@ -143,7 +143,7 @@ describe('isValidElement', () => {
     expect(isValidElement(data)).toBe(true);
   });
 
-  it.each(['rectangle', 'circle', 'ellipse', 'triangle'])(
+  it.each(['rectangle', 'circle', 'ellipse', 'triangle', 'block-arrow'])(
     'should accept %j shape event with attached frame',
     (kind) => {
       const data = {

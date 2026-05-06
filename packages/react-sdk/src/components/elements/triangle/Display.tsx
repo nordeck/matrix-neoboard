@@ -47,7 +47,7 @@ const TriangleDisplay = ({
   const renderedChild = (
     <g>
       <polygon
-        data-connect-type={`connectable-element`}
+        data-connect-type="connectable-element"
         fill={shape.fillColor}
         points={`${p0X},${p0Y} ${p1X},${p1Y} ${p2X},${p2Y}`}
         stroke={strokeColor}

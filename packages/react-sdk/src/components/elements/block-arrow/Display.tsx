@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Nordeck IT + Consulting GmbH
+ * Copyright 2026 Nordeck IT + Consulting GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 
 import React from 'react';
-import { ShapeElement } from '../../../state';
+import { calculateBoundingRectForPoints, ShapeElement } from '../../../state';
 import {
   ElementContextMenu,
   MoveableElement,
@@ -26,45 +26,39 @@ import {
 import { ElementFrameOverlay } from '../ElementFrameOverlay';
 import { getRenderProperties } from './getRenderProperties';
 
-export type EllipseElementProps = ShapeElement & WithExtendedSelectionProps;
+export type BlockArrowElementProps = ShapeElement &
+  WithExtendedSelectionProps & {
+    'data-testid'?: string;
+  };
 
-const EllipseDisplay = ({
+const BlockArrowDisplay = ({
   readOnly,
   active,
   elementId,
   activeElementIds = [],
   elements = {},
   elementMovedHasFrame,
+  'data-testid': dataTestid,
   ...shape
-}: EllipseElementProps) => {
-  const width = shape.width;
-  const height = shape.height;
-
-  const cx = width / 2;
-  const cy = height / 2;
-  const rx = width / 2;
-  const ry = height / 2;
-
-  const { strokeColor, strokeWidth, text } = getRenderProperties(shape);
+}: BlockArrowElementProps) => {
+  const { strokeColor, strokeWidth, text, points } = getRenderProperties(shape);
+  const boundingRect = calculateBoundingRectForPoints(points);
 
   const renderedChild = (
-    <g data-testid={`element-ellipse-${elementId}`}>
-      <ellipse
-        data-connect-type="activation-area"
-        cx={shape.position.x + cx}
-        cy={shape.position.y + cy}
+    <g data-testid={dataTestid}>
+      {/* Block arrow shape with narrow body */}
+      <polygon
+        data-connect-type="connectable-element"
+        points={points.map(({ x, y }) => `${x},${y}`).join(' ')}
         fill={shape.fillColor}
-        rx={rx}
-        ry={ry}
         stroke={strokeColor}
         strokeWidth={strokeWidth}
       />
-
+      {/* Text overlay */}
       {text && (
         <TextElement
           active={active}
           text={shape.text}
-          textColor={shape.textColor}
           textAlignment={text.alignment}
           textBold={text.bold}
           textItalic={text.italic}
@@ -74,6 +68,7 @@ const EllipseDisplay = ({
           width={text.width}
           height={text.height}
           fillColor={shape.fillColor}
+          textColor={shape.textColor}
           fontSize={text.fontSize}
           fontFamily={shape.textFontFamily}
           setTextToolsEnabled={shape.setTextToolsEnabled}
@@ -99,8 +94,8 @@ const EllipseDisplay = ({
             <ElementFrameOverlay
               offsetX={shape.position.x}
               offsetY={shape.position.y}
-              width={shape.width}
-              height={shape.height}
+              width={boundingRect.width}
+              height={boundingRect.height}
             />
           )}
         </ElementContextMenu>
@@ -109,4 +104,4 @@ const EllipseDisplay = ({
   );
 };
 
-export default React.memo(EllipseDisplay);
+export default React.memo(BlockArrowDisplay);
