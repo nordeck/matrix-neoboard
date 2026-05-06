@@ -63,7 +63,7 @@ const RectangleDisplay = ({
     >
       {stickyNote && shadowFilter}
       <rect
-        data-connect-type={`connectable-element`}
+        data-connect-type="connectable-element"
         x={shape.position.x}
         y={shape.position.y}
         fill={shape.fillColor}
