@@ -28,7 +28,7 @@ import React, {
   useRef,
 } from 'react';
 import { useHotkeysContext } from 'react-hotkeys-hook';
-import { Point, usePresentationMode } from '../../../state';
+import { Point, useActiveElements, usePresentationMode } from '../../../state';
 import { HOTKEY_SCOPE_WHITEBOARD } from '../../WhiteboardHotkeysProvider';
 import {
   gridCellSize,
@@ -89,6 +89,7 @@ export const SvgCanvas = function ({
   const { activeScopes } = useHotkeysContext();
   const enableShortcuts =
     activeScopes.includes(HOTKEY_SCOPE_WHITEBOARD) && !isPresenting;
+  const { activeElementIds } = useActiveElements();
   const pressedKeys = useRef<Set<string>>(new Set());
 
   const { handleWheelZoom, wheelZoomInProgress } = useWheelZoom(svgRef);
@@ -169,7 +170,11 @@ export const SvgCanvas = function ({
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent<SVGSVGElement>) => {
-      if (enableShortcuts && isArrowKey(e.key)) {
+      if (
+        enableShortcuts &&
+        isArrowKey(e.key) &&
+        activeElementIds.length === 0
+      ) {
         if (!pressedKeys.current.has(e.key)) {
           pressedKeys.current.add(e.key);
         }
@@ -177,18 +182,22 @@ export const SvgCanvas = function ({
         applyKeyboardNavigation();
       }
     },
-    [applyKeyboardNavigation, enableShortcuts],
+    [applyKeyboardNavigation, enableShortcuts, activeElementIds],
   );
 
   const handleKeyUp = useCallback(
     (e: KeyboardEvent<SVGSVGElement>) => {
-      if (enableShortcuts && isArrowKey(e.key)) {
+      if (
+        enableShortcuts &&
+        isArrowKey(e.key) &&
+        activeElementIds.length === 0
+      ) {
         pressedKeys.current.delete(e.key);
         e.preventDefault();
         applyKeyboardNavigation();
       }
     },
-    [applyKeyboardNavigation, enableShortcuts],
+    [applyKeyboardNavigation, enableShortcuts, activeElementIds],
   );
 
   // Handle auxiliary mouse button clicks (middle/right click)

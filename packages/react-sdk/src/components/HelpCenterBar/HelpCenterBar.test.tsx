@@ -66,9 +66,12 @@ describe('<HelpCenterBar/>', () => {
       within(menu).getByRole('menuitem', { name: 'Reset onboarding' }),
     ).toBeInTheDocument();
     expect(
+      within(menu).getByRole('menuitem', { name: 'Keyboard shortcuts' }),
+    ).toBeInTheDocument();
+    expect(
       within(menu).getByRole('menuitem', { name: 'About NeoBoard' }),
     ).toBeInTheDocument();
-    expect(within(menu).getAllByRole('menuitem')).toHaveLength(2);
+    expect(within(menu).getAllByRole('menuitem')).toHaveLength(3);
 
     await userEvent.keyboard('[Escape]');
 
@@ -135,6 +138,32 @@ describe('<HelpCenterBar/>', () => {
     );
 
     const dialog = screen.getByRole('dialog', { name: 'About NeoBoard' });
+
+    await userEvent.click(
+      within(dialog).getAllByRole('button', { name: 'Close' })[0],
+    );
+
+    await waitFor(() => {
+      expect(dialog).not.toBeInTheDocument();
+    });
+    expect(menu).not.toBeInTheDocument();
+  });
+  it('should open the shortcuts dialog and close the menu', async () => {
+    render(<HelpCenterBar />, { wrapper: Wrapper });
+
+    const toolbar = screen.getByRole('toolbar', { name: 'Help center' });
+
+    await userEvent.click(
+      within(toolbar).getByRole('button', { name: 'Help' }),
+    );
+
+    const menu = screen.getByRole('menu', { name: 'Help' });
+
+    await userEvent.click(
+      screen.getByRole('menuitem', { name: 'Keyboard shortcuts' }),
+    );
+
+    const dialog = screen.getByRole('dialog', { name: 'Keyboard shortcuts' });
 
     await userEvent.click(
       within(dialog).getAllByRole('button', { name: 'Close' })[0],

@@ -224,8 +224,13 @@
     "menu": {
       "about": "Über NeoBoard",
       "helpCenter": "Hilfezentrum",
+      "keyboardShortcuts": "Kurzbefehle",
       "resetOnboarding": "Einführung zurücksetzen",
       "title": "Hilfe"
+    },
+    "shortcuts": {
+      "close": "Schließen",
+      "title": "Kurzbefehle"
     },
     "title": "Hilfe"
   },
