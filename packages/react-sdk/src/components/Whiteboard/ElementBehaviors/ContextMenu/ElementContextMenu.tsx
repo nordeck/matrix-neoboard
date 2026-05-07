@@ -183,10 +183,12 @@ function ContextMenuOptions({
 
   return (
     <Menu
-      MenuListProps={{
-        'aria-label': menuTitle,
-        dense: true,
-        sx: { minWidth: '242px' },
+      slotProps={{
+        list: {
+          'aria-label': menuTitle,
+          dense: true,
+          sx: { minWidth: '242px' },
+        },
       }}
       open={open && !isLocked}
       onClose={handleClose}
