@@ -91,12 +91,13 @@ A slide contains a collection of ordered elements.
 
 #### Fields
 
-| Field         | Type                                                   | Description                                                                     |
-| ------------- | ------------------------------------------------------ | ------------------------------------------------------------------------------- |
-| `elements`    | `Record<string, ShapeElement \| PathElement>` / `YMap` | A map from element IDs to elements.                                             |
-| `elementIds`  | `string[]` / `YArray<string>`                          | The display order of the elements, from back to front.                          |
-| `lock`        | `object \| undefined`                                  | If defined, the slide is locked and all edit operations are disabled in the UI. |
-| `lock.userId` | `string`                                               | The user that locked the slide.                                                 |
+| Field             | Type                                                    | Description                                                                                                 |
+| ----------------- | ------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `elements`        | `Record<string, ShapeElement \| PathElement>` / `YMap`  | A map from element IDs to elements.                                                                         |
+| `elementIds`      | `string[]` / `YArray<string>`                           | The display order of the elements, from back to front.                                                      |
+| `frameElementIds` | `string[] \| undefined` / `YArray<string> \| undefined` | Is defined for documents used in infinite canvas mode. The display order of the frames in the presentation. |
+| `lock`            | `object \| undefined`                                   | If defined, the slide is locked and all edit operations are disabled in the UI.                             |
+| `lock.userId`     | `string`                                                | The user that locked the slide.                                                                             |
 
 The separation of elements and their order is explained in [ADR004][adr004].
 
@@ -128,7 +129,7 @@ An Element that has a shape attached, that has a text and a fill color.
 | Field            | Type                                                                                               | Description                                                                |
 | ---------------- | -------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
 | `type`           | `'shape'`                                                                                          | Identifies the element as a shape.                                         |
-| `kind`           | `'rectangle' \| 'circle' \| 'ellipse' \| 'triangle'`                                               | The kind of shape, defining its look.                                      |
+| `kind`           | `'rectangle' \| 'circle' \| 'ellipse' \| 'triangle' \| 'block-arrow'`                              | The kind of shape, defining its look.                                      |
 | `position`       | `Point`                                                                                            | The position of the shape on the whiteboard canvas.                        |
 | `width`          | `number`                                                                                           | Scaling of the shape on the x-axis.                                        |
 | `height`         | `number`                                                                                           | Scaling of the shape on the y-axis.                                        |

@@ -27,6 +27,7 @@ const initialState: ShapeSizesState = {
   circle: { width: 160, height: 160 },
   ellipse: { width: 160, height: 160 },
   triangle: { width: 160, height: 160 },
+  'block-arrow': { width: 160, height: 120 },
 };
 
 export type SetShapeSizePayload = {

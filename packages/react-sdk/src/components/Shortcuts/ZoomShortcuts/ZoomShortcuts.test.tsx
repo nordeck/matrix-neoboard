@@ -30,14 +30,13 @@ import {
 import {
   WhiteboardTestingContextProvider,
   mockWhiteboardManager,
-} from '../../../lib/testUtils/documentTestUtils';
+} from '../../../lib/testUtils';
 import { WhiteboardManager } from '../../../state';
 import { zoomStep } from '../../Whiteboard/constants';
 import { WhiteboardHotkeysProvider } from '../../WhiteboardHotkeysProvider';
 import { ZoomShortcuts } from './ZoomShortcuts';
 
 const mockUpdateScale = vi.fn();
-const mockSetScale = vi.fn();
 const mockViewportCanvasCenter = {
   x: 0,
   y: 0,
@@ -48,7 +47,6 @@ vi.mock('../../Whiteboard/SvgScaleContext', () => {
     SvgScaleContextProvider: vi.fn(({ children }) => children),
     useSvgScaleContext: vi.fn(() => ({
       updateScale: mockUpdateScale,
-      setScale: mockSetScale,
       viewportCanvasCenter: mockViewportCanvasCenter,
     })),
   };
@@ -58,10 +56,15 @@ describe('ZoomShortcuts', () => {
   let widgetApi: MockedWidgetApi;
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
   let whiteboardManager: Mocked<WhiteboardManager>;
+  let setPresentationMode: (
+    enable: boolean,
+    enableEdit?: boolean,
+    presentationType?: 'presentation' | 'presenting',
+  ) => void;
 
   beforeEach(() => {
     widgetApi = mockWidgetApi();
-    ({ whiteboardManager } = mockWhiteboardManager());
+    ({ whiteboardManager, setPresentationMode } = mockWhiteboardManager());
 
     Wrapper = ({ children }) => (
       <WhiteboardHotkeysProvider>
@@ -89,8 +92,33 @@ describe('ZoomShortcuts', () => {
       await userEvent.keyboard(shortcut);
       expect(mockUpdateScale).toHaveBeenCalledWith(
         zoomStep,
+        'add',
         mockViewportCanvasCenter,
       );
+    },
+  );
+
+  it.each([['{Control>}+'], ['{Control>}=']])(
+    '%s should not zoom if presentation mode is active',
+    async (shortcut) => {
+      setPresentationMode(true);
+
+      render(<ZoomShortcuts />, { wrapper: Wrapper });
+
+      await userEvent.keyboard(shortcut);
+      expect(mockUpdateScale).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each([['{Control>}+'], ['{Control>}=']])(
+    '%s should not zoom if presentation mode is active and presenting',
+    async (shortcut) => {
+      setPresentationMode(true, false, 'presenting');
+
+      render(<ZoomShortcuts />, { wrapper: Wrapper });
+
+      await userEvent.keyboard(shortcut);
+      expect(mockUpdateScale).not.toHaveBeenCalled();
     },
   );
 
@@ -106,6 +134,7 @@ describe('ZoomShortcuts', () => {
       await userEvent.keyboard(shortcut);
       expect(mockUpdateScale).toHaveBeenCalledWith(
         zoomStep,
+        'add',
         mockViewportCanvasCenter,
       );
     },
@@ -115,8 +144,36 @@ describe('ZoomShortcuts', () => {
     render(<ZoomShortcuts />, { wrapper: Wrapper });
 
     await userEvent.keyboard(shortcut);
-    expect(mockUpdateScale).toHaveBeenCalledWith(-zoomStep, expect.any(Object));
+    expect(mockUpdateScale).toHaveBeenCalledWith(
+      -zoomStep,
+      'add',
+      expect.any(Object),
+    );
   });
+
+  it.each([['{Control>}-']])(
+    '%s should not zoom out if presentation mode is active',
+    async (shortcut) => {
+      setPresentationMode(true);
+
+      render(<ZoomShortcuts />, { wrapper: Wrapper });
+
+      await userEvent.keyboard(shortcut);
+      expect(mockUpdateScale).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each([['{Control>}-']])(
+    '%s should not zoom out if presentation mode is active and presenting',
+    async (shortcut) => {
+      setPresentationMode(true, false, 'presenting');
+
+      render(<ZoomShortcuts />, { wrapper: Wrapper });
+
+      await userEvent.keyboard(shortcut);
+      expect(mockUpdateScale).not.toHaveBeenCalled();
+    },
+  );
 
   it.each([['{Meta>}-']])('%s should zoom out on mac os', async (shortcut) => {
     vi.spyOn(window.navigator, 'userAgent', 'get').mockReturnValue(
@@ -128,6 +185,7 @@ describe('ZoomShortcuts', () => {
     await userEvent.keyboard(shortcut);
     expect(mockUpdateScale).toHaveBeenCalledWith(
       -zoomStep,
+      'add',
       mockViewportCanvasCenter,
     );
   });
@@ -136,17 +194,52 @@ describe('ZoomShortcuts', () => {
     render(<ZoomShortcuts />, { wrapper: Wrapper });
 
     await userEvent.keyboard(shortcut);
-    expect(mockSetScale).toHaveBeenCalledWith(1.0, mockViewportCanvasCenter);
-  });
-
-  it.each([['{Meta>}0']])('%s should reset zoomon mac os', async (shortcut) => {
-    vi.spyOn(window.navigator, 'userAgent', 'get').mockReturnValue(
-      'Mac OS (jsdom)',
+    expect(mockUpdateScale).toHaveBeenCalledWith(
+      1.0,
+      'set',
+      mockViewportCanvasCenter,
     );
-
-    render(<ZoomShortcuts />, { wrapper: Wrapper });
-
-    await userEvent.keyboard(shortcut);
-    expect(mockSetScale).toHaveBeenCalledWith(1.0, mockViewportCanvasCenter);
   });
+
+  it.each([['{Control>}0']])(
+    '%s should not reset zoom if presentation mode is active',
+    async (shortcut) => {
+      setPresentationMode(true);
+
+      render(<ZoomShortcuts />, { wrapper: Wrapper });
+
+      await userEvent.keyboard(shortcut);
+      expect(mockUpdateScale).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each([['{Control>}0']])(
+    '%s should not reset zoom if presentation mode is active and presenting',
+    async (shortcut) => {
+      setPresentationMode(true, false, 'presenting');
+
+      render(<ZoomShortcuts />, { wrapper: Wrapper });
+
+      await userEvent.keyboard(shortcut);
+      expect(mockUpdateScale).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each([['{Meta>}0']])(
+    '%s should reset zoom on mac os',
+    async (shortcut) => {
+      vi.spyOn(window.navigator, 'userAgent', 'get').mockReturnValue(
+        'Mac OS (jsdom)',
+      );
+
+      render(<ZoomShortcuts />, { wrapper: Wrapper });
+
+      await userEvent.keyboard(shortcut);
+      expect(mockUpdateScale).toHaveBeenCalledWith(
+        1.0,
+        'set',
+        mockViewportCanvasCenter,
+      );
+    },
+  );
 });

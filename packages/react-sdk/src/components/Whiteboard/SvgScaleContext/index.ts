@@ -14,5 +14,11 @@
  * limitations under the License.
  */
 
+export { calculatePositionAndScaleForElement } from './calculatePositionAndScaleForElement';
 export { useSvgScaleContext } from './context';
+export type {
+  ContainerDimensions,
+  SvgScaleContextType,
+  Translation,
+} from './context';
 export { SvgScaleContextProvider } from './SvgScaleContextProvider';

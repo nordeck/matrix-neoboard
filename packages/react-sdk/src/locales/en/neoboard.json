@@ -4,6 +4,7 @@
     "waitModeratorJoin": "Wait for the moderator to join."
   },
   "boardBar": {
+    "addFrameToEnableOverview": "Add a frame to enable frame overview",
     "developerToolsDialog": {
       "closeAriaLabel": "Close",
       "communicationChannelStatistics": {
@@ -61,6 +62,7 @@
       "pdfError": "Something went wrong while generating the PDF.",
       "title": "Export the content"
     },
+    "hideFrameBarTitle": "Close frame overview",
     "hideSlideBarTitle": "Close slide overview",
     "importWhiteboardDialog": {
       "close": "Close",
@@ -83,6 +85,7 @@
       "import": "Import…",
       "title": "Settings"
     },
+    "showFrameBarTitle": "Open frame overview",
     "showSlideBarTitle": "Open slide overview",
     "title": "Board"
   },
@@ -185,7 +188,7 @@
   "guidedTour": {
     "back": "Back",
     "collaborationBar": {
-      "content": "<0>To see who is currently active on the NeoBoard, just look here. You will see all participants who are currently online or have been online recently. And in case it gets crowded, click on the number to the right of the first five participants to see who else is online. With the small eye you can show or hide the cursors of the others.</0>",
+      "content": "<p>To see who is currently active on the NeoBoard, just look here. You will see all participants who are currently online or have been online recently. And in case it gets crowded, click on the number to the right of the first five participants to see who else is online. With the small eye you can show or hide the cursors of the others.</p>",
       "title": "Collaboration"
     },
     "complete": "Complete",
@@ -194,21 +197,21 @@
       "title": "Help center"
     },
     "introduction": {
-      "content": "<0>Welcome to the NeoBoard. In this introduction, you'll get tips on how to use the NeoBoard so you can start designing in no time. Let's go!</0>",
+      "content": "<p>Welcome to the NeoBoard. In this introduction, you'll get tips on how to use the NeoBoard so you can start designing in no time. Let's go!</p>",
       "title": "Welcome"
     },
     "next": "Next",
     "settings": {
-      "content": "<0>Using the settings, you can export the NeoBoard and the work done and import it again (e.g. in another room) or save it as a backup. You can also (de)activate the grid.</0>",
+      "content": "<p>Using the settings, you can export the NeoBoard and the work done and import it again (e.g. in another room) or save it as a backup. You can also (de)activate the grid.</p>",
       "title": "Settings"
     },
     "slideCount": "{{index}} of {{total}}",
     "slideOverview": {
-      "content": "<0>This is where you can find the slides of all participants. Click on the button to add a slide. With the right mouse button you can open the context menu and delete existing slides, lock them to prevent changes or bring all participants here. Hold down the left mouse button to change the order of the slides.</0>",
+      "content": "<p>This is where you can find the slides of all participants. Click on the button to add a slide. With the right mouse button you can open the context menu and delete existing slides, lock them to prevent changes or bring all participants here. Hold down the left mouse button to change the order of the slides.</p>",
       "title": "Slide overview"
     },
     "toolsbar": {
-      "content": "<0>The toolbar contains all the tools and objects available for designing your slide. Select an object and move the mouse anywhere on the slide to place it. Draw shapes by moving the mouse while holding down the left mouse button. You can place text in the same way and start typing right away.</0>",
+      "content": "<p>The toolbar contains all the tools and objects available for designing your slide. Select an object and move the mouse anywhere on the slide to place it. Draw shapes by moving the mouse while holding down the left mouse button. You can place text in the same way and start typing right away.</p>",
       "title": "Tools"
     }
   },
@@ -287,6 +290,7 @@
     "sent": "Sent"
   },
   "presentBar": {
+    "addFrameToEnablePresentationMode": "Add a frame to enable presentation mode",
     "disableEditing": "Disable editing",
     "enableEditing": "Enable editing",
     "endPresentation": "End presentation",
@@ -294,7 +298,9 @@
     "title": "Present"
   },
   "presentToolsBar": {
+    "nextFrame": "Next frame",
     "nextSlide": "Next slide",
+    "previousFrame": "Previous frame",
     "previousSlide": "Previous slide"
   },
   "slideOverviewBar": {
@@ -311,17 +317,25 @@
     "dragAndDrop": {
       "dragInstructions": "Press the M key to start a drag. When dragging you can use the arrow keys to move the item around and escape to cancel. Ensure your screen reader is in focus mode or forms mode.",
       "dragStart": "You have lifted a slide. It is in position {{startPosition}} of {{totalCount}} in the list. Use the arrow keys to move, the M key to drop, and escape to cancel.",
+      "dragStart_frame": "You have lifted a frame. It is in position {{startPosition}} of {{totalCount}} in the list. Use the arrow keys to move, the M key to drop, and escape to cancel.",
       "dropped": "You have dropped the slide. It has moved from position {{startPosition}} to {{destinationPosition}}.",
+      "dropped_frame": "You have dropped the frame. It has moved from position {{startPosition}} to {{destinationPosition}}.",
       "droppedOnNoDropTarget": "The slide has been dropped while not over a location. The slide has returned to its starting position of {{startPosition}}.",
+      "droppedOnNoDropTarget_frame": "The frame has been dropped while not over a location. The frame has returned to its starting position of {{startPosition}}.",
       "movedPosition": "You have moved the slide to position {{position}} of {{totalCount}}.",
+      "movedPosition_frame": "You have moved the frame to position {{position}} of {{totalCount}}.",
       "movementCanceled": "Movement cancelled. The slide has returned to its starting position of {{startPosition}}.",
+      "movementCanceled_frame": "Movement cancelled. The frame has returned to its starting position of {{startPosition}}.",
       "notOverDropTarget": "You are currently not dragging over any droppable area."
     },
+    "frameListTitle": "Frames",
+    "frameTitle": "Frame",
     "slideListTitle": "Slides",
     "slideLockedTooltip": "Locked",
     "slideTitle": "Slide",
     "slideTitleLocked": "(locked)",
-    "title": "Slide Overview"
+    "title": "Slide Overview",
+    "title_frame": "Frame Overview"
   },
   "snackbar": {
     "dismissAction": "Dismiss"
@@ -345,6 +359,7 @@
   },
   "toolsBar": {
     "arrowTool": "Arrow",
+    "blockArrowTool": "Block arrow",
     "ellipseTool": "Ellipse",
     "frameTool": "Create frame",
     "imageUploadTool": "Upload image",

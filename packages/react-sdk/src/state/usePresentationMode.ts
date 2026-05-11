@@ -23,7 +23,7 @@ import { useActiveWhiteboardInstance } from './useActiveWhiteboardInstance';
 type UsePresentationMode = {
   state: PresentationState;
   toggleEditMode: () => void;
-  togglePresentation: () => void;
+  togglePresentation: (frameElementId?: string) => void;
 };
 
 export function usePresentationMode(): UsePresentationMode {
@@ -45,11 +45,11 @@ export function usePresentationMode(): UsePresentationMode {
       toggleEditMode: () => {
         activeWhiteboardInstance.getPresentationManager()?.toggleEditMode();
       },
-      togglePresentation: () => {
+      togglePresentation: (frameElementId?: string) => {
         if (presentationState.type === 'idle') {
           activeWhiteboardInstance
             .getPresentationManager()
-            ?.startPresentation();
+            ?.startPresentation(frameElementId);
         } else if (
           presentationState.type === 'presenting' ||
           presentationState.type === 'presentation'

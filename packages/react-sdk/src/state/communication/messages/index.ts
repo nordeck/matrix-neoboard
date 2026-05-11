@@ -27,6 +27,11 @@ export type { DocumentUpdate } from './documentUpdate';
 export { FOCUS_ON_MESSAGE, isValidFocusOnMessage } from './focusOn';
 export type { FocusOn } from './focusOn';
 export {
+  PRESENT_FRAME_MESSAGE,
+  isValidPresentFrameMessage,
+} from './presentFrame';
+export type { PresentFrame } from './presentFrame';
+export {
   PRESENT_SLIDE_MESSAGE,
   isValidPresentSlideMessage,
 } from './presentSlide';

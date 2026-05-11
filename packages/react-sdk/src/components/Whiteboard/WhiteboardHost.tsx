@@ -106,19 +106,16 @@ const WhiteboardHost = ({
       position="relative"
       data-guided-tour-target="canvas"
       onDragEnter={handleUploadDragEnter}
-      {...(infiniteCanvasMode
-        ? {
-            sx: {
-              touchAction: 'none',
-            },
-            overflow: 'hidden',
-            width: '100vw',
-          }
-        : {})}
+      {...(infiniteCanvasMode && {
+        sx: {
+          touchAction: 'none',
+        },
+        overflow: 'hidden',
+      })}
     >
       <SvgCanvas
-        viewportHeight={whiteboardHeight}
         viewportWidth={whiteboardWidth}
+        viewportHeight={whiteboardHeight}
         additionalChildren={
           dragSelectStartCoords === undefined &&
           !readOnly &&

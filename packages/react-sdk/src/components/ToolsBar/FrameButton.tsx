@@ -17,16 +17,19 @@
 import { SvgIcon } from '@mui/material';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { usePresentationMode } from '../../state';
 import { ToolbarButton } from '../common/Toolbar';
 import { useCreateFrame } from './useCreateFrame';
 
 export const FrameButton: React.FC = () => {
   const { t } = useTranslation('neoboard');
   const { createFrame } = useCreateFrame();
+  const { state: presentationState } = usePresentationMode();
 
   return (
     <ToolbarButton
       aria-label={t('toolsBar.frameTool', 'Create frame')}
+      disabled={presentationState.type !== 'idle'}
       onClick={createFrame}
     >
       <SvgIcon>

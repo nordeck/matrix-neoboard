@@ -50,7 +50,7 @@ const EllipseDisplay = ({
   const renderedChild = (
     <g data-testid={`element-ellipse-${elementId}`}>
       <ellipse
-        data-connect-type={`connectable-element`}
+        data-connect-type="activation-area"
         cx={shape.position.x + cx}
         cy={shape.position.y + cy}
         fill={shape.fillColor}

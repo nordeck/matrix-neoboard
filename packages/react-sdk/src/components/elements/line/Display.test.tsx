@@ -139,9 +139,9 @@ describe('<Display />', () => {
         data-testid="element-element-0"
       >
         <marker
-          data-testid="end-marker-id-4"
+          data-testid="end-marker-id-2"
           fill="none"
-          id="end-marker-id-4"
+          id="end-marker-id-2"
           markerHeight="10"
           markerWidth="10"
           orient="auto-start-reverse"
@@ -166,7 +166,7 @@ describe('<Display />', () => {
         />
         <line
           fill="none"
-          marker-end="url(#end-marker-id-4)"
+          marker-end="url(#end-marker-id-2)"
           stroke="#ffffff"
           stroke-width="4"
           x1="0"
@@ -202,9 +202,9 @@ describe('<Display />', () => {
         data-testid="element-element-0"
       >
         <marker
-          data-testid="start-marker-id-3"
+          data-testid="start-marker-id-1"
           fill="none"
-          id="start-marker-id-3"
+          id="start-marker-id-1"
           markerHeight="10"
           markerWidth="10"
           orient="auto-start-reverse"
@@ -219,9 +219,9 @@ describe('<Display />', () => {
           />
         </marker>
         <marker
-          data-testid="end-marker-id-4"
+          data-testid="end-marker-id-2"
           fill="none"
-          id="end-marker-id-4"
+          id="end-marker-id-2"
           markerHeight="10"
           markerWidth="10"
           orient="auto-start-reverse"
@@ -246,8 +246,8 @@ describe('<Display />', () => {
         />
         <line
           fill="none"
-          marker-end="url(#end-marker-id-4)"
-          marker-start="url(#start-marker-id-3)"
+          marker-end="url(#end-marker-id-2)"
+          marker-start="url(#start-marker-id-1)"
           stroke="#ffffff"
           stroke-width="4"
           x1="2.474873734152916"

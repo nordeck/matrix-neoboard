@@ -20,7 +20,8 @@ import { alpha, Stack, styled, Tooltip, Typography } from '@mui/material';
 import { unstable_useId as useId, visuallyHidden } from '@mui/utils';
 import { Draggable } from 'react-beautiful-dnd';
 import { useTranslation } from 'react-i18next';
-import { SlideProvider, useSlideIsLocked } from '../../state';
+import { isInfiniteCanvasMode } from '../../lib';
+import { SlideProvider, useActiveSlide, useSlideIsLocked } from '../../state';
 import { SlidePreview } from '../Whiteboard';
 import { withContextMenu } from './withContextMenu';
 
@@ -56,8 +57,11 @@ export function SlideListItem({
   slideIndex,
   active = false,
 }: SlideListItemProps) {
+  const { activeSlideId } = useActiveSlide();
   const { t } = useTranslation('neoboard');
-  const isLocked = useSlideIsLocked(slideId);
+  const isLocked = useSlideIsLocked(
+    isInfiniteCanvasMode() ? undefined : slideId,
+  );
 
   const titleId = useId();
   const descriptionId = useId();
@@ -94,8 +98,12 @@ export function SlideListItem({
             )}
           </Typography>
 
-          <SlideProvider slideId={slideId}>
-            <SlidePreview />
+          <SlideProvider
+            slideId={isInfiniteCanvasMode() ? activeSlideId : slideId}
+          >
+            <SlidePreview
+              frameElementId={isInfiniteCanvasMode() ? slideId : undefined}
+            />
           </SlideProvider>
 
           <Stack
@@ -117,7 +125,9 @@ export function SlideListItem({
             justifyContent="space-between"
           >
             <Typography component="span" sx={visuallyHidden}>
-              {t('slideOverviewBar.slideTitle', 'Slide')}
+              {isInfiniteCanvasMode()
+                ? t('slideOverviewBar.frameTitle', 'Frame')
+                : t('slideOverviewBar.slideTitle', 'Slide')}
             </Typography>{' '}
             {slideIndex + 1}
             {isLocked && (

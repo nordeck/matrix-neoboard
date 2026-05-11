@@ -19,13 +19,18 @@ import { MouseEvent, useCallback, useEffect, useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import {
   useActiveElement,
+  usePresentationMode,
   useWhiteboardSlideInstance,
 } from '../../../../state';
 import { useLayoutState } from '../../../Layout';
 import { HOTKEY_SCOPE_WHITEBOARD } from '../../../WhiteboardHotkeysProvider';
 import { useSvgCanvasContext } from '../../SvgCanvas';
 import { useSvgScaleContext } from '../../SvgScaleContext';
-import { infiniteCanvasMode } from '../../constants';
+import {
+  infiniteCanvasMode,
+  whiteboardHeight,
+  whiteboardWidth,
+} from '../../constants';
 
 export function UnSelectElementHandler() {
   const { activeElementId } = useActiveElement();
@@ -35,6 +40,7 @@ export function UnSelectElementHandler() {
   const [previousPanCoordinates, setPreviousPanCoordinates] = useState<Point>();
   const [panEnabled, setPanEnabled] = useState(false);
   const { updateTranslation } = useSvgScaleContext();
+  const { state: presentationState } = usePresentationMode();
 
   const unselectElement = useCallback(() => {
     if (activeElementId) {
@@ -60,7 +66,11 @@ export function UnSelectElementHandler() {
         event.preventDefault();
         event.stopPropagation();
 
-        if (!infiniteCanvasMode) {
+        if (
+          !infiniteCanvasMode ||
+          (infiniteCanvasMode && presentationState.type !== 'idle')
+        ) {
+          // don't enable panning
           return;
         }
 
@@ -75,6 +85,7 @@ export function UnSelectElementHandler() {
       calculateSvgCoords,
       setDragSelectStartCoords,
       setPreviousPanCoordinates,
+      presentationState,
     ],
   );
 
@@ -142,14 +153,14 @@ export function UnSelectElementHandler() {
   return (
     <rect
       fill="transparent"
-      height="100%"
+      height={whiteboardHeight}
       onMouseDown={handleMouseDown}
       onMouseEnter={handleMouseEnter}
       onContextMenu={(e) => {
         e.preventDefault();
         e.stopPropagation();
       }}
-      width="100%"
+      width={whiteboardWidth}
       data-testid="unselect-element-layer"
     />
   );

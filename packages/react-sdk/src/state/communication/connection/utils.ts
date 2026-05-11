@@ -75,3 +75,30 @@ export function isPeerConnected(
     dataChannelOpen && peerConnectionStatistics.connectionState === 'connected'
   );
 }
+
+/**
+ * Parse livekit service jwt token identity that comes in the form matrixUserId:deviceId
+ */
+export function parseLivekitJwtTokenIdentity(identity: string): {
+  userId?: string;
+  deviceId?: string;
+} {
+  const position = identity.lastIndexOf(':');
+  if (position === -1) {
+    return {};
+  }
+
+  const userIdPart = identity.slice(0, position);
+  const deviceIdPart = identity.slice(position + 1);
+
+  const userId =
+    userIdPart.startsWith('@') && userIdPart.includes(':')
+      ? userIdPart
+      : undefined;
+  const deviceId = deviceIdPart.length > 0 ? deviceIdPart : undefined;
+
+  return {
+    userId,
+    deviceId,
+  };
+}

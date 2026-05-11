@@ -25,6 +25,7 @@ import {
 } from 'react';
 import { DraggableCore, DraggableData, DraggableEvent } from 'react-draggable';
 import { useUnmount } from 'react-use';
+import { isInfiniteCanvasMode } from '../../../../lib';
 import {
   BoundingRect,
   calculateBoundingRectForElements,
@@ -32,6 +33,7 @@ import {
   findConnectingPaths,
   PathElement,
   Point,
+  usePresentationMode,
   useWhiteboardSlideInstance,
 } from '../../../../state';
 import {
@@ -83,6 +85,7 @@ export function MoveableElement({
   const { calculateSvgCoords } = useSvgCanvasContext();
   const { scale, updateTranslation } = useSvgScaleContext();
   const [cursor, setCursor] = useState<string>('move');
+  const { state: presentationState } = usePresentationMode();
 
   const [{ deltaX, deltaY }, setDelta] = useState({ deltaX: 0, deltaY: 0 });
   const [resizableProperties, setResizableProperties] =
@@ -139,7 +142,11 @@ export function MoveableElement({
           boundingRectCursorOffset,
           connectingPathElements,
         });
-        if (isMouseEvent(event) && isButtonToPan(event.buttons)) {
+        if (
+          isMouseEvent(event) &&
+          isButtonToPan(event.buttons) &&
+          !(isInfiniteCanvasMode() && presentationState.type !== 'idle')
+        ) {
           setCursor('grabbing');
         }
       } else {
@@ -158,6 +165,11 @@ export function MoveableElement({
       });
 
       if (isMouseEvent(event) && isButtonToPan(event.buttons)) {
+        if (isInfiniteCanvasMode() && presentationState.type !== 'idle') {
+          // don't apply translation
+          return;
+        }
+
         const { offsetX, offsetY } = calculateBoundingRectForElements(
           Object.values(elements),
         );
@@ -224,6 +236,7 @@ export function MoveableElement({
       setElementAttachFrame,
       setAttachedElementsMovedByFrame,
       setConnectingPathIds,
+      presentationState,
     ],
   );
 

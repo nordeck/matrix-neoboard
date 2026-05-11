@@ -4,6 +4,7 @@
     "waitModeratorJoin": "Bitte warte auf den Moderator."
   },
   "boardBar": {
+    "addFrameToEnableOverview": "Rahmen erstellen, um Rahmenübersicht zu aktivieren",
     "developerToolsDialog": {
       "closeAriaLabel": "Schließen",
       "communicationChannelStatistics": {
@@ -61,6 +62,7 @@
       "pdfError": "Bei der Erstellung des PDFs ist ein Fehler aufgetreten.",
       "title": "Inhalt exportieren"
     },
+    "hideFrameBarTitle": "Rahmenübersicht schließen",
     "hideSlideBarTitle": "Folienübersicht schließen",
     "importWhiteboardDialog": {
       "close": "Schließen",
@@ -83,6 +85,7 @@
       "import": "Importieren…",
       "title": "Einstellungen"
     },
+    "showFrameBarTitle": "Rahmenübersicht öffnen",
     "showSlideBarTitle": "Folienübersicht öffnen",
     "title": "Tafel"
   },
@@ -185,30 +188,30 @@
   "guidedTour": {
     "back": "Zurück",
     "collaborationBar": {
-      "content": "<0>Um zu sehen, wer aktuell auf dem NeoBoard aktiv ist, schaue einfach hier nach. Es werden dir alle Teilnehmer:innen angezeigt, die gerade online sind oder es kürzlich waren. Und wenn es mal voll wird, klicke auf die Zahl rechts neben den ersten fünf Teilnehmer:innen um zu sehen, wer außerdem online ist. Mit dem kleinen Auge kannst du die Mauszeiger der anderen ein- oder ausblenden.</0>",
+      "content": "<p>Um zu sehen, wer aktuell auf dem NeoBoard aktiv ist, schaue einfach hier nach. Es werden dir alle Teilnehmer:innen angezeigt, die gerade online sind oder es kürzlich waren. Und wenn es mal voll wird, klicke auf die Zahl rechts neben den ersten fünf Teilnehmer:innen um zu sehen, wer außerdem online ist. Mit dem kleinen Auge kannst du die Mauszeiger der anderen ein- oder ausblenden.</p>",
       "title": "Kollaboration"
     },
     "complete": "Abschließen",
     "helpCenter": {
-      "content": "<0>Der Hilfebereich bietet dir einen schnellen Zugriff auf das Benutzerhandbuch und eine Übersicht aller Tastaturbefehle. Außerdem kannst du dort auch jederzeit diese Tour neu starten, um nochmal in Ruhe alles zu erkunden.</p><p>Viel Spaß, kreative Ideen und viel Erfolg mit dem NeoBoard!</0>",
+      "content": "<p>Der Hilfebereich bietet dir einen schnellen Zugriff auf das Benutzerhandbuch und eine Übersicht aller Tastaturbefehle. Außerdem kannst du dort auch jederzeit diese Tour neu starten, um nochmal in Ruhe alles zu erkunden.</p><p>Viel Spaß, kreative Ideen und viel Erfolg mit dem NeoBoard!</p>",
       "title": "Hilfebereich"
     },
     "introduction": {
-      "content": "<0>Herzlich willkommen auf dem NeoBoard. In dieser Einführung erhältst du Tipps zur Verwendung des NeoBoards, damit du im Handumdrehen mit der Gestaltung beginnen kannst. Los geht's!</0>",
+      "content": "<p>Herzlich willkommen auf dem NeoBoard. In dieser Einführung erhältst du Tipps zur Verwendung des NeoBoards, damit du im Handumdrehen mit der Gestaltung beginnen kannst. Los geht's!</p>",
       "title": "Willkommen"
     },
     "next": "Weiter",
     "settings": {
-      "content": "<0>Du kannst das NeoBoard und damit die geleistete Arbeit exportieren und (bspw. in einem anderen Raum) wieder importieren oder als Sicherungskopie ablegen. Außerdem kannst du das Raster (de-)aktivieren.</0>",
+      "content": "<p>Du kannst das NeoBoard und damit die geleistete Arbeit exportieren und (bspw. in einem anderen Raum) wieder importieren oder als Sicherungskopie ablegen. Außerdem kannst du das Raster (de-)aktivieren.</p>",
       "title": "Einstellungen"
     },
     "slideCount": "{{index}} von {{total}}",
     "slideOverview": {
-      "content": "<0>Hier findest du die Folien aller Teilnehmer:innen. Klicke auf den Button, um eine Folie hinzuzufügen. Mit der rechten Maustaste öffnest du das Kontextmenü und kannst vorhandene Folien löschen, gegen Veränderungen schützen, indem du sie sperrst oder alle Teilnehmer:innen hierher holen. Mit gedrückter linker Maustaste kannst du die Reihenfolge der Folien verändern.</0>",
+      "content": "<p>Hier findest du die Folien aller Teilnehmer:innen. Klicke auf den Button, um eine Folie hinzuzufügen. Mit der rechten Maustaste öffnest du das Kontextmenü und kannst vorhandene Folien löschen, gegen Veränderungen schützen, indem du sie sperrst oder alle Teilnehmer:innen hierher holen. Mit gedrückter linker Maustaste kannst du die Reihenfolge der Folien verändern.</p>",
       "title": "Folienübersicht"
     },
     "toolsbar": {
-      "content": "<0>Die Werkzeugleiste enthält alle Werkzeuge und Objekte, die zur Gestaltung deiner Folie zur Verfügung stehen. Wähle ein Objekt aus und bewege die Maus an eine beliebige Stelle auf der Folie, um es zu platzieren. Formen zeichnest du mit der Mausbewegung bei gedrückter linker Maustaste. Text platzierst du auf die gleiche Weise und kannst direkt lostippen.</0>",
+      "content": "<p>Die Werkzeugleiste enthält alle Werkzeuge und Objekte, die zur Gestaltung deiner Folie zur Verfügung stehen. Wähle ein Objekt aus und bewege die Maus an eine beliebige Stelle auf der Folie, um es zu platzieren. Formen zeichnest du mit der Mausbewegung bei gedrückter linker Maustaste. Text platzierst du auf die gleiche Weise und kannst direkt lostippen.</p>",
       "title": "Werkzeuge"
     }
   },
@@ -287,6 +290,7 @@
     "sent": "Gesendet"
   },
   "presentBar": {
+    "addFrameToEnablePresentationMode": "Rahmen erstellen, um Präsentationsmodus zu aktivieren",
     "disableEditing": "Bearbeitung sperren",
     "enableEditing": "Bearbeitung freigeben",
     "endPresentation": "Präsentation beenden",
@@ -294,7 +298,9 @@
     "title": "Präsentieren"
   },
   "presentToolsBar": {
+    "nextFrame": "Nächster Rahmen",
     "nextSlide": "Nächste Folie",
+    "previousFrame": "Vorheriger Rahmen",
     "previousSlide": "Vorherige Folie"
   },
   "slideOverviewBar": {
@@ -311,17 +317,25 @@
     "dragAndDrop": {
       "dragInstructions": "Drücke die M-Taste um diese Folie zu verschieben. Während des Verschiebens, nutze die Pfeiltasten um den Eintrag zu verschieben und Escape um es abzubrechen. Stelle sicher das dein Screen Reader im Fokus oder Formular Modus ist.",
       "dragStart": "Du hast eine Folie aufgehoben. Sie befindet sich an Position {{startPosition}} von {{totalCount}} in der Liste. Nutze die Pfeiltasten zum verschieben, die M-Taste zum Ablegen und Escape zum Abbrechen.",
+      "dragStart_frame": "Du hast einen Rahmen aufgehoben. Er befindet sich an Position {{startPosition}} von {{totalCount}} in der Liste. Nutze die Pfeiltasten zum verschieben, die M-Taste zum Ablegen und Escape zum Abbrechen.",
       "dropped": "Du hast die Folie abgelegt. Sie wurde von Position {{startPosition}} nach {{destinationPosition}} verschoben.",
+      "dropped_frame": "Du hast den Rahmen abgelegt. Er wurde von Position {{startPosition}} nach {{destinationPosition}} verschoben.",
       "droppedOnNoDropTarget": "Du hast die Folie abgelegt während du nicht über einer gültigen Ablagestelle gewesen bist. Die Folie ist zu ihrer ursprünglichen Position {{startPosition}} zurückgekehrt.",
+      "droppedOnNoDropTarget_frame": "Du hast den Rahmen abgelegt während du nicht über einer gültigen Ablagestelle gewesen bist. Der Rahmen ist zu seiner ursprünglichen Position {{startPosition}} zurückgekehrt.",
       "movedPosition": "Du hast die Folie zu Position {{position}} von {{totalCount}} verschoben.",
+      "movedPosition_frame": "Du hast den Rahmen zu Position {{position}} von {{totalCount}} verschoben.",
       "movementCanceled": "Verschieben abgebrochen. Die Folie ist zu ihrer ursprünglichen Position {{startPosition}} zurückgekehrt.",
+      "movementCanceled_frame": "Verschieben abgebrochen. Der Rahmen ist zu seiner ursprünglichen Position {{startPosition}} zurückgekehrt.",
       "notOverDropTarget": "Du befindest dich aktuell nicht über einer gültigen Ablagestelle."
     },
+    "frameListTitle": "Rahmen",
+    "frameTitle": "Rahmen",
     "slideListTitle": "Folien",
     "slideLockedTooltip": "Gesperrt",
     "slideTitle": "Folie",
     "slideTitleLocked": "(gesperrt)",
-    "title": "Folienübersicht"
+    "title": "Folienübersicht",
+    "title_frame": "Rahmenübersicht"
   },
   "snackbar": {
     "dismissAction": "Ausblenden"
@@ -345,6 +359,7 @@
   },
   "toolsBar": {
     "arrowTool": "Pfeil",
+    "blockArrowTool": "Blockpfeil",
     "ellipseTool": "Ellipse",
     "frameTool": "Rahmen erstellen",
     "imageUploadTool": "Bild hochladen",

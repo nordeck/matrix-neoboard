@@ -1,10 +1,10 @@
-FROM aquasec/trivy:latest AS scanner
+FROM aquasec/trivy:0.69.3@sha256:bcc376de8d77cfe086a917230e818dc9f8528e3c852f7b1aff648949b6258d1c AS scanner
 
 # Copy yarn.lock to run SBOM scan
 COPY --from=root yarn.lock /tmp
 RUN trivy fs --format spdx-json --scanners "license" /tmp/yarn.lock > /tmp/sbom.spdx.json
 
-FROM ghcr.io/nordeck/matrix-widget-toolkit/widget-server:1.2.1@sha256:4484168c740ecce8f6639d9d2c37b89077eae1a86555d59de4cfeef8a0a34b12
+FROM ghcr.io/nordeck/matrix-widget-toolkit/widget-server:1.2.2@sha256:55aa10d9adfb5ff8f72de7017d18a7230843bd8b056573c08a2429ad463c5564
 
 ARG REACT_APP_VERSION
 ARG REACT_APP_REVISION

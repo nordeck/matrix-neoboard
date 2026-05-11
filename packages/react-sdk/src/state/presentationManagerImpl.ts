@@ -30,11 +30,15 @@ import {
   takeUntil,
   takeWhile,
 } from 'rxjs';
-import { isDefined } from '../lib';
+import { isDefined, isInfiniteCanvasMode, isMatrixRtcMode } from '../lib';
+import { isNotExpired } from '../model';
 import {
   CommunicationChannel,
+  isValidPresentFrameMessage,
   isValidPresentSlideMessage,
+  PRESENT_FRAME_MESSAGE,
   PRESENT_SLIDE_MESSAGE,
+  PresentFrame,
   PresentSlide,
 } from './communication';
 import { isPeerConnected } from './communication/connection';
@@ -70,43 +74,104 @@ export class PresentationManagerImpl implements PresentationManager {
             this.currentPresenterSessionId !== undefined &&
             this.currentPresenterSessionId === statistics.localSessionId,
         ),
-        map((statistics) =>
-          Object.values(statistics.peerConnections)
-            .filter(isPeerConnected)
-            .map((peer) => peer.remoteSessionId),
-        ),
-        distinctUntilChanged((a, b) => isEqual(a, b)),
+        map((statistics) => {
+          if (isMatrixRtcMode()) {
+            return (
+              statistics.sessions
+                ?.filter(
+                  (session) =>
+                    session.sessionId !== statistics.localSessionId &&
+                    isNotExpired(session),
+                )
+                .map((session) => session.sessionId) ?? []
+            );
+          } else {
+            return Object.values(statistics.peerConnections)
+              .filter(isPeerConnected)
+              .map((peer) => peer.remoteSessionId);
+          }
+        }),
+        distinctUntilChanged(isEqual),
+        filter((v) => v.length > 0), // skip when no one to send to
       )
       .subscribe(() => {
         // broadcast the current presentation state to also update users
         // who join the presentation later
-        const activeSlideId = this.whiteboardInstance.getActiveSlideId();
+        if (isInfiniteCanvasMode()) {
+          const activeFrameId =
+            this.whiteboardInstance.getActiveFrameElementId();
 
-        if (activeSlideId) {
-          this.communicationChannel.broadcastMessage<PresentSlide>(
-            PRESENT_SLIDE_MESSAGE,
-            { view: { isEditMode: this.isEditMode, slideId: activeSlideId } },
-          );
+          if (activeFrameId) {
+            this.communicationChannel.broadcastMessage<PresentFrame>(
+              PRESENT_FRAME_MESSAGE,
+              {
+                view: {
+                  isEditMode: this.isEditMode,
+                  frameId: activeFrameId,
+                },
+              },
+            );
+          }
+        } else {
+          const activeSlideId = this.whiteboardInstance.getActiveSlideId();
+
+          if (activeSlideId) {
+            this.communicationChannel.broadcastMessage<PresentSlide>(
+              PRESENT_SLIDE_MESSAGE,
+              {
+                view: {
+                  isEditMode: this.isEditMode,
+                  slideId: activeSlideId,
+                },
+              },
+            );
+          }
         }
       });
 
     this.communicationChannel
       .observeMessages()
-      .pipe(takeUntil(this.destroySubject), filter(isValidPresentSlideMessage))
-      .subscribe(({ senderSessionId, content }) => {
-        if (content.view) {
-          this.setCurrentPresenter(senderSessionId);
+      .pipe(takeUntil(this.destroySubject))
+      .subscribe((message) => {
+        if (isInfiniteCanvasMode()) {
+          if (isValidPresentFrameMessage(message)) {
+            const { senderSessionId, content } = message;
 
-          // clear the undo manager unless the user is already in edit mode
-          if (!this.isEditMode && content.view.isEditMode) {
-            whiteboardInstance.clearUndoManager();
+            if (content.view) {
+              this.setCurrentPresenter(senderSessionId);
+
+              // clear the undo manager unless the user is already in edit mode
+              if (!this.isEditMode && content.view.isEditMode) {
+                whiteboardInstance.clearUndoManager();
+              }
+
+              this.setEditMode(content.view.isEditMode);
+              const frameId = content.view.frameId;
+              whiteboardInstance.setActiveFrameElementId(frameId);
+            } else {
+              this.setCurrentPresenter(undefined);
+              this.setEditMode(false);
+              whiteboardInstance.setActiveFrameElementId(undefined);
+            }
           }
+        } else if (isValidPresentSlideMessage(message)) {
+          const { senderSessionId, content } = message;
 
-          this.setEditMode(content.view.isEditMode);
-          whiteboardInstance.setActiveSlideId(content.view.slideId);
-        } else {
-          this.setCurrentPresenter(undefined);
-          this.setEditMode(false);
+          if (content.view) {
+            this.setCurrentPresenter(senderSessionId);
+
+            // clear the undo manager unless the user is already in edit mode
+            if (!this.isEditMode && content.view.isEditMode) {
+              whiteboardInstance.clearUndoManager();
+            }
+
+            this.setEditMode(content.view.isEditMode);
+            const slideId = content.view.slideId;
+            whiteboardInstance.setActiveSlideId(slideId);
+          } else {
+            this.setCurrentPresenter(undefined);
+            this.setEditMode(false);
+          }
         }
       });
 
@@ -120,7 +185,7 @@ export class PresentationManagerImpl implements PresentationManager {
     }
   }
 
-  startPresentation(): void {
+  startPresentation(frameElementId?: string): void {
     const localSessionId =
       this.communicationChannel.getStatistics().localSessionId;
 
@@ -130,9 +195,17 @@ export class PresentationManagerImpl implements PresentationManager {
 
     this.setCurrentPresenter(localSessionId);
 
+    if (frameElementId) {
+      this.whiteboardInstance.setActiveFrameElementId(frameElementId);
+    }
+
     this.activeSlidePublisher?.unsubscribe();
-    this.activeSlidePublisher = this.whiteboardInstance
-      .observeActiveSlideId()
+
+    const observable: Observable<string | undefined> = isInfiniteCanvasMode()
+      ? this.whiteboardInstance.observeActiveFrameElementId()
+      : this.whiteboardInstance.observeActiveSlideId();
+
+    this.activeSlidePublisher = observable
       .pipe(
         filter(isDefined),
         takeWhile(
@@ -142,13 +215,20 @@ export class PresentationManagerImpl implements PresentationManager {
               this.communicationChannel.getStatistics().localSessionId,
         ),
       )
-      .subscribe((slideId) => {
+      .subscribe((slideOrFrameId) => {
         this.setEditMode(false);
 
-        this.communicationChannel.broadcastMessage<PresentSlide>(
-          PRESENT_SLIDE_MESSAGE,
-          { view: { isEditMode: false, slideId } },
-        );
+        if (isInfiniteCanvasMode()) {
+          this.communicationChannel.broadcastMessage<PresentFrame>(
+            PRESENT_FRAME_MESSAGE,
+            { view: { isEditMode: false, frameId: slideOrFrameId } },
+          );
+        } else {
+          this.communicationChannel.broadcastMessage<PresentSlide>(
+            PRESENT_SLIDE_MESSAGE,
+            { view: { isEditMode: false, slideId: slideOrFrameId } },
+          );
+        }
       });
   }
 
@@ -156,10 +236,19 @@ export class PresentationManagerImpl implements PresentationManager {
     this.setCurrentPresenter(undefined);
     this.setEditMode(false);
 
-    this.communicationChannel.broadcastMessage<PresentSlide>(
-      PRESENT_SLIDE_MESSAGE,
-      { view: undefined },
-    );
+    if (isInfiniteCanvasMode()) {
+      this.whiteboardInstance.setActiveFrameElementId(undefined);
+
+      this.communicationChannel.broadcastMessage<PresentFrame>(
+        PRESENT_FRAME_MESSAGE,
+        { view: undefined },
+      );
+    } else {
+      this.communicationChannel.broadcastMessage<PresentSlide>(
+        PRESENT_SLIDE_MESSAGE,
+        { view: undefined },
+      );
+    }
     this.activeSlidePublisher?.unsubscribe();
   }
 
@@ -174,12 +263,6 @@ export class PresentationManagerImpl implements PresentationManager {
     ]).pipe(
       takeUntil(this.destroySubject),
       map(([statistics, presenterSessionId, isEditMode]): PresentationState => {
-        const presenterSession = presenterSessionId
-          ? Object.values(statistics.peerConnections).find(
-              (c) => c.remoteSessionId === presenterSessionId,
-            )
-          : undefined;
-
         if (
           presenterSessionId &&
           presenterSessionId === statistics.localSessionId
@@ -187,10 +270,32 @@ export class PresentationManagerImpl implements PresentationManager {
           return { type: 'presenting', isEditMode };
         }
 
-        if (presenterSession && isPeerConnected(presenterSession)) {
+        let presenterUserId: string | undefined = undefined;
+        if (isMatrixRtcMode()) {
+          const presenterSession = statistics.sessions?.find(
+            (session) =>
+              session.sessionId === presenterSessionId && isNotExpired(session),
+          );
+
+          if (presenterSession) {
+            presenterUserId = presenterSession.userId;
+          }
+        } else {
+          const peerConnection = presenterSessionId
+            ? Object.values(statistics.peerConnections).find(
+                (c) => c.remoteSessionId === presenterSessionId,
+              )
+            : undefined;
+
+          if (peerConnection && isPeerConnected(peerConnection)) {
+            presenterUserId = peerConnection.remoteUserId;
+          }
+        }
+
+        if (presenterUserId) {
           return {
             type: 'presentation',
-            presenterUserId: presenterSession.remoteUserId,
+            presenterUserId,
             isEditMode,
           };
         }
@@ -203,15 +308,24 @@ export class PresentationManagerImpl implements PresentationManager {
 
   toggleEditMode(): void {
     const isEditMode = !this.isEditMode;
-    const slideId = this.whiteboardInstance.getActiveSlideId();
+    const slideOrFrameId = isInfiniteCanvasMode()
+      ? this.whiteboardInstance.getActiveFrameElementId()
+      : this.whiteboardInstance.getActiveSlideId();
 
     this.setEditMode(isEditMode);
 
-    if (slideId) {
-      this.communicationChannel.broadcastMessage<PresentSlide>(
-        PRESENT_SLIDE_MESSAGE,
-        { view: { isEditMode, slideId } },
-      );
+    if (slideOrFrameId) {
+      if (isInfiniteCanvasMode()) {
+        this.communicationChannel.broadcastMessage<PresentFrame>(
+          PRESENT_FRAME_MESSAGE,
+          { view: { isEditMode, frameId: slideOrFrameId } },
+        );
+      } else {
+        this.communicationChannel.broadcastMessage<PresentSlide>(
+          PRESENT_SLIDE_MESSAGE,
+          { view: { isEditMode, slideId: slideOrFrameId } },
+        );
+      }
     }
   }
 

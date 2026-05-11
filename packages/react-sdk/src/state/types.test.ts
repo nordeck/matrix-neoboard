@@ -14,8 +14,26 @@
  * limitations under the License.
  */
 
-import { describe, expect, it } from 'vitest';
-import { isWhiteboardUndoManagerContext } from './types';
+import { getEnvironment } from '@matrix-widget-toolkit/mui';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  isInfiniteCanvasPresentationEdit,
+  isWhiteboardUndoManagerContext,
+  PresentationState,
+} from './types';
+
+vi.mock('@matrix-widget-toolkit/mui', async () => ({
+  ...(await vi.importActual<typeof import('@matrix-widget-toolkit/mui')>(
+    '@matrix-widget-toolkit/mui',
+  )),
+  getEnvironment: vi.fn(),
+}));
+
+beforeEach(() => {
+  vi.mocked(getEnvironment).mockImplementation(
+    (_, defaultValue) => defaultValue,
+  );
+});
 
 describe('isWhiteboardUndoManagerContext', () => {
   it('should accept context with slide id', () => {
@@ -69,5 +87,47 @@ describe('isWhiteboardUndoManagerContext', () => {
     };
 
     expect(isWhiteboardUndoManagerContext(data)).toBe(false);
+  });
+});
+
+describe('isInfiniteCanvasPresentationEdit', () => {
+  it('should return true if we are in the infinite canvas mode in presentation mode and edit is enabled', () => {
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
+    );
+
+    expect(
+      isInfiniteCanvasPresentationEdit({
+        type: 'presentation',
+        presenterUserId: '@user:example.com',
+        isEditMode: true,
+      }),
+    ).toBe(true);
+  });
+
+  it('should return false if we are not in infinite canvas mode', () => {
+    expect(
+      isInfiniteCanvasPresentationEdit({
+        type: 'presentation',
+        presenterUserId: '@user:example.com',
+        isEditMode: true,
+      }),
+    ).toBe(false);
+  });
+
+  it.each<PresentationState>([
+    { type: 'idle' },
+    { type: 'presenting', isEditMode: false },
+    { type: 'presenting', isEditMode: true },
+    {
+      type: 'presentation',
+      presenterUserId: '@some-id:example.com',
+      isEditMode: false,
+    },
+  ])('should return false for %j', (object) => {
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
+    );
+    expect(isInfiniteCanvasPresentationEdit(object)).toBe(false);
   });
 });

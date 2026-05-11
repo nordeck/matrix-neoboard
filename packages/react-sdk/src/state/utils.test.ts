@@ -35,6 +35,7 @@ import {
   findConnectingPaths,
   findConnectingShapes,
   findElementDetachFrame,
+  findNearestFrameElement,
   findNotSelectedAttachedElements,
 } from './utils';
 
@@ -790,5 +791,23 @@ describe('deleteRelations', () => {
         }),
       ),
     ).toEqual(mockImageElement());
+  });
+});
+
+describe('findNearestFrame', () => {
+  it('should find the nearest frame', () => {
+    expect(
+      findNearestFrameElement(
+        {
+          'frame-0': mockFrameElement({ position: { x: 5, y: 10 } }),
+          'frame-1': mockFrameElement({ position: { x: 15, y: 20 } }),
+        },
+        { x: 0, y: 0 },
+      ),
+    ).toEqual('frame-0');
+  });
+
+  it('should return undefined', () => {
+    expect(findNearestFrameElement({}, { x: 0, y: 0 })).toBeUndefined();
   });
 });

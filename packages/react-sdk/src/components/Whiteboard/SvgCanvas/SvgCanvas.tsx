@@ -16,28 +16,31 @@
 
 import { Box, styled } from '@mui/material';
 import React, {
-  KeyboardEvent,
   MouseEventHandler,
   PropsWithChildren,
   ReactNode,
   Ref,
   useCallback,
   useEffect,
-  useLayoutEffect,
   useMemo,
   useRef,
 } from 'react';
-import { useHotkeysContext } from 'react-hotkeys-hook';
-import { Point, useActiveElements, usePresentationMode } from '../../../state';
-import { HOTKEY_SCOPE_WHITEBOARD } from '../../WhiteboardHotkeysProvider';
 import {
-  gridCellSize,
+  Point,
+  useActiveSlideOrFrame,
+  useWhiteboardSlideInstance,
+} from '../../../state';
+import {
   infiniteCanvasMode,
   whiteboardHeight,
   whiteboardWidth,
 } from '../constants';
-import { useSvgScaleContext } from '../SvgScaleContext';
+import {
+  calculatePositionAndScaleForElement,
+  useSvgScaleContext,
+} from '../SvgScaleContext';
 import { SvgCanvasContext, SvgCanvasContextType } from './context';
+import { useArrowKeys } from './useArrowKeys';
 import { useMeasure } from './useMeasure';
 import { useWheelZoom } from './useWheelZoom';
 import { calculateSvgCoords } from './utils';
@@ -54,20 +57,34 @@ const Canvas = styled('svg', {
 export type SvgCanvasProps = PropsWithChildren<{
   viewportWidth: number;
   viewportHeight: number;
+  /**
+   * If provided overrides svg viewBox calculation based on scale context (scale, translation, ...)
+   */
+  viewBox?: ViewBox;
   rounded?: boolean;
   additionalChildren?: ReactNode;
   topLevelChildren?: ReactNode;
   withOutline?: boolean;
   preview?: boolean;
+  x?: number;
+  y?: number;
 
   onMouseDown?: MouseEventHandler<SVGSVGElement> | undefined;
   onMouseMove?: (position: Point) => void | undefined;
   onMouseLeave?: MouseEventHandler<SVGSVGElement>;
 }>;
 
+export type ViewBox = {
+  minX: number;
+  minY: number;
+  width: number;
+  height: number;
+};
+
 export const SvgCanvas = function ({
-  viewportHeight,
   viewportWidth,
+  viewportHeight,
+  viewBox,
   children,
   rounded,
   additionalChildren,
@@ -77,22 +94,22 @@ export const SvgCanvas = function ({
   onMouseMove,
   onMouseLeave,
   preview,
+  x,
+  y,
 }: SvgCanvasProps) {
   const [sizeRef, { width, height }] = useMeasure<HTMLDivElement>();
   const svgRef = useRef<SVGSVGElement>(null);
-  const { scale, translation, setContainerDimensions, updateTranslation } =
-    useSvgScaleContext();
-  const { state } = usePresentationMode();
-  const isPresenting = state.type === 'presenting';
-  // Do avoid issues where users are interacting the content editable part
-  // of the whiteboard canvas, we should disable our listeners.
-  const { activeScopes } = useHotkeysContext();
-  const enableShortcuts =
-    activeScopes.includes(HOTKEY_SCOPE_WHITEBOARD) && !isPresenting;
-  const { activeElementIds } = useActiveElements();
-  const pressedKeys = useRef<Set<string>>(new Set());
-
+  const slideInstance = useWhiteboardSlideInstance();
+  const {
+    scale,
+    translation,
+    setContainerDimensions,
+    moveToPositionAndScale,
+    containerDimensions,
+  } = useSvgScaleContext();
+  const { activeId: activeSlideOrFrameId } = useActiveSlideOrFrame();
   const { handleWheelZoom, wheelZoomInProgress } = useWheelZoom(svgRef);
+  const { handleKeyDown, handleKeyUp } = useArrowKeys();
 
   useEffect(() => {
     const element = svgRef.current;
@@ -136,7 +153,7 @@ export const SvgCanvas = function ({
     [calculateSvgCoordsFunc, height, viewportHeight, viewportWidth, width],
   );
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     setContainerDimensions({ width, height });
   }, [width, height, setContainerDimensions]);
 
@@ -147,58 +164,25 @@ export const SvgCanvas = function ({
     }
   }, [svgRef, preview]);
 
-  const getKeyboardOffset = useCallback(() => {
-    const scrollStep = gridCellSize * scale;
-    let dx = 0;
-    let dy = 0;
-
-    if (pressedKeys.current.has('ArrowUp')) dy += scrollStep;
-    if (pressedKeys.current.has('ArrowDown')) dy -= scrollStep;
-    if (pressedKeys.current.has('ArrowLeft')) dx += scrollStep;
-    if (pressedKeys.current.has('ArrowRight')) dx -= scrollStep;
-
-    return { dx, dy };
-  }, [scale]);
-
-  // Apply keyboard navigation offset if needed
-  const applyKeyboardNavigation = useCallback(() => {
-    const { dx, dy } = getKeyboardOffset();
-    if (dx !== 0 || dy !== 0) {
-      updateTranslation(dx, dy);
+  useEffect(() => {
+    // Translate and scale to active frame when active frame changes
+    if (infiniteCanvasMode && activeSlideOrFrameId) {
+      const frameElement =
+        slideInstance.getFrameElements()[activeSlideOrFrameId];
+      if (frameElement) {
+        const { position, scale } = calculatePositionAndScaleForElement(
+          frameElement,
+          containerDimensions,
+        );
+        moveToPositionAndScale(position, scale);
+      }
     }
-  }, [getKeyboardOffset, updateTranslation]);
-
-  const handleKeyDown = useCallback(
-    (e: KeyboardEvent<SVGSVGElement>) => {
-      if (
-        enableShortcuts &&
-        isArrowKey(e.key) &&
-        activeElementIds.length === 0
-      ) {
-        if (!pressedKeys.current.has(e.key)) {
-          pressedKeys.current.add(e.key);
-        }
-        e.preventDefault();
-        applyKeyboardNavigation();
-      }
-    },
-    [applyKeyboardNavigation, enableShortcuts, activeElementIds],
-  );
-
-  const handleKeyUp = useCallback(
-    (e: KeyboardEvent<SVGSVGElement>) => {
-      if (
-        enableShortcuts &&
-        isArrowKey(e.key) &&
-        activeElementIds.length === 0
-      ) {
-        pressedKeys.current.delete(e.key);
-        e.preventDefault();
-        applyKeyboardNavigation();
-      }
-    },
-    [applyKeyboardNavigation, enableShortcuts, activeElementIds],
-  );
+  }, [
+    slideInstance,
+    activeSlideOrFrameId,
+    moveToPositionAndScale,
+    containerDimensions,
+  ]);
 
   // Handle auxiliary mouse button clicks (middle/right click)
   // To prevent default paste clipboard action on firefox
@@ -229,6 +213,19 @@ export const SvgCanvas = function ({
     ? InfiniteCanvasWrapper
     : FiniteCanvasWrapper;
 
+  let svgViewBox: string;
+  if (viewBox) {
+    const { minX, minY, width, height } = viewBox;
+    svgViewBox = `${minX} ${minY} ${width} ${height}`;
+  } else if (!preview && infiniteCanvasMode) {
+    const minX = (whiteboardWidth - width / scale) / 2 - translation.x / scale;
+    const minY =
+      (whiteboardHeight - height / scale) / 2 - translation.y / scale;
+    svgViewBox = `${minX} ${minY} ${width / scale} ${height / scale}`;
+  } else {
+    svgViewBox = `0 0 ${viewportWidth} ${viewportHeight}`;
+  }
+
   return (
     <SvgCanvasContext.Provider value={value}>
       <CanvasWrapper
@@ -248,25 +245,10 @@ export const SvgCanvas = function ({
                   aspectRatio,
                 }
               : {
-                  ...(withOutline
-                    ? {
-                        borderWidth: 2,
-                        borderStyle: 'solid',
-                        borderColor: 'primary.main',
-                        borderRadius: 1,
-                      }
-                    : {
-                        outline: 'none',
-                      }),
-                  ...(preview
-                    ? {}
-                    : {
-                        width: `${whiteboardWidth}px`,
-                        height: `${whiteboardHeight}px`,
-                      }),
+                  outline: 'none',
                 }
           }
-          viewBox={`0 0 ${viewportWidth} ${viewportHeight}`}
+          viewBox={svgViewBox}
           onMouseDown={onMouseDown}
           onMouseMove={handleMouseMove}
           onKeyDown={infiniteCanvasMode ? handleKeyDown : undefined}
@@ -274,14 +256,8 @@ export const SvgCanvas = function ({
           tabIndex={infiniteCanvasMode ? -1 : undefined}
           onMouseLeave={onMouseLeave}
           onAuxClick={handleMouseAuxClick}
-          transform-origin={
-            infiniteCanvasMode && !preview ? 'center center' : undefined
-          }
-          transform={
-            infiniteCanvasMode && !preview
-              ? `translate(${translation.x}, ${translation.y}) scale(${scale})`
-              : undefined
-          }
+          x={x}
+          y={y}
         >
           {children}
         </Canvas>
@@ -348,6 +324,7 @@ const FiniteCanvasWrapper: React.FC<CanvasWrapperProps> = ({
 
 const InfiniteCanvasWrapper: React.FC<CanvasWrapperProps> = ({
   sizeRef,
+  withOutline,
   preview,
   children,
 }) => {
@@ -359,24 +336,26 @@ const InfiniteCanvasWrapper: React.FC<CanvasWrapperProps> = ({
     <Box
       ref={sizeRef}
       sx={{
-        flex: 1,
-        height: '100%',
-        maxWidth: '100%',
+        width: `100%`,
+        height: `100%`,
+        ...(withOutline && {
+          '&::after': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            borderWidth: 2,
+            borderStyle: 'solid',
+            borderColor: 'primary.main',
+            borderRadius: 1,
+            pointerEvents: 'none',
+          },
+        }),
       }}
     >
-      <Box
-        sx={{
-          position: 'relative',
-          top: `-${whiteboardHeight / 2}px`,
-          left: `-${whiteboardWidth / 2}px`,
-        }}
-      >
-        {children}
-      </Box>
+      {children}
     </Box>
   );
 };
-
-function isArrowKey(key: string): boolean {
-  return ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(key);
-}

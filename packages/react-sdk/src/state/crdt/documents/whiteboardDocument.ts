@@ -30,6 +30,7 @@ export type SlideLock = {
 export type Slide = {
   elements: YMap<SharedMap<Element>>;
   elementIds: YArray<string>;
+  frameElementIds?: YArray<string>;
   lock?: SlideLock;
 };
 
@@ -76,6 +77,7 @@ const slideSchema = Joi.object({
   elementIds: Joi.array()
     .items(Joi.string().not(...disallowElementIds))
     .required(),
+  frameElementIds: Joi.array().items(Joi.string().not(...disallowElementIds)),
   lock: Joi.object({
     userId: Joi.string().required(),
   }).unknown(),

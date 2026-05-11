@@ -113,7 +113,7 @@ describe('MatrixRtcPeerConnection', () => {
       );
 
       const mockParticipant = {
-        identity: '@remote-user-id:example.com',
+        identity: '@remote-user-id:example.com:6jjRubIAWv',
         sid: 'remote-session-id',
       };
 
@@ -122,7 +122,38 @@ describe('MatrixRtcPeerConnection', () => {
       await expect(messagePromise).resolves.toEqual({
         type: 'com.example.test',
         content: { key: 'value', nested: { prop: true } },
-        senderSessionId: 'session-a',
+        senderSessionId: '_@remote-user-id:example.com_6jjRubIAWv',
+        senderUserId: '@remote-user-id:example.com',
+      });
+    });
+
+    it('should not receive message with invalid participant identity', async () => {
+      mockRoom.setConnectionState(ConnectionState.Connected);
+
+      const messagePromise = firstValueFrom(connection.observeMessages());
+
+      const validMessageData = {
+        type: 'com.example.test',
+        content: { key: 'value', nested: { prop: true } },
+      };
+
+      const encodedData = new TextEncoder().encode(
+        JSON.stringify(validMessageData),
+      );
+
+      mockRoom.emitEvent(RoomEvent.DataReceived, encodedData, {
+        identity: '@remote-user-id',
+        sid: 'remote-session-id',
+      });
+      mockRoom.emitEvent(RoomEvent.DataReceived, encodedData, {
+        identity: '@remote-user-id:example.com:6jjRubIAWv',
+        sid: 'remote-session-id',
+      });
+
+      await expect(messagePromise).resolves.toEqual({
+        type: 'com.example.test',
+        content: { key: 'value', nested: { prop: true } },
+        senderSessionId: '_@remote-user-id:example.com_6jjRubIAWv',
         senderUserId: '@remote-user-id:example.com',
       });
     });

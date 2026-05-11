@@ -43,6 +43,7 @@ import {
   Document,
   generateAddElement,
   generateRemoveElement,
+  generateSetSlideFrameElementIds,
   getSlideLock,
   WhiteboardDocument,
 } from './crdt';
@@ -188,13 +189,15 @@ describe('WhiteboardSlideInstanceImpl', () => {
     expect(slideInstance.getActiveElementId()).toEqual(shapeElementId);
   });
 
-  it('should get frame elements', () => {
+  it('should add frames and elements', () => {
     const slideInstance = new WhiteboardSlideInstanceImpl(
       communicationChannel,
       slide0,
       document,
       '@user-id',
     );
+
+    document.performChange(generateSetSlideFrameElementIds(slide0));
 
     const frameElement1 = mockFrameElement();
     const frameElementId1 = slideInstance.addElement(frameElement1);
@@ -226,6 +229,15 @@ describe('WhiteboardSlideInstanceImpl', () => {
         attachedElements: [shapeElementId],
       },
     });
+    expect(slideInstance.getElementIds()).toEqual([
+      frameElementId1,
+      frameElementId2,
+      shapeElementId,
+    ]);
+    expect(slideInstance.getFrameElementIds()).toEqual([
+      frameElementId1,
+      frameElementId2,
+    ]);
   });
 
   it('should add shape element and filter out unknown frame', () => {
@@ -895,6 +907,8 @@ describe('WhiteboardSlideInstanceImpl', () => {
       '@user-id',
     );
 
+    document.performChange(generateSetSlideFrameElementIds(slide0));
+
     const elementFrame = mockFrameElement();
     const elementFrameId = slideInstance.addElement(elementFrame);
     const elementShape = mockRectangleElement();
@@ -914,8 +928,12 @@ describe('WhiteboardSlideInstanceImpl', () => {
         },
       },
     ]);
+
+    expect(slideInstance.getFrameElementIds()).toEqual([elementFrameId]);
+
     slideInstance.removeElements([elementFrameId]);
 
+    expect(slideInstance.getFrameElementIds()).toEqual([]);
     expect(slideInstance.getElement(elementShapeId)).toEqual(elementShape);
   });
 
@@ -1342,6 +1360,52 @@ describe('WhiteboardSlideInstanceImpl', () => {
     );
   });
 
+  it('should move a frame', () => {
+    const slideInstance = new WhiteboardSlideInstanceImpl(
+      communicationChannel,
+      slide0,
+      document,
+      '@user-id:example.com',
+    );
+
+    document.performChange(generateSetSlideFrameElementIds(slide0));
+
+    const element = mockLineElement();
+    const element0 = slideInstance.addElement(element);
+    const element1 = slideInstance.addElement(element);
+    const element2 = slideInstance.addElement(element);
+    const frameElement = mockFrameElement();
+    const frameElement0 = slideInstance.addElement(frameElement);
+    const frameElement1 = slideInstance.addElement(frameElement);
+
+    expect(slideInstance.getElementIds()).toEqual([
+      element0,
+      element1,
+      element2,
+      frameElement0,
+      frameElement1,
+    ]);
+
+    expect(slideInstance.getFrameElementIds()).toEqual([
+      frameElement0,
+      frameElement1,
+    ]);
+
+    slideInstance.moveFrame(frameElement1, 0);
+
+    expect(slideInstance.getElementIds()).toEqual([
+      element0,
+      element1,
+      element2,
+      frameElement0,
+      frameElement1,
+    ]);
+    expect(slideInstance.getFrameElementIds()).toEqual([
+      frameElement1,
+      frameElement0,
+    ]);
+  });
+
   it('should observe element', async () => {
     const slideInstance = new WhiteboardSlideInstanceImpl(
       communicationChannel,
@@ -1473,6 +1537,30 @@ describe('WhiteboardSlideInstanceImpl', () => {
       [element0, element1],
       [element1],
     ]);
+  });
+
+  it('should observe frame element ids', async () => {
+    const slideInstance = new WhiteboardSlideInstanceImpl(
+      communicationChannel,
+      slide0,
+      document,
+      '@user-id:example.com',
+    );
+
+    document.performChange(generateSetSlideFrameElementIds(slide0));
+
+    const frameElementIds = firstValueFrom(
+      slideInstance.observeFrameElementIds().pipe(take(3), toArray()),
+    );
+
+    const element = mockLineElement();
+    const frameElement = mockFrameElement();
+    const element0 = slideInstance.addElement(element);
+    const frameElement0 = slideInstance.addElement(frameElement);
+    slideInstance.addElement(element);
+    slideInstance.removeElements([element0, frameElement0]);
+
+    expect(await frameElementIds).toEqual([[], [frameElement0], []]);
   });
 
   it('should observe cursor positions', async () => {

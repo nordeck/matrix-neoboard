@@ -14,17 +14,30 @@
  * limitations under the License.
  */
 
+import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { ComponentType, PropsWithChildren } from 'react';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
-  WhiteboardTestingContextProvider,
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  Mocked,
+  vi,
+} from 'vitest';
+import {
   mockEllipseElement,
   mockFrameElement,
   mockWhiteboardManager,
+  WhiteboardTestingContextProvider,
 } from '../../../../lib/testUtils/documentTestUtils';
-import { Point, WhiteboardSlideInstance } from '../../../../state';
+import {
+  Point,
+  WhiteboardManager,
+  WhiteboardSlideInstance,
+} from '../../../../state';
 import { ConnectionPointProvider } from '../../../ConnectionPointProvider';
 import { LayoutStateProvider, useLayoutState } from '../../../Layout';
 import { WhiteboardHotkeysProvider } from '../../../WhiteboardHotkeysProvider';
@@ -35,17 +48,34 @@ import { DragSelect } from './DragSelect';
 // Mock to avoid SVG native functions not available in the test context
 vi.mock('../../SvgCanvas/utils');
 
+vi.mock('@matrix-widget-toolkit/mui', async () => ({
+  ...(await vi.importActual<typeof import('@matrix-widget-toolkit/mui')>(
+    '@matrix-widget-toolkit/mui',
+  )),
+  getEnvironment: vi.fn(),
+}));
+
 describe('<DragSelect/>', () => {
   let activeSlide: WhiteboardSlideInstance;
   let dragSelectStartCoords: Point | undefined;
   let setDragSelectStartCoords: (point: Point | undefined) => void;
   let widgetApi: MockedWidgetApi;
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
+  let whiteboardManager: Mocked<WhiteboardManager>;
+  let setPresentationMode: (
+    enable: boolean,
+    enableEdit?: boolean,
+    presentationType?: 'presentation' | 'presenting',
+  ) => void;
 
   beforeEach(() => {
+    vi.mocked(getEnvironment).mockImplementation(
+      (_, defaultValue) => defaultValue,
+    );
+
     widgetApi = mockWidgetApi();
 
-    const { whiteboardManager } = mockWhiteboardManager({
+    ({ whiteboardManager, setPresentationMode } = mockWhiteboardManager({
       slides: [
         [
           'slide-0',
@@ -77,7 +107,7 @@ describe('<DragSelect/>', () => {
             // Draw a frame above some other elements.
             // This should never be selected.
             [
-              'element-3',
+              'frame-0',
               mockFrameElement({
                 position: { x: 0, y: 0 },
                 width: 200,
@@ -87,7 +117,7 @@ describe('<DragSelect/>', () => {
           ],
         ],
       ],
-    });
+    }));
     const activeWhiteboard = whiteboardManager.getActiveWhiteboardInstance()!;
     activeSlide = activeWhiteboard.getSlide('slide-0');
 
@@ -186,6 +216,107 @@ describe('<DragSelect/>', () => {
     ]);
 
     // It should not select the frame
-    expect(activeSlide.getActiveElementIds()).not.toContain('element-3');
+    expect(activeSlide.getActiveElementIds()).not.toContain('frame-0');
+  });
+
+  it('should should select an element attached to active frame in infinite canvas mode in the presentation mode if edit mode is enabled', () => {
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
+    );
+
+    // attached existing element to active frame
+    activeSlide.updateElements([
+      {
+        elementId: 'frame-0',
+        patch: {
+          attachedElements: ['element-1'],
+        },
+      },
+      {
+        elementId: 'element-1',
+        patch: {
+          attachedFrame: 'frame-0',
+        },
+      },
+    ]);
+
+    setPresentationMode(true, true);
+
+    render(<DragSelect />, { wrapper: Wrapper });
+
+    // Select an area with only element-1 inside
+    act(() => {
+      setDragSelectStartCoords({ x: 60, y: 60 });
+    });
+    vi.mocked(svgUtils.calculateSvgCoords).mockReturnValue({ x: 70, y: 70 });
+    fireEvent.pointerMove(screen.getByTestId('drag-select-layer'), {
+      clientX: 70,
+      clientY: 70,
+    });
+
+    expect(activeSlide.getActiveElementIds()).toEqual(['element-1']);
+  });
+
+  it('should should not select an element without frame in infinite canvas mode in the presentation mode if edit mode is enabled', () => {
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
+    );
+
+    setPresentationMode(true, true);
+
+    render(<DragSelect />, { wrapper: Wrapper });
+
+    // Select an area with only element-1 inside
+    act(() => {
+      setDragSelectStartCoords({ x: 60, y: 60 });
+    });
+    vi.mocked(svgUtils.calculateSvgCoords).mockReturnValue({ x: 70, y: 70 });
+    fireEvent.pointerMove(screen.getByTestId('drag-select-layer'), {
+      clientX: 70,
+      clientY: 70,
+    });
+
+    expect(activeSlide.getActiveElementIds()).toEqual([]);
+  });
+
+  it('should should not select an element attached to non active frame in infinite canvas mode in the presentation mode if edit mode is enabled', () => {
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
+    );
+
+    // create one more frame
+    const frameId1 = activeSlide.addElement(mockFrameElement());
+
+    // attached existing element to new frame
+    activeSlide.updateElements([
+      {
+        elementId: frameId1,
+        patch: {
+          attachedElements: ['element-1'],
+        },
+      },
+      {
+        elementId: 'element-1',
+        patch: {
+          attachedFrame: frameId1,
+        },
+      },
+    ]);
+
+    setPresentationMode(true, true);
+
+    render(<DragSelect />, { wrapper: Wrapper });
+
+    // Select an area with only element-1 inside
+    act(() => {
+      setDragSelectStartCoords({ x: 60, y: 60 });
+    });
+    vi.mocked(svgUtils.calculateSvgCoords).mockReturnValue({ x: 70, y: 70 });
+    fireEvent.pointerMove(screen.getByTestId('drag-select-layer'), {
+      clientX: 70,
+      clientY: 70,
+    });
+
+    expect(activeSlide.getActiveElementIds()).toEqual([]);
   });
 });

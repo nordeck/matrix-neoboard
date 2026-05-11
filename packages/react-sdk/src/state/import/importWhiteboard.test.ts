@@ -191,6 +191,7 @@ describe('importWhiteboard', () => {
 
     const frameIds = Object.keys(slide.getFrameElements());
     expect(frameIds.length).toBe(2);
+    expect(slide.getFrameElementIds().length).toBe(2);
 
     const [firstFrameId, secondFrameId] = frameIds;
 

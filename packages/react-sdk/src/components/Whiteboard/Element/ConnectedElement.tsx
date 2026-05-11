@@ -16,12 +16,19 @@
 
 import { useWidgetApi } from '@matrix-widget-toolkit/react';
 import React, { JSX } from 'react';
-import { Elements, useElement } from '../../../state';
+import {
+  Elements,
+  isInfiniteCanvasPresentationEdit,
+  useActiveSlideOrFrame,
+  useElement,
+  usePresentationMode,
+} from '../../../state';
 import { useConnectionPoint } from '../../ConnectionPointProvider';
 import {
   ElementOverride,
   mergeElementAndOverride,
 } from '../../ElementOverridesProvider';
+import BlockArrowDisplay from '../../elements/block-arrow/Display';
 import EllipseDisplay from '../../elements/ellipse/Display';
 import FrameDisplay from '../../elements/frame/Display';
 import ImageDisplay from '../../elements/image/ImageDisplay';
@@ -36,7 +43,7 @@ import {
 
 const ConnectedElement = ({
   id,
-  readOnly = false,
+  readOnly: connectedElementReadOnly = false,
   override,
   activeElementIds = [],
   elements = {},
@@ -55,23 +62,30 @@ const ConnectedElement = ({
 }) => {
   const widgetApi = useWidgetApi();
   let element = useElement(id);
-
-  const isActive =
-    !readOnly && id
-      ? activeElementIds.length === 1 && activeElementIds[0] === id
-      : false;
-  const otherProps = {
-    // TODO: Align names
-    active: isActive,
-    readOnly,
-    elementId: id,
-    activeElementIds,
-    elements,
-    frameHasElementMoved,
-    elementMovedHasFrame,
-  };
+  const { state: presentationState } = usePresentationMode();
+  const { activeId } = useActiveSlideOrFrame();
 
   if (element) {
+    const presentationElementReadOnly =
+      isInfiniteCanvasPresentationEdit(presentationState) &&
+      (element.type === 'frame' || element.attachedFrame !== activeId);
+
+    const readOnly = connectedElementReadOnly || presentationElementReadOnly;
+
+    const isActive =
+      !readOnly && id
+        ? activeElementIds.length === 1 && activeElementIds[0] === id
+        : false;
+    const otherProps = {
+      active: isActive,
+      readOnly,
+      elementId: id,
+      activeElementIds,
+      elements,
+      frameHasElementMoved,
+      elementMovedHasFrame,
+    };
+
     element = mergeElementAndOverride(element, override);
 
     if (element.type === 'path') {
@@ -102,6 +116,14 @@ const ConnectedElement = ({
       } else if (element.kind === 'triangle') {
         shapeChild = (
           <TriangleDisplay
+            {...element}
+            {...otherProps}
+            setTextToolsEnabled={setTextToolsEnabled}
+          />
+        );
+      } else if (element.kind === 'block-arrow') {
+        shapeChild = (
+          <BlockArrowDisplay
             {...element}
             {...otherProps}
             setTextToolsEnabled={setTextToolsEnabled}

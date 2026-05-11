@@ -53,11 +53,13 @@ import {
   generateLockSlide,
   generateMoveDown,
   generateMoveElements,
+  generateMoveSlideFrame,
   generateMoveUp,
   generateUnlockSlide,
   generateUpdateElement,
   getElement,
   getNormalizedElementIds,
+  getNormalizedFrameElementIds,
   getSlideLock,
 } from './crdt';
 import { generate, generateRemoveElements } from './crdt/documents/operations';
@@ -94,10 +96,18 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
     defer(() => of(this.document.getData())),
     this.document.observeChanges(),
   ).pipe(takeUntil(this.destroySubject));
-  private readonly elementIdsObservable = this.dataObservable.pipe(
-    map((doc) => getNormalizedElementIds(doc, this.slideId)),
-    distinctUntilChanged(isEqual),
-  );
+  private readonly elementIdsObservable: Observable<string[]> =
+    this.dataObservable.pipe(
+      map((doc) => getNormalizedElementIds(doc, this.slideId)),
+      distinctUntilChanged(isEqual),
+    );
+  private readonly frameElementIdsObservable: Observable<string[]> =
+    this.dataObservable.pipe(
+      map((doc) => {
+        return getNormalizedFrameElementIds(doc, this.slideId);
+      }),
+      distinctUntilChanged(isEqual),
+    );
   private readonly frameElementsObservable = this.dataObservable.pipe(
     map((doc) => {
       const frameElements: Elements<FrameElement> = {};
@@ -646,6 +656,14 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
     );
   }
 
+  moveFrame(frameElementId: string, index: number): void {
+    this.assertLocked();
+
+    this.document.performChange(
+      generateMoveSlideFrame(this.slideId, frameElementId, index),
+    );
+  }
+
   getElement(elementId: string): Element | undefined {
     return getElement(
       this.document.getData(),
@@ -702,6 +720,14 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
 
   observeElementIds(): Observable<string[]> {
     return this.elementIdsObservable;
+  }
+
+  getFrameElementIds(): string[] {
+    return getNormalizedFrameElementIds(this.document.getData(), this.slideId);
+  }
+
+  observeFrameElementIds(): Observable<string[]> {
+    return this.frameElementIdsObservable;
   }
 
   setCursorPosition(position: Point | undefined) {
