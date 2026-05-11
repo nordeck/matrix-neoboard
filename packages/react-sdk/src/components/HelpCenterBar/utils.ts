@@ -21,63 +21,79 @@ export type ShortcutItem = {
   macKeys?: string | string[];
 };
 
+const t = (labelKey: string, labelDefault: string) => ({
+  labelKey,
+  labelDefault,
+});
+
 export const SHORTCUTS: ShortcutItem[] = [
   {
-    labelKey: 'helpCenter.shortcuts.elementOperations.copy',
-    labelDefault: 'Select all on whiteboard',
+    ...t(
+      'helpCenter.shortcuts.elementOperations.copy',
+      'Select all on whiteboard',
+    ),
     keys: 'ctrl+a',
     macKeys: 'meta+a',
   },
   {
-    labelKey: 'helpCenter.shortcuts.elementOperations.escape',
-    labelDefault: 'Unselect',
+    ...t('helpCenter.shortcuts.elementOperations.escape', 'Unselect'),
     keys: 'escape',
   },
   {
-    labelKey: 'helpCenter.shortcuts.elementOperations.undo',
-    labelDefault: 'Undo',
+    ...t('helpCenter.shortcuts.elementOperations.undo', 'Undo'),
     keys: 'ctrl+z',
     macKeys: 'meta+z',
   },
   {
-    labelKey: 'helpCenter.shortcuts.elementOperations.redo',
-    labelDefault: 'Redo',
+    ...t('helpCenter.shortcuts.elementOperations.redo', 'Redo'),
     keys: 'ctrl+y',
     macKeys: 'meta+shift+z',
   },
   {
-    labelKey: 'helpCenter.shortcuts.elementOperations.duplicate',
-    labelDefault: 'Duplicate selected element(s)',
+    ...t(
+      'helpCenter.shortcuts.elementOperations.duplicate',
+      'Duplicate selected element(s)',
+    ),
     keys: 'ctrl+d',
     macKeys: 'meta+d',
   },
   {
-    labelKey: 'helpCenter.shortcuts.elementOperations.reorder.up',
-    labelDefault: 'Move element one layer up',
+    ...t(
+      'helpCenter.shortcuts.elementOperations.reorder.up',
+      'Move element one layer up',
+    ),
     keys: 'ctrl+arrowup',
     macKeys: 'meta+arrowup',
   },
   {
-    labelKey: 'helpCenter.shortcuts.elementOperations.reorder.down',
-    labelDefault: 'Move element one layer down',
+    ...t(
+      'helpCenter.shortcuts.elementOperations.reorder.down',
+      'Move element one layer down',
+    ),
     keys: 'ctrl+arrowdown',
     macKeys: 'meta+arrowdown',
   },
   {
-    labelKey: 'helpCenter.shortcuts.elementOperations.reorder.front',
-    labelDefault: 'Move element(s) to front',
+    ...t(
+      'helpCenter.shortcuts.elementOperations.reorder.front',
+      'Move element(s) to front',
+    ),
     keys: 'ctrl+shift+arrowup',
     macKeys: 'meta+shift+arrowup',
   },
   {
-    labelKey: 'helpCenter.shortcuts.elementOperations.reorder.back',
-    labelDefault: 'Move element(s) to back',
+    ...t(
+      'helpCenter.shortcuts.elementOperations.reorder.back',
+      'Move element(s) to back',
+    ),
     keys: 'ctrl+shift+arrowdown',
     macKeys: 'meta+shift+arrowdown',
   },
   {
-    labelKey: 'helpCenter.shortcuts.elementOperations.move',
-    labelDefault: 'Move element(s) on the board',
+    ...t(
+      'helpCenter.shortcuts.elementOperations.move',
+      'Move element(s) on the board',
+    ),
     keys: ['arrowup', 'arrowdown', 'arrowleft', 'arrowright'],
   },
 ];

@@ -230,6 +230,20 @@
     },
     "shortcuts": {
       "close": "Close",
+      "elementOperations": {
+        "copy": "Select all on whiteboard",
+        "duplicate": "Duplicate selected element(s)",
+        "escape": "Unselect",
+        "move": "Move element(s) on the board",
+        "redo": "Redo",
+        "reorder": {
+          "back": "Move element(s) to back",
+          "down": "Move element one layer down",
+          "front": "Move element(s) to front",
+          "up": "Move element one layer up"
+        },
+        "undo": "Undo"
+      },
       "title": "Keyboard shortcuts"
     },
     "title": "Help center"
