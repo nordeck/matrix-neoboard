@@ -35,24 +35,24 @@ describe('<SlidesMigrationDialog/>', () => {
     );
 
     const dialog = screen.getByRole('dialog', {
-      name: 'Migrate slides to frames',
+      name: 'Slides are now Frames',
       description:
-        'Your existing slides will be migrated to frames. To enable migration, please download a backup of your whiteboard content first.',
+        'Your existing Slides will now be shown as Frames - a new way to organize your content. Please download a copy of your whiteboard before continuing.',
     });
 
     expect(
-      within(dialog).getByRole('heading', { name: 'Migrate slides to frames' }),
+      within(dialog).getByRole('heading', { name: 'Slides are now Frames' }),
     ).toBeInTheDocument();
     expect(
       within(dialog).getByText(
-        'Your existing slides will be migrated to frames. To enable migration, please download a backup of your whiteboard content first.',
+        'Your existing Slides will now be shown as Frames - a new way to organize your content. Please download a copy of your whiteboard before continuing.',
       ),
     ).toBeInTheDocument();
     expect(
       within(dialog).getByRole('button', { name: 'Download' }),
     ).toBeInTheDocument();
     expect(
-      within(dialog).getByRole('button', { name: 'Migrate' }),
+      within(dialog).getByRole('button', { name: 'Continue' }),
     ).toBeInTheDocument();
   });
 
@@ -84,7 +84,7 @@ describe('<SlidesMigrationDialog/>', () => {
       within(dialog).queryByRole('button', { name: 'Download' }),
     ).not.toBeInTheDocument();
     expect(
-      within(dialog).queryByRole('button', { name: 'Migrate' }),
+      within(dialog).queryByRole('button', { name: 'Continue' }),
     ).not.toBeInTheDocument();
   });
 
@@ -94,7 +94,7 @@ describe('<SlidesMigrationDialog/>', () => {
     );
 
     await screen.findByRole('dialog', {
-      name: 'Migrate slides to frames',
+      name: 'Slides are now Frames',
     });
 
     expect(await axe.run(container)).toHaveNoViolations();
@@ -118,11 +118,11 @@ describe('<SlidesMigrationDialog/>', () => {
     );
 
     const dialog = screen.getByRole('dialog', {
-      name: 'Migrate slides to frames',
+      name: 'Slides are now Frames',
     });
 
     expect(
-      within(dialog).getByRole('button', { name: 'Migrate' }),
+      within(dialog).getByRole('button', { name: 'Continue' }),
     ).toBeDisabled();
   });
 
@@ -132,11 +132,11 @@ describe('<SlidesMigrationDialog/>', () => {
     );
 
     const dialog = screen.getByRole('dialog', {
-      name: 'Migrate slides to frames',
+      name: 'Slides are now Frames',
     });
 
     expect(
-      within(dialog).getByRole('button', { name: 'Migrate' }),
+      within(dialog).getByRole('button', { name: 'Continue' }),
     ).toBeDisabled();
   });
 
@@ -146,7 +146,7 @@ describe('<SlidesMigrationDialog/>', () => {
     );
 
     await screen.findByRole('dialog', {
-      name: 'Migrate slides to frames',
+      name: 'Slides are now Frames',
     });
 
     expect(await axe.run(container)).toHaveNoViolations();
@@ -158,16 +158,18 @@ describe('<SlidesMigrationDialog/>', () => {
     );
 
     const dialog = screen.getByRole('dialog', {
-      name: 'Migrate slides to frames',
+      name: 'Slides are now Frames',
     });
 
     const alert = await screen.findByRole('alert');
     expect(
-      within(alert).getByText('Failed to migrate the slides'),
+      within(alert).getByText(
+        'An issue occurred when moving Slides into Frames',
+      ),
     ).toBeInTheDocument();
 
     expect(
-      within(dialog).getByRole('button', { name: 'Migrate' }),
+      within(dialog).getByRole('button', { name: 'Continue' }),
     ).toBeDisabled();
   });
 
@@ -175,11 +177,11 @@ describe('<SlidesMigrationDialog/>', () => {
     render(<SlidesMigrationDialog open canUpdate onUpdate={onUpdate} />);
 
     const dialog = await screen.findByRole('dialog', {
-      name: 'Migrate slides to frames',
+      name: 'Slides are now Frames',
     });
 
     await userEvent.click(
-      within(dialog).getByRole('button', { name: 'Migrate' }),
+      within(dialog).getByRole('button', { name: 'Continue' }),
     );
 
     expect(onUpdate).toHaveBeenCalled();
@@ -196,11 +198,11 @@ describe('<SlidesMigrationDialog/>', () => {
     );
 
     const dialog = screen.getByRole('dialog', {
-      name: 'Migrate slides to frames',
+      name: 'Slides are now Frames',
     });
 
     expect(
-      within(dialog).getByRole('button', { name: 'Migrate' }),
+      within(dialog).getByRole('button', { name: 'Continue' }),
     ).toBeInTheDocument();
     expect(
       within(dialog).getByRole('button', {
@@ -224,7 +226,7 @@ describe('<SlidesMigrationDialog/>', () => {
     });
 
     expect(
-      within(dialog).queryByRole('button', { name: 'Migrate' }),
+      within(dialog).queryByRole('button', { name: 'Continue' }),
     ).not.toBeInTheDocument();
     expect(
       within(dialog).getByRole('button', {

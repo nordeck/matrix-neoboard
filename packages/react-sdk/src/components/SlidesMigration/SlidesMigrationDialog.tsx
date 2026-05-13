@@ -67,7 +67,7 @@ export function SlidesMigrationDialog({
     >
       <DialogTitle component="h3" id={dialogTitleId}>
         {canUpdate
-          ? t('slidesMigrationDialog.title', 'Migrate slides to frames')
+          ? t('slidesMigrationDialog.title', 'Slides are now Frames')
           : t(
               'slidesMigrationDialog.titleUpgradeRequired',
               'Upgrade is Required',
@@ -79,7 +79,7 @@ export function SlidesMigrationDialog({
             <AlertTitle>
               {t(
                 'slidesMigrationDialog.migrationFailed',
-                'Failed to migrate the slides',
+                'An issue occurred when moving Slides into Frames',
               )}
             </AlertTitle>
           </Alert>
@@ -88,7 +88,7 @@ export function SlidesMigrationDialog({
           {canUpdate
             ? t(
                 'slidesMigrationDialog.content',
-                'Your existing slides will be migrated to frames. To enable migration, please download a backup of your whiteboard content first.',
+                'Your existing Slides will now be shown as Frames - a new way to organize your content. Please download a copy of your whiteboard before continuing.',
               )
             : t(
                 'slidesMigrationDialog.contentUpgradeRequired',
@@ -108,7 +108,7 @@ export function SlidesMigrationDialog({
               variant="contained"
               startIcon={<Sync />}
             >
-              {t('slidesMigrationDialog.migrate', 'Migrate')}
+              {t('slidesMigrationDialog.update', 'Continue')}
             </Button>
           )}
         </DialogActions>

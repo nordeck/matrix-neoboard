@@ -321,10 +321,10 @@
   "slidesMigrationDialog": {
     "content": "",
     "contentUpgradeRequired": "",
-    "migrate": "",
     "migrationFailed": "",
     "title": "",
-    "titleUpgradeRequired": ""
+    "titleUpgradeRequired": "",
+    "update": ""
   },
   "snackbar": {
     "dismissAction": "Ausblenden"
