@@ -74,8 +74,6 @@ export function SlidesMigration({
       setIsLoading(false);
       setIsUpdated(true);
     }
-
-    whiteboardInstance.clearUndoManager();
   }, [logger, whiteboardInstance]);
 
   return (
