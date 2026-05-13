@@ -23,12 +23,6 @@ import {
   useWhiteboardSlideIds,
 } from '../../state';
 import { ExportWhiteboardDialogDownloadFile } from '../BoardBar';
-import {
-  frameHeight,
-  frameWidth,
-  whiteboardHeight,
-  whiteboardWidth,
-} from '../Whiteboard';
 import { SlidesMigrationDialog } from './SlidesMigrationDialog';
 
 type SlidesMigrationProps = {
@@ -75,12 +69,7 @@ export function SlidesMigration({
   const handleMigration = useCallback(async () => {
     setIsLoading(true);
     try {
-      whiteboardInstance.transformSlidesToFrames({
-        whiteboardWidth,
-        whiteboardHeight,
-        frameWidth,
-        frameHeight,
-      });
+      whiteboardInstance.transformSlidesToFrames();
     } catch (err) {
       logger.error('Cannot migrate slides to to frames', err);
       setIsError(true);

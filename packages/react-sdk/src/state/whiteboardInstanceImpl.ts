@@ -48,7 +48,6 @@ import { isMatrixRtcSessionManager } from './communication/discovery/types';
 import { MatrixRtcCommunicationChannel } from './communication/matrixRtcCommunicationChannel';
 import { emptyCommunicationChannelStatistics } from './communication/types';
 import {
-  TransformSlidesToFramesParameters,
   WhiteboardDocument,
   createWhiteboardDocument,
   generateAddSlide,
@@ -524,8 +523,8 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
     return this.presentationManager;
   }
 
-  transformSlidesToFrames(parameters: TransformSlidesToFramesParameters): void {
-    const [changeFn] = generateTransformSlidesToFrames(parameters);
+  transformSlidesToFrames(): void {
+    const [changeFn] = generateTransformSlidesToFrames();
     this.synchronizedDocument.getDocument().performChange(changeFn);
   }
 

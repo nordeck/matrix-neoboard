@@ -24,6 +24,12 @@ import {
   positionElementsToWhiteboard,
 } from './elements';
 import { Slide, SlideLock, WhiteboardDocument } from './whiteboardDocument';
+import {
+  frameHeight,
+  framesWhiteboardHeight,
+  framesWhiteboardWidth,
+  frameWidth,
+} from './whiteboardDocumentConstants';
 
 export function getSlide(
   doc: SharedMap<WhiteboardDocument>,
@@ -581,13 +587,6 @@ export function generateMoveSlideFrame(
   };
 }
 
-export type TransformSlidesToFramesParameters = {
-  whiteboardWidth: number;
-  whiteboardHeight: number;
-  frameWidth: number;
-  frameHeight: number;
-};
-
 type ElementWithId<T> = {
   id: string;
   element: T;
@@ -596,12 +595,10 @@ type ElementWithId<T> = {
 /**
  * Transform the multiple slides of the whiteboard document into a new single slide with multiple frames.
  */
-export function generateTransformSlidesToFrames({
-  whiteboardWidth,
-  whiteboardHeight,
-  frameWidth,
-  frameHeight,
-}: TransformSlidesToFramesParameters): [ChangeFn<WhiteboardDocument>, string] {
+export function generateTransformSlidesToFrames(): [
+  ChangeFn<WhiteboardDocument>,
+  string,
+] {
   const [addSlide, newSlideId] = generateAddSlide();
 
   const changeFn = (doc: SharedMap<WhiteboardDocument>) => {
@@ -666,10 +663,10 @@ export function generateTransformSlidesToFrames({
 
     const positionedFrameElements = positionElementsToWhiteboard(
       frameElements.map(({ id, element }) => ({ id, ...element })),
-      whiteboardWidth,
-      whiteboardHeight,
-      whiteboardWidth / 2,
-      whiteboardHeight / 2,
+      framesWhiteboardWidth,
+      framesWhiteboardHeight,
+      framesWhiteboardWidth / 2,
+      framesWhiteboardHeight / 2,
     );
 
     const positionedFramesMap: Map<string, FrameElement> = new Map<

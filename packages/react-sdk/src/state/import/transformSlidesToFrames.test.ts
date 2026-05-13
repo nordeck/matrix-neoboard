@@ -15,8 +15,7 @@
  */
 
 import { nanoid } from '@reduxjs/toolkit';
-import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
-import * as constants from '../../components/Whiteboard/constants';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { mockEllipseElement, mockRectangleElement } from '../../lib/testUtils';
 import { WhiteboardDocumentExport } from '../export';
 import { transformSlidesToFrames } from './transformSlidesToFrames';
@@ -27,11 +26,6 @@ vi.mock('@reduxjs/toolkit', async () => ({
   )),
   nanoid: vi.fn(),
 }));
-
-beforeAll(() => {
-  vi.spyOn(constants, 'whiteboardWidth', 'get').mockReturnValue(19200);
-  vi.spyOn(constants, 'whiteboardHeight', 'get').mockReturnValue(10800);
-});
 
 beforeEach(() => {
   let count = 0;

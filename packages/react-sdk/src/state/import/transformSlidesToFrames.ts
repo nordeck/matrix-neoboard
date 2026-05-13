@@ -18,10 +18,10 @@ import { nanoid } from '@reduxjs/toolkit';
 import {
   frameHeight,
   frameWidth,
-  whiteboardHeight,
-  whiteboardWidth,
-} from '../../components/Whiteboard';
-import { positionElementsToWhiteboard } from '../crdt';
+  framesWhiteboardHeight,
+  framesWhiteboardWidth,
+  positionElementsToWhiteboard,
+} from '../crdt';
 import {
   ElementExport,
   FrameElementExport,
@@ -92,10 +92,10 @@ export function transformSlidesToFrames(
 
   const positionedFrameElements = positionElementsToWhiteboard(
     frameElements,
-    whiteboardWidth,
-    whiteboardHeight,
-    whiteboardWidth / 2,
-    whiteboardHeight / 2,
+    framesWhiteboardWidth,
+    framesWhiteboardHeight,
+    framesWhiteboardWidth / 2,
+    framesWhiteboardHeight / 2,
   );
 
   const positionedFramesMap: Map<string, FrameElementExport> = new Map<

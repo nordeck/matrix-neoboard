@@ -27,7 +27,6 @@ import {
   PathElement,
   Point,
   ShapeElement,
-  TransformSlidesToFramesParameters,
   UpdateElementPatch,
 } from './crdt';
 import { WhiteboardDocumentExport } from './export';
@@ -153,7 +152,7 @@ export type WhiteboardInstance = {
   getPresentationManager(): PresentationManager | undefined;
 
   /** Transform slides to frames passing whiteboard/frame bounds as parameters */
-  transformSlidesToFrames(parameters: TransformSlidesToFramesParameters): void;
+  transformSlidesToFrames(): void;
 
   /** Clear the undo manager */
   clearUndoManager(): void;

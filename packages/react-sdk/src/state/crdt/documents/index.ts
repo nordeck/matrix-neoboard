@@ -73,10 +73,7 @@ export {
   getSlide,
   getSlideLock,
 } from './operations';
-export type {
-  TransformSlidesToFramesParameters,
-  UpdateElementPatch,
-} from './operations';
+export type { UpdateElementPatch } from './operations';
 export {
   calculateBoundingRectForPoints,
   isPointWithinBoundingRect,
@@ -93,3 +90,11 @@ export type {
   SlideLock,
   WhiteboardDocument,
 } from './whiteboardDocument';
+export {
+  frameHeight,
+  frameWidth,
+  framesWhiteboardHeight,
+  framesWhiteboardWidth,
+  slidesWhiteboardHeight,
+  slidesWhiteboardWidth,
+} from './whiteboardDocumentConstants';

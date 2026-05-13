@@ -1888,13 +1888,6 @@ describe('generateMoveSlideFrame', () => {
 });
 
 describe('generateTransformSlidesToFrames', () => {
-  const whiteboardConstants = {
-    whiteboardWidth: 19200,
-    whiteboardHeight: 10800,
-    frameWidth: 1920,
-    frameHeight: 1080,
-  };
-
   it('should transform slides to frames', () => {
     const doc = createWhiteboardDocument();
 
@@ -1909,8 +1902,7 @@ describe('generateTransformSlidesToFrames', () => {
     const [changeFn2] = generateAddElement(slide1, element1);
     doc.performChange(changeFn2);
 
-    const [changeFnTransform, slide2] =
-      generateTransformSlidesToFrames(whiteboardConstants);
+    const [changeFnTransform, slide2] = generateTransformSlidesToFrames();
     doc.performChange(changeFnTransform);
 
     expect(getNormalizedSlideIds(doc.getData())).toEqual([slide2]);
@@ -1963,8 +1955,7 @@ describe('generateTransformSlidesToFrames', () => {
   it('should not transform a document with a single slide', () => {
     const doc = createWhiteboardDocument();
 
-    const [changeFnTransform] =
-      generateTransformSlidesToFrames(whiteboardConstants);
+    const [changeFnTransform] = generateTransformSlidesToFrames();
     doc.performChange(changeFnTransform);
 
     expect(getNormalizedSlideIds(doc.getData())).toEqual([slide0]);
