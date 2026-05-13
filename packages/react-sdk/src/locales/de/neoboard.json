@@ -320,9 +320,11 @@
   },
   "slidesMigrationDialog": {
     "content": "",
+    "contentUpgradeRequired": "",
     "migrate": "",
     "migrationFailed": "",
-    "title": ""
+    "title": "",
+    "titleUpgradeRequired": ""
   },
   "snackbar": {
     "dismissAction": "Ausblenden"

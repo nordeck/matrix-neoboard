@@ -49,25 +49,30 @@ import { MatrixRtcCommunicationChannel } from './communication/matrixRtcCommunic
 import { emptyCommunicationChannelStatistics } from './communication/types';
 import {
   WhiteboardDocument,
+  WhiteboardDocumentVersion,
   createWhiteboardDocument,
   generateAddSlide,
   generateDuplicateSlide,
   generateMoveSlide,
   generateRemoveSlide,
-  generateSetSlideFrameElementIds,
-  getFrameElementIds,
+  generateUpdate,
   getNormalizedSlideIds,
   getSlide,
   isValidWhiteboardDocument,
   isValidWhiteboardDocumentSnapshot,
+  isWhiteboardDocumentVersion,
+  selectWhiteboardDocumentVersionsUpTo,
 } from './crdt';
-import { generateTransformSlidesToFrames } from './crdt/documents/operations';
+import { SharedMap } from './crdt/y';
 import { WhiteboardDocumentExport, exportWhiteboard } from './export';
 import { generateLoadWhiteboardFromExport } from './export/loadWhiteboardFromExport';
+import { extractWhiteboardDocumentVersionFromExportString } from './export/whiteboardDocumentExport';
 import { PresentationManagerImpl } from './presentationManagerImpl';
 import { LocalForageDocumentStorage } from './storage';
 import { SynchronizedDocumentImpl } from './synchronizedDocumentImpl';
 import {
+  MismatchedSnapshot,
+  MismatchedSnapshotDetails,
   PresentationManager,
   SynchronizedDocument,
   WhiteboardInstance,
@@ -91,6 +96,12 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
   private activeFrameElementId: string | undefined = undefined;
   private loading: boolean = true;
   private loadingSubject = new BehaviorSubject<boolean>(true);
+  private mismatchedSnapshot: MismatchedSnapshot | undefined;
+  private mismatchedSnapshotDetails: MismatchedSnapshotDetails | undefined;
+  private mismatchedSnapshotDetailsSubject = new BehaviorSubject<
+    MismatchedSnapshotDetails | undefined
+  >(undefined);
+  private readonly whiteboardDocumentVersion: WhiteboardDocumentVersion;
 
   private presentationManager = this.communicationChannel
     ? new PresentationManagerImpl(
@@ -227,8 +238,11 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
 
     const storage = new LocalForageDocumentStorage();
 
+    const whiteboardDocumentVersion = isInfiniteCanvasMode()
+      ? WhiteboardDocumentVersion.Frames
+      : WhiteboardDocumentVersion.Initial;
     const document = new SynchronizedDocumentImpl(
-      createWhiteboardDocument(),
+      createWhiteboardDocument(whiteboardDocumentVersion),
       store,
       communicationChannel,
       storage,
@@ -324,20 +338,37 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
         // Reset the slide after the initial loading finished
         this.activeSlideId = activeSlideId;
         this.activeSlideIdSubject.next(activeSlideId);
+      });
 
-        // On load in infinite canvas mode, generate and set frame element ids (if missing) for active slide.
-        if (
-          isInfiniteCanvasMode() &&
-          !loading &&
-          getFrameElementIds(
-            this.synchronizedDocument.getDocument().getData(),
-            activeSlideId,
-          ) === undefined
-        ) {
-          this.synchronizedDocument
-            .getDocument()
-            .performChange(generateSetSlideFrameElementIds(activeSlideId));
+    const documentVersion = this.synchronizedDocument
+      .getDocument()
+      .getDocumentVersion();
+
+    if (!isWhiteboardDocumentVersion(documentVersion)) {
+      throw new Error(
+        `Cannot create a whiteboard instance with unknown whiteboard document version`,
+      );
+    }
+    this.whiteboardDocumentVersion = documentVersion;
+
+    this.synchronizedDocument
+      .observeMismatchedSnapshot()
+      .subscribe((mismatchedSnapshot) => {
+        this.mismatchedSnapshot = mismatchedSnapshot;
+
+        let mismatchedSnapshotDetails: MismatchedSnapshotDetails | undefined;
+        if (mismatchedSnapshot) {
+          const canUpdate =
+            isWhiteboardDocumentVersion(mismatchedSnapshot.documentVersion) &&
+            selectWhiteboardDocumentVersionsUpTo(
+              this.whiteboardDocumentVersion,
+            ).includes(mismatchedSnapshot.documentVersion);
+          mismatchedSnapshotDetails = { canUpdate };
+        } else {
+          mismatchedSnapshotDetails = undefined;
         }
+        this.mismatchedSnapshotDetails = mismatchedSnapshotDetails;
+        this.mismatchedSnapshotDetailsSubject.next(mismatchedSnapshotDetails);
       });
 
     // ensure that the slide IDs are kept up-to-date
@@ -481,26 +512,83 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
     return this.loadingSubject;
   }
 
+  getMismatchedSnapshotDetails(): MismatchedSnapshotDetails | undefined {
+    return this.mismatchedSnapshotDetails;
+  }
+
+  observeMismatchedSnapshotDetails(): Observable<
+    MismatchedSnapshotDetails | undefined
+  > {
+    return this.mismatchedSnapshotDetailsSubject;
+  }
+
   async export(widgetApi: WidgetApi): Promise<WhiteboardDocumentExport> {
-    return exportWhiteboard(
-      this.synchronizedDocument.getDocument().getData(),
-      widgetApi,
-    );
+    let whiteboardDocumentVersion: WhiteboardDocumentVersion;
+    let data: SharedMap<WhiteboardDocument>;
+
+    if (this.mismatchedSnapshot) {
+      const { documentVersion: snapshotDocumentVersion, data: remoteData } =
+        this.mismatchedSnapshot;
+
+      if (!isWhiteboardDocumentVersion(snapshotDocumentVersion)) {
+        // Can't proceed with unknown whiteboard document version
+        throw new Error(
+          'Cannot export remote whiteboard document with unknown document version',
+        );
+      }
+      whiteboardDocumentVersion = snapshotDocumentVersion;
+
+      // Create a document from snapshot
+      const remoteDocument = createWhiteboardDocument(snapshotDocumentVersion);
+      remoteDocument.mergeFrom(remoteData);
+      data = remoteDocument.getData();
+    } else {
+      const document = this.synchronizedDocument.getDocument();
+      whiteboardDocumentVersion = this.whiteboardDocumentVersion;
+      data = document.getData();
+    }
+
+    return exportWhiteboard(whiteboardDocumentVersion, data, widgetApi);
   }
 
   import(
     whiteboardDocumentExport: WhiteboardDocumentExport,
     atSlideIndex?: number,
   ): void {
-    this.synchronizedDocument
-      .getDocument()
-      .performChange(
+    const exportWhiteboardDocumentVersion =
+      extractWhiteboardDocumentVersionFromExportString(
+        whiteboardDocumentExport.version,
+      );
+
+    if (this.whiteboardDocumentVersion === exportWhiteboardDocumentVersion) {
+      this.synchronizedDocument
+        .getDocument()
+        .performChange(
+          generateLoadWhiteboardFromExport(
+            whiteboardDocumentExport,
+            this.userId,
+            atSlideIndex,
+          ),
+        );
+    } else {
+      const exportWhiteboardDocument = createWhiteboardDocument(
+        exportWhiteboardDocumentVersion,
+      );
+      exportWhiteboardDocument.performChange(
         generateLoadWhiteboardFromExport(
           whiteboardDocumentExport,
           this.userId,
           atSlideIndex,
         ),
       );
+
+      const document = this.synchronizedDocument.getDocument();
+      const updateChangeFn = generateUpdate(
+        exportWhiteboardDocument,
+        document.getDocumentVersion(),
+      );
+      document.performChange(updateChangeFn);
+    }
   }
 
   undo(): void {
@@ -523,9 +611,37 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
     return this.presentationManager;
   }
 
-  transformSlidesToFrames(): void {
-    const [changeFn] = generateTransformSlidesToFrames();
-    this.synchronizedDocument.getDocument().performChange(changeFn);
+  mergeMismatchedSnapshot(): void {
+    if (!this.mismatchedSnapshot) {
+      return;
+    }
+
+    const { documentVersion: snapshotDocumentVersion, data: remoteData } =
+      this.mismatchedSnapshot;
+
+    if (!isWhiteboardDocumentVersion(snapshotDocumentVersion)) {
+      // Can't proceed with unknown whiteboard document version
+      return;
+    }
+
+    // Create a document from snapshot
+    const remoteDocument = createWhiteboardDocument(snapshotDocumentVersion);
+    remoteDocument.mergeFrom(remoteData);
+
+    // Clone managed document and apply update from remote document
+    const document = this.synchronizedDocument.getDocument();
+    const documentClone = document.clone();
+    const updateChangeFn = generateUpdate(
+      remoteDocument,
+      documentClone.getDocumentVersion(),
+    );
+    documentClone.performChange(updateChangeFn);
+
+    // Merge changes to managed document
+    document.mergeFrom(documentClone.store(), true);
+
+    this.mismatchedSnapshotDetails = undefined;
+    this.mismatchedSnapshotDetailsSubject.next(undefined);
   }
 
   destroy() {
@@ -534,6 +650,7 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
     this.activeSlideIdSubject.complete();
     this.activeFrameElementIdSubject.complete();
     this.loadingSubject.complete();
+    this.mismatchedSnapshotDetailsSubject.complete();
     this.destroySubject.next();
     this.synchronizedDocument.destroy();
     this.presentationManager?.destroy();

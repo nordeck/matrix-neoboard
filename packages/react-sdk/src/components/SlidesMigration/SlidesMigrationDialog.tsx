@@ -26,30 +26,36 @@ import {
   DialogTitle,
 } from '@mui/material';
 import { unstable_useId as useId } from '@mui/utils';
-import { ReactElement } from 'react';
+import { Fragment, ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
-type SlideMigrationDialogProps = {
+type SlidesMigrationDialogProps = {
   open: boolean;
-  onMigrate: () => void;
-  isMigrationDisabled?: boolean;
+  canUpdate: boolean;
+  onUpdate: () => void;
+  isUpdateDisabled?: boolean;
   isLoading?: boolean;
   isError?: boolean;
+  exportButton?: ReactElement;
   additionalButtons?: ReactElement;
 };
 
 export function SlidesMigrationDialog({
   open,
-  onMigrate,
-  isMigrationDisabled,
+  canUpdate,
+  onUpdate,
+  isUpdateDisabled,
   isLoading,
   isError,
+  exportButton = <Fragment />,
   additionalButtons,
-}: SlideMigrationDialogProps) {
+}: SlidesMigrationDialogProps) {
   const { t } = useTranslation('neoboard');
 
   const dialogTitleId = useId();
   const dialogDescriptionId = useId();
+
+  const additionalButtonsElement = additionalButtons ?? <Fragment />;
 
   return (
     <Dialog
@@ -60,7 +66,12 @@ export function SlidesMigrationDialog({
       aria-describedby={dialogDescriptionId}
     >
       <DialogTitle component="h3" id={dialogTitleId}>
-        {t('slidesMigrationDialog.title', 'Migrate slides to frames')}
+        {canUpdate
+          ? t('slidesMigrationDialog.title', 'Migrate slides to frames')
+          : t(
+              'slidesMigrationDialog.titleUpgradeRequired',
+              'Upgrade is Required',
+            )}
       </DialogTitle>
       <DialogContent>
         {isError && (
@@ -74,24 +85,34 @@ export function SlidesMigrationDialog({
           </Alert>
         )}
         <DialogContentText id={dialogDescriptionId}>
-          {t(
-            'slidesMigrationDialog.content',
-            'Your existing slides will be migrated to frames. To enable migration, please download a backup of your whiteboard content first.',
-          )}
+          {canUpdate
+            ? t(
+                'slidesMigrationDialog.content',
+                'Your existing slides will be migrated to frames. To enable migration, please download a backup of your whiteboard content first.',
+              )
+            : t(
+                'slidesMigrationDialog.contentUpgradeRequired',
+                'A newer version is required to work with the stored document.',
+              )}
         </DialogContentText>
       </DialogContent>
-      <DialogActions>
-        {additionalButtons}
-        <Button
-          onClick={onMigrate}
-          loading={isLoading}
-          disabled={isMigrationDisabled || isError}
-          variant="contained"
-          startIcon={<Sync />}
-        >
-          {t('slidesMigrationDialog.migrate', 'Migrate')}
-        </Button>
-      </DialogActions>
+      {(additionalButtons || canUpdate) && (
+        <DialogActions>
+          {additionalButtonsElement}
+          {canUpdate && exportButton}
+          {canUpdate && (
+            <Button
+              onClick={onUpdate}
+              loading={isLoading}
+              disabled={isUpdateDisabled || isError}
+              variant="contained"
+              startIcon={<Sync />}
+            >
+              {t('slidesMigrationDialog.migrate', 'Migrate')}
+            </Button>
+          )}
+        </DialogActions>
+      )}
     </Dialog>
   );
 }

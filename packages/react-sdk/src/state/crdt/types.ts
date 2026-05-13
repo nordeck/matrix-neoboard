@@ -43,14 +43,21 @@ export type Document<T extends Record<string, unknown>> = {
    */
   applyChange(change: Uint8Array, isValid?: DocumentValidator<T>): void;
 
-  /** Sync all changes from a persistence storage. */
-  mergeFrom(remoteData: Uint8Array): void;
+  /**
+   * Sync all changes from a persistence storage.
+   * @param remoteData snapshot data
+   * @param isUpdated if snapshot data was updated to match the version of this document
+   */
+  mergeFrom(remoteData: Uint8Array, isUpdated?: boolean): void;
 
   /** Perform a change on the document. */
   performChange(callback: ChangeFn<T>): void;
 
   /** Store the document for a persistence storage. */
   store(): Uint8Array;
+
+  /** Access the document version. */
+  getDocumentVersion(): string;
 
   /** Access the data of the document. */
   getData(): SharedMap<T>;

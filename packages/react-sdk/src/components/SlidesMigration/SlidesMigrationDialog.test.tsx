@@ -22,10 +22,17 @@ import { describe, expect, it, vi } from 'vitest';
 import { SlidesMigrationDialog } from './SlidesMigrationDialog';
 
 describe('<SlidesMigrationDialog/>', () => {
-  const onMigrate = vi.fn();
+  const onUpdate = vi.fn();
 
   it('should render without exploding', async () => {
-    render(<SlidesMigrationDialog open onMigrate={onMigrate} />);
+    render(
+      <SlidesMigrationDialog
+        open
+        canUpdate
+        onUpdate={onUpdate}
+        exportButton={<Button>Download</Button>}
+      />,
+    );
 
     const dialog = screen.getByRole('dialog', {
       name: 'Migrate slides to frames',
@@ -42,13 +49,48 @@ describe('<SlidesMigrationDialog/>', () => {
       ),
     ).toBeInTheDocument();
     expect(
+      within(dialog).getByRole('button', { name: 'Download' }),
+    ).toBeInTheDocument();
+    expect(
       within(dialog).getByRole('button', { name: 'Migrate' }),
     ).toBeInTheDocument();
   });
 
+  it('should render without exploding if cannot update', async () => {
+    render(
+      <SlidesMigrationDialog
+        open
+        canUpdate={false}
+        onUpdate={onUpdate}
+        exportButton={<Button>Download</Button>}
+      />,
+    );
+
+    const dialog = screen.getByRole('dialog', {
+      name: 'Upgrade is Required',
+      description:
+        'A newer version is required to work with the stored document.',
+    });
+
+    expect(
+      within(dialog).getByRole('heading', { name: 'Upgrade is Required' }),
+    ).toBeInTheDocument();
+    expect(
+      within(dialog).getByText(
+        'A newer version is required to work with the stored document.',
+      ),
+    ).toBeInTheDocument();
+    expect(
+      within(dialog).queryByRole('button', { name: 'Download' }),
+    ).not.toBeInTheDocument();
+    expect(
+      within(dialog).queryByRole('button', { name: 'Migrate' }),
+    ).not.toBeInTheDocument();
+  });
+
   it('should have no accessibility violations', async () => {
     const { container } = render(
-      <SlidesMigrationDialog open onMigrate={onMigrate} />,
+      <SlidesMigrationDialog open canUpdate onUpdate={onUpdate} />,
     );
 
     await screen.findByRole('dialog', {
@@ -58,8 +100,22 @@ describe('<SlidesMigrationDialog/>', () => {
     expect(await axe.run(container)).toHaveNoViolations();
   });
 
-  it('should render migration button disabled if migration is disabled', () => {
-    render(<SlidesMigrationDialog open isLoading onMigrate={onMigrate} />);
+  it('should have no accessibility violations if cannot update', async () => {
+    const { container } = render(
+      <SlidesMigrationDialog open canUpdate={false} onUpdate={onUpdate} />,
+    );
+
+    await screen.findByRole('dialog', {
+      name: 'Upgrade is Required',
+    });
+
+    expect(await axe.run(container)).toHaveNoViolations();
+  });
+
+  it('should render update button disabled if update is disabled', () => {
+    render(
+      <SlidesMigrationDialog open canUpdate isLoading onUpdate={onUpdate} />,
+    );
 
     const dialog = screen.getByRole('dialog', {
       name: 'Migrate slides to frames',
@@ -70,8 +126,10 @@ describe('<SlidesMigrationDialog/>', () => {
     ).toBeDisabled();
   });
 
-  it('should render migrate button disabled while loading', async () => {
-    render(<SlidesMigrationDialog open isLoading onMigrate={onMigrate} />);
+  it('should render update button disabled while loading', async () => {
+    render(
+      <SlidesMigrationDialog open canUpdate isLoading onUpdate={onUpdate} />,
+    );
 
     const dialog = screen.getByRole('dialog', {
       name: 'Migrate slides to frames',
@@ -84,7 +142,7 @@ describe('<SlidesMigrationDialog/>', () => {
 
   it('should have no accessibility violations while loading', async () => {
     const { container } = render(
-      <SlidesMigrationDialog open isLoading onMigrate={onMigrate} />,
+      <SlidesMigrationDialog open canUpdate isLoading onUpdate={onUpdate} />,
     );
 
     await screen.findByRole('dialog', {
@@ -95,7 +153,9 @@ describe('<SlidesMigrationDialog/>', () => {
   });
 
   it('should render error', async () => {
-    render(<SlidesMigrationDialog open isError onMigrate={onMigrate} />);
+    render(
+      <SlidesMigrationDialog open canUpdate isError onUpdate={onUpdate} />,
+    );
 
     const dialog = screen.getByRole('dialog', {
       name: 'Migrate slides to frames',
@@ -111,8 +171,8 @@ describe('<SlidesMigrationDialog/>', () => {
     ).toBeDisabled();
   });
 
-  it('should migrate on migration button click', async () => {
-    render(<SlidesMigrationDialog open onMigrate={onMigrate} />);
+  it('should update on update button click', async () => {
+    render(<SlidesMigrationDialog open canUpdate onUpdate={onUpdate} />);
 
     const dialog = await screen.findByRole('dialog', {
       name: 'Migrate slides to frames',
@@ -122,14 +182,15 @@ describe('<SlidesMigrationDialog/>', () => {
       within(dialog).getByRole('button', { name: 'Migrate' }),
     );
 
-    expect(onMigrate).toHaveBeenCalled();
+    expect(onUpdate).toHaveBeenCalled();
   });
 
   it('should render additional buttons', async () => {
     render(
       <SlidesMigrationDialog
         open
-        onMigrate={onMigrate}
+        canUpdate
+        onUpdate={onUpdate}
         additionalButtons={<Button>Go Back</Button>}
       />,
     );
@@ -141,6 +202,30 @@ describe('<SlidesMigrationDialog/>', () => {
     expect(
       within(dialog).getByRole('button', { name: 'Migrate' }),
     ).toBeInTheDocument();
+    expect(
+      within(dialog).getByRole('button', {
+        name: 'Go Back',
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it('should render additional buttons if cannot update', async () => {
+    render(
+      <SlidesMigrationDialog
+        open
+        canUpdate={false}
+        onUpdate={onUpdate}
+        additionalButtons={<Button>Go Back</Button>}
+      />,
+    );
+
+    const dialog = screen.getByRole('dialog', {
+      name: 'Upgrade is Required',
+    });
+
+    expect(
+      within(dialog).queryByRole('button', { name: 'Migrate' }),
+    ).not.toBeInTheDocument();
     expect(
       within(dialog).getByRole('button', {
         name: 'Go Back',

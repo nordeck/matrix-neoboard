@@ -18,18 +18,8 @@ import { nanoid } from '@reduxjs/toolkit';
 import { uniq } from 'lodash';
 import { ChangeFn } from '../types';
 import { SharedMap, YArray, YMap } from '../y';
-import {
-  Element,
-  FrameElement,
-  positionElementsToWhiteboard,
-} from './elements';
+import { Element } from './elements';
 import { Slide, SlideLock, WhiteboardDocument } from './whiteboardDocument';
-import {
-  frameHeight,
-  framesWhiteboardHeight,
-  framesWhiteboardWidth,
-  frameWidth,
-} from './whiteboardDocumentConstants';
 
 export function getSlide(
   doc: SharedMap<WhiteboardDocument>,
@@ -493,31 +483,6 @@ export function generateRemoveElements(
 }
 
 /**
- * Set frame element ids for the slide from the frame elements.
- */
-export function generateSetSlideFrameElementIds(
-  slideId: string,
-): ChangeFn<WhiteboardDocument> {
-  return (doc: SharedMap<WhiteboardDocument>) => {
-    const slide = getSlide(doc, slideId);
-
-    if (!slide) {
-      throw new Error(`Slide not found: ${slideId}`);
-    }
-
-    const frameElementIds: string[] = [];
-
-    for (const [elementId, element] of slide.get('elements')) {
-      if (element.get('type') === 'frame') {
-        frameElementIds.push(elementId);
-      }
-    }
-
-    slide.set('frameElementIds', YArray.from(frameElementIds));
-  };
-}
-
-/**
  * Return the ordered list of frame elements for the presentation as are stored in the slide.
  * A normalized version should normally be used, however this operation is useful when need to get a value as it is.
  */
@@ -585,141 +550,6 @@ export function generateMoveSlideFrame(
       }
     }
   };
-}
-
-type ElementWithId<T> = {
-  id: string;
-  element: T;
-};
-
-/**
- * Transform the multiple slides of the whiteboard document into a new single slide with multiple frames.
- */
-export function generateTransformSlidesToFrames(): [
-  ChangeFn<WhiteboardDocument>,
-  string,
-] {
-  const [addSlide, newSlideId] = generateAddSlide();
-
-  const changeFn = (doc: SharedMap<WhiteboardDocument>) => {
-    const slideIds = getNormalizedSlideIds(doc);
-
-    if (slideIds.length < 2) {
-      return;
-    }
-
-    const firstSlideElements: ElementWithId<Element>[] = [];
-
-    for (const slideId of slideIds) {
-      const slide = getSlide(doc, slideId);
-
-      if (!slide) {
-        continue;
-      }
-
-      const frameElementId = nanoid();
-
-      const elementIds: string[] = [];
-      const newElements: ElementWithId<Element>[] = [];
-      for (const [elementId, element] of slide.get('elements')) {
-        const elementJson = element.toJSON();
-        if (elementJson.type !== 'frame') {
-          elementIds.push(elementId);
-          newElements.push({
-            id: elementId,
-            element: {
-              ...elementJson,
-              attachedFrame: frameElementId,
-            },
-          });
-        }
-      }
-
-      const frameElementJson: FrameElement = {
-        type: 'frame',
-        // frames will be positioned later
-        position: {
-          x: 0,
-          y: 0,
-        },
-        width: frameWidth,
-        height: frameHeight,
-        attachedElements: elementIds,
-      };
-
-      firstSlideElements.push({
-        id: frameElementId,
-        element: frameElementJson,
-      });
-      firstSlideElements.push(...newElements);
-    }
-
-    const frameElements: ElementWithId<FrameElement>[] = [];
-    for (const { id, element } of firstSlideElements) {
-      if (element.type === 'frame') {
-        frameElements.push({ id, element });
-      }
-    }
-
-    const positionedFrameElements = positionElementsToWhiteboard(
-      frameElements.map(({ id, element }) => ({ id, ...element })),
-      framesWhiteboardWidth,
-      framesWhiteboardHeight,
-      framesWhiteboardWidth / 2,
-      framesWhiteboardHeight / 2,
-    );
-
-    const positionedFramesMap: Map<string, FrameElement> = new Map<
-      string,
-      FrameElement
-    >();
-    for (const { id, ...frameElement } of positionedFrameElements) {
-      positionedFramesMap.set(id, frameElement);
-    }
-
-    const positionedFirstSlideElements: ElementWithId<Element>[] = [];
-
-    for (const { id, element } of firstSlideElements) {
-      if (element.type === 'frame') {
-        const frame = positionedFramesMap.get(id);
-        if (frame) {
-          positionedFirstSlideElements.push({ id, element: frame });
-        }
-      } else if (element.attachedFrame) {
-        const frame = positionedFramesMap.get(element.attachedFrame);
-        if (frame) {
-          // position the element within its frame
-          const newElement = {
-            ...element,
-            position: {
-              x: element.position.x + frame.position.x,
-              y: element.position.y + frame.position.y,
-            },
-          };
-          positionedFirstSlideElements.push({ id, element: newElement });
-        }
-      }
-    }
-
-    addSlide(doc);
-
-    // Initialise frameElementIds for new slide
-    getSlide(doc, newSlideId)?.set('frameElementIds', new YArray());
-
-    // Add elements
-    for (const { id, element } of positionedFirstSlideElements) {
-      const [addElement] = generateAddElement(newSlideId, element, id);
-      addElement(doc);
-    }
-
-    // Delete old slides
-    for (const slideId of slideIds) {
-      const removeSlide = generateRemoveSlide(slideId);
-      removeSlide(doc);
-    }
-  };
-
-  return [changeFn, newSlideId];
 }
 
 /** Apply all changes one by one. */

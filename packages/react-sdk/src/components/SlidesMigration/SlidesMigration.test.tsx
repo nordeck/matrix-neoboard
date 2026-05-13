@@ -16,6 +16,7 @@
 
 import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
+import { Button } from '@mui/material';
 import {
   act,
   render,
@@ -26,7 +27,7 @@ import {
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ComponentType, PropsWithChildren } from 'react';
-import { firstValueFrom, take, toArray } from 'rxjs';
+import { Subject } from 'rxjs';
 import {
   afterEach,
   beforeEach,
@@ -37,12 +38,18 @@ import {
   vi,
 } from 'vitest';
 import {
-  mockLineElement,
+  mockEllipseElement,
   mockWhiteboardManager,
   WhiteboardTestingContextProvider,
 } from '../../lib/testUtils';
-import { WhiteboardInstance, WhiteboardManager } from '../../state';
-import * as constants from '../Whiteboard/constants';
+import {
+  createWhiteboardDocument,
+  generateAddElement,
+  WhiteboardDocumentVersion,
+  WhiteboardInstance,
+  WhiteboardManager,
+} from '../../state';
+import { MismatchedSnapshot } from '../../state/types';
 import { SlidesMigration } from './SlidesMigration';
 
 vi.mock('@matrix-widget-toolkit/mui', async () => ({
@@ -69,17 +76,19 @@ beforeEach(() => {
   widgetApi.widgetParameters.baseUrl = 'https://example.com';
 });
 
+// createWhiteboardDocument() always contains a slide with this id
+const slide0 = 'IN4h74suMiIAK4AVMAdl_';
+
 describe('<SlidesMigration/>', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
   let whiteboardManager: Mocked<WhiteboardManager>;
   let activeWhiteboardInstance: WhiteboardInstance;
+  let mismatchedSnapshotSubject: Subject<MismatchedSnapshot | undefined>;
 
   beforeEach(() => {
-    ({ whiteboardManager } = mockWhiteboardManager({
-      slides: [
-        ['slide-0', [['element-0', mockLineElement()]]],
-        ['slide-1', [['element-2', mockLineElement()]]],
-      ],
+    ({ whiteboardManager, mismatchedSnapshotSubject } = mockWhiteboardManager({
+      slideCount: 1,
+      whiteboardDocumentVersion: WhiteboardDocumentVersion.Frames,
     }));
     activeWhiteboardInstance = whiteboardManager.getActiveWhiteboardInstance()!;
 
@@ -95,14 +104,22 @@ describe('<SlidesMigration/>', () => {
     };
   });
 
-  it('should render a dialog to migrate slides to frames in infinite canvas mode', async () => {
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
+  it('should render a dialog to update if a mismatched snapshot is received', async () => {
+    const remoteDocument = createWhiteboardDocument(
+      WhiteboardDocumentVersion.Initial,
     );
 
-    render(<SlidesMigration />, {
-      wrapper: Wrapper,
+    mismatchedSnapshotSubject.next({
+      documentVersion: remoteDocument.getDocumentVersion(),
+      data: remoteDocument.store(),
     });
+
+    render(
+      <SlidesMigration dialogAdditionalButtons={<Button>Go Back</Button>} />,
+      {
+        wrapper: Wrapper,
+      },
+    );
 
     const dialog = screen.getByRole('dialog', {
       name: 'Migrate slides to frames',
@@ -111,6 +128,9 @@ describe('<SlidesMigration/>', () => {
     expect(dialog).toBeInTheDocument();
 
     expect(
+      within(dialog).getByRole('button', { name: 'Go Back' }),
+    ).toBeInTheDocument();
+    expect(
       within(dialog).getByRole('button', { name: 'Download' }),
     ).toBeInTheDocument();
     expect(
@@ -118,7 +138,47 @@ describe('<SlidesMigration/>', () => {
     ).toBeDisabled();
   });
 
-  it('should not render a dialog to migrate slides to frames', async () => {
+  it('should render a dialog to upgrade', async () => {
+    ({ whiteboardManager, mismatchedSnapshotSubject } = mockWhiteboardManager({
+      slideCount: 1,
+      whiteboardDocumentVersion: WhiteboardDocumentVersion.Initial,
+    }));
+    activeWhiteboardInstance = whiteboardManager.getActiveWhiteboardInstance()!;
+
+    const remoteDocument = createWhiteboardDocument(
+      WhiteboardDocumentVersion.Frames,
+    );
+
+    mismatchedSnapshotSubject.next({
+      documentVersion: remoteDocument.getDocumentVersion(),
+      data: remoteDocument.store(),
+    });
+
+    render(
+      <SlidesMigration dialogAdditionalButtons={<Button>Go Back</Button>} />,
+      {
+        wrapper: Wrapper,
+      },
+    );
+
+    const dialog = screen.getByRole('dialog', {
+      name: 'Upgrade is Required',
+    });
+
+    expect(dialog).toBeInTheDocument();
+
+    expect(
+      within(dialog).getByRole('button', { name: 'Go Back' }),
+    ).toBeInTheDocument();
+    expect(
+      within(dialog).queryByRole('button', { name: 'Download' }),
+    ).not.toBeInTheDocument();
+    expect(
+      within(dialog).queryByRole('button', { name: 'Migrate' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('should not render a dialog to update', async () => {
     render(<SlidesMigration />, {
       wrapper: Wrapper,
     });
@@ -130,10 +190,19 @@ describe('<SlidesMigration/>', () => {
     expect(dialog).not.toBeInTheDocument();
   });
 
-  it('should download existing whiteboard content', async () => {
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
+  it('should download snapshot exported data if a mismatched snapshot is received', async () => {
+    const remoteDocument = createWhiteboardDocument(
+      WhiteboardDocumentVersion.Initial,
     );
+
+    const ellipseElement = mockEllipseElement();
+    const [addElement0] = generateAddElement(slide0, ellipseElement);
+    remoteDocument.performChange(addElement0);
+
+    mismatchedSnapshotSubject.next({
+      documentVersion: remoteDocument.getDocumentVersion(),
+      data: remoteDocument.store(),
+    });
 
     const blobSpy = vi.spyOn(global, 'Blob').mockReturnValue({
       size: 0,
@@ -161,10 +230,7 @@ describe('<SlidesMigration/>', () => {
           whiteboard: {
             slides: [
               {
-                elements: [mockLineElement()],
-              },
-              {
-                elements: [mockLineElement()],
+                elements: [mockEllipseElement()],
               },
             ],
           },
@@ -173,17 +239,15 @@ describe('<SlidesMigration/>', () => {
     });
   });
 
-  it('should migrate slides to frames', async () => {
-    vi.spyOn(constants, 'whiteboardWidth', 'get').mockReturnValue(19200);
-    vi.spyOn(constants, 'whiteboardHeight', 'get').mockReturnValue(10800);
-
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
+  it('should update slides to frames if a mismatched snapshot is received and download is clicked', async () => {
+    const remoteDocument = createWhiteboardDocument(
+      WhiteboardDocumentVersion.Initial,
     );
 
-    const undoRedoStates = firstValueFrom(
-      activeWhiteboardInstance.observeUndoRedoState().pipe(take(3), toArray()),
-    );
+    mismatchedSnapshotSubject.next({
+      documentVersion: remoteDocument.getDocumentVersion(),
+      data: remoteDocument.store(),
+    });
 
     render(<SlidesMigration />, {
       wrapper: Wrapper,
@@ -202,34 +266,34 @@ describe('<SlidesMigration/>', () => {
 
     expect(button).toBeDisabled();
 
+    act(() => {
+      mismatchedSnapshotSubject.next(undefined);
+    });
+
     await waitForElementToBeRemoved(dialog);
 
     expect(activeWhiteboardInstance.getSlideIds().length).toBe(1);
     expect(
       activeWhiteboardInstance.getActiveSlide()?.getFrameElementIds().length,
-    ).toBe(2);
+    ).toBe(1);
     expect(
       activeWhiteboardInstance.getActiveSlide()?.getElementIds().length,
-    ).toBe(4);
-
-    expect(await undoRedoStates).toEqual([
-      { canUndo: false, canRedo: false }, // at start
-      { canUndo: true, canRedo: false }, // after migration
-      { canUndo: false, canRedo: false }, // after clear undo manager
-    ]);
+    ).toBe(2);
   });
 
-  it('should show error if cannot migrate slides to frames', async () => {
-    vi.spyOn(constants, 'whiteboardWidth', 'get').mockReturnValue(19200);
-    vi.spyOn(constants, 'whiteboardHeight', 'get').mockReturnValue(10800);
-
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
+  it('should show error if cannot update slides to frames', async () => {
+    const remoteDocument = createWhiteboardDocument(
+      WhiteboardDocumentVersion.Initial,
     );
+
+    mismatchedSnapshotSubject.next({
+      documentVersion: remoteDocument.getDocumentVersion(),
+      data: remoteDocument.store(),
+    });
 
     vi.spyOn(
       activeWhiteboardInstance,
-      'transformSlidesToFrames',
+      'mergeMismatchedSnapshot',
     ).mockImplementation(() => {
       throw new Error('Something broke');
     });
@@ -257,50 +321,5 @@ describe('<SlidesMigration/>', () => {
     expect(
       within(alert).getByText('Failed to migrate the slides'),
     ).toBeInTheDocument();
-  });
-
-  it('should render a dialog to migrate slides when a new slide added after migration', async () => {
-    vi.spyOn(constants, 'whiteboardWidth', 'get').mockReturnValue(19200);
-    vi.spyOn(constants, 'whiteboardHeight', 'get').mockReturnValue(10800);
-
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-    );
-
-    render(<SlidesMigration />, {
-      wrapper: Wrapper,
-    });
-
-    const dialog = screen.getByRole('dialog', {
-      name: 'Migrate slides to frames',
-    });
-
-    await userEvent.click(
-      within(dialog).getByRole('button', { name: 'Download' }),
-    );
-
-    const migrateButton = within(dialog).getByRole('button', {
-      name: 'Migrate',
-    });
-    await userEvent.click(migrateButton);
-
-    expect(migrateButton).toBeDisabled();
-
-    await waitForElementToBeRemoved(dialog);
-
-    expect(activeWhiteboardInstance.getSlideIds().length).toBe(1);
-
-    act(() => {
-      activeWhiteboardInstance.addSlide();
-    });
-
-    const dialog1 = await screen.findByRole('dialog', {
-      name: 'Migrate slides to frames',
-    });
-
-    const migrateButton1 = within(dialog1).getByRole('button', {
-      name: 'Migrate',
-    });
-    expect(migrateButton1).toBeDisabled();
   });
 });

@@ -17,10 +17,9 @@
 import { getLogger } from 'loglevel';
 import { ReactElement, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { isInfiniteCanvasMode } from '../../lib';
 import {
   useActiveWhiteboardInstance,
-  useWhiteboardSlideIds,
+  useWhiteboardMismatchedSnapshotDetails,
 } from '../../state';
 import { ExportWhiteboardDialogDownloadFile } from '../BoardBar';
 import { SlidesMigrationDialog } from './SlidesMigrationDialog';
@@ -36,46 +35,44 @@ export function SlidesMigration({
   const logger = getLogger('SlidesMigration');
 
   const [open, setOpen] = useState(false);
+  const [canUpdate, setCanUpdate] = useState(false);
 
   const [isDownloaded, setIsDownloaded] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [isMigrated, setIsMigrated] = useState(false);
+  const [isUpdated, setIsUpdated] = useState(false);
   const [isError, setIsError] = useState(false);
 
   const whiteboardInstance = useActiveWhiteboardInstance();
-  const slideIds = useWhiteboardSlideIds();
+  const mismatchedSnapshotDetails = useWhiteboardMismatchedSnapshotDetails();
 
   const resetState = useCallback(() => {
     setIsDownloaded(false);
-    setIsMigrated(false);
+    setIsUpdated(false);
     setIsError(false);
   }, []);
 
   useEffect(() => {
-    if (!isInfiniteCanvasMode()) {
-      return;
-    }
-
-    setOpen(slideIds.length > 1);
-    if (slideIds.length > 1) {
+    setOpen(mismatchedSnapshotDetails !== undefined);
+    setCanUpdate(mismatchedSnapshotDetails?.canUpdate === true);
+    if (mismatchedSnapshotDetails !== undefined) {
       resetState();
     }
-  }, [slideIds, resetState]);
+  }, [mismatchedSnapshotDetails, resetState]);
 
   const handleDownload = useCallback(async () => {
     setIsDownloaded(true);
   }, []);
 
-  const handleMigration = useCallback(async () => {
+  const handleUpdate = useCallback(async () => {
     setIsLoading(true);
     try {
-      whiteboardInstance.transformSlidesToFrames();
+      whiteboardInstance.mergeMismatchedSnapshot();
     } catch (err) {
-      logger.error('Cannot migrate slides to to frames', err);
+      logger.error('Cannot update slides to frames', err);
       setIsError(true);
     } finally {
       setIsLoading(false);
-      setIsMigrated(true);
+      setIsUpdated(true);
     }
 
     whiteboardInstance.clearUndoManager();
@@ -84,22 +81,21 @@ export function SlidesMigration({
   return (
     <SlidesMigrationDialog
       open={open}
-      isMigrationDisabled={!isDownloaded}
-      isLoading={isLoading || (isMigrated && !isError)}
+      canUpdate={canUpdate}
+      isUpdateDisabled={!isDownloaded}
+      isLoading={isLoading || (isUpdated && !isError)}
       isError={isError}
-      onMigrate={handleMigration}
-      additionalButtons={
-        <>
-          {dialogAdditionalButtons}
-          <ExportWhiteboardDialogDownloadFile
-            onClick={handleDownload}
-            buttonVariant="outlined"
-            resetLoadingOnDownload
-          >
-            {t('boardBar.exportWhiteboardDialog.download', 'Download')}
-          </ExportWhiteboardDialogDownloadFile>
-        </>
+      onUpdate={handleUpdate}
+      exportButton={
+        <ExportWhiteboardDialogDownloadFile
+          onClick={handleDownload}
+          buttonVariant="outlined"
+          resetLoadingOnDownload
+        >
+          {t('boardBar.exportWhiteboardDialog.download', 'Download')}
+        </ExportWhiteboardDialogDownloadFile>
       }
+      additionalButtons={dialogAdditionalButtons}
     />
   );
 }

@@ -320,9 +320,11 @@
   },
   "slidesMigrationDialog": {
     "content": "Your existing slides will be migrated to frames. To enable migration, please download a backup of your whiteboard content first.",
+    "contentUpgradeRequired": "A newer version is required to work with the stored document.",
     "migrate": "Migrate",
     "migrationFailed": "Failed to migrate the slides",
-    "title": "Migrate slides to frames"
+    "title": "Migrate slides to frames",
+    "titleUpgradeRequired": "Upgrade is Required"
   },
   "snackbar": {
     "dismissAction": "Dismiss"
