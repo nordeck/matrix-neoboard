@@ -140,6 +140,17 @@ jobs:
           app_id: ${{ secrets.GH_APP_OS_APP_ID }}
           private_key: ${{ secrets.GH_APP_OS_PRIVATE_KEY }}
 
+      - name: Create Helm chart release
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        run: |
+          chart_version="$(yq '.version' charts/matrix-neoboard-widget/Chart.yaml)"
+          tag="@nordeck/matrix-neoboard-helm-chart@${chart_version}"
+          if [[ $(git tag | grep "$tag") == "" ]]
+          then
+            git tag "$tag"
+            git push origin tag "$tag"
+          fi
+
       - name: Create Release Pull Request or Publish Packages
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         uses: changesets/action@e0145edc7d9d8679003495b11f87bd8ef63c0cba # v1.5.3
