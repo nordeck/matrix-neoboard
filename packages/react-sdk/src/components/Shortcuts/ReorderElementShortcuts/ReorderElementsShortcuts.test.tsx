@@ -24,7 +24,7 @@ import {
   mockEllipseElement,
   mockLineElement,
   mockWhiteboardManager,
-} from '../../../lib/testUtils/documentTestUtils';
+} from '../../../lib/testUtils';
 import { WhiteboardInstance, WhiteboardManager } from '../../../state';
 import {
   HOTKEY_SCOPE_WHITEBOARD,

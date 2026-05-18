@@ -22,7 +22,7 @@ import {
   mockRectangleElement,
   mockWhiteboardManager,
   WhiteboardTestingContextProvider,
-} from '../../../lib/testUtils/documentTestUtils';
+} from '../../../lib/testUtils';
 import { WhiteboardSlideInstance } from '../../../state';
 import { Toolbar } from '../../common/Toolbar';
 import { TextFormattingShortcuts } from './TextFormattingShortcuts';
