@@ -27,7 +27,11 @@ import {
   mockWhiteboardManager,
 } from '../../../lib/testUtils/documentTestUtils';
 import { WhiteboardInstance, WhiteboardManager } from '../../../state';
-import { WhiteboardHotkeysProvider } from '../../WhiteboardHotkeysProvider';
+import {
+  HOTKEY_SCOPE_WHITEBOARD,
+  WhiteboardHotkeysProvider,
+  usePauseHotkeysScope,
+} from '../../WhiteboardHotkeysProvider';
 import { DeleteShortcut } from './DeleteShortcut';
 
 let widgetApi: MockedWidgetApi;
@@ -145,4 +149,28 @@ describe('<DeleteShortcut>', () => {
       });
     },
   );
+
+  it.each(['{delete}', '{backspace}'])(
+    'should ignore %s if keyboard scope is disabled',
+    async (key) => {
+      const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
+      activeSlide.setActiveElementId('element-1');
+
+      render(
+        <DisableWhiteboardHotkeys>
+          <DeleteShortcut />
+        </DisableWhiteboardHotkeys>,
+        { wrapper: Wrapper },
+      );
+
+      await userEvent.keyboard(key);
+
+      expect(activeSlide.getElement('element-1')).toBeDefined();
+    },
+  );
 });
+
+function DisableWhiteboardHotkeys({ children }: PropsWithChildren<{}>) {
+  usePauseHotkeysScope(HOTKEY_SCOPE_WHITEBOARD);
+  return <>{children}</>;
+}

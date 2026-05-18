@@ -29,7 +29,11 @@ import { TextFormattingShortcuts } from './TextFormattingShortcuts';
 
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { WhiteboardHotkeysProvider } from '../../WhiteboardHotkeysProvider';
+import {
+  HOTKEY_SCOPE_WHITEBOARD,
+  usePauseHotkeysScope,
+  WhiteboardHotkeysProvider,
+} from '../../WhiteboardHotkeysProvider';
 
 describe('<TextFormattingShortcuts />', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
@@ -106,4 +110,27 @@ describe('<TextFormattingShortcuts />', () => {
       );
     },
   );
+
+  it.each([['{Control>}b'], ['{Control>}i']])(
+    '%s should be ignored if keyboard scope is disabled',
+    async (shortcut) => {
+      render(
+        <DisableWhiteboardHotkeys>
+          <TextFormattingShortcuts />
+        </DisableWhiteboardHotkeys>,
+        { wrapper: Wrapper },
+      );
+
+      await userEvent.keyboard(shortcut);
+
+      expect(slide.getElement('rectangle')).toEqual(
+        expect.objectContaining({ textBold: false, textItalic: false }),
+      );
+    },
+  );
 });
+
+function DisableWhiteboardHotkeys({ children }: PropsWithChildren<{}>) {
+  usePauseHotkeysScope(HOTKEY_SCOPE_WHITEBOARD);
+  return <>{children}</>;
+}

@@ -27,7 +27,11 @@ import {
   mockWhiteboardManager,
 } from '../../../lib/testUtils';
 import { WhiteboardInstance, WhiteboardManager } from '../../../state';
-import { WhiteboardHotkeysProvider } from '../../WhiteboardHotkeysProvider';
+import {
+  HOTKEY_SCOPE_WHITEBOARD,
+  WhiteboardHotkeysProvider,
+  usePauseHotkeysScope,
+} from '../../WhiteboardHotkeysProvider';
 import { DuplicateShortcut } from './DuplicateShortcut';
 
 let widgetApi: MockedWidgetApi;
@@ -190,4 +194,29 @@ describe('<DuplicateShortcut>', () => {
       );
     },
   );
+
+  it.each(['{Control>}d{/Control}', '{meta>}d'])(
+    'should ignore %s if keyboard scope is disabled',
+    async (key) => {
+      const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
+      activeSlide.setActiveElementId('element-0');
+      const elementCountBefore = activeSlide.getElementIds().length;
+
+      render(
+        <DisableWhiteboardHotkeys>
+          <DuplicateShortcut />
+        </DisableWhiteboardHotkeys>,
+        { wrapper: Wrapper },
+      );
+
+      await userEvent.keyboard(key);
+
+      expect(activeSlide.getElementIds()).toHaveLength(elementCountBefore);
+    },
+  );
 });
+
+function DisableWhiteboardHotkeys({ children }: PropsWithChildren<{}>) {
+  usePauseHotkeysScope(HOTKEY_SCOPE_WHITEBOARD);
+  return <>{children}</>;
+}

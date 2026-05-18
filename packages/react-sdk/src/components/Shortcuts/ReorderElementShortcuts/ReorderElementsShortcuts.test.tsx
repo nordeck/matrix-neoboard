@@ -26,7 +26,11 @@ import {
   mockWhiteboardManager,
 } from '../../../lib/testUtils/documentTestUtils';
 import { WhiteboardInstance, WhiteboardManager } from '../../../state';
-import { WhiteboardHotkeysProvider } from '../../WhiteboardHotkeysProvider';
+import {
+  HOTKEY_SCOPE_WHITEBOARD,
+  WhiteboardHotkeysProvider,
+  usePauseHotkeysScope,
+} from '../../WhiteboardHotkeysProvider';
 import { ReorderElementsShortcuts } from './ReorderElementsShortcuts';
 
 let widgetApi: MockedWidgetApi;
@@ -185,4 +189,32 @@ describe('<ReorderElementsShortcuts>', () => {
       'element-2',
     ]);
   });
+
+  it.each(['{Control>}{ArrowUp}', '{Control>}{ArrowDown}'])(
+    'should ignore %s if keyboard scope is disabled',
+    async (key) => {
+      const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
+      activeSlide.setActiveElementId('element-1');
+
+      render(
+        <DisableWhiteboardHotkeys>
+          <ReorderElementsShortcuts />
+        </DisableWhiteboardHotkeys>,
+        { wrapper: Wrapper },
+      );
+
+      await userEvent.keyboard(key);
+
+      expect(activeSlide.getElementIds()).toEqual([
+        'element-0',
+        'element-1',
+        'element-2',
+      ]);
+    },
+  );
 });
+
+function DisableWhiteboardHotkeys({ children }: PropsWithChildren<{}>) {
+  usePauseHotkeysScope(HOTKEY_SCOPE_WHITEBOARD);
+  return <>{children}</>;
+}
