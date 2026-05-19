@@ -227,8 +227,13 @@
     "menu": {
       "about": "About NeoBoard",
       "helpCenter": "Help Center",
+      "keyboardShortcuts": "Keyboard shortcuts",
       "resetOnboarding": "Reset onboarding",
       "title": "Help"
+    },
+    "shortcuts": {
+      "close": "Close",
+      "title": "Keyboard shortcuts"
     },
     "title": "Help center"
   },
