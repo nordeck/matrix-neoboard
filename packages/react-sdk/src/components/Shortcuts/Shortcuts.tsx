@@ -17,9 +17,11 @@
 import { infiniteCanvasMode } from '../Whiteboard';
 import { ClipboardShortcuts } from './ClipboardShortcuts';
 import { DeleteShortcut } from './DeleteShortcut';
+import { DragShortcut } from './DragShortcut';
 import { DuplicateShortcut } from './DuplicateShortcut';
 import { PresentationShortcuts } from './PresentationShortcuts';
 import { ReorderElementsShortcuts } from './ReorderElementShortcuts';
+import { SelectAllShortcut } from './SelectAllShortcut';
 import { TextFormattingShortcuts } from './TextFormattingShortcuts';
 import { UndoRedoShortcuts } from './UndoRedoShortcuts';
 import { ZoomShortcuts } from './ZoomShortcuts';
@@ -33,8 +35,10 @@ export function Shortcuts() {
       <ReorderElementsShortcuts />
       <DeleteShortcut />
       <DuplicateShortcut />
+      <DragShortcut />
       <PresentationShortcuts />
       <TextFormattingShortcuts />
+      <SelectAllShortcut />
       {infiniteCanvasMode && <ZoomShortcuts />}
     </>
   );

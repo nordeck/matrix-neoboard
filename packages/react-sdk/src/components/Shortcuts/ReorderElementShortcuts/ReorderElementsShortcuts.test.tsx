@@ -51,6 +51,7 @@ describe('<ReorderElementsShortcuts>', () => {
             ['element-0', mockLineElement()],
             ['element-1', mockEllipseElement()],
             ['element-2', mockEllipseElement({ text: 'Hello World' })],
+            ['element-3', mockEllipseElement({ text: 'Hello Again' })],
           ],
         ],
       ],
@@ -72,21 +73,23 @@ describe('<ReorderElementsShortcuts>', () => {
 
   it('should move element forward to the top and stay on top on windows', async () => {
     const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
-    activeSlide.setActiveElementId('element-1');
+    activeSlide.setActiveElementId('element-2');
     render(<ReorderElementsShortcuts />, { wrapper: Wrapper });
 
     expect(activeSlide.getElementIds()).toEqual([
       'element-0',
       'element-1',
       'element-2',
+      'element-3',
     ]);
 
     await userEvent.keyboard('{Control>}{ArrowUp}');
 
     expect(activeSlide.getElementIds()).toEqual([
       'element-0',
-      'element-2',
       'element-1',
+      'element-3',
+      'element-2',
     ]);
 
     // no effect if the element is already at the top
@@ -94,28 +97,31 @@ describe('<ReorderElementsShortcuts>', () => {
 
     expect(activeSlide.getElementIds()).toEqual([
       'element-0',
-      'element-2',
       'element-1',
+      'element-3',
+      'element-2',
     ]);
   });
 
   it('should move element forward to the top and stay on top on mac', async () => {
     const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
-    activeSlide.setActiveElementId('element-1');
+    activeSlide.setActiveElementId('element-2');
     render(<ReorderElementsShortcuts />, { wrapper: Wrapper });
 
     expect(activeSlide.getElementIds()).toEqual([
       'element-0',
       'element-1',
       'element-2',
+      'element-3',
     ]);
 
     await userEvent.keyboard('{meta>}{ArrowUp}');
 
     expect(activeSlide.getElementIds()).toEqual([
       'element-0',
-      'element-2',
       'element-1',
+      'element-3',
+      'element-2',
     ]);
 
     // no effect if the element is already at the top
@@ -123,8 +129,9 @@ describe('<ReorderElementsShortcuts>', () => {
 
     expect(activeSlide.getElementIds()).toEqual([
       'element-0',
-      'element-2',
       'element-1',
+      'element-3',
+      'element-2',
     ]);
   });
 
@@ -137,6 +144,7 @@ describe('<ReorderElementsShortcuts>', () => {
       'element-0',
       'element-1',
       'element-2',
+      'element-3',
     ]);
 
     await userEvent.keyboard('{Control>}{ArrowDown}');
@@ -145,6 +153,7 @@ describe('<ReorderElementsShortcuts>', () => {
       'element-1',
       'element-0',
       'element-2',
+      'element-3',
     ]);
 
     // no effect if the element is already at the top
@@ -154,6 +163,7 @@ describe('<ReorderElementsShortcuts>', () => {
       'element-1',
       'element-0',
       'element-2',
+      'element-3',
     ]);
   });
 
@@ -166,6 +176,7 @@ describe('<ReorderElementsShortcuts>', () => {
       'element-0',
       'element-1',
       'element-2',
+      'element-3',
     ]);
 
     await userEvent.keyboard('{meta>}{ArrowDown}');
@@ -174,6 +185,7 @@ describe('<ReorderElementsShortcuts>', () => {
       'element-1',
       'element-0',
       'element-2',
+      'element-3',
     ]);
 
     // no effect if the element is already at the top
@@ -183,6 +195,135 @@ describe('<ReorderElementsShortcuts>', () => {
       'element-1',
       'element-0',
       'element-2',
+      'element-3',
+    ]);
+  });
+
+  it('should bring multiple elements to the front and stay on the front on windows', async () => {
+    const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
+    activeSlide.setActiveElementIds(['element-1', 'element-2']);
+    render(<ReorderElementsShortcuts />, { wrapper: Wrapper });
+
+    expect(activeSlide.getElementIds()).toEqual([
+      'element-0',
+      'element-1',
+      'element-2',
+      'element-3',
+    ]);
+
+    await userEvent.keyboard('{Control>}{Shift>}{ArrowUp}');
+
+    expect(activeSlide.getElementIds()).toEqual([
+      'element-0',
+      'element-3',
+      'element-1',
+      'element-2',
+    ]);
+
+    // no effect if the element is already at the top
+    await userEvent.keyboard('{Control>}{Shift>}{ArrowUp}');
+
+    expect(activeSlide.getElementIds()).toEqual([
+      'element-0',
+      'element-3',
+      'element-1',
+      'element-2',
+    ]);
+  });
+
+  it('should bring multiple elements to the front and stay on the front on mac', async () => {
+    const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
+    activeSlide.setActiveElementIds(['element-1', 'element-2']);
+    render(<ReorderElementsShortcuts />, { wrapper: Wrapper });
+
+    expect(activeSlide.getElementIds()).toEqual([
+      'element-0',
+      'element-1',
+      'element-2',
+      'element-3',
+    ]);
+
+    await userEvent.keyboard('{meta>}{Shift>}{ArrowUp}');
+
+    expect(activeSlide.getElementIds()).toEqual([
+      'element-0',
+      'element-3',
+      'element-1',
+      'element-2',
+    ]);
+
+    // no effect if the element is already at the top
+    await userEvent.keyboard('{meta>}{Shift>}{ArrowUp}');
+
+    expect(activeSlide.getElementIds()).toEqual([
+      'element-0',
+      'element-3',
+      'element-1',
+      'element-2',
+    ]);
+  });
+
+  it('should bring multiple elements to the back and stay on the back on windows', async () => {
+    const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
+    activeSlide.setActiveElementIds(['element-1', 'element-2']);
+    render(<ReorderElementsShortcuts />, { wrapper: Wrapper });
+
+    expect(activeSlide.getElementIds()).toEqual([
+      'element-0',
+      'element-1',
+      'element-2',
+      'element-3',
+    ]);
+
+    await userEvent.keyboard('{Control>}{Shift>}{ArrowDown}');
+
+    expect(activeSlide.getElementIds()).toEqual([
+      'element-1',
+      'element-2',
+      'element-0',
+      'element-3',
+    ]);
+
+    // no effect if the element is already at the top
+    await userEvent.keyboard('{Control>}{Shift>}{ArrowDown}');
+
+    expect(activeSlide.getElementIds()).toEqual([
+      'element-1',
+      'element-2',
+      'element-0',
+      'element-3',
+    ]);
+  });
+
+  it('should bring multiple elements to the back and stay on the back on mac', async () => {
+    const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
+    activeSlide.setActiveElementIds(['element-1', 'element-2']);
+    render(<ReorderElementsShortcuts />, { wrapper: Wrapper });
+
+    expect(activeSlide.getElementIds()).toEqual([
+      'element-0',
+      'element-1',
+      'element-2',
+      'element-3',
+    ]);
+
+    await userEvent.keyboard('{meta>}{Shift>}{ArrowDown}');
+
+    expect(activeSlide.getElementIds()).toEqual([
+      'element-1',
+      'element-2',
+      'element-0',
+      'element-3',
+    ]);
+
+    // no effect if the element is already at the top
+    await userEvent.keyboard('{meta>}{Shift>}{ArrowDown}');
+
+    expect(activeSlide.getElementIds()).toEqual([
+      'element-1',
+      'element-2',
+      'element-0',
+      'element-3',
     ]);
   });
 });

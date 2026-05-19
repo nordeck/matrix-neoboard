@@ -20,4 +20,10 @@ export * from './Moveable';
 export * from './Resizable';
 export * from './Selection';
 export * from './Text';
-export { getPathElements } from './utils';
+export {
+  elementsUpdates,
+  findElementAttachFrame,
+  findElementFrameChanges,
+  getPathElements,
+  mergeElementsAndOverrides,
+} from './utils';
