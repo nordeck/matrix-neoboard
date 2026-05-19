@@ -35,6 +35,39 @@ import {
   computeResizingConnectingPathElements,
 } from '../Resizable';
 
+export function moveActiveElementsOverrides(
+  elements: Elements,
+  dx: number,
+  dy: number,
+  connectingPathElements: Record<string, PathElement>,
+): ElementOverrideUpdate[] {
+  const delta: Point = { x: dx, y: dy };
+
+  const elementOverrides: ElementOverrideUpdate[] = Object.entries(
+    elements,
+  ).map(([elementId, element]) => ({
+    elementId,
+    elementOverride: {
+      position: { x: element.position.x + dx, y: element.position.y + dy },
+    },
+  }));
+
+  const pathOverrides: ElementOverrideUpdate[] = Object.entries(
+    connectingPathElements,
+  ).map(([pathId, path]) => ({
+    elementId: pathId,
+    elementOverride: computeResizingConnectingPathElementOverDeltaPoints(
+      { position: path.position, points: path.points },
+      [
+        elements[path.connectedElementStart ?? ''] ? delta : undefined,
+        elements[path.connectedElementEnd ?? ''] ? delta : undefined,
+      ],
+    ),
+  }));
+
+  return [...elementOverrides, ...pathOverrides];
+}
+
 export function calculateElementOverrideUpdates(
   elements: Elements,
   rectX: number,
