@@ -57,7 +57,11 @@ export function UndoRedoShortcuts() {
 
       whiteboardInstance.redo();
     },
-    { scopes: HOTKEY_SCOPE_WHITEBOARD, enableOnContentEditable: true },
+    {
+      scopes: HOTKEY_SCOPE_WHITEBOARD,
+      enableOnContentEditable: true,
+      enabled: !isMacOS(),
+    },
   );
 
   return null;

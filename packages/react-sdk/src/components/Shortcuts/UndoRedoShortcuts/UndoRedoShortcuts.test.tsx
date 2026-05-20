@@ -177,6 +177,29 @@ describe('<UndoRedoShortcuts>', () => {
     },
   );
 
+  it('should not redo with ctrl+y on mac os', async () => {
+    vi.spyOn(window.navigator, 'userAgent', 'get').mockReturnValue(
+      'Mac OS (jsdom)',
+    );
+
+    render(<UndoRedoShortcuts />, { wrapper: Wrapper });
+
+    act(() => {
+      whiteboardManager.getActiveWhiteboardInstance()?.addSlide();
+      whiteboardManager.getActiveWhiteboardInstance()?.undo();
+    });
+
+    expect(
+      whiteboardManager.getActiveWhiteboardInstance()?.getSlideIds(),
+    ).toHaveLength(1);
+
+    await userEvent.keyboard('{Control>}y{/Control}');
+
+    expect(
+      whiteboardManager.getActiveWhiteboardInstance()?.getSlideIds(),
+    ).toHaveLength(1);
+  });
+
   it('should redo with meta+shift+z on mac os', async () => {
     vi.spyOn(window.navigator, 'userAgent', 'get').mockReturnValue(
       'Mac OS (jsdom)',
