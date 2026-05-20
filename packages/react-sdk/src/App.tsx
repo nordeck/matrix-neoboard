@@ -15,10 +15,11 @@
  */
 
 import { useWidgetApi } from '@matrix-widget-toolkit/react';
-import { useEffect } from 'react';
+import { ReactElement, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ReactSdkThemeProvider } from './ReactSdkThemeProvider';
 import { Layout, LayoutProps } from './components/Layout';
+import { SlidesMigration } from './components/SlidesMigration';
 import { PageLoader } from './components/common/PageLoader';
 import {
   useActiveWhiteboardInstance,
@@ -28,9 +29,13 @@ import {
 
 export type AppProps = {
   layoutProps?: LayoutProps;
+  slidesMigrationDialogAdditionalButtons?: ReactElement;
 };
 
-export const App = ({ layoutProps }: AppProps) => {
+export const App = ({
+  layoutProps,
+  slidesMigrationDialogAdditionalButtons,
+}: AppProps) => {
   const { t } = useTranslation('neoboard');
   const { value, loading } = useOwnedWhiteboard();
   const whiteboardManager = useWhiteboardManager();
@@ -51,6 +56,9 @@ export const App = ({ layoutProps }: AppProps) => {
     // Show the whiteboard if there is one and we are not waiting for a moderator
     return (
       <ReactSdkThemeProvider>
+        <SlidesMigration
+          dialogAdditionalButtons={slidesMigrationDialogAdditionalButtons}
+        />
         <Layout {...layoutProps} />
       </ReactSdkThemeProvider>
     );

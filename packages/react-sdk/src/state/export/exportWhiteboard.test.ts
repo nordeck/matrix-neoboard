@@ -34,6 +34,7 @@ import {
   generateLockSlide,
   generateMoveElement,
   generateMoveSlide,
+  WhiteboardDocumentVersion,
 } from '../crdt';
 import { exportWhiteboard } from './exportWhiteboard';
 
@@ -83,18 +84,22 @@ describe('convertWhiteboardToExportFormat', () => {
       addElementToSlide2(doc);
     });
 
-    expect(await exportWhiteboard(document.getData(), mockWidgetApi())).toEqual(
-      {
-        version: 'net.nordeck.whiteboard@v1',
-        whiteboard: {
-          slides: [
-            { elements: [mockEllipseElement({ kind: 'ellipse' })] },
-            { elements: [mockEllipseElement({ kind: 'circle' })] },
-            { elements: [mockEllipseElement({ kind: 'triangle' })] },
-          ],
-        },
+    expect(
+      await exportWhiteboard(
+        WhiteboardDocumentVersion.Initial,
+        document.getData(),
+        mockWidgetApi(),
+      ),
+    ).toEqual({
+      version: 'net.nordeck.whiteboard@v1',
+      whiteboard: {
+        slides: [
+          { elements: [mockEllipseElement({ kind: 'ellipse' })] },
+          { elements: [mockEllipseElement({ kind: 'circle' })] },
+          { elements: [mockEllipseElement({ kind: 'triangle' })] },
+        ],
       },
-    );
+    });
   });
 
   it('should export images', async () => {
@@ -123,21 +128,25 @@ describe('convertWhiteboardToExportFormat', () => {
       return '';
     });
 
-    expect(await exportWhiteboard(document.getData(), mockWidgetApi())).toEqual(
-      {
-        version: 'net.nordeck.whiteboard@v1',
-        whiteboard: {
-          slides: [{ elements: [mockImageElement()] }],
-          files: [
-            // expect the file with base64 encoded content
-            {
-              data: btoa('encoded image content'),
-              mxc: 'mxc://example.com/test1234',
-            },
-          ],
-        },
+    expect(
+      await exportWhiteboard(
+        WhiteboardDocumentVersion.Initial,
+        document.getData(),
+        mockWidgetApi(),
+      ),
+    ).toEqual({
+      version: 'net.nordeck.whiteboard@v1',
+      whiteboard: {
+        slides: [{ elements: [mockImageElement()] }],
+        files: [
+          // expect the file with base64 encoded content
+          {
+            data: btoa('encoded image content'),
+            mxc: 'mxc://example.com/test1234',
+          },
+        ],
       },
-    );
+    });
   });
 
   it('should deduplicate exported images', async () => {
@@ -171,21 +180,25 @@ describe('convertWhiteboardToExportFormat', () => {
         return btoa('encoded image content');
       },
     );
-    expect(await exportWhiteboard(document.getData(), mockWidgetApi())).toEqual(
-      {
-        version: 'net.nordeck.whiteboard@v1',
-        whiteboard: {
-          slides: [{ elements: [mockImageElement(), mockImageElement()] }],
-          files: [
-            // expect one file in the exported data
-            {
-              data: btoa('encoded image content'),
-              mxc: 'mxc://example.com/test1234',
-            },
-          ],
-        },
+    expect(
+      await exportWhiteboard(
+        WhiteboardDocumentVersion.Initial,
+        document.getData(),
+        mockWidgetApi(),
+      ),
+    ).toEqual({
+      version: 'net.nordeck.whiteboard@v1',
+      whiteboard: {
+        slides: [{ elements: [mockImageElement(), mockImageElement()] }],
+        files: [
+          // expect one file in the exported data
+          {
+            data: btoa('encoded image content'),
+            mxc: 'mxc://example.com/test1234',
+          },
+        ],
       },
-    );
+    });
   });
 
   it('should skip image downloads with errors', async () => {
@@ -225,21 +238,25 @@ describe('convertWhiteboardToExportFormat', () => {
     });
     vi.spyOn(lib, 'convertBlobToBase64').mockRejectedValue('test error');
 
-    expect(await exportWhiteboard(document.getData(), mockWidgetApi())).toEqual(
-      {
-        version: 'net.nordeck.whiteboard@v1',
-        whiteboard: {
-          slides: [
-            {
-              elements: [
-                mockImageElement(),
-                mockImageElement({ mxc: 'mxc://example.com/test5678' }),
-              ],
-            },
-          ],
-        },
+    expect(
+      await exportWhiteboard(
+        WhiteboardDocumentVersion.Initial,
+        document.getData(),
+        mockWidgetApi(),
+      ),
+    ).toEqual({
+      version: 'net.nordeck.whiteboard@v1',
+      whiteboard: {
+        slides: [
+          {
+            elements: [
+              mockImageElement(),
+              mockImageElement({ mxc: 'mxc://example.com/test5678' }),
+            ],
+          },
+        ],
       },
-    );
+    });
   });
 
   it('should return elements in the correct order', async () => {
@@ -268,22 +285,26 @@ describe('convertWhiteboardToExportFormat', () => {
       moveElement1ToFront(doc);
     });
 
-    expect(await exportWhiteboard(document.getData(), mockWidgetApi())).toEqual(
-      {
-        version: 'net.nordeck.whiteboard@v1',
-        whiteboard: {
-          slides: [
-            {
-              elements: [
-                mockEllipseElement({ kind: 'circle' }),
-                mockEllipseElement({ kind: 'triangle' }),
-                mockEllipseElement({ kind: 'ellipse' }),
-              ],
-            },
-          ],
-        },
+    expect(
+      await exportWhiteboard(
+        WhiteboardDocumentVersion.Initial,
+        document.getData(),
+        mockWidgetApi(),
+      ),
+    ).toEqual({
+      version: 'net.nordeck.whiteboard@v1',
+      whiteboard: {
+        slides: [
+          {
+            elements: [
+              mockEllipseElement({ kind: 'circle' }),
+              mockEllipseElement({ kind: 'triangle' }),
+              mockEllipseElement({ kind: 'ellipse' }),
+            ],
+          },
+        ],
       },
-    );
+    });
   });
 
   it('should export ids for connected elements', async () => {
@@ -329,39 +350,43 @@ describe('convertWhiteboardToExportFormat', () => {
       addElement3(doc);
     });
 
-    expect(await exportWhiteboard(document.getData(), mockWidgetApi())).toEqual(
-      {
-        version: 'net.nordeck.whiteboard@v1',
-        whiteboard: {
-          slides: [
-            {
-              elements: [
-                mockRectangleElement(),
-                {
-                  id: ellipseId,
-                  ...mockEllipseElement({
-                    connectedPaths: [lineId],
-                  }),
-                },
-                {
-                  id: lineId,
-                  ...mockLineElement({
-                    connectedElementStart: ellipseId,
-                    connectedElementEnd: triangleId,
-                  }),
-                },
-                {
-                  id: triangleId,
-                  ...mockTriangleElement({
-                    connectedPaths: [lineId],
-                  }),
-                },
-              ],
-            },
-          ],
-        },
+    expect(
+      await exportWhiteboard(
+        WhiteboardDocumentVersion.Initial,
+        document.getData(),
+        mockWidgetApi(),
+      ),
+    ).toEqual({
+      version: 'net.nordeck.whiteboard@v1',
+      whiteboard: {
+        slides: [
+          {
+            elements: [
+              mockRectangleElement(),
+              {
+                id: ellipseId,
+                ...mockEllipseElement({
+                  connectedPaths: [lineId],
+                }),
+              },
+              {
+                id: lineId,
+                ...mockLineElement({
+                  connectedElementStart: ellipseId,
+                  connectedElementEnd: triangleId,
+                }),
+              },
+              {
+                id: triangleId,
+                ...mockTriangleElement({
+                  connectedPaths: [lineId],
+                }),
+              },
+            ],
+          },
+        ],
       },
-    );
+    });
   });
 
   it('should export frames and attached elements with ids', async () => {
@@ -403,38 +428,42 @@ describe('convertWhiteboardToExportFormat', () => {
       addElement3(doc);
     });
 
-    expect(await exportWhiteboard(document.getData(), mockWidgetApi())).toEqual(
-      {
-        version: 'net.nordeck.whiteboard@v1',
-        whiteboard: {
-          slides: [
-            {
-              elements: [
-                mockRectangleElement(),
-                {
-                  id: frameId,
-                  ...mockFrameElement({
-                    attachedElements: [ellipseId, lineId],
-                  }),
-                },
-                {
-                  id: ellipseId,
-                  ...mockEllipseElement({
-                    attachedFrame: frameId,
-                  }),
-                },
-                {
-                  id: lineId,
-                  ...mockLineElement({
-                    attachedFrame: frameId,
-                  }),
-                },
-              ],
-            },
-          ],
-        },
+    expect(
+      await exportWhiteboard(
+        WhiteboardDocumentVersion.Initial,
+        document.getData(),
+        mockWidgetApi(),
+      ),
+    ).toEqual({
+      version: 'net.nordeck.whiteboard@v1',
+      whiteboard: {
+        slides: [
+          {
+            elements: [
+              mockRectangleElement(),
+              {
+                id: frameId,
+                ...mockFrameElement({
+                  attachedElements: [ellipseId, lineId],
+                }),
+              },
+              {
+                id: ellipseId,
+                ...mockEllipseElement({
+                  attachedFrame: frameId,
+                }),
+              },
+              {
+                id: lineId,
+                ...mockLineElement({
+                  attachedFrame: frameId,
+                }),
+              },
+            ],
+          },
+        ],
       },
-    );
+    });
   });
 
   it('should include the lock status of a slide', async () => {
@@ -448,14 +477,35 @@ describe('convertWhiteboardToExportFormat', () => {
       lockSlide1(doc);
     });
 
-    expect(await exportWhiteboard(document.getData(), mockWidgetApi())).toEqual(
-      {
-        version: 'net.nordeck.whiteboard@v1',
-        whiteboard: {
-          slides: [{ elements: [] }, { elements: [], lock: {} }],
-        },
+    expect(
+      await exportWhiteboard(
+        WhiteboardDocumentVersion.Initial,
+        document.getData(),
+        mockWidgetApi(),
+      ),
+    ).toEqual({
+      version: 'net.nordeck.whiteboard@v1',
+      whiteboard: {
+        slides: [{ elements: [] }, { elements: [], lock: {} }],
       },
-    );
+    });
+  });
+
+  it('should export whiteboard document frames version', async () => {
+    const document = createWhiteboardDocument(WhiteboardDocumentVersion.Frames);
+
+    expect(
+      await exportWhiteboard(
+        WhiteboardDocumentVersion.Frames,
+        document.getData(),
+        mockWidgetApi(),
+      ),
+    ).toEqual({
+      version: 'net.nordeck.whiteboard@v2',
+      whiteboard: {
+        slides: [{ elements: [] }],
+      },
+    });
   });
 });
 

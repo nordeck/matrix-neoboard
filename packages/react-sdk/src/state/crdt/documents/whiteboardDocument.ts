@@ -14,14 +14,23 @@
  * limitations under the License.
  */
 
-import Joi from 'joi';
+import Joi, { AnySchema, ObjectSchema } from 'joi';
 import { without } from 'lodash';
 import loglevel from 'loglevel';
-import { Document } from '../types';
-import { createMigrations, SharedMap, YArray, YDocument, YMap } from '../y';
+import { ChangeFn, Document } from '../types';
+import {
+  createMigrations,
+  getYDocUpdateDocumentVersion,
+  MigrationFn,
+  SharedMap,
+  YArray,
+  YDocument,
+  YMap,
+} from '../y';
 import { UndoRedoItemValidator } from '../y/yDocumentUndoManager';
 import { disallowElementIds, Element, elementSchema } from './elements';
 import { getNormalizedSlideIds, getSlideLock } from './operations';
+import { generateFramesUpdate } from './updates';
 
 export type SlideLock = {
   userId: string;
@@ -39,12 +48,13 @@ export type WhiteboardDocument = {
   slideIds: YArray<string>;
 };
 
+// Generate an initial slide. All whiteboards will have this slide id!
+const slideId = 'IN4h74suMiIAK4AVMAdl_';
+
 /** Initialize the data object */
 export function initializeWhiteboardDocument(
   doc: SharedMap<WhiteboardDocument>,
 ) {
-  // Generate an initial slide. All whiteboards will have this slide id!
-  const slideId = 'IN4h74suMiIAK4AVMAdl_';
   const slide = new YMap<unknown>() as SharedMap<Slide>;
   slide.set('elements', new YMap());
   slide.set('elementIds', new YArray());
@@ -53,49 +63,227 @@ export function initializeWhiteboardDocument(
   doc.set('slideIds', YArray.from([slideId]));
 }
 
-export const WHITEBOARD_DOCUMENT_VERSION = '0';
+/** Initialize frameElementIds of the initial slide */
+export function initializeSlideFrameElementIds(
+  doc: SharedMap<WhiteboardDocument>,
+) {
+  doc.get('slides').get(slideId)?.set('frameElementIds', new YArray());
+}
 
-export const whiteboardDocumentMigrations = createMigrations(
-  // Never change or remove a migration, always add new migrations to the end
-  // of the list!
-  [initializeWhiteboardDocument],
-  WHITEBOARD_DOCUMENT_VERSION,
+export enum WhiteboardDocumentVersion {
+  Initial = '0',
+  Frames = '1',
+}
+
+const whiteboardDocumentVersions: WhiteboardDocumentVersion[] = Object.values(
+  WhiteboardDocumentVersion,
 );
 
-export function createWhiteboardDocument(): Document<WhiteboardDocument> {
+export function isWhiteboardDocumentVersion(
+  documentVersion: string,
+): documentVersion is WhiteboardDocumentVersion {
+  return (whiteboardDocumentVersions as string[]).includes(documentVersion);
+}
+
+const whiteboardDocumentVersionSchema = Joi.string()
+  .pattern(/^(0|[1-9]\d*)$/)
+  .strict()
+  .required();
+
+export function isValidWhiteboardDocumentVersion(
+  documentVersion: string,
+): boolean {
+  return (
+    whiteboardDocumentVersionSchema.validate(documentVersion).error ===
+    undefined
+  );
+}
+
+export function compareWhiteboardDocumentVersions(
+  a: WhiteboardDocumentVersion,
+  b: WhiteboardDocumentVersion,
+): number {
+  const aIndex = whiteboardDocumentVersions.indexOf(a);
+  const bIndex = whiteboardDocumentVersions.indexOf(b);
+  return aIndex - bIndex;
+}
+
+/**
+ * Selects all versions up to passed version including passed one.
+ * @param whiteboardDocumentVersion
+ */
+export function selectWhiteboardDocumentVersionsUpTo(
+  whiteboardDocumentVersion: WhiteboardDocumentVersion,
+): WhiteboardDocumentVersion[] {
+  const versionIndex = whiteboardDocumentVersions.indexOf(
+    whiteboardDocumentVersion,
+  );
+  if (versionIndex === -1) {
+    throw new Error(`Cannot find version: '${whiteboardDocumentVersion}'`);
+  }
+  return whiteboardDocumentVersions.slice(0, versionIndex + 1);
+}
+
+// Never change or remove a migration function, always add new migration functions to the end
+// of the list!
+export const migrationFunctions: MigrationFn<WhiteboardDocument>[] = [
+  initializeWhiteboardDocument,
+  initializeSlideFrameElementIds,
+];
+
+export const whiteboardDocumentMigrations = createMigrations(
+  // Never change or remove migration functions
+  migrationFunctions.slice(0, 1),
+  WhiteboardDocumentVersion.Initial,
+);
+
+export const whiteboardDocumentFramesMigrations = createMigrations(
+  // Never change or remove migration functions
+  migrationFunctions.slice(0, 2),
+  WhiteboardDocumentVersion.Frames,
+);
+
+export function createWhiteboardDocument(
+  whiteboardDocumentVersion: WhiteboardDocumentVersion = WhiteboardDocumentVersion.Initial,
+): Document<WhiteboardDocument> {
   return YDocument.create(
-    whiteboardDocumentMigrations,
-    WHITEBOARD_DOCUMENT_VERSION,
+    getMigrations(whiteboardDocumentVersion),
+    whiteboardDocumentVersion,
     keepWhiteboardUndoRedoItem,
   );
 }
 
-const slideSchema = Joi.object({
-  elements: Joi.object()
-    .pattern(Joi.string().not(...disallowElementIds), elementSchema)
-    .required(),
-  elementIds: Joi.array()
-    .items(Joi.string().not(...disallowElementIds))
-    .required(),
-  frameElementIds: Joi.array().items(Joi.string().not(...disallowElementIds)),
-  lock: Joi.object({
-    userId: Joi.string().required(),
-  }).unknown(),
-})
-  .unknown()
-  .required();
+function getMigrations(
+  whiteboardDocumentVersion: WhiteboardDocumentVersion,
+): Uint8Array[] {
+  switch (whiteboardDocumentVersion) {
+    case WhiteboardDocumentVersion.Initial:
+      return whiteboardDocumentMigrations;
 
-export const whiteboardDocumentSchema = Joi.object({
-  slides: Joi.object().pattern(Joi.string(), slideSchema).required(),
+    case WhiteboardDocumentVersion.Frames:
+      return whiteboardDocumentFramesMigrations;
+
+    default:
+      throw new Error(
+        'Unexpected whiteboard document version:' + whiteboardDocumentVersion,
+      );
+  }
+}
+
+/**
+ * Generate a change function to update.
+ * @param document a document used as a data source to create an update function
+ * @param targetDocumentVersion a target whiteboard document version
+ */
+export function generateUpdate(
+  document: Document<Record<string, unknown>>,
+  targetDocumentVersion: string,
+): ChangeFn<WhiteboardDocument> {
+  const documentVersion = document.getDocumentVersion();
+
+  if (documentVersion === targetDocumentVersion) {
+    throw new Error(
+      `Update to '${targetDocumentVersion}' version is not needed: source and target document versions are the same`,
+    );
+  }
+
+  let isInvalidDocument: boolean | undefined;
+  if (
+    documentVersion === WhiteboardDocumentVersion.Initial &&
+    targetDocumentVersion === WhiteboardDocumentVersion.Frames
+  ) {
+    if (isValidWhiteboardDocument(document)) {
+      return generateFramesUpdate(document.getData());
+    } else {
+      isInvalidDocument = true;
+    }
+  }
+
+  if (isInvalidDocument) {
+    throw Error('Update generation failed: document is invalid');
+  }
+
+  throw new Error(
+    `Update generation failed: update from '${document.getDocumentVersion()}' to '${targetDocumentVersion}' is not implemented`,
+  );
+}
+
+function getSlideSchema(
+  whiteboardDocumentVersion: WhiteboardDocumentVersion,
+): ObjectSchema {
+  let frameElementIdsSchema: AnySchema;
+  if (whiteboardDocumentVersion === WhiteboardDocumentVersion.Initial) {
+    frameElementIdsSchema = Joi.any();
+  } else if (whiteboardDocumentVersion === WhiteboardDocumentVersion.Frames) {
+    frameElementIdsSchema = Joi.array()
+      .items(Joi.string().not(...disallowElementIds))
+      .required();
+  } else {
+    throw new Error(
+      'Unexpected whiteboard document version:' + whiteboardDocumentVersion,
+    );
+  }
+
+  return Joi.object({
+    elements: Joi.object()
+      .pattern(Joi.string().not(...disallowElementIds), elementSchema)
+      .required(),
+    elementIds: Joi.array()
+      .items(Joi.string().not(...disallowElementIds))
+      .required(),
+    frameElementIds: frameElementIdsSchema,
+    lock: Joi.object({
+      userId: Joi.string().required(),
+    }).unknown(),
+  })
+    .unknown()
+    .required();
+}
+
+export const whiteboardInitialDocumentSchema = Joi.object({
+  slides: Joi.object()
+    .pattern(Joi.string(), getSlideSchema(WhiteboardDocumentVersion.Initial))
+    .required(),
   slideIds: Joi.array().items(Joi.string()).required(),
 })
   .unknown()
   .required();
 
+export const whiteboardFramesDocumentSchema = Joi.object({
+  slides: Joi.object()
+    .pattern(Joi.string(), getSlideSchema(WhiteboardDocumentVersion.Frames))
+    .required(),
+  slideIds: Joi.array().items(Joi.string()).required(),
+})
+  .unknown()
+  .required();
+
+function getWhiteboardDocumentSchema(
+  whiteboardDocumentVersion: WhiteboardDocumentVersion,
+): AnySchema<WhiteboardDocument> {
+  switch (whiteboardDocumentVersion) {
+    case WhiteboardDocumentVersion.Initial:
+      return whiteboardInitialDocumentSchema;
+    case WhiteboardDocumentVersion.Frames:
+      return whiteboardFramesDocumentSchema;
+    default:
+      throw new Error(
+        'Unexpected whiteboard document version:' + whiteboardDocumentVersion,
+      );
+  }
+}
+
 export function isValidWhiteboardDocument(
   document: Document<Record<string, unknown>>,
 ): document is Document<WhiteboardDocument> {
-  const result = whiteboardDocumentSchema.validate(document.getData().toJSON());
+  const documentVersion = document.getDocumentVersion();
+  if (!isWhiteboardDocumentVersion(documentVersion)) {
+    return false;
+  }
+
+  const result = getWhiteboardDocumentSchema(documentVersion).validate(
+    document.getData().toJSON(),
+  );
 
   if (result.error) {
     loglevel.error('Error while validating the document', result.error);
@@ -106,7 +294,25 @@ export function isValidWhiteboardDocument(
 }
 
 export function isValidWhiteboardDocumentSnapshot(data: Uint8Array): boolean {
-  const document = createWhiteboardDocument();
+  const documentVersion = getYDocUpdateDocumentVersion(data);
+
+  if (!documentVersion) {
+    return false;
+  }
+
+  if (!isValidWhiteboardDocumentVersion(documentVersion)) {
+    return false;
+  }
+
+  if (!isWhiteboardDocumentVersion(documentVersion)) {
+    // it is unsupported whiteboard document
+    // can't validate the contents as we don't know the schema
+    // should be only used to make notification about unsupported document
+    // assume to be valid
+    return true;
+  }
+
+  const document = createWhiteboardDocument(documentVersion);
 
   try {
     document.mergeFrom(data);

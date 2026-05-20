@@ -62,7 +62,6 @@ export {
   generateMoveUp,
   generateRemoveElement,
   generateRemoveSlide,
-  generateSetSlideFrameElementIds,
   generateUnlockSlide,
   generateUpdateElement,
   getElement,
@@ -81,12 +80,25 @@ export {
 } from './point';
 export type { BoundingRect, Point } from './point';
 export {
+  WhiteboardDocumentVersion,
   createWhiteboardDocument,
+  generateUpdate,
   isValidWhiteboardDocument,
   isValidWhiteboardDocumentSnapshot,
+  isValidWhiteboardDocumentVersion,
+  isWhiteboardDocumentVersion,
+  selectWhiteboardDocumentVersionsUpTo,
 } from './whiteboardDocument';
 export type {
   Slide,
   SlideLock,
   WhiteboardDocument,
 } from './whiteboardDocument';
+export {
+  frameHeight,
+  frameWidth,
+  framesWhiteboardHeight,
+  framesWhiteboardWidth,
+  slidesWhiteboardHeight,
+  slidesWhiteboardWidth,
+} from './whiteboardDocumentConstants';
