@@ -15,12 +15,23 @@
  */
 
 import { Element } from '../../state';
+import { isRotateableElement } from '../../state/crdt/documents/elements';
 import { ElementOverride } from './ElementOverridesProvider';
 
 export function mergeElementAndOverride<T extends Element>(
   element: T,
   override: ElementOverride | undefined,
 ): T {
+  if (isRotateableElement(element)) {
+    return {
+      ...element,
+      height: override?.height ?? element.height,
+      width: override?.width ?? element.width,
+      position: override?.position ?? element.position,
+      rotation: override?.rotation ?? element.rotation,
+    };
+  }
+
   return element.type === 'path'
     ? {
         ...element,

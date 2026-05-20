@@ -56,9 +56,12 @@ const RectangleDisplay = ({
     </filter>
   );
 
+  const rot = shape.rotation ?? 0;
+
   const renderedChild = (
     <g
       data-testid={dataTestid}
+      transform={`rotate(${rot} ${shape.position.x + shape.width / 2} ${shape.position.y + shape.height / 2})`}
       style={stickyNote ? { filter: 'url(#bottom-shadow)' } : {}}
     >
       {stickyNote && shadowFilter}
