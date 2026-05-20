@@ -30,25 +30,21 @@ export function ReorderElementsShortcuts() {
   const elementIds = useSlideElementIds();
 
   const canMoveUp =
-    activeElementIds.length > 0 &&
-    activeElementIds.some((id) => last(elementIds) !== id);
+    activeElementIds.length === 1 &&
+    !activeElementIds.some((id) => last(elementIds) === id);
   const canMoveDown =
-    activeElementIds.length > 0 &&
-    activeElementIds.some((id) => first(elementIds) !== id);
+    activeElementIds.length === 1 &&
+    !activeElementIds.some((id) => first(elementIds) === id);
 
   const handleClickBringForward = useCallback(() => {
-    if (activeElementIds.length > 0 && canMoveUp) {
-      activeElementIds.forEach((activeElementId) =>
-        slideInstance.moveElementUp(activeElementId),
-      );
+    if (canMoveUp) {
+      slideInstance.moveElementUp(activeElementIds[0]);
     }
   }, [activeElementIds, canMoveUp, slideInstance]);
 
   const handleClickBringBackward = useCallback(() => {
-    if (activeElementIds.length > 0 && canMoveDown) {
-      activeElementIds.forEach((activeElementId) =>
-        slideInstance.moveElementDown(activeElementId),
-      );
+    if (canMoveDown) {
+      slideInstance.moveElementDown(activeElementIds[0]);
     }
   }, [activeElementIds, canMoveDown, slideInstance]);
 

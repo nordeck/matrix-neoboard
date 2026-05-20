@@ -156,7 +156,7 @@ describe('<ReorderElementsShortcuts>', () => {
       'element-3',
     ]);
 
-    // no effect if the element is already at the top
+    // no effect if the element is already at the bottom
     await userEvent.keyboard('{Control>}{ArrowDown}');
 
     expect(activeSlide.getElementIds()).toEqual([
@@ -188,7 +188,7 @@ describe('<ReorderElementsShortcuts>', () => {
       'element-3',
     ]);
 
-    // no effect if the element is already at the top
+    // no effect if the element is already at the bottom
     await userEvent.keyboard('{meta>}{ArrowDown}');
 
     expect(activeSlide.getElementIds()).toEqual([
@@ -284,7 +284,7 @@ describe('<ReorderElementsShortcuts>', () => {
       'element-3',
     ]);
 
-    // no effect if the element is already at the top
+    // no effect if the elements are already at the back
     await userEvent.keyboard('{Control>}{Shift>}{ArrowDown}');
 
     expect(activeSlide.getElementIds()).toEqual([
@@ -316,13 +316,43 @@ describe('<ReorderElementsShortcuts>', () => {
       'element-3',
     ]);
 
-    // no effect if the element is already at the top
+    // no effect if the elements are already at the back
     await userEvent.keyboard('{meta>}{Shift>}{ArrowDown}');
 
     expect(activeSlide.getElementIds()).toEqual([
       'element-1',
       'element-2',
       'element-0',
+      'element-3',
+    ]);
+  });
+
+  it('should not move elements forward when multiple elements are selected', async () => {
+    const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
+    activeSlide.setActiveElementIds(['element-1', 'element-2']);
+    render(<ReorderElementsShortcuts />, { wrapper: Wrapper });
+
+    await userEvent.keyboard('{Control>}{ArrowUp}');
+
+    expect(activeSlide.getElementIds()).toEqual([
+      'element-0',
+      'element-1',
+      'element-2',
+      'element-3',
+    ]);
+  });
+
+  it('should not move elements backward when multiple elements are selected', async () => {
+    const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
+    activeSlide.setActiveElementIds(['element-1', 'element-2']);
+    render(<ReorderElementsShortcuts />, { wrapper: Wrapper });
+
+    await userEvent.keyboard('{Control>}{ArrowDown}');
+
+    expect(activeSlide.getElementIds()).toEqual([
+      'element-0',
+      'element-1',
+      'element-2',
       'element-3',
     ]);
   });
