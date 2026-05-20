@@ -216,7 +216,6 @@ export function TextEditor({
       preventDefault: true,
       enableOnContentEditable: true,
       scopes: [HOTKEY_SCOPE_GLOBAL],
-      enableOnFormTags: true,
     },
     [handleEscape],
   );
