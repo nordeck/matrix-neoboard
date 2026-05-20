@@ -1,5 +1,17 @@
 # @nordeck/matrix-neoboard-react-sdk
 
+## 1.5.0
+
+### Minor Changes
+
+- 3c6f791: Presentation mode for frames
+- 6ce67c3: Add block arrow shape
+
+### Patch Changes
+
+- 29457e8: Update lodash to 4.18.1 for CVEs: `CVE-2026-2950`, `CVE-2026-4800`
+- ef0749c: Refactor infinite canvas to use `viewBox` for transformations and simplify API
+
 ## 1.4.0
 
 ### Minor Changes
