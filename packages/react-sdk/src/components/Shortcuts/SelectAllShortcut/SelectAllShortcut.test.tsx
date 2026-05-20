@@ -27,7 +27,11 @@ import {
   mockWhiteboardManager,
 } from '../../../lib/testUtils';
 import { WhiteboardInstance, WhiteboardManager } from '../../../state';
-import { WhiteboardHotkeysProvider } from '../../WhiteboardHotkeysProvider';
+import {
+  HOTKEY_SCOPE_WHITEBOARD,
+  WhiteboardHotkeysProvider,
+  usePauseHotkeysScope,
+} from '../../WhiteboardHotkeysProvider';
 import { SelectAllShortcut } from './SelectAllShortcut';
 
 let widgetApi: MockedWidgetApi;
@@ -42,9 +46,10 @@ describe('<SelectAllShortcut>', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
   let whiteboardManager: Mocked<WhiteboardManager>;
   let activeWhiteboardInstance: WhiteboardInstance;
+  let setPresentationMode: (enable: boolean, enableEdit: boolean) => void;
 
   beforeEach(() => {
-    ({ whiteboardManager } = mockWhiteboardManager({
+    ({ whiteboardManager, setPresentationMode } = mockWhiteboardManager({
       slides: [
         [
           'slide-0',
@@ -77,8 +82,8 @@ describe('<SelectAllShortcut>', () => {
     );
   });
 
-  it.each(['{Control>}a{/Control}', '{meta>}a'])(
-    'selects all elements with %s',
+  it.each(['{Control>}a{/Control}', '{meta>}a{/meta}'])(
+    'should select all elements with %s',
     async (key) => {
       const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
 
@@ -91,4 +96,50 @@ describe('<SelectAllShortcut>', () => {
       );
     },
   );
+
+  it('should ignore select all if keyboard scope is disabled', async () => {
+    const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
+
+    render(
+      <DisableWhiteboardHotkeys>
+        <SelectAllShortcut />
+      </DisableWhiteboardHotkeys>,
+      { wrapper: Wrapper },
+    );
+
+    await userEvent.keyboard('{Control>}a{/Control}');
+
+    expect(activeSlide.getActiveElementIds()).toEqual([]);
+  });
+
+  it('should ignore select all if the presentation mode is active', async () => {
+    setPresentationMode(true, false);
+
+    const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
+
+    render(<SelectAllShortcut />, { wrapper: Wrapper });
+
+    await userEvent.keyboard('{Control>}a{/Control}');
+
+    expect(activeSlide.getActiveElementIds()).toEqual([]);
+  });
+
+  it('should select all elements when presentation mode is active with edit enabled', async () => {
+    setPresentationMode(true, true);
+
+    const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
+
+    render(<SelectAllShortcut />, { wrapper: Wrapper });
+
+    await userEvent.keyboard('{Control>}a{/Control}');
+
+    expect(activeSlide.getActiveElementIds()).toEqual(
+      activeSlide.getElementIds(),
+    );
+  });
 });
+
+function DisableWhiteboardHotkeys({ children }: PropsWithChildren<{}>) {
+  usePauseHotkeysScope(HOTKEY_SCOPE_WHITEBOARD);
+  return <>{children}</>;
+}

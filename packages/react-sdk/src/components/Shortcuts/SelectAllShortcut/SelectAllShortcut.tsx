@@ -16,15 +16,24 @@
 
 import { useCallback } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
-import { useWhiteboardSlideInstance } from '../../../state';
+import {
+  usePresentationMode,
+  useWhiteboardSlideInstance,
+} from '../../../state';
 import { HOTKEY_SCOPE_WHITEBOARD } from '../../WhiteboardHotkeysProvider';
 
 export function SelectAllShortcut() {
   const slideInstance = useWhiteboardSlideInstance();
+  const { state: presentationState } = usePresentationMode();
+  const isViewingPresentation =
+    presentationState.type === 'presentation' && !presentationState.isEditMode;
 
   const handleSelectAll = useCallback(() => {
+    if (isViewingPresentation) {
+      return;
+    }
     slideInstance.setActiveElementIds(slideInstance.getElementIds());
-  }, [slideInstance]);
+  }, [isViewingPresentation, slideInstance]);
 
   useHotkeys(
     ['ctrl+a', 'meta+a'],
