@@ -16,7 +16,6 @@
 
 import { Box } from '@mui/material';
 import { useCallback, useState } from 'react';
-import { isRotationEnabled } from '../../lib/isRotationEnabled';
 import {
   findActiveAndAttachedElementIds,
   includesShapeWithText,
@@ -190,7 +189,7 @@ const WhiteboardHost = ({
           </>
         )}
 
-        {isRotationEnabled() && !readOnly && activeElementIds.length === 1 && (
+        {!readOnly && activeElementIds.length === 1 && (
           <RotateElement elementId={activeElementIds[0]} />
         )}
 

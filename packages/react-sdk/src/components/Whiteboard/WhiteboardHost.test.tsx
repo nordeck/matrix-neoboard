@@ -1016,7 +1016,6 @@ describe('<WhiteboardHost/>', () => {
     it('should render the rotator UI element handle', () => {
       vi.mocked(getEnvironment).mockImplementation((name, defaultValue) => {
         if (name === 'REACT_APP_INFINITE_CANVAS') return 'true';
-        if (name === 'REACT_APP_ENABLE_ROTATION') return 'true';
         return defaultValue;
       });
 
@@ -1029,7 +1028,6 @@ describe('<WhiteboardHost/>', () => {
     it('should not render the rotator UI for a multi-select', () => {
       vi.mocked(getEnvironment).mockImplementation((name, defaultValue) => {
         if (name === 'REACT_APP_INFINITE_CANVAS') return 'true';
-        if (name === 'REACT_APP_ENABLE_ROTATION') return 'true';
         return defaultValue;
       });
 
@@ -1052,7 +1050,6 @@ describe('<WhiteboardHost/>', () => {
       async ({ type: presentationType, isEditMode }) => {
         vi.mocked(getEnvironment).mockImplementation((name, defaultValue) => {
           if (name === 'REACT_APP_INFINITE_CANVAS') return 'true';
-          if (name === 'REACT_APP_ENABLE_ROTATION') return 'true';
           return defaultValue;
         });
 
@@ -1077,7 +1074,6 @@ describe('<WhiteboardHost/>', () => {
       async ({ type: presentationType, isEditMode }) => {
         vi.mocked(getEnvironment).mockImplementation((name, defaultValue) => {
           if (name === 'REACT_APP_INFINITE_CANVAS') return 'true';
-          if (name === 'REACT_APP_ENABLE_ROTATION') return 'true';
           return defaultValue;
         });
 
