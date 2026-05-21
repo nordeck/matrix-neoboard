@@ -121,6 +121,50 @@ describe('isValidElement', () => {
     },
   );
 
+  it.each(['rectangle', 'circle', 'ellipse', 'triangle', 'block-arrow'])(
+    'should accept %j rotation',
+    (kind) => {
+      const data = {
+        type: 'shape',
+        position: { x: 1, y: 2 },
+        kind,
+        width: 100,
+        height: 100,
+        fillColor: 'red',
+        text: '',
+        connectedPaths: ['element-id-1'],
+      };
+
+      const dataBad = { ...data, rotation: '45' };
+
+      const dataRot = { ...data, rotation: 45 };
+
+      expect(isValidElement(data)).toBe(true);
+      expect(isValidElement(dataRot)).toBe(true);
+      expect(isValidElement(dataBad)).toBe(false);
+    },
+  );
+
+  it('should accept valid image elements with rotation', () => {
+    const data = {
+      type: 'image',
+      mxc: 'mxc://example.com/test1234',
+      fileName: 'example.jpg',
+      mimeType: 'image/jpeg',
+      position: { x: 10, y: 20 },
+      width: 100,
+      height: 100,
+    };
+
+    const dataBad = { ...data, rotation: '45' };
+
+    const dataRot = { ...data, rotation: 45 };
+
+    expect(isValidElement(data)).toBe(true);
+    expect(isValidElement(dataRot)).toBe(true);
+    expect(isValidElement(dataBad)).toBe(false);
+  });
+
   it.each([
     {
       connectedPaths: undefined,

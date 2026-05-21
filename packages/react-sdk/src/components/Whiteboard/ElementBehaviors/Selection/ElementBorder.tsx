@@ -16,11 +16,11 @@
 
 import { useTheme } from '@mui/material';
 import { calculateBoundingRectForElements } from '../../../../state';
-import { isRotateableElement } from '../../../../state/crdt/documents/elements';
 import { useElementOverrides } from '../../../ElementOverridesProvider';
 import { useLayoutState } from '../../../Layout';
 import { getRenderProperties } from '../../../elements/line/getRenderProperties';
 import { useSvgScaleContext } from '../../SvgScaleContext';
+import { getRotationTransformForElementsArrayWithCenterOffset } from '../Rotatable/rotatorMath';
 
 function SelectionAnchor({
   x,
@@ -84,25 +84,17 @@ export function ElementBorder({ elementIds, padding = 1 }: ElementBorderProps) {
     elements[0].kind === 'line' &&
     getRenderProperties(elements[0]);
 
-  const transform = () => {
-    if (elementIds.length === 1 && isRotateableElement(elements[0])) {
-      const element = elements[0];
-      const rot = element.rotation ?? 0;
-      const center = {
-        x: x + element.width / 2,
-        y: y + element.height / 2,
-      };
-      return `rotate(${rot} ${center.x} ${center.y})`;
-    }
-
-    return ``;
-  };
+  const { rotationTransform } =
+    getRotationTransformForElementsArrayWithCenterOffset(elements, { x, y });
 
   if (!isInSelectionMode) return <></>;
 
   const solidLineBorder = () => {
     return (
-      <g transform={transform()} data-testid={`selection-solid-line-borders`}>
+      <g
+        transform={rotationTransform}
+        data-testid={`selection-solid-line-borders`}
+      >
         <line
           data-testid={`${elementIds[0]}-border-top`}
           fill="none"
@@ -165,7 +157,10 @@ export function ElementBorder({ elementIds, padding = 1 }: ElementBorderProps) {
           />
         </>
       ) : (
-        <g transform={transform()} data-testid={`selection-anchors-shape`}>
+        <g
+          transform={rotationTransform}
+          data-testid={`selection-anchors-shape`}
+        >
           <SelectionAnchor
             x={selectionX}
             y={selectionY}

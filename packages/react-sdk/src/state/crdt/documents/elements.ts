@@ -105,6 +105,7 @@ export const shapeElementSchema = elementBaseSchema
     textFontFamily: Joi.string().strict().default('Inter'),
     connectedPaths: Joi.array().items(Joi.string().not(...disallowElementIds)),
     attachedFrame: Joi.string().not(...disallowElementIds),
+    rotation: Joi.number().strict().optional(),
   })
   .required();
 
@@ -195,6 +196,7 @@ export const imageElementSchema = elementBaseSchema
     width: Joi.number().strict().empty(emptyCoordinateSchema).default(1),
     height: Joi.number().strict().empty(emptyCoordinateSchema).default(1),
     attachedFrame: Joi.string().not(...disallowElementIds),
+    rotation: Joi.number().strict().optional(),
   })
   .required();
 

@@ -185,10 +185,6 @@ export function ResizeHandle(props: ResizeHandleProps) {
     scale,
   });
 
-  const getRotatedCursor = () => {
-    return rotateCursor(cursor, rotation ?? 0);
-  };
-
   const dispatchDragEvent = useCallback(
     (
       dragEvent: Dispatch<DragEvent> | undefined,
@@ -280,6 +276,8 @@ export function ResizeHandle(props: ResizeHandleProps) {
     ev.stopPropagation();
   }, []);
 
+  const rotatedCursor = rotateCursor(cursor, rotation ?? 0);
+
   return (
     <DraggableCore
       // disable the hack since we already added it via <DraggableStyles>.
@@ -294,7 +292,7 @@ export function ResizeHandle(props: ResizeHandleProps) {
     >
       <rect
         data-testid={`resize-handle-${name}`}
-        cursor={getRotatedCursor()}
+        cursor={rotatedCursor}
         fill="transparent"
         height={height}
         ref={nodeRef}

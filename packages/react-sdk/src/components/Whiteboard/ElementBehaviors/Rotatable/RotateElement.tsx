@@ -14,15 +14,11 @@
  * limitations under the License.
  */
 
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useUnmount } from 'react-use';
 import {
   calculateBoundingRectForElements,
-  calculateBoundingRectForPoints,
-  ElementBase,
-  findConnectingPaths,
   ImageElement,
-  Point,
   ShapeElement,
   useWhiteboardSlideInstance,
 } from '../../../../state';
@@ -34,12 +30,12 @@ import {
   useSetElementOverride,
 } from '../../../ElementOverridesProvider';
 import { useLayoutState } from '../../../Layout';
-import { useSvgCanvasContext } from '../../SvgCanvas';
-import { elementsUpdates, getPathElements } from '../utils';
-import { RotateHandler } from './RotateHandler';
-import { rotatePoint } from './rotatorMath';
+import { whiteboardHeight, whiteboardWidth } from '../../constants';
+import { elementsUpdates } from '../utils';
+import { RotateHandler, RotationHandleDragEvent } from './RotateHandler';
+import { rotateConnectedPaths } from './utils';
 
-export type DragEvent = {
+export type RotationDragEvent = {
   newAngle: number;
   referenceAngle: number;
   lockAspectRatio: boolean;
@@ -49,19 +45,10 @@ export type RotateElementProps = {
   elementId: string;
 };
 
-export type Rotation = {
-  angle: number;
-};
-
-export type RotateProperties = Rotation & {
-  element: ElementBase;
-};
-
 export function RotateElement({ elementId }: RotateElementProps) {
   const setElementOverride = useSetElementOverride();
   const elements = useElementOverrides([elementId]);
   const activeElements = Object.values(elements);
-  const { viewportWidth, viewportHeight } = useSvgCanvasContext();
   const [elementOverrideUpdates, setElementOverrideUpdates] = useState<
     ElementOverrideUpdate[]
   >([]);
@@ -80,132 +67,34 @@ export function RotateElement({ elementId }: RotateElementProps) {
     setElementOverride(createResetElementOverrides([elementId]));
   });
 
-  const handleDrag = (event: DragEvent) => {
-    const update: ElementOverrideUpdate = {
-      elementId,
-      elementOverride: {
-        rotation: event.newAngle,
-      },
-    };
-
-    const updates = [update];
-
-    // update the connected arrows
-    updates.push(...rotateConnectedPaths(event));
-
-    setElementOverride(updates);
-    setElementOverrideUpdates(updates);
-  };
-
-  function rotateConnectedPaths(event: DragEvent) {
-    const pathElements = getPathElements(
-      slideInstance,
-      findConnectingPaths(elements),
-    );
-
-    const res: ElementOverrideUpdate[] = [];
-
-    for (const [pathElementId, pathElement] of Object.entries(pathElements)) {
-      if (
-        !(pathElement.connectedElementStart || pathElement.connectedElementEnd)
-      ) {
-        continue;
-      }
-
-      // the initial position of the path before rotating it's points
-      let linePosition = {
-        position: pathElement.position,
-        points: pathElement.points,
+  const handleDrag = useCallback(
+    (event: RotationHandleDragEvent) => {
+      const update: ElementOverrideUpdate = {
+        elementId,
+        elementOverride: {
+          rotation: event.newAngle,
+        },
       };
 
-      // helper to rotate a point over the shape, taking into account the
-      // initial shape's rotation (refAngle)
-      const rotateConnectorPoint = (
-        connector: Point,
-        elementWithConnectorPoints: ShapeElement | ImageElement,
-      ): Point => {
-        const center = {
-          x:
-            elementWithConnectorPoints.position.x +
-            elementWithConnectorPoints.width / 2,
-          y:
-            elementWithConnectorPoints.position.y +
-            elementWithConnectorPoints.height / 2,
-        };
-        const refAngle = event.referenceAngle;
-        const newAngle = event.newAngle;
-        let rotatedPoint = rotatePoint(connector, center, -refAngle);
-        rotatedPoint = rotatePoint(rotatedPoint, center, newAngle);
-        rotatedPoint.x -= linePosition.position.x;
-        rotatedPoint.y -= linePosition.position.y;
-        return rotatedPoint;
-      };
+      const updates = [update];
 
-      const rotateConnector = (
-        connectedElementId: string | undefined,
-        type: 'start' | 'end',
-      ) => {
-        if (!connectedElementId) return;
-        if (!elements[connectedElementId]) return;
+      // update the connected arrows
+      updates.push(...rotateConnectedPaths(event, slideInstance, elements));
 
-        const elementWithConnectorPoints = elements[connectedElementId];
-        const idx = type === 'start' ? 0 : 1;
-        const conenctedPoint = {
-          x: pathElement.position.x + pathElement.points[idx].x,
-          y: pathElement.position.y + pathElement.points[idx].y,
-        };
-
-        if (isRotateableElement(elementWithConnectorPoints)) {
-          const rotatedPoint = rotateConnectorPoint(
-            conenctedPoint,
-            elementWithConnectorPoints,
-          );
-
-          // adjust the entire path since we know the rotated position here
-
-          let newPoints: Point[];
-          const start = linePosition.points[0];
-          const end = linePosition.points[1];
-          if (type === 'start') {
-            newPoints = [rotatedPoint, end];
-          } else {
-            newPoints = [start, rotatedPoint];
-          }
-
-          const boundingRect = calculateBoundingRectForPoints(newPoints);
-
-          linePosition = {
-            position: {
-              x: linePosition.position.x + boundingRect.offsetX,
-              y: linePosition.position.y + boundingRect.offsetY,
-            },
-            points: newPoints.map((point) => ({
-              x: point.x - boundingRect.offsetX,
-              y: point.y - boundingRect.offsetY,
-            })),
-          };
-        }
-      };
-
-      rotateConnector(pathElement.connectedElementStart, 'start');
-      rotateConnector(pathElement.connectedElementEnd, 'end');
-      res.push({
-        elementId: pathElementId,
-        elementOverride: linePosition,
-      });
-    }
-
-    return res;
-  }
+      setElementOverride(updates);
+      setElementOverrideUpdates(updates);
+    },
+    [elementId, elements, setElementOverride, slideInstance],
+  );
 
   const activeElement = activeElements[0] as ShapeElement | ImageElement;
 
-  const handleDragStart = () => {
+  const handleDragStart = useCallback(() => {
     if (!isRotateableElement(activeElement)) return;
     setIsRotating(true);
-  };
+  }, [activeElement, setIsRotating]);
 
-  const handleDragStop = () => {
+  const handleDragStop = useCallback(() => {
     const updates = elementsUpdates(
       slideInstance,
       elements,
@@ -216,7 +105,13 @@ export function RotateElement({ elementId }: RotateElementProps) {
 
     setElementOverride(undefined);
     setIsRotating(false);
-  };
+  }, [
+    slideInstance,
+    elements,
+    elementOverrideUpdates,
+    setElementOverride,
+    setIsRotating,
+  ]);
 
   if (!(activeElements.length === 1)) return null;
   if (!isRotateableElement(activeElement)) return null;
@@ -246,9 +141,9 @@ export function RotateElement({ elementId }: RotateElementProps) {
           data-testid={`rotate-handle-grab-thing`}
           cursor={'grabbing'}
           fill="transparent"
-          height={viewportHeight}
+          height={whiteboardHeight}
           transform={`translate(${-offsetX} ${-offsetY})`}
-          width={viewportWidth}
+          width={whiteboardWidth}
         />
       )}
     </g>

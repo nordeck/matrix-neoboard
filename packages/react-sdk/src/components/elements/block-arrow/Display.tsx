@@ -45,12 +45,12 @@ const BlockArrowDisplay = ({
   const boundingRect = calculateBoundingRectForPoints(points);
 
   const rot = shape.rotation ?? 0;
+  const transform = rot
+    ? `rotate(${rot} ${shape.position.x + shape.width / 2} ${shape.position.y + shape.height / 2})`
+    : undefined;
 
   const renderedChild = (
-    <g
-      data-testid={dataTestid}
-      transform={`rotate(${rot} ${shape.position.x + shape.width / 2} ${shape.position.y + shape.height / 2})`}
-    >
+    <g data-testid={dataTestid} transform={transform}>
       {/* Block arrow shape with narrow body */}
       <polygon
         data-connect-type="connectable-element"

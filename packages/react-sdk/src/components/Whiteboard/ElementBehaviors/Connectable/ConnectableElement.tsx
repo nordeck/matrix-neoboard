@@ -17,7 +17,7 @@
 import { useTheme } from '@mui/material';
 import { Fragment, useEffect, useMemo, useState } from 'react';
 import { isDefined } from '../../../../lib';
-import { ShapeElement } from '../../../../state';
+import { Point, ShapeElement } from '../../../../state';
 import { useConnectionPoint } from '../../../ConnectionPointProvider';
 import { useSvgScaleContext } from '../../SvgScaleContext';
 import { rotatePoint } from '../Rotatable/rotatorMath';
@@ -56,43 +56,36 @@ export function ConnectableElement({
     setShowConnectionAnchors(connectElementIds.includes(elementId));
   }, [connectElementIds, elementId]);
 
-  const points = useMemo(
-    () =>
-      [
-        kind === 'rectangle' ? [x, y] : undefined,
-        kind !== 'block-arrow' ? [x + width / 2, y] : undefined,
-        kind === 'rectangle' ? [x + width, y] : undefined,
-        kind !== 'triangle' ? [x, y + height / 2] : undefined,
-        kind !== 'triangle' ? [x + width, y + height / 2] : undefined,
-        kind === 'triangle' ? [x + width / 4, y + height / 2] : undefined,
-        kind === 'triangle' ? [x + (width * 3) / 4, y + height / 2] : undefined,
-        kind === 'rectangle' || kind === 'triangle'
-          ? [x, y + height]
-          : undefined,
-        kind !== 'block-arrow' ? [x + width / 2, y + height] : undefined,
-        kind === 'rectangle' || kind === 'triangle'
-          ? [x + width, y + height]
-          : undefined,
-      ].filter(isDefined),
-    [x, y, height, width, kind],
-  );
+  const points: Point[] = useMemo(() => {
+    const _points = [
+      kind === 'rectangle' ? { x, y } : undefined,
+      kind !== 'block-arrow' ? { x: x + width / 2, y } : undefined,
+      kind === 'rectangle' ? { x: x + width, y } : undefined,
+      kind !== 'triangle' ? { x: x, y: y + height / 2 } : undefined,
+      kind !== 'triangle' ? { x: x + width, y: y + height / 2 } : undefined,
+      kind === 'triangle' ? { x: x + width / 4, y: y + height / 2 } : undefined,
+      kind === 'triangle'
+        ? { x: x + (width * 3) / 4, y: y + height / 2 }
+        : undefined,
+      kind === 'rectangle' || kind === 'triangle'
+        ? { x: x, y: y + height }
+        : undefined,
+      kind !== 'block-arrow' ? { x: x + width / 2, y: y + height } : undefined,
+      kind === 'rectangle' || kind === 'triangle'
+        ? { x: x + width, y: y + height }
+        : undefined,
+    ].filter(isDefined);
 
-  const rotatedPoints = points.map((p) => {
-    if (rotation && p) {
-      const point = {
-        x: p[0],
-        y: p[1],
-      };
-      const center = {
-        x: x + width / 2,
-        y: y + height / 2,
-      };
-      const rotated = rotatePoint(point, center, rotation);
-      return [rotated.x, rotated.y];
-    }
-
-    return p;
-  });
+    return rotation
+      ? _points.map((p) => {
+          const center = {
+            x: x + width / 2,
+            y: y + height / 2,
+          };
+          return rotatePoint(p, center, rotation);
+        })
+      : _points;
+  }, [x, y, height, width, kind, rotation]);
 
   return (
     <>
@@ -105,13 +98,13 @@ export function ConnectableElement({
         height={height}
       />
 
-      {rotatedPoints.map(([pointX, pointY], idx) => (
+      {points.map((p, idx) => (
         <Fragment key={idx}>
           <rect
             data-connect-type="connection-point-area"
             data-connect-element-id={elementId}
-            x={pointX - connectionPointAreaSize / 2}
-            y={pointY - connectionPointAreaSize / 2}
+            x={p.x - connectionPointAreaSize / 2}
+            y={p.y - connectionPointAreaSize / 2}
             width={connectionPointAreaSize}
             height={connectionPointAreaSize}
             fill="transparent"
@@ -121,8 +114,8 @@ export function ConnectableElement({
             <rect
               data-connect-type="connection-point"
               data-connect-element-id={elementId}
-              x={pointX - connectionAnchorSize / 2}
-              y={pointY - connectionAnchorSize / 2}
+              x={p.x - connectionAnchorSize / 2}
+              y={p.y - connectionAnchorSize / 2}
               width={connectionAnchorSize}
               height={connectionAnchorSize}
               fill="white"

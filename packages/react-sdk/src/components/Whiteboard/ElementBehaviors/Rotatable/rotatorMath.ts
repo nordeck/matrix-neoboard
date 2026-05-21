@@ -18,13 +18,15 @@ import { clamp } from 'lodash';
 import { Element, Elements, Point } from '../../../../state';
 import { isRotateableElement } from '../../../../state/crdt/documents/elements';
 
-export const hasRotatedElements = (elements: Elements) =>
-  Object.entries(elements)
+export function hasRotatedElements(elements: Elements): boolean {
+  return Object.entries(elements)
     .map(([_, element]) => !!(isRotateableElement(element) && element.rotation))
     .includes(true);
+}
 
-export const checkMultiselect = (elements: Elements) =>
-  Object.entries(elements).length > 1;
+export function checkMultiselect(elements: Elements): boolean {
+  return Object.entries(elements).length > 1;
+}
 
 export function rotateCursor(cursor: string, angle: number): string {
   const cursors = [
@@ -48,7 +50,12 @@ export function rotateCursor(cursor: string, angle: number): string {
 export function calculateBoundaryWithRotationHandleForElements(
   elements: Element[],
   scale: number,
-) {
+): {
+  min: Point;
+  max: Point;
+  width: number;
+  height: number;
+} | null {
   // at this time will only work for an array with a single rotateable element
   if (elements.length !== 1) return null;
   if (!isRotateableElement(elements[0])) return null;
@@ -59,11 +66,10 @@ export function getMinMaxFromPoints(
   points: Point[],
   rotation: number,
   center: Point,
-) {
-  const rotated = points.map((p) => {
-    if (rotation) return rotatePoint(p, center, rotation);
-    return p;
-  });
+): { min: Point; max: Point; width: number; height: number } {
+  const rotated = rotation
+    ? points.map((p) => rotatePoint(p, center, rotation))
+    : points;
 
   const maxX = rotated
     .map((o) => o.x)
@@ -89,16 +95,21 @@ export function getMinMaxFromPoints(
 export function calculateBoundaryWithRotationHandle(
   element: Element,
   scale: number,
-) {
+): {
+  min: Point;
+  max: Point;
+  width: number;
+  height: number;
+} {
   if (!isRotateableElement(element)) {
     throw Error(`Element can't be rotated and can't have a rotation handle`);
   }
 
   // element has rotation
-  const x = element?.position.x ?? 0;
-  const y = element?.position.y ?? 0;
-  const width = element?.width ?? 0;
-  const height = element?.height ?? 0;
+  const x = element.position.x;
+  const y = element.position.y;
+  const width = element.width;
+  const height = element.height;
 
   const handle = calculateRotatorHandleCenter({
     containerHeight: element.height,
@@ -183,6 +194,42 @@ export function angleBetweenPoints(a: Point, b: Point, center: Point): number {
 }
 
 // makes 0..360 angle
-export function clampAngle(angle: number) {
+export function clampAngle(angle: number): number {
   return ((Math.floor(angle) % 360) + 360) % 360;
+}
+
+export function getRotationTransformForElementsArrayWithCenterOffset(
+  elements: Element[],
+  offset: Point,
+): {
+  rotationValue?: number;
+  rotationTransform: string;
+} {
+  if (elements.length === 1 && isRotateableElement(elements[0])) {
+    const element = elements[0];
+    const { x, y } = offset;
+    const center = {
+      x: x + element.width / 2,
+      y: y + element.height / 2,
+    };
+    const rot = element.rotation;
+
+    return {
+      rotationValue: rot,
+      rotationTransform: rot
+        ? `rotate(${element.rotation} ${center.x} ${center.y})`
+        : '',
+    };
+  }
+  return { rotationValue: undefined, rotationTransform: '' };
+}
+
+export function getRotationTransformForElementsArray(elements: Element[]): {
+  rotationValue?: number;
+  rotationTransform: string;
+} {
+  return getRotationTransformForElementsArrayWithCenterOffset(elements, {
+    x: 0,
+    y: 0,
+  });
 }

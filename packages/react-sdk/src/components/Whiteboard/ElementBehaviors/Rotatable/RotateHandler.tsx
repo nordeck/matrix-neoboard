@@ -15,7 +15,6 @@
  */
 
 import { useTheme } from '@mui/material';
-import { clamp } from 'lodash';
 import { Dispatch, RefObject, useCallback, useRef, useState } from 'react';
 import { DraggableCore, DraggableData, DraggableEvent } from 'react-draggable';
 import { Point } from '../../../../state';
@@ -39,23 +38,26 @@ export type RotatorHandlePosition = {
 
 export type RotateHandleProps = {
   handlePosition: RotatorHandlePosition;
-  onDrag?: Dispatch<DragEvent>;
-  onDragStart?: Dispatch<DragEvent>;
-  onDragStop?: Dispatch<DragEvent>;
+  onDrag?: Dispatch<RotationHandleDragEvent>;
+  onDragStart?: Dispatch<RotationHandleDragEvent>;
+  onDragStop?: Dispatch<RotationHandleDragEvent>;
 };
 
-export type DragEvent = {
+export type RotationHandleDragEvent = {
   newAngle: number;
   referenceAngle: number;
-  lockAspectRatio: boolean;
+  angleSnap: boolean;
 };
 
-export function RotateHandler(props: RotateHandleProps) {
+export function RotateHandler({
+  handlePosition: position,
+  onDrag,
+  onDragStart,
+  onDragStop,
+}: RotateHandleProps) {
   const { scale } = useSvgScaleContext();
   const nodeRef = useRef<SVGRectElement>(null);
   const { calculateSvgCoords } = useSvgCanvasContext();
-
-  const { handlePosition: position, onDrag, onDragStart, onDragStop } = props;
 
   const {
     center: handleCenter,
@@ -66,93 +68,119 @@ export function RotateHandler(props: RotateHandleProps) {
     containerHeight: position.containerHeight,
     scale,
   });
-  const { viewportWidth, viewportHeight } = useSvgCanvasContext();
 
   const [rotationInitialPosition, setRotationInitialPosition] = useState<
     { x: number; y: number; rot: number } | undefined
   >(undefined);
 
-  const dispatchDragEvent = (
-    dragEvent: Dispatch<DragEvent> | undefined,
-    event: DraggableEvent,
-    data: DraggableData,
-  ) => {
-    if (!rotationInitialPosition) {
+  const dispatchDragEvent = useCallback(
+    (
+      dragEvent: Dispatch<RotationHandleDragEvent> | undefined,
+      event: DraggableEvent,
+      data: DraggableData,
+    ) => {
+      if (!rotationInitialPosition) {
+        if (dragEvent) {
+          dragEvent({
+            newAngle: position.rotation,
+            referenceAngle: position.rotation,
+            angleSnap: event.shiftKey,
+          });
+        }
+        return;
+      }
+
+      const handle = {
+        x: rotationInitialPosition.x,
+        y: rotationInitialPosition.y,
+      };
+
+      const cursor = calculateSvgCoords({
+        x: data.x * scale,
+        y: data.y * scale,
+      });
+
+      const center = {
+        x: position.containerWidth / 2.0 + position.offsetX,
+        y: position.containerHeight / 2.0 + position.offsetY,
+      };
+
+      const step = event.shiftKey ? 45 : 1;
+
+      const angle = angleBetweenPoints(handle, cursor, center);
+
+      const stepFunction = (angle: number, step: number): number => {
+        if (step === 0) return 0;
+        const times = Math.floor(angle / step);
+        return step * times;
+      };
+
+      const angleInteger = clampAngle(
+        stepFunction(angle + rotationInitialPosition.rot, step),
+      );
+
       if (dragEvent) {
         dragEvent({
-          newAngle: position.rotation,
-          referenceAngle: position.rotation,
-          lockAspectRatio: event.shiftKey,
+          newAngle: angleInteger,
+          referenceAngle: rotationInitialPosition.rot,
+          angleSnap: event.shiftKey,
         });
       }
-      return;
-    }
+    },
+    [
+      calculateSvgCoords,
+      position.containerHeight,
+      position.containerWidth,
+      position.offsetX,
+      position.offsetY,
+      position.rotation,
+      rotationInitialPosition,
+      scale,
+    ],
+  );
 
-    const handle = {
-      x: rotationInitialPosition.x,
-      y: rotationInitialPosition.y,
-    };
-
-    const cursor = calculateSvgCoords({
-      x: clamp(data.x * scale, 0, viewportWidth),
-      y: clamp(data.y * scale, 0, viewportHeight),
-    });
-
-    const center = {
-      x: position.containerWidth / 2.0 + position.offsetX,
-      y: position.containerHeight / 2.0 + position.offsetY,
-    };
-
-    const step = event.shiftKey ? 45 : 1;
-
-    const angle = angleBetweenPoints(handle, cursor, center);
-
-    const stepFunction = (angle: number, step: number): number => {
-      if (step === 0) return 0;
-      const times = Math.floor(angle / step);
-      return step * times;
-    };
-
-    const angleInteger = clampAngle(
-      stepFunction(angle + rotationInitialPosition.rot, step),
-    );
-
-    if (dragEvent) {
-      dragEvent({
-        newAngle: angleInteger,
-        referenceAngle: rotationInitialPosition.rot,
-        lockAspectRatio: event.shiftKey,
+  const handleStart = useCallback(
+    (event: DraggableEvent, data: DraggableData) => {
+      const cursor = calculateSvgCoords({
+        x: data.x * scale,
+        y: data.y * scale,
       });
-    }
-  };
+      setRotationInitialPosition({
+        x: cursor.x,
+        y: cursor.y,
+        rot: position.rotation ?? 0,
+      });
+      dispatchDragEvent(onDragStart, event, data);
+    },
+    [
+      calculateSvgCoords,
+      dispatchDragEvent,
+      onDragStart,
+      position.rotation,
+      scale,
+    ],
+  );
 
-  const handleStart = (event: DraggableEvent, data: DraggableData) => {
-    const cursor = calculateSvgCoords({
-      x: clamp(data.x * scale, 0, viewportWidth),
-      y: clamp(data.y * scale, 0, viewportHeight),
-    });
-    setRotationInitialPosition({
-      x: cursor.x,
-      y: cursor.y,
-      rot: position.rotation ?? 0,
-    });
-    dispatchDragEvent(onDragStart, event, data);
-  };
-
-  const handleDrag = (event: DraggableEvent, data: DraggableData) => {
-    if (!onDrag) return;
-    dispatchDragEvent(onDrag, event, data);
-  };
+  const handleDrag = useCallback(
+    (event: DraggableEvent, data: DraggableData) => {
+      if (!onDrag) return;
+      dispatchDragEvent(onDrag, event, data);
+    },
+    [dispatchDragEvent, onDrag],
+  );
 
   const handleMouseDown = useCallback((ev: MouseEvent) => {
     // Avoid passing mouse events down into the moveable element
     ev.stopPropagation();
   }, []);
 
-  const handleStop = (event: DraggableEvent, data: DraggableData) => {
-    setRotationInitialPosition(undefined);
-    dispatchDragEvent(onDragStop, event, data);
-  };
+  const handleStop = useCallback(
+    (event: DraggableEvent, data: DraggableData) => {
+      setRotationInitialPosition(undefined);
+      dispatchDragEvent(onDragStop, event, data);
+    },
+    [dispatchDragEvent, onDragStop],
+  );
 
   const theme = useTheme();
   const selectionAnchorCornerRadius = 3 / scale;

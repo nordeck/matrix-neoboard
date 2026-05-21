@@ -15,8 +15,15 @@
  */
 
 import { describe, expect, it, test } from 'vitest';
-import { mockEllipseElement, mockLineElement } from '../../../../lib/testUtils';
-import { PathElement, Point, ShapeElement } from '../../../../state';
+import {
+  mockCircleElement,
+  mockEllipseElement,
+  mockFrameElement,
+  mockImageElement,
+  mockLineElement,
+} from '../../../../lib/testUtils';
+import { Element, PathElement, Point, ShapeElement } from '../../../../state';
+import { isRotateableElement } from '../../../../state/crdt/documents/elements';
 import {
   angleBetweenPoints,
   calculateBoundaryWithRotationHandle,
@@ -25,6 +32,8 @@ import {
   checkMultiselect,
   clampAngle,
   getMinMaxFromPoints,
+  getRotationTransformForElementsArray,
+  getRotationTransformForElementsArrayWithCenterOffset,
   hasRotatedElements,
   rotateCursor,
   rotatePoint,
@@ -234,18 +243,19 @@ describe('rotatorMath', () => {
     const points: Point[] = [
       { x: 0, y: 0 },
       { x: 10, y: 10 },
+      { x: -10, y: -10 },
     ];
     const center: Point = { x: 100, y: 100 };
     expect(getMinMaxFromPoints(points, 0, center)).toStrictEqual({
-      height: 10,
-      width: 10,
+      height: 20,
+      width: 20,
       max: {
         x: 10,
         y: 10,
       },
       min: {
-        x: 0,
-        y: 0,
+        x: -10,
+        y: -10,
       },
     });
   });
@@ -254,19 +264,20 @@ describe('rotatorMath', () => {
     const points: Point[] = [
       { x: 0, y: 0 },
       { x: 10, y: 10 },
+      { x: -10, y: -10 },
     ];
     const center: Point = { x: 100, y: 100 };
     const angle = 60;
     expect(getMinMaxFromPoints(points, angle, center)).toMatchObject({
-      height: expect.closeTo(13.66),
-      width: expect.closeTo(3.66),
+      height: expect.closeTo(27.32),
+      width: expect.closeTo(7.32),
       max: {
-        x: expect.closeTo(136.6),
+        x: expect.closeTo(140.26),
         y: expect.closeTo(-22.94),
       },
       min: {
         x: expect.closeTo(132.94),
-        y: expect.closeTo(-36.6),
+        y: expect.closeTo(-50.26),
       },
     });
   });
@@ -314,6 +325,110 @@ describe('rotatorMath', () => {
     'should check if multiselect detects a rotated element for $elements and expect $expected',
     ({ elements, expected }) => {
       expect(hasRotatedElements(elements)).toBe(expected);
+    },
+  );
+
+  it('should get the rotated transform for the resize handles', () => {
+    const elements = [mockEllipseElement({ rotation: 45 })];
+    expect(getRotationTransformForElementsArray(elements)).toStrictEqual({
+      rotationValue: 45,
+      rotationTransform: 'rotate(45 25 50)',
+    });
+  });
+
+  it('should not get the resize handle rotated transform for unrotated shape', () => {
+    const elements = [mockEllipseElement()];
+    expect(getRotationTransformForElementsArray(elements)).toStrictEqual({
+      rotationValue: undefined,
+      rotationTransform: '',
+    });
+  });
+
+  it('should not get the rotated transform for multiselect', () => {
+    const elements = [
+      mockEllipseElement({ rotation: 45 }),
+      mockEllipseElement(),
+    ];
+    expect(getRotationTransformForElementsArray(elements)).toStrictEqual({
+      rotationValue: undefined,
+      rotationTransform: '',
+    });
+  });
+
+  it('should get the rotated transform for the resize handles with center offset', () => {
+    const elements = [mockEllipseElement({ rotation: 45 })];
+    expect(
+      getRotationTransformForElementsArrayWithCenterOffset(elements, {
+        x: 10,
+        y: 10,
+      }),
+    ).toStrictEqual({
+      rotationValue: 45,
+      rotationTransform: 'rotate(45 35 60)',
+    });
+  });
+
+  it('should not get the resize handle rotated transform for unrotated shape with center offset', () => {
+    const elements = [mockEllipseElement()];
+    expect(
+      getRotationTransformForElementsArrayWithCenterOffset(elements, {
+        x: 10,
+        y: 10,
+      }),
+    ).toStrictEqual({
+      rotationValue: undefined,
+      rotationTransform: '',
+    });
+  });
+
+  it('should not get the rotated transform for multiselect with center offset', () => {
+    const elements = [
+      mockEllipseElement({ rotation: 45 }),
+      mockEllipseElement(),
+    ];
+    expect(
+      getRotationTransformForElementsArrayWithCenterOffset(elements, {
+        x: 10,
+        y: 10,
+      }),
+    ).toStrictEqual({
+      rotationValue: undefined,
+      rotationTransform: '',
+    });
+  });
+
+  it.each`
+    type       | kind             | expected
+    ${'path'}  | ${'line'}        | ${false}
+    ${'image'} | ${undefined}     | ${true}
+    ${'frame'} | ${undefined}     | ${false}
+    ${'shape'} | ${'circle'}      | ${true}
+    ${'shape'} | ${'rectangle'}   | ${true}
+    ${'shape'} | ${'ellipse'}     | ${true}
+    ${'shape'} | ${'triangle'}    | ${true}
+    ${'shape'} | ${'block-arrow'} | ${true}
+  `(
+    `should correctly identify rotateable elements`,
+    ({ type, kind, expected }) => {
+      let e: Element | undefined = undefined;
+      switch (type) {
+        case 'path':
+          e = mockLineElement({ kind: kind });
+          break;
+        case 'shape':
+          e = mockCircleElement({ kind: kind });
+          break;
+        case 'frame':
+          e = mockFrameElement();
+          break;
+        case 'image':
+          e = mockImageElement();
+          break;
+        default:
+          throw `type ${type} not handled`;
+      }
+
+      expect(isRotateableElement(e)).toBe(expected);
     },
   );
 });

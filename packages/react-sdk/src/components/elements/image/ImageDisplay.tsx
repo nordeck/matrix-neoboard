@@ -186,13 +186,16 @@ function ImageDisplay({
   ) : null;
 
   const rot = rotation ?? 0;
+  const transform = rot
+    ? `rotate(${rot} ${position.x + width / 2} ${position.y + height / 2})`
+    : undefined;
 
   const renderedChild =
     imageUri !== undefined && !loadError ? (
       <Image
         data-testid={`element-${elementId}-image`}
         href={imageUri}
-        transform={`rotate(${rot} ${position.x + width / 2} ${position.y + height / 2})`}
+        transform={transform}
         x={position.x}
         y={position.y}
         width={width}

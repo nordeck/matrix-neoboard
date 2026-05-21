@@ -44,13 +44,10 @@ export function ElementOutline({ elementIds }: ElementOutlineProps) {
           height = element.height;
         }
 
-        let transform = '';
-
-        // rotated object
-        if (isRotateableElement(element)) {
-          const rot = element.rotation ?? 0;
-          transform = `rotate(${rot} ${element.position.x + element.width / 2} ${element.position.y + element.height / 2})`;
-        }
+        const transform =
+          isRotateableElement(element) && element.rotation
+            ? `rotate(${element.rotation} ${element.position.x + element.width / 2} ${element.position.y + element.height / 2})`
+            : undefined;
 
         return (
           <rect

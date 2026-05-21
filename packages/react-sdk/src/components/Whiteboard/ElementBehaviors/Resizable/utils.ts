@@ -56,7 +56,7 @@ export function computeDragWithRotation(
   viewportWidth: number,
   viewportHeight: number,
   gridCellSize?: number,
-) {
+): { dragX: number; dragY: number } {
   const elementIds = Object.entries(elements).map((o) => o[0]);
 
   // at this time we can only resize 1 rotated element
@@ -181,10 +181,12 @@ export function getLockAspectRatio(
   event: DragEvent,
   elements: Elements,
   invertLockAspectRatio: boolean = false,
-) {
+): boolean {
   const hasRotated = hasRotatedElements(elements);
   const multiselect = checkMultiselect(elements);
 
+  // The aspect ratio is locked because the rotated element in multi-select
+  // is being resized at an angle and it will look weird with unlocked aspect ratio.
   if (hasRotated && multiselect) return true;
 
   return invertLockAspectRatio ? !event.lockAspectRatio : event.lockAspectRatio;
@@ -382,7 +384,7 @@ function computeResizingOfLine(
 export function pointResizerUnrotatedFactory(
   dimensions: Dimensions,
   resizableProperties: ResizableProperties,
-) {
+): (p: Point) => Point {
   const pointResizerUnrotated = (p: Point) => {
     const resized = {
       x:
@@ -453,7 +455,23 @@ export function resizeInfoUnrotated(
   element: Element,
   resizableProperties: ResizableProperties,
   dimensions: Dimensions,
-) {
+): {
+  override: {
+    elementId: string;
+    elementOverride: {
+      position: Point;
+      width: number | undefined;
+      height: number | undefined;
+      points:
+        | {
+            x: number;
+            y: number;
+          }[]
+        | undefined;
+    };
+  };
+  pointResizerUnrotated: (p: Point) => Point;
+} {
   // calculated the point's new "resized" position when the element is unrotated
   const pointResizerUnrotated = pointResizerUnrotatedFactory(
     dimensions,
@@ -504,7 +522,23 @@ export function resizeInfoRotated(
   element: ShapeElement | ImageElement,
   dimensions: Dimensions,
   resizableProperties: ResizableProperties,
-) {
+): {
+  override: {
+    elementId: string;
+    elementOverride: {
+      position: Point;
+      width: number | undefined;
+      height: number | undefined;
+      points:
+        | {
+            x: number;
+            y: number;
+          }[]
+        | undefined;
+    };
+  };
+  pointResizerRotated: (p: Point) => Point;
+} {
   const { override } = resizeInfoUnrotated(
     elementId,
     element,
@@ -577,9 +611,8 @@ export function computeResizing(
   }
 
   if (isLineElementHandlePosition(handlePosition)) {
-    const { dragX, dragY } = computeDragWithRotation(
+    const { dragX, dragY } = computeDrag(
       event,
-      resizableProperties.elements,
       viewportWidth,
       viewportHeight,
       gridCellSize,
@@ -631,16 +664,9 @@ export function computeResizing(
     pointResizer: (p: Point) => Point;
   }[] = Object.entries(resizableProperties.elements).map(
     ([elementId, element]) => {
-      const { override: unrotatedOverride, pointResizerUnrotated } =
-        resizeInfoUnrotated(
-          elementId,
-          element,
-          resizableProperties,
-          dimensions,
-        );
-
       // Note: in multiselect mode resizing is always performed along the SVG axis
-      // and not along the rotated element's axis, thus we skip it.
+      // and not along the rotated element's axis.
+      // We can't calculate the resize neatly in this case, and will not invoke resizeInfoRotated;
 
       if (isRotateableElement(element) && !multiselect && element.rotation) {
         const { override, pointResizerRotated } = resizeInfoRotated(
@@ -655,6 +681,14 @@ export function computeResizing(
           elementId,
         };
       }
+
+      const { override: unrotatedOverride, pointResizerUnrotated } =
+        resizeInfoUnrotated(
+          elementId,
+          element,
+          resizableProperties,
+          dimensions,
+        );
 
       return {
         elementOverride: unrotatedOverride,
@@ -766,35 +800,29 @@ export function computeResizingConnectingPathElement(
   for (let i = 0; i < connectedElements.length; i++) {
     const connectedElementId = connectedElements[i];
     if (connectedElementId && elements[connectedElementId] !== undefined) {
-      const elementWithConnectorPoints = elements[connectedElementId];
       const pointX = element.position.x + element.points[i].x;
       const pointY = element.position.y + element.points[i].y;
 
-      const drag = {
-        x:
-          dimensions.x +
-          ((pointX - resizableProperties.x) / resizableProperties.width) *
-            dimensions.width,
-        y:
-          dimensions.y +
-          ((pointY - resizableProperties.y) / resizableProperties.height) *
-            dimensions.height,
-      };
-
       const positionName = i === 0 ? 'start' : 'end';
 
-      // predict where a connection point will be for a rotated
-      // object using the object's own point rotation function
-      if (
-        resizers &&
-        resizers[connectedElementId] &&
-        isRotateableElement(elementWithConnectorPoints) &&
-        elementWithConnectorPoints.rotation
-      ) {
+      let drag = undefined;
+      if (resizers && resizers[connectedElementId]) {
         const resizeFn = resizers[connectedElementId];
         const resizedPoint = resizeFn({ x: pointX, y: pointY });
-        drag.x = resizedPoint.x;
-        drag.y = resizedPoint.y;
+        drag = resizedPoint;
+      } else {
+        // default drag calculation in case this function gets called
+        // without, or parttially filled resizers
+        drag = {
+          x:
+            dimensions.x +
+            ((pointX - resizableProperties.x) / resizableProperties.width) *
+              dimensions.width,
+          y:
+            dimensions.y +
+            ((pointY - resizableProperties.y) / resizableProperties.height) *
+              dimensions.height,
+        };
       }
 
       linePosition = computeResizingOfLine(
