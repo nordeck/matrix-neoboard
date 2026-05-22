@@ -21,11 +21,12 @@ import {
   calculateBoundingRectForElements,
   useSlideIsLocked,
 } from '../../../../state';
+import { isRotateableElement } from '../../../../state/crdt/documents/elements';
 import { useElementOverrides } from '../../../ElementOverridesProvider';
 import { useMeasure } from '../../SvgCanvas';
 import { useSvgScaleContext } from '../../SvgScaleContext';
 import { infiniteCanvasMode } from '../../constants';
-import { calculateBoundaryWithRotationHandleForElements } from '../Rotatable/rotatorMath';
+import { calculateBoundaryWithRotationHandle } from '../Rotatable';
 
 type ElementBarWrapperProps = PropsWithChildren<{ elementIds: string[] }>;
 
@@ -70,10 +71,10 @@ const FiniteElementBarWrapper: React.FC<ElementBarWrapperProps> = ({
     height,
   } = calculateBoundingRectForElements(elements);
 
-  const rotatedBoundary = calculateBoundaryWithRotationHandleForElements(
-    elements,
-    scale,
-  );
+  const rotatedBoundary =
+    elements.length === 1 && isRotateableElement(elements[0])
+      ? calculateBoundaryWithRotationHandle(elements[0], scale)
+      : null;
 
   const offset = 10;
 
@@ -145,8 +146,12 @@ const InfiniteElementBarWrapper: React.FC<ElementBarWrapperProps> = ({
   const offsetOnDiv = 10;
   const { scale, transformPointSvgToContainer } = useSvgScaleContext();
 
-  const { max: rotatedMax, min: rotatedMin } =
-    calculateBoundaryWithRotationHandleForElements(elements, scale) || {};
+  const rotatedBoundary =
+    elements.length === 1 && isRotateableElement(elements[0])
+      ? calculateBoundaryWithRotationHandle(elements[0], scale)
+      : null;
+
+  const { max: rotatedMax, min: rotatedMin } = rotatedBoundary || {};
   const { y: rotatedMaxSVGY } = rotatedMax
     ? transformPointSvgToContainer(rotatedMax)
     : {};

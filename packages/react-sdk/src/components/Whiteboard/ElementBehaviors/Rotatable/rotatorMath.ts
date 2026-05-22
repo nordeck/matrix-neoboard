@@ -47,21 +47,6 @@ export function rotateCursor(cursor: string, angle: number): string {
   return res;
 }
 
-export function calculateBoundaryWithRotationHandleForElements(
-  elements: Element[],
-  scale: number,
-): {
-  min: Point;
-  max: Point;
-  width: number;
-  height: number;
-} | null {
-  // at this time will only work for an array with a single rotateable element
-  if (elements.length !== 1) return null;
-  if (!isRotateableElement(elements[0])) return null;
-  return calculateBoundaryWithRotationHandle(elements[0], scale);
-}
-
 export function getMinMaxFromPoints(
   points: Point[],
   rotation: number,

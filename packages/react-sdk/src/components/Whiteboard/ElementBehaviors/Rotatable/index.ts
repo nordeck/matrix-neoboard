@@ -20,7 +20,6 @@ export { RotateHandler } from './RotateHandler';
 export {
   angleBetweenPoints,
   calculateBoundaryWithRotationHandle,
-  calculateBoundaryWithRotationHandleForElements,
   calculateRotatorHandleCenter,
   checkMultiselect,
   clampAngle,

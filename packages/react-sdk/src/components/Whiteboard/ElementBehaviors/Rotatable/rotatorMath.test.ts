@@ -27,7 +27,6 @@ import { isRotateableElement } from '../../../../state/crdt/documents/elements';
 import {
   angleBetweenPoints,
   calculateBoundaryWithRotationHandle,
-  calculateBoundaryWithRotationHandleForElements,
   calculateRotatorHandleCenter,
   checkMultiselect,
   clampAngle,
@@ -193,42 +192,6 @@ describe('rotatorMath', () => {
       },
     });
   });
-
-  it('should calculate the boundary for the selected elements including the rotation handle', () => {
-    const element: ShapeElement = { ...newShape(), rotation: 45 };
-
-    const result = calculateBoundaryWithRotationHandleForElements(
-      [element],
-      10,
-    );
-
-    expect(result).toMatchObject({
-      height: expect.closeTo(106.07),
-      width: expect.closeTo(109.18),
-      max: {
-        x: expect.closeTo(78.03),
-        y: expect.closeTo(104.03),
-      },
-      min: {
-        x: expect.closeTo(-31.14),
-        y: expect.closeTo(-2.03),
-      },
-    });
-  });
-
-  test.each`
-    elements                   | expected
-    ${[]}                      | ${null}
-    ${[newPath()]}             | ${null}
-    ${[newPath(), newShape()]} | ${null}
-  `(
-    'should not calculate boundary with rotation handle for $elements',
-    ({ elements, expected }) => {
-      expect(calculateBoundaryWithRotationHandleForElements(elements, 10)).toBe(
-        expected,
-      );
-    },
-  );
 
   test.fails(
     'should fail calculateBoundaryWithRotationHandle for a path',
