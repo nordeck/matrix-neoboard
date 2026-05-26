@@ -234,10 +234,11 @@
     "shortcuts": {
       "close": "Schließen",
       "elementOperations": {
-        "copy": "Alles auf dem Whiteboard auswählen",
+        "copy": "Ausgewählte(s) Element(e) kopieren",
         "duplicate": "Ausgewählte(s) Element(e) duplizieren",
         "escape": "Auswahl aufheben",
         "move": "Element(e) auf dem Board verschieben",
+        "paste": "Element(e) einfügen",
         "redo": "Wiederholen",
         "reorder": {
           "back": "Element(e) in den Hintergrund verschieben",
@@ -245,6 +246,7 @@
           "front": "Element(e) in den Vordergrund verschieben",
           "up": "Element eine Ebene nach oben verschieben"
         },
+        "selectAll": "Alles auswählen",
         "undo": "Rückgängig"
       },
       "title": "Kurzbefehle"

@@ -28,16 +28,35 @@ const t = (labelKey: string, labelDefault: string) => ({
 
 export const SHORTCUTS: ShortcutItem[] = [
   {
-    ...t(
-      'helpCenter.shortcuts.elementOperations.copy',
-      'Select all on whiteboard',
-    ),
+    ...t('helpCenter.shortcuts.elementOperations.selectAll', 'Select all'),
     keys: 'ctrl+a',
     macKeys: 'meta+a',
   },
   {
     ...t('helpCenter.shortcuts.elementOperations.escape', 'Unselect'),
     keys: 'escape',
+  },
+  {
+    ...t(
+      'helpCenter.shortcuts.elementOperations.copy',
+      'Copy selected element(s)',
+    ),
+    keys: 'ctrl+c',
+    macKeys: 'meta+c',
+  },
+  {
+    ...t('helpCenter.shortcuts.elementOperations.paste', 'Paste element(s)'),
+
+    keys: 'ctrl+v',
+    macKeys: 'meta+v',
+  },
+  {
+    ...t(
+      'helpCenter.shortcuts.elementOperations.duplicate',
+      'Duplicate selected element(s)',
+    ),
+    keys: 'ctrl+d',
+    macKeys: 'meta+d',
   },
   {
     ...t('helpCenter.shortcuts.elementOperations.undo', 'Undo'),
@@ -48,14 +67,6 @@ export const SHORTCUTS: ShortcutItem[] = [
     ...t('helpCenter.shortcuts.elementOperations.redo', 'Redo'),
     keys: 'ctrl+y',
     macKeys: 'meta+shift+z',
-  },
-  {
-    ...t(
-      'helpCenter.shortcuts.elementOperations.duplicate',
-      'Duplicate selected element(s)',
-    ),
-    keys: 'ctrl+d',
-    macKeys: 'meta+d',
   },
   {
     ...t(

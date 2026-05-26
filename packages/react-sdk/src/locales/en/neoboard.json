@@ -234,10 +234,11 @@
     "shortcuts": {
       "close": "Close",
       "elementOperations": {
-        "copy": "Select all on whiteboard",
+        "copy": "Copy selected element(s)",
         "duplicate": "Duplicate selected element(s)",
         "escape": "Unselect",
         "move": "Move element(s) on the board",
+        "paste": "Paste element(s)",
         "redo": "Redo",
         "reorder": {
           "back": "Move element(s) to back",
@@ -245,6 +246,7 @@
           "front": "Move element(s) to front",
           "up": "Move element one layer up"
         },
+        "selectAll": "Select all",
         "undo": "Undo"
       },
       "title": "Keyboard shortcuts"
