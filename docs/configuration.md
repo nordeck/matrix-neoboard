@@ -48,7 +48,7 @@ User needs to have permissions to send these events to initialize a whiteboard:
 - `net.nordeck.whiteboard` state event that creates a new board
 - `net.nordeck.whiteboard.sessions` state event that enables real-time collaboration with this user on the board
 
-User will need to wait for the moderator to join and initialize the room and whiteboard if the user doesn'label have these permissions.
+User will need to wait for the moderator to join and initialize the room and whiteboard if the user doesn't have these permissions.
 
 ## Rate limiting settings
 

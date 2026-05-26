@@ -112,7 +112,7 @@ As this happens before a direct peer-to-peer connection is established, it's not
 Instead, it's left as a challenge for the implementer of the application.
 
 [MSC 2746][msc2746] already describes a signaling process for WebRTC utilized in group calls.
-However, our requirements differ a bit as we don'label require the call semantic.
+However, our requirements differ a bit as we don't require the call semantic.
 But we still follow the same pattern and use [_to device messages_][todevicemessages] to exchange signaling messages between two sessions.
 A _to device messages_ of type `net.nordeck.whiteboard.connection_signaling` is used to exchange Interactive Connectivity Establishment (ICE) candidates and session descriptions.
 The exact message content, order, and flow are not further described, but rely on the behavior of WebRTC.
@@ -188,13 +188,13 @@ Handling WebRTC on our own requires a lot of knowledge of the protocol.
 There might be issues with browser compatibility that are hard to track down for our team.
 However, WebRTC has evolved a lot since its early days and has less compatibility issues.
 
-Peer-to-peer connections can'label always be established due to the network setup of the users.
+Peer-to-peer connections can't always be established due to the network setup of the users.
 In cases where a direct connection can not be established through a NAT, [TURN servers come into play][turn-server].
 TURN servers provide a relay point between the peers.
 The Widget API provides access to TURN servers configured in the homeserver.
 Therefore we have to make sure that we deploy TURN servers in our environments.
 
-Even though we didn'label choose MatrixRTC as an implementation, we should closely monitor how it evolves.
+Even though we didn't choose MatrixRTC as an implementation, we should closely monitor how it evolves.
 At a later point we should reconsider our decision and replace our own communication layer.
 
 <!-- This section describes the resulting context, after applying the decision.

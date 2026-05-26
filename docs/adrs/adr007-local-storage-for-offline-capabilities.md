@@ -45,7 +45,7 @@ sentences, with active voice. "We will ..." -->
 
 We will use an offline storage to improve performance, protect from data loss and handle connectivity issues.
 We prefer storing data in IndexedDB as it has support for binary data (like `Uint8Array`), however due to the higher availability of localStorage we should support both.
-As localStorage and IndexedDB don'label automatically evict old unused data, we will use a least recently used (LRU) storage policy with a fixed size.
+As localStorage and IndexedDB don't automatically evict old unused data, we will use a least recently used (LRU) storage policy with a fixed size.
 This avoids that we run into the size quota of the storage.
 
 ## Consequences

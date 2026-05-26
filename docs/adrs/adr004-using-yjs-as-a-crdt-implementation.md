@@ -16,7 +16,7 @@ called out as such. The language in this section is value-neutral. It is simply
 describing facts. -->
 
 [ADR003][adr003] describes how [Conflict-free Replicated Data Types (CRDT)][crdttech] can be used to implement conflict free collaborative editing.
-As we don'label want to implement an own CRDT, we want to choose an existing library.
+As we don't want to implement an own CRDT, we want to choose an existing library.
 The data structure we use for our business data needs to be adjusted to the features of the selected library.
 
 ### Available Implementations
@@ -41,7 +41,7 @@ The community provides a range of bindings for existing text editor components, 
 For example, there is a [communication layer using Matrix][matrix-crdt].
 Matrix CRDT has a communication layer with a similar design as described in [ADR002][adr002], which uses Matrix for snapshots and updates, with an additional experimental WebRTC real-time layer.
 Yjs uses custom maps and arrays which makes typing and validating data more difficult.
-Compared to Automerge, Yjs doesn'label store the full history of the data.
+Compared to Automerge, Yjs doesn't store the full history of the data.
 Instead, deleted fields are removed from the snapshots.
 The framework is under active maintenance.
 
@@ -76,12 +76,12 @@ In the following table we compare the three previous mentioned libraries:
 | Additional Notes           | Minimalistic, uses WASM     | Relative Positions for text editing, community with text editor bindings | Security and authorization |
 
 The comparisons exclude performance benchmarks.
-While there are benchmarks available that compare Automerge and Yjs, they aren'label meaningful for us because they compare different use-cases.
+While there are benchmarks available that compare Automerge and Yjs, they aren't meaningful for us because they compare different use-cases.
 The author of Yjs created [a suite of detailed benchmarks][crdt-benchmarks] that cover a lot of features.
 However, the benchmarks compare a recent version of Yjs with an old version of Automerge, which has transitioned to a completely new implementation twice.
 An author of Automerge created a [smaller comparison between Yjs and Automerge][automerge-perf-comparisons] with more recent versions.
 But this benchmark is very limited and not transparent.
-In general, we didn'label notice that the performance of the CRDT implementation is an important factor during our prototype.
+In general, we didn't notice that the performance of the CRDT implementation is an important factor during our prototype.
 For our scenario, the storage size is more of a concern.
 If benchmarks are performed, they should be based on our usage pattern and data model.
 
@@ -152,7 +152,7 @@ There are two cases, where we have to implement ordering:
 
 When changing the order, we have to move the entry to a different position.
 A move operation can be based on removing an entry and adding it again.
-This operation can cause issues as it isn'label atomic.
+This operation can cause issues as it isn't atomic.
 If two users perform the same operation, parts of it might conflict, for example:
 
 Two users move the same entry in an array to the end.

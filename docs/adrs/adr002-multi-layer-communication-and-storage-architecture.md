@@ -81,7 +81,7 @@ In that case we need to send 20 messages.
 This shows that the current approach is not scaling well.
 
 Another use case are real-time updates of the cursor position.
-For the cursor position to be useful, we would have to send it multiple times per second, making room events a bad choice (also because we don’label need previous states, just the current state).
+For the cursor position to be useful, we would have to send it multiple times per second, making room events a bad choice (also because we don’t need previous states, just the current state).
 
 ## Decision
 

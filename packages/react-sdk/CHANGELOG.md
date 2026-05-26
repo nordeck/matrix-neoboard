@@ -49,7 +49,7 @@
 - a523436: Use room id of selected whiteboard event to load document snapshots.
 - b863b53: Add start markers to lines and element bar options for changing them
 - 0a9bc50: Add sticky notes feature with toolbar button, default styling, and resize behavior
-- f24412d: Fix PDF export for older boards where the font of shapes with text wasn'label specified
+- f24412d: Fix PDF export for older boards where the font of shapes with text wasn't specified
 - d050272: There is now an infinite canvas mode exist which can be enabled with the `REACT_APP_INFINITE_CANVAS` environment variable.
 - 7964ca0: There is now a the new frame tool, that places frames on the canvas (only with feature flag `REACT_APP_INFINITE_CANVAS`)
 - 5aa6fad: Adds baseline MatrixRTC implementation as an alternative to peer-to-peer WebRTC

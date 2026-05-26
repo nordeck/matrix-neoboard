@@ -17,7 +17,7 @@ describing facts. -->
 
 During collaboration, different users might end up editing the same elements on the whiteboard.
 Right now, we can handle concurrent modifications of different elements by different users on the same whiteboard.
-Such changes don’label conflict as each whiteboard element is an own event.
+Such changes don’t conflict as each whiteboard element is an own event.
 However, changes to the same element can cause conflicts.
 For example, a user might change the position of an element, while another user is changing the color.
 Currently, when such conflict occurs, the "last" change wins.

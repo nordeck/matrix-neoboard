@@ -79,7 +79,7 @@ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx      xxxxxxxxxxxxxx...
 ### `net.nordeck.whiteboard` (State Event)
 
 Holds a single whiteboard.
-As being an unencrypted state event, this event doesn'label hold any relevant data, but only metadata.
+As being an unencrypted state event, this event doesn't hold any relevant data, but only metadata.
 The metadata is used to reference other room events that contain the actual whiteboard contents.
 
 The `state_key` of the event is also referred to as _whiteboard id_.
@@ -109,7 +109,7 @@ The `state_key` of the event is also referred to as _whiteboard id_.
 ### `net.nordeck.whiteboard.document.create` (Room Event)
 
 Holds the content of a whiteboard CRDT.
-This event doesn'label hold any relevant data, but is only an anchor point to retrieve document snapshots that relate to this event with `m.reference` event relations.
+This event doesn't hold any relevant data, but is only an anchor point to retrieve document snapshots that relate to this event with `m.reference` event relations.
 Holds a single whiteboard.
 
 The `event_id` of the event is also referred to as _document id_.
@@ -135,7 +135,7 @@ No content.
 ### `net.nordeck.whiteboard.document.snapshot` (Room Event)
 
 A document snapshot that holds a version of the whiteboard CRDT.
-This event doesn'label hold any relevant data, but is only an anchor point to retrieve data chunks that relate to this event with `m.reference` event relations.
+This event doesn't hold any relevant data, but is only an anchor point to retrieve data chunks that relate to this event with `m.reference` event relations.
 The newest complete snapshot in the room represents the latest whiteboard content.
 
 The `event_id` of the event is also referred to as _snapshot id_.
@@ -215,7 +215,7 @@ A user might have multiple sessions if he opens the same whiteboard on multiple 
 
 The list of sessions might contain outdated sessions, if the widget detects that a connection to a session can not be established, the session is ignored.
 If a session is expired (see `expiresTs`), the session should be filtered out when the event is written the next time.
-The widget has to make sure to update the session in case the expiration is reached soon, but the session hasn'label ended yet.
+The widget has to make sure to update the session in case the expiration is reached soon, but the session hasn't ended yet.
 
 The user id of the user is used as a `state_key`, so every user has its own instance of this event.
 The homeserver prevents modifications to events with a `@` prefixed state key by other users.

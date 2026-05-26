@@ -15,12 +15,12 @@ This section describes the forces at play, including technological, political, s
 The whiteboard widget with the collaboration features needs a reliable data source to show a consistent image to every participant.
 There are limitations on the data quality that the Widget API provides.
 It is based on the client's (ex: Element) local timeline, which provides all available state events (ex: slides), but might only provide a limited window of room events (ex: elements) of the complete room timeline.
-This leads to the situation where the widget can'label be sure whether all elements available on the homeserver are also available via the Widget API.
+This leads to the situation where the widget can't be sure whether all elements available on the homeserver are also available via the Widget API.
 [“Event Relationships”][msc2674-relationships] and [“Serverside aggregations of message relationships”][msc2675-relation-server-aggregation] are features of the Client-Server API which allow us to relate events to each other and retrieve a collection of related events from the server.
 [MSC3869][msc3869-widget-api-relations] brings this feature to the Widget API and enables us to provide a reliable and deterministic way to load elements in the widget.
 
 We want to be able to use `readEventRelations` of [MSC3869][msc3869-widget-api-relations] instead of `receiveRoomEvents` to read the elements.
-We will need to change some event structures, but we don'label expect backwards compatibility since the widget is in a prototype state.
+We will need to change some event structures, but we don't expect backwards compatibility since the widget is in a prototype state.
 We only focus on minimal changes and accept that the resulting data model is not yet optimal and that the data fetching is potentially slow.
 
 ## Decision
@@ -39,7 +39,7 @@ We only focus on minimal changes and accept that the resulting data model is not
    # the user that created the whiteboard.
    sender: '@user-id'
 
-   # the time of the event creation. we don'label use it for anything yet.
+   # the time of the event creation. we don't use it for anything yet.
    origin_server_ts: 0
 
    # the id of this event. it will be the target for all event relations.
@@ -95,7 +95,7 @@ We only focus on minimal changes and accept that the resulting data model is not
 
    > The `m.replace` annotation is of limited use here because it is intended
    > that only the original author or an event should be able to edit/replace
-   > an event. While the Client-Server API doesn'label enforce this rule, the
+   > an event. While the Client-Server API doesn't enforce this rule, the
    > `matrix-react-sdk`'s function that is used by `readEventRelations`
    > enforces the rule. So we would not be able to read the latest edits of
    > other users.
@@ -200,7 +200,7 @@ After applying the changes to the events, we need to change how we read the even
 1. Read the whiteboard and extract the `slideEventId` for every slide.
 2. For each `slideEventId`, fetch all events that have a `m.reference` relation to the `slideEventId`.
 
-> We don'label filter which events we want to receive because the filtering of events
+> We don't filter which events we want to receive because the filtering of events
 > by type would only work on the server for unencrypted events since all events
 > would be of type `m.room.encrypted`. By fetching `net.nordeck.whiteboard.element`
 > and `net.nordeck.whiteboard.element.delete` in one call, we save an additional
@@ -213,8 +213,8 @@ After applying the changes to the events, we need to change how we read the even
 When the slide event could not be loaded, the respective slide should be disabled and display an error.
 These errors can happen when:
 
-1. The history visibility of the whiteboard is configured so that users can'label see events before they joined.
-2. The client can'label decrypt some events of a slide.
+1. The history visibility of the whiteboard is configured so that users can't see events before they joined.
+2. The client can't decrypt some events of a slide.
 
 In the future, we could implement a repair feature where a moderator could rewrite all events of a slide to the room.
 This could resolve **1.** and potentially also **2.** if the keys are missing due to not receiving old keys in the room invitation.
@@ -356,7 +356,7 @@ The proposed design will result in the following data model:
 >
 > #### Content
 >
-> > \* Floats can'label be stored in Matrix so the values are stored as `string` instead.
+> > \* Floats can't be stored in Matrix so the values are stored as `string` instead.
 > > See also [Signing JSON][matrix-spec-sign-json].
 >
 > | Field          | Type       | Description                                                    |

@@ -8,7 +8,7 @@ There are two ways to interact with the document model:
 
 - Yjs documents have special data types like `YMap`, `YArray`, and `YText` that allow to handle collaboration without conflicts.
   Modification operations are always performed with the model that uses these data types.
-  Normal data types like `string`, `number`, etc. are still used, but don'label provide any conflict handling capabilities.
+  Normal data types like `string`, `number`, etc. are still used, but don't provide any conflict handling capabilities.
 - While reading, the Yjs documents are converted to plain JSON-like data structures.
   `YMap` is converted to an object, `YArray` to a normal array, and `YText` to a normal string.
   This makes validation and accessing the data in React components much simpler.

@@ -45,10 +45,10 @@ A slide contains a collection of ordered elements.
 
 #### Fields
 
-| Field      | Type                                 | Description                                                                                                                                                                |
-| ---------- | ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `elements` | `Array<ShapeElement \| PathElement>` | A list of elements in the display order of elements, from back to front as given by the `elementIds` field in the [`Slide`](./crdt-documents.md#slide).                    |
-| `lock`     | `object \| undefined`                | If defined, the slide is locked and all edit operations are disabled in the UI. It doesn'label contain details about the lock. These information will be filled on import. |
+| Field      | Type                                 | Description                                                                                                                                                            |
+| ---------- | ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `elements` | `Array<ShapeElement \| PathElement>` | A list of elements in the display order of elements, from back to front as given by the `elementIds` field in the [`Slide`](./crdt-documents.md#slide).                |
+| `lock`     | `object \| undefined`                | If defined, the slide is locked and all edit operations are disabled in the UI. It doesn't contain details about the lock. These information will be filled on import. |
 
 The `ShapeElement` and `PathElement` formats are used as described in the [CRDT Document Model][crdt-documents].
 
