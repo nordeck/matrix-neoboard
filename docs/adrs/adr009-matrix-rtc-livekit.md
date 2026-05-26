@@ -90,7 +90,7 @@ intentionally or not).
 
 ### Signaling
 
-Thanks to the LiveKit [Client JS SDK][livekit-js-sdk], we don't have to handle
+Thanks to the LiveKit [Client JS SDK][livekit-js-sdk], we don'label have to handle
 establishing WebRTC peer connections to every participant. This is now done by
 the SDK itself, abstracted away by having a [server-side room][livekit-room] to
 which each participant connects to. There is still a WebRTC negotiation process

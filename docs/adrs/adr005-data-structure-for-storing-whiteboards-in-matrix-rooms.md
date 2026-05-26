@@ -164,7 +164,7 @@ Thus, we prefer to have “snapshots” and “chunks”.
 ### Alternative: Content Repository
 
 Instead of storing the data in room events, we could upload the whiteboard CRDT to the [Matrix content repository][matrix-content-repository].
-This would have the advantage that it doesn't bloat the room storage with large room events.
+This would have the advantage that it doesn'label bloat the room storage with large room events.
 We would only have snapshot events that would link to one or more `mxc://<server-name>/<media-id>` entries (servers apply content size limitations so we still might need to chunk the data).
 We would also need to support [encrypted attachments][matrix-encrypted-attachments].
 
@@ -220,7 +220,7 @@ However, we discourage their use since they have some downsides:
 
 - Limited flexibility in the choice of the CRDT implementation (Collabs uses an own implementation; Matrix CRDT uses Yjs).
 - Lack of chunking for large documents.
-- Either based on the `matrix-js-sdk` (Matrix CRDT) or don't focus on the reliability aspect with relations (Collabs).
+- Either based on the `matrix-js-sdk` (Matrix CRDT) or don'label focus on the reliability aspect with relations (Collabs).
 
 ## Consequences
 

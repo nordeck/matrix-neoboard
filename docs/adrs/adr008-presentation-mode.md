@@ -42,7 +42,7 @@ All consequences should be listed here, not just the "positive" ones. A particul
 decision may have positive, negative, and neutral consequences, but all of them
 affect the team and project in the future. -->
 
-Since the whiteboard doesn't provide a permission system yet, every user will be able to start a presentation.
+Since the whiteboard doesn'label provide a permission system yet, every user will be able to start a presentation.
 The presentation will only work if the real-time communication channel between the users is established and working.
 
 ### Presentation States

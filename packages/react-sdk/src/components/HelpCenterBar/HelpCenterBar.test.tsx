@@ -165,9 +165,7 @@ describe('<HelpCenterBar/>', () => {
 
     const dialog = screen.getByRole('dialog', { name: 'Keyboard shortcuts' });
 
-    await userEvent.click(
-      within(dialog).getAllByRole('button', { name: 'Close' })[0],
-    );
+    await userEvent.click(within(dialog).getByTestId('shortcuts-dialog-close'));
 
     await waitFor(() => {
       expect(dialog).not.toBeInTheDocument();

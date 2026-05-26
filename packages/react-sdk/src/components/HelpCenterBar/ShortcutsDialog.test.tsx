@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Nordeck IT + Consulting GmbH
+ * Copyright 2026 Nordeck IT + Consulting GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,12 @@
  */
 
 import { render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import axe from 'axe-core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { isMacOS } from '../common/platform';
 import { ShortcutsDialog } from './ShortcutsDialog';
+import { SHORTCUTS } from './utils';
 
 vi.mock('../common/platform');
 
@@ -48,8 +50,9 @@ describe('<ShortcutsDialog/>', () => {
 
     const dialog = screen.getByRole('dialog', { name: 'Keyboard shortcuts' });
 
-    expect(within(dialog).getAllByTestId('shortcut-entry')).toHaveLength(10);
-    expect(within(dialog).getAllByTestId('shortcut-chip')).toHaveLength(10);
+    expect(within(dialog).getAllByTestId('shortcut-entry')).toHaveLength(
+      SHORTCUTS.length,
+    );
   });
 
   it('should render shortcut labels', () => {
@@ -61,6 +64,7 @@ describe('<ShortcutsDialog/>', () => {
     expect(
       screen.getByText('Move element(s) on the board'),
     ).toBeInTheDocument();
+    expect(screen.getByText('Select all')).toBeInTheDocument();
   });
 
   it('should use Ctrl modifier on Windows/Linux', () => {
@@ -95,5 +99,11 @@ describe('<ShortcutsDialog/>', () => {
 
     render(<ShortcutsDialog open onClose={onClose} />);
     expect(screen.queryByText('Y')).not.toBeInTheDocument();
+  });
+
+  it('should call onClose when the close button is clicked', async () => {
+    render(<ShortcutsDialog open onClose={onClose} />);
+    await userEvent.click(screen.getByRole('button', { name: 'Close' }));
+    expect(onClose).toHaveBeenCalledOnce();
   });
 });
