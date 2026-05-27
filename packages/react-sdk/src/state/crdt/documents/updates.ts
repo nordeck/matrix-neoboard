@@ -18,6 +18,7 @@ import { nanoid } from '@reduxjs/toolkit';
 import { ChangeFn } from '../types';
 import { SharedMap } from '../y';
 import {
+  calculateBoundingRectForElements,
   Element,
   FrameElement,
   positionElementsToWhiteboard,
@@ -46,44 +47,24 @@ export function generateFramesUpdate(
   sourceDoc: SharedMap<WhiteboardDocument>,
 ): ChangeFn<WhiteboardDocument> {
   return (doc: SharedMap<WhiteboardDocument>) => {
-    const slideIds = getNormalizedSlideIds(sourceDoc);
     const docSlideId = getNormalizedSlideIds(doc)[0];
 
     if (!docSlideId) {
       throw new Error(`Cannot get document slide id`);
     }
 
-    if (slideIds.length === 1) {
-      const slideId = slideIds[0];
-      const slide = getSlide(sourceDoc, slideId);
-
-      if (!slide) {
-        throw new Error(`Cannot get slide with id ${slideId}`);
+    const infiniteCanvasElements = getInfiniteCanvasElements(sourceDoc);
+    if (infiniteCanvasElements) {
+      // Add elements
+      for (const [id, element] of Object.entries(infiniteCanvasElements)) {
+        const [addElement] = generateAddElement(docSlideId, element, id);
+        addElement(doc);
       }
 
-      const slideJson = slide.toJSON();
-
-      let maxElementPositionX = 0;
-      let maxElementPositionY = 0;
-      for (const element of Object.values(slideJson.elements)) {
-        maxElementPositionX = Math.max(maxElementPositionX, element.position.x);
-        maxElementPositionY = Math.max(maxElementPositionY, element.position.y);
-      }
-
-      if (
-        maxElementPositionX >= slidesWhiteboardWidth &&
-        maxElementPositionY >= slidesWhiteboardHeight
-      ) {
-        // Add elements
-        for (const [id, element] of Object.entries(slideJson.elements)) {
-          const [addElement] = generateAddElement(docSlideId, element, id);
-          addElement(doc);
-        }
-
-        return;
-      }
+      return;
     }
 
+    const slideIds = getNormalizedSlideIds(sourceDoc);
     const firstSlideElements: ElementWithId<Element>[] = [];
 
     for (const slideId of slideIds) {
@@ -183,4 +164,45 @@ export function generateFramesUpdate(
       addElement(doc);
     }
   };
+}
+
+/**
+ * Gets elements of whiteboard document if the document has a single slide and the slide is empty or contains any element within infinite canvas bounds.
+ * @param doc a document to check
+ * @returns all elements of infinite canvas whiteboard document or undefined
+ */
+export function getInfiniteCanvasElements(
+  doc: SharedMap<WhiteboardDocument>,
+): Record<string, Element> | undefined {
+  const slideIds = getNormalizedSlideIds(doc);
+
+  if (slideIds.length !== 1) {
+    return undefined;
+  }
+
+  const slideId = slideIds[0];
+  const slide = getSlide(doc, slideId);
+
+  if (!slide) {
+    return undefined;
+  }
+
+  const slideJson = slide.toJSON();
+
+  const elements: Element[] = Object.values(slideJson.elements);
+  if (elements.length === 0) {
+    return slideJson.elements;
+  }
+
+  const { offsetX, offsetY, width, height } =
+    calculateBoundingRectForElements(elements);
+  const hasElementWithinInfiniteCanvas =
+    offsetX + width >= slidesWhiteboardWidth &&
+    offsetY + height >= slidesWhiteboardHeight;
+
+  if (hasElementWithinInfiniteCanvas) {
+    return slideJson.elements;
+  } else {
+    return undefined;
+  }
 }

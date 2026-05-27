@@ -25,7 +25,7 @@ import {
   getNormalizedElementIds,
   getNormalizedSlideIds,
 } from './operations';
-import { generateFramesUpdate } from './updates';
+import { generateFramesUpdate, getInfiniteCanvasElements } from './updates';
 import {
   WhiteboardDocumentVersion,
   createWhiteboardDocument,
@@ -146,7 +146,7 @@ describe('generateFramesUpdate', () => {
     });
   });
 
-  it('should update document with a single slide and any element outside of initial whiteboard size', () => {
+  it('should update document with a single slide and any element outside of initial canvas size', () => {
     const doc = createWhiteboardDocument(WhiteboardDocumentVersion.Initial);
 
     const element0 = mockRectangleElement({
@@ -182,5 +182,104 @@ describe('generateFramesUpdate', () => {
         },
       },
     });
+  });
+
+  it('should update empty document', () => {
+    const doc = createWhiteboardDocument(WhiteboardDocumentVersion.Initial);
+
+    const doc1 = createWhiteboardDocument(WhiteboardDocumentVersion.Frames);
+    const updateChangeFn = generateFramesUpdate(doc.getData());
+    doc1.performChange(updateChangeFn);
+
+    expect(getNormalizedSlideIds(doc1.getData())).toEqual([slide0]);
+    const elementIds = getNormalizedElementIds(doc1.getData(), slide0);
+
+    expect(elementIds).toHaveLength(0);
+
+    expect(doc1.getData().toJSON()).toEqual({
+      slideIds: [slide0],
+      slides: {
+        [slide0]: {
+          elements: {},
+          elementIds: [],
+          frameElementIds: [],
+        },
+      },
+    });
+  });
+});
+
+describe('getInfiniteCanvasElements', () => {
+  it('should get elements from infinite canvas document', () => {
+    const doc = createWhiteboardDocument();
+
+    const element0 = mockRectangleElement({
+      position: {
+        x: 9600,
+        y: 5400,
+      },
+    });
+    const [changeFn, elementId] = generateAddElement(slide0, element0);
+    doc.performChange(changeFn);
+
+    expect(getInfiniteCanvasElements(doc.getData())).toEqual({
+      [elementId]: mockRectangleElement({
+        position: {
+          x: 9600,
+          y: 5400,
+        },
+      }),
+    });
+  });
+
+  it('should get elements from infinite canvas document with bigger elements', () => {
+    const doc = createWhiteboardDocument();
+
+    const element0 = mockRectangleElement({
+      position: {
+        x: 50,
+        y: 100,
+      },
+      width: 1920,
+      height: 1080,
+    });
+    const [changeFn, elementId] = generateAddElement(slide0, element0);
+    doc.performChange(changeFn);
+
+    expect(getInfiniteCanvasElements(doc.getData())).toEqual({
+      [elementId]: mockRectangleElement({
+        position: {
+          x: 50,
+          y: 100,
+        },
+        width: 1920,
+        height: 1080,
+      }),
+    });
+  });
+
+  it('should return undefined when document has several slides', () => {
+    const doc = createWhiteboardDocument();
+
+    const [changeFn1] = generateAddSlide();
+    doc.performChange(changeFn1);
+
+    expect(getInfiniteCanvasElements(doc.getData())).toBeUndefined();
+  });
+
+  it('should return undefined when document has single slide and all elements inside of initial canvas size', () => {
+    const doc = createWhiteboardDocument();
+
+    const element0 = mockRectangleElement();
+    const [changeFn] = generateAddElement(slide0, element0);
+    doc.performChange(changeFn);
+
+    expect(getInfiniteCanvasElements(doc.getData())).toBeUndefined();
+  });
+
+  it('should return empty elements when document has single slide and no elements', () => {
+    const doc = createWhiteboardDocument();
+
+    expect(getInfiniteCanvasElements(doc.getData())).toEqual({});
   });
 });

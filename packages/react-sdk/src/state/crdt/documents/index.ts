@@ -79,6 +79,7 @@ export {
   pointSchema,
 } from './point';
 export type { BoundingRect, Point } from './point';
+export { getInfiniteCanvasElements } from './updates';
 export {
   WhiteboardDocumentVersion,
   createWhiteboardDocument,

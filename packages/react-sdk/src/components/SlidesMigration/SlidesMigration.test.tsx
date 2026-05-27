@@ -39,17 +39,20 @@ import {
 } from 'vitest';
 import {
   mockEllipseElement,
+  mockRectangleElement,
   mockWhiteboardManager,
   WhiteboardTestingContextProvider,
 } from '../../lib/testUtils';
 import {
   createWhiteboardDocument,
   generateAddElement,
+  getNormalizedElementIds,
+  WhiteboardDocument,
   WhiteboardDocumentVersion,
   WhiteboardInstance,
   WhiteboardManager,
 } from '../../state';
-import { MismatchedSnapshot } from '../../state/types';
+import { MismatchedSnapshot, SynchronizedDocument } from '../../state/types';
 import { SlidesMigration } from './SlidesMigration';
 
 vi.mock('@matrix-widget-toolkit/mui', async () => ({
@@ -84,12 +87,14 @@ describe('<SlidesMigration/>', () => {
   let whiteboardManager: Mocked<WhiteboardManager>;
   let activeWhiteboardInstance: WhiteboardInstance;
   let mismatchedSnapshotSubject: Subject<MismatchedSnapshot | undefined>;
+  let synchronizedDocument: SynchronizedDocument<WhiteboardDocument>;
 
   beforeEach(() => {
-    ({ whiteboardManager, mismatchedSnapshotSubject } = mockWhiteboardManager({
-      slideCount: 1,
-      whiteboardDocumentVersion: WhiteboardDocumentVersion.Frames,
-    }));
+    ({ whiteboardManager, mismatchedSnapshotSubject, synchronizedDocument } =
+      mockWhiteboardManager({
+        whiteboardDocumentVersion: WhiteboardDocumentVersion.Frames,
+        slides: [[slide0, []]],
+      }));
     activeWhiteboardInstance = whiteboardManager.getActiveWhiteboardInstance()!;
 
     Wrapper = ({ children }) => {
@@ -108,6 +113,10 @@ describe('<SlidesMigration/>', () => {
     const remoteDocument = createWhiteboardDocument(
       WhiteboardDocumentVersion.Initial,
     );
+
+    const element0 = mockRectangleElement();
+    const [changeFn] = generateAddElement(slide0, element0);
+    remoteDocument.performChange(changeFn);
 
     mismatchedSnapshotSubject.next({
       documentVersion: remoteDocument.getDocumentVersion(),
@@ -244,6 +253,10 @@ describe('<SlidesMigration/>', () => {
       WhiteboardDocumentVersion.Initial,
     );
 
+    const element0 = mockRectangleElement();
+    const [changeFn] = generateAddElement(slide0, element0);
+    remoteDocument.performChange(changeFn);
+
     mismatchedSnapshotSubject.next({
       documentVersion: remoteDocument.getDocumentVersion(),
       data: remoteDocument.store(),
@@ -281,10 +294,63 @@ describe('<SlidesMigration/>', () => {
     ).toBe(2);
   });
 
+  it('should update slides to frames silently if a mismatched snapshot with infinite canvas document is received', async () => {
+    const remoteDocument = createWhiteboardDocument(
+      WhiteboardDocumentVersion.Initial,
+    );
+
+    const ellipseElement = mockEllipseElement({
+      position: {
+        x: 19200 / 2,
+        y: 10800 / 2,
+      },
+    });
+    const [addElement0] = generateAddElement(slide0, ellipseElement);
+    remoteDocument.performChange(addElement0);
+
+    mismatchedSnapshotSubject.next({
+      documentVersion: remoteDocument.getDocumentVersion(),
+      data: remoteDocument.store(),
+    });
+
+    render(<SlidesMigration />, {
+      wrapper: Wrapper,
+    });
+
+    const document = synchronizedDocument.getDocument();
+
+    await waitFor(() => {
+      const elementIds = getNormalizedElementIds(document.getData(), slide0);
+      const [slideElement0] = elementIds;
+
+      expect(document.getData().toJSON()).toEqual({
+        slideIds: [slide0],
+        slides: {
+          [slide0]: {
+            elements: {
+              [slideElement0]: mockEllipseElement({
+                position: {
+                  x: 19200 / 2,
+                  y: 10800 / 2,
+                },
+              }),
+            },
+            elementIds,
+            frameElementIds: [],
+          },
+        },
+      });
+    });
+  });
+
   it('should show error if cannot update slides to frames', async () => {
     const remoteDocument = createWhiteboardDocument(
       WhiteboardDocumentVersion.Initial,
     );
+
+    const element0 = mockRectangleElement();
+    const [changeFn] = generateAddElement(slide0, element0);
+    remoteDocument.performChange(changeFn);
 
     mismatchedSnapshotSubject.next({
       documentVersion: remoteDocument.getDocumentVersion(),

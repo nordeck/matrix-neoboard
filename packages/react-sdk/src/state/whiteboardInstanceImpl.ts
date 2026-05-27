@@ -56,6 +56,7 @@ import {
   generateMoveSlide,
   generateRemoveSlide,
   generateUpdate,
+  getInfiniteCanvasElements,
   getNormalizedSlideIds,
   getSlide,
   isValidWhiteboardDocument,
@@ -358,15 +359,35 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
 
         let mismatchedSnapshotDetails: MismatchedSnapshotDetails | undefined;
         if (mismatchedSnapshot) {
+          const snapshotDocumentVersion = mismatchedSnapshot.documentVersion;
           const canUpdate =
-            isWhiteboardDocumentVersion(mismatchedSnapshot.documentVersion) &&
+            isWhiteboardDocumentVersion(snapshotDocumentVersion) &&
             selectWhiteboardDocumentVersionsUpTo(
               this.whiteboardDocumentVersion,
-            ).includes(mismatchedSnapshot.documentVersion);
-          mismatchedSnapshotDetails = { canUpdate };
+            ).includes(snapshotDocumentVersion);
+          if (
+            canUpdate &&
+            snapshotDocumentVersion === WhiteboardDocumentVersion.Initial
+          ) {
+            const remoteDocument = createWhiteboardDocument(
+              snapshotDocumentVersion,
+            );
+            remoteDocument.mergeFrom(mismatchedSnapshot.data);
+
+            if (getInfiniteCanvasElements(remoteDocument.getData())) {
+              // An edge case where an infinite canvas document is updated and merged without user approval
+              this.mergeMismatchedSnapshot();
+              mismatchedSnapshotDetails = undefined;
+            } else {
+              mismatchedSnapshotDetails = { canUpdate };
+            }
+          } else {
+            mismatchedSnapshotDetails = { canUpdate };
+          }
         } else {
           mismatchedSnapshotDetails = undefined;
         }
+
         this.mismatchedSnapshotDetails = mismatchedSnapshotDetails;
         this.mismatchedSnapshotDetailsSubject.next(mismatchedSnapshotDetails);
       });
