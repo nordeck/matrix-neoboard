@@ -162,7 +162,7 @@ describe('<SlidesMigration/>', () => {
     );
 
     const dialog = screen.getByRole('dialog', {
-      name: 'Upgrade is Required',
+      name: 'Upgrade required',
     });
 
     expect(dialog).toBeInTheDocument();

@@ -68,10 +68,7 @@ export function SlidesMigrationDialog({
       <DialogTitle component="h3" id={dialogTitleId}>
         {canUpdate
           ? t('slidesMigrationDialog.title', 'Slides are now Frames')
-          : t(
-              'slidesMigrationDialog.titleUpgradeRequired',
-              'Upgrade is Required',
-            )}
+          : t('slidesMigrationDialog.titleUpgradeRequired', 'Upgrade required')}
       </DialogTitle>
       <DialogContent>
         {isError && (

@@ -67,13 +67,13 @@ describe('<SlidesMigrationDialog/>', () => {
     );
 
     const dialog = screen.getByRole('dialog', {
-      name: 'Upgrade is Required',
+      name: 'Upgrade required',
       description:
         'This whiteboard requires a more recent version of NeoBoard that uses Frames instead of Slides.',
     });
 
     expect(
-      within(dialog).getByRole('heading', { name: 'Upgrade is Required' }),
+      within(dialog).getByRole('heading', { name: 'Upgrade required' }),
     ).toBeInTheDocument();
     expect(
       within(dialog).getByText(
@@ -106,7 +106,7 @@ describe('<SlidesMigrationDialog/>', () => {
     );
 
     await screen.findByRole('dialog', {
-      name: 'Upgrade is Required',
+      name: 'Upgrade required',
     });
 
     expect(await axe.run(container)).toHaveNoViolations();
@@ -222,7 +222,7 @@ describe('<SlidesMigrationDialog/>', () => {
     );
 
     const dialog = screen.getByRole('dialog', {
-      name: 'Upgrade is Required',
+      name: 'Upgrade required',
     });
 
     expect(
