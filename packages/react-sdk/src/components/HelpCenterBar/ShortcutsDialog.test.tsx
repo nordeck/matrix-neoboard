@@ -103,7 +103,7 @@ describe('<ShortcutsDialog/>', () => {
 
   it('should call onClose when the close button is clicked', async () => {
     render(<ShortcutsDialog open onClose={onClose} />);
-    await userEvent.click(screen.getByRole('button', { name: 'Close' }));
+    await userEvent.click(screen.getByTestId('shortcuts-dialog-close'));
     expect(onClose).toHaveBeenCalledOnce();
   });
 });
