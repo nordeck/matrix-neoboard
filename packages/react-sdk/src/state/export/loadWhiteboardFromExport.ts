@@ -21,10 +21,15 @@ import {
   generateLockSlide,
   generateMoveSlide,
   generateRemoveSlide,
+  generateSetSlideFrameElementIds,
   getNormalizedSlideIds,
   WhiteboardDocument,
+  WhiteboardDocumentVersion,
 } from '../crdt';
-import { WhiteboardDocumentExport } from './whiteboardDocumentExport';
+import {
+  WhiteboardDocumentExport,
+  whiteboardDocumentVersionToExportString,
+} from './whiteboardDocumentExport';
 
 /**
  * Load a whiteboard from an export file.
@@ -38,6 +43,13 @@ export function generateLoadWhiteboardFromExport(
   ownUserId: string,
   atSlideIndex?: number,
 ): ChangeFn<WhiteboardDocument> {
+  const isFramesExport =
+    whiteboard.version ===
+    whiteboardDocumentVersionToExportString(WhiteboardDocumentVersion.Frames);
+  if (isFramesExport && whiteboard.whiteboard.slides.length !== 1) {
+    throw new Error('Must have a single slide');
+  }
+
   return (doc) => {
     if (atSlideIndex === undefined) {
       const oldSlideIds = getNormalizedSlideIds(doc);
@@ -50,6 +62,12 @@ export function generateLoadWhiteboardFromExport(
     whiteboard.whiteboard.slides.forEach((slide, index) => {
       const [addSlide, slideId] = generateAddSlide();
       addSlide(doc);
+
+      if (isFramesExport) {
+        const setSlideFrameElementIds =
+          generateSetSlideFrameElementIds(slideId);
+        setSlideFrameElementIds(doc);
+      }
 
       slide.elements.forEach((exportElement) => {
         const { id, ...element } = exportElement;

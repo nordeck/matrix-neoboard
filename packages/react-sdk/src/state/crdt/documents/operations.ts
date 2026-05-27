@@ -483,6 +483,31 @@ export function generateRemoveElements(
 }
 
 /**
+ * Set frame element ids for the slide from the frame elements.
+ */
+export function generateSetSlideFrameElementIds(
+  slideId: string,
+): ChangeFn<WhiteboardDocument> {
+  return (doc: SharedMap<WhiteboardDocument>) => {
+    const slide = getSlide(doc, slideId);
+
+    if (!slide) {
+      throw new Error(`Slide not found: ${slideId}`);
+    }
+
+    const frameElementIds: string[] = [];
+
+    for (const [elementId, element] of slide.get('elements')) {
+      if (element.get('type') === 'frame') {
+        frameElementIds.push(elementId);
+      }
+    }
+
+    slide.set('frameElementIds', YArray.from(frameElementIds));
+  };
+}
+
+/**
  * Return the ordered list of frame elements for the presentation as are stored in the slide.
  * A normalized version should normally be used, however this operation is useful when need to get a value as it is.
  */

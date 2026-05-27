@@ -38,6 +38,7 @@ import {
   generateRemoveElement,
   generateRemoveElements,
   generateRemoveSlide,
+  generateSetSlideFrameElementIds,
   generateUnlockSlide,
   generateUpdateElement,
   getElement,
@@ -1470,6 +1471,52 @@ describe('generateRemoveElements', () => {
     expect(getNormalizedElementIds(doc.getData(), slide0)).toEqual([element2]);
     expect(getElement(doc.getData(), slide0, element0)).toBeUndefined();
     expect(getElement(doc.getData(), slide0, element1)).toBeUndefined();
+  });
+});
+
+describe('generateSetSlideFrameElementIds', () => {
+  it('should set slide frame element ids', () => {
+    const doc = createWhiteboardDocument();
+
+    const lineElement = mockLineElement();
+    const frameElement1 = mockFrameElement();
+    const frameElement2 = mockFrameElement();
+    const [addElement0, element0] = generateAddElement(slide0, lineElement);
+    doc.performChange(addElement0);
+    const [addElement1, element1] = generateAddElement(slide0, frameElement1);
+    doc.performChange(addElement1);
+    const [addElement2, element2] = generateAddElement(slide0, frameElement2);
+    doc.performChange(addElement2);
+
+    doc.performChange(generateSetSlideFrameElementIds(slide0));
+
+    expect(getSlide(doc.getData(), slide0)?.toJSON()).toEqual({
+      elements: {
+        [element0]: lineElement,
+        [element1]: frameElement1,
+        [element2]: frameElement2,
+      },
+      elementIds: [element0, element1, element2],
+      frameElementIds: [element1, element2],
+    });
+  });
+
+  it('should set slide frame ids to empty array if no frames', () => {
+    const doc = createWhiteboardDocument();
+
+    const lineElement = mockLineElement();
+    const [addElement0, element0] = generateAddElement(slide0, lineElement);
+    doc.performChange(addElement0);
+
+    doc.performChange(generateSetSlideFrameElementIds(slide0));
+
+    expect(getSlide(doc.getData(), slide0)?.toJSON()).toEqual({
+      elements: {
+        [element0]: lineElement,
+      },
+      elementIds: [element0],
+      frameElementIds: [],
+    });
   });
 });
 

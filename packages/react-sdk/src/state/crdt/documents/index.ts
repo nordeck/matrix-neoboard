@@ -62,6 +62,7 @@ export {
   generateMoveUp,
   generateRemoveElement,
   generateRemoveSlide,
+  generateSetSlideFrameElementIds,
   generateUnlockSlide,
   generateUpdateElement,
   getElement,
