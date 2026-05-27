@@ -323,7 +323,7 @@
     "contentUpgradeRequired": "This document requires a more recent version of Neoboard that uses Frames instead of Slides.",
     "migrationFailed": "An issue occurred when moving Slides into Frames",
     "title": "Slides are now Frames",
-    "titleUpgradeRequired": "Upgrade is Required",
+    "titleUpgradeRequired": "Upgrade required",
     "update": "Continue"
   },
   "snackbar": {
