@@ -92,7 +92,7 @@ export function SlidesMigrationDialog({
               )
             : t(
                 'slidesMigrationDialog.contentUpgradeRequired',
-                'A newer version is required to work with the stored document.',
+                'This whiteboard requires a more recent version of NeoBoard that uses Frames instead of Slides.',
               )}
         </DialogContentText>
       </DialogContent>

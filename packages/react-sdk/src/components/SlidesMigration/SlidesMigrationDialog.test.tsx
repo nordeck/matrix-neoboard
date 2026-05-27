@@ -69,7 +69,7 @@ describe('<SlidesMigrationDialog/>', () => {
     const dialog = screen.getByRole('dialog', {
       name: 'Upgrade is Required',
       description:
-        'A newer version is required to work with the stored document.',
+        'This whiteboard requires a more recent version of NeoBoard that uses Frames instead of Slides.',
     });
 
     expect(
@@ -77,7 +77,7 @@ describe('<SlidesMigrationDialog/>', () => {
     ).toBeInTheDocument();
     expect(
       within(dialog).getByText(
-        'A newer version is required to work with the stored document.',
+        'This whiteboard requires a more recent version of NeoBoard that uses Frames instead of Slides.',
       ),
     ).toBeInTheDocument();
     expect(
