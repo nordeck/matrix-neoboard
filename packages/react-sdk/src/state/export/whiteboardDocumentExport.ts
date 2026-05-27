@@ -119,7 +119,7 @@ export function whiteboardDocumentVersionToExportString(
 export function extractWhiteboardDocumentVersionFromExportString(
   value: string,
 ): WhiteboardDocumentVersion {
-  const match = value.match(/net.nordeck.whiteboard@v([\d.]+)/);
+  const match = value.match(/^net\.nordeck\.whiteboard@v([\d]+)$/);
   if (!match) {
     throw new Error(
       `Unexpected whiteboard document version export string: ${value}`,
