@@ -2,4 +2,4 @@
 '@nordeck/matrix-neoboard-react-sdk': minor
 ---
 
-add shortcuts for reordering elements (bring to top, bring to bottom)
+Add shortcuts to reorder elements: bring to front, bring to back
