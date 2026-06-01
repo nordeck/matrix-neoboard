@@ -14,4 +14,4 @@
  * limitations under the License.
  */
 
-export { SelectAllShortcut } from '././SelectAllShortcut';
+export { SelectAllShortcut } from './SelectAllShortcut';
