@@ -19,14 +19,14 @@ import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import axe from 'axe-core';
 import { describe, expect, it, vi } from 'vitest';
-import { SlidesMigrationDialog } from './SlidesMigrationDialog';
+import { WhiteboardUpdateDialog } from './WhiteboardUpdateDialog';
 
-describe('<SlidesMigrationDialog/>', () => {
+describe('<WhiteboardUpdateDialog/>', () => {
   const onUpdate = vi.fn();
 
   it('should render without exploding', async () => {
     render(
-      <SlidesMigrationDialog
+      <WhiteboardUpdateDialog
         open
         canUpdate
         onUpdate={onUpdate}
@@ -58,7 +58,7 @@ describe('<SlidesMigrationDialog/>', () => {
 
   it('should render without exploding if cannot update', async () => {
     render(
-      <SlidesMigrationDialog
+      <WhiteboardUpdateDialog
         open
         canUpdate={false}
         onUpdate={onUpdate}
@@ -90,7 +90,7 @@ describe('<SlidesMigrationDialog/>', () => {
 
   it('should have no accessibility violations', async () => {
     const { container } = render(
-      <SlidesMigrationDialog open canUpdate onUpdate={onUpdate} />,
+      <WhiteboardUpdateDialog open canUpdate onUpdate={onUpdate} />,
     );
 
     await screen.findByRole('dialog', {
@@ -102,7 +102,7 @@ describe('<SlidesMigrationDialog/>', () => {
 
   it('should have no accessibility violations if cannot update', async () => {
     const { container } = render(
-      <SlidesMigrationDialog open canUpdate={false} onUpdate={onUpdate} />,
+      <WhiteboardUpdateDialog open canUpdate={false} onUpdate={onUpdate} />,
     );
 
     await screen.findByRole('dialog', {
@@ -114,7 +114,7 @@ describe('<SlidesMigrationDialog/>', () => {
 
   it('should render update button disabled if update is disabled', () => {
     render(
-      <SlidesMigrationDialog open canUpdate isLoading onUpdate={onUpdate} />,
+      <WhiteboardUpdateDialog open canUpdate isLoading onUpdate={onUpdate} />,
     );
 
     const dialog = screen.getByRole('dialog', {
@@ -128,7 +128,7 @@ describe('<SlidesMigrationDialog/>', () => {
 
   it('should render update button disabled while loading', async () => {
     render(
-      <SlidesMigrationDialog open canUpdate isLoading onUpdate={onUpdate} />,
+      <WhiteboardUpdateDialog open canUpdate isLoading onUpdate={onUpdate} />,
     );
 
     const dialog = screen.getByRole('dialog', {
@@ -142,7 +142,7 @@ describe('<SlidesMigrationDialog/>', () => {
 
   it('should have no accessibility violations while loading', async () => {
     const { container } = render(
-      <SlidesMigrationDialog open canUpdate isLoading onUpdate={onUpdate} />,
+      <WhiteboardUpdateDialog open canUpdate isLoading onUpdate={onUpdate} />,
     );
 
     await screen.findByRole('dialog', {
@@ -154,7 +154,7 @@ describe('<SlidesMigrationDialog/>', () => {
 
   it('should render error', async () => {
     render(
-      <SlidesMigrationDialog open canUpdate isError onUpdate={onUpdate} />,
+      <WhiteboardUpdateDialog open canUpdate isError onUpdate={onUpdate} />,
     );
 
     const dialog = screen.getByRole('dialog', {
@@ -174,7 +174,7 @@ describe('<SlidesMigrationDialog/>', () => {
   });
 
   it('should update on update button click', async () => {
-    render(<SlidesMigrationDialog open canUpdate onUpdate={onUpdate} />);
+    render(<WhiteboardUpdateDialog open canUpdate onUpdate={onUpdate} />);
 
     const dialog = await screen.findByRole('dialog', {
       name: 'Slides are now Frames',
@@ -189,7 +189,7 @@ describe('<SlidesMigrationDialog/>', () => {
 
   it('should render additional buttons', async () => {
     render(
-      <SlidesMigrationDialog
+      <WhiteboardUpdateDialog
         open
         canUpdate
         onUpdate={onUpdate}
@@ -213,7 +213,7 @@ describe('<SlidesMigrationDialog/>', () => {
 
   it('should render additional buttons if cannot update', async () => {
     render(
-      <SlidesMigrationDialog
+      <WhiteboardUpdateDialog
         open
         canUpdate={false}
         onUpdate={onUpdate}

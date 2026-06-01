@@ -14,4 +14,4 @@
  * limitations under the License.
  */
 
-export { SlidesMigration } from './SlidesMigration';
+export { WhiteboardUpdate } from './WhiteboardUpdate';

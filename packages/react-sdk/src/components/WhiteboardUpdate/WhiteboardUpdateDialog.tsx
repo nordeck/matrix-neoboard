@@ -29,7 +29,7 @@ import { unstable_useId as useId } from '@mui/utils';
 import { Fragment, ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
-type SlidesMigrationDialogProps = {
+type WhiteboardUpdateDialogProps = {
   open: boolean;
   canUpdate: boolean;
   onUpdate: () => void;
@@ -40,7 +40,7 @@ type SlidesMigrationDialogProps = {
   additionalButtons?: ReactElement;
 };
 
-export function SlidesMigrationDialog({
+export function WhiteboardUpdateDialog({
   open,
   canUpdate,
   onUpdate,
@@ -49,7 +49,7 @@ export function SlidesMigrationDialog({
   isError,
   exportButton = <Fragment />,
   additionalButtons,
-}: SlidesMigrationDialogProps) {
+}: WhiteboardUpdateDialogProps) {
   const { t } = useTranslation('neoboard');
 
   const dialogTitleId = useId();
@@ -67,15 +67,18 @@ export function SlidesMigrationDialog({
     >
       <DialogTitle component="h3" id={dialogTitleId}>
         {canUpdate
-          ? t('slidesMigrationDialog.title', 'Slides are now Frames')
-          : t('slidesMigrationDialog.titleUpgradeRequired', 'Upgrade required')}
+          ? t('whiteboardUpdateDialog.title', 'Slides are now Frames')
+          : t(
+              'whiteboardUpdateDialog.titleUpgradeRequired',
+              'Upgrade required',
+            )}
       </DialogTitle>
       <DialogContent>
         {isError && (
           <Alert severity="error" sx={{ mb: 1 }}>
             <AlertTitle>
               {t(
-                'slidesMigrationDialog.migrationFailed',
+                'whiteboardUpdateDialog.migrationFailed',
                 'An issue occurred when moving Slides into Frames',
               )}
             </AlertTitle>
@@ -84,11 +87,11 @@ export function SlidesMigrationDialog({
         <DialogContentText id={dialogDescriptionId}>
           {canUpdate
             ? t(
-                'slidesMigrationDialog.content',
+                'whiteboardUpdateDialog.content',
                 'Your existing Slides will now be shown as Frames - a new way to organize your content. Please download a copy of your whiteboard before continuing.',
               )
             : t(
-                'slidesMigrationDialog.contentUpgradeRequired',
+                'whiteboardUpdateDialog.contentUpgradeRequired',
                 'This whiteboard requires a more recent version of NeoBoard that uses Frames instead of Slides.',
               )}
         </DialogContentText>
@@ -105,7 +108,7 @@ export function SlidesMigrationDialog({
               variant="contained"
               startIcon={<Sync />}
             >
-              {t('slidesMigrationDialog.update', 'Continue')}
+              {t('whiteboardUpdateDialog.update', 'Continue')}
             </Button>
           )}
         </DialogActions>

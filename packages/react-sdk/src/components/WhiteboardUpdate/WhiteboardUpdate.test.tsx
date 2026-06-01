@@ -53,7 +53,7 @@ import {
   WhiteboardManager,
 } from '../../state';
 import { MismatchedSnapshot, SynchronizedDocument } from '../../state/types';
-import { SlidesMigration } from './SlidesMigration';
+import { WhiteboardUpdate } from './WhiteboardUpdate';
 
 vi.mock('@matrix-widget-toolkit/mui', async () => ({
   ...(await vi.importActual<typeof import('@matrix-widget-toolkit/mui')>(
@@ -82,7 +82,7 @@ beforeEach(() => {
 // createWhiteboardDocument() always contains a slide with this id
 const slide0 = 'IN4h74suMiIAK4AVMAdl_';
 
-describe('<SlidesMigration/>', () => {
+describe('<WhiteboardUpdate/>', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
   let whiteboardManager: Mocked<WhiteboardManager>;
   let activeWhiteboardInstance: WhiteboardInstance;
@@ -124,7 +124,7 @@ describe('<SlidesMigration/>', () => {
     });
 
     render(
-      <SlidesMigration dialogAdditionalButtons={<Button>Go Back</Button>} />,
+      <WhiteboardUpdate dialogAdditionalButtons={<Button>Go Back</Button>} />,
       {
         wrapper: Wrapper,
       },
@@ -164,7 +164,7 @@ describe('<SlidesMigration/>', () => {
     });
 
     render(
-      <SlidesMigration dialogAdditionalButtons={<Button>Go Back</Button>} />,
+      <WhiteboardUpdate dialogAdditionalButtons={<Button>Go Back</Button>} />,
       {
         wrapper: Wrapper,
       },
@@ -188,7 +188,7 @@ describe('<SlidesMigration/>', () => {
   });
 
   it('should not render a dialog to update', async () => {
-    render(<SlidesMigration />, {
+    render(<WhiteboardUpdate />, {
       wrapper: Wrapper,
     });
 
@@ -222,7 +222,7 @@ describe('<SlidesMigration/>', () => {
       text: vi.fn(),
     } as unknown as Blob);
 
-    render(<SlidesMigration />, { wrapper: Wrapper });
+    render(<WhiteboardUpdate />, { wrapper: Wrapper });
 
     const dialog = screen.getByRole('dialog', {
       name: 'Slides are now Frames',
@@ -262,7 +262,7 @@ describe('<SlidesMigration/>', () => {
       data: remoteDocument.store(),
     });
 
-    render(<SlidesMigration />, {
+    render(<WhiteboardUpdate />, {
       wrapper: Wrapper,
     });
 
@@ -313,7 +313,7 @@ describe('<SlidesMigration/>', () => {
       data: remoteDocument.store(),
     });
 
-    render(<SlidesMigration />, {
+    render(<WhiteboardUpdate />, {
       wrapper: Wrapper,
     });
 
@@ -364,7 +364,7 @@ describe('<SlidesMigration/>', () => {
       throw new Error('Something broke');
     });
 
-    render(<SlidesMigration />, {
+    render(<WhiteboardUpdate />, {
       wrapper: Wrapper,
     });
 
@@ -376,12 +376,12 @@ describe('<SlidesMigration/>', () => {
       within(dialog).getByRole('button', { name: 'Download' }),
     );
 
-    const migrateButton = within(dialog).getByRole('button', {
+    const continueButton = within(dialog).getByRole('button', {
       name: 'Continue',
     });
-    await userEvent.click(migrateButton);
+    await userEvent.click(continueButton);
 
-    expect(migrateButton).toBeDisabled();
+    expect(continueButton).toBeDisabled();
 
     const alert = await screen.findByRole('alert');
     expect(

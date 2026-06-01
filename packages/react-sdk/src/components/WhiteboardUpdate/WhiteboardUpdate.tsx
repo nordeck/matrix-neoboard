@@ -22,17 +22,17 @@ import {
   useWhiteboardMismatchedSnapshotDetails,
 } from '../../state';
 import { ExportWhiteboardDialogDownloadFile } from '../BoardBar';
-import { SlidesMigrationDialog } from './SlidesMigrationDialog';
+import { WhiteboardUpdateDialog } from './WhiteboardUpdateDialog';
 
-type SlidesMigrationProps = {
+type WhiteboardUpdateProps = {
   dialogAdditionalButtons?: ReactElement;
 };
 
-export function SlidesMigration({
+export function WhiteboardUpdate({
   dialogAdditionalButtons,
-}: SlidesMigrationProps) {
+}: WhiteboardUpdateProps) {
   const { t } = useTranslation('neoboard');
-  const logger = getLogger('SlidesMigration');
+  const logger = getLogger('WhiteboardUpdate');
 
   const [open, setOpen] = useState(false);
   const [canUpdate, setCanUpdate] = useState(false);
@@ -77,7 +77,7 @@ export function SlidesMigration({
   }, [logger, whiteboardInstance]);
 
   return (
-    <SlidesMigrationDialog
+    <WhiteboardUpdateDialog
       open={open}
       canUpdate={canUpdate}
       isUpdateDisabled={!isDownloaded}

@@ -19,7 +19,7 @@ import { ReactElement, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ReactSdkThemeProvider } from './ReactSdkThemeProvider';
 import { Layout, LayoutProps } from './components/Layout';
-import { SlidesMigration } from './components/SlidesMigration';
+import { WhiteboardUpdate } from './components/WhiteboardUpdate';
 import { PageLoader } from './components/common/PageLoader';
 import {
   useActiveWhiteboardInstance,
@@ -29,12 +29,12 @@ import {
 
 export type AppProps = {
   layoutProps?: LayoutProps;
-  slidesMigrationDialogAdditionalButtons?: ReactElement;
+  whiteboardUpdateDialogAdditionalButtons?: ReactElement;
 };
 
 export const App = ({
   layoutProps,
-  slidesMigrationDialogAdditionalButtons,
+  whiteboardUpdateDialogAdditionalButtons,
 }: AppProps) => {
   const { t } = useTranslation('neoboard');
   const { value, loading } = useOwnedWhiteboard();
@@ -56,8 +56,8 @@ export const App = ({
     // Show the whiteboard if there is one and we are not waiting for a moderator
     return (
       <ReactSdkThemeProvider>
-        <SlidesMigration
-          dialogAdditionalButtons={slidesMigrationDialogAdditionalButtons}
+        <WhiteboardUpdate
+          dialogAdditionalButtons={whiteboardUpdateDialogAdditionalButtons}
         />
         <Layout {...layoutProps} />
       </ReactSdkThemeProvider>
