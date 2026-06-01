@@ -683,7 +683,7 @@ describe('generateAddElement', () => {
     expect(getNormalizedFrameElementIds(doc.getData(), slide0)).toEqual([]);
   });
 
-  it('should add frame element to the initial whiteboard document', () => {
+  it('should add frame element to the v0 whiteboard document', () => {
     const doc = createWhiteboardDocument();
 
     const element = mockFrameElement();
@@ -701,8 +701,8 @@ describe('generateAddElement', () => {
     expect(getNormalizedFrameElementIds(doc.getData(), slide0)).toEqual([]);
   });
 
-  it('should add frame element to the frames whiteboard document', () => {
-    const doc = createWhiteboardDocument(WhiteboardDocumentVersion.Frames);
+  it('should add frame element to the v1 whiteboard document', () => {
+    const doc = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
 
     const element = mockFrameElement();
     const [changeFn, elementId] = generateAddElement(slide0, element);
@@ -1558,7 +1558,7 @@ describe('getFrameElementIds', () => {
 
 describe('getNormalizedFrameElementIds', () => {
   it('should skip duplicate frame element ids', () => {
-    const document = createWhiteboardDocument(WhiteboardDocumentVersion.Frames);
+    const document = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
 
     const element = mockFrameElement();
     const [addElement, elementId] = generateAddElement(slide0, element);
@@ -1574,7 +1574,7 @@ describe('getNormalizedFrameElementIds', () => {
   });
 
   it('should skip deleted elements', () => {
-    const document = createWhiteboardDocument(WhiteboardDocumentVersion.Frames);
+    const document = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
 
     const element = mockFrameElement();
     const [addElement, elementId] = generateAddElement(slide0, element);
@@ -1590,7 +1590,7 @@ describe('getNormalizedFrameElementIds', () => {
   });
 
   it('should handle a missing frame', () => {
-    const document = createWhiteboardDocument(WhiteboardDocumentVersion.Frames);
+    const document = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
 
     expect(
       getNormalizedFrameElementIds(document.getData(), 'not-exists'),
@@ -1600,7 +1600,7 @@ describe('getNormalizedFrameElementIds', () => {
 
 describe('generateMoveSlideFrame', () => {
   it('should reorder frames', () => {
-    const doc = createWhiteboardDocument(WhiteboardDocumentVersion.Frames);
+    const doc = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
 
     const element = mockFrameElement();
     const [changeFn0, element0] = generateAddElement(slide0, element);
@@ -1623,7 +1623,7 @@ describe('generateMoveSlideFrame', () => {
   });
 
   it('should ignore missing frame', () => {
-    const doc = createWhiteboardDocument(WhiteboardDocumentVersion.Frames);
+    const doc = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
 
     const element = mockFrameElement();
     const [changeFn0, element0] = generateAddElement(slide0, element);
@@ -1640,7 +1640,7 @@ describe('generateMoveSlideFrame', () => {
   });
 
   it('should ignore a negative index', () => {
-    const doc = createWhiteboardDocument(WhiteboardDocumentVersion.Frames);
+    const doc = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
 
     const element = mockFrameElement();
     const [changeFn0, element0] = generateAddElement(slide0, element);
@@ -1671,7 +1671,7 @@ describe('generateMoveSlideFrame', () => {
     let element3: string;
 
     beforeEach(() => {
-      aliceDoc = createWhiteboardDocument(WhiteboardDocumentVersion.Frames);
+      aliceDoc = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
 
       const element = mockFrameElement();
       const change0 = generateAddElement(slide0, element);
@@ -1687,7 +1687,7 @@ describe('generateMoveSlideFrame', () => {
       element3 = change3[1];
       aliceDoc.performChange(change3[0]);
 
-      bobDoc = createWhiteboardDocument(WhiteboardDocumentVersion.Frames);
+      bobDoc = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
       bobDoc.mergeFrom(aliceDoc.store());
     });
 

@@ -92,7 +92,7 @@ describe('<SlidesMigration/>', () => {
   beforeEach(() => {
     ({ whiteboardManager, mismatchedSnapshotSubject, synchronizedDocument } =
       mockWhiteboardManager({
-        whiteboardDocumentVersion: WhiteboardDocumentVersion.Frames,
+        whiteboardDocumentVersion: WhiteboardDocumentVersion.v1,
         slides: [[slide0, []]],
       }));
     activeWhiteboardInstance = whiteboardManager.getActiveWhiteboardInstance()!;
@@ -111,7 +111,7 @@ describe('<SlidesMigration/>', () => {
 
   it('should render a dialog to update if a mismatched snapshot is received', async () => {
     const remoteDocument = createWhiteboardDocument(
-      WhiteboardDocumentVersion.Initial,
+      WhiteboardDocumentVersion.v0,
     );
 
     const element0 = mockRectangleElement();
@@ -150,12 +150,12 @@ describe('<SlidesMigration/>', () => {
   it('should render a dialog to upgrade', async () => {
     ({ whiteboardManager, mismatchedSnapshotSubject } = mockWhiteboardManager({
       slideCount: 1,
-      whiteboardDocumentVersion: WhiteboardDocumentVersion.Initial,
+      whiteboardDocumentVersion: WhiteboardDocumentVersion.v0,
     }));
     activeWhiteboardInstance = whiteboardManager.getActiveWhiteboardInstance()!;
 
     const remoteDocument = createWhiteboardDocument(
-      WhiteboardDocumentVersion.Frames,
+      WhiteboardDocumentVersion.v1,
     );
 
     mismatchedSnapshotSubject.next({
@@ -201,7 +201,7 @@ describe('<SlidesMigration/>', () => {
 
   it('should download snapshot exported data if a mismatched snapshot is received', async () => {
     const remoteDocument = createWhiteboardDocument(
-      WhiteboardDocumentVersion.Initial,
+      WhiteboardDocumentVersion.v0,
     );
 
     const ellipseElement = mockEllipseElement();
@@ -250,7 +250,7 @@ describe('<SlidesMigration/>', () => {
 
   it('should update slides to frames if a mismatched snapshot is received and download is clicked', async () => {
     const remoteDocument = createWhiteboardDocument(
-      WhiteboardDocumentVersion.Initial,
+      WhiteboardDocumentVersion.v0,
     );
 
     const element0 = mockRectangleElement();
@@ -296,7 +296,7 @@ describe('<SlidesMigration/>', () => {
 
   it('should update slides to frames silently if a mismatched snapshot with infinite canvas document is received', async () => {
     const remoteDocument = createWhiteboardDocument(
-      WhiteboardDocumentVersion.Initial,
+      WhiteboardDocumentVersion.v0,
     );
 
     const ellipseElement = mockEllipseElement({
@@ -345,7 +345,7 @@ describe('<SlidesMigration/>', () => {
 
   it('should show error if cannot update slides to frames', async () => {
     const remoteDocument = createWhiteboardDocument(
-      WhiteboardDocumentVersion.Initial,
+      WhiteboardDocumentVersion.v0,
     );
 
     const element0 = mockRectangleElement();

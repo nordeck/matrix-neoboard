@@ -103,8 +103,8 @@ export function useOwnedWhiteboard(): UseOwnedWhiteboardResponse {
       // Create initial empty snapshot, so that there is always a snapshot.
       // This is done to reduce "cannot find snapshot" messages when creating new boards.
       const whiteboardDocumentVersion = isInfiniteCanvasMode()
-        ? WhiteboardDocumentVersion.Frames
-        : WhiteboardDocumentVersion.Initial;
+        ? WhiteboardDocumentVersion.v1
+        : WhiteboardDocumentVersion.v0;
       const document = createWhiteboardDocument(whiteboardDocumentVersion);
       await dispatch(
         documentSnapshotApi.endpoints.createDocumentSnapshot.initiate({

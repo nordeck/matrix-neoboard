@@ -162,17 +162,17 @@ function createWhiteboardDocumentExportSchema(
 }
 
 const whiteboardDocumentInitialExportSchema =
-  createWhiteboardDocumentExportSchema(WhiteboardDocumentVersion.Initial);
+  createWhiteboardDocumentExportSchema(WhiteboardDocumentVersion.v0);
 const whiteboardDocumentFramesExportSchema =
-  createWhiteboardDocumentExportSchema(WhiteboardDocumentVersion.Frames);
+  createWhiteboardDocumentExportSchema(WhiteboardDocumentVersion.v1);
 
 function getWhiteboardDocumentExportSchema(
   whiteboardDocumentVersion: WhiteboardDocumentVersion,
 ): AnySchema<WhiteboardDocumentExport> {
   switch (whiteboardDocumentVersion) {
-    case WhiteboardDocumentVersion.Initial:
+    case WhiteboardDocumentVersion.v0:
       return whiteboardDocumentInitialExportSchema;
-    case WhiteboardDocumentVersion.Frames:
+    case WhiteboardDocumentVersion.v1:
       return whiteboardDocumentFramesExportSchema;
     default:
       throw new Error(

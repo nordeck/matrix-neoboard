@@ -86,7 +86,7 @@ describe('convertWhiteboardToExportFormat', () => {
 
     expect(
       await exportWhiteboard(
-        WhiteboardDocumentVersion.Initial,
+        WhiteboardDocumentVersion.v0,
         document.getData(),
         mockWidgetApi(),
       ),
@@ -130,7 +130,7 @@ describe('convertWhiteboardToExportFormat', () => {
 
     expect(
       await exportWhiteboard(
-        WhiteboardDocumentVersion.Initial,
+        WhiteboardDocumentVersion.v0,
         document.getData(),
         mockWidgetApi(),
       ),
@@ -182,7 +182,7 @@ describe('convertWhiteboardToExportFormat', () => {
     );
     expect(
       await exportWhiteboard(
-        WhiteboardDocumentVersion.Initial,
+        WhiteboardDocumentVersion.v0,
         document.getData(),
         mockWidgetApi(),
       ),
@@ -240,7 +240,7 @@ describe('convertWhiteboardToExportFormat', () => {
 
     expect(
       await exportWhiteboard(
-        WhiteboardDocumentVersion.Initial,
+        WhiteboardDocumentVersion.v0,
         document.getData(),
         mockWidgetApi(),
       ),
@@ -287,7 +287,7 @@ describe('convertWhiteboardToExportFormat', () => {
 
     expect(
       await exportWhiteboard(
-        WhiteboardDocumentVersion.Initial,
+        WhiteboardDocumentVersion.v0,
         document.getData(),
         mockWidgetApi(),
       ),
@@ -352,7 +352,7 @@ describe('convertWhiteboardToExportFormat', () => {
 
     expect(
       await exportWhiteboard(
-        WhiteboardDocumentVersion.Initial,
+        WhiteboardDocumentVersion.v0,
         document.getData(),
         mockWidgetApi(),
       ),
@@ -430,7 +430,7 @@ describe('convertWhiteboardToExportFormat', () => {
 
     expect(
       await exportWhiteboard(
-        WhiteboardDocumentVersion.Initial,
+        WhiteboardDocumentVersion.v0,
         document.getData(),
         mockWidgetApi(),
       ),
@@ -479,7 +479,7 @@ describe('convertWhiteboardToExportFormat', () => {
 
     expect(
       await exportWhiteboard(
-        WhiteboardDocumentVersion.Initial,
+        WhiteboardDocumentVersion.v0,
         document.getData(),
         mockWidgetApi(),
       ),
@@ -491,12 +491,12 @@ describe('convertWhiteboardToExportFormat', () => {
     });
   });
 
-  it('should export whiteboard document frames version', async () => {
-    const document = createWhiteboardDocument(WhiteboardDocumentVersion.Frames);
+  it('should export whiteboard document v1 version', async () => {
+    const document = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
 
     expect(
       await exportWhiteboard(
-        WhiteboardDocumentVersion.Frames,
+        WhiteboardDocumentVersion.v1,
         document.getData(),
         mockWidgetApi(),
       ),

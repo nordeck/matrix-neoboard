@@ -174,8 +174,8 @@ export function readNWB(file: File): Promise<{
         const jsonData = JSON.parse(reader.result);
 
         const whiteboardDocumentVersion = isInfiniteCanvasMode()
-          ? WhiteboardDocumentVersion.Frames
-          : WhiteboardDocumentVersion.Initial;
+          ? WhiteboardDocumentVersion.v1
+          : WhiteboardDocumentVersion.v0;
 
         if (
           isValidWhiteboardExportDocument(whiteboardDocumentVersion, jsonData)

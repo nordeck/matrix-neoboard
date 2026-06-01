@@ -71,8 +71,8 @@ export function initializeSlideFrameElementIds(
 }
 
 export enum WhiteboardDocumentVersion {
-  Initial = '0',
-  Frames = '1',
+  v0 = '0',
+  v1 = '1',
 }
 
 const whiteboardDocumentVersions: WhiteboardDocumentVersion[] = Object.values(
@@ -131,20 +131,20 @@ export const migrationFunctions: MigrationFn<WhiteboardDocument>[] = [
   initializeSlideFrameElementIds,
 ];
 
-export const whiteboardDocumentMigrations = createMigrations(
+export const whiteboardDocumentV0Migrations = createMigrations(
   // Never change or remove migration functions
   migrationFunctions.slice(0, 1),
-  WhiteboardDocumentVersion.Initial,
+  WhiteboardDocumentVersion.v0,
 );
 
-export const whiteboardDocumentFramesMigrations = createMigrations(
+export const whiteboardDocumentV1Migrations = createMigrations(
   // Never change or remove migration functions
   migrationFunctions.slice(0, 2),
-  WhiteboardDocumentVersion.Frames,
+  WhiteboardDocumentVersion.v1,
 );
 
 export function createWhiteboardDocument(
-  whiteboardDocumentVersion: WhiteboardDocumentVersion = WhiteboardDocumentVersion.Initial,
+  whiteboardDocumentVersion: WhiteboardDocumentVersion = WhiteboardDocumentVersion.v0,
 ): Document<WhiteboardDocument> {
   return YDocument.create(
     getMigrations(whiteboardDocumentVersion),
@@ -157,11 +157,11 @@ function getMigrations(
   whiteboardDocumentVersion: WhiteboardDocumentVersion,
 ): Uint8Array[] {
   switch (whiteboardDocumentVersion) {
-    case WhiteboardDocumentVersion.Initial:
-      return whiteboardDocumentMigrations;
+    case WhiteboardDocumentVersion.v0:
+      return whiteboardDocumentV0Migrations;
 
-    case WhiteboardDocumentVersion.Frames:
-      return whiteboardDocumentFramesMigrations;
+    case WhiteboardDocumentVersion.v1:
+      return whiteboardDocumentV1Migrations;
 
     default:
       throw new Error(
@@ -189,8 +189,8 @@ export function generateUpdate(
 
   let isInvalidDocument: boolean | undefined;
   if (
-    documentVersion === WhiteboardDocumentVersion.Initial &&
-    targetDocumentVersion === WhiteboardDocumentVersion.Frames
+    documentVersion === WhiteboardDocumentVersion.v0 &&
+    targetDocumentVersion === WhiteboardDocumentVersion.v1
   ) {
     if (isValidWhiteboardDocument(document)) {
       return generateFramesUpdate(document.getData());
@@ -212,9 +212,9 @@ function getSlideSchema(
   whiteboardDocumentVersion: WhiteboardDocumentVersion,
 ): ObjectSchema {
   let frameElementIdsSchema: AnySchema;
-  if (whiteboardDocumentVersion === WhiteboardDocumentVersion.Initial) {
+  if (whiteboardDocumentVersion === WhiteboardDocumentVersion.v0) {
     frameElementIdsSchema = Joi.any();
-  } else if (whiteboardDocumentVersion === WhiteboardDocumentVersion.Frames) {
+  } else if (whiteboardDocumentVersion === WhiteboardDocumentVersion.v1) {
     frameElementIdsSchema = Joi.array()
       .items(Joi.string().not(...disallowElementIds))
       .required();
@@ -240,18 +240,18 @@ function getSlideSchema(
     .required();
 }
 
-export const whiteboardInitialDocumentSchema = Joi.object({
+export const whiteboardDocumentV0Schema = Joi.object({
   slides: Joi.object()
-    .pattern(Joi.string(), getSlideSchema(WhiteboardDocumentVersion.Initial))
+    .pattern(Joi.string(), getSlideSchema(WhiteboardDocumentVersion.v0))
     .required(),
   slideIds: Joi.array().items(Joi.string()).required(),
 })
   .unknown()
   .required();
 
-export const whiteboardFramesDocumentSchema = Joi.object({
+export const whiteboardDocumentV1Schema = Joi.object({
   slides: Joi.object()
-    .pattern(Joi.string(), getSlideSchema(WhiteboardDocumentVersion.Frames))
+    .pattern(Joi.string(), getSlideSchema(WhiteboardDocumentVersion.v1))
     .required(),
   slideIds: Joi.array().items(Joi.string()).required(),
 })
@@ -262,10 +262,10 @@ function getWhiteboardDocumentSchema(
   whiteboardDocumentVersion: WhiteboardDocumentVersion,
 ): AnySchema<WhiteboardDocument> {
   switch (whiteboardDocumentVersion) {
-    case WhiteboardDocumentVersion.Initial:
-      return whiteboardInitialDocumentSchema;
-    case WhiteboardDocumentVersion.Frames:
-      return whiteboardFramesDocumentSchema;
+    case WhiteboardDocumentVersion.v0:
+      return whiteboardDocumentV0Schema;
+    case WhiteboardDocumentVersion.v1:
+      return whiteboardDocumentV1Schema;
     default:
       throw new Error(
         'Unexpected whiteboard document version:' + whiteboardDocumentVersion,

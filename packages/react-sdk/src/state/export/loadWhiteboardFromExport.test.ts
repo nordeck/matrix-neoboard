@@ -299,7 +299,7 @@ describe('generateLoadWhiteboardFromExport', () => {
     });
   });
 
-  it('should load frames whiteboard without frames', () => {
+  it('should load v1 whiteboard without frames', () => {
     const exportDocument: WhiteboardDocumentExport = {
       version: 'net.nordeck.whiteboard@v2',
       whiteboard: {
@@ -307,7 +307,7 @@ describe('generateLoadWhiteboardFromExport', () => {
       },
     };
 
-    const document = createWhiteboardDocument(WhiteboardDocumentVersion.Frames);
+    const document = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
 
     const importWhiteboard = generateLoadWhiteboardFromExport(
       exportDocument,
@@ -335,7 +335,7 @@ describe('generateLoadWhiteboardFromExport', () => {
     });
   });
 
-  it('should load frames whiteboard with frames', () => {
+  it('should load v1 whiteboard with frames', () => {
     const exportDocument: WhiteboardDocumentExport = {
       version: 'net.nordeck.whiteboard@v2',
       whiteboard: {
@@ -351,7 +351,7 @@ describe('generateLoadWhiteboardFromExport', () => {
       },
     };
 
-    const document = createWhiteboardDocument(WhiteboardDocumentVersion.Frames);
+    const document = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
 
     const importWhiteboard = generateLoadWhiteboardFromExport(
       exportDocument,
@@ -382,7 +382,7 @@ describe('generateLoadWhiteboardFromExport', () => {
     });
   });
 
-  it('should fail to load frames whiteboard with several slides', () => {
+  it('should fail to load v1 whiteboard with several slides', () => {
     const exportDocument: WhiteboardDocumentExport = {
       version: 'net.nordeck.whiteboard@v2',
       whiteboard: {

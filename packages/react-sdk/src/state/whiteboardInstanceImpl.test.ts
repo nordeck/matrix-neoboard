@@ -290,9 +290,7 @@ describe('WhiteboardInstanceImpl', () => {
   });
 
   it('should merge a mismatched snapshot having older document version', async () => {
-    const document1 = createWhiteboardDocument(
-      WhiteboardDocumentVersion.Frames,
-    );
+    const document1 = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
 
     const persist = firstValueFrom(document1.observePersist());
 
@@ -312,7 +310,7 @@ describe('WhiteboardInstanceImpl', () => {
     );
 
     const remoteDocument = createWhiteboardDocument(
-      WhiteboardDocumentVersion.Initial,
+      WhiteboardDocumentVersion.v0,
     );
 
     const ellipseElement = mockEllipseElement();
@@ -358,7 +356,7 @@ describe('WhiteboardInstanceImpl', () => {
     );
 
     const remoteDocument = createWhiteboardDocument(
-      WhiteboardDocumentVersion.Frames,
+      WhiteboardDocumentVersion.v1,
     );
     observeMismatchedSnapshotSubject.next({
       documentVersion: remoteDocument.getDocumentVersion(),
@@ -630,9 +628,7 @@ describe('WhiteboardInstanceImpl', () => {
   });
 
   it('should switch a specific active frame', async () => {
-    const document1 = createWhiteboardDocument(
-      WhiteboardDocumentVersion.Frames,
-    );
+    const document1 = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
 
     synchronizedDocument.getDocument.mockReturnValue(document1);
 
@@ -691,9 +687,7 @@ describe('WhiteboardInstanceImpl', () => {
   });
 
   it('should reset active element selection when switching a frame', () => {
-    const document1 = createWhiteboardDocument(
-      WhiteboardDocumentVersion.Frames,
-    );
+    const document1 = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
 
     synchronizedDocument.getDocument.mockReturnValue(document1);
 
@@ -834,9 +828,7 @@ describe('WhiteboardInstanceImpl', () => {
   });
 
   it('should export a mismatched snapshot if received', async () => {
-    const document1 = createWhiteboardDocument(
-      WhiteboardDocumentVersion.Frames,
-    );
+    const document1 = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
 
     synchronizedDocument.getDocument.mockReturnValue(document1);
 
@@ -848,7 +840,7 @@ describe('WhiteboardInstanceImpl', () => {
     );
 
     const remoteDocument = createWhiteboardDocument(
-      WhiteboardDocumentVersion.Initial,
+      WhiteboardDocumentVersion.v0,
     );
 
     const ellipseElement = mockEllipseElement();
@@ -909,9 +901,7 @@ describe('WhiteboardInstanceImpl', () => {
   });
 
   it('should import initial whiteboard export into document with frames version', () => {
-    const document1 = createWhiteboardDocument(
-      WhiteboardDocumentVersion.Frames,
-    );
+    const document1 = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
 
     synchronizedDocument.getDocument.mockReturnValue(document1);
 

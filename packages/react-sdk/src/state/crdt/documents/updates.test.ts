@@ -35,8 +35,8 @@ import {
 const slide0 = 'IN4h74suMiIAK4AVMAdl_';
 
 describe('generateFramesUpdate', () => {
-  it('should update document from initial version with several slides to frames version', () => {
-    const doc = createWhiteboardDocument(WhiteboardDocumentVersion.Initial);
+  it('should update document from v0 version with several slides to v1 version', () => {
+    const doc = createWhiteboardDocument(WhiteboardDocumentVersion.v0);
 
     const element0 = mockRectangleElement();
     const [changeFn] = generateAddElement(slide0, element0);
@@ -49,7 +49,7 @@ describe('generateFramesUpdate', () => {
     const [changeFn2] = generateAddElement(slide1, element1);
     doc.performChange(changeFn2);
 
-    const doc1 = createWhiteboardDocument(WhiteboardDocumentVersion.Frames);
+    const doc1 = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
     const updateChangeFn = generateFramesUpdate(doc.getData());
     doc1.performChange(updateChangeFn);
 
@@ -101,14 +101,14 @@ describe('generateFramesUpdate', () => {
     });
   });
 
-  it('should update document with a single slide and all elements inside of initial whiteboard size', () => {
-    const doc = createWhiteboardDocument(WhiteboardDocumentVersion.Initial);
+  it('should update document from v0 version with a single slide and all elements inside of initial whiteboard size to v1 version', () => {
+    const doc = createWhiteboardDocument(WhiteboardDocumentVersion.v0);
 
     const element0 = mockRectangleElement();
     const [changeFn] = generateAddElement(slide0, element0);
     doc.performChange(changeFn);
 
-    const doc1 = createWhiteboardDocument(WhiteboardDocumentVersion.Frames);
+    const doc1 = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
     const updateChangeFn = generateFramesUpdate(doc.getData());
     doc1.performChange(updateChangeFn);
 
@@ -146,8 +146,8 @@ describe('generateFramesUpdate', () => {
     });
   });
 
-  it('should update document with a single slide and any element outside of initial canvas size', () => {
-    const doc = createWhiteboardDocument(WhiteboardDocumentVersion.Initial);
+  it('should update document from v0 version with a single slide and any element outside of initial canvas size to v1 version', () => {
+    const doc = createWhiteboardDocument(WhiteboardDocumentVersion.v0);
 
     const element0 = mockRectangleElement({
       position: {
@@ -158,7 +158,7 @@ describe('generateFramesUpdate', () => {
     const [changeFn] = generateAddElement(slide0, element0);
     doc.performChange(changeFn);
 
-    const doc1 = createWhiteboardDocument(WhiteboardDocumentVersion.Frames);
+    const doc1 = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
     const updateChangeFn = generateFramesUpdate(doc.getData());
     doc1.performChange(updateChangeFn);
 
@@ -184,10 +184,10 @@ describe('generateFramesUpdate', () => {
     });
   });
 
-  it('should update empty document', () => {
-    const doc = createWhiteboardDocument(WhiteboardDocumentVersion.Initial);
+  it('should update empty document from v0 to v1 version', () => {
+    const doc = createWhiteboardDocument(WhiteboardDocumentVersion.v0);
 
-    const doc1 = createWhiteboardDocument(WhiteboardDocumentVersion.Frames);
+    const doc1 = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
     const updateChangeFn = generateFramesUpdate(doc.getData());
     doc1.performChange(updateChangeFn);
 

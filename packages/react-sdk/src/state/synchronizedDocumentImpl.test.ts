@@ -373,7 +373,7 @@ describe('SynchronizedDocumentImpl', () => {
     });
   });
 
-  it('should skip an initial snapshot with document version mismatched from local storage and then merge snapshot stored in the room', async () => {
+  it('should skip v0 snapshot with document version mismatched from local storage and then merge snapshot stored in the room', async () => {
     const documentVersion = '1';
     const doc = createExampleDocument(documentVersion);
     const store = createStore({ widgetApi });

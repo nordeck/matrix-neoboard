@@ -240,8 +240,8 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
     const storage = new LocalForageDocumentStorage();
 
     const whiteboardDocumentVersion = isInfiniteCanvasMode()
-      ? WhiteboardDocumentVersion.Frames
-      : WhiteboardDocumentVersion.Initial;
+      ? WhiteboardDocumentVersion.v1
+      : WhiteboardDocumentVersion.v0;
     const document = new SynchronizedDocumentImpl(
       createWhiteboardDocument(whiteboardDocumentVersion),
       store,
@@ -367,7 +367,7 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
             ).includes(snapshotDocumentVersion);
           if (
             canUpdate &&
-            snapshotDocumentVersion === WhiteboardDocumentVersion.Initial
+            snapshotDocumentVersion === WhiteboardDocumentVersion.v0
           ) {
             const remoteDocument = createWhiteboardDocument(
               snapshotDocumentVersion,

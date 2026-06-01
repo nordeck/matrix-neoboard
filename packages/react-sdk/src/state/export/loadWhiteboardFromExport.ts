@@ -45,7 +45,7 @@ export function generateLoadWhiteboardFromExport(
 ): ChangeFn<WhiteboardDocument> {
   const isFramesExport =
     whiteboard.version ===
-    whiteboardDocumentVersionToExportString(WhiteboardDocumentVersion.Frames);
+    whiteboardDocumentVersionToExportString(WhiteboardDocumentVersion.v1);
   if (isFramesExport && whiteboard.whiteboard.slides.length !== 1) {
     throw new Error('Must have a single slide');
   }

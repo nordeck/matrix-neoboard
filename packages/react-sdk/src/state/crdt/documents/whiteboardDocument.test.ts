@@ -54,11 +54,11 @@ import {
   migrationFunctions,
   selectWhiteboardDocumentVersionsUpTo,
   WhiteboardDocument,
-  whiteboardDocumentFramesMigrations,
-  whiteboardDocumentMigrations,
+  whiteboardDocumentV0Migrations,
+  whiteboardDocumentV0Schema,
+  whiteboardDocumentV1Migrations,
+  whiteboardDocumentV1Schema,
   WhiteboardDocumentVersion,
-  whiteboardFramesDocumentSchema,
-  whiteboardInitialDocumentSchema,
 } from './whiteboardDocument';
 
 const slide0 = 'IN4h74suMiIAK4AVMAdl_';
@@ -66,7 +66,7 @@ const slide0 = 'IN4h74suMiIAK4AVMAdl_';
 describe('initializeWhiteboardDocument', () => {
   it('should perform migration', () => {
     const doc = new Y.Doc();
-    applyMigrations(doc, whiteboardDocumentMigrations.slice(0, 1));
+    applyMigrations(doc, whiteboardDocumentV0Migrations.slice(0, 1));
     expect(doc.getMap('0').toJSON()).toEqual({
       slides: {
         [slide0]: {
@@ -79,7 +79,7 @@ describe('initializeWhiteboardDocument', () => {
   });
 
   it('should not change its binary representation', () => {
-    expect(whiteboardDocumentMigrations[0]).toEqual(
+    expect(whiteboardDocumentV0Migrations[0]).toEqual(
       new Uint8Array([
         1, 6, 0, 0, 39, 1, 1, 48, 6, 115, 108, 105, 100, 101, 115, 1, 39, 0, 0,
         0, 21, 73, 78, 52, 104, 55, 52, 115, 117, 77, 105, 73, 65, 75, 52, 65,
@@ -96,7 +96,7 @@ describe('initializeWhiteboardDocument', () => {
 describe('initializeSlideFrameElementIds', () => {
   it('should perform migration', () => {
     const doc = new Y.Doc();
-    applyMigrations(doc, whiteboardDocumentFramesMigrations.slice(0, 2));
+    applyMigrations(doc, whiteboardDocumentV1Migrations.slice(0, 2));
     expect(doc.getMap('1').toJSON()).toEqual({
       slides: {
         [slide0]: {
@@ -110,7 +110,7 @@ describe('initializeSlideFrameElementIds', () => {
   });
 
   it('should not change its binary representation', () => {
-    expect(whiteboardDocumentFramesMigrations[0]).toEqual(
+    expect(whiteboardDocumentV1Migrations[0]).toEqual(
       // it's different in bytes to non frame version due to version change
       new Uint8Array([
         1, 6, 0, 0, 39, 1, 1, 49, 6, 115, 108, 105, 100, 101, 115, 1, 39, 0, 0,
@@ -125,7 +125,7 @@ describe('initializeSlideFrameElementIds', () => {
   });
 
   it('should not change its binary representation for initializeSlideFrameElementIds', () => {
-    expect(whiteboardDocumentFramesMigrations[1]).toEqual(
+    expect(whiteboardDocumentV1Migrations[1]).toEqual(
       new Uint8Array([
         1, 1, 0, 6, 39, 0, 0, 1, 15, 102, 114, 97, 109, 101, 69, 108, 101, 109,
         101, 110, 116, 73, 100, 115, 0, 0,
@@ -136,7 +136,7 @@ describe('initializeSlideFrameElementIds', () => {
 
 describe('generateUpdate', () => {
   it('should update document to frames version', () => {
-    const doc = createWhiteboardDocument(WhiteboardDocumentVersion.Initial);
+    const doc = createWhiteboardDocument(WhiteboardDocumentVersion.v0);
 
     const element0 = mockRectangleElement();
     const [changeFn] = generateAddElement(slide0, element0);
@@ -149,7 +149,7 @@ describe('generateUpdate', () => {
     const [changeFn2] = generateAddElement(slide1, element1);
     doc.performChange(changeFn2);
 
-    const doc1 = createWhiteboardDocument(WhiteboardDocumentVersion.Frames);
+    const doc1 = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
     const updateChangeFn = generateUpdate(doc, doc1.getDocumentVersion());
     doc1.performChange(updateChangeFn);
 
@@ -201,7 +201,7 @@ describe('generateUpdate', () => {
   });
 
   it('should throw when generate update to the same version', () => {
-    const documentVersion = WhiteboardDocumentVersion.Initial;
+    const documentVersion = WhiteboardDocumentVersion.v0;
     const doc = createWhiteboardDocument(documentVersion);
     expect(() => generateUpdate(doc, documentVersion)).toThrow(
       "Update to '0' version is not needed: source and target document versions are the same",
@@ -209,21 +209,19 @@ describe('generateUpdate', () => {
   });
 
   it('should throw when generate update to older version', () => {
-    const documentVersion = WhiteboardDocumentVersion.Frames;
+    const documentVersion = WhiteboardDocumentVersion.v1;
     const doc = createWhiteboardDocument(documentVersion);
-    expect(() =>
-      generateUpdate(doc, WhiteboardDocumentVersion.Initial),
-    ).toThrow(
+    expect(() => generateUpdate(doc, WhiteboardDocumentVersion.v0)).toThrow(
       "Update generation failed: update from '1' to '0' is not implemented",
     );
   });
 
   it('should throw when generate update using invalid document', () => {
-    const doc = createWhiteboardDocument(WhiteboardDocumentVersion.Initial);
+    const doc = createWhiteboardDocument(WhiteboardDocumentVersion.v0);
     doc.performChange((doc) =>
       (doc as YMap<unknown>).set('slides', new YArray()),
     );
-    expect(() => generateUpdate(doc, WhiteboardDocumentVersion.Frames)).toThrow(
+    expect(() => generateUpdate(doc, WhiteboardDocumentVersion.v1)).toThrow(
       'Update generation failed: document is invalid',
     );
   });
@@ -236,9 +234,7 @@ describe('whiteboardDocumentSchema', () => {
       slideIds: [],
     };
 
-    expect(
-      whiteboardInitialDocumentSchema.validate(data).error,
-    ).toBeUndefined();
+    expect(whiteboardDocumentV0Schema.validate(data).error).toBeUndefined();
   });
 
   it('should accept empty slide', () => {
@@ -252,9 +248,7 @@ describe('whiteboardDocumentSchema', () => {
       slideIds: ['slide-0'],
     };
 
-    expect(
-      whiteboardInitialDocumentSchema.validate(data).error,
-    ).toBeUndefined();
+    expect(whiteboardDocumentV0Schema.validate(data).error).toBeUndefined();
   });
 
   it('should accept empty slide with empty frame element ids', () => {
@@ -269,7 +263,7 @@ describe('whiteboardDocumentSchema', () => {
       slideIds: ['slide-0'],
     };
 
-    expect(whiteboardFramesDocumentSchema.validate(data).error).toBeUndefined();
+    expect(whiteboardDocumentV1Schema.validate(data).error).toBeUndefined();
   });
 
   it('should accept document', () => {
@@ -291,9 +285,7 @@ describe('whiteboardDocumentSchema', () => {
       slideIds: ['slide-0'],
     };
 
-    expect(
-      whiteboardInitialDocumentSchema.validate(data).error,
-    ).toBeUndefined();
+    expect(whiteboardDocumentV0Schema.validate(data).error).toBeUndefined();
   });
 
   it('should accept document with frames', () => {
@@ -322,7 +314,7 @@ describe('whiteboardDocumentSchema', () => {
       slideIds: ['slide-0'],
     };
 
-    expect(whiteboardFramesDocumentSchema.validate(data).error).toBeUndefined();
+    expect(whiteboardDocumentV1Schema.validate(data).error).toBeUndefined();
   });
 
   it('should accept additional properties', () => {
@@ -351,9 +343,7 @@ describe('whiteboardDocumentSchema', () => {
       additional: 'data',
     };
 
-    expect(
-      whiteboardInitialDocumentSchema.validate(data).error,
-    ).toBeUndefined();
+    expect(whiteboardDocumentV0Schema.validate(data).error).toBeUndefined();
   });
 
   it.each<object>([
@@ -412,7 +402,7 @@ describe('whiteboardDocumentSchema', () => {
       ...patch,
     };
 
-    expect(whiteboardInitialDocumentSchema.validate(data).error).toBeInstanceOf(
+    expect(whiteboardDocumentV0Schema.validate(data).error).toBeInstanceOf(
       Joi.ValidationError,
     );
   });
@@ -461,17 +451,14 @@ describe('isValidWhiteboardDocumentVersion', () => {
 describe('selectWhiteboardDocumentVersionsUpTo', () => {
   it('should select initial version', () => {
     expect(
-      selectWhiteboardDocumentVersionsUpTo(WhiteboardDocumentVersion.Initial),
-    ).toEqual([WhiteboardDocumentVersion.Initial]);
+      selectWhiteboardDocumentVersionsUpTo(WhiteboardDocumentVersion.v0),
+    ).toEqual([WhiteboardDocumentVersion.v0]);
   });
 
   it('should select initial and frames version', () => {
     expect(
-      selectWhiteboardDocumentVersionsUpTo(WhiteboardDocumentVersion.Frames),
-    ).toEqual([
-      WhiteboardDocumentVersion.Initial,
-      WhiteboardDocumentVersion.Frames,
-    ]);
+      selectWhiteboardDocumentVersionsUpTo(WhiteboardDocumentVersion.v1),
+    ).toEqual([WhiteboardDocumentVersion.v0, WhiteboardDocumentVersion.v1]);
   });
 });
 
@@ -479,8 +466,8 @@ describe('compareWhiteboardDocumentVersions', () => {
   it('should compare the same version', () => {
     expect(
       compareWhiteboardDocumentVersions(
-        WhiteboardDocumentVersion.Initial,
-        WhiteboardDocumentVersion.Initial,
+        WhiteboardDocumentVersion.v0,
+        WhiteboardDocumentVersion.v0,
       ),
     ).toBe(0);
   });
@@ -488,8 +475,8 @@ describe('compareWhiteboardDocumentVersions', () => {
   it('should compare older with newer version', () => {
     expect(
       compareWhiteboardDocumentVersions(
-        WhiteboardDocumentVersion.Initial,
-        WhiteboardDocumentVersion.Frames,
+        WhiteboardDocumentVersion.v0,
+        WhiteboardDocumentVersion.v1,
       ),
     ).toBeLessThan(0);
   });
@@ -497,15 +484,15 @@ describe('compareWhiteboardDocumentVersions', () => {
   it('should compare newer with older version', () => {
     expect(
       compareWhiteboardDocumentVersions(
-        WhiteboardDocumentVersion.Frames,
-        WhiteboardDocumentVersion.Initial,
+        WhiteboardDocumentVersion.v1,
+        WhiteboardDocumentVersion.v0,
       ),
     ).toBeGreaterThan(0);
   });
 });
 
 describe('isValidWhiteboardDocument', () => {
-  it('should accept whiteboard document', () => {
+  it('should accept v0 whiteboard document', () => {
     const document = createWhiteboardDocument();
 
     document.performChange(generateAddSlide()[0]);
@@ -513,8 +500,8 @@ describe('isValidWhiteboardDocument', () => {
     expect(isValidWhiteboardDocument(document)).toBe(true);
   });
 
-  it('should accept frames whiteboard document', () => {
-    const document = createWhiteboardDocument(WhiteboardDocumentVersion.Frames);
+  it('should accept v1 whiteboard document', () => {
+    const document = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
 
     expect(isValidWhiteboardDocument(document)).toBe(true);
   });
@@ -543,71 +530,71 @@ describe('isValidWhiteboardDocument', () => {
 
   it.each([
     {
-      documentVersion: WhiteboardDocumentVersion.Initial,
+      documentVersion: WhiteboardDocumentVersion.v0,
       patch: { slides: undefined },
     },
     {
-      documentVersion: WhiteboardDocumentVersion.Initial,
+      documentVersion: WhiteboardDocumentVersion.v0,
       patch: { slides: null },
     },
     {
-      documentVersion: WhiteboardDocumentVersion.Initial,
+      documentVersion: WhiteboardDocumentVersion.v0,
       patch: { slides: 111 },
     },
     {
-      documentVersion: WhiteboardDocumentVersion.Initial,
+      documentVersion: WhiteboardDocumentVersion.v0,
       patch: { slides: new YArray() },
     },
     {
-      documentVersion: WhiteboardDocumentVersion.Initial,
+      documentVersion: WhiteboardDocumentVersion.v0,
       patch: { slideIds: undefined },
     },
     {
-      documentVersion: WhiteboardDocumentVersion.Initial,
+      documentVersion: WhiteboardDocumentVersion.v0,
       patch: { slideIds: null },
     },
     {
-      documentVersion: WhiteboardDocumentVersion.Initial,
+      documentVersion: WhiteboardDocumentVersion.v0,
       patch: { slideIds: 111 },
     },
     {
-      documentVersion: WhiteboardDocumentVersion.Initial,
+      documentVersion: WhiteboardDocumentVersion.v0,
       patch: { slideIds: new YText() },
     },
     {
-      documentVersion: WhiteboardDocumentVersion.Frames,
+      documentVersion: WhiteboardDocumentVersion.v1,
       patch: { slides: undefined },
     },
     {
-      documentVersion: WhiteboardDocumentVersion.Frames,
+      documentVersion: WhiteboardDocumentVersion.v1,
       patch: { slides: null },
     },
     {
-      documentVersion: WhiteboardDocumentVersion.Frames,
+      documentVersion: WhiteboardDocumentVersion.v1,
       patch: { slides: 111 },
     },
     {
-      documentVersion: WhiteboardDocumentVersion.Frames,
+      documentVersion: WhiteboardDocumentVersion.v1,
       patch: { slides: new YArray() },
     },
     {
-      documentVersion: WhiteboardDocumentVersion.Frames,
+      documentVersion: WhiteboardDocumentVersion.v1,
       patch: { slideIds: undefined },
     },
     {
-      documentVersion: WhiteboardDocumentVersion.Frames,
+      documentVersion: WhiteboardDocumentVersion.v1,
       patch: { slideIds: null },
     },
     {
-      documentVersion: WhiteboardDocumentVersion.Frames,
+      documentVersion: WhiteboardDocumentVersion.v1,
       patch: { slideIds: 111 },
     },
     {
-      documentVersion: WhiteboardDocumentVersion.Frames,
+      documentVersion: WhiteboardDocumentVersion.v1,
       patch: { slideIds: new YText() },
     },
     {
-      documentVersion: WhiteboardDocumentVersion.Frames,
+      documentVersion: WhiteboardDocumentVersion.v1,
       patch: {
         slides: {
           [slide0]: {
@@ -623,7 +610,7 @@ describe('isValidWhiteboardDocument', () => {
     async ({ documentVersion, patch }) => {
       const document = createWhiteboardDocument(documentVersion);
 
-      if (documentVersion === WhiteboardDocumentVersion.Initial) {
+      if (documentVersion === WhiteboardDocumentVersion.v0) {
         document.performChange(generateAddSlide()[0]);
       }
 
@@ -661,8 +648,14 @@ function migrateToNext(doc: SharedMap<NextWhiteboardDocument>) {
 }
 
 describe('isValidWhiteboardDocumentSnapshot', () => {
-  it('should accept valid document', () => {
+  it('should accept valid v0 document', () => {
     const document = createWhiteboardDocument();
+
+    expect(isValidWhiteboardDocumentSnapshot(document.store())).toBe(true);
+  });
+
+  it('should accept valid v1 document', () => {
+    const document = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
 
     expect(isValidWhiteboardDocumentSnapshot(document.store())).toBe(true);
   });

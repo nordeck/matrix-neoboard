@@ -151,7 +151,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should delete attach frame data when line element is added', () => {
-    document = createWhiteboardDocument(WhiteboardDocumentVersion.Frames);
+    document = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
 
     const slideInstance = new WhiteboardSlideInstanceImpl(
       communicationChannel,
@@ -168,7 +168,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should add shape element and attach to existing frame element', () => {
-    document = createWhiteboardDocument(WhiteboardDocumentVersion.Frames);
+    document = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
 
     const slideInstance = new WhiteboardSlideInstanceImpl(
       communicationChannel,
@@ -194,7 +194,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should add frames and elements', () => {
-    document = createWhiteboardDocument(WhiteboardDocumentVersion.Frames);
+    document = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
 
     const slideInstance = new WhiteboardSlideInstanceImpl(
       communicationChannel,
@@ -245,7 +245,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should add shape element and filter out unknown frame', () => {
-    document = createWhiteboardDocument(WhiteboardDocumentVersion.Frames);
+    document = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
 
     const slideInstance = new WhiteboardSlideInstanceImpl(
       communicationChannel,
@@ -398,7 +398,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should add line element and attach to existing frame element', () => {
-    document = createWhiteboardDocument(WhiteboardDocumentVersion.Frames);
+    document = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
 
     const slideInstance = new WhiteboardSlideInstanceImpl(
       communicationChannel,
@@ -424,7 +424,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should add line element and filter out unknown frame', () => {
-    document = createWhiteboardDocument(WhiteboardDocumentVersion.Frames);
+    document = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
 
     const slideInstance = new WhiteboardSlideInstanceImpl(
       communicationChannel,
@@ -580,7 +580,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should add frame with attached elements and select them as active elements', () => {
-    document = createWhiteboardDocument(WhiteboardDocumentVersion.Frames);
+    document = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
 
     const slideInstance = new WhiteboardSlideInstanceImpl(
       communicationChannel,
@@ -631,7 +631,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should add frame with attached elements and filer out unknown attach data and select them as active elements', () => {
-    document = createWhiteboardDocument(WhiteboardDocumentVersion.Frames);
+    document = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
 
     const slideInstance = new WhiteboardSlideInstanceImpl(
       communicationChannel,
@@ -682,7 +682,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should add elements and attach to existing frame element and select them as active elements', () => {
-    document = createWhiteboardDocument(WhiteboardDocumentVersion.Frames);
+    document = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
 
     const slideInstance = new WhiteboardSlideInstanceImpl(
       communicationChannel,
@@ -916,7 +916,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should remove attached frame', () => {
-    document = createWhiteboardDocument(WhiteboardDocumentVersion.Frames);
+    document = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
 
     const slideInstance = new WhiteboardSlideInstanceImpl(
       communicationChannel,
@@ -1377,7 +1377,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should move a frame', () => {
-    document = createWhiteboardDocument(WhiteboardDocumentVersion.Frames);
+    document = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
 
     const slideInstance = new WhiteboardSlideInstanceImpl(
       communicationChannel,
@@ -1484,7 +1484,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should observe frame elements', async () => {
-    document = createWhiteboardDocument(WhiteboardDocumentVersion.Frames);
+    document = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
 
     const slideInstance = new WhiteboardSlideInstanceImpl(
       communicationChannel,
@@ -1558,7 +1558,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should observe frame element ids', async () => {
-    document = createWhiteboardDocument(WhiteboardDocumentVersion.Frames);
+    document = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
 
     const slideInstance = new WhiteboardSlideInstanceImpl(
       communicationChannel,

@@ -28,36 +28,34 @@ import {
 } from './whiteboardDocumentExport';
 
 describe('whiteboardDocumentVersionToExportString', () => {
-  it('should export initial whiteboard version to string', () => {
+  it('should export v0 whiteboard version to string', () => {
     expect(
-      whiteboardDocumentVersionToExportString(
-        WhiteboardDocumentVersion.Initial,
-      ),
+      whiteboardDocumentVersionToExportString(WhiteboardDocumentVersion.v0),
     ).toBe('net.nordeck.whiteboard@v1');
   });
 
-  it('should export frames whiteboard version to string', () => {
+  it('should export v1 whiteboard version to string', () => {
     expect(
-      whiteboardDocumentVersionToExportString(WhiteboardDocumentVersion.Frames),
+      whiteboardDocumentVersionToExportString(WhiteboardDocumentVersion.v1),
     ).toBe('net.nordeck.whiteboard@v2');
   });
 });
 
 describe('extractWhiteboardDocumentVersionFromExportString', () => {
-  it('should extract initial whiteboard document version', () => {
+  it('should extract v0 whiteboard document version', () => {
     expect(
       extractWhiteboardDocumentVersionFromExportString(
         'net.nordeck.whiteboard@v1',
       ),
-    ).toBe(WhiteboardDocumentVersion.Initial);
+    ).toBe(WhiteboardDocumentVersion.v0);
   });
 
-  it('should extract frames whiteboard document version', () => {
+  it('should extract v1 whiteboard document version', () => {
     expect(
       extractWhiteboardDocumentVersionFromExportString(
         'net.nordeck.whiteboard@v2',
       ),
-    ).toBe(WhiteboardDocumentVersion.Frames);
+    ).toBe(WhiteboardDocumentVersion.v1);
   });
 
   it('should throw when extract unknown whiteboard document version', () => {
@@ -78,7 +76,7 @@ describe('extractWhiteboardDocumentVersionFromExportString', () => {
 describe('isValidWhiteboardExportDocument', () => {
   it('should accept empty document', () => {
     expect(
-      isValidWhiteboardExportDocument(WhiteboardDocumentVersion.Initial, {
+      isValidWhiteboardExportDocument(WhiteboardDocumentVersion.v0, {
         version: 'net.nordeck.whiteboard@v1',
         whiteboard: {
           slides: [],
@@ -89,7 +87,7 @@ describe('isValidWhiteboardExportDocument', () => {
 
   it('should accept empty slide', () => {
     expect(
-      isValidWhiteboardExportDocument(WhiteboardDocumentVersion.Initial, {
+      isValidWhiteboardExportDocument(WhiteboardDocumentVersion.v0, {
         version: 'net.nordeck.whiteboard@v1',
         whiteboard: {
           slides: [{ elements: [] }],
@@ -100,7 +98,7 @@ describe('isValidWhiteboardExportDocument', () => {
 
   it('should accept document with slide', () => {
     expect(
-      isValidWhiteboardExportDocument(WhiteboardDocumentVersion.Initial, {
+      isValidWhiteboardExportDocument(WhiteboardDocumentVersion.v0, {
         version: 'net.nordeck.whiteboard@v1',
         whiteboard: {
           slides: [
@@ -124,7 +122,7 @@ describe('isValidWhiteboardExportDocument', () => {
 
   it('should accept document with connected elements', () => {
     expect(
-      isValidWhiteboardExportDocument(WhiteboardDocumentVersion.Initial, {
+      isValidWhiteboardExportDocument(WhiteboardDocumentVersion.v0, {
         version: 'net.nordeck.whiteboard@v1',
         whiteboard: {
           slides: [
@@ -164,7 +162,7 @@ describe('isValidWhiteboardExportDocument', () => {
 
   it('should accept document with attachments', () => {
     expect(
-      isValidWhiteboardExportDocument(WhiteboardDocumentVersion.Initial, {
+      isValidWhiteboardExportDocument(WhiteboardDocumentVersion.v0, {
         version: 'net.nordeck.whiteboard@v1',
         whiteboard: {
           slides: [
@@ -226,7 +224,7 @@ describe('isValidWhiteboardExportDocument', () => {
 
   it('should accept additional properties', () => {
     expect(
-      isValidWhiteboardExportDocument(WhiteboardDocumentVersion.Initial, {
+      isValidWhiteboardExportDocument(WhiteboardDocumentVersion.v0, {
         version: 'net.nordeck.whiteboard@v1',
         whiteboard: {
           slides: [
@@ -253,9 +251,9 @@ describe('isValidWhiteboardExportDocument', () => {
     ).toBe(true);
   });
 
-  it('should accept document with initial schema when upper whiteboard document version is frames', () => {
+  it('should accept v0 document export when upper whiteboard document version is v1', () => {
     expect(
-      isValidWhiteboardExportDocument(WhiteboardDocumentVersion.Frames, {
+      isValidWhiteboardExportDocument(WhiteboardDocumentVersion.v1, {
         version: 'net.nordeck.whiteboard@v1',
         whiteboard: {
           slides: [],
@@ -264,9 +262,9 @@ describe('isValidWhiteboardExportDocument', () => {
     ).toBe(true);
   });
 
-  it('should accept document with frames schema when upper whiteboard document version is frames', () => {
+  it('should accept v1 document export when upper whiteboard document version is v1', () => {
     expect(
-      isValidWhiteboardExportDocument(WhiteboardDocumentVersion.Frames, {
+      isValidWhiteboardExportDocument(WhiteboardDocumentVersion.v1, {
         version: 'net.nordeck.whiteboard@v2',
         whiteboard: {
           slides: [],
@@ -275,9 +273,9 @@ describe('isValidWhiteboardExportDocument', () => {
     ).toBe(true);
   });
 
-  it('should reject document with frames schema when upper whiteboard document version is initial', () => {
+  it('should reject v1 document export when upper whiteboard document version is v0', () => {
     expect(
-      isValidWhiteboardExportDocument(WhiteboardDocumentVersion.Initial, {
+      isValidWhiteboardExportDocument(WhiteboardDocumentVersion.v0, {
         version: 'net.nordeck.whiteboard@v2',
         whiteboard: {
           slides: [],
@@ -370,7 +368,7 @@ describe('isValidWhiteboardExportDocument', () => {
     { whiteboard: { slides: [{ elements: [], lock: 111 }] } },
   ])('should reject event with patch %j', (patch: object) => {
     expect(
-      isValidWhiteboardExportDocument(WhiteboardDocumentVersion.Initial, {
+      isValidWhiteboardExportDocument(WhiteboardDocumentVersion.v0, {
         version: 'net.nordeck.whiteboard@v1',
         whiteboard: {
           slides: [],
