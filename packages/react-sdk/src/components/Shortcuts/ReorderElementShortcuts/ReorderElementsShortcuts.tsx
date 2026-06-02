@@ -30,11 +30,9 @@ export function ReorderElementsShortcuts() {
   const elementIds = useSlideElementIds();
 
   const canMoveUp =
-    activeElementIds.length === 1 &&
-    !activeElementIds.some((id) => last(elementIds) === id);
+    activeElementIds.length === 1 && last(elementIds) !== activeElementIds[0];
   const canMoveDown =
-    activeElementIds.length === 1 &&
-    !activeElementIds.some((id) => first(elementIds) === id);
+    activeElementIds.length === 1 && first(elementIds) !== activeElementIds[0];
 
   const handleClickBringForward = useCallback(() => {
     if (canMoveUp) {
