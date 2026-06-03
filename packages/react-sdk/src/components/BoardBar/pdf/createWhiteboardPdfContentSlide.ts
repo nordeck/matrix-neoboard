@@ -15,7 +15,7 @@
  */
 
 import { Content } from 'pdfmake/interfaces';
-import { WhiteboardSlideInstance } from '../../../state';
+import { Point, WhiteboardSlideInstance } from '../../../state';
 import { WhiteboardFileExport } from '../../../state/export/whiteboardDocumentExport';
 import { createWhiteboardPdfElementImage } from './createWhiteboardPdfElementImage';
 import { createWhiteboardPdfElementPath } from './createWhiteboardPdfElementPath';
@@ -24,20 +24,22 @@ import { ThemeOptions } from './themeOptions';
 
 export async function createWhiteboardPdfContentSlide(
   slideInstance: WhiteboardSlideInstance,
+  elementIds: string[],
   files: Array<WhiteboardFileExport>,
   themeOptions: ThemeOptions,
   noImageSvg: string,
+  offset: Point = { x: 0, y: 0 },
 ): Promise<Content> {
   return await Promise.all(
-    slideInstance.getElementIds().map(async (elementId) => {
+    elementIds.map(async (elementId) => {
       const element = slideInstance.getElement(elementId);
 
       switch (element?.type) {
         case 'shape':
-          return createWhiteboardPdfElementShape(element);
+          return createWhiteboardPdfElementShape(element, offset);
 
         case 'path':
-          return createWhiteboardPdfElementPath(element);
+          return createWhiteboardPdfElementPath(element, offset);
 
         case 'image': {
           const file = files.find((f) => f.mxc === element.mxc);

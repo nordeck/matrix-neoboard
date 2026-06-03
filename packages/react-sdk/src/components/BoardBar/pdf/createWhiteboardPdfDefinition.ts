@@ -17,12 +17,62 @@
 import '@fontsource/noto-emoji/400.css';
 import { WidgetApi } from '@matrix-widget-toolkit/api';
 import { Content, TDocumentDefinitions } from 'pdfmake/interfaces';
-import { isDefined } from '../../../lib';
-import { WhiteboardInstance } from '../../../state';
+import { isDefined, isInfiniteCanvasMode } from '../../../lib';
+import {
+  BoundingRect,
+  calculateBoundingRectForElements,
+  FrameElement,
+  Point,
+  WhiteboardInstance,
+  WhiteboardSlideInstance,
+} from '../../../state';
 import { whiteboardHeight, whiteboardWidth } from '../../Whiteboard';
 import { createWhiteboardPdfContentSlide } from './createWhiteboardPdfContentSlide';
 import { forceLoadFontFamily } from './forceLoadFontFamily';
 import { ThemeOptions } from './themeOptions';
+
+function getPageSize(whiteboardInstance: WhiteboardInstance): {
+  width: number;
+  height: number;
+} {
+  if (!isInfiniteCanvasMode())
+    return { width: whiteboardWidth, height: whiteboardHeight };
+
+  const slideIds = whiteboardInstance.getSlideIds();
+
+  // gather all frames
+  const frames = slideIds.flatMap((id) => {
+    const slide = whiteboardInstance.getSlide(id);
+    return slide
+      .getFrameElementIds()
+      .map((fid) => slide.getElement(fid)) as FrameElement[];
+  });
+
+  // if there are no frames, the first slide will determine the page size
+  if (frames.length === 0) {
+    const slide = whiteboardInstance.getSlide(slideIds[0]);
+    const { width, height } = getVisibleBoundaryForSlide(slide);
+    return { width, height };
+  }
+
+  // find the largest page size that can hold any frame
+  return frames
+    .map((f) => ({ width: f.width, height: f.height }))
+    .reduce((prev, cur) => {
+      return {
+        width: Math.max(cur.width, prev.width),
+        height: Math.max(cur.height, prev.height),
+      };
+    });
+}
+
+function getVisibleBoundaryForSlide(
+  slide: WhiteboardSlideInstance,
+): BoundingRect {
+  return calculateBoundingRectForElements(
+    Object.values(slide.getElements(slide.getElementIds())),
+  );
+}
 
 export async function createWhiteboardPdfDefinition({
   whiteboardInstance,
@@ -45,32 +95,90 @@ export async function createWhiteboardPdfDefinition({
   };
   const noImageSvg = generateHideImageOutlinedSvg(themePaletteErrorMain);
 
+  const pageSize = getPageSize(whiteboardInstance);
+
+  const pages = (
+    await Promise.all(
+      whiteboardInstance.getSlideIds().map(async (slideId, slideIdx) => {
+        const slide = whiteboardInstance.getSlide(slideId);
+
+        if (!slide) return undefined;
+
+        const frameIds = slide.getFrameElementIds();
+
+        // no frames on this slide, it will be a single page
+        if (frameIds.length === 0) {
+          const visibleBoundary = getVisibleBoundaryForSlide(slide);
+
+          const visibleOffset = isInfiniteCanvasMode()
+            ? {
+                x: -visibleBoundary.offsetX,
+                y: -visibleBoundary.offsetY,
+              }
+            : { x: 0, y: 0 };
+
+          const contentSlide = await createWhiteboardPdfContentSlide(
+            slide,
+            slide.getElementIds(),
+            whiteboardExport.whiteboard.files ?? [],
+            themeOptions,
+            noImageSvg,
+            visibleOffset,
+          );
+
+          const page: Content = {
+            stack: [contentSlide],
+            pageBreak: slideIdx > 0 ? 'before' : undefined,
+          };
+
+          return page;
+        }
+
+        // each frame will produce a content page
+        const frameContentPromises = frameIds.map(async (frameId, frameIdx) => {
+          const frameElement: FrameElement = slide.getFrameElements()[frameId];
+
+          const { position: framePos, attachedElements: attachedIds } =
+            frameElement;
+
+          if (!attachedIds) return undefined;
+
+          const frameOffset: Point = {
+            x: -framePos.x,
+            y: -framePos.y,
+          };
+
+          const contentSlide = await createWhiteboardPdfContentSlide(
+            slide,
+            attachedIds,
+            whiteboardExport.whiteboard.files ?? [],
+            themeOptions,
+            noImageSvg,
+            frameOffset,
+          );
+
+          const content: Content = {
+            stack: [contentSlide],
+            pageBreak: frameIdx + slideIdx > 0 ? 'before' : undefined,
+          };
+          return content as Content;
+        });
+
+        const pages: Content[] = (
+          await Promise.all(frameContentPromises)
+        ).filter(isDefined);
+
+        return pages;
+      }),
+    )
+  )
+    .flat(1)
+    .filter(isDefined);
+
   return {
     pageMargins: 0,
-    pageSize: { width: whiteboardWidth, height: whiteboardHeight },
-    content: (
-      await Promise.all(
-        whiteboardInstance.getSlideIds().map(async (slideId, idx) => {
-          const slide = whiteboardInstance.getSlide(slideId);
-
-          if (slide) {
-            return {
-              stack: [
-                await createWhiteboardPdfContentSlide(
-                  slide,
-                  whiteboardExport.whiteboard.files ?? [],
-                  themeOptions,
-                  noImageSvg,
-                ),
-              ],
-              pageBreak: idx > 0 ? 'before' : undefined,
-            } as Content;
-          }
-
-          return undefined;
-        }),
-      )
-    ).filter(isDefined),
+    pageSize: { height: pageSize.height, width: pageSize.width },
+    content: pages,
     version: '1.5',
     defaultStyle: {
       font: 'Inter',
