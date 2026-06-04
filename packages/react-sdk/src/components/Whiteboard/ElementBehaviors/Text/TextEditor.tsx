@@ -20,6 +20,7 @@ import {
   Dispatch,
   DispatchWithoutAction,
   MouseEvent,
+  PointerEvent,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -143,6 +144,8 @@ export function TextEditor({
 
   const handleDoubleClick = useCallback(
     (event: MouseEvent) => {
+      console.log(`vs handleDoubleClick`, {event})
+
       if (editable || isEditMode) {
         event.stopPropagation();
       }
@@ -157,7 +160,44 @@ export function TextEditor({
     [editable, isEditMode, setTextToolsEnabled],
   );
 
+  const pointerRef = useRef<{
+    id: number,
+    date: Date
+  }>({id: -1, date: new Date()})
+
+  const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
+    console.log(`vs pointerDown`, {event})
+
+    const old = {...pointerRef.current};
+
+    const cur = pointerRef.current = {
+      id: event.pointerId,
+      date: new Date()    
+    }
+
+    const dt = Math.abs(old.date.getTime() - cur.date.getTime())
+
+    if (dt < 300 ) {
+      console.log(`vs doubletap `, { dt, editable})
+
+      if (editable) {
+        setEditMode(true);
+        setTextToolsEnabled(true);
+
+        if (textRef.current) {
+          textRef.current.focus();
+      setCaretToTheEnd(textRef.current);
+    }
+      } 
+    }
+
+
+  }
+
+
   const handleFocus = useCallback(() => {
+    console.log(`vs handlefocus`, )
+
     if (textRef.current) {
       setCaretToTheEnd(textRef.current);
     }
@@ -245,7 +285,7 @@ export function TextEditor({
 
   return (
     <Editable
-      style={{ color }}
+      style={{ color, touchAction: 'none'}}
       contentEditable={editable}
       editMode={isEditMode}
       textAlign={contentAlignment}
@@ -260,6 +300,7 @@ export function TextEditor({
       onMouseDown={handleMouseEvents}
       onMouseMove={handleMouseEvents}
       onMouseUp={handleMouseEvents}
+      onPointerDown={handlePointerDown}
       onPaste={handlePaste}
       ref={textRef}
       suppressContentEditableWarning
