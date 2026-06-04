@@ -15,7 +15,7 @@
  */
 
 import { Content } from 'pdfmake/interfaces';
-import { Point, WhiteboardSlideInstance } from '../../../state';
+import { Element, Point, WhiteboardSlideInstance } from '../../../state';
 import { WhiteboardFileExport } from '../../../state/export/whiteboardDocumentExport';
 import { createWhiteboardPdfElementImage } from './createWhiteboardPdfElementImage';
 import { createWhiteboardPdfElementPath } from './createWhiteboardPdfElementPath';
@@ -34,17 +34,23 @@ export async function createWhiteboardPdfContentSlide(
     elementIds.map(async (elementId) => {
       const element = slideInstance.getElement(elementId);
 
-      switch (element?.type) {
+      if (element === undefined) {
+        return [];
+      }
+
+      const newElement = transformElement(element, offset);
+
+      switch (newElement.type) {
         case 'shape':
-          return createWhiteboardPdfElementShape(element, offset);
+          return createWhiteboardPdfElementShape(newElement);
 
         case 'path':
-          return createWhiteboardPdfElementPath(element, offset);
+          return createWhiteboardPdfElementPath(newElement);
 
         case 'image': {
-          const file = files.find((f) => f.mxc === element.mxc);
+          const file = files.find((f) => f.mxc === newElement.mxc);
           return await createWhiteboardPdfElementImage(
-            element,
+            newElement,
             file,
             themeOptions,
             noImageSvg,
@@ -52,9 +58,23 @@ export async function createWhiteboardPdfContentSlide(
         }
 
         default:
-          console.error('Unknown element type', element);
+          console.error('Unknown element type', newElement);
           return [];
       }
     }),
   );
+}
+
+function transformElement(element: Element, offset: Point): Element {
+  const {
+    position: { x, y },
+    ...otherProperties
+  } = element;
+  return {
+    ...otherProperties,
+    position: {
+      x: x + offset.x,
+      y: y + offset.y,
+    },
+  };
 }
