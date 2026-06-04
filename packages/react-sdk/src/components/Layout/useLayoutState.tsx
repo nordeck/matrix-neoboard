@@ -40,7 +40,8 @@ export type ActiveTool =
   | 'line'
   | 'arrow'
   | 'ellipse'
-  | 'triangle';
+  | 'triangle'
+  | 'block-arrow';
 
 type LayoutState = {
   isSlideOverviewVisible: boolean;
