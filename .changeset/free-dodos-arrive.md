@@ -2,4 +2,4 @@
 '@nordeck/matrix-neoboard-react-sdk': minor
 ---
 
-PDF export fixes for the infinite canvas mode. Each frame is a page, and is the case of no frames - it's a single page limited to the visible objects.
+Update PDF export in the infinite canvas mode. Each frame now exports as a page. If no frames exist, all elements are exported and the surrounding whitespace is cropped.
