@@ -15,28 +15,22 @@
  */
 
 import { Content } from 'pdfmake/interfaces';
-import { PathElement, Point } from '../../../state';
+import { PathElement } from '../../../state';
 import { getRenderProperties as getRenderLineProperties } from '../../elements/line/getRenderProperties';
 import { getRenderProperties as getRenderPolyLineProperties } from '../../elements/polyline/getRenderProperties';
 import { canvas } from './utils';
 
-export function createWhiteboardPdfElementPath(
-  element: PathElement,
-  offset: Point = { x: 0, y: 0 },
-): Content {
+export function createWhiteboardPdfElementPath(element: PathElement): Content {
   switch (element.kind) {
     case 'line':
-      return createElementPathLine(element, offset);
+      return createElementPathLine(element);
 
     case 'polyline':
-      return createElementPathPolyLine(element, offset);
+      return createElementPathPolyLine(element);
   }
 }
 
-function createElementPathLine(
-  element: PathElement,
-  offset: Point = { x: 0, y: 0 },
-): Content {
+function createElementPathLine(element: PathElement): Content {
   const {
     strokeColor,
     strokeWidth,
@@ -45,25 +39,22 @@ function createElementPathLine(
 
   return canvas({
     type: 'line',
-    x1: start.x + offset.x,
-    y1: start.y + offset.y,
-    x2: end.x + offset.x,
-    y2: end.y + offset.y,
+    x1: start.x,
+    y1: start.y,
+    x2: end.x,
+    y2: end.y,
     lineWidth: strokeWidth,
     lineColor: strokeColor,
   });
 }
 
-function createElementPathPolyLine(
-  element: PathElement,
-  offset: Point = { x: 0, y: 0 },
-): Content {
+function createElementPathPolyLine(element: PathElement): Content {
   const { strokeColor, strokeWidth, points } =
     getRenderPolyLineProperties(element);
 
   return canvas({
     type: 'polyline',
-    points: points.map((p) => ({ x: p.x + offset.x, y: p.y + offset.y })),
+    points,
     lineWidth: strokeWidth,
     lineColor: strokeColor,
   });

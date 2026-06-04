@@ -15,7 +15,7 @@
  */
 
 import { Content } from 'pdfmake/interfaces';
-import { Point, ShapeElement } from '../../../state';
+import { ShapeElement } from '../../../state';
 import { getRenderProperties as getRenderBlockArrowProperties } from '../../elements/block-arrow/getRenderProperties';
 import { getRenderProperties as getRenderEllipseProperties } from '../../elements/ellipse/getRenderProperties';
 import { getRenderProperties as getRenderRectangleProperties } from '../../elements/rectangle/getRenderProperties';
@@ -24,28 +24,24 @@ import { canvas, textContent } from './utils';
 
 export function createWhiteboardPdfElementShape(
   element: ShapeElement,
-  offset: Point = { x: 0, y: 0 },
 ): Content {
   switch (element.kind) {
     case 'rectangle':
-      return createElementShapeRectangle(element, offset);
+      return createElementShapeRectangle(element);
 
     case 'circle':
     case 'ellipse':
-      return createElementShapeEllipse(element, offset);
+      return createElementShapeEllipse(element);
 
     case 'triangle':
-      return createElementShapeTriangle(element, offset);
+      return createElementShapeTriangle(element);
 
     case 'block-arrow':
-      return createElementShapeBlockArrow(element, offset);
+      return createElementShapeBlockArrow(element);
   }
 }
 
-function createElementShapeRectangle(
-  element: ShapeElement,
-  offset: Point = { x: 0, y: 0 },
-): Content {
+function createElementShapeRectangle(element: ShapeElement): Content {
   const { strokeColor, strokeWidth, text, rx } =
     getRenderRectangleProperties(element);
 
@@ -54,8 +50,8 @@ function createElementShapeRectangle(
   return [
     canvas({
       type: 'rect',
-      x: position.x + offset.x,
-      y: position.y + offset.y,
+      x: position.x,
+      y: position.y,
       w: width,
       h: height,
       r: rx,
@@ -65,14 +61,11 @@ function createElementShapeRectangle(
       lineColor: strokeColor !== 'transparent' ? strokeColor : undefined,
       strokeOpacity: strokeColor === 'transparent' ? 0 : 1,
     }),
-    text ? textContent(element, text, offset) : [],
+    text ? textContent(element, text) : [],
   ];
 }
 
-function createElementShapeEllipse(
-  element: ShapeElement,
-  offset: Point = { x: 0, y: 0 },
-): Content {
+function createElementShapeEllipse(element: ShapeElement): Content {
   const { strokeColor, strokeWidth, text } =
     getRenderEllipseProperties(element);
 
@@ -81,22 +74,19 @@ function createElementShapeEllipse(
   return [
     canvas({
       type: 'ellipse',
-      x: position.x + width / 2 + offset.x,
-      y: position.y + height / 2 + offset.y,
+      x: position.x + width / 2,
+      y: position.y + height / 2,
       r1: width / 2,
       r2: height / 2,
       color: element.fillColor,
       lineWidth: strokeWidth,
       lineColor: strokeColor,
     }),
-    text ? textContent(element, text, offset) : [],
+    text ? textContent(element, text) : [],
   ];
 }
 
-function createElementShapeTriangle(
-  element: ShapeElement,
-  offset: Point = { x: 0, y: 0 },
-): Content {
+function createElementShapeTriangle(element: ShapeElement): Content {
   const {
     strokeColor,
     strokeWidth,
@@ -111,27 +101,24 @@ function createElementShapeTriangle(
         { x: p0X, y: p0Y },
         { x: p1X, y: p1Y },
         { x: p2X, y: p2Y },
-      ].map((p) => ({ x: p.x + offset.x, y: p.y + offset.y })),
+      ],
       color: element.fillColor,
       lineColor: strokeColor,
       lineWidth: strokeWidth,
       closePath: true,
     }),
-    text ? textContent(element, text, offset) : [],
+    text ? textContent(element, text) : [],
   ];
 }
 
-function createElementShapeBlockArrow(
-  element: ShapeElement,
-  offset: Point = { x: 0, y: 0 },
-): Content {
+function createElementShapeBlockArrow(element: ShapeElement): Content {
   const { strokeColor, strokeWidth, text, points } =
     getRenderBlockArrowProperties(element);
 
   return [
     canvas({
       type: 'polyline',
-      points: points.map((p) => ({ x: p.x + offset.x, y: p.y + offset.y })),
+      points,
       closePath: true,
       color:
         element.fillColor !== 'transparent' ? element.fillColor : undefined,
@@ -139,6 +126,6 @@ function createElementShapeBlockArrow(
       lineColor: strokeColor !== 'transparent' ? strokeColor : undefined,
       strokeOpacity: strokeColor === 'transparent' ? 0 : 1,
     }),
-    text ? textContent(element, text, offset) : [],
+    text ? textContent(element, text) : [],
   ];
 }
