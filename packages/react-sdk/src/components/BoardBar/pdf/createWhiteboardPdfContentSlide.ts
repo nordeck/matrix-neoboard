@@ -28,7 +28,7 @@ export async function createWhiteboardPdfContentSlide(
   files: Array<WhiteboardFileExport>,
   themeOptions: ThemeOptions,
   noImageSvg: string,
-  offset: Point = { x: 0, y: 0 },
+  offset: Point | undefined,
 ): Promise<Content> {
   return await Promise.all(
     elementIds.map(async (elementId) => {
@@ -38,7 +38,7 @@ export async function createWhiteboardPdfContentSlide(
         return [];
       }
 
-      const newElement = transformElement(element, offset);
+      const newElement = offset ? transformElement(element, offset) : element;
 
       switch (newElement.type) {
         case 'shape':

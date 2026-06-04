@@ -41,11 +41,9 @@ function getPageSize(whiteboardInstance: WhiteboardInstance): {
   const slideIds = whiteboardInstance.getSlideIds();
 
   // gather all frames
-  const frames = slideIds.flatMap((id) => {
+  const frames: FrameElement[] = slideIds.flatMap((id) => {
     const slide = whiteboardInstance.getSlide(id);
-    return slide
-      .getFrameElementIds()
-      .map((fid) => slide.getElement(fid)) as FrameElement[];
+    return Object.values(slide.getFrameElements());
   });
 
   // if there are no frames, the first slide will determine the page size
@@ -102,20 +100,19 @@ export async function createWhiteboardPdfDefinition({
       whiteboardInstance.getSlideIds().map(async (slideId, slideIdx) => {
         const slide = whiteboardInstance.getSlide(slideId);
 
-        if (!slide) return undefined;
-
         const frameIds = slide.getFrameElementIds();
 
         // no frames on this slide, it will be a single page
         if (frameIds.length === 0) {
-          const visibleBoundary = getVisibleBoundaryForSlide(slide);
+          let boundingAreaOffset: Point | undefined;
 
-          const visibleOffset = isInfiniteCanvasMode()
-            ? {
-                x: -visibleBoundary.offsetX,
-                y: -visibleBoundary.offsetY,
-              }
-            : { x: 0, y: 0 };
+          if (isInfiniteCanvasMode()) {
+            const { offsetX, offsetY } = getVisibleBoundaryForSlide(slide);
+            boundingAreaOffset = {
+              x: -offsetX,
+              y: -offsetY,
+            };
+          }
 
           const contentSlide = await createWhiteboardPdfContentSlide(
             slide,
@@ -123,7 +120,7 @@ export async function createWhiteboardPdfDefinition({
             whiteboardExport.whiteboard.files ?? [],
             themeOptions,
             noImageSvg,
-            visibleOffset,
+            boundingAreaOffset,
           );
 
           const page: Content = {
@@ -136,21 +133,19 @@ export async function createWhiteboardPdfDefinition({
 
         // each frame will produce a content page
         const frameContentPromises = frameIds.map(async (frameId, frameIdx) => {
-          const frameElement: FrameElement = slide.getFrameElements()[frameId];
+          const { position, attachedElements }: FrameElement =
+            slide.getFrameElements()[frameId];
 
-          const { position: framePos, attachedElements: attachedIds } =
-            frameElement;
-
-          if (!attachedIds) return undefined;
+          if (!attachedElements) return undefined;
 
           const frameOffset: Point = {
-            x: -framePos.x,
-            y: -framePos.y,
+            x: -position.x,
+            y: -position.y,
           };
 
           const contentSlide = await createWhiteboardPdfContentSlide(
             slide,
-            attachedIds,
+            attachedElements,
             whiteboardExport.whiteboard.files ?? [],
             themeOptions,
             noImageSvg,
@@ -161,6 +156,7 @@ export async function createWhiteboardPdfDefinition({
             stack: [contentSlide],
             pageBreak: frameIdx + slideIdx > 0 ? 'before' : undefined,
           };
+
           return content as Content;
         });
 
@@ -177,7 +173,7 @@ export async function createWhiteboardPdfDefinition({
 
   return {
     pageMargins: 0,
-    pageSize: { height: pageSize.height, width: pageSize.width },
+    pageSize,
     content: pages,
     version: '1.5',
     defaultStyle: {
