@@ -144,7 +144,7 @@ describe('createWhiteboardPdfDefinition', () => {
   });
 });
 
-describe('PDF export in the Infinite Canvas mode', () => {
+describe('createWhiteboardPdfDefinition in infinite canvas mode', () => {
   let whiteboardInstance: WhiteboardInstance;
 
   beforeEach(() => {
@@ -221,8 +221,8 @@ describe('PDF export in the Infinite Canvas mode', () => {
     );
   });
 
-  it(`should export a small visible area when there are no frames in the slide`, async () => {
-    const d = await createWhiteboardPdfDefinition({
+  it(`should export all elements when there are no frames`, async () => {
+    const doc = await createWhiteboardPdfDefinition({
       whiteboardInstance,
       roomName: 'My Room',
       authorName: 'Alice',
@@ -230,12 +230,13 @@ describe('PDF export in the Infinite Canvas mode', () => {
       themePaletteErrorMain: '#d51928',
     });
 
-    expect(d).toMatchObject({
+    expect(doc).toMatchObject({
       pageSize: {
         height: 500,
         width: 450,
       },
     });
+    expect(doc).toMatchSnapshot();
   });
 
   it('should export each frame as a page', async () => {
@@ -296,7 +297,7 @@ describe('PDF export in the Infinite Canvas mode', () => {
       },
     ]);
 
-    const d = await createWhiteboardPdfDefinition({
+    const doc = await createWhiteboardPdfDefinition({
       whiteboardInstance,
       roomName: 'My Room',
       authorName: 'Alice',
@@ -305,14 +306,14 @@ describe('PDF export in the Infinite Canvas mode', () => {
     });
 
     // page size check
-    expect(d).toMatchObject({
+    expect(doc).toMatchObject({
       pageSize: {
         height: 700,
         width: 300,
       },
     });
 
-    const { content } = d;
+    const { content } = doc;
 
     // should be 2 pages
     expect((content as Content[]).length).toBe(2);
@@ -326,5 +327,7 @@ describe('PDF export in the Infinite Canvas mode', () => {
         y: 150,
       },
     });
+
+    expect(doc).toMatchSnapshot();
   });
 });
