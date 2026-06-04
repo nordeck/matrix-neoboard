@@ -131,7 +131,6 @@ export async function conv2png(
 export function textContent(
   element: ShapeElement,
   textProperties: NonNullable<ElementRenderProperties['text']>,
-  offset: Point = { x: 0, y: 0 },
 ): Content {
   if (!element.text) {
     return [];
@@ -187,8 +186,8 @@ export function textContent(
     },
 
     absolutePosition: {
-      x: textProperties.position.x + offset.x,
-      y: textProperties.position.y + paddingTop + offset.y,
+      x: textProperties.position.x,
+      y: textProperties.position.y + paddingTop,
     },
     unbreakable: true,
   };
