@@ -15,7 +15,7 @@
  */
 
 import { styled, useTheme } from '@mui/material';
-import { PointerEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import { PointerEvent, useCallback, useEffect, useMemo, useState, TouchEvent, useRef } from 'react';
 import { filterRecord } from '../../../../lib';
 import {
   Point,
@@ -80,6 +80,9 @@ export function DragSelect() {
     };
   }, [endCoords, dragSelectStartCoords, theme, activeFontFamily]);
 
+  const fingerCount = useRef(0);
+
+
   useEffect(() => {
     if (shape) {
       const allElements = slideInstance.getElements(
@@ -121,16 +124,22 @@ export function DragSelect() {
   }, [shape, slideInstance, presentationState, activeId]);
 
   const handlePointerUp = useCallback(() => {
+    if (fingerCount.current === 3) return;
     setDragSelectStartCoords();
   }, [setDragSelectStartCoords]);
 
   const handlePointerMove = useCallback(
     (event: PointerEvent<SVGRectElement>) => {
+      if (fingerCount.current === 3) return;
       const point = calculateSvgCoords({ x: event.clientX, y: event.clientY });
       setEndCoords(point);
     },
     [calculateSvgCoords],
   );
+
+  const handleTouchMove = (e: TouchEvent<SVGRectElement>) => {
+     fingerCount.current = e.changedTouches.length;
+  } 
 
   return (
     <>
@@ -150,6 +159,7 @@ export function DragSelect() {
         height={whiteboardHeight}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
+        onTouchMove={handleTouchMove}
         width={whiteboardWidth}
         data-testid="drag-select-layer"
       />

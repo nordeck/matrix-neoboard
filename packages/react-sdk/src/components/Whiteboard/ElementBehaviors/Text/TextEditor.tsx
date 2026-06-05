@@ -191,6 +191,8 @@ export function TextEditor({
       } 
     }
 
+    event.stopPropagation();
+
 
   }
 

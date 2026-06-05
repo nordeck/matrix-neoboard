@@ -15,7 +15,7 @@
  */
 
 import { Point } from 'pdfmake/interfaces';
-import { MouseEvent, useCallback, useEffect, useState } from 'react';
+import { MouseEvent, useCallback, useEffect, useRef, useState, PointerEvent, TouchEvent } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import {
   useActiveElement,
@@ -144,11 +144,115 @@ export function UnSelectElementHandler() {
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('mouseup', handleMouseUp);
 
+
+
+
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
+
+
     };
   }, [panEnabled, previousPanCoordinates, updateTranslation]);
+
+   const fingerRef = useRef<{id:number, pos:Point, dt:Date}|undefined>(undefined);
+    const fingerCountRef = useRef<number>(0)
+
+    const handlePointerDown = (event: PointerEvent<SVGRectElement>) => {
+      
+  
+  
+      if (event.pointerType !== 'touch') return;
+  
+      const fprev = fingerCountRef.current;
+  
+      const fingers = fingerRef.current;
+  
+      const position = ({
+          x: event.clientX,
+          y: event.clientY,
+        });
+  
+        const {dt} = fingerRef.current || {};
+  
+        const curdt = new Date();
+  
+        // if (dt && (curdt.getTime() - dt.getTime()) > 500  ) {
+        //   fingerCountRef.current = 1;
+        // } else {
+        //   fingerCountRef.current++;
+        // }
+  
+        const deltadt = dt && curdt.getTime() - dt.getTime()  ;
+  
+  console.log(`vs svgcanvas pointerDown`, {event, fprev,  f:fingerCountRef.current, deltadt})
+      
+  fingerRef.current = ({
+        id: event.pointerId,
+        pos: position,
+        dt: new Date()
+      });
+  
+      if (fingerCountRef.current !== 3) return;
+  
+      event.preventDefault();
+      event.stopPropagation();
+      
+    }
+  
+    const handlePointerUp = (event: PointerEvent<SVGRectElement>) => {
+      if (event.pointerType !== 'touch') return;
+  
+      //fingerCountRef.current--;
+      //if (fingerCountRef.current < 0) fingerCountRef.current = 0;
+      //if (event.pointerId === fingerRef.current?.id) return;//fingerRef.current = undefined;
+  
+      console.log(`vs svgcanvas pointerUp`, {event, f:fingerCountRef.current})
+  
+      if (fingerCountRef.current !== 3) return;
+  event.preventDefault();
+      event.stopPropagation();
+      
+    }
+
+    
+      const handlePointerMove = (event: PointerEvent<SVGRectElement>) => {
+        console.log(`vs svgcanvas pointerMove`, {event, f:fingerCountRef.current})
+        if (event.pointerType !== 'touch') return;
+    
+        const finger = fingerRef.current;
+    
+        if (!finger) return;
+        console.log(`vs svgcanvas pointerMove 2`, {event, f:fingerCountRef.current})
+        if (fingerCountRef.current !== 3) return;
+        console.log(`vs svgcanvas pointerMove 3`, {event, f:fingerCountRef.current})
+        if (event.pointerId !== finger.id) return;
+        console.log(`vs svgcanvas pointerMove 4`, {event, f:fingerCountRef.current})
+    
+        finger.dt = new Date();
+    
+        const position = ({
+            x: event.clientX,
+            y: event.clientY,
+          });
+        
+        const deltaX = finger.pos.x - position.x;
+        const deltaY = finger.pos.y - position.y;
+    
+        
+        updateTranslation(-deltaX, -deltaY)
+        // console.log(`vs svgcanvas updateTranslation`, {deltaX, deltaY})
+    
+    
+    event.preventDefault();
+        event.stopPropagation();
+        finger.pos = position;
+    
+      }
+
+      const handleTouchMove = (e: TouchEvent<SVGRectElement>) => {
+           fingerCountRef.current = e.changedTouches.length;
+        } 
 
   return (
     <rect
@@ -160,6 +264,10 @@ export function UnSelectElementHandler() {
         e.preventDefault();
         e.stopPropagation();
       }}
+      onPointerDown={handlePointerDown}
+      onPointerUp={handlePointerUp}
+      onPointerMove={handlePointerMove}
+      onTouchMove={handleTouchMove}
       width={whiteboardWidth}
       data-testid="unselect-element-layer"
     />
