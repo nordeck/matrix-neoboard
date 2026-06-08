@@ -17,7 +17,7 @@
 import { useWidgetApi } from '@matrix-widget-toolkit/react';
 import { styled } from '@mui/material';
 import { IDownloadFileActionFromWidgetResponseData } from 'matrix-widget-api';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { getSVGUnsafe } from '../../../imageUtils';
 import {
   acquireImageUrl,
@@ -85,14 +85,15 @@ function ImageDisplay({
     setLoadError(true);
   }, [setLoading, setLoadError]);
 
-  useEffect(() => {
-    let cancelled = false;
-    // Tracks whether acquireImageUrl resolved successfully so the cleanup
-    // knows whether to call releaseImageUrl (error paths release themselves).
-    let acquired = false;
-    const controller = new AbortController();
+  // Track whether this effect instance is still live. Using a ref so the
+  // .then()/.catch() closures always read the current value without needing
+  // to be listed as effect dependencies.
+  const cancelledRef = useRef(false);
 
-    const download = async (signal: AbortSignal): Promise<string> => {
+  useEffect(() => {
+    cancelledRef.current = false;
+
+    const download = async (): Promise<string> => {
       let result: IDownloadFileActionFromWidgetResponseData;
       try {
         result = await widgetApi.downloadFile(mxc);
@@ -103,8 +104,6 @@ function ImageDisplay({
       if (!(result.file instanceof Blob)) {
         throw new Error('Got non Blob file response');
       }
-
-      signal.throwIfAborted();
 
       // Check if the blob is an SVG
       // The try catch is because of the blob to text conversion
@@ -121,8 +120,6 @@ function ImageDisplay({
         blob = result.file.slice(0, result.file.size);
       }
 
-      signal.throwIfAborted();
-
       const url = URL.createObjectURL(blob);
       if (url === '') {
         throw new Error('Failed to create object URL');
@@ -130,34 +127,31 @@ function ImageDisplay({
       return url;
     };
 
-    acquireImageUrl(mxc, download, controller.signal)
+    acquireImageUrl(mxc, download)
       .then((url: string) => {
-        acquired = true;
-        if (!cancelled) {
+        if (!cancelledRef.current) {
           setImageUri(url);
         }
         return undefined;
       })
       .catch((error: Error) => {
-        if (cancelled || controller.signal.aborted) return;
+        if (cancelledRef.current) return;
         if (error instanceof WidgetApiActionError) {
           // Widget API unavailable — fall back to plain HTTP URL (not cached,
           // no blob to revoke).
-          releaseImageUrl(mxc);
           const httpUrl = convertMxcToHttpUrl(mxc, baseUrl);
           setImageUri(httpUrl ?? '');
         } else {
-          releaseImageUrl(mxc);
           setLoadError(true);
         }
       });
 
     return () => {
-      cancelled = true;
-      controller.abort();
-      if (acquired) {
-        releaseImageUrl(mxc);
-      }
+      cancelledRef.current = true;
+      // Always release — acquireImageUrl always increments the ref count.
+      // releaseImageUrl is a no-op if the entry was already removed (e.g. on
+      // download failure).
+      releaseImageUrl(mxc);
     };
   }, [baseUrl, mxc, widgetApi]);
 
