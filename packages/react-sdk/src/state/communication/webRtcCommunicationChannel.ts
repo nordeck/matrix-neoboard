@@ -61,8 +61,8 @@ export class WebRtcCommunicationChannel implements CommunicationChannel {
     emptyCommunicationChannelStatistics();
   private readonly peerConnections: PeerConnection[] = [];
   // Subscriptions created per peer connection in handleSessionJoined, keyed by
-  // connectionId. Stored so they can be explicitly unsubscribed when the peer
-  // leaves or the channel is destroyed, as a safety net alongside the
+  // session.sessionId. Stored so they can be explicitly unsubscribed when the
+  // peer leaves or the channel is destroyed, as a safety net alongside the
   // observable completion that close() triggers.
   private readonly peerConnectionSubscriptions = new Map<
     string,
@@ -127,10 +127,9 @@ export class WebRtcCommunicationChannel implements CommunicationChannel {
         );
 
         if (index >= 0) {
-          const connectionId = this.peerConnections[index].getConnectionId();
           this.peerConnections[index].close();
           this.peerConnections.splice(index, 1);
-          this.unsubscribePeerConnection(connectionId);
+          this.unsubscribePeerConnection(session.sessionId);
         }
       });
 
@@ -283,8 +282,6 @@ export class WebRtcCommunicationChannel implements CommunicationChannel {
     );
     this.peerConnections.push(peerConnection);
 
-    const connectionId = peerConnection.getConnectionId();
-
     const messagesSub = peerConnection
       .observeMessages()
       .pipe(takeUntil(this.destroySubject))
@@ -296,16 +293,16 @@ export class WebRtcCommunicationChannel implements CommunicationChannel {
       .subscribe({
         next: (peerConnectionStatistics) => {
           this.addPeerConnectionStatistics(
-            connectionId,
+            peerConnection.getConnectionId(),
             peerConnectionStatistics,
           );
         },
         complete: () => {
-          this.addPeerConnectionStatistics(connectionId);
+          this.addPeerConnectionStatistics(peerConnection.getConnectionId());
         },
       });
 
-    this.peerConnectionSubscriptions.set(connectionId, [
+    this.peerConnectionSubscriptions.set(session.sessionId, [
       messagesSub,
       statisticsSub,
     ]);
