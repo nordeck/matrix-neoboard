@@ -19,7 +19,12 @@ import { styled } from '@mui/material';
 import { IDownloadFileActionFromWidgetResponseData } from 'matrix-widget-api';
 import React, { useCallback, useEffect, useState } from 'react';
 import { getSVGUnsafe } from '../../../imageUtils';
-import { convertMxcToHttpUrl, WidgetApiActionError } from '../../../lib';
+import {
+  acquireImageUrl,
+  convertMxcToHttpUrl,
+  releaseImageUrl,
+  WidgetApiActionError,
+} from '../../../lib';
 import { ImageElement } from '../../../state';
 import {
   ElementContextMenu,
@@ -80,59 +85,44 @@ function ImageDisplay({
     setLoadError(true);
   }, [setLoading, setLoadError]);
 
-  // Cleanup effect to revoke the object URL when the component is unmounted or `imageUri` changes.
-  // This prevents memory leaks by releasing the memory associated with the object URL.
   useEffect(() => {
-    return () => {
-      if (imageUri) {
-        URL.revokeObjectURL(imageUri);
-      }
-    };
-  }, [imageUri]);
+    let cancelled = false;
+    // Tracks whether acquireImageUrl resolved successfully so the cleanup
+    // knows whether to call releaseImageUrl (error paths release themselves).
+    let acquired = false;
+    const controller = new AbortController();
 
-  useEffect(() => {
-    const downloadFile = async () => {
+    const download = async (signal: AbortSignal): Promise<string> => {
+      let result: IDownloadFileActionFromWidgetResponseData;
       try {
-        const result = await tryDownloadFileWithWidgetApi(mxc);
-        const blob = await getBlobFromResult(result);
-        const downloadedFileDataUrl = createObjectUrlFromBlob(blob);
-        setImageUri(downloadedFileDataUrl);
-      } catch (error) {
-        handleDownloadError(error as Error);
-      }
-    };
-
-    const tryDownloadFileWithWidgetApi = async (mxc: string) => {
-      try {
-        const result = await widgetApi.downloadFile(mxc);
-        return result;
+        result = await widgetApi.downloadFile(mxc);
       } catch {
         throw new WidgetApiActionError('downloadFile not available');
       }
-    };
 
-    const getBlobFromResult = async (
-      result: IDownloadFileActionFromWidgetResponseData,
-    ): Promise<Blob> => {
       if (!(result.file instanceof Blob)) {
         throw new Error('Got non Blob file response');
       }
+
+      signal.throwIfAborted();
+
       // Check if the blob is an SVG
       // The try catch is because of the blob to text conversion
+      let blob: Blob;
       try {
-        const stringFromBlob = await result.file.text();
+        const text = await result.file.text();
 
         // Check if the string is an SVG
         // We use this call as a condition here. If it works we know it's an SVG. If it throws an error we know it's not an SVG
-        getSVGUnsafe(stringFromBlob);
-        return result.file.slice(0, result.file.size, 'image/svg+xml');
+        getSVGUnsafe(text);
+        blob = result.file.slice(0, result.file.size, 'image/svg+xml');
       } catch {
         // If it fails, return the blob as is
-        return result.file.slice(0, result.file.size);
+        blob = result.file.slice(0, result.file.size);
       }
-    };
 
-    const createObjectUrlFromBlob = (blob: Blob): string => {
+      signal.throwIfAborted();
+
       const url = URL.createObjectURL(blob);
       if (url === '') {
         throw new Error('Failed to create object URL');
@@ -140,27 +130,35 @@ function ImageDisplay({
       return url;
     };
 
-    const handleDownloadError = (error: Error) => {
-      if (error instanceof WidgetApiActionError) {
-        tryFallbackDownload();
-      } else {
-        setLoadError(true);
+    acquireImageUrl(mxc, download, controller.signal)
+      .then((url: string) => {
+        acquired = true;
+        if (!cancelled) {
+          setImageUri(url);
+        }
+        return undefined;
+      })
+      .catch((error: Error) => {
+        if (cancelled || controller.signal.aborted) return;
+        if (error instanceof WidgetApiActionError) {
+          // Widget API unavailable — fall back to plain HTTP URL (not cached,
+          // no blob to revoke).
+          releaseImageUrl(mxc);
+          const httpUrl = convertMxcToHttpUrl(mxc, baseUrl);
+          setImageUri(httpUrl ?? '');
+        } else {
+          releaseImageUrl(mxc);
+          setLoadError(true);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+      controller.abort();
+      if (acquired) {
+        releaseImageUrl(mxc);
       }
     };
-
-    const tryFallbackDownload = async () => {
-      const httpUrl = convertMxcToHttpUrl(mxc, baseUrl);
-
-      if (httpUrl === null) {
-        setImageUri('');
-        return;
-      }
-      setImageUri(httpUrl);
-
-      return;
-    };
-
-    downloadFile();
   }, [baseUrl, mxc, widgetApi]);
 
   const renderedSkeleton =
