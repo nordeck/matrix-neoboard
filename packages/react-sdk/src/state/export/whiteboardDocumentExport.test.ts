@@ -20,12 +20,63 @@ import {
   mockImageElement,
   mockRectangleElement,
 } from '../../lib/testUtils';
-import { isValidWhiteboardExportDocument } from './whiteboardDocumentExport';
+import { WhiteboardDocumentVersion } from '../crdt';
+import {
+  extractWhiteboardDocumentVersionFromExportString,
+  isValidWhiteboardExportDocument,
+  whiteboardDocumentVersionToExportString,
+} from './whiteboardDocumentExport';
+
+describe('whiteboardDocumentVersionToExportString', () => {
+  it('should export v0 whiteboard version to string', () => {
+    expect(
+      whiteboardDocumentVersionToExportString(WhiteboardDocumentVersion.v0),
+    ).toBe('net.nordeck.whiteboard@v1');
+  });
+
+  it('should export v1 whiteboard version to string', () => {
+    expect(
+      whiteboardDocumentVersionToExportString(WhiteboardDocumentVersion.v1),
+    ).toBe('net.nordeck.whiteboard@v2');
+  });
+});
+
+describe('extractWhiteboardDocumentVersionFromExportString', () => {
+  it('should extract v0 whiteboard document version', () => {
+    expect(
+      extractWhiteboardDocumentVersionFromExportString(
+        'net.nordeck.whiteboard@v1',
+      ),
+    ).toBe(WhiteboardDocumentVersion.v0);
+  });
+
+  it('should extract v1 whiteboard document version', () => {
+    expect(
+      extractWhiteboardDocumentVersionFromExportString(
+        'net.nordeck.whiteboard@v2',
+      ),
+    ).toBe(WhiteboardDocumentVersion.v1);
+  });
+
+  it('should throw when extract unknown whiteboard document version', () => {
+    expect(() =>
+      extractWhiteboardDocumentVersionFromExportString(
+        'net.nordeck.whiteboard@v100',
+      ),
+    ).toThrow('Unexpected whiteboard document version: 99');
+  });
+
+  it('should throw when extract unknown version', () => {
+    expect(() =>
+      extractWhiteboardDocumentVersionFromExportString('other@v2'),
+    ).toThrow('Unexpected whiteboard document version export string: other@v2');
+  });
+});
 
 describe('isValidWhiteboardExportDocument', () => {
   it('should accept empty document', () => {
     expect(
-      isValidWhiteboardExportDocument({
+      isValidWhiteboardExportDocument(WhiteboardDocumentVersion.v0, {
         version: 'net.nordeck.whiteboard@v1',
         whiteboard: {
           slides: [],
@@ -36,7 +87,7 @@ describe('isValidWhiteboardExportDocument', () => {
 
   it('should accept empty slide', () => {
     expect(
-      isValidWhiteboardExportDocument({
+      isValidWhiteboardExportDocument(WhiteboardDocumentVersion.v0, {
         version: 'net.nordeck.whiteboard@v1',
         whiteboard: {
           slides: [{ elements: [] }],
@@ -47,7 +98,7 @@ describe('isValidWhiteboardExportDocument', () => {
 
   it('should accept document with slide', () => {
     expect(
-      isValidWhiteboardExportDocument({
+      isValidWhiteboardExportDocument(WhiteboardDocumentVersion.v0, {
         version: 'net.nordeck.whiteboard@v1',
         whiteboard: {
           slides: [
@@ -71,7 +122,7 @@ describe('isValidWhiteboardExportDocument', () => {
 
   it('should accept document with connected elements', () => {
     expect(
-      isValidWhiteboardExportDocument({
+      isValidWhiteboardExportDocument(WhiteboardDocumentVersion.v0, {
         version: 'net.nordeck.whiteboard@v1',
         whiteboard: {
           slides: [
@@ -111,7 +162,7 @@ describe('isValidWhiteboardExportDocument', () => {
 
   it('should accept document with attachments', () => {
     expect(
-      isValidWhiteboardExportDocument({
+      isValidWhiteboardExportDocument(WhiteboardDocumentVersion.v0, {
         version: 'net.nordeck.whiteboard@v1',
         whiteboard: {
           slides: [
@@ -173,7 +224,7 @@ describe('isValidWhiteboardExportDocument', () => {
 
   it('should accept additional properties', () => {
     expect(
-      isValidWhiteboardExportDocument({
+      isValidWhiteboardExportDocument(WhiteboardDocumentVersion.v0, {
         version: 'net.nordeck.whiteboard@v1',
         whiteboard: {
           slides: [
@@ -198,6 +249,39 @@ describe('isValidWhiteboardExportDocument', () => {
         },
       }),
     ).toBe(true);
+  });
+
+  it('should accept v0 document export when upper whiteboard document version is v1', () => {
+    expect(
+      isValidWhiteboardExportDocument(WhiteboardDocumentVersion.v1, {
+        version: 'net.nordeck.whiteboard@v1',
+        whiteboard: {
+          slides: [],
+        },
+      }),
+    ).toBe(true);
+  });
+
+  it('should accept v1 document export when upper whiteboard document version is v1', () => {
+    expect(
+      isValidWhiteboardExportDocument(WhiteboardDocumentVersion.v1, {
+        version: 'net.nordeck.whiteboard@v2',
+        whiteboard: {
+          slides: [],
+        },
+      }),
+    ).toBe(true);
+  });
+
+  it('should reject v1 document export when upper whiteboard document version is v0', () => {
+    expect(
+      isValidWhiteboardExportDocument(WhiteboardDocumentVersion.v0, {
+        version: 'net.nordeck.whiteboard@v2',
+        whiteboard: {
+          slides: [],
+        },
+      }),
+    ).toBe(false);
   });
 
   it.each<object>([
@@ -284,7 +368,7 @@ describe('isValidWhiteboardExportDocument', () => {
     { whiteboard: { slides: [{ elements: [], lock: 111 }] } },
   ])('should reject event with patch %j', (patch: object) => {
     expect(
-      isValidWhiteboardExportDocument({
+      isValidWhiteboardExportDocument(WhiteboardDocumentVersion.v0, {
         version: 'net.nordeck.whiteboard@v1',
         whiteboard: {
           slides: [],

@@ -18,5 +18,6 @@ export { applyMigrations, createMigrations } from './migrations';
 export type { MigrationFn } from './migrations';
 export { YArray, YMap, YText } from './types';
 export type { SharedMap } from './types';
+export { getYDocUpdateDocumentVersion } from './utils';
 export { YDocument } from './yDocument';
 export type { StackItemChangeEntry } from './yDocumentUndoManager';
