@@ -15,7 +15,7 @@
  */
 
 import { Box } from '@mui/material';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import {
   findActiveAndAttachedElementIds,
   includesShapeWithText,
@@ -74,6 +74,10 @@ const WhiteboardHost = ({
   const { isShowCollaboratorsCursors, dragSelectStartCoords } =
     useLayoutState();
   const { activeElementIds } = useActiveElements();
+  const activeElementSet = useMemo(
+    () => new Set(activeElementIds),
+    [activeElementIds],
+  );
 
   const activeAndAttachedElementIds = findActiveAndAttachedElementIds(
     activeElementIds,
@@ -144,7 +148,7 @@ const WhiteboardHost = ({
 
         {elementIds.map((elementId) => {
           const override = getElementOverride(elementId);
-          const isSelected = activeElementIds.includes(elementId);
+          const isSelected = activeElementSet.has(elementId);
 
           return (
             <ConnectedElement

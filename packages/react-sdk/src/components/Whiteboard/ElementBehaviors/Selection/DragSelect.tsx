@@ -15,7 +15,14 @@
  */
 
 import { styled, useTheme } from '@mui/material';
-import { PointerEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  PointerEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { filterRecord } from '../../../../lib';
 import {
   Point,
@@ -124,10 +131,13 @@ export function DragSelect() {
     setDragSelectStartCoords();
   }, [setDragSelectStartCoords]);
 
+  const lastMoveRef = useRef(0);
   const handlePointerMove = useCallback(
     (event: PointerEvent<SVGRectElement>) => {
-      const point = calculateSvgCoords({ x: event.clientX, y: event.clientY });
-      setEndCoords(point);
+      const now = Date.now();
+      if (now - lastMoveRef.current < 16) return;
+      lastMoveRef.current = now;
+      setEndCoords(calculateSvgCoords({ x: event.clientX, y: event.clientY }));
     },
     [calculateSvgCoords],
   );
