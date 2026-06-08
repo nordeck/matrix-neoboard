@@ -16,7 +16,10 @@
 
 import { useCallback } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
+import { isInfiniteCanvasMode } from '../../../lib';
 import {
+  isInfiniteCanvasPresentationEdit,
+  useActiveSlideOrFrame,
   usePresentationMode,
   useWhiteboardSlideInstance,
 } from '../../../state';
@@ -25,15 +28,36 @@ import { HOTKEY_SCOPE_WHITEBOARD } from '../../WhiteboardHotkeysProvider';
 export function SelectAllShortcut() {
   const slideInstance = useWhiteboardSlideInstance();
   const { state: presentationState } = usePresentationMode();
+  const { activeId } = useActiveSlideOrFrame();
+
   const isViewingPresentation =
     presentationState.type === 'presentation' && !presentationState.isEditMode;
 
+  const isInfiniteCanvasPresentationMode =
+    isInfiniteCanvasPresentationEdit(presentationState) ||
+    (isInfiniteCanvasMode() && presentationState.type === 'presenting');
+
   const handleSelectAll = useCallback(() => {
-    if (isViewingPresentation) {
-      return;
+    if (isViewingPresentation) return;
+    const elementIds = slideInstance.getElementIds().filter((id) => {
+      const element = slideInstance.getElement(id);
+      if (!element) return false;
+      if (isInfiniteCanvasPresentationMode) {
+        if (element.type === 'frame') return false;
+        if (activeId) return element.attachedFrame === activeId;
+      }
+      return true;
+    });
+
+    if (isInfiniteCanvasPresentationMode || elementIds.length > 0) {
+      slideInstance.setActiveElementIds(elementIds);
     }
-    slideInstance.setActiveElementIds(slideInstance.getElementIds());
-  }, [isViewingPresentation, slideInstance]);
+  }, [
+    isViewingPresentation,
+    isInfiniteCanvasPresentationMode,
+    activeId,
+    slideInstance,
+  ]);
 
   useHotkeys(
     ['ctrl+a', 'meta+a'],
