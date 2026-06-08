@@ -248,15 +248,13 @@ describe('YDocument', () => {
       vi.useRealTimers();
     });
 
-    it('emits two debounced values: one for initial state, one after a change', async () => {
+    it('emits initial stats immediately, then debounces subsequent changes', async () => {
       const yDoc = YDocument.create<Example>(exampleMigrations, '0');
       const statisticsPromise = firstValueFrom(
         yDoc.observeStatistics().pipe(take(2), toArray()),
       );
 
-      // Advance past the debounce for the initial emission.
-      await vi.advanceTimersByTimeAsync(1000);
-
+      // Initial value fires immediately — no timer advance needed.
       yDoc.applyChange(await mockChange());
 
       // Advance past the debounce for the change emission.

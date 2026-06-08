@@ -147,22 +147,21 @@ export class YDocument<
 
   observeStatistics(): Observable<DocumentStatistics> {
     const encoder = new TextEncoder();
+    const compute = (): DocumentStatistics => {
+      const documentSizeInBytes = this.store().length;
+      const content = JSON.stringify(this.getRoot().toJSON());
+      const contentSizeInBytes = encoder.encode(content).length;
+      return { documentSizeInBytes, contentSizeInBytes };
+    };
 
-    return concat(of(this.getData()), this.changesSubject).pipe(
-      // Debounce so that rapid bursts of document changes (e.g. during
-      // collaboration or initial load) produce only one JSON.stringify per
-      // idle window instead of one per change. Statistics are display-only.
-      debounceTime(1000),
-      map(() => {
-        const documentSizeInBytes = this.store().length;
-        const content = JSON.stringify(this.getRoot().toJSON());
-        const contentSizeInBytes = encoder.encode(content).length;
-
-        return {
-          documentSizeInBytes,
-          contentSizeInBytes,
-        };
-      }),
+    return concat(
+      // Emit once immediately so subscribers receive a populated baseline
+      // before any change fires (preserves the ordering that synchronizedDocumentImpl
+      // relies on: contentSizeInBytes is set before snapshotOutstanding changes).
+      of(null).pipe(map(compute)),
+      // Debounce subsequent changes so that rapid bursts (e.g. during
+      // collaboration) produce only one JSON.stringify per idle window.
+      this.changesSubject.pipe(debounceTime(1000), map(compute)),
     );
   }
 
