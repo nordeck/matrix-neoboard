@@ -20,6 +20,31 @@ const minFontSize = 10;
 const maxFontSize = 800;
 const maxSteps = 10;
 
+type TextSizeResult = {
+  fontSize: number;
+  paddingTop: number;
+  paddingHorizontal: number;
+};
+
+// Cache keyed by all inputs that affect the binary-search result.
+// Avoids re-running 10× DOM style mutations + getBoundingClientRect on every render
+// when nothing has changed (e.g. idle dashboard with many text elements).
+const textSizeCache = new Map<string, TextSizeResult>();
+
+function buildCacheKey(
+  width: number,
+  height: number,
+  content: { innerHTML?: string; innerText: string },
+  opts: {
+    disableLigatures?: boolean;
+    fontSize?: number;
+    fontWeightBold?: boolean;
+    fontStyleItalic?: boolean;
+  },
+): string {
+  return `${width}|${height}|${content.innerHTML ?? content.innerText}|${opts.fontSize}|${opts.fontWeightBold}|${opts.fontStyleItalic}|${opts.disableLigatures}`;
+}
+
 export function fitText(
   element: HTMLElement,
   fontSize?: number,
@@ -104,6 +129,12 @@ export function getTextSize(
   width = Math.round(width);
   height = Math.round(height);
 
+  const cacheKey = buildCacheKey(width, height, content, opts);
+  const cached = textSizeCache.get(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
   const { textElement: element, wrapperElement } = getTemporaryElement();
 
   if (opts.fontSize === undefined) {
@@ -170,5 +201,7 @@ export function getTextSize(
 
   element.innerText = '';
 
-  return { fontSize, paddingTop, paddingHorizontal };
+  const result: TextSizeResult = { fontSize, paddingTop, paddingHorizontal };
+  textSizeCache.set(cacheKey, result);
+  return result;
 }
