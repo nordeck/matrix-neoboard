@@ -15,7 +15,7 @@
  */
 
 import { getLogger } from 'loglevel';
-import { concat, map, Observable, of, Subject } from 'rxjs';
+import { concat, debounceTime, map, Observable, of, Subject } from 'rxjs';
 import * as Y from 'yjs';
 import {
   ChangeFn,
@@ -149,6 +149,10 @@ export class YDocument<
     const encoder = new TextEncoder();
 
     return concat(of(this.getData()), this.changesSubject).pipe(
+      // Debounce so that rapid bursts of document changes (e.g. during
+      // collaboration or initial load) produce only one JSON.stringify per
+      // idle window instead of one per change. Statistics are display-only.
+      debounceTime(1000),
       map(() => {
         const documentSizeInBytes = this.store().length;
         const content = JSON.stringify(this.getRoot().toJSON());

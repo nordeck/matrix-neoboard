@@ -15,7 +15,7 @@
  */
 
 import { firstValueFrom, map, take, toArray } from 'rxjs';
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import * as Y from 'yjs';
 import { createMigrations } from './migrations';
 import { SharedMap, YText } from './types';
@@ -239,24 +239,40 @@ describe('YDocument', () => {
     });
   });
 
-  it('should emit statistics', async () => {
-    const yDoc = YDocument.create<Example>(exampleMigrations, '0');
-    const statisticsPromise = firstValueFrom(
-      yDoc.observeStatistics().pipe(take(2), toArray()),
-    );
+  describe('should emit statistics', () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
 
-    yDoc.applyChange(await mockChange());
+    afterEach(() => {
+      vi.useRealTimers();
+    });
 
-    const statistics = await statisticsPromise;
-    expect(statistics).toHaveLength(2);
-    const [first, second] = statistics;
-    expect(first.contentSizeInBytes).toBe(19);
-    expect(first.documentSizeInBytes).toBe(26);
-    expect(second.contentSizeInBytes).toBe(24);
-    // Sanity check: The size of the document should have been increased.
-    expect(second.documentSizeInBytes).toBeGreaterThan(26);
-    // The last statistics should be the current document size.
-    expect(second.documentSizeInBytes).toBe(yDoc.store().length);
+    it('emits two debounced values: one for initial state, one after a change', async () => {
+      const yDoc = YDocument.create<Example>(exampleMigrations, '0');
+      const statisticsPromise = firstValueFrom(
+        yDoc.observeStatistics().pipe(take(2), toArray()),
+      );
+
+      // Advance past the debounce for the initial emission.
+      await vi.advanceTimersByTimeAsync(1000);
+
+      yDoc.applyChange(await mockChange());
+
+      // Advance past the debounce for the change emission.
+      await vi.advanceTimersByTimeAsync(1000);
+
+      const statistics = await statisticsPromise;
+      expect(statistics).toHaveLength(2);
+      const [first, second] = statistics;
+      expect(first.contentSizeInBytes).toBe(19);
+      expect(first.documentSizeInBytes).toBe(26);
+      expect(second.contentSizeInBytes).toBe(24);
+      // Sanity check: The size of the document should have been increased.
+      expect(second.documentSizeInBytes).toBeGreaterThan(26);
+      // The last statistics should be the current document size.
+      expect(second.documentSizeInBytes).toBe(yDoc.store().length);
+    });
   });
 
   it('should clone the document', () => {
