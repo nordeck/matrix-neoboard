@@ -144,7 +144,7 @@ export function TextEditor({
 
   const handleDoubleClick = useCallback(
     (event: MouseEvent) => {
-      console.log(`vs handleDoubleClick`, {event})
+      // console.log(`vs handleDoubleClick`, { event });
 
       if (editable || isEditMode) {
         event.stopPropagation();
@@ -161,24 +161,24 @@ export function TextEditor({
   );
 
   const pointerRef = useRef<{
-    id: number,
-    date: Date
-  }>({id: -1, date: new Date()})
+    id: number;
+    date: Date;
+  }>({ id: -1, date: new Date() });
 
   const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
-    console.log(`vs pointerDown`, {event})
+    // console.log(`vs pointerDown`, { event });
 
-    const old = {...pointerRef.current};
+    const old = { ...pointerRef.current };
 
-    const cur = pointerRef.current = {
+    const cur = (pointerRef.current = {
       id: event.pointerId,
-      date: new Date()    
-    }
+      date: new Date(),
+    });
 
-    const dt = Math.abs(old.date.getTime() - cur.date.getTime())
+    const dt = Math.abs(old.date.getTime() - cur.date.getTime());
 
-    if (dt < 300 ) {
-      console.log(`vs doubletap `, { dt, editable})
+    if (dt < 300) {
+      // console.log(`vs doubletap `, { dt, editable });
 
       if (editable) {
         setEditMode(true);
@@ -186,19 +186,16 @@ export function TextEditor({
 
         if (textRef.current) {
           textRef.current.focus();
-      setCaretToTheEnd(textRef.current);
-    }
-      } 
+          setCaretToTheEnd(textRef.current);
+        }
+      }
     }
 
     event.stopPropagation();
-
-
-  }
-
+  };
 
   const handleFocus = useCallback(() => {
-    console.log(`vs handlefocus`, )
+    // console.log(`vs handlefocus`);
 
     if (textRef.current) {
       setCaretToTheEnd(textRef.current);
@@ -287,7 +284,7 @@ export function TextEditor({
 
   return (
     <Editable
-      style={{ color, touchAction: 'none'}}
+      style={{ color, touchAction: 'none' }}
       contentEditable={editable}
       editMode={isEditMode}
       textAlign={contentAlignment}

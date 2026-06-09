@@ -15,7 +15,15 @@
  */
 
 import { styled, useTheme } from '@mui/material';
-import { PointerEvent, useCallback, useEffect, useMemo, useState, TouchEvent, useRef } from 'react';
+import {
+  PointerEvent,
+  TouchEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { filterRecord } from '../../../../lib';
 import {
   Point,
@@ -82,7 +90,6 @@ export function DragSelect() {
 
   const fingerCount = useRef(0);
 
-
   useEffect(() => {
     if (shape) {
       const allElements = slideInstance.getElements(
@@ -138,8 +145,8 @@ export function DragSelect() {
   );
 
   const handleTouchMove = (e: TouchEvent<SVGRectElement>) => {
-     fingerCount.current = e.changedTouches.length;
-  } 
+    fingerCount.current = e.changedTouches.length;
+  };
 
   return (
     <>

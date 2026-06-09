@@ -24,7 +24,6 @@ import React, {
   useEffect,
   useMemo,
   useRef,
-  PointerEvent,
 } from 'react';
 import {
   Point,
@@ -112,8 +111,6 @@ export const SvgCanvas = function ({
   const { handleWheelZoom, wheelZoomInProgress } = useWheelZoom(svgRef);
   const { handleKeyDown, handleKeyUp } = useArrowKeys();
 
-
-
   useEffect(() => {
     const element = svgRef.current;
 
@@ -199,7 +196,7 @@ export const SvgCanvas = function ({
 
   const handleMouseMove: MouseEventHandler<SVGSVGElement> = useCallback(
     (e) => {
-      if (fingerCountRef.current === 3) return;
+      //if (fingerCountRef.current === 3) return;
       const position = calculateSvgCoordsFunc({
         x: e.nativeEvent.clientX,
         y: e.nativeEvent.clientY,
@@ -229,9 +226,6 @@ export const SvgCanvas = function ({
   } else {
     svgViewBox = `0 0 ${viewportWidth} ${viewportHeight}`;
   }
-
-
-
 
   return (
     <SvgCanvasContext.Provider value={value}>
