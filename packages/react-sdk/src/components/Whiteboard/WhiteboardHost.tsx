@@ -15,7 +15,7 @@
  */
 
 import { Box } from '@mui/material';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
 import {
   findActiveAndAttachedElementIds,
   includesShapeWithText,
@@ -73,11 +73,7 @@ const WhiteboardHost = ({
   const slideInstance = useWhiteboardSlideInstance();
   const { isShowCollaboratorsCursors, dragSelectStartCoords } =
     useLayoutState();
-  const { activeElementIds } = useActiveElements();
-  const activeElementSet = useMemo(
-    () => new Set(activeElementIds),
-    [activeElementIds],
-  );
+  const { activeElementIds, activeElementSet } = useActiveElements();
 
   const activeAndAttachedElementIds = findActiveAndAttachedElementIds(
     activeElementIds,

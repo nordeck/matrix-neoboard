@@ -43,6 +43,9 @@ const NoInteraction = styled('g')({
   pointerEvents: 'none',
 });
 
+// Throttle pointer move updates to 60fps (1000ms / 60 ≈ 16ms per frame)
+const POINTER_MOVE_THROTTLE_MS = Math.round(1000 / 60);
+
 export function DragSelect() {
   const theme = useTheme();
   const slideInstance = useWhiteboardSlideInstance();
@@ -135,7 +138,7 @@ export function DragSelect() {
   const handlePointerMove = useCallback(
     (event: PointerEvent<SVGRectElement>) => {
       const now = Date.now();
-      if (now - lastMoveRef.current < 16) return;
+      if (now - lastMoveRef.current < POINTER_MOVE_THROTTLE_MS) return;
       lastMoveRef.current = now;
       setEndCoords(calculateSvgCoords({ x: event.clientX, y: event.clientY }));
     },
