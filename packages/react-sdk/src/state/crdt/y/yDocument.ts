@@ -26,6 +26,7 @@ import {
 } from '../types';
 import { applyMigrations } from './migrations';
 import { SharedMap } from './types';
+import { getYDocUpdateDocumentVersion } from './utils';
 import {
   UNDO_MANAGER_SCOPE,
   UndoRedoItemValidator,
@@ -85,7 +86,14 @@ export class YDocument<
     }
   }
 
-  mergeFrom(remoteData: Uint8Array): void {
+  mergeFrom(remoteData: Uint8Array, isUpdated?: boolean): void {
+    const snapshotDocumentVersion = getYDocUpdateDocumentVersion(remoteData);
+    if (this.documentVersion !== snapshotDocumentVersion) {
+      throw new Error(
+        `Cannot merge snapshot data that has a document version: '${snapshotDocumentVersion}'`,
+      );
+    }
+
     const remoteDoc = new Y.Doc();
     Y.applyUpdate(remoteDoc, remoteData);
     const remoteSnapshot = Y.snapshot(remoteDoc);
@@ -98,7 +106,7 @@ export class YDocument<
       appliedSnapshot,
     );
 
-    if (hasOutstandingLocalChanges) {
+    if (hasOutstandingLocalChanges || isUpdated) {
       this.persistSubject.next(this);
     }
 
@@ -115,6 +123,10 @@ export class YDocument<
     const clone = new Y.Doc();
     Y.applyUpdate(clone, Y.encodeStateAsUpdate(this.doc));
     return Y.encodeStateAsUpdate(clone);
+  }
+
+  getDocumentVersion(): string {
+    return this.documentVersion;
   }
 
   getData(): SharedMap<T> {

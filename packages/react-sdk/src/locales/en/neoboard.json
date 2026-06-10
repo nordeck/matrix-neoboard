@@ -384,6 +384,14 @@
     "title": "Upload",
     "upload": "Upload"
   },
+  "whiteboardUpdateDialog": {
+    "content": "Your existing Slides will now be shown as Frames - a new way to organize your content. Please download a copy of your whiteboard before continuing.",
+    "contentUpgradeRequired": "This whiteboard requires a more recent version of NeoBoard that uses Frames instead of Slides.",
+    "migrationFailed": "An issue occurred when moving Slides into Frames",
+    "title": "Slides are now Frames",
+    "titleUpgradeRequired": "Upgrade required",
+    "update": "Continue"
+  },
   "zoomBar": {
     "reset": "Reset zoom to 100 %",
     "title": "Zoom controls",
