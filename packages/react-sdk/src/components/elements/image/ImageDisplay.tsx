@@ -42,6 +42,7 @@ type ImageDisplayProps = Omit<ImageElement, 'kind'> &
      * Matrix homeserver base URL
      */
     baseUrl: string;
+    rotation?: number;
   };
 
 const Image = styled('image', {
@@ -69,6 +70,7 @@ function ImageDisplay({
   activeElementIds = [],
   elements = {},
   elementMovedHasFrame,
+  rotation,
 }: ImageDisplayProps) {
   const widgetApi = useWidgetApi();
   const [loadError, setLoadError] = useState(false);
@@ -175,11 +177,17 @@ function ImageDisplay({
     />
   ) : null;
 
+  const rot = rotation ?? 0;
+  const transform = rot
+    ? `rotate(${rot} ${position.x + width / 2} ${position.y + height / 2})`
+    : undefined;
+
   const renderedChild =
     imageUri !== undefined && !loadError ? (
       <Image
         data-testid={`element-${elementId}-image`}
         href={imageUri}
+        transform={transform}
         x={position.x}
         y={position.y}
         width={width}

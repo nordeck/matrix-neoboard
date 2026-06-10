@@ -21,10 +21,12 @@ import {
   calculateBoundingRectForElements,
   useSlideIsLocked,
 } from '../../../../state';
+import { isRotateableElement } from '../../../../state/crdt/documents/elements';
 import { useElementOverrides } from '../../../ElementOverridesProvider';
 import { useMeasure } from '../../SvgCanvas';
 import { useSvgScaleContext } from '../../SvgScaleContext';
 import { infiniteCanvasMode } from '../../constants';
+import { calculateBoundaryWithRotationHandle } from '../Rotatable';
 
 type ElementBarWrapperProps = PropsWithChildren<{ elementIds: string[] }>;
 
@@ -69,13 +71,31 @@ const FiniteElementBarWrapper: React.FC<ElementBarWrapperProps> = ({
     height,
   } = calculateBoundingRectForElements(elements);
 
+  const rotatedBoundary =
+    elements.length === 1 && isRotateableElement(elements[0])
+      ? calculateBoundaryWithRotationHandle(elements[0], scale)
+      : null;
+
   const offset = 10;
 
   function calculateTopPosition() {
     const position = y * scale;
-    const positionAbove = position - elementBarHeight - offset;
-    const positionBelow = position + height * scale + offset;
     const positionInElement = position + offset;
+
+    let positionAbove = position - elementBarHeight - offset;
+    let positionBelow = position + height * scale + offset;
+
+    // adjust if the object is rotateable
+    if (rotatedBoundary) {
+      positionAbove = Math.min(
+        positionAbove,
+        rotatedBoundary.min.y * scale - elementBarHeight - offset * 2,
+      );
+      positionBelow = Math.max(
+        positionBelow,
+        rotatedBoundary.max.y * scale + offset * 2,
+      );
+    }
 
     if (positionAbove >= 0) {
       return positionAbove;
@@ -126,6 +146,19 @@ const InfiniteElementBarWrapper: React.FC<ElementBarWrapperProps> = ({
   const offsetOnDiv = 10;
   const { scale, transformPointSvgToContainer } = useSvgScaleContext();
 
+  const rotatedBoundary =
+    elements.length === 1 && isRotateableElement(elements[0])
+      ? calculateBoundaryWithRotationHandle(elements[0], scale)
+      : null;
+
+  const { max: rotatedMax, min: rotatedMin } = rotatedBoundary || {};
+  const { y: rotatedMaxSVGY } = rotatedMax
+    ? transformPointSvgToContainer(rotatedMax)
+    : {};
+  const { y: rotatedMinSVGY } = rotatedMin
+    ? transformPointSvgToContainer(rotatedMin)
+    : {};
+
   const position = useMemo(() => {
     const elementOnContainer = transformPointSvgToContainer({ x, y });
 
@@ -140,9 +173,17 @@ const InfiniteElementBarWrapper: React.FC<ElementBarWrapperProps> = ({
     const clampedPositionX = clamp(elementBarCenterOnDivX, 0, maxX);
 
     // Y
-    const positionAbove = elementOnContainer.y - elementBarHeight - offsetOnDiv;
-    const positionBelow =
-      elementOnContainer.y + elementHeightOnDiv + offsetOnDiv;
+    let positionAbove = elementOnContainer.y - elementBarHeight - offsetOnDiv;
+    let positionBelow = elementOnContainer.y + elementHeightOnDiv + offsetOnDiv;
+
+    // adjust for rotated object
+    if (rotatedMinSVGY !== undefined && rotatedMaxSVGY !== undefined) {
+      positionAbove = Math.min(
+        positionAbove,
+        rotatedMinSVGY - elementBarHeight - offsetOnDiv * 2,
+      );
+      positionBelow = Math.max(positionBelow, rotatedMaxSVGY + offsetOnDiv * 2);
+    }
 
     let newYPosition: number;
     if (positionAbove >= 0) {
@@ -168,6 +209,8 @@ const InfiniteElementBarWrapper: React.FC<ElementBarWrapperProps> = ({
     elementBarHeight,
     containerDimensions.width,
     containerDimensions.height,
+    rotatedMinSVGY,
+    rotatedMaxSVGY,
   ]);
 
   return (

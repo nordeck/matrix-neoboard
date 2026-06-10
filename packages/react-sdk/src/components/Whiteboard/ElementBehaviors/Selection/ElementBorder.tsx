@@ -20,6 +20,7 @@ import { useElementOverrides } from '../../../ElementOverridesProvider';
 import { useLayoutState } from '../../../Layout';
 import { getRenderProperties } from '../../../elements/line/getRenderProperties';
 import { useSvgScaleContext } from '../../SvgScaleContext';
+import { getRotationTransformForElementsArrayWithCenterOffset } from '../Rotatable/rotatorMath';
 
 function SelectionAnchor({
   x,
@@ -83,93 +84,105 @@ export function ElementBorder({ elementIds, padding = 1 }: ElementBorderProps) {
     elements[0].kind === 'line' &&
     getRenderProperties(elements[0]);
 
+  const { rotationTransform } =
+    getRotationTransformForElementsArrayWithCenterOffset(elements, { x, y });
+
+  if (!isInSelectionMode) return <></>;
+
+  const solidLineBorder = () => {
+    return (
+      <g
+        transform={rotationTransform}
+        data-testid={`selection-solid-line-borders`}
+      >
+        <line
+          data-testid={`${elementIds[0]}-border-top`}
+          fill="none"
+          stroke={theme.palette.primary.main}
+          strokeWidth={selectionBorderWidth}
+          x1={selectionX}
+          x2={selectionX + selectionWidth}
+          y1={selectionY}
+          y2={selectionY}
+        />
+        <line
+          data-testid={`${elementIds[0]}-border-right`}
+          fill="none"
+          stroke={theme.palette.primary.main}
+          strokeWidth={selectionBorderWidth}
+          x1={selectionX + selectionWidth}
+          x2={selectionX + selectionWidth}
+          y1={selectionY}
+          y2={selectionY + selectionHeight}
+        />
+        <line
+          data-testid={`${elementIds[0]}-border-bottom`}
+          fill="none"
+          stroke={theme.palette.primary.main}
+          strokeWidth={selectionBorderWidth}
+          x1={selectionX + selectionWidth}
+          x2={selectionX}
+          y1={selectionY + selectionHeight}
+          y2={selectionY + selectionHeight}
+        />
+        <line
+          data-testid={`${elementIds[0]}-border-left`}
+          fill="none"
+          stroke={theme.palette.primary.main}
+          strokeWidth={selectionBorderWidth}
+          x1={selectionX}
+          x2={selectionX}
+          y1={selectionY + selectionHeight}
+          y2={selectionY}
+        />
+      </g>
+    );
+  };
+
   return (
-    <>
-      {isInSelectionMode && (
-        <g>
-          {!lineRenderProperties && (
-            <>
-              <line
-                data-testid={`${elementIds[0]}-border-top`}
-                fill="none"
-                stroke={theme.palette.primary.main}
-                strokeWidth={selectionBorderWidth}
-                x1={selectionX}
-                x2={selectionX + selectionWidth}
-                y1={selectionY}
-                y2={selectionY}
-              />
-              <line
-                data-testid={`${elementIds[0]}-border-right`}
-                fill="none"
-                stroke={theme.palette.primary.main}
-                strokeWidth={selectionBorderWidth}
-                x1={selectionX + selectionWidth}
-                x2={selectionX + selectionWidth}
-                y1={selectionY}
-                y2={selectionY + selectionHeight}
-              />
-              <line
-                data-testid={`${elementIds[0]}-border-bottom`}
-                fill="none"
-                stroke={theme.palette.primary.main}
-                strokeWidth={selectionBorderWidth}
-                x1={selectionX + selectionWidth}
-                x2={selectionX}
-                y1={selectionY + selectionHeight}
-                y2={selectionY + selectionHeight}
-              />
-              <line
-                data-testid={`${elementIds[0]}-border-left`}
-                fill="none"
-                stroke={theme.palette.primary.main}
-                strokeWidth={selectionBorderWidth}
-                x1={selectionX}
-                x2={selectionX}
-                y1={selectionY + selectionHeight}
-                y2={selectionY}
-              />
-            </>
-          )}
-          {lineRenderProperties ? (
-            <>
-              <SelectionAnchor
-                x={lineRenderProperties.points.start.x}
-                y={lineRenderProperties.points.start.y}
-                borderWidth={selectionBorderWidth}
-              />
-              <SelectionAnchor
-                x={lineRenderProperties.points.end.x}
-                y={lineRenderProperties.points.end.y}
-                borderWidth={selectionBorderWidth}
-              />
-            </>
-          ) : (
-            <>
-              <SelectionAnchor
-                x={selectionX}
-                y={selectionY}
-                borderWidth={selectionBorderWidth}
-              />
-              <SelectionAnchor
-                x={selectionX + selectionWidth}
-                y={selectionY}
-                borderWidth={selectionBorderWidth}
-              />
-              <SelectionAnchor
-                x={selectionX + selectionWidth}
-                y={selectionY + selectionHeight}
-                borderWidth={selectionBorderWidth}
-              />
-              <SelectionAnchor
-                x={selectionX}
-                y={selectionY + selectionHeight}
-                borderWidth={selectionBorderWidth}
-              />
-            </>
-          )}
+    <g>
+      {!lineRenderProperties && solidLineBorder()}
+
+      {lineRenderProperties ? (
+        <>
+          <SelectionAnchor
+            x={lineRenderProperties.points.start.x}
+            y={lineRenderProperties.points.start.y}
+            borderWidth={selectionBorderWidth}
+          />
+          <SelectionAnchor
+            x={lineRenderProperties.points.end.x}
+            y={lineRenderProperties.points.end.y}
+            borderWidth={selectionBorderWidth}
+          />
+        </>
+      ) : (
+        <g
+          transform={rotationTransform}
+          data-testid={`selection-anchors-shape`}
+        >
+          <SelectionAnchor
+            x={selectionX}
+            y={selectionY}
+            borderWidth={selectionBorderWidth}
+          />
+          <SelectionAnchor
+            x={selectionX + selectionWidth}
+            y={selectionY}
+            borderWidth={selectionBorderWidth}
+          />
+          <SelectionAnchor
+            x={selectionX + selectionWidth}
+            y={selectionY + selectionHeight}
+            borderWidth={selectionBorderWidth}
+          />
+          <SelectionAnchor
+            x={selectionX}
+            y={selectionY + selectionHeight}
+            borderWidth={selectionBorderWidth}
+          />
         </g>
       )}
-    </>
+    </g>
   );
 }

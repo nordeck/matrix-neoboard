@@ -20,6 +20,7 @@ import { DraggableCore, DraggableData, DraggableEvent } from 'react-draggable';
 import { useConnectionPoint } from '../../../ConnectionPointProvider';
 import { useSvgCanvasContext } from '../../SvgCanvas';
 import { useSvgScaleContext } from '../../SvgScaleContext';
+import { rotateCursor } from '../Rotatable/rotatorMath';
 import { findConnectData } from './findConnectData';
 import { HandlePosition, LineElementHandlePositionName } from './types';
 import { isLineElementHandlePosition } from './utils';
@@ -158,6 +159,7 @@ export type DragConnectData = {
 
 export type ResizeHandleProps = {
   position: HandlePosition;
+  rotation?: number;
   onDrag?: Dispatch<DragEvent>;
   onDragStart?: Dispatch<DragEvent>;
   onDragStop?: Dispatch<DragEvent>;
@@ -172,6 +174,7 @@ export function ResizeHandle(props: ResizeHandleProps) {
 
   const {
     position: { name },
+    rotation,
     onDrag,
     onDragStart,
     onDragStop,
@@ -273,6 +276,8 @@ export function ResizeHandle(props: ResizeHandleProps) {
     ev.stopPropagation();
   }, []);
 
+  const rotatedCursor = rotateCursor(cursor, rotation ?? 0);
+
   return (
     <DraggableCore
       // disable the hack since we already added it via <DraggableStyles>.
@@ -287,7 +292,7 @@ export function ResizeHandle(props: ResizeHandleProps) {
     >
       <rect
         data-testid={`resize-handle-${name}`}
-        cursor={cursor}
+        cursor={rotatedCursor}
         fill="transparent"
         height={height}
         ref={nodeRef}

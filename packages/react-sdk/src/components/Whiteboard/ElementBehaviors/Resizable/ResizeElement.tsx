@@ -40,6 +40,7 @@ import { useLayoutState } from '../../../Layout';
 import { getRenderProperties } from '../../../elements/line/getRenderProperties';
 import { useSvgCanvasContext } from '../../SvgCanvas';
 import { gridCellSize } from '../../constants';
+import { getRotationTransformForElementsArray } from '../Rotatable/rotatorMath';
 import {
   elementsUpdates,
   findElementAttachFrame,
@@ -60,6 +61,7 @@ export type ResizeHandleWrapperProps = {
   onDragStart: Dispatch<DragEvent>;
   onDragStop: Dispatch<DragEvent>;
   resizableProperties?: ResizableProperties;
+  rotation?: number;
 };
 
 export function ResizeHandleWrapper({
@@ -69,6 +71,7 @@ export function ResizeHandleWrapper({
   onDragStart,
   onDragStop,
   resizableProperties,
+  rotation,
 }: ResizeHandleWrapperProps) {
   const { isShowGrid } = useLayoutState();
   const { viewportWidth, viewportHeight } = useSvgCanvasContext();
@@ -104,6 +107,7 @@ export function ResizeHandleWrapper({
   return (
     <ResizeHandle
       position={handlePosition}
+      rotation={rotation}
       onDrag={handleDrag}
       onDragStart={onDragStart}
       onDragStop={onDragStop}
@@ -308,10 +312,13 @@ export function ResizeElement({ elementIds }: ResizeElementProps) {
   const invertLockAspectRatio =
     activeElements.length > 1 || activeElements[0].type === 'image';
 
+  const { rotationValue, rotationTransform } =
+    getRotationTransformForElementsArray(activeElements);
+
   return (
     <g
       data-testid="resize-element"
-      transform={`translate(${offsetX} ${offsetY})`}
+      transform={`translate(${offsetX} ${offsetY}) ${rotationTransform}`}
     >
       <ResizeHandleWrapper
         handlePosition={{
@@ -324,6 +331,7 @@ export function ResizeElement({ elementIds }: ResizeElementProps) {
         onDragStop={handleDragStop}
         resizableProperties={resizableProperties}
         invertLockAspectRatio={invertLockAspectRatio}
+        rotation={rotationValue}
       />
 
       <ResizeHandleWrapper
@@ -337,6 +345,7 @@ export function ResizeElement({ elementIds }: ResizeElementProps) {
         onDragStop={handleDragStop}
         resizableProperties={resizableProperties}
         invertLockAspectRatio={invertLockAspectRatio}
+        rotation={rotationValue}
       />
 
       <ResizeHandleWrapper
@@ -350,6 +359,7 @@ export function ResizeElement({ elementIds }: ResizeElementProps) {
         onDragStop={handleDragStop}
         resizableProperties={resizableProperties}
         invertLockAspectRatio={invertLockAspectRatio}
+        rotation={rotationValue}
       />
 
       <ResizeHandleWrapper
@@ -363,6 +373,7 @@ export function ResizeElement({ elementIds }: ResizeElementProps) {
         onDragStop={handleDragStop}
         resizableProperties={resizableProperties}
         invertLockAspectRatio={invertLockAspectRatio}
+        rotation={rotationValue}
       />
 
       <ResizeHandleWrapper
@@ -376,6 +387,7 @@ export function ResizeElement({ elementIds }: ResizeElementProps) {
         onDragStop={handleDragStop}
         resizableProperties={resizableProperties}
         invertLockAspectRatio={invertLockAspectRatio}
+        rotation={rotationValue}
       />
 
       <ResizeHandleWrapper
@@ -389,6 +401,7 @@ export function ResizeElement({ elementIds }: ResizeElementProps) {
         onDragStop={handleDragStop}
         resizableProperties={resizableProperties}
         invertLockAspectRatio={invertLockAspectRatio}
+        rotation={rotationValue}
       />
 
       <ResizeHandleWrapper
@@ -402,6 +415,7 @@ export function ResizeElement({ elementIds }: ResizeElementProps) {
         onDragStop={handleDragStop}
         resizableProperties={resizableProperties}
         invertLockAspectRatio={invertLockAspectRatio}
+        rotation={rotationValue}
       />
 
       <ResizeHandleWrapper
@@ -415,6 +429,7 @@ export function ResizeElement({ elementIds }: ResizeElementProps) {
         onDragStop={handleDragStop}
         resizableProperties={resizableProperties}
         invertLockAspectRatio={invertLockAspectRatio}
+        rotation={rotationValue}
       />
     </g>
   );

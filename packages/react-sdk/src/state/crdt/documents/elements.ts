@@ -19,6 +19,7 @@ import loglevel from 'loglevel';
 // Do not import from the index file to prevent cyclic dependencies
 import { clamp } from 'lodash';
 import { defaultAcceptedImageTypes } from '../../../components/ImageUpload/consts';
+import { getMinMaxFromPoints } from '../../../components/Whiteboard/ElementBehaviors/Rotatable/rotatorMath';
 import { Elements } from '../../types';
 import {
   BoundingRect,
@@ -77,6 +78,7 @@ export type ShapeElement = ElementBase & {
   textFontFamily: TextFontFamily;
   connectedPaths?: string[];
   attachedFrame?: string;
+  rotation?: number;
 };
 
 const emptyCoordinateSchema = Joi.any().valid(null, 0, '');
@@ -103,6 +105,7 @@ export const shapeElementSchema = elementBaseSchema
     textFontFamily: Joi.string().strict().default('Inter'),
     connectedPaths: Joi.array().items(Joi.string().not(...disallowElementIds)),
     attachedFrame: Joi.string().not(...disallowElementIds),
+    rotation: Joi.number().strict().optional(),
   })
   .required();
 
@@ -175,6 +178,7 @@ export type ImageElement = ElementBase & {
    */
   mimeType?: ImageMimeType;
   attachedFrame?: string;
+  rotation?: number;
 };
 
 export const imageElementSchema = elementBaseSchema
@@ -192,6 +196,7 @@ export const imageElementSchema = elementBaseSchema
     width: Joi.number().strict().empty(emptyCoordinateSchema).default(1),
     height: Joi.number().strict().empty(emptyCoordinateSchema).default(1),
     attachedFrame: Joi.string().not(...disallowElementIds),
+    rotation: Joi.number().strict().optional(),
   })
   .required();
 
@@ -221,35 +226,81 @@ export function calculateBoundingRectForElements(
 ): BoundingRect {
   const element = elements.length === 1 ? elements[0] : undefined;
 
+  const getBoundingPointsForShape = (e: Element): Point[] => {
+    if (isRotateableElement(e)) {
+      const rot = e.rotation ?? 0;
+
+      if (!rot) {
+        return [
+          { x: e.position.x, y: e.position.y },
+          { x: e.position.x + e.width, y: e.position.y + e.height },
+        ];
+      }
+
+      const { x, y } = e.position;
+      const { width, height } = e;
+
+      const center = {
+        x: x + width / 2,
+        y: y + height / 2,
+      };
+
+      const points: Point[] = [
+        { x: x, y: y },
+        { x: x + width, y: y },
+        { x: x, y: y + height },
+        { x: x + width, y: y + height },
+      ];
+
+      const minmax = getMinMaxFromPoints(points, rot, center);
+
+      return [
+        { x: minmax.min.x, y: minmax.min.y },
+        { x: minmax.max.x, y: minmax.max.y },
+      ];
+    }
+
+    if (e.type === 'path') {
+      return e.points.map((p) => ({
+        x: e.position.x + p.x,
+        y: e.position.y + p.y,
+      }));
+    }
+
+    // default way to get the boundary
+    return [
+      { x: e.position.x, y: e.position.y },
+      { x: e.position.x + e.width, y: e.position.y + e.height },
+    ];
+  };
+
   const elementsBoundingRect =
     elements.length > 1
       ? calculateBoundingRectForPoints(
-          elements.flatMap((e) =>
-            e.type === 'path'
-              ? e.points.map((p) => ({
-                  x: e.position.x + p.x,
-                  y: e.position.y + p.y,
-                }))
-              : [
-                  { x: e.position.x, y: e.position.y },
-                  { x: e.position.x + e.width, y: e.position.y + e.height },
-                ],
-          ),
+          elements.flatMap((e) => getBoundingPointsForShape(e) || []),
         )
       : undefined;
 
-  const x = element?.position.x ?? elementsBoundingRect?.offsetX ?? 0;
-  const y = element?.position.y ?? elementsBoundingRect?.offsetY ?? 0;
+  // single element selected
+  if (element) {
+    const x = element?.position.x ?? 0;
+    const y = element?.position.y ?? 0;
+    const height =
+      element.type === 'path'
+        ? calculateBoundingRectForPoints(element.points).height
+        : (element.height ?? 0);
+    const width =
+      element.type === 'path'
+        ? calculateBoundingRectForPoints(element.points).width
+        : (element.width ?? 0);
+    return { offsetX: x, offsetY: y, width, height };
+  }
 
-  const height =
-    element?.type === 'path'
-      ? calculateBoundingRectForPoints(element.points).height
-      : (element?.height ?? elementsBoundingRect?.height ?? 0);
-  const width =
-    element?.type === 'path'
-      ? calculateBoundingRectForPoints(element.points).width
-      : (element?.width ?? elementsBoundingRect?.width ?? 0);
-
+  // multi-select
+  const x = elementsBoundingRect?.offsetX ?? 0;
+  const y = elementsBoundingRect?.offsetY ?? 0;
+  const height = elementsBoundingRect?.height ?? 0;
+  const width = elementsBoundingRect?.width ?? 0;
   return { offsetX: x, offsetY: y, width, height };
 }
 
@@ -346,6 +397,12 @@ export function isShapeElementPair(
   pair: [string, Element],
 ): pair is [string, ShapeElement] {
   return pair[1].type === 'shape';
+}
+
+export function isRotateableElement(
+  element: Element,
+): element is ShapeElement | ImageElement {
+  return element.type === 'shape' || element.type === 'image';
 }
 
 export function modifyElementPosition<T extends ElementBase>(
