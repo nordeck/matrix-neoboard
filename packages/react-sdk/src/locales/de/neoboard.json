@@ -363,6 +363,14 @@
     "title": "Hochladen",
     "upload": "Hochladen"
   },
+  "whiteboardUpdateDialog": {
+    "content": "Deine vorhandenen Folien werden nun als Rahmen dargestellt - eine neue Art, deine Inhalte zu strukturieren. Bitte lade ein Backup deines Whiteboards herunter bevor du fortfährst.",
+    "contentUpgradeRequired": "Dieses Whiteboard erfordert eine aktuellere Version von NeoBoard, das Rahmen statt Folien unterstützt.",
+    "migrationFailed": "Aktualisierung von Folien zu Rahmen fehlgeschlagen",
+    "title": "Folien sind jetzt Rahmen",
+    "titleUpgradeRequired": "Aktualisierung erforderlich",
+    "update": "Fortfahren"
+  },
   "zoomBar": {
     "reset": "Vergrößerung auf 100 % zurücksetzen",
     "title": "Vergrößerungseinstellungen",
