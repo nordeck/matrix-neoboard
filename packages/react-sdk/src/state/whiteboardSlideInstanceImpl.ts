@@ -754,9 +754,8 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
   }
 
   getActiveElementIds(): string[] {
-    return this.activeElementIds.filter((activeElementId) =>
-      this.getElementIds().includes(activeElementId),
-    );
+    const elementIdSet = new Set(this.getElementIds());
+    return this.activeElementIds.filter((id) => elementIdSet.has(id));
   }
 
   observeActiveElementId(): Observable<string | undefined> {
