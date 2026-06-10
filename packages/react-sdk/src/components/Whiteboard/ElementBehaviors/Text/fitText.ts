@@ -20,6 +20,28 @@ const minFontSize = 10;
 const maxFontSize = 800;
 const maxSteps = 10;
 
+// Cache keyed by all inputs that affect the binary-search result, storing only
+// the fontSize. paddingTop depends on element.clientHeight after layout and is
+// always recomputed live — caching it would return stale values if the same key
+// is used in a context with different layout state (e.g. test environments).
+// Avoids re-running 10× DOM style mutations + getBoundingClientRect on every render
+// when nothing has changed (e.g. idle dashboard with many text elements).
+const fontSizeCache = new Map<string, number>();
+
+function buildCacheKey(
+  width: number,
+  height: number,
+  content: { innerHTML?: string; innerText: string },
+  opts: {
+    disableLigatures?: boolean;
+    fontSize?: number;
+    fontWeightBold?: boolean;
+    fontStyleItalic?: boolean;
+  },
+): string {
+  return `${width}|${height}|${content.innerHTML ?? content.innerText}|${opts.fontSize}|${opts.fontWeightBold}|${opts.fontStyleItalic}|${opts.disableLigatures}`;
+}
+
 export function fitText(
   element: HTMLElement,
   fontSize?: number,
@@ -104,6 +126,9 @@ export function getTextSize(
   width = Math.round(width);
   height = Math.round(height);
 
+  const cacheKey = buildCacheKey(width, height, content, opts);
+  const cachedFontSize = fontSizeCache.get(cacheKey);
+
   const { textElement: element, wrapperElement } = getTemporaryElement();
 
   if (opts.fontSize === undefined) {
@@ -138,6 +163,8 @@ export function getTextSize(
   let fontSize: number;
   if (opts.fontSize !== undefined) {
     fontSize = opts.fontSize;
+  } else if (cachedFontSize !== undefined) {
+    fontSize = cachedFontSize;
   } else {
     // Do a binary search to find the best matching text size, in a few steps
     let stepSize = maxFontSize - minFontSize;
@@ -161,11 +188,13 @@ export function getTextSize(
     }
 
     fontSize = Math.round(fontSize);
+    fontSizeCache.set(cacheKey, fontSize);
   }
 
   element.style.fontSize = `${fontSize}px`;
 
-  // calculate the padding to center the text in the box
+  // calculate the padding to center the text in the box — always computed live
+  // from the DOM so it reflects the actual rendered height at this font size.
   const paddingTop = Math.max(0, (height - element.clientHeight) / 2);
 
   element.innerText = '';
