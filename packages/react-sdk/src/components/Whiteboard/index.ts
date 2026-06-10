@@ -15,8 +15,6 @@
  */
 
 export {
-  frameHeight,
-  frameWidth,
   gridCellSize,
   infiniteCanvasMode,
   matrixRtcMode,

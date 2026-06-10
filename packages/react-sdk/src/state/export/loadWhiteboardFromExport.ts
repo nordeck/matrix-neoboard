@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import { isInfiniteCanvasMode } from '../../lib';
 import {
   ChangeFn,
   generateAddElement,
@@ -25,8 +24,12 @@ import {
   generateSetSlideFrameElementIds,
   getNormalizedSlideIds,
   WhiteboardDocument,
+  WhiteboardDocumentVersion,
 } from '../crdt';
-import { WhiteboardDocumentExport } from './whiteboardDocumentExport';
+import {
+  WhiteboardDocumentExport,
+  whiteboardDocumentVersionToExportString,
+} from './whiteboardDocumentExport';
 
 /**
  * Load a whiteboard from an export file.
@@ -40,6 +43,13 @@ export function generateLoadWhiteboardFromExport(
   ownUserId: string,
   atSlideIndex?: number,
 ): ChangeFn<WhiteboardDocument> {
+  const isFramesExport =
+    whiteboard.version ===
+    whiteboardDocumentVersionToExportString(WhiteboardDocumentVersion.v1);
+  if (isFramesExport && whiteboard.whiteboard.slides.length !== 1) {
+    throw new Error('Must have a single slide');
+  }
+
   return (doc) => {
     if (atSlideIndex === undefined) {
       const oldSlideIds = getNormalizedSlideIds(doc);
@@ -53,7 +63,7 @@ export function generateLoadWhiteboardFromExport(
       const [addSlide, slideId] = generateAddSlide();
       addSlide(doc);
 
-      if (isInfiniteCanvasMode()) {
+      if (isFramesExport) {
         const setSlideFrameElementIds =
           generateSetSlideFrameElementIds(slideId);
         setSlideFrameElementIds(doc);

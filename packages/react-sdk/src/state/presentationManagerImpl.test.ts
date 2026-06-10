@@ -104,6 +104,8 @@ describe('presentationManager', () => {
       getWhiteboardStatistics: vi.fn(),
       import: vi.fn(),
       isLoading: vi.fn(),
+      getMismatchedSnapshotDetails: vi.fn(),
+      observeMismatchedSnapshotDetails: vi.fn(),
       moveSlide: vi.fn(),
       observeActiveSlideId: vi
         .fn()
@@ -124,6 +126,7 @@ describe('presentationManager', () => {
           observeActiveFrameElementIdSubject.next(activeFrameElementId),
         ),
       undo: vi.fn(),
+      mergeMismatchedSnapshot: vi.fn(),
       destroy: vi.fn(),
       persist: vi.fn(),
     };

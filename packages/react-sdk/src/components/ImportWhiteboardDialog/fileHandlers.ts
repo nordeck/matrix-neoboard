@@ -15,12 +15,14 @@
  */
 
 import { getLogger } from 'loglevel';
+import { isInfiniteCanvasMode } from '../../lib';
 import {
   ImageElement,
   ImageMimeType,
   isValidWhiteboardExportDocument,
   positionElementsToWhiteboard,
   WhiteboardDocumentExport,
+  WhiteboardDocumentVersion,
 } from '../../state';
 import { SlideExport } from '../../state/export/whiteboardDocumentExport';
 import {
@@ -171,7 +173,13 @@ export function readNWB(file: File): Promise<{
       try {
         const jsonData = JSON.parse(reader.result);
 
-        if (isValidWhiteboardExportDocument(jsonData)) {
+        const whiteboardDocumentVersion = isInfiniteCanvasMode()
+          ? WhiteboardDocumentVersion.v1
+          : WhiteboardDocumentVersion.v0;
+
+        if (
+          isValidWhiteboardExportDocument(whiteboardDocumentVersion, jsonData)
+        ) {
           resolve({
             name: file.name,
             isError: false,
