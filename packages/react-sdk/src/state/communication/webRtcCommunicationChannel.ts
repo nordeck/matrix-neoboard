@@ -22,7 +22,6 @@ import {
   NEVER,
   Observable,
   Subject,
-  Subscription,
   distinctUntilChanged,
   filter,
   firstValueFrom,
@@ -60,14 +59,6 @@ export class WebRtcCommunicationChannel implements CommunicationChannel {
   private readonly statistics: CommunicationChannelStatistics =
     emptyCommunicationChannelStatistics();
   private readonly peerConnections: PeerConnection[] = [];
-  // Subscriptions created per peer connection in handleSessionJoined, keyed by
-  // session.sessionId. Stored so they can be explicitly unsubscribed when the
-  // peer leaves or the channel is destroyed, as a safety net alongside the
-  // observable completion that close() triggers.
-  private readonly peerConnectionSubscriptions = new Map<
-    string,
-    Subscription[]
-  >();
   private turnServers: TurnServer | undefined;
 
   constructor(
@@ -129,7 +120,6 @@ export class WebRtcCommunicationChannel implements CommunicationChannel {
         if (index >= 0) {
           this.peerConnections[index].close();
           this.peerConnections.splice(index, 1);
-          this.unsubscribePeerConnection(session.sessionId);
         }
       });
 
@@ -184,23 +174,15 @@ export class WebRtcCommunicationChannel implements CommunicationChannel {
   destroy() {
     this.logger.log('Destroying communication channel');
 
-    // Unsubscribe any peer connection subscriptions not yet cleaned up by
-    // session-left events (e.g. if destroy is called before the peer leaves).
-    for (const connectionId of this.peerConnectionSubscriptions.keys()) {
-      this.unsubscribePeerConnection(connectionId);
-    }
+    // Close any peer connections that are still open (e.g. if destroy is
+    // called before the peers leave). Closing completes the peer connection
+    // subjects, which also tears down the per-peer subscriptions.
+    this.peerConnections.forEach((peerConnection) => peerConnection.close());
+    this.peerConnections.length = 0;
 
     this.messagesSubject.complete();
     this.statisticsSubject.complete();
     this.destroySubject.next();
-  }
-
-  private unsubscribePeerConnection(connectionId: string): void {
-    const subs = this.peerConnectionSubscriptions.get(connectionId);
-    if (subs) {
-      subs.forEach((s) => s.unsubscribe());
-      this.peerConnectionSubscriptions.delete(connectionId);
-    }
   }
 
   getStatistics(): CommunicationChannelStatistics {
@@ -282,12 +264,12 @@ export class WebRtcCommunicationChannel implements CommunicationChannel {
     );
     this.peerConnections.push(peerConnection);
 
-    const messagesSub = peerConnection
+    peerConnection
       .observeMessages()
       .pipe(takeUntil(this.destroySubject))
       .subscribe((m) => this.messagesSubject.next(m));
 
-    const statisticsSub = peerConnection
+    peerConnection
       .observeStatistics()
       .pipe(takeUntil(this.destroySubject))
       .subscribe({
@@ -301,11 +283,6 @@ export class WebRtcCommunicationChannel implements CommunicationChannel {
           this.addPeerConnectionStatistics(peerConnection.getConnectionId());
         },
       });
-
-    this.peerConnectionSubscriptions.set(session.sessionId, [
-      messagesSub,
-      statisticsSub,
-    ]);
   }
 
   private addPeerConnectionStatistics(

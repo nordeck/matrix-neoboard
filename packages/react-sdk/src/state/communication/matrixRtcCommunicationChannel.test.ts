@@ -28,7 +28,10 @@ import {
   vi,
 } from 'vitest';
 import { mockDocumentVisibilityState } from '../../lib/testUtils/domTestUtils';
-import { PeerConnectionStatistics } from './connection';
+import {
+  MatrixRtcPeerConnection,
+  PeerConnectionStatistics,
+} from './connection';
 import { PeerConnection } from './connection/types';
 import { MatrixRtcSessionManagerImpl, RTCFocus } from './discovery';
 import AutoDiscovery from './discovery/autodiscovery';
@@ -258,6 +261,35 @@ describe('MatrixRtcCommunicationChannel', () => {
     await vi.waitFor(() => {
       expect(sessionManager.leave).toHaveBeenCalled();
     });
+  });
+
+  it('should not accumulate peer connections across reconnects', async () => {
+    await vi.waitFor(() => {
+      expect(MatrixRtcPeerConnection).toHaveBeenCalledTimes(1);
+    });
+
+    mockPeerConnection.close.mockClear();
+
+    // Trigger three reconnections via focus updates.
+    activeFocusSubject.next(mockActiveFocus);
+    await vi.waitFor(() => {
+      expect(MatrixRtcPeerConnection).toHaveBeenCalledTimes(2);
+    });
+
+    activeFocusSubject.next(mockActiveFocus);
+    await vi.waitFor(() => {
+      expect(MatrixRtcPeerConnection).toHaveBeenCalledTimes(3);
+    });
+
+    activeFocusSubject.next(mockActiveFocus);
+    await vi.waitFor(() => {
+      expect(MatrixRtcPeerConnection).toHaveBeenCalledTimes(4);
+    });
+
+    // Each reconnect must close only the single active peer connection. Without
+    // pruning the array, disconnect() re-closes every previously created
+    // connection, so close() ends up being called 1 + 2 + 3 = 6 times.
+    expect(mockPeerConnection.close).toHaveBeenCalledTimes(3);
   });
 
   it('should leave after destroying', async () => {
