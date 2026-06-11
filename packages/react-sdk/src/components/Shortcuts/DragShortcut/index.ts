@@ -14,6 +14,4 @@
  * limitations under the License.
  */
 
-export { DraggableStyles } from './DraggableStyles';
-export { MoveableElement } from './MoveableElement';
-export { moveActiveElementsOverrides } from './utils';
+export { DragShortcut } from './DragShortcut';

@@ -18,31 +18,51 @@ import { first, last } from 'lodash';
 import { useCallback } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import {
-  useActiveElement,
+  useActiveElements,
   useSlideElementIds,
   useWhiteboardSlideInstance,
 } from '../../../state';
 import { HOTKEY_SCOPE_WHITEBOARD } from '../../WhiteboardHotkeysProvider';
 
 export function ReorderElementsShortcuts() {
-  const { activeElementId } = useActiveElement();
+  const { activeElementIds } = useActiveElements();
   const slideInstance = useWhiteboardSlideInstance();
   const elementIds = useSlideElementIds();
 
-  const canMoveUp = activeElementId && last(elementIds) !== activeElementId;
-  const canMoveDown = activeElementId && first(elementIds) !== activeElementId;
+  const canMoveUp =
+    activeElementIds.length > 0 &&
+    activeElementIds.some((id) => last(elementIds) !== id);
+  const canMoveDown =
+    activeElementIds.length > 0 &&
+    activeElementIds.some((id) => first(elementIds) !== id);
 
   const handleClickBringForward = useCallback(() => {
-    if (activeElementId && canMoveUp) {
-      slideInstance.moveElementUp(activeElementId);
+    if (activeElementIds.length > 0 && canMoveUp) {
+      activeElementIds.forEach((activeElementId) =>
+        slideInstance.moveElementUp(activeElementId),
+      );
     }
-  }, [activeElementId, canMoveUp, slideInstance]);
+  }, [activeElementIds, canMoveUp, slideInstance]);
 
   const handleClickBringBackward = useCallback(() => {
-    if (activeElementId && canMoveDown) {
-      slideInstance.moveElementDown(activeElementId);
+    if (activeElementIds.length > 0 && canMoveDown) {
+      activeElementIds.forEach((activeElementId) =>
+        slideInstance.moveElementDown(activeElementId),
+      );
     }
-  }, [activeElementId, canMoveDown, slideInstance]);
+  }, [activeElementIds, canMoveDown, slideInstance]);
+
+  const handleClickBringToFront = useCallback(() => {
+    if (activeElementIds.length > 0) {
+      slideInstance.moveElementsToTop(activeElementIds);
+    }
+  }, [activeElementIds, slideInstance]);
+
+  const handleClickBringToBack = useCallback(() => {
+    if (activeElementIds.length > 0) {
+      slideInstance.moveElementsToBottom(activeElementIds);
+    }
+  }, [activeElementIds, slideInstance]);
 
   useHotkeys(
     ['ctrl+arrowup', 'meta+arrowup'],
@@ -64,6 +84,28 @@ export function ReorderElementsShortcuts() {
       scopes: HOTKEY_SCOPE_WHITEBOARD,
     },
     [handleClickBringBackward],
+  );
+
+  useHotkeys(
+    ['ctrl+shift+arrowup', 'meta+shift+arrowup'],
+    handleClickBringToFront,
+    {
+      preventDefault: true,
+      enableOnContentEditable: true,
+      scopes: HOTKEY_SCOPE_WHITEBOARD,
+    },
+    [handleClickBringToFront],
+  );
+
+  useHotkeys(
+    ['ctrl+shift+arrowdown', 'meta+shift+arrowdown'],
+    handleClickBringToBack,
+    {
+      preventDefault: true,
+      enableOnContentEditable: true,
+      scopes: HOTKEY_SCOPE_WHITEBOARD,
+    },
+    [handleClickBringToBack],
   );
 
   return null;

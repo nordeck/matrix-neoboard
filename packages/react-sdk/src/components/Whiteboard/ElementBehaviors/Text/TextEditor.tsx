@@ -26,10 +26,12 @@ import {
   useRef,
   useState,
 } from 'react';
+import { useHotkeys } from 'react-hotkeys-hook';
 import { useFontsLoaded } from '../../../../lib';
 import { isEmptyText } from '../../../../lib/text-formatting';
 import { TextAlignment } from '../../../../state';
 import {
+  HOTKEY_SCOPE_GLOBAL,
   HOTKEY_SCOPE_WHITEBOARD,
   usePauseHotkeysScope,
 } from '../../../WhiteboardHotkeysProvider';
@@ -198,6 +200,26 @@ export function TextEditor({
       }
     }
   }, [textRef, content, onChange]);
+
+  const handleEscape = useCallback(() => {
+    if (isEditMode) {
+      onBlur();
+      setEditMode(false);
+      setTextToolsEnabled(false);
+    }
+  }, [isEditMode, onBlur, setTextToolsEnabled]);
+
+  useHotkeys(
+    ['Escape'],
+    handleEscape,
+    {
+      preventDefault: true,
+      enableOnContentEditable: true,
+      scopes: [HOTKEY_SCOPE_GLOBAL],
+      enableOnFormTags: true,
+    },
+    [handleEscape],
+  );
 
   const handlePaste = useCallback(
     (event: ClipboardEvent) => {
