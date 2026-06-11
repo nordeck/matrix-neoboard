@@ -132,14 +132,17 @@ export function TextEditor({
   const [isEditMode, setEditMode] = useState(editModeOnMount);
   usePauseHotkeysScope(HOTKEY_SCOPE_WHITEBOARD, isEditMode && editable);
 
+  const setTextToolsEnabledRef = useRef(setTextToolsEnabled);
+  setTextToolsEnabledRef.current = setTextToolsEnabled;
+
   useEffect(() => {
     if (!editable && isEditMode) {
       onBlur();
 
       setEditMode(false);
-      setTextToolsEnabled(false);
+      setTextToolsEnabledRef.current(false);
     }
-  }, [editable, isEditMode, onBlur, setTextToolsEnabled]);
+  }, [editable, isEditMode, onBlur]);
 
   const handleDoubleClick = useCallback(
     (event: MouseEvent) => {
@@ -149,12 +152,12 @@ export function TextEditor({
 
       if (editable) {
         setEditMode(true);
-        setTextToolsEnabled(true);
+        setTextToolsEnabledRef.current(true);
       } else {
         event.preventDefault();
       }
     },
-    [editable, isEditMode, setTextToolsEnabled],
+    [editable, isEditMode],
   );
 
   const handleFocus = useCallback(() => {
@@ -181,11 +184,11 @@ export function TextEditor({
       if (textRef.current) {
         fitText(textRef.current, fontSize, contentBold, contentItalic);
         if (!isEmptyText(textRef.current.innerText)) {
-          setTextToolsEnabled(true);
+          setTextToolsEnabledRef.current(true);
         }
       }
     });
-  }, [fontSize, contentBold, contentItalic, setTextToolsEnabled]);
+  }, [fontSize, contentBold, contentItalic]);
 
   const handleKeyUp = useCallback(() => {
     if (textRef.current) {
