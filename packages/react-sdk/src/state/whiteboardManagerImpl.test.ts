@@ -15,6 +15,7 @@
  */
 
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
+import { NEVER } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { mockWhiteboard } from '../lib/testUtils/matrixTestUtils';
 import { createStore } from '../store';
@@ -29,16 +30,8 @@ vi.mock('./communication/connection', async (importOriginal) => {
     ...original,
     WebRtcPeerConnection: vi.fn().mockImplementation(() => {
       return {
-        observeMessages: () => {
-          return {
-            subscribe: () => {},
-          };
-        },
-        observeStatistics: () => {
-          return {
-            subscribe: () => {},
-          };
-        },
+        observeMessages: () => NEVER,
+        observeStatistics: () => NEVER,
       };
     }),
   };
