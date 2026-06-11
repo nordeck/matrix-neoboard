@@ -249,16 +249,25 @@ export const ConnectionStateProvider: React.FC<PropsWithChildren> = function ({
     setSnapshotLoadDialogOpen(false);
   }, [setSnapshotLoadDialogOpen]);
 
+  const ctx = useMemo(
+    () => ({
+      handleCloseConnectionStateDialog,
+      connectionState,
+      connectionStateDialogOpen,
+      handleCloseSnapshotLoadDialog,
+      snapshotLoadDialogOpen,
+    }),
+    [
+      handleCloseConnectionStateDialog,
+      connectionState,
+      connectionStateDialogOpen,
+      handleCloseSnapshotLoadDialog,
+      snapshotLoadDialogOpen,
+    ],
+  );
+
   return (
-    <ConnectionStateContext.Provider
-      value={{
-        handleCloseConnectionStateDialog,
-        connectionState,
-        connectionStateDialogOpen,
-        handleCloseSnapshotLoadDialog,
-        snapshotLoadDialogOpen,
-      }}
-    >
+    <ConnectionStateContext.Provider value={ctx}>
       {children}
     </ConnectionStateContext.Provider>
   );

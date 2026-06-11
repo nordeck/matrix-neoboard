@@ -14,7 +14,13 @@
  * limitations under the License.
  */
 
-import { PropsWithChildren, createContext, useCallback, useState } from 'react';
+import {
+  PropsWithChildren,
+  createContext,
+  useCallback,
+  useMemo,
+  useState,
+} from 'react';
 import { FileRejection, useDropzone } from 'react-dropzone';
 import { ImportWhiteboardDialog } from './ImportWhiteboardDialog';
 import { ImportedWhiteboard } from './types';
@@ -60,11 +66,6 @@ export function ImportWhiteboardDialogProvider({
     [setOpenImportWhiteboardDialog, setImportedData],
   );
 
-  const showImportWhiteboardDialog = (atSlideIndex?: number) => {
-    setAtSlideIndex(atSlideIndex);
-    inputRef.current?.click();
-  };
-
   const {
     getInputProps,
     getRootProps,
@@ -83,12 +84,21 @@ export function ImportWhiteboardDialogProvider({
     noKeyboard: true,
   });
 
+  const showImportWhiteboardDialog = useCallback(
+    (atSlideIndex?: number) => {
+      setAtSlideIndex(atSlideIndex);
+      inputRef.current?.click();
+    },
+    [inputRef],
+  );
+
+  const ctx = useMemo(
+    () => ({ showImportWhiteboardDialog }),
+    [showImportWhiteboardDialog],
+  );
+
   return (
-    <ImportWhiteboardDialogContext.Provider
-      value={{
-        showImportWhiteboardDialog,
-      }}
-    >
+    <ImportWhiteboardDialogContext.Provider value={ctx}>
       <div {...getRootProps()}></div>
       {/* We are hiding it for screen readers and instead expect the dialog to be used */}
       <input

@@ -16,7 +16,13 @@
 
 import { useWidgetApi } from '@matrix-widget-toolkit/react';
 import { TFunction } from 'i18next';
-import { PropsWithChildren, createContext, useCallback, useRef } from 'react';
+import {
+  PropsWithChildren,
+  createContext,
+  useCallback,
+  useMemo,
+  useRef,
+} from 'react';
 import { ErrorCode, FileRejection } from 'react-dropzone';
 import { useTranslation } from 'react-i18next';
 import { uint8ArrayToMimeType } from '../../imageUtils';
@@ -213,8 +219,13 @@ export function ImageUploadProvider({ children }: PropsWithChildren<{}>) {
     ],
   );
 
+  const ctx = useMemo(
+    () => ({ handleDrop, maxUploadSizeBytes }),
+    [handleDrop, maxUploadSizeBytes],
+  );
+
   return (
-    <ImageUploadContext.Provider value={{ handleDrop, maxUploadSizeBytes }}>
+    <ImageUploadContext.Provider value={ctx}>
       {children}
     </ImageUploadContext.Provider>
   );
