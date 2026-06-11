@@ -23,6 +23,7 @@ import { useTranslation } from 'react-i18next';
 import { useGuidedTour } from '../GuidedTour';
 import { ToolbarSubMenu } from '../common/Toolbar';
 import { InfoDialog } from './InfoDialog';
+import { ShortcutsDialog } from './ShortcutsDialog';
 
 export function HelpMenu() {
   const { t } = useTranslation('neoboard');
@@ -47,14 +48,24 @@ export function HelpMenu() {
   }, [handleClose, restartGuidedTour]);
 
   const [openAbout, setOpenAbout] = useState(false);
+  const [openShortcuts, setOpenShortcuts] = useState(false);
 
   const handleClickAbout = useCallback(() => {
     setOpenAbout(true);
     handleClose();
   }, [handleClose]);
 
+  const handleClickShortcuts = useCallback(() => {
+    setOpenShortcuts(true);
+    handleClose();
+  }, [handleClose]);
+
   const handleCloseAbout = useCallback(() => {
     setOpenAbout(false);
+  }, []);
+
+  const handleCloseShortcuts = useCallback(() => {
+    setOpenShortcuts(false);
   }, []);
 
   const menuTitle = t('helpCenter.menu.title', 'Help');
@@ -99,14 +110,16 @@ export function HelpMenu() {
           }),
           [handleClose],
         )}
-        MenuListProps={useMemo(
-          () => ({
-            'aria-labelledby': buttonId,
-            dense: true,
-            sx: { minWidth: 212 },
-          }),
-          [buttonId],
-        )}
+        slotProps={{
+          list: useMemo(
+            () => ({
+              'aria-labelledby': buttonId,
+              dense: true,
+              sx: { minWidth: 212 },
+            }),
+            [buttonId],
+          ),
+        }}
         id={menuId}
       >
         {helpCenterUrl && (
@@ -127,6 +140,11 @@ export function HelpMenu() {
             {t('helpCenter.menu.resetOnboarding', 'Reset onboarding')}
           </ListItemText>
         </MenuItem>
+        <MenuItem onClick={handleClickShortcuts}>
+          <ListItemText>
+            {t('helpCenter.menu.keyboardShortcuts', 'Keyboard shortcuts')}
+          </ListItemText>
+        </MenuItem>
 
         {!embedded && (
           <MenuItem onClick={handleClickAbout}>
@@ -138,6 +156,7 @@ export function HelpMenu() {
       </Menu>
 
       <InfoDialog open={openAbout} onClose={handleCloseAbout} />
+      <ShortcutsDialog open={openShortcuts} onClose={handleCloseShortcuts} />
     </>
   );
 }

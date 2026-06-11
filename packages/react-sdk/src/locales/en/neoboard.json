@@ -227,8 +227,29 @@
     "menu": {
       "about": "About NeoBoard",
       "helpCenter": "Help Center",
+      "keyboardShortcuts": "Keyboard shortcuts",
       "resetOnboarding": "Reset onboarding",
       "title": "Help"
+    },
+    "shortcuts": {
+      "close": "Close",
+      "elementOperations": {
+        "copy": "Copy selected element(s)",
+        "duplicate": "Duplicate selected element(s)",
+        "escape": "Unselect",
+        "move": "Move element(s) on the board",
+        "paste": "Paste element(s)",
+        "redo": "Redo",
+        "reorder": {
+          "back": "Move element(s) to back",
+          "down": "Move element one layer down",
+          "front": "Move element(s) to front",
+          "up": "Move element one layer up"
+        },
+        "selectAll": "Select all",
+        "undo": "Undo"
+      },
+      "title": "Keyboard shortcuts"
     },
     "title": "Help center"
   },
