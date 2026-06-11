@@ -73,7 +73,7 @@ const WhiteboardHost = ({
   const slideInstance = useWhiteboardSlideInstance();
   const { isShowCollaboratorsCursors, dragSelectStartCoords } =
     useLayoutState();
-  const { activeElementIds } = useActiveElements();
+  const { activeElementIds, activeElementSet } = useActiveElements();
 
   const activeAndAttachedElementIds = findActiveAndAttachedElementIds(
     activeElementIds,
@@ -144,7 +144,7 @@ const WhiteboardHost = ({
 
         {elementIds.map((elementId) => {
           const override = getElementOverride(elementId);
-          const isSelected = activeElementIds.includes(elementId);
+          const isSelected = activeElementSet.has(elementId);
 
           return (
             <ConnectedElement
