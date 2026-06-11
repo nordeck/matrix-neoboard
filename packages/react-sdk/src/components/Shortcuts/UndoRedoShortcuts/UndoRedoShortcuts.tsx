@@ -15,39 +15,59 @@
  */
 
 import { useHotkeys } from 'react-hotkeys-hook';
-import { usePresentationMode, useWhiteboardManager } from '../../../state';
+import {
+  useActiveWhiteboardInstance,
+  usePresentationMode,
+} from '../../../state';
 import { HOTKEY_SCOPE_WHITEBOARD } from '../../WhiteboardHotkeysProvider';
 import { isMacOS } from '../../common/platform';
 
 export function UndoRedoShortcuts() {
-  const whiteboardManager = useWhiteboardManager();
+  const whiteboardInstance = useActiveWhiteboardInstance();
   const { state: presentationState } = usePresentationMode();
   const isViewingPresentation = presentationState.type === 'presentation';
 
+  // react-hotkeys-hook matches by e.code (physical position) by default, which
+  // breaks non-QWERTY layouts: on QWERTZ the Z key is at KeyY, so ctrl+z fires
+  // on the Y key instead. useKey: true switches matching to e.key (character),
+  // but the library's useKey path ignores modifiers (known bug, open PRs #1298/#1317
+  // on react-hotkeys-hook). Workaround: register the bare key and check modifiers
+  // manually so both layouts and modifier checks are handled correctly.
   useHotkeys(
-    isMacOS() ? 'meta+z' : 'ctrl+z',
-    () => {
-      if (isViewingPresentation) {
+    'z',
+    (e) => {
+      const hasModifier = isMacOS() ? e.metaKey : e.ctrlKey;
+      if (!hasModifier || isViewingPresentation) {
         return;
       }
-
-      whiteboardManager.getActiveWhiteboardInstance()?.undo();
+      if (e.shiftKey) {
+        whiteboardInstance.redo();
+      } else {
+        whiteboardInstance.undo();
+      }
     },
-    { scopes: HOTKEY_SCOPE_WHITEBOARD, enableOnContentEditable: true },
-    [isViewingPresentation, whiteboardManager],
+    {
+      scopes: HOTKEY_SCOPE_WHITEBOARD,
+      enableOnContentEditable: true,
+      useKey: true,
+    },
   );
 
   useHotkeys(
-    isMacOS() ? ['meta+shift+z'] : ['ctrl+shift+z', 'ctrl+y'],
-    () => {
-      if (isViewingPresentation) {
+    'y',
+    (e) => {
+      if (!e.ctrlKey || isViewingPresentation) {
         return;
       }
 
-      whiteboardManager.getActiveWhiteboardInstance()?.redo();
+      whiteboardInstance.redo();
     },
-    { scopes: HOTKEY_SCOPE_WHITEBOARD, enableOnContentEditable: true },
-    [isViewingPresentation, whiteboardManager],
+    {
+      scopes: HOTKEY_SCOPE_WHITEBOARD,
+      enableOnContentEditable: true,
+      enabled: !isMacOS(),
+      useKey: true,
+    },
   );
 
   return null;
