@@ -20,6 +20,7 @@ import { first } from 'lodash';
 import loglevel from 'loglevel';
 import { useAsync } from 'react-use';
 import { matrixRtcMode } from '../components/Whiteboard';
+import { isInfiniteCanvasMode } from '../lib';
 import {
   STATE_EVENT_RTC_MEMBER,
   STATE_EVENT_WHITEBOARD_SESSIONS,
@@ -36,7 +37,7 @@ import {
   useUpdateWhiteboardMutation,
 } from '../store/api';
 import { usePowerLevels } from '../store/api/usePowerLevels';
-import { createWhiteboardDocument } from './crdt';
+import { createWhiteboardDocument, WhiteboardDocumentVersion } from './crdt';
 
 type UseOwnedWhiteboardResponse =
   | { loading: true; value?: undefined }
@@ -101,7 +102,10 @@ export function useOwnedWhiteboard(): UseOwnedWhiteboardResponse {
 
       // Create initial empty snapshot, so that there is always a snapshot.
       // This is done to reduce "cannot find snapshot" messages when creating new boards.
-      const document = createWhiteboardDocument();
+      const whiteboardDocumentVersion = isInfiniteCanvasMode()
+        ? WhiteboardDocumentVersion.v1
+        : WhiteboardDocumentVersion.v0;
+      const document = createWhiteboardDocument(whiteboardDocumentVersion);
       await dispatch(
         documentSnapshotApi.endpoints.createDocumentSnapshot.initiate({
           documentId,

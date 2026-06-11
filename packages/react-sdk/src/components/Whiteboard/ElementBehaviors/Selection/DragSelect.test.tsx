@@ -147,6 +147,7 @@ describe('<DragSelect/>', () => {
 
   afterEach(() => {
     widgetApi.stop();
+    vi.useRealTimers();
   });
 
   it('should clear the drag select start coordinates on pointer up', () => {
@@ -189,6 +190,7 @@ describe('<DragSelect/>', () => {
   });
 
   it('should select elements intersecting the selection in the order they are selected', () => {
+    vi.useFakeTimers();
     render(<DragSelect />, { wrapper: Wrapper });
 
     // Select an area with only element-1 inside
@@ -202,6 +204,9 @@ describe('<DragSelect/>', () => {
     });
 
     expect(activeSlide.getActiveElementIds()).toEqual(['element-1']);
+
+    // Advance past the 16ms throttle gate before the next move
+    vi.advanceTimersByTime(20);
 
     // Now extend the selection to the corner where element-0 is located
     vi.mocked(svgUtils.calculateSvgCoords).mockReturnValue({ x: 0, y: 0 });
