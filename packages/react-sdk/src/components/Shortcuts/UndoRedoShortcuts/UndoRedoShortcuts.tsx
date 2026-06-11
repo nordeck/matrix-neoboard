@@ -27,14 +27,19 @@ export function UndoRedoShortcuts() {
   const { state: presentationState } = usePresentationMode();
   const isViewingPresentation = presentationState.type === 'presentation';
 
+  // react-hotkeys-hook matches by e.code (physical position) by default, which
+  // breaks non-QWERTY layouts: on QWERTZ the Z key is at KeyY, so ctrl+z fires
+  // on the Y key instead. useKey: true switches matching to e.key (character),
+  // but the library's useKey path ignores modifiers (known bug, open PRs #1298/#1317
+  // on react-hotkeys-hook). Workaround: register the bare key and check modifiers
+  // manually so both layouts and modifier checks are handled correctly.
   useHotkeys(
-    isMacOS() ? 'meta+z' : 'ctrl+z',
+    'z',
     (e) => {
-      if (isViewingPresentation) {
+      const hasModifier = isMacOS() ? e.metaKey : e.ctrlKey;
+      if (!hasModifier || isViewingPresentation) {
         return;
       }
-      // this is a workaround for non qwerty keyboards
-      // see issue here: https://github.com/PostHog/code/issues/1797
       if (e.shiftKey) {
         whiteboardInstance.redo();
       } else {
@@ -49,9 +54,9 @@ export function UndoRedoShortcuts() {
   );
 
   useHotkeys(
-    'ctrl+y',
-    () => {
-      if (isViewingPresentation) {
+    'y',
+    (e) => {
+      if (!e.ctrlKey || isViewingPresentation) {
         return;
       }
 
@@ -61,6 +66,7 @@ export function UndoRedoShortcuts() {
       scopes: HOTKEY_SCOPE_WHITEBOARD,
       enableOnContentEditable: true,
       enabled: !isMacOS(),
+      useKey: true,
     },
   );
 

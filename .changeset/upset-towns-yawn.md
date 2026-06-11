@@ -2,4 +2,4 @@
 '@nordeck/matrix-neoboard-react-sdk': patch
 ---
 
-fix undo redo shortcuts for non querty keyboard users
+Fix undo/redo shortcuts for non-QWERTY keyboard layouts (e.g. German QWERTZ)
