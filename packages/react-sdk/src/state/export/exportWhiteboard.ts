@@ -26,6 +26,7 @@ import {
   Element,
   ImageElement,
   WhiteboardDocument,
+  WhiteboardDocumentVersion,
   getElement,
   getNormalizedElementIds,
   getNormalizedSlideIds,
@@ -43,19 +44,21 @@ import {
  * If a file download raises an error the data won't be included into the export.
  * However the information about the image element itself will still be part of the whiteboard data.
  *
+ * @param documentVersion - whiteboard document version
  * @param doc - Document of the whiteboard to export
- * @param baseUrl - Homeserver base URL to download the files
+ * @param widgetApi - Widget API
  *
  * @returns A Promise that resolves to a whiteboard export
  */
 export async function exportWhiteboard(
+  documentVersion: WhiteboardDocumentVersion,
   doc: SharedMap<WhiteboardDocument>,
   widgetApi: WidgetApi,
 ): Promise<WhiteboardDocumentExport> {
   const files = await exportFiles(doc, widgetApi);
 
   return {
-    version: 'net.nordeck.whiteboard@v1',
+    version: `net.nordeck.whiteboard@v${parseInt(documentVersion) + 1}`,
     whiteboard: {
       slides: getNormalizedSlideIds(doc).map((slideId) => {
         const elements: [string, Element][] = [];
