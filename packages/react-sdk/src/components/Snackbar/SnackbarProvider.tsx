@@ -113,15 +113,12 @@ export function SnackbarProvider({ children }: PropsWithChildren<{}>) {
     theme.palette.text.primary,
   ]);
 
+  const ctx = useMemo(
+    () => ({ showSnackbar, clearSnackbar: handleClose, snackbarProps }),
+    [showSnackbar, handleClose, snackbarProps],
+  );
+
   return (
-    <SnackbarContext.Provider
-      value={{
-        showSnackbar,
-        clearSnackbar: handleClose,
-        snackbarProps,
-      }}
-    >
-      {children}
-    </SnackbarContext.Provider>
+    <SnackbarContext.Provider value={ctx}>{children}</SnackbarContext.Provider>
   );
 }
