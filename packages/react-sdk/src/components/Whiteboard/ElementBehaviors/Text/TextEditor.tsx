@@ -19,6 +19,7 @@ import {
   ClipboardEvent,
   Dispatch,
   DispatchWithoutAction,
+  KeyboardEvent,
   MouseEvent,
   useCallback,
   useEffect,
@@ -26,12 +27,10 @@ import {
   useRef,
   useState,
 } from 'react';
-import { useHotkeys } from 'react-hotkeys-hook';
 import { useFontsLoaded } from '../../../../lib';
 import { isEmptyText } from '../../../../lib/text-formatting';
 import { TextAlignment } from '../../../../state';
 import {
-  HOTKEY_SCOPE_GLOBAL,
   HOTKEY_SCOPE_WHITEBOARD,
   usePauseHotkeysScope,
 } from '../../../WhiteboardHotkeysProvider';
@@ -176,18 +175,28 @@ export function TextEditor({
     [isEditMode],
   );
 
-  const handleKeyDown = useCallback(() => {
-    // We defer till the next rerender to make sure that the content was updated
-    // as part of this keystroke.
-    window.requestAnimationFrame(() => {
-      if (textRef.current) {
-        fitText(textRef.current, fontSize, contentBold, contentItalic);
-        if (!isEmptyText(textRef.current.innerText)) {
-          setTextToolsEnabled(true);
-        }
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        onBlur();
+        setEditMode(false);
+        setTextToolsEnabled(false);
+        return;
       }
-    });
-  }, [fontSize, contentBold, contentItalic, setTextToolsEnabled]);
+      // We defer till the next rerender to make sure that the content was updated
+      // as part of this keystroke.
+      window.requestAnimationFrame(() => {
+        if (textRef.current) {
+          fitText(textRef.current, fontSize, contentBold, contentItalic);
+          if (!isEmptyText(textRef.current.innerText)) {
+            setTextToolsEnabled(true);
+          }
+        }
+      });
+    },
+    [onBlur, setTextToolsEnabled, fontSize, contentBold, contentItalic],
+  );
 
   const handleKeyUp = useCallback(() => {
     if (textRef.current) {
@@ -200,25 +209,6 @@ export function TextEditor({
       }
     }
   }, [textRef, content, onChange]);
-
-  const handleEscape = useCallback(() => {
-    if (isEditMode) {
-      onBlur();
-      setEditMode(false);
-      setTextToolsEnabled(false);
-    }
-  }, [isEditMode, onBlur, setTextToolsEnabled]);
-
-  useHotkeys(
-    ['Escape'],
-    handleEscape,
-    {
-      preventDefault: true,
-      enableOnContentEditable: true,
-      scopes: [HOTKEY_SCOPE_GLOBAL],
-    },
-    [handleEscape],
-  );
 
   const handlePaste = useCallback(
     (event: ClipboardEvent) => {
