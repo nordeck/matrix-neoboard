@@ -1,5 +1,19 @@
 # @nordeck/matrix-neoboard-react-sdk
 
+## 1.5.0
+
+### Minor Changes
+
+- 8c3bc36: Update PDF export in the infinite canvas mode. Each frame now exports as a page. If no frames exist, all elements are exported and the surrounding whitespace is cropped.
+- 1e3cda7: Migrate slides into frames in infinite canvas mode
+- 3c6f791: Presentation mode for frames
+- 6ce67c3: Add block arrow shape
+
+### Patch Changes
+
+- 29457e8: Update lodash to 4.18.1 for CVEs: `CVE-2026-2950`, `CVE-2026-4800`
+- ef0749c: Refactor infinite canvas to use `viewBox` for transformations and simplify API
+
 ## 1.4.0
 
 ### Minor Changes
