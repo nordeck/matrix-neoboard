@@ -19,6 +19,7 @@ import { useCallback } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import {
   calculateBoundingRectForElements,
+  findActiveAndAttachedElementIds,
   findConnectingPaths,
   useWhiteboardSlideInstance,
 } from '../../../state';
@@ -44,8 +45,13 @@ export function DragShortcut() {
       const activeElementIds = slideInstance.getActiveElementIds();
       if (activeElementIds.length === 0) return;
 
+      const elementIds = findActiveAndAttachedElementIds(
+        activeElementIds,
+        slideInstance.getFrameElements(),
+      );
+
       const activeElements = Object.fromEntries(
-        activeElementIds
+        elementIds
           .map((id) => [id, slideInstance.getElement(id)] as const)
           .filter(
             (entry): entry is [string, NonNullable<(typeof entry)[1]>] =>
