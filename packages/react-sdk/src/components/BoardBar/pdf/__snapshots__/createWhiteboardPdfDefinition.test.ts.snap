@@ -368,3 +368,472 @@ exports[`createWhiteboardPdfDefinition > should generate a pdf header and table 
   "version": "1.5",
 }
 `;
+
+exports[`createWhiteboardPdfDefinition in infinite canvas mode > should export all elements when there are no frames 1`] = `
+{
+  "content": [
+    {
+      "pageBreak": undefined,
+      "stack": [
+        [
+          [
+            {
+              "absolutePosition": {
+                "x": 0,
+                "y": 0,
+              },
+              "canvas": [
+                {
+                  "color": "#ffffff",
+                  "h": 100,
+                  "lineColor": "#ffffff",
+                  "lineWidth": 2,
+                  "r": undefined,
+                  "strokeOpacity": 1,
+                  "type": "rect",
+                  "w": 50,
+                  "x": 0,
+                  "y": 0,
+                },
+              ],
+              "unbreakable": true,
+            },
+            {
+              "absolutePosition": {
+                "x": 10,
+                "y": 50,
+              },
+              "layout": "noBorders",
+              "table": {
+                "body": [
+                  [
+                    {
+                      "alignment": "center",
+                      "color": "#000",
+                      "font": "Inter",
+                      "fontSize": 10,
+                      "lineHeight": 1,
+                      "margin": 0,
+                      "maxHeight": 100,
+                      "text": [
+                        "Rectangle",
+                      ],
+                    },
+                  ],
+                ],
+                "heights": [
+                  40,
+                ],
+                "widths": [
+                  30,
+                ],
+              },
+              "unbreakable": true,
+            },
+          ],
+          [
+            {
+              "absolutePosition": {
+                "x": 0,
+                "y": 0,
+              },
+              "canvas": [
+                {
+                  "color": undefined,
+                  "h": 100,
+                  "lineColor": undefined,
+                  "lineWidth": 2,
+                  "r": undefined,
+                  "strokeOpacity": 0,
+                  "type": "rect",
+                  "w": 50,
+                  "x": 100,
+                  "y": 100,
+                },
+              ],
+              "unbreakable": true,
+            },
+            {
+              "absolutePosition": {
+                "x": 110,
+                "y": 150,
+              },
+              "layout": "noBorders",
+              "table": {
+                "body": [
+                  [
+                    {
+                      "alignment": "center",
+                      "color": "#000",
+                      "font": "Inter",
+                      "fontSize": 10,
+                      "lineHeight": 1,
+                      "margin": 0,
+                      "maxHeight": 100,
+                      "text": [
+                        "Rectangle Text",
+                      ],
+                    },
+                  ],
+                ],
+                "heights": [
+                  40,
+                ],
+                "widths": [
+                  30,
+                ],
+              },
+              "unbreakable": true,
+            },
+          ],
+          [
+            {
+              "absolutePosition": {
+                "x": 0,
+                "y": 0,
+              },
+              "canvas": [
+                {
+                  "color": "#ffffff",
+                  "lineColor": "#ffffff",
+                  "lineWidth": 2,
+                  "r1": 25,
+                  "r2": 50,
+                  "type": "ellipse",
+                  "x": 225,
+                  "y": 250,
+                },
+              ],
+              "unbreakable": true,
+            },
+            {
+              "absolutePosition": {
+                "x": 207.3223304703363,
+                "y": 250.14466094067262,
+              },
+              "layout": "noBorders",
+              "table": {
+                "body": [
+                  [
+                    {
+                      "alignment": "right",
+                      "color": "#000",
+                      "font": "Inter",
+                      "fontSize": 10,
+                      "lineHeight": 1,
+                      "margin": 0,
+                      "maxHeight": 100,
+                      "text": [
+                        "Circle ",
+                        {
+                          "style": "emoji",
+                          "text": "✅",
+                        },
+                      ],
+                    },
+                  ],
+                ],
+                "heights": [
+                  35.210678118654755,
+                ],
+                "widths": [
+                  35.35533905932738,
+                ],
+              },
+              "unbreakable": true,
+            },
+          ],
+          [
+            {
+              "absolutePosition": {
+                "x": 0,
+                "y": 0,
+              },
+              "canvas": [
+                {
+                  "color": "#ffffff",
+                  "lineColor": "#ffffff",
+                  "lineWidth": 2,
+                  "r1": 25,
+                  "r2": 50,
+                  "type": "ellipse",
+                  "x": 325,
+                  "y": 350,
+                },
+              ],
+              "unbreakable": true,
+            },
+            {
+              "absolutePosition": {
+                "x": 307.3223304703363,
+                "y": 350.1446609406726,
+              },
+              "layout": "noBorders",
+              "table": {
+                "body": [
+                  [
+                    {
+                      "alignment": "center",
+                      "color": "#000",
+                      "font": "Inter",
+                      "fontSize": 10,
+                      "lineHeight": 1,
+                      "margin": 0,
+                      "maxHeight": 100,
+                      "text": [
+                        "Ellipse",
+                      ],
+                    },
+                  ],
+                ],
+                "heights": [
+                  35.210678118654755,
+                ],
+                "widths": [
+                  35.35533905932738,
+                ],
+              },
+              "unbreakable": true,
+            },
+          ],
+          [
+            {
+              "absolutePosition": {
+                "x": 0,
+                "y": 0,
+              },
+              "canvas": [
+                {
+                  "closePath": true,
+                  "color": "#ffffff",
+                  "lineColor": "#ffffff",
+                  "lineWidth": 2,
+                  "points": [
+                    {
+                      "x": 400,
+                      "y": 500,
+                    },
+                    {
+                      "x": 425,
+                      "y": 400,
+                    },
+                    {
+                      "x": 450,
+                      "y": 500,
+                    },
+                  ],
+                  "type": "polyline",
+                },
+              ],
+              "unbreakable": true,
+            },
+            {
+              "absolutePosition": {
+                "x": 408.3333333333333,
+                "y": 478.16666666666663,
+              },
+              "layout": "noBorders",
+              "table": {
+                "body": [
+                  [
+                    {
+                      "alignment": "center",
+                      "color": "#000",
+                      "font": "Inter",
+                      "fontSize": 10,
+                      "lineHeight": 1,
+                      "margin": 0,
+                      "maxHeight": 100,
+                      "text": [
+                        "Triangle ",
+                        {
+                          "style": "emoji",
+                          "text": "👍",
+                        },
+                      ],
+                    },
+                  ],
+                ],
+                "heights": [
+                  11.833333333333343,
+                ],
+                "widths": [
+                  33.333333333333336,
+                ],
+              },
+              "unbreakable": true,
+            },
+          ],
+        ],
+      ],
+    },
+  ],
+  "defaultStyle": {
+    "font": "Inter",
+  },
+  "info": {
+    "author": "Alice",
+    "title": "My Room",
+  },
+  "pageMargins": 0,
+  "pageSize": {
+    "height": 500,
+    "width": 450,
+  },
+  "styles": {
+    "emoji": {
+      "font": "Noto Emoji",
+    },
+  },
+  "version": "1.5",
+}
+`;
+
+exports[`createWhiteboardPdfDefinition in infinite canvas mode > should export each frame as a page 1`] = `
+{
+  "content": [
+    {
+      "pageBreak": undefined,
+      "stack": [
+        [
+          [
+            {
+              "absolutePosition": {
+                "x": 0,
+                "y": 0,
+              },
+              "canvas": [
+                {
+                  "color": undefined,
+                  "h": 100,
+                  "lineColor": undefined,
+                  "lineWidth": 2,
+                  "r": undefined,
+                  "strokeOpacity": 0,
+                  "type": "rect",
+                  "w": 50,
+                  "x": 100,
+                  "y": 100,
+                },
+              ],
+              "unbreakable": true,
+            },
+            {
+              "absolutePosition": {
+                "x": 110,
+                "y": 150,
+              },
+              "layout": "noBorders",
+              "table": {
+                "body": [
+                  [
+                    {
+                      "alignment": "center",
+                      "color": "#000",
+                      "font": "Inter",
+                      "fontSize": 10,
+                      "lineHeight": 1,
+                      "margin": 0,
+                      "maxHeight": 100,
+                      "text": [
+                        "text",
+                      ],
+                    },
+                  ],
+                ],
+                "heights": [
+                  40,
+                ],
+                "widths": [
+                  30,
+                ],
+              },
+              "unbreakable": true,
+            },
+          ],
+        ],
+      ],
+    },
+    {
+      "pageBreak": "before",
+      "stack": [
+        [
+          [
+            {
+              "absolutePosition": {
+                "x": 0,
+                "y": 0,
+              },
+              "canvas": [
+                {
+                  "color": undefined,
+                  "h": 100,
+                  "lineColor": undefined,
+                  "lineWidth": 2,
+                  "r": undefined,
+                  "strokeOpacity": 0,
+                  "type": "rect",
+                  "w": 50,
+                  "x": 100,
+                  "y": 100,
+                },
+              ],
+              "unbreakable": true,
+            },
+            {
+              "absolutePosition": {
+                "x": 110,
+                "y": 150,
+              },
+              "layout": "noBorders",
+              "table": {
+                "body": [
+                  [
+                    {
+                      "alignment": "center",
+                      "color": "#000",
+                      "font": "Inter",
+                      "fontSize": 10,
+                      "lineHeight": 1,
+                      "margin": 0,
+                      "maxHeight": 100,
+                      "text": [
+                        "text",
+                      ],
+                    },
+                  ],
+                ],
+                "heights": [
+                  40,
+                ],
+                "widths": [
+                  30,
+                ],
+              },
+              "unbreakable": true,
+            },
+          ],
+        ],
+      ],
+    },
+  ],
+  "defaultStyle": {
+    "font": "Inter",
+  },
+  "info": {
+    "author": "Alice",
+    "title": "My Room",
+  },
+  "pageMargins": 0,
+  "pageSize": {
+    "height": 700,
+    "width": 300,
+  },
+  "styles": {
+    "emoji": {
+      "font": "Noto Emoji",
+    },
+  },
+  "version": "1.5",
+}
+`;
