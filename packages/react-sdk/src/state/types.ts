@@ -59,6 +59,15 @@ export type WhiteboardStatistics = {
   communicationChannel: CommunicationChannelStatistics;
 };
 
+export type MismatchedSnapshot = {
+  documentVersion: string;
+  data: Uint8Array;
+};
+
+export type MismatchedSnapshotDetails = {
+  canUpdate: boolean;
+};
+
 /** An instance of a whiteboard that can be used to read and manipulate it. */
 export type WhiteboardInstance = {
   /** Returns the id of the whiteboard. */
@@ -125,9 +134,20 @@ export type WhiteboardInstance = {
   observeIsLoading(): Observable<boolean>;
 
   /**
+   * Get a mismatched snapshot details
+   */
+  getMismatchedSnapshotDetails(): MismatchedSnapshotDetails | undefined;
+  /**
+   * Observe a mismatched snapshot details
+   */
+  observeMismatchedSnapshotDetails(): Observable<
+    MismatchedSnapshotDetails | undefined
+  >;
+
+  /**
    * Get the export file representation of the whiteboard.
    *
-   * @param baseUrl - Homeserver base URL used to download images
+   * @param widgetApi - Widget API
    * @returns exported document
    */
   export(widgetApi: WidgetApi): Promise<WhiteboardDocumentExport>;
@@ -150,6 +170,9 @@ export type WhiteboardInstance = {
 
   /** Get access to the presentation manager */
   getPresentationManager(): PresentationManager | undefined;
+
+  /** Update a managed document to mismatched snapshot and merge. */
+  mergeMismatchedSnapshot(): void;
 
   /** Clear the undo manager */
   clearUndoManager(): void;
@@ -310,6 +333,8 @@ export type SynchronizedDocument<T extends Record<string, unknown>> = {
   observeDocumentStatistics(): Observable<DocumentSyncStatistics>;
   /** Observe the loading state of the document. */
   observeIsLoading(): Observable<boolean>;
+  /** Observe a snapshot with a document version different to the managed document. */
+  observeMismatchedSnapshot(): Observable<MismatchedSnapshot | undefined>;
   /** Destroy the document to cleanup all open connections. */
   destroy(): void;
   /** Persist the document immediately. */

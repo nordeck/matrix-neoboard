@@ -16,7 +16,7 @@
 
 import { useWidgetApi } from '@matrix-widget-toolkit/react';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
-import { LoadingButton } from '@mui/lab';
+import { Button } from '@mui/material';
 import { PropsWithChildren, useCallback, useState } from 'react';
 import { useActiveWhiteboardInstance } from '../../../state';
 import { useGetRoomNameQuery } from '../../../store';
@@ -25,22 +25,34 @@ import { downloadData } from './download';
 export function ExportWhiteboardDialogDownloadFile({
   children,
   onClick,
-}: PropsWithChildren<{ onClick: () => void }>) {
-  const { isDownloading, handleDownloadClick } = useWhiteboardDownload(onClick);
+  buttonVariant = 'contained',
+  resetLoadingOnDownload = false,
+}: PropsWithChildren<{
+  onClick: () => void;
+  buttonVariant?: 'contained' | 'outlined' | 'text';
+  resetLoadingOnDownload?: boolean;
+}>) {
+  const { isDownloading, handleDownloadClick } = useWhiteboardDownload(
+    onClick,
+    resetLoadingOnDownload,
+  );
 
   return (
-    <LoadingButton
+    <Button
       loading={isDownloading}
       onClick={handleDownloadClick}
       startIcon={<FileDownloadIcon />}
-      variant="contained"
+      variant={buttonVariant}
     >
       {children}
-    </LoadingButton>
+    </Button>
   );
 }
 
-function useWhiteboardDownload(onDownloadFinished: () => void) {
+function useWhiteboardDownload(
+  onDownloadFinished: () => void,
+  resetLoadingOnDownload: boolean,
+) {
   const { data: roomNameStateEvent } = useGetRoomNameQuery();
   const roomName = roomNameStateEvent?.event?.content.name ?? 'NeoBoard';
   const whiteboard = useActiveWhiteboardInstance();
@@ -58,7 +70,16 @@ function useWhiteboardDownload(onDownloadFinished: () => void) {
     const whiteboardData = await whiteboard.export(widgetApi);
     downloadData(filename, whiteboardData);
     onDownloadFinished();
-  }, [onDownloadFinished, roomName, whiteboard, widgetApi]);
+    if (resetLoadingOnDownload) {
+      setIsDownloading(false);
+    }
+  }, [
+    onDownloadFinished,
+    roomName,
+    whiteboard,
+    widgetApi,
+    resetLoadingOnDownload,
+  ]);
 
   return {
     handleDownloadClick,
