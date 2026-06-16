@@ -45,9 +45,10 @@ export function DragShortcut() {
       const activeElementIds = slideInstance.getActiveElementIds();
       if (activeElementIds.length === 0) return;
 
+      const frameElements = slideInstance.getFrameElements();
       const elementIds = findActiveAndAttachedElementIds(
         activeElementIds,
-        slideInstance.getFrameElements(),
+        frameElements,
       );
 
       const activeElements = Object.fromEntries(
@@ -92,7 +93,7 @@ export function DragShortcut() {
 
       const elementAttachFrame = findElementAttachFrame(
         newElements,
-        slideInstance.getFrameElements(),
+        frameElements,
       );
       const frameChanges = findElementFrameChanges(elementAttachFrame, {
         ...activeElements,
