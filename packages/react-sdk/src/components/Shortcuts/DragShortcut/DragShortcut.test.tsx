@@ -22,6 +22,7 @@ import { Mocked, afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
   WhiteboardTestingContextProvider,
   mockEllipseElement,
+  mockFrameElement,
   mockLineElement,
   mockWhiteboardManager,
 } from '../../../lib/testUtils';
@@ -272,6 +273,143 @@ describe('<DragShortcut>', () => {
     expect(slide.getElement('element-0')?.position).toEqual({
       x: 1870,
       y: 100,
+    });
+  });
+
+  it('should move the frame and its children when only the frame is selected', async () => {
+    const { whiteboardManager: wm } = mockWhiteboardManager({
+      slides: [
+        [
+          'slide-0',
+          [
+            [
+              'frame-0',
+              mockFrameElement({
+                position: { x: 0, y: 0 },
+                width: 300,
+                height: 200,
+                attachedElements: ['child-0', 'child-1'],
+              }),
+            ],
+            [
+              'child-0',
+              mockEllipseElement({
+                position: { x: 10, y: 10 },
+                attachedFrame: 'frame-0',
+              }),
+            ],
+            [
+              'child-1',
+              mockEllipseElement({
+                position: { x: 50, y: 50 },
+                attachedFrame: 'frame-0',
+              }),
+            ],
+          ],
+        ],
+      ],
+    });
+    const slide = wm.getActiveWhiteboardInstance()!.getSlide('slide-0');
+    slide.setActiveElementIds(['frame-0']);
+
+    render(<DragShortcut />, { wrapper: createWrapper(wm) });
+
+    await userEvent.keyboard('{ArrowDown}');
+
+    expect(slide.getElement('frame-0')?.position).toEqual({
+      x: 0,
+      y: gridCellSize,
+    });
+    expect(slide.getElement('child-0')?.position).toEqual({
+      x: 10,
+      y: 10 + gridCellSize,
+    });
+    expect(slide.getElement('child-1')?.position).toEqual({
+      x: 50,
+      y: 50 + gridCellSize,
+    });
+  });
+
+  it('should not move elements not attached to the frame', async () => {
+    const { whiteboardManager: wm } = mockWhiteboardManager({
+      slides: [
+        [
+          'slide-0',
+          [
+            [
+              'frame-0',
+              mockFrameElement({
+                position: { x: 0, y: 0 },
+                width: 300,
+                height: 200,
+                attachedElements: ['child-0'],
+              }),
+            ],
+            [
+              'child-0',
+              mockEllipseElement({
+                position: { x: 10, y: 10 },
+                attachedFrame: 'frame-0',
+              }),
+            ],
+            ['other-0', mockEllipseElement({ position: { x: 500, y: 500 } })],
+          ],
+        ],
+      ],
+    });
+    const slide = wm.getActiveWhiteboardInstance()!.getSlide('slide-0');
+    slide.setActiveElementIds(['frame-0']);
+
+    render(<DragShortcut />, { wrapper: createWrapper(wm) });
+
+    await userEvent.keyboard('{ArrowDown}');
+
+    expect(slide.getElement('other-0')?.position).toEqual({
+      x: 500,
+      y: 500,
+    });
+  });
+
+  it('should move only the selected child without moving the frame', async () => {
+    const { whiteboardManager: wm } = mockWhiteboardManager({
+      slides: [
+        [
+          'slide-0',
+          [
+            [
+              'frame-0',
+              mockFrameElement({
+                position: { x: 0, y: 0 },
+                width: 300,
+                height: 200,
+                attachedElements: ['child-0'],
+              }),
+            ],
+            [
+              'child-0',
+              mockEllipseElement({
+                position: { x: 10, y: 10 },
+                attachedFrame: 'frame-0',
+              }),
+            ],
+          ],
+        ],
+      ],
+    });
+    const slide = wm.getActiveWhiteboardInstance()!.getSlide('slide-0');
+    slide.setActiveElementIds(['child-0']);
+
+    render(<DragShortcut />, { wrapper: createWrapper(wm) });
+
+    await userEvent.keyboard('{ArrowDown}');
+
+    expect(slide.getElement('child-0')?.position).toEqual({
+      x: 10,
+      y: 10 + gridCellSize,
+    });
+    expect(slide.getElement('frame-0')?.position).toEqual({
+      x: 0,
+      y: 0,
     });
   });
 
