@@ -20,6 +20,7 @@ import userEvent from '@testing-library/user-event';
 import { ComponentType, PropsWithChildren } from 'react';
 import { Mocked, afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
+  DisableWhiteboardHotkeys,
   WhiteboardTestingContextProvider,
   mockEllipseElement,
   mockFrameElement,
@@ -27,11 +28,7 @@ import {
   mockWhiteboardManager,
 } from '../../../lib/testUtils';
 import { WhiteboardInstance, WhiteboardManager } from '../../../state';
-import {
-  HOTKEY_SCOPE_WHITEBOARD,
-  WhiteboardHotkeysProvider,
-  usePauseHotkeysScope,
-} from '../../WhiteboardHotkeysProvider';
+import { WhiteboardHotkeysProvider } from '../../WhiteboardHotkeysProvider';
 import { DeleteShortcut } from './DeleteShortcut';
 
 let widgetApi: MockedWidgetApi;
@@ -169,8 +166,3 @@ describe('<DeleteShortcut>', () => {
     },
   );
 });
-
-function DisableWhiteboardHotkeys({ children }: PropsWithChildren<{}>) {
-  usePauseHotkeysScope(HOTKEY_SCOPE_WHITEBOARD);
-  return <>{children}</>;
-}

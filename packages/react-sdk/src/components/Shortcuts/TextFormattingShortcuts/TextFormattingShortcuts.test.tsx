@@ -18,6 +18,7 @@ import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { render } from '@testing-library/react';
 import { ComponentType, PropsWithChildren } from 'react';
 import {
+  DisableWhiteboardHotkeys,
   mockLineElement,
   mockRectangleElement,
   mockWhiteboardManager,
@@ -29,11 +30,7 @@ import { TextFormattingShortcuts } from './TextFormattingShortcuts';
 
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import {
-  HOTKEY_SCOPE_WHITEBOARD,
-  usePauseHotkeysScope,
-  WhiteboardHotkeysProvider,
-} from '../../WhiteboardHotkeysProvider';
+import { WhiteboardHotkeysProvider } from '../../WhiteboardHotkeysProvider';
 
 describe('<TextFormattingShortcuts />', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
@@ -112,7 +109,7 @@ describe('<TextFormattingShortcuts />', () => {
   );
 
   it.each([['{Control>}b'], ['{Control>}i']])(
-    '%s should be ignored if keyboard scope is disabled',
+    'should ignore %s if keyboard scope is disabled',
     async (shortcut) => {
       render(
         <DisableWhiteboardHotkeys>
@@ -129,8 +126,3 @@ describe('<TextFormattingShortcuts />', () => {
     },
   );
 });
-
-function DisableWhiteboardHotkeys({ children }: PropsWithChildren<{}>) {
-  usePauseHotkeysScope(HOTKEY_SCOPE_WHITEBOARD);
-  return <>{children}</>;
-}
