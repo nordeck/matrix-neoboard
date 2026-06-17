@@ -24,6 +24,10 @@ import { Mocked, vi } from 'vitest';
 import { ElementAttachFrameProvider } from '../../components/ElementAttachFrameProvider';
 import { SvgScaleContextProvider } from '../../components/Whiteboard/SvgScaleContext';
 import {
+  HOTKEY_SCOPE_WHITEBOARD,
+  usePauseHotkeysScope,
+} from '../../components/WhiteboardHotkeysProvider';
+import {
   Element,
   FrameElement,
   ImageElement,
@@ -422,6 +426,11 @@ export function mockFrameElement(
     height: 100,
     ...frame,
   };
+}
+
+export function DisableWhiteboardHotkeys({ children }: PropsWithChildren<{}>) {
+  usePauseHotkeysScope(HOTKEY_SCOPE_WHITEBOARD);
+  return <>{children}</>;
 }
 
 /**

@@ -20,17 +20,14 @@ import userEvent from '@testing-library/user-event';
 import { ComponentType, PropsWithChildren } from 'react';
 import { Mocked, afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
+  DisableWhiteboardHotkeys,
   WhiteboardTestingContextProvider,
   mockEllipseElement,
   mockLineElement,
   mockWhiteboardManager,
 } from '../../../lib/testUtils';
 import { WhiteboardInstance, WhiteboardManager } from '../../../state';
-import {
-  HOTKEY_SCOPE_WHITEBOARD,
-  WhiteboardHotkeysProvider,
-  usePauseHotkeysScope,
-} from '../../WhiteboardHotkeysProvider';
+import { WhiteboardHotkeysProvider } from '../../WhiteboardHotkeysProvider';
 import { ReorderElementsShortcuts } from './ReorderElementsShortcuts';
 
 let widgetApi: MockedWidgetApi;
@@ -213,8 +210,3 @@ describe('<ReorderElementsShortcuts>', () => {
     },
   );
 });
-
-function DisableWhiteboardHotkeys({ children }: PropsWithChildren<{}>) {
-  usePauseHotkeysScope(HOTKEY_SCOPE_WHITEBOARD);
-  return <>{children}</>;
-}
