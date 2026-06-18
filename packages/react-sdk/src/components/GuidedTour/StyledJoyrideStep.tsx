@@ -28,7 +28,7 @@ import {
   Typography,
 } from '@mui/material';
 import { unstable_useId as useId } from '@mui/utils';
-import { omit } from 'lodash';
+import omit from 'lodash/omit';
 import { useTranslation } from 'react-i18next';
 import { TooltipRenderProps } from 'react-joyride';
 

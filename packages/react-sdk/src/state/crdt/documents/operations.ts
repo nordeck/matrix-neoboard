@@ -15,7 +15,7 @@
  */
 
 import { nanoid } from '@reduxjs/toolkit';
-import { uniq } from 'lodash';
+import uniq from 'lodash/uniq';
 import { ChangeFn } from '../types';
 import { SharedMap, YArray, YMap } from '../y';
 import { Element } from './elements';

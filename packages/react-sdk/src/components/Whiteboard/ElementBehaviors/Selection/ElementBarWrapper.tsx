@@ -15,7 +15,7 @@
  */
 
 import { Box } from '@mui/material';
-import { clamp } from 'lodash';
+import clamp from 'lodash/clamp';
 import React, { PropsWithChildren, useMemo } from 'react';
 import {
   BoundingRect,

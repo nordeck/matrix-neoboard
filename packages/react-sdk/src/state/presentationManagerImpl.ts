@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { isEqual } from 'lodash';
+import isEqual from 'lodash/isEqual';
 import {
   BehaviorSubject,
   combineLatest,

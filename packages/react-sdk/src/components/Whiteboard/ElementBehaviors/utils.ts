@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { uniq } from 'lodash';
+import uniq from 'lodash/uniq';
 import {
   BoundingRect,
   calculateBoundingRectForElements,

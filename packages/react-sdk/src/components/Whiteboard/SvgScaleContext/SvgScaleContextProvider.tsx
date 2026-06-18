@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-import { clamp, isEqual } from 'lodash';
+import clamp from 'lodash/clamp';
+import isEqual from 'lodash/isEqual';
 import React, {
   PropsWithChildren,
   useCallback,

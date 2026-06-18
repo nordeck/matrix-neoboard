@@ -15,7 +15,7 @@
  */
 
 import { TurnServer } from '@matrix-widget-toolkit/api';
-import { clone } from 'lodash';
+import clone from 'lodash/clone';
 import { getLogger } from 'loglevel';
 import {
   buffer,

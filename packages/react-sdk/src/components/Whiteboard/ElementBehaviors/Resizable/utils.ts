@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { clamp } from 'lodash';
+import clamp from 'lodash/clamp';
 import {
   calculateBoundingRectForPoints,
   Element,

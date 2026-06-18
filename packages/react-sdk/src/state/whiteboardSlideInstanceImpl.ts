@@ -15,7 +15,9 @@
  */
 
 import { nanoid } from '@reduxjs/toolkit';
-import { first, isEqual, uniq } from 'lodash';
+import first from 'lodash/first';
+import isEqual from 'lodash/isEqual';
+import uniq from 'lodash/uniq';
 import {
   Observable,
   Subject,

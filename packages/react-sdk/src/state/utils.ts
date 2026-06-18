@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-import { first, isEqual, uniq } from 'lodash';
+import first from 'lodash/first';
+import isEqual from 'lodash/isEqual';
+import uniq from 'lodash/uniq';
 import {
   Element,
   FrameElement,

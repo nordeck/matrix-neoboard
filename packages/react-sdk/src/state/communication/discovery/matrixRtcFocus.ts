@@ -15,7 +15,7 @@
  */
 
 import { getEnvironment } from '@matrix-widget-toolkit/mui';
-import { uniqWith } from 'lodash';
+import uniqWith from 'lodash/uniqWith';
 import { getLogger } from 'loglevel';
 import AutoDiscovery, { FOCI_WK_KEY } from './autodiscovery';
 

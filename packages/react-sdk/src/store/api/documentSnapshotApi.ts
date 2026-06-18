@@ -17,7 +17,8 @@
 import { RoomEvent, WidgetApi } from '@matrix-widget-toolkit/api';
 import { defaultSerializeQueryArgs } from '@reduxjs/toolkit/query';
 import { Base64 } from 'js-base64';
-import { isError, range } from 'lodash';
+import isError from 'lodash/isError';
+import range from 'lodash/range';
 import { getLogger } from 'loglevel';
 import { filter } from 'rxjs';
 import {

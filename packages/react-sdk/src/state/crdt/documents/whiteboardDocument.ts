@@ -15,7 +15,7 @@
  */
 
 import Joi, { AnySchema, ObjectSchema } from 'joi';
-import { without } from 'lodash';
+import without from 'lodash/without';
 import loglevel from 'loglevel';
 import { ChangeFn, Document } from '../types';
 import {

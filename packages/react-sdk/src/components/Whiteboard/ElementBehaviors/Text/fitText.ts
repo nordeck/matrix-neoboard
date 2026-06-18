@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-import { clamp } from 'lodash';
-
+import clamp from 'lodash/clamp';
 const minFontSize = 10;
 const maxFontSize = 800;
 const maxSteps = 10;

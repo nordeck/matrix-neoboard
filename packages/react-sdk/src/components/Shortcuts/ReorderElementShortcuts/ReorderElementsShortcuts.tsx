@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-import { first, last } from 'lodash';
+import first from 'lodash/first';
+import last from 'lodash/last';
 import { useCallback } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import {

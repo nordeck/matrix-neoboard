@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-import { isEqual } from 'lodash';
-
+import isEqual from 'lodash/isEqual';
 export type MousePosition = { clientX: number; clientY: number };
 
 export function isMousePositionEqual(

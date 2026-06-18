@@ -15,7 +15,7 @@
  */
 
 import { TurnServer, WidgetApi } from '@matrix-widget-toolkit/api';
-import { cloneDeep } from 'lodash';
+import cloneDeep from 'lodash/cloneDeep';
 import { getLogger } from 'loglevel';
 import {
   BehaviorSubject,
