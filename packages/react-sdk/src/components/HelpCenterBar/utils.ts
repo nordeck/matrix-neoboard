@@ -38,6 +38,14 @@ export const SHORTCUTS: ShortcutItem[] = [
   },
   {
     ...t(
+      'helpCenter.shortcuts.elementOperations.cut',
+      'Cut selected element(s)',
+    ),
+    keys: 'ctrl+x',
+    macKeys: 'meta+x',
+  },
+  {
+    ...t(
       'helpCenter.shortcuts.elementOperations.copy',
       'Copy selected element(s)',
     ),

@@ -235,6 +235,7 @@
       "close": "Schließen",
       "elementOperations": {
         "copy": "Ausgewählte(s) Element(e) kopieren",
+        "cut": "Ausgewählte(s) Element(e) ausschneiden",
         "duplicate": "Ausgewählte(s) Element(e) duplizieren",
         "escape": "Auswahl aufheben",
         "move": "Element(e) auf dem Board verschieben",
