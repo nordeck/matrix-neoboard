@@ -63,6 +63,7 @@ export function getRenderProperties(
     textAlignment,
     textBold,
     textItalic,
+    textUnderline,
     textSize,
     textFontFamily,
   } = shape;
@@ -80,6 +81,7 @@ export function getRenderProperties(
       alignment: textAlignment ?? 'center',
       bold: textBold ?? false,
       italic: textItalic ?? false,
+      underline: textUnderline ?? false,
       fontSize: textSize,
       fontFamily: textFontFamily,
     },

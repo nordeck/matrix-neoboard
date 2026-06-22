@@ -43,6 +43,7 @@ type EditableProps = {
   textAlign: TextAlignment;
   textBold: boolean;
   textItalic: boolean;
+  textUnderline: boolean;
 };
 
 const Editable = styled('div', {
@@ -50,9 +51,17 @@ const Editable = styled('div', {
     p !== 'editMode' &&
     p !== 'textAlign' &&
     p !== 'textBold' &&
-    p !== 'textItalic',
+    p !== 'textItalic' &&
+    p !== 'textUnderline',
 })<EditableProps>(
-  ({ editMode, contentEditable, textAlign, textBold, textItalic }) => ({
+  ({
+    editMode,
+    contentEditable,
+    textAlign,
+    textBold,
+    textItalic,
+    textUnderline,
+  }) => ({
     lineHeight: 1.2,
     wordBreak: 'unset',
     wordWrap: 'unset',
@@ -60,6 +69,7 @@ const Editable = styled('div', {
     textAlign,
     fontWeight: textBold ? 'bold' : 'normal',
     fontStyle: textItalic ? 'italic' : 'normal',
+    textDecoration: textUnderline ? 'underline' : 'none',
     height: '100%',
     // Selection only works in edit mode
     userSelect: editMode ? 'initial' : 'none',
@@ -101,6 +111,7 @@ export type TextEditorProps = {
   contentAlignment: TextAlignment;
   contentBold: boolean;
   contentItalic: boolean;
+  contentUnderline: boolean;
   editable?: boolean;
   color: string;
   onChange: Dispatch<string>;
@@ -120,6 +131,7 @@ export function TextEditor({
   contentAlignment,
   contentBold,
   contentItalic,
+  contentUnderline,
   editable = false,
   color,
   onChange,
@@ -289,7 +301,13 @@ export function TextEditor({
   useLayoutEffect(() => {
     // Every time content or the shape changes, re-calculate the perfect font size
     if (textRef.current) {
-      fitText(textRef.current, fontSize, contentBold, contentItalic);
+      fitText(
+        textRef.current,
+        fontSize,
+        contentBold,
+        contentItalic,
+        contentUnderline,
+      );
     }
   }, [
     textRef,
@@ -297,6 +315,7 @@ export function TextEditor({
     fontSize,
     contentBold,
     contentItalic,
+    contentUnderline,
     // Width, height, and fontsLoaded are used to trigger calculating the size
     width,
     height,
@@ -311,6 +330,7 @@ export function TextEditor({
       textAlign={contentAlignment}
       textBold={contentBold}
       textItalic={contentItalic}
+      textUnderline={contentUnderline}
       onBlur={onBlur}
       onClick={handleMouseEvents}
       onDoubleClick={handleDoubleClick}
