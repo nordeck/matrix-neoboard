@@ -73,7 +73,8 @@ export function ClipboardShortcuts() {
   const enableShortcuts = activeScopes.includes(HOTKEY_SCOPE_WHITEBOARD);
   const slideInstance = useWhiteboardSlideInstance();
   const { state: presentationState } = usePresentationMode();
-  const isViewingPresentation = presentationState.type === 'presentation';
+  const isViewingPresentation =
+    presentationState.type === 'presentation' && !presentationState.isEditMode;
   const widgetApi = useWidgetApi();
   const { handleDrop } = useImageUpload();
   const { viewportCanvasCenter } = useSvgScaleContext();
