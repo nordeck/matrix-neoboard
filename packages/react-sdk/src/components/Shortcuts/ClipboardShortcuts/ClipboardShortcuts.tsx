@@ -73,7 +73,7 @@ export function ClipboardShortcuts() {
   const enableShortcuts = activeScopes.includes(HOTKEY_SCOPE_WHITEBOARD);
   const slideInstance = useWhiteboardSlideInstance();
   const { state: presentationState } = usePresentationMode();
-  const isViewingPresentation =
+  const isOnlyViewingPresentation =
     presentationState.type === 'presentation' && !presentationState.isEditMode;
   const widgetApi = useWidgetApi();
   const { handleDrop } = useImageUpload();
@@ -87,7 +87,7 @@ export function ClipboardShortcuts() {
         return;
       }
 
-      if (isViewingPresentation || slideInstance.isLocked()) {
+      if (isOnlyViewingPresentation || slideInstance.isLocked()) {
         return;
       }
 
@@ -111,7 +111,7 @@ export function ClipboardShortcuts() {
     // the selected element is lost once we interact with other UI elements.
     document.addEventListener('copy', handler);
     return () => document.removeEventListener('copy', handler);
-  }, [enableShortcuts, isViewingPresentation, slideInstance]);
+  }, [enableShortcuts, isOnlyViewingPresentation, slideInstance]);
 
   // Cut event is triggered by the default keyboard shortcut for cutting in the
   // browser, usually Ctrl/Meta+X
@@ -121,7 +121,7 @@ export function ClipboardShortcuts() {
         return;
       }
 
-      if (isViewingPresentation || slideInstance.isLocked()) {
+      if (isOnlyViewingPresentation || slideInstance.isLocked()) {
         return;
       }
 
@@ -142,7 +142,7 @@ export function ClipboardShortcuts() {
 
     document.addEventListener('cut', handler);
     return () => document.removeEventListener('cut', handler);
-  }, [enableShortcuts, isViewingPresentation, slideInstance]);
+  }, [enableShortcuts, isOnlyViewingPresentation, slideInstance]);
 
   const handlePasteImages = useCallback(
     async (files: File[], imageSizes: Size[], centerPosition: Point) => {
@@ -172,7 +172,7 @@ export function ClipboardShortcuts() {
         return;
       }
 
-      if (isViewingPresentation || slideInstance.isLocked()) {
+      if (isOnlyViewingPresentation || slideInstance.isLocked()) {
         return;
       }
 
@@ -284,7 +284,7 @@ export function ClipboardShortcuts() {
   }, [
     enableShortcuts,
     handlePasteImages,
-    isViewingPresentation,
+    isOnlyViewingPresentation,
     slideInstance,
     widgetApi,
     viewportCanvasCenter,
