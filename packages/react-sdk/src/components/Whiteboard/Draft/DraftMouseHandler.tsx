@@ -15,7 +15,13 @@
  */
 
 import { styled } from '@mui/material';
-import { Dispatch, MouseEvent, PropsWithChildren, useCallback } from 'react';
+import {
+  Dispatch,
+  MouseEvent,
+  PropsWithChildren,
+  TouchEvent,
+  useCallback,
+} from 'react';
 import { Point } from '../../../state';
 import { ActiveTool, useLayoutState } from '../../Layout';
 import { whiteboardHeight, whiteboardWidth } from '../constants';
@@ -118,6 +124,75 @@ export function DraftMouseHandler({
     [onMouseLeave, calculateSvgCoords],
   );
 
+  const handleTouchMove = useCallback(
+    (e: TouchEvent<SVGRectElement>) => {
+      e.preventDefault();
+      if (onMouseMove) {
+        const point = calculateSvgCoords({
+          x: e.touches[0].clientX,
+          y: e.touches[0].clientY,
+        });
+        onMouseMove({
+          point,
+          clientX: e.touches[0].clientX,
+          clientY: e.touches[0].clientY,
+        });
+      }
+    },
+    [calculateSvgCoords, onMouseMove],
+  );
+
+  const handleTouchStart = useCallback(
+    (e: TouchEvent<SVGRectElement>) => {
+      e.preventDefault();
+      if (onMouseDown) {
+        const point = calculateSvgCoords({
+          x: e.touches[0].clientX,
+          y: e.touches[0].clientY,
+        });
+        if (activeTool !== 'sticky-note') {
+          onMouseDown({
+            point,
+            clientX: e.touches[0].clientX,
+            clientY: e.touches[0].clientY,
+          });
+        }
+      }
+    },
+    [activeTool, calculateSvgCoords, onMouseDown],
+  );
+
+  const handleTouchEnd = useCallback(
+    (e: TouchEvent<SVGRectElement>) => {
+      if (e.touches.length > 0) {
+        if (onMouseUp) {
+          const point = calculateSvgCoords({
+            x: e.touches[0].clientX,
+            y: e.touches[0].clientY,
+          });
+          onMouseUp({
+            point,
+            clientX: e.touches[0].clientX,
+            clientY: e.touches[0].clientY,
+          });
+        }
+      } else {
+        if (onMouseUp) {
+          const point = calculateSvgCoords({
+            x: e.changedTouches[0].clientX,
+            y: e.changedTouches[0].clientY,
+          });
+          onMouseUp({
+            point,
+            clientX: e.changedTouches[0].clientX,
+            clientY: e.changedTouches[0].clientY,
+          });
+        }
+      }
+    },
+    [calculateSvgCoords, onMouseUp],
+  );
+
   return (
     <>
       <NoInteraction>{children}</NoInteraction>
@@ -130,6 +205,9 @@ export function DraftMouseHandler({
         onMouseLeave={handleMouseLeave}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        onTouchMove={handleTouchMove}
         width={whiteboardWidth}
         cursor={shapeCursor}
       />
