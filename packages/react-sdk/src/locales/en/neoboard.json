@@ -170,6 +170,7 @@
     "textAlignmentRight": "Right",
     "textBold": "Bold",
     "textItalic": "Italic",
+    "textUnderline": "Underline",
     "title": "Element"
   },
   "elementContextMenu": {

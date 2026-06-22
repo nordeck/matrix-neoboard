@@ -41,6 +41,7 @@ export function getRenderProperties(
       alignment: shape.textAlignment ?? 'center',
       bold: shape.textBold ?? false,
       italic: shape.textItalic ?? false,
+      underline: shape.textUnderline ?? false,
       fontSize: shape.textSize,
       fontFamily: shape.textFontFamily,
     },
