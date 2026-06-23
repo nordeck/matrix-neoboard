@@ -298,16 +298,16 @@ jobs:
         run: yarn build
 
       - name: Setup Pages
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
 
       - name: Upload artifact to GitHub pages
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: 'matrix-neoboard-widget/build'
 
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
 
   create-chart-tag:
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
