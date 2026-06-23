@@ -83,13 +83,27 @@ export {
   rotatePoint,
 } from './point';
 export type { BoundingRect, Point } from './point';
+export { getInfiniteCanvasElements } from './updates';
 export {
+  WhiteboardDocumentVersion,
   createWhiteboardDocument,
+  generateUpdate,
   isValidWhiteboardDocument,
   isValidWhiteboardDocumentSnapshot,
+  isValidWhiteboardDocumentVersion,
+  isWhiteboardDocumentVersion,
+  selectWhiteboardDocumentVersionsUpTo,
 } from './whiteboardDocument';
 export type {
   Slide,
   SlideLock,
   WhiteboardDocument,
 } from './whiteboardDocument';
+export {
+  frameHeight,
+  frameWidth,
+  framesWhiteboardHeight,
+  framesWhiteboardWidth,
+  slidesWhiteboardHeight,
+  slidesWhiteboardWidth,
+} from './whiteboardDocumentConstants';

@@ -18,6 +18,7 @@ export { convertBlobToBase64 } from './convertBlobToBase64';
 export { determineImageSize } from './determineImageSize';
 export { filterRecord } from './filterRecord';
 export { findForegroundColor } from './findForegroundColor';
+export { acquireImageUrl, releaseImageUrl } from './imageBlobCache';
 export { isDefined } from './isDefined';
 export { isInfiniteCanvasMode } from './isInfiniteCanvasMode';
 export { setLocale } from './locale';
