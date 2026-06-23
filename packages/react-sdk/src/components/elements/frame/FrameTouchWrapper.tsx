@@ -39,7 +39,8 @@ const FrameTouchWrapper: React.FC<PropsWithChildren<{ elementId: string }>> = ({
 }) => {
   const slideInstance = useWhiteboardSlideInstance();
   const { updateTranslation } = useSvgScaleContext();
-  const { setDragSelectStartCoords, isDragSelecting } = useLayoutState();
+  const { setDragSelectStartCoords, isDragSelecting, isTouchScaling } =
+    useLayoutState();
   const { calculateSvgCoords } = useSvgCanvasContext();
   const { state: presentationState } = usePresentationMode();
   const { activeElementSet } = useActiveElements();
@@ -47,7 +48,7 @@ const FrameTouchWrapper: React.FC<PropsWithChildren<{ elementId: string }>> = ({
   const panEnabled = presentationState.type === 'idle';
 
   // wrap into ref to pass into the setTimeout
-  const isDragSelectingRef = useRef(false);
+  const isDragSelectingRef = useRef(isDragSelecting);
   isDragSelectingRef.current = isDragSelecting;
 
   const fingerRef = useRef<{ pos: Point; dt: Date }>({
@@ -57,6 +58,8 @@ const FrameTouchWrapper: React.FC<PropsWithChildren<{ elementId: string }>> = ({
 
   const handleTouchMove = useCallback(
     (e: TouchEvent<SVGRectElement>) => {
+      if (e.touches.length > 1) return;
+
       const position = {
         x: e.touches[0].clientX,
         y: e.touches[0].clientY,
@@ -65,6 +68,10 @@ const FrameTouchWrapper: React.FC<PropsWithChildren<{ elementId: string }>> = ({
       const frameSelected = activeElementSet.has(elementId);
 
       if (frameSelected) {
+        return;
+      }
+
+      if (isTouchScaling) {
         return;
       }
 
@@ -83,12 +90,19 @@ const FrameTouchWrapper: React.FC<PropsWithChildren<{ elementId: string }>> = ({
 
       finger.pos = position;
     },
-    [activeElementSet, elementId, panEnabled, updateTranslation],
+    [
+      activeElementSet,
+      elementId,
+      isTouchScaling,
+      panEnabled,
+      updateTranslation,
+    ],
   );
 
   const flashdragselect = useCallback(() => {
     // show drag select briefly
     if (!fingerRef.current.pos) return;
+
     setDragSelectStartCoords(
       calculateSvgCoords({
         x: fingerRef.current.pos.x,
@@ -104,10 +118,13 @@ const FrameTouchWrapper: React.FC<PropsWithChildren<{ elementId: string }>> = ({
 
   const handleTouchStart = useCallback(
     (e: TouchEvent<SVGRectElement>) => {
+      if (e.touches.length > 1) return;
+
       const position = {
         x: e.touches[0].clientX,
         y: e.touches[0].clientY,
       };
+
       fingerRef.current.pos = position;
       fingerRef.current.dt = new Date();
 
@@ -142,7 +159,7 @@ const FrameTouchWrapper: React.FC<PropsWithChildren<{ elementId: string }>> = ({
       // if nothing is selected and frame is tapped,
       // select the frame and flash a drag select overlay
       if (nothingSelected) {
-        if (tap) {
+        if (tap && !isTouchScaling) {
           slideInstance.setActiveElementId(elementId);
           flashdragselect();
         }
@@ -162,7 +179,13 @@ const FrameTouchWrapper: React.FC<PropsWithChildren<{ elementId: string }>> = ({
         flashdragselect();
       }
     },
-    [activeElementSet, elementId, flashdragselect, slideInstance],
+    [
+      activeElementSet,
+      elementId,
+      flashdragselect,
+      isTouchScaling,
+      slideInstance,
+    ],
   );
 
   return (

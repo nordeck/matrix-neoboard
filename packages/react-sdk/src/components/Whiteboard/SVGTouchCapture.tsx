@@ -31,28 +31,23 @@ function getMidpoint(a: Point, b: Point) {
   };
 }
 
-const TAP_TIMEOUT_MS = 500;
-const DRAG_TIMEOUT_MS = 200;
+const SCALE_TIMEOUT_MS = 100;
 const MIN_SCALE_DISTANCE_PX = 20;
 
 const SVGTouchCapture: React.FC<PropsWithChildren> = ({ children }) => {
-  const { setIsTouchScaling } = useLayoutState();
+  const { setIsTouchScaling, isTouchScaling } = useLayoutState();
 
   const { calculateSvgCoords } = useSvgCanvasContext();
 
   const { scale, updateScale } = useSvgScaleContext();
 
   const touchContextRef = useRef<{
-    a?: Point;
-    b?: Point;
     clienta?: Point;
     clientb?: Point;
     center: Point;
     scale: number;
     dt: Date;
   }>({
-    a: void 0,
-    b: void 0,
     clienta: void 0,
     clientb: void 0,
     center: { x: 0, y: 0 },
@@ -80,8 +75,6 @@ const SVGTouchCapture: React.FC<PropsWithChildren> = ({ children }) => {
         // scale start
         touchContextRef.current = {
           ...touchContextRef.current,
-          a,
-          b,
           clienta,
           clientb,
           center: getMidpoint(a, b),
@@ -93,16 +86,23 @@ const SVGTouchCapture: React.FC<PropsWithChildren> = ({ children }) => {
 
         return;
       }
+
+      if (isTouchScaling) {
+        e.stopPropagation();
+      }
     },
-    [calculateSvgCoords, scale, setIsTouchScaling],
+    [calculateSvgCoords, isTouchScaling, scale, setIsTouchScaling],
   );
 
   const handleTouchEnd = useCallback(
     (e: TouchEvent<SVGGElement>) => {
-      if (Date.now() - touchContextRef.current.dt.getTime() < TAP_TIMEOUT_MS) {
+      // ignore touches after scale ended
+      if (
+        Date.now() - touchContextRef.current.dt.getTime() <
+        SCALE_TIMEOUT_MS
+      ) {
         e.stopPropagation();
       }
-
       setIsTouchScaling(false);
     },
     [setIsTouchScaling],
@@ -110,11 +110,14 @@ const SVGTouchCapture: React.FC<PropsWithChildren> = ({ children }) => {
 
   const handleTouchMove = useCallback(
     (e: TouchEvent<SVGGElement>) => {
+      if (e.touches.length > 2) {
+        e.stopPropagation();
+      }
+
       if (e.touches.length === 2) {
         e.stopPropagation();
-        setIsTouchScaling(true);
-        if (!touchContextRef.current.a) return;
-        if (!touchContextRef.current.b) return;
+        touchContextRef.current.dt = new Date();
+
         if (!touchContextRef.current.clienta) return;
         if (!touchContextRef.current.clientb) return;
 
@@ -130,16 +133,12 @@ const SVGTouchCapture: React.FC<PropsWithChildren> = ({ children }) => {
 
         const ratio = newDist / oldDist;
 
-        if (
-          Math.abs(
-            distanceBetweenTwoPoints(clienta, clientb) -
-              distanceBetweenTwoPoints(
-                touchContextRef.current.clienta,
-                touchContextRef.current.clientb,
-              ),
-          ) < MIN_SCALE_DISTANCE_PX
-        )
+        setIsTouchScaling(true);
+
+        // have to move for some distance to prevent jitter
+        if (Math.abs(newDist - oldDist) < MIN_SCALE_DISTANCE_PX) {
           return;
+        }
 
         updateScale(
           touchContextRef.current.scale * ratio,
@@ -147,27 +146,30 @@ const SVGTouchCapture: React.FC<PropsWithChildren> = ({ children }) => {
           touchContextRef.current.center,
         );
 
-        touchContextRef.current = {
-          ...touchContextRef.current,
-          dt: new Date(),
-        };
-
         return;
       }
 
-      if (Date.now() - touchContextRef.current.dt.getTime() < DRAG_TIMEOUT_MS) {
+      // ignore touches after scale ended
+      if (
+        Date.now() - touchContextRef.current.dt.getTime() <
+        SCALE_TIMEOUT_MS
+      ) {
         e.stopPropagation();
       }
-      setIsTouchScaling(false);
     },
     [setIsTouchScaling, updateScale],
   );
+
+  const handleTouchCancel = useCallback(() => {
+    setIsTouchScaling(false);
+  }, [setIsTouchScaling]);
 
   return (
     <g
       onTouchMoveCapture={handleTouchMove}
       onTouchStartCapture={handleTouchStart}
       onTouchEndCapture={handleTouchEnd}
+      onTouchCancel={handleTouchCancel}
     >
       {children}
     </g>

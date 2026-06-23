@@ -30,7 +30,8 @@ const DRAG_SELECT_SHOW_TIMEOUT_MS = 300;
 const UnSelectElementHandlerTouchWrapper: React.FC<PropsWithChildren> = ({
   children,
 }) => {
-  const { isDragSelecting, setDragSelectStartCoords } = useLayoutState();
+  const { isDragSelecting, isTouchScaling, setDragSelectStartCoords } =
+    useLayoutState();
   const { updateTranslation } = useSvgScaleContext();
   const { state: presentationState } = usePresentationMode();
 
@@ -42,56 +43,73 @@ const UnSelectElementHandlerTouchWrapper: React.FC<PropsWithChildren> = ({
   const isDragSelectingRef = useRef(isDragSelecting);
   isDragSelectingRef.current = isDragSelecting;
 
-  const fingerRef = useRef<{ pos?: Point; dt: Date }>({
+  const fingerRef = useRef<{ pos?: Point; dt?: Date }>({
     pos: void 0,
-    dt: new Date(),
+    dt: void 0,
   });
 
-  const handleTouchMove = (e: TouchEvent<SVGRectElement>) => {
-    const position = {
-      x: e.touches[0].clientX,
-      y: e.touches[0].clientY,
-    };
+  const handleTouchMove = useCallback(
+    (e: TouchEvent<SVGRectElement>) => {
+      if (e.touches.length > 1) return;
 
-    const finger = fingerRef.current;
+      if (!fingerRef.current.dt) return;
+      if (Date.now() - fingerRef.current.dt.getTime() > 300) return;
 
-    if (!finger.pos) return;
+      fingerRef.current.dt = new Date();
 
-    const deltaX = finger.pos.x - position.x;
-    const deltaY = finger.pos.y - position.y;
+      const position = {
+        x: e.touches[0].clientX,
+        y: e.touches[0].clientY,
+      };
 
-    if (panEnabled) {
-      updateTranslation(-deltaX, -deltaY);
-    }
+      const finger = fingerRef.current;
 
-    finger.pos = position;
-    touchTimestamp.current = new Date();
-  };
+      if (!finger.pos) return;
 
-  const handleTouchStart = (e: TouchEvent<SVGGElement>) => {
+      const deltaX = finger.pos.x - position.x;
+      const deltaY = finger.pos.y - position.y;
+
+      if (panEnabled) {
+        updateTranslation(-deltaX, -deltaY);
+      }
+
+      finger.pos = position;
+      touchTimestamp.current = new Date();
+    },
+    [panEnabled, updateTranslation],
+  );
+
+  const handleTouchStart = useCallback((e: TouchEvent<SVGGElement>) => {
+    if (e.touches.length > 1) return;
+
     e.preventDefault();
 
     const position = {
       x: e.touches[0].clientX,
       y: e.touches[0].clientY,
     };
+
     fingerRef.current.pos = position;
     fingerRef.current.dt = new Date();
 
     touchTimestamp.current = new Date();
-  };
+  }, []);
 
-  const handleTouchEnd = () => {
+  const handleTouchEnd = useCallback(() => {
     touchTimestamp.current = new Date();
-  };
-  const handleTouchCancel = () => {
+    fingerRef.current.dt = void 0;
+  }, []);
+
+  const handleTouchCancel = useCallback(() => {
     touchTimestamp.current = new Date();
-  };
+    fingerRef.current.dt = void 0;
+  }, []);
 
   // a default mouse down event may happen from a tap
   const handleMouseDown = useCallback(
     (event: MouseEvent<SVGRectElement>) => {
       if (!touchTimestamp.current) return;
+      if (isTouchScaling) return;
       if (event.button === 0) {
         // if we had touch recently, show drag select layer briefly
         if (Date.now() - touchTimestamp.current.getTime() < 200) {
@@ -101,7 +119,7 @@ const UnSelectElementHandlerTouchWrapper: React.FC<PropsWithChildren> = ({
         }
       }
     },
-    [setDragSelectStartCoords],
+    [isTouchScaling, setDragSelectStartCoords],
   );
 
   return (
