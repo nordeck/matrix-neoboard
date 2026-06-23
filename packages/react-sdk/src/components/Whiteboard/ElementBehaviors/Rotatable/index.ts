@@ -15,19 +15,3 @@
  */
 
 export { RotateElement } from './RotateElement';
-export type { RotateElementProps, RotationDragEvent } from './RotateElement';
-export { RotateHandler } from './RotateHandler';
-export {
-  angleBetweenPoints,
-  calculateBoundaryWithRotationHandle,
-  calculateRotatorHandleCenter,
-  checkMultiselect,
-  clampAngle,
-  getMinMaxFromPoints,
-  getRotationTransformForElementsArray,
-  getRotationTransformForElementsArrayWithCenterOffset,
-  hasRotatedElements,
-  rotateCursor,
-  rotatePoint,
-} from './rotatorMath';
-export { rotateConnectedPaths } from './utils';

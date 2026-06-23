@@ -15,12 +15,14 @@
  */
 
 import { useTheme } from '@mui/material';
-import { calculateBoundingRectForElements } from '../../../../state';
 import { useElementOverrides } from '../../../ElementOverridesProvider';
 import { useLayoutState } from '../../../Layout';
 import { getRenderProperties } from '../../../elements/line/getRenderProperties';
 import { useSvgScaleContext } from '../../SvgScaleContext';
-import { getRotationTransformForElementsArrayWithCenterOffset } from '../Rotatable/rotatorMath';
+import {
+  getBoundingRectForElements,
+  getRotationTransformForElements,
+} from '../utils';
 
 function SelectionAnchor({
   x,
@@ -63,17 +65,14 @@ export function ElementBorder({ elementIds, padding = 1 }: ElementBorderProps) {
   const isInSelectionMode = activeTool === 'select';
   const { scale } = useSvgScaleContext();
   const elements = Object.values(useElementOverrides(elementIds));
-  const {
-    offsetX: x,
-    offsetY: y,
-    width,
-    height,
-  } = calculateBoundingRectForElements(elements);
+
+  const { offsetX, offsetY, width, height } =
+    getBoundingRectForElements(elements);
 
   const scaledPadding = padding / scale;
   const selectionBorderWidth = 2 / scale;
-  const selectionX = x - (selectionBorderWidth / 2 + scaledPadding);
-  const selectionY = y - (selectionBorderWidth / 2 + scaledPadding);
+  const selectionX = offsetX - (selectionBorderWidth / 2 + scaledPadding);
+  const selectionY = offsetY - (selectionBorderWidth / 2 + scaledPadding);
   const selectionWidth = width + 2 * (selectionBorderWidth / 2 + scaledPadding);
   const selectionHeight =
     height + 2 * (selectionBorderWidth / 2 + scaledPadding);
@@ -84,64 +83,64 @@ export function ElementBorder({ elementIds, padding = 1 }: ElementBorderProps) {
     elements[0].kind === 'line' &&
     getRenderProperties(elements[0]);
 
-  const { rotationTransform } =
-    getRotationTransformForElementsArrayWithCenterOffset(elements, { x, y });
+  const rotationParameters = getRotationTransformForElements(elements);
+  let rotationTransform: string | undefined;
+  if (rotationParameters) {
+    const { rotation, center } = rotationParameters;
+    rotationTransform = `rotate(${rotation} ${offsetX + center.x} ${offsetY + center.y})`;
+  }
 
   if (!isInSelectionMode) return <></>;
 
-  const solidLineBorder = () => {
-    return (
-      <g
-        transform={rotationTransform}
-        data-testid={`selection-solid-line-borders`}
-      >
-        <line
-          data-testid={`${elementIds[0]}-border-top`}
-          fill="none"
-          stroke={theme.palette.primary.main}
-          strokeWidth={selectionBorderWidth}
-          x1={selectionX}
-          x2={selectionX + selectionWidth}
-          y1={selectionY}
-          y2={selectionY}
-        />
-        <line
-          data-testid={`${elementIds[0]}-border-right`}
-          fill="none"
-          stroke={theme.palette.primary.main}
-          strokeWidth={selectionBorderWidth}
-          x1={selectionX + selectionWidth}
-          x2={selectionX + selectionWidth}
-          y1={selectionY}
-          y2={selectionY + selectionHeight}
-        />
-        <line
-          data-testid={`${elementIds[0]}-border-bottom`}
-          fill="none"
-          stroke={theme.palette.primary.main}
-          strokeWidth={selectionBorderWidth}
-          x1={selectionX + selectionWidth}
-          x2={selectionX}
-          y1={selectionY + selectionHeight}
-          y2={selectionY + selectionHeight}
-        />
-        <line
-          data-testid={`${elementIds[0]}-border-left`}
-          fill="none"
-          stroke={theme.palette.primary.main}
-          strokeWidth={selectionBorderWidth}
-          x1={selectionX}
-          x2={selectionX}
-          y1={selectionY + selectionHeight}
-          y2={selectionY}
-        />
-      </g>
-    );
-  };
-
   return (
     <g>
-      {!lineRenderProperties && solidLineBorder()}
+      {!lineRenderProperties && (
+        <g
+          transform={rotationTransform}
+          data-testid={`selection-solid-line-borders`}
+        >
+          <line
+            data-testid={`${elementIds[0]}-border-top`}
+            fill="none"
+            stroke={theme.palette.primary.main}
+            strokeWidth={selectionBorderWidth}
+            x1={selectionX}
+            x2={selectionX + selectionWidth}
+            y1={selectionY}
+            y2={selectionY}
+          />
+          <line
+            data-testid={`${elementIds[0]}-border-right`}
+            fill="none"
+            stroke={theme.palette.primary.main}
+            strokeWidth={selectionBorderWidth}
+            x1={selectionX + selectionWidth}
+            x2={selectionX + selectionWidth}
+            y1={selectionY}
+            y2={selectionY + selectionHeight}
+          />
+          <line
+            data-testid={`${elementIds[0]}-border-bottom`}
+            fill="none"
+            stroke={theme.palette.primary.main}
+            strokeWidth={selectionBorderWidth}
+            x1={selectionX + selectionWidth}
+            x2={selectionX}
+            y1={selectionY + selectionHeight}
+            y2={selectionY + selectionHeight}
+          />
+          <line
+            data-testid={`${elementIds[0]}-border-left`}
+            fill="none"
+            stroke={theme.palette.primary.main}
+            strokeWidth={selectionBorderWidth}
+            x1={selectionX}
+            x2={selectionX}
+            y1={selectionY + selectionHeight}
+            y2={selectionY}
+          />
+        </g>
+      )}
 
       {lineRenderProperties ? (
         <>

@@ -16,88 +16,145 @@
 
 import { describe, expect, it } from 'vitest';
 import {
-  mockCircleElement,
+  mockEllipseElement,
   mockFrameElement,
   mockImageElement,
-  mockLineElement,
+  mockPolylineElement,
 } from '../../lib/testUtils';
-import { Element } from '../../state';
 import { mergeElementAndOverride } from './utils';
 
-describe('ElementOverridesProvider util', () => {
-  it.each`
-    type       | kind             | expected
-    ${'path'}  | ${'line'}        | ${undefined}
-    ${'image'} | ${undefined}     | ${45}
-    ${'frame'} | ${undefined}     | ${undefined}
-    ${'shape'} | ${'circle'}      | ${45}
-    ${'shape'} | ${'rectangle'}   | ${45}
-    ${'shape'} | ${'ellipse'}     | ${45}
-    ${'shape'} | ${'triangle'}    | ${45}
-    ${'shape'} | ${'block-arrow'} | ${45}
-  `(
-    `should properly include the rotation field for rotateable elements of type $type, kind $kind, rotation $rotation`,
-    ({ type, kind, expected }) => {
-      let e: Element | undefined = undefined;
-      switch (type) {
-        case 'path':
-          e = mockLineElement({ kind: kind });
-          break;
-        case 'shape':
-          e = mockCircleElement({ kind: kind });
-          break;
-        case 'frame':
-          e = mockFrameElement();
-          break;
-        case 'image':
-          e = mockImageElement();
-          break;
-        default:
-          throw `type ${type} not handled`;
-      }
+describe('mergeElementAndOverride', () => {
+  it(`should replace position of shape element`, () => {
+    const element = mockEllipseElement();
+    expect(
+      mergeElementAndOverride(element, { position: { x: 20, y: 21 } }),
+    ).toEqual({
+      ...element,
+      position: { x: 20, y: 21 },
+    });
+  });
 
-      const override = { rotation: 45 };
+  it(`should replace width of shape element`, () => {
+    const element = mockEllipseElement();
+    expect(mergeElementAndOverride(element, { width: 100 })).toEqual({
+      ...element,
+      width: 100,
+    });
+  });
 
-      expect(
-        (
-          mergeElementAndOverride(e, override) as Element & {
-            rotation?: number;
-          }
-        ).rotation,
-      ).toBe(expected);
-    },
-  );
+  it(`should replace height of shape element`, () => {
+    const element = mockEllipseElement();
+    expect(mergeElementAndOverride(element, { height: 101 })).toEqual({
+      ...element,
+      height: 101,
+    });
+  });
 
-  it.each`
-    type       | kind         | rotation     | expected
-    ${'image'} | ${undefined} | ${0}         | ${0}
-    ${'image'} | ${undefined} | ${undefined} | ${45}
-    ${'shape'} | ${'circle'}  | ${undefined} | ${45}
-    ${'shape'} | ${'circle'}  | ${0}         | ${0}
-  `(
-    `should CLEAR the rotation field for rotateable elements of type $type, kind $kind, rotation $rotation`,
-    ({ type, kind, rotation, expected }) => {
-      let e: Element | undefined = undefined;
-      switch (type) {
-        case 'shape':
-          e = mockCircleElement({ kind: kind, rotation: 45 });
-          break;
-        case 'image':
-          e = mockImageElement({ rotation: 45 });
-          break;
-        default:
-          throw `type ${type} not handled`;
-      }
+  it(`should replace rotation of shape element`, () => {
+    const element = mockEllipseElement();
+    expect(mergeElementAndOverride(element, { rotation: 45 })).toEqual({
+      ...element,
+      rotation: 45,
+    });
+  });
 
-      const override = { rotation: rotation };
+  it(`should replace position of image element`, () => {
+    const element = mockImageElement();
+    expect(
+      mergeElementAndOverride(element, { position: { x: 20, y: 21 } }),
+    ).toEqual({
+      ...element,
+      position: { x: 20, y: 21 },
+    });
+  });
 
-      expect(
-        (
-          mergeElementAndOverride(e, override) as Element & {
-            rotation?: number;
-          }
-        )?.rotation,
-      ).toBe(expected);
-    },
-  );
+  it(`should replace width of image element`, () => {
+    const element = mockImageElement();
+    expect(mergeElementAndOverride(element, { width: 100 })).toEqual({
+      ...element,
+      width: 100,
+    });
+  });
+
+  it(`should replace height of image element`, () => {
+    const element = mockImageElement();
+    expect(mergeElementAndOverride(element, { height: 101 })).toEqual({
+      ...element,
+      height: 101,
+    });
+  });
+
+  it(`should replace rotation of image element`, () => {
+    const element = mockImageElement();
+    expect(mergeElementAndOverride(element, { rotation: 45 })).toEqual({
+      ...element,
+      rotation: 45,
+    });
+  });
+
+  it(`should replace position of path element`, () => {
+    const element = mockPolylineElement();
+    expect(
+      mergeElementAndOverride(element, { position: { x: 20, y: 21 } }),
+    ).toEqual({
+      ...element,
+      position: { x: 20, y: 21 },
+    });
+  });
+
+  it(`should replace points of path element`, () => {
+    const element = mockPolylineElement();
+    expect(
+      mergeElementAndOverride(element, {
+        points: [
+          { x: 0, y: 1 },
+          { x: 2, y: 3 },
+          { x: 4, y: 5 },
+        ],
+      }),
+    ).toEqual({
+      ...element,
+      points: [
+        { x: 0, y: 1 },
+        { x: 2, y: 3 },
+        { x: 4, y: 5 },
+      ],
+    });
+  });
+
+  it(`should not replace rotation of path element`, () => {
+    const element = mockPolylineElement();
+    expect(mergeElementAndOverride(element, { rotation: 45 })).toEqual(element);
+  });
+
+  it(`should replace position of frame element`, () => {
+    const element = mockFrameElement();
+    expect(
+      mergeElementAndOverride(element, { position: { x: 20, y: 21 } }),
+    ).toEqual({
+      ...element,
+      position: { x: 20, y: 21 },
+    });
+  });
+
+  it(`should replace width of frame element`, () => {
+    const element = mockFrameElement();
+    expect(mergeElementAndOverride(element, { width: 100 })).toEqual({
+      ...element,
+      width: 100,
+    });
+  });
+
+  it(`should replace height of frame element`, () => {
+    const element = mockFrameElement();
+    expect(mergeElementAndOverride(element, { height: 101 })).toEqual({
+      ...element,
+      height: 101,
+    });
+  });
+
+  it(`should not replace rotation of frame element`, () => {
+    const element = mockFrameElement();
+    expect(mergeElementAndOverride(element, { rotation: 45 })).toEqual(element);
+  });
 });

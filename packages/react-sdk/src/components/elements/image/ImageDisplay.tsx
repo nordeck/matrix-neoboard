@@ -185,9 +185,8 @@ function ImageDisplay({
     />
   ) : null;
 
-  const rot = rotation ?? 0;
-  const transform = rot
-    ? `rotate(${rot} ${position.x + width / 2} ${position.y + height / 2})`
+  const transform = rotation
+    ? `rotate(${rotation} ${position.x + width / 2} ${position.y + height / 2})`
     : undefined;
 
   const renderedChild =

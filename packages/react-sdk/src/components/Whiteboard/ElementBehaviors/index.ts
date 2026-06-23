@@ -18,6 +18,7 @@ export * from './Connectable';
 export * from './ContextMenu';
 export * from './Moveable';
 export * from './Resizable';
+export * from './Rotatable';
 export * from './Selection';
 export * from './Text';
 export { getPathElements } from './utils';

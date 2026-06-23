@@ -25,6 +25,7 @@ export {
   imageElementSchema,
   includesShapeWithText,
   includesTextShape,
+  isRotatableElement,
   isShapeElementPair,
   isShapeWithText,
   isTextShape,
@@ -75,9 +76,11 @@ export {
 } from './operations';
 export type { UpdateElementPatch } from './operations';
 export {
+  angleBetweenPoints,
   calculateBoundingRectForPoints,
   isPointWithinBoundingRect,
   pointSchema,
+  rotatePoint,
 } from './point';
 export type { BoundingRect, Point } from './point';
 export {

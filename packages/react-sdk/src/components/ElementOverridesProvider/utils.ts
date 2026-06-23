@@ -15,14 +15,19 @@
  */
 
 import { Element } from '../../state';
-import { isRotateableElement } from '../../state/crdt/documents/elements';
 import { ElementOverride } from './ElementOverridesProvider';
 
 export function mergeElementAndOverride<T extends Element>(
   element: T,
   override: ElementOverride | undefined,
 ): T {
-  if (isRotateableElement(element)) {
+  if (element.type === 'path') {
+    return {
+      ...element,
+      position: override?.position ?? element.position,
+      points: override?.points ?? element.points,
+    };
+  } else if (element.type === 'shape' || element.type === 'image') {
     return {
       ...element,
       height: override?.height ?? element.height,
@@ -30,18 +35,12 @@ export function mergeElementAndOverride<T extends Element>(
       position: override?.position ?? element.position,
       rotation: override?.rotation ?? element.rotation,
     };
+  } else {
+    return {
+      ...element,
+      height: override?.height ?? element.height,
+      width: override?.width ?? element.width,
+      position: override?.position ?? element.position,
+    };
   }
-
-  return element.type === 'path'
-    ? {
-        ...element,
-        position: override?.position ?? element.position,
-        points: override?.points ?? element.points,
-      }
-    : {
-        ...element,
-        height: override?.height ?? element.height,
-        width: override?.width ?? element.width,
-        position: override?.position ?? element.position,
-      };
 }

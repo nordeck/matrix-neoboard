@@ -146,7 +146,7 @@ An Element that has a shape attached, that has a text and a fill color.
 | `textFontFamily` | `'Inter' \| 'Abel' \| 'Actor' \| 'Adamina' \| 'Chewy' \| 'Gwendolyn' \| 'Pirata One' \| undefined` | The font family of the text. Defaults to `"Inter"`.                        |
 | `connectedPaths` | `string[] \| undefined`                                                                            | The IDs of connected path elements. Currently only lines can be connected. |
 | `attachedFrame`  | `string \| undefined`                                                                              | The ID of the frame this element is attached to.                           |
-| `rotation`       | `number \| undefined`                                                                              | Rotation angle for the shape around it's center (0..360) clockwise.        |
+| `rotation`       | `number \| undefined`                                                                              | Rotation angle for the shape around its center (0..360) clockwise.         |
 
 #### Example
 
@@ -260,7 +260,7 @@ An image element
 | `width`         | `number`                                                        | Scaling of the image on the x-axis.                                                                                              |
 | `height`        | `number`                                                        | Scaling of the image on the y-axis.                                                                                              |
 | `attachedFrame` | `string \| undefined`                                           | The ID of the frame this element is attached to.                                                                                 |
-| `rotation`      | `number \| undefined`                                           | Rotation angle for the image around it's center (0..360) clockwise.                                                              |
+| `rotation`      | `number \| undefined`                                           | Rotation angle for the image around its center (0..360) clockwise.                                                               |
 
 #### Example
 

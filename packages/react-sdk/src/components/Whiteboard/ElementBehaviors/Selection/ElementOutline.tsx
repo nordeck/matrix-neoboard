@@ -15,8 +15,10 @@
  */
 
 import { useTheme } from '@mui/material';
-import { calculateBoundingRectForPoints } from '../../../../state';
-import { isRotateableElement } from '../../../../state/crdt/documents/elements';
+import {
+  calculateBoundingRectForPoints,
+  isRotatableElement,
+} from '../../../../state';
 import { useElementOverrides } from '../../../ElementOverridesProvider';
 
 type ElementOutlineProps = {
@@ -32,20 +34,17 @@ export function ElementOutline({ elementIds }: ElementOutlineProps) {
   return (
     <g pointerEvents="none">
       {elements.map((element, index) => {
-        let width;
-        let height;
+        let width: number;
+        let height: number;
 
         if (element.type === 'path') {
-          const boundingRect = calculateBoundingRectForPoints(element.points);
-          width = boundingRect.width;
-          height = boundingRect.height;
+          ({ width, height } = calculateBoundingRectForPoints(element.points));
         } else {
-          width = element.width;
-          height = element.height;
+          ({ width, height } = element);
         }
 
         const transform =
-          isRotateableElement(element) && element.rotation
+          isRotatableElement(element) && element.rotation
             ? `rotate(${element.rotation} ${element.position.x + element.width / 2} ${element.position.y + element.height / 2})`
             : undefined;
 

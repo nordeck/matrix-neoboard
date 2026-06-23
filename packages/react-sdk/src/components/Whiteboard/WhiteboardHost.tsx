@@ -50,9 +50,9 @@ import {
   ElementOutline,
   MoveableElement,
   ResizeElement,
+  RotateElement,
   UnSelectElementHandler,
 } from './ElementBehaviors';
-import { RotateElement } from './ElementBehaviors/Rotatable/RotateElement';
 import { DragSelect } from './ElementBehaviors/Selection/DragSelect';
 import { DotGrid } from './Grid';
 import { SlideSkeleton } from './SlideSkeleton';

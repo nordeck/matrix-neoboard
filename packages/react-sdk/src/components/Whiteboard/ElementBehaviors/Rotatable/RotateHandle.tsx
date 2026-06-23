@@ -15,127 +15,117 @@
  */
 
 import { useTheme } from '@mui/material';
-import { Dispatch, RefObject, useCallback, useRef, useState } from 'react';
+import {
+  Dispatch,
+  RefObject,
+  useCallback,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { DraggableCore, DraggableData, DraggableEvent } from 'react-draggable';
-import { Point } from '../../../../state';
+import { angleBetweenPoints, Point, rotatePoint } from '../../../../state';
 import { useSvgCanvasContext } from '../../SvgCanvas';
 import { useSvgScaleContext } from '../../SvgScaleContext';
-import {
-  angleBetweenPoints,
-  calculateRotatorHandleCenter,
-  clampAngle,
-  rotatePoint,
-} from './rotatorMath';
+import { calculateRotationHandleCenter, clampAngle } from '../utils';
 
-export type RotatorHandlePosition = {
-  containerWidth: number;
-  containerHeight: number;
+type RotateHandleProps = {
+  handlePosition: HandlePosition;
+  onDrag?: Dispatch<RotateHandleDragEvent>;
+  onDragStart?: Dispatch<RotateHandleDragEvent>;
+  onDragStop?: Dispatch<RotateHandleDragEvent>;
+};
+
+type HandlePosition = {
   offsetX: number;
   offsetY: number;
+  containerWidth: number;
+  containerHeight: number;
   rotation: number;
-  elementId?: undefined;
 };
 
-export type RotateHandleProps = {
-  handlePosition: RotatorHandlePosition;
-  onDrag?: Dispatch<RotationHandleDragEvent>;
-  onDragStart?: Dispatch<RotationHandleDragEvent>;
-  onDragStop?: Dispatch<RotationHandleDragEvent>;
-};
-
-export type RotationHandleDragEvent = {
+export type RotateHandleDragEvent = {
   newAngle: number;
   referenceAngle: number;
   angleSnap: boolean;
 };
 
-export function RotateHandler({
-  handlePosition: position,
+export function RotateHandle({
+  handlePosition: {
+    offsetX,
+    offsetY,
+    containerWidth,
+    containerHeight,
+    rotation,
+  },
   onDrag,
   onDragStart,
   onDragStop,
 }: RotateHandleProps) {
-  const { scale } = useSvgScaleContext();
   const nodeRef = useRef<SVGRectElement>(null);
+  const [rotationInitialPosition, setRotationInitialPosition] = useState<
+    { x: number; y: number; rotation: number } | undefined
+  >(undefined);
+
+  const { scale } = useSvgScaleContext();
   const { calculateSvgCoords } = useSvgCanvasContext();
 
-  const {
-    center: handleCenter,
-    width,
-    height,
-  } = calculateRotatorHandleCenter({
-    containerWidth: position.containerWidth,
-    containerHeight: position.containerHeight,
-    scale,
-  });
-
-  const [rotationInitialPosition, setRotationInitialPosition] = useState<
-    { x: number; y: number; rot: number } | undefined
-  >(undefined);
+  const containerCenter: Point = useMemo(
+    () => ({
+      x: offsetX + containerWidth / 2,
+      y: offsetY + containerHeight / 2,
+    }),
+    [containerWidth, containerHeight, offsetX, offsetY],
+  );
 
   const dispatchDragEvent = useCallback(
     (
-      dragEvent: Dispatch<RotationHandleDragEvent> | undefined,
+      dragEvent: Dispatch<RotateHandleDragEvent> | undefined,
       event: DraggableEvent,
       data: DraggableData,
     ) => {
       if (!rotationInitialPosition) {
         if (dragEvent) {
           dragEvent({
-            newAngle: position.rotation,
-            referenceAngle: position.rotation,
+            newAngle: rotation,
+            referenceAngle: rotation,
             angleSnap: event.shiftKey,
           });
         }
         return;
       }
 
-      const handle = {
-        x: rotationInitialPosition.x,
-        y: rotationInitialPosition.y,
-      };
-
       const cursor = calculateSvgCoords({
         x: data.x * scale,
         y: data.y * scale,
       });
 
-      const center = {
-        x: position.containerWidth / 2.0 + position.offsetX,
-        y: position.containerHeight / 2.0 + position.offsetY,
-      };
-
       const step = event.shiftKey ? 45 : 1;
 
-      const angle = angleBetweenPoints(handle, cursor, center);
-
-      const stepFunction = (angle: number, step: number): number => {
-        if (step === 0) return 0;
-        const times = Math.floor(angle / step);
-        return step * times;
+      const initial = {
+        x: rotationInitialPosition.x,
+        y: rotationInitialPosition.y,
       };
+      const angle = angleBetweenPoints(initial, cursor, containerCenter);
 
       const angleInteger = clampAngle(
-        stepFunction(angle + rotationInitialPosition.rot, step),
+        snapAngleToStep(angle + rotationInitialPosition.rotation, step),
       );
 
       if (dragEvent) {
         dragEvent({
           newAngle: angleInteger,
-          referenceAngle: rotationInitialPosition.rot,
+          referenceAngle: rotationInitialPosition.rotation,
           angleSnap: event.shiftKey,
         });
       }
     },
     [
       calculateSvgCoords,
-      position.containerHeight,
-      position.containerWidth,
-      position.offsetX,
-      position.offsetY,
-      position.rotation,
+      rotation,
       rotationInitialPosition,
       scale,
+      containerCenter,
     ],
   );
 
@@ -148,17 +138,11 @@ export function RotateHandler({
       setRotationInitialPosition({
         x: cursor.x,
         y: cursor.y,
-        rot: position.rotation ?? 0,
+        rotation,
       });
       dispatchDragEvent(onDragStart, event, data);
     },
-    [
-      calculateSvgCoords,
-      dispatchDragEvent,
-      onDragStart,
-      position.rotation,
-      scale,
-    ],
+    [calculateSvgCoords, dispatchDragEvent, onDragStart, rotation, scale],
   );
 
   const handleDrag = useCallback(
@@ -182,44 +166,49 @@ export function RotateHandler({
     [dispatchDragEvent, onDragStop],
   );
 
+  const handleSize = 16 / scale;
+
+  const { x, y }: Point = useMemo(() => {
+    const handleContainerCenter = calculateRotationHandleCenter({
+      containerHeight,
+      scale,
+    });
+
+    // brings handle and rotation center to the same global coordinate system
+    const point = {
+      x: offsetX + handleContainerCenter.x,
+      y: offsetY + handleContainerCenter.y,
+    };
+    const rotatedPoint = rotatePoint(point, containerCenter, rotation);
+
+    // shifts the rotated handle back to its local coordinates
+    return {
+      x: rotatedPoint.x - offsetX - handleSize / 2,
+      y: rotatedPoint.y - offsetY - handleSize / 2,
+    };
+  }, [
+    containerCenter,
+    offsetX,
+    offsetY,
+    containerHeight,
+    rotation,
+    handleSize,
+    scale,
+  ]);
+
   const theme = useTheme();
   const selectionAnchorCornerRadius = 3 / scale;
   const selectionBorderWidth = 2 / scale;
 
-  const getRotatedHandleCorner = () => {
-    const center = {
-      x: position.containerWidth / 2.0 + position.offsetX,
-      y: position.containerHeight / 2.0 + position.offsetY,
-    };
-
-    const rotatedHandleCorner = rotatePoint(
-      {
-        x: handleCenter.x + position.offsetX + width / 2, // brings handle and rotation center to the same
-        y: handleCenter.y + position.offsetY + height / 2, // global coordinate system
-      },
-      center,
-      position.rotation,
-    );
-
-    // shifts the rotated handle back to
-    // it's local coords
-    const cornerLocal = {
-      x: rotatedHandleCorner.x - position.offsetX - width / 2,
-      y: rotatedHandleCorner.y - position.offsetY - height / 2,
-    };
-
-    return cornerLocal;
-  };
-
-  const rotatedHandleCorner: Point = getRotatedHandleCorner();
-
   return (
     <g>
-      <g data-testid={`rotate-handle-icon`}>
+      <g
+        data-testid="rotate-handle-icon"
+        transform={`translate(${x + selectionBorderWidth / 2} ${y + selectionBorderWidth / 2})`}
+      >
         <svg
-          width={width - selectionBorderWidth}
-          height={height - selectionBorderWidth}
-          transform={`translate(${rotatedHandleCorner.x + selectionBorderWidth / 2} ${rotatedHandleCorner.y + selectionBorderWidth / 2})`}
+          width={handleSize - selectionBorderWidth}
+          height={handleSize - selectionBorderWidth}
           viewBox={'0 0 417 417'}
         >
           <rect width="100%" height="100%" fill="white" />
@@ -251,24 +240,25 @@ export function RotateHandler({
         scale={scale}
       >
         <rect
-          data-testid={`rotate-handle`}
-          cursor={'grab'}
-          fill={'transparent'}
-          height={height}
+          data-testid="rotate-handle"
+          cursor="grab"
+          fill="transparent"
+          height={handleSize}
           ref={nodeRef}
           stroke={theme.palette.primary.main}
           strokeWidth={selectionBorderWidth}
-          transform={`translate(${rotatedHandleCorner.x} ${rotatedHandleCorner.y})`}
-          width={width}
+          transform={`translate(${x} ${y})`}
+          width={handleSize}
           rx={selectionAnchorCornerRadius}
           ry={selectionAnchorCornerRadius}
-        ></rect>
+        />
       </DraggableCore>
     </g>
   );
 }
 
-export type HandlePos = {
-  containerWidth: number;
-  containerHeight: number;
-};
+function snapAngleToStep(angle: number, step: number): number {
+  if (step === 0) return 0;
+  const times = Math.round(angle / step);
+  return step * times;
+}

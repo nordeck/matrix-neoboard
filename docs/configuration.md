@@ -39,7 +39,6 @@ REACT_APP_RTC_LIVEKIT_SERVICE_URL=https://lk-jwt.example.org
 
 # optional: Use infinite canvas instead of slides mode (defaults to `false`)
 REACT_APP_INFINITE_CANVAS=false
-
 ```
 
 ## Room power level

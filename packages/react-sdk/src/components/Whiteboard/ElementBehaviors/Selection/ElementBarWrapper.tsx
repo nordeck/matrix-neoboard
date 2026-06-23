@@ -18,15 +18,17 @@ import { Box } from '@mui/material';
 import { clamp } from 'lodash';
 import React, { PropsWithChildren, useMemo } from 'react';
 import {
+  BoundingRect,
   calculateBoundingRectForElements,
+  Element,
+  isRotatableElement,
   useSlideIsLocked,
 } from '../../../../state';
-import { isRotateableElement } from '../../../../state/crdt/documents/elements';
 import { useElementOverrides } from '../../../ElementOverridesProvider';
 import { useMeasure } from '../../SvgCanvas';
 import { useSvgScaleContext } from '../../SvgScaleContext';
 import { infiniteCanvasMode } from '../../constants';
-import { calculateBoundaryWithRotationHandle } from '../Rotatable';
+import { calculateBoundingRectForElementWithRotationHandle } from './utils';
 
 type ElementBarWrapperProps = PropsWithChildren<{ elementIds: string[] }>;
 
@@ -69,33 +71,17 @@ const FiniteElementBarWrapper: React.FC<ElementBarWrapperProps> = ({
     offsetY: y,
     width,
     height,
-  } = calculateBoundingRectForElements(elements);
+  } = calculateBoundingRectWithRotationHandle(elements, scale);
 
-  const rotatedBoundary =
-    elements.length === 1 && isRotateableElement(elements[0])
-      ? calculateBoundaryWithRotationHandle(elements[0], scale)
-      : null;
-
-  const offset = 10;
+  const offset = elementIds.length === 1 ? 20 : 10;
 
   function calculateTopPosition() {
     const position = y * scale;
+    const position1 = (y + height) * scale;
     const positionInElement = position + offset;
 
-    let positionAbove = position - elementBarHeight - offset;
-    let positionBelow = position + height * scale + offset;
-
-    // adjust if the object is rotateable
-    if (rotatedBoundary) {
-      positionAbove = Math.min(
-        positionAbove,
-        rotatedBoundary.min.y * scale - elementBarHeight - offset * 2,
-      );
-      positionBelow = Math.max(
-        positionBelow,
-        rotatedBoundary.max.y * scale + offset * 2,
-      );
-    }
+    const positionAbove = position - elementBarHeight - offset;
+    const positionBelow = position1 + offset;
 
     if (positionAbove >= 0) {
       return positionAbove;
@@ -134,83 +120,64 @@ const InfiniteElementBarWrapper: React.FC<ElementBarWrapperProps> = ({
   const elements = Object.values(useElementOverrides(elementIds));
   const [sizeRef, { width: elementBarWidth, height: elementBarHeight }] =
     useMeasure<HTMLDivElement>();
-  const { containerDimensions } = useSvgScaleContext();
+  const {
+    scale,
+    transformPointSvgToContainer,
+    containerDimensions: { width: containerWidth, height: containerHeight },
+  } = useSvgScaleContext();
 
   const {
     offsetX: x,
     offsetY: y,
     width,
     height,
-  } = calculateBoundingRectForElements(elements);
+  } = calculateBoundingRectWithRotationHandle(elements, scale);
 
-  const offsetOnDiv = 10;
-  const { scale, transformPointSvgToContainer } = useSvgScaleContext();
-
-  const rotatedBoundary =
-    elements.length === 1 && isRotateableElement(elements[0])
-      ? calculateBoundaryWithRotationHandle(elements[0], scale)
-      : null;
-
-  const { max: rotatedMax, min: rotatedMin } = rotatedBoundary || {};
-  const { y: rotatedMaxSVGY } = rotatedMax
-    ? transformPointSvgToContainer(rotatedMax)
-    : {};
-  const { y: rotatedMinSVGY } = rotatedMin
-    ? transformPointSvgToContainer(rotatedMin)
-    : {};
+  const offset = elementIds.length === 1 ? 20 : 10;
 
   const position = useMemo(() => {
-    const elementOnContainer = transformPointSvgToContainer({ x, y });
-
-    const elementWidthOnDiv = width * scale;
-    const elementHeightOnDiv = height * scale;
+    const { x: cx, y: cy } = transformPointSvgToContainer({ x, y });
+    const { y: c1y } = transformPointSvgToContainer({
+      x: x + width,
+      y: y + height,
+    });
 
     // X
-    const elementCenterOnDivX = elementOnContainer.x + elementWidthOnDiv / 2;
-    const elementBarCenterOnDivX = elementCenterOnDivX - elementBarWidth / 2;
-
-    const maxX = containerDimensions.width - elementBarWidth;
-    const clampedPositionX = clamp(elementBarCenterOnDivX, 0, maxX);
+    const leftPosition = clamp(
+      cx + (width * scale) / 2 - elementBarWidth / 2,
+      0,
+      containerWidth - elementBarWidth,
+    );
 
     // Y
-    let positionAbove = elementOnContainer.y - elementBarHeight - offsetOnDiv;
-    let positionBelow = elementOnContainer.y + elementHeightOnDiv + offsetOnDiv;
+    const positionAbove = cy - elementBarHeight - offset;
+    const positionBelow = c1y + offset;
 
-    // adjust for rotated object
-    if (rotatedMinSVGY !== undefined && rotatedMaxSVGY !== undefined) {
-      positionAbove = Math.min(
-        positionAbove,
-        rotatedMinSVGY - elementBarHeight - offsetOnDiv * 2,
-      );
-      positionBelow = Math.max(positionBelow, rotatedMaxSVGY + offsetOnDiv * 2);
-    }
-
-    let newYPosition: number;
+    let topPosition: number;
     if (positionAbove >= 0) {
-      newYPosition = positionAbove;
-    } else if (positionBelow + elementBarHeight < containerDimensions.height) {
-      newYPosition = positionBelow;
+      topPosition = positionAbove;
+    } else if (positionBelow + elementBarHeight < containerHeight) {
+      topPosition = positionBelow;
     } else {
-      newYPosition = elementOnContainer.y + offsetOnDiv;
+      topPosition = c1y + offset;
     }
 
     return {
-      left: clampedPositionX,
-      top: newYPosition,
+      left: leftPosition,
+      top: topPosition,
     };
   }, [
     x,
     y,
-    transformPointSvgToContainer,
     width,
-    scale,
     height,
+    offset,
+    transformPointSvgToContainer,
+    scale,
     elementBarWidth,
     elementBarHeight,
-    containerDimensions.width,
-    containerDimensions.height,
-    rotatedMinSVGY,
-    rotatedMaxSVGY,
+    containerWidth,
+    containerHeight,
   ]);
 
   return (
@@ -224,3 +191,17 @@ const InfiniteElementBarWrapper: React.FC<ElementBarWrapperProps> = ({
     </Box>
   );
 };
+
+function calculateBoundingRectWithRotationHandle(
+  elements: Element[],
+  scale: number,
+): BoundingRect {
+  if (elements.length === 1 && isRotatableElement(elements[0])) {
+    return calculateBoundingRectForElementWithRotationHandle(
+      elements[0],
+      scale,
+    );
+  } else {
+    return calculateBoundingRectForElements(elements);
+  }
+}

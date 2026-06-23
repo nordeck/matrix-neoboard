@@ -18,9 +18,8 @@ import { describe, expect, it } from 'vitest';
 import {
   mockLineElement,
   mockRectangleElement,
-  mockWhiteboardManager,
 } from '../../../../lib/testUtils';
-import { RotationHandleDragEvent } from './RotateHandler';
+import { RotateHandleDragEvent } from './RotateHandle';
 import { rotateConnectedPaths } from './utils';
 
 describe('Rotatable utils', () => {
@@ -29,7 +28,7 @@ describe('Rotatable utils', () => {
       rotation: 30,
       connectedPaths: ['line'],
     });
-    const pathElement = mockLineElement({
+    const lineElement = mockLineElement({
       connectedElementStart: 'rectangle',
       points: [
         { x: 0, y: 0 },
@@ -37,39 +36,35 @@ describe('Rotatable utils', () => {
       ],
       position: { x: 30, y: 30 },
     });
-    const { whiteboardManager } = mockWhiteboardManager({
-      slides: [
-        [
-          'slide-0',
-          [
-            ['line', pathElement],
-            ['rectangle', rectangleElement],
-          ],
-        ],
-      ],
-    });
-    const activeWhiteboard = whiteboardManager.getActiveWhiteboardInstance()!;
-    const activeSlide = activeWhiteboard.getSlide('slide-0');
 
     const elements = {
       rectangle: rectangleElement,
     };
-    const event: RotationHandleDragEvent = {
+    const event: RotateHandleDragEvent = {
       newAngle: 29,
       referenceAngle: 30,
       angleSnap: false,
     };
 
-    const result = rotateConnectedPaths(event, activeSlide, elements);
-    expect(result[0]).toMatchObject({
-      elementId: 'line',
-      elementOverride: {
-        points: [
-          { x: 0, y: 0 },
-          { x: expect.closeTo(20.37), y: expect.closeTo(20.08) },
-        ],
-        position: { x: expect.closeTo(29.63), y: expect.closeTo(29.92) },
+    const connectingPathElements = {
+      line: lineElement,
+    };
+    const updates = rotateConnectedPaths(
+      event,
+      connectingPathElements,
+      elements,
+    );
+    expect(updates).toEqual([
+      {
+        elementId: 'line',
+        elementOverride: {
+          points: [
+            { x: 0, y: 0 },
+            { x: expect.closeTo(20.37), y: expect.closeTo(20.08) },
+          ],
+          position: { x: expect.closeTo(29.63), y: expect.closeTo(29.92) },
+        },
       },
-    });
+    ]);
   });
 });

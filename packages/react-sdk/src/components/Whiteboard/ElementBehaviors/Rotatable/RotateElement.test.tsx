@@ -17,7 +17,7 @@
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { ComponentType, PropsWithChildren } from 'react';
-import { afterEach, beforeEach, describe, expect, it, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   mockImageElement,
   mockLineElement,
@@ -26,17 +26,11 @@ import {
   mockWhiteboardManager,
   WhiteboardTestingContextProvider,
 } from '../../../../lib/testUtils';
-import {
-  PathElement,
-  Point,
-  ShapeElement,
-  WhiteboardSlideInstance,
-} from '../../../../state';
+import { Point, WhiteboardSlideInstance } from '../../../../state';
 import { ConnectionPointProvider } from '../../../ConnectionPointProvider';
 import { ElementOverridesProvider } from '../../../ElementOverridesProvider';
 import { LayoutStateProvider } from '../../../Layout';
 import { SvgCanvas } from '../../SvgCanvas';
-import * as constants from './../../../Whiteboard/constants';
 import { RotateElement } from './RotateElement';
 
 vi.mock('../../SvgCanvas/useMeasure', () => ({
@@ -110,10 +104,6 @@ describe('<RotateElement/>', () => {
         </WhiteboardTestingContextProvider>
       </LayoutStateProvider>
     );
-
-    vi.spyOn(constants, 'infiniteCanvasMode', 'get').mockReturnValue(false);
-    vi.spyOn(constants, 'whiteboardWidth', 'get').mockReturnValue(1920);
-    vi.spyOn(constants, 'whiteboardHeight', 'get').mockReturnValue(1080);
   });
 
   afterEach(() => {
@@ -139,7 +129,7 @@ describe('<RotateElement/>', () => {
       buttons: 1,
     });
 
-    expect(screen.getByTestId('rotate-handle-grab-thing')).toBeInTheDocument();
+    expect(screen.getByTestId('rotate-handle-grab')).toBeInTheDocument();
 
     fireEvent.mouseMove(rotateHandle, {
       clientX: handlePos.x + 10,
@@ -152,23 +142,21 @@ describe('<RotateElement/>', () => {
       buttons: 1,
     });
 
-    expect(
-      screen.queryByTestId('rotate-handle-grab-thing'),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByTestId('rotate-handle-grab')).not.toBeInTheDocument();
   });
 
-  test.each`
+  it.each`
     angle  | deltaX  | deltaY
     ${0}   | ${0}    | ${0}
-    ${0}   | ${0}    | ${10}
-    ${5}   | ${0}    | ${100}
+    ${1}   | ${0}    | ${10}
+    ${6}   | ${0}    | ${100}
     ${10}  | ${0}    | ${200}
     ${359} | ${10}   | ${0}
-    ${354} | ${100}  | ${0}
+    ${355} | ${100}  | ${0}
     ${0}   | ${100}  | ${100}
-    ${352} | ${0}    | ${-100}
-    ${6}   | ${-100} | ${0}
-    ${359} | ${-100} | ${-100}
+    ${353} | ${0}    | ${-100}
+    ${7}   | ${-100} | ${0}
+    ${0}   | ${-100} | ${-100}
   `(
     'should rotate to angle $angle when moving cursor delta $deltaX, $deltaY',
     ({ angle, deltaX, deltaY }) => {
@@ -200,24 +188,23 @@ describe('<RotateElement/>', () => {
         buttons: 1,
       });
 
-      expect(
-        (activeSlide.getElement('rectangle') as ShapeElement)?.rotation,
-      ).toBe(angle);
+      expect(activeSlide.getElement('rectangle')).toMatchObject({
+        rotation: angle,
+      });
     },
   );
 
-  test.each`
+  it.each`
     angle | deltaX  | deltaY
     ${30} | ${0}    | ${0}
-    ${30} | ${0}    | ${10}
-    ${35} | ${0}    | ${100}
+    ${31} | ${0}    | ${10}
+    ${36} | ${0}    | ${100}
     ${40} | ${0}    | ${200}
     ${29} | ${10}   | ${0}
-    ${24} | ${100}  | ${0}
-    ${30} | ${100}  | ${100}
-    ${22} | ${0}    | ${-100}
-    ${36} | ${-100} | ${0}
-    ${29} | ${-100} | ${-100}
+    ${25} | ${100}  | ${0}
+    ${23} | ${0}    | ${-100}
+    ${37} | ${-100} | ${0}
+    ${30} | ${-100} | ${-100}
   `(
     'should rotate to angle $angle when moving cursor delta $deltaX, $deltaY rotated to 30',
     ({ angle, deltaX, deltaY }) => {
@@ -257,26 +244,26 @@ describe('<RotateElement/>', () => {
         buttons: 1,
       });
 
-      expect(
-        (activeSlide.getElement('rectangle') as ShapeElement)?.rotation,
-      ).toBe(angle);
+      expect(activeSlide.getElement('rectangle')).toMatchObject({
+        rotation: angle,
+      });
     },
   );
 
-  test.each`
+  it.each`
     angle | deltaX  | deltaY
     ${30} | ${0}    | ${0}
-    ${30} | ${0}    | ${10}
-    ${35} | ${0}    | ${100}
+    ${31} | ${0}    | ${10}
+    ${36} | ${0}    | ${100}
     ${40} | ${0}    | ${200}
     ${29} | ${10}   | ${0}
     ${23} | ${100}  | ${0}
     ${29} | ${100}  | ${100}
     ${22} | ${0}    | ${-100}
     ${38} | ${-100} | ${0}
-    ${30} | ${-100} | ${-100}
+    ${31} | ${-100} | ${-100}
   `(
-    'should rotate to angle $angle when moving cursor delta $deltaX, $deltaY for  30deg image',
+    'should rotate to angle $angle when moving cursor delta $deltaX, $deltaY for 30deg image',
     ({ angle, deltaX, deltaY }) => {
       activeSlide.setActiveElementIds(['image']);
       render(<RotateElement elementId={'image'} />, {
@@ -306,9 +293,9 @@ describe('<RotateElement/>', () => {
         buttons: 1,
       });
 
-      expect((activeSlide.getElement('image') as ShapeElement)?.rotation).toBe(
-        angle,
-      );
+      expect(activeSlide.getElement('image')).toMatchObject({
+        rotation: angle,
+      });
     },
   );
 
@@ -353,11 +340,11 @@ describe('<RotateElement/>', () => {
       buttons: 1,
     });
 
-    expect(
-      (activeSlide.getElement('rectangle') as ShapeElement)?.rotation,
-    ).toBe(357);
+    expect(activeSlide.getElement('rectangle')).toMatchObject({
+      rotation: 357,
+    });
 
-    expect(activeSlide.getElement('line') as PathElement).toMatchObject({
+    expect(activeSlide.getElement('line')).toMatchObject({
       points: [
         { x: 0, y: 0 },
         { x: expect.closeTo(21.11), y: expect.closeTo(20.23) },

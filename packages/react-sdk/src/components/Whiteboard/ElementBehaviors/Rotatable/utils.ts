@@ -17,36 +17,27 @@
 import {
   calculateBoundingRectForPoints,
   Elements,
-  findConnectingPaths,
   ImageElement,
-  Point,
-  ShapeElement,
-  WhiteboardSlideInstance,
-} from '../../../../state';
-import {
-  isRotateableElement,
+  isRotatableElement,
   PathElement,
-} from '../../../../state/crdt/documents/elements';
+  Point,
+  rotatePoint,
+  ShapeElement,
+} from '../../../../state';
 import { ElementOverrideUpdate } from '../../../ElementOverridesProvider';
-import { getPathElements } from '../utils';
-import { RotationHandleDragEvent } from './RotateHandler';
-import { rotatePoint } from './rotatorMath';
+import { RotateHandleDragEvent } from './RotateHandle';
 
 // Helper to rotate a point over the shape to
 // mach the new shape's rotation angle from the drag event.
 const rotateConnectorPoint = (
   connector: Point,
-  elementWithConnectorPoints: ShapeElement | ImageElement,
-  event: RotationHandleDragEvent,
+  element: ShapeElement | ImageElement,
+  event: RotateHandleDragEvent,
   linePosition: { position: Point; points: Point[] },
 ): Point => {
   const center = {
-    x:
-      elementWithConnectorPoints.position.x +
-      elementWithConnectorPoints.width / 2,
-    y:
-      elementWithConnectorPoints.position.y +
-      elementWithConnectorPoints.height / 2,
+    x: element.position.x + element.width / 2,
+    y: element.position.y + element.height / 2,
   };
   const refAngle = event.referenceAngle;
   const newAngle = event.newAngle;
@@ -63,7 +54,7 @@ const rotateConnector = (
   pathElement: PathElement,
   connectedElementId: string | undefined,
   type: 'start' | 'end',
-  event: RotationHandleDragEvent,
+  event: RotateHandleDragEvent,
   linePosition: LinePosition,
 ): LinePosition => {
   if (!connectedElementId) return linePosition;
@@ -71,14 +62,14 @@ const rotateConnector = (
 
   const elementWithConnectorPoints = elements[connectedElementId];
   const idx = type === 'start' ? 0 : 1;
-  const conenctedPoint = {
+  const connectedPoint = {
     x: pathElement.position.x + pathElement.points[idx].x,
     y: pathElement.position.y + pathElement.points[idx].y,
   };
 
-  if (isRotateableElement(elementWithConnectorPoints)) {
+  if (isRotatableElement(elementWithConnectorPoints)) {
     const rotatedPoint = rotateConnectorPoint(
-      conenctedPoint,
+      connectedPoint,
       elementWithConnectorPoints,
       event,
       linePosition,
@@ -109,23 +100,20 @@ const rotateConnector = (
     };
   }
 
-  // the shape wasn't rotateable so we didn't try to rotate the connector
+  // the shape wasn't rotatable so we didn't try to rotate the connector
   return linePosition;
 };
 
 export function rotateConnectedPaths(
-  event: RotationHandleDragEvent,
-  slideInstance: WhiteboardSlideInstance,
+  event: RotateHandleDragEvent,
+  connectingPathElements: Record<string, PathElement>,
   elements: Elements,
 ): ElementOverrideUpdate[] {
-  const pathElements = getPathElements(
-    slideInstance,
-    findConnectingPaths(elements),
-  );
-
   const res: ElementOverrideUpdate[] = [];
 
-  for (const [pathElementId, pathElement] of Object.entries(pathElements)) {
+  for (const [pathElementId, pathElement] of Object.entries(
+    connectingPathElements,
+  )) {
     if (
       !(pathElement.connectedElementStart || pathElement.connectedElementEnd)
     ) {

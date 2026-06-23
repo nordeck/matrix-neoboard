@@ -17,10 +17,9 @@
 import { useTheme } from '@mui/material';
 import { Fragment, useEffect, useMemo, useState } from 'react';
 import { isDefined } from '../../../../lib';
-import { Point, ShapeElement } from '../../../../state';
+import { Point, rotatePoint, ShapeElement } from '../../../../state';
 import { useConnectionPoint } from '../../../ConnectionPointProvider';
 import { useSvgScaleContext } from '../../SvgScaleContext';
-import { rotatePoint } from '../Rotatable/rotatorMath';
 import { ActivationArea } from './ActivationArea';
 
 export type ConnectableElementProps = {
@@ -57,7 +56,7 @@ export function ConnectableElement({
   }, [connectElementIds, elementId]);
 
   const points: Point[] = useMemo(() => {
-    const _points = [
+    const points = [
       kind === 'rectangle' ? { x, y } : undefined,
       kind !== 'block-arrow' ? { x: x + width / 2, y } : undefined,
       kind === 'rectangle' ? { x: x + width, y } : undefined,
@@ -77,14 +76,14 @@ export function ConnectableElement({
     ].filter(isDefined);
 
     return rotation
-      ? _points.map((p) => {
+      ? points.map((p) => {
           const center = {
             x: x + width / 2,
             y: y + height / 2,
           };
           return rotatePoint(p, center, rotation);
         })
-      : _points;
+      : points;
   }, [x, y, height, width, kind, rotation]);
 
   return (
@@ -96,15 +95,16 @@ export function ConnectableElement({
         y={y}
         width={width}
         height={height}
+        rotation={rotation}
       />
 
-      {points.map((p, idx) => (
+      {points.map(({ x, y }, idx) => (
         <Fragment key={idx}>
           <rect
             data-connect-type="connection-point-area"
             data-connect-element-id={elementId}
-            x={p.x - connectionPointAreaSize / 2}
-            y={p.y - connectionPointAreaSize / 2}
+            x={x - connectionPointAreaSize / 2}
+            y={y - connectionPointAreaSize / 2}
             width={connectionPointAreaSize}
             height={connectionPointAreaSize}
             fill="transparent"
@@ -114,8 +114,8 @@ export function ConnectableElement({
             <rect
               data-connect-type="connection-point"
               data-connect-element-id={elementId}
-              x={p.x - connectionAnchorSize / 2}
-              y={p.y - connectionAnchorSize / 2}
+              x={x - connectionAnchorSize / 2}
+              y={y - connectionAnchorSize / 2}
               width={connectionAnchorSize}
               height={connectionAnchorSize}
               fill="white"

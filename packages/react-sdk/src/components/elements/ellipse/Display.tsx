@@ -47,9 +47,8 @@ const EllipseDisplay = ({
 
   const { strokeColor, strokeWidth, text } = getRenderProperties(shape);
 
-  const rot = shape.rotation ?? 0;
-  const transform = rot
-    ? `rotate(${rot} ${shape.position.x + shape.width / 2} ${shape.position.y + shape.height / 2})`
+  const transform = shape.rotation
+    ? `rotate(${shape.rotation} ${shape.position.x + shape.width / 2} ${shape.position.y + shape.height / 2})`
     : undefined;
 
   const renderedChild = (

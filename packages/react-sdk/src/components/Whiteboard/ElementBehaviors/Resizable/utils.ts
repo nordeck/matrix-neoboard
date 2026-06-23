@@ -19,21 +19,17 @@ import {
   calculateBoundingRectForPoints,
   Element,
   Elements,
+  isRotatableElement,
   PathElement,
   Point,
+  rotatePoint,
 } from '../../../../state';
 import {
-  ImageElement,
-  isRotateableElement,
-  ShapeElement,
-} from '../../../../state/crdt/documents/elements';
-import { ElementOverrideUpdate } from '../../../ElementOverridesProvider';
+  ElementOverride,
+  ElementOverrideUpdate,
+} from '../../../ElementOverridesProvider';
 import { snapToGrid } from '../../Grid';
-import {
-  checkMultiselect,
-  hasRotatedElements,
-  rotatePoint,
-} from '../Rotatable/rotatorMath';
+import { clampAngle } from '../utils';
 import { DragEvent } from './ResizeHandle';
 import {
   Dimensions,
@@ -50,63 +46,62 @@ export function isLineElementHandlePosition(
   return handlePosition.name === 'start' || handlePosition.name === 'end';
 }
 
-export function computeDragWithRotation(
+export function computeDragElements(
   event: DragEvent,
   elements: Elements,
   viewportWidth: number,
   viewportHeight: number,
   gridCellSize?: number,
 ): { dragX: number; dragY: number } {
-  const elementIds = Object.entries(elements).map((o) => o[0]);
+  const [element, ...otherElements] = Object.values(elements);
 
-  // at this time we can only resize 1 rotated element
-  if (elementIds.length === 1) {
-    const _elementId = elementIds[0];
-    const element = elements[_elementId];
+  if (
+    element &&
+    otherElements.length === 0 &&
+    isRotatableElement(element) &&
+    element.rotation
+  ) {
+    // rotate the point as if it was dragging to resize the non-rotated object
+    const position = { x: event.x, y: event.y };
+    const angle = element.rotation ?? 0;
+    const unrotatedPosition = rotatePoint(
+      position,
+      {
+        x: element.position.x + element.width / 2,
+        y: element.position.y + element.height / 2,
+      },
+      -angle,
+    );
 
-    if (isRotateableElement(element)) {
-      // rotate the cursor point as if it was dragging to resize the non-rotated object
-      const angle = element.rotation ?? 0;
-      const cursor = { x: event.x, y: event.y };
-      const unrotatedDragEventPoint = rotatePoint(
-        cursor,
-        {
-          x: element.position.x + element.width / 2,
-          y: element.position.y + element.height / 2,
-        },
-        -angle,
-      );
-
-      const rawDragX = clamp(unrotatedDragEventPoint.x, 0, viewportWidth);
-      const rawDragY = clamp(unrotatedDragEventPoint.y, 0, viewportHeight);
-
-      const dragX =
-        gridCellSize === undefined
-          ? rawDragX
-          : snapToGrid(rawDragX, gridCellSize);
-      const dragY =
-        gridCellSize === undefined
-          ? rawDragY
-          : snapToGrid(rawDragY, gridCellSize);
-
-      // user tries to rotate a single element, the resize borders are also rotated
-      // but this function will return drag deltas as if the object wasn't rotated
-      return { dragX, dragY };
-    }
+    // viewport width and height are undefined here to avoid clamp
+    return computeDrag(
+      unrotatedPosition.x,
+      unrotatedPosition.y,
+      undefined,
+      undefined,
+      gridCellSize,
+    );
   }
 
   // no rotations involved, resize handles are not rotated
-  return computeDrag(event, viewportWidth, viewportHeight, gridCellSize);
+  return computeDrag(
+    event.x,
+    event.y,
+    viewportWidth,
+    viewportHeight,
+    gridCellSize,
+  );
 }
 
 function computeDrag(
-  event: DragEvent,
-  viewportWidth: number,
-  viewportHeight: number,
+  x: number,
+  y: number,
+  viewportWidth?: number,
+  viewportHeight?: number,
   gridCellSize?: number,
 ): { dragX: number; dragY: number } {
-  const rawDragX = clamp(event.x, 0, viewportWidth);
-  const rawDragY = clamp(event.y, 0, viewportHeight);
+  const rawDragX = viewportWidth ? clamp(x, 0, viewportWidth) : x;
+  const rawDragY = viewportHeight ? clamp(y, 0, viewportHeight) : y;
 
   const dragX =
     gridCellSize === undefined ? rawDragX : snapToGrid(rawDragX, gridCellSize);
@@ -182,19 +177,20 @@ export function getLockAspectRatio(
   elements: Elements,
   invertLockAspectRatio: boolean = false,
 ): boolean {
-  const hasRotated = hasRotatedElements(elements);
-  const multiselect = checkMultiselect(elements);
+  const multiselect = Object.entries(elements).length > 1;
+  const hasRotated = Object.entries(elements).some(
+    ([_, element]) => isRotatableElement(element) && !!element.rotation,
+  );
 
-  // The aspect ratio is locked because the rotated element in multi-select
-  // is being resized at an angle and it will look weird with unlocked aspect ratio.
-  if (hasRotated && multiselect) return true;
+  // lock aspect ratio, resizing doesn't work correct in this case
+  if (multiselect && hasRotated) return true;
 
   return invertLockAspectRatio ? !event.lockAspectRatio : event.lockAspectRatio;
 }
 
 export function calculateDimensions(
   handlePositionName: HandlePositionName,
-  elementsPossiblyRotated: Elements,
+  elements: Elements,
   event: DragEvent,
   startDimensions: Dimensions,
   viewportWidth: number,
@@ -202,9 +198,9 @@ export function calculateDimensions(
   invertLockAspectRatio: boolean = false,
   gridCellSize?: number,
 ): Dimensions {
-  const { dragX, dragY } = computeDragWithRotation(
+  const { dragX, dragY } = computeDragElements(
     event,
-    elementsPossiblyRotated,
+    elements,
     viewportWidth,
     viewportHeight,
     gridCellSize,
@@ -212,7 +208,7 @@ export function calculateDimensions(
 
   const lockAspectRatio = getLockAspectRatio(
     event,
-    elementsPossiblyRotated,
+    elements,
     invertLockAspectRatio,
   );
 
@@ -304,7 +300,6 @@ export function calculateDimensions(
     }
   } else {
     // free-transform, no locked aspect ratio
-
     if (
       handlePositionName === 'topLeft' ||
       handlePositionName === 'top' ||
@@ -377,189 +372,140 @@ function computeResizingOfLine(
 }
 
 /**
- * Factory for a point rotating functions when resizing a non-rotated element
- * @param options
- * @returns function that applies the object's current resize transformation to any point
+ * Factory for a point transformation function when resizing unrotated element
+ * @returns function that transforms points
  */
 export function pointResizerUnrotatedFactory(
-  dimensions: Dimensions,
-  resizableProperties: ResizableProperties,
+  startDimensions: Dimensions,
+  endDimensions: Dimensions,
 ): (p: Point) => Point {
-  const pointResizerUnrotated = (p: Point) => {
-    const resized = {
-      x:
-        dimensions.x +
-        ((p.x - resizableProperties.x) / resizableProperties.width) *
-          dimensions.width,
-      y:
-        dimensions.y +
-        ((p.y - resizableProperties.y) / resizableProperties.height) *
-          dimensions.height,
+  const scaleX = endDimensions.width / startDimensions.width;
+  const scaleY = endDimensions.height / startDimensions.height;
+
+  return (p: Point) => {
+    return {
+      x: endDimensions.x + (p.x - startDimensions.x) * scaleX,
+      y: endDimensions.y + (p.y - startDimensions.y) * scaleY,
     };
-    return resized;
   };
-  return pointResizerUnrotated;
 }
 
 /**
- * Factory for a point rotating functions when resizing a rotated element
- *  This function will predict where a point on this object will be
+ * Factory for a point transformation function when resizing a rotated element
+ * This function will calculate where a point on this object will be
  * after applying the resize (in SVG coordinates)
  * it unrotates the point, applies the "unrotated resize logic" and
  * rotates the point over the new center, applying the error shift.
  * @param options
- * @returns function that applies the object's current resize transformation to any point
+ * @returns function that transforms points
  */
-export function pointResizerRotatedFactory(options: {
-  dimensions: Dimensions;
-  resizableProperties: ResizableProperties;
-  origCenter: Point;
-  angle: number;
+export function pointResizerRotatedFactory({
+  startDimensions,
+  endDimensions,
+  originalCenter,
+  newCenter,
+  angle,
+  error,
+}: {
+  startDimensions: Dimensions;
+  endDimensions: Dimensions;
+  originalCenter: Point;
   newCenter: Point;
+  angle: number;
   error: Point;
 }): (p: Point) => Point {
-  const {
-    dimensions,
-    resizableProperties,
-    origCenter,
-    angle,
-    newCenter,
-    error,
-  } = options;
+  const pointResizerUnrotated = pointResizerUnrotatedFactory(
+    startDimensions,
+    endDimensions,
+  );
 
-  const pointResizerRotated = (p: Point) => {
-    const u = rotatePoint(p, origCenter, -angle);
-    const pointResizerUnrotated = pointResizerUnrotatedFactory(
-      dimensions,
-      resizableProperties,
-    );
+  return (p: Point) => {
+    const rp = rotatePoint(p, originalCenter, -angle);
     const resized = pointResizerUnrotated({
-      x: u.x,
-      y: u.y,
+      x: rp.x,
+      y: rp.y,
     });
     const n = rotatePoint(resized, newCenter, angle);
     n.x += error.x;
     n.y += error.y;
     return n;
   };
-
-  return pointResizerRotated;
 }
 
 /**
- * For an untrotated element.
- * Returns override after resizing and a resizer function specific to the perfomed resize action
+ * Compute element override on resize, also computes a point resize function
+ * that could be used to update connected path to this element if any.
+ *
+ * Rotatable element is resized along its axis,
+ * unless forceResizeAlongSvgAxis is set to true.
+ * Other elements are resized along SVG axis.
  */
-export function resizeInfoUnrotated(
-  elementId: string,
+export function computeElementResize(
   element: Element,
-  resizableProperties: ResizableProperties,
-  dimensions: Dimensions,
+  startDimensions: Dimensions,
+  endDimensions: Dimensions,
+  forceResizeAlongSvgAxis: boolean,
 ): {
-  override: {
-    elementId: string;
-    elementOverride: {
-      position: Point;
-      width: number | undefined;
-      height: number | undefined;
-      points:
-        | {
-            x: number;
-            y: number;
-          }[]
-        | undefined;
-    };
-  };
-  pointResizerUnrotated: (p: Point) => Point;
+  elementOverride: ElementOverride;
+  pointResizer: (p: Point) => Point;
 } {
-  // calculated the point's new "resized" position when the element is unrotated
   const pointResizerUnrotated = pointResizerUnrotatedFactory(
-    dimensions,
-    resizableProperties,
+    startDimensions,
+    endDimensions,
   );
 
-  const override = {
-    elementId,
-    elementOverride: {
-      position: pointResizerUnrotated({
-        x: element.position.x,
-        y: element.position.y,
-      }),
-      width:
-        element.type === 'shape' ||
-        element.type === 'image' ||
-        element.type === 'frame'
-          ? (element.width / resizableProperties.width) * dimensions.width
-          : undefined,
-      height:
-        element.type === 'shape' ||
-        element.type === 'image' ||
-        element.type === 'frame'
-          ? (element.height / resizableProperties.height) * dimensions.height
-          : undefined,
-      points:
-        element.type === 'path'
-          ? element.points.map((point) => ({
-              x: (point.x / resizableProperties.width) * dimensions.width,
-              y: (point.y / resizableProperties.height) * dimensions.height,
-            }))
-          : undefined,
-    },
-  };
-
-  return {
-    override,
-    pointResizerUnrotated,
-  };
-}
-
-/**
- * For a rotated element.
- * Returns override after resizing and a resizer function specific to the perfomed resize action
- */
-export function resizeInfoRotated(
-  elementId: string,
-  element: ShapeElement | ImageElement,
-  dimensions: Dimensions,
-  resizableProperties: ResizableProperties,
-): {
-  override: {
-    elementId: string;
-    elementOverride: {
-      position: Point;
-      width: number | undefined;
-      height: number | undefined;
-      points:
-        | {
-            x: number;
-            y: number;
-          }[]
-        | undefined;
+  if (element.type === 'path') {
+    const scaleX = endDimensions.width / startDimensions.width;
+    const scaleY = endDimensions.height / startDimensions.height;
+    return {
+      elementOverride: {
+        position: pointResizerUnrotated({
+          x: element.position.x,
+          y: element.position.y,
+        }),
+        points: element.points.map((point) => ({
+          x: point.x * scaleX,
+          y: point.y * scaleY,
+        })),
+      },
+      pointResizer: pointResizerUnrotated,
     };
-  };
-  pointResizerRotated: (p: Point) => Point;
-} {
-  const { override } = resizeInfoUnrotated(
-    elementId,
-    element,
-    resizableProperties,
-    dimensions,
-  );
+  }
+
+  const overridePosition = pointResizerUnrotated({
+    x: element.position.x,
+    y: element.position.y,
+  });
+  const scaleX = endDimensions.width / startDimensions.width;
+  const scaleY = endDimensions.height / startDimensions.height;
+  const overrideWidth = element.width * scaleX;
+  const overrideHeight = element.height * scaleY;
+
+  if (
+    !isRotatableElement(element) ||
+    forceResizeAlongSvgAxis ||
+    (isRotatableElement(element) && !element.rotation)
+  ) {
+    return {
+      elementOverride: {
+        position: overridePosition,
+        width: overrideWidth,
+        height: overrideHeight,
+      },
+      pointResizer: pointResizerUnrotated,
+    };
+  }
 
   // Resizing an object shifts it's center of rotation.
   // Apply adjustment to the offsets of the non rotated object
   // to eliminate the visible shift.
-  const origCenter = {
+  const originalCenterPoint = {
     x: element.position.x + element.width / 2,
     y: element.position.y + element.height / 2,
   };
-  const newCenter = {
-    x:
-      (override.elementOverride?.position?.x ?? 0) +
-      (override.elementOverride?.width ?? 0) / 2,
-    y:
-      (override.elementOverride?.position?.y ?? 0) +
-      (override.elementOverride?.height ?? 0) / 2,
+  const newCenterPoint = {
+    x: overridePosition.x + overrideWidth / 2,
+    y: overridePosition.y + overrideHeight / 2,
   };
 
   // calculate "rotation center shift error" by selecting a
@@ -572,28 +518,32 @@ export function resizeInfoRotated(
     y: element.position.y + element.height,
   };
   const angle = element.rotation ?? 0;
-  const p1 = rotatePoint(testPoint, origCenter, angle);
-  const p2 = rotatePoint(testPoint, newCenter, angle);
+  const p1 = rotatePoint(testPoint, originalCenterPoint, angle);
+  const p2 = rotatePoint(testPoint, newCenterPoint, angle);
   const error = {
     x: p1.x - p2.x,
     y: p1.y - p2.y,
   };
 
-  override.elementOverride.position.x += error.x;
-  override.elementOverride.position.y += error.y;
+  overridePosition.x += error.x;
+  overridePosition.y += error.y;
 
-  const pointResizerRotated = pointResizerRotatedFactory({
+  const pointResizer = pointResizerRotatedFactory({
+    startDimensions,
+    endDimensions,
+    originalCenter: originalCenterPoint,
+    newCenter: newCenterPoint,
     angle: angle,
     error: error,
-    origCenter: origCenter,
-    newCenter: newCenter,
-    dimensions: dimensions,
-    resizableProperties: resizableProperties,
   });
 
   return {
-    override,
-    pointResizerRotated,
+    elementOverride: {
+      position: overridePosition,
+      width: overrideWidth,
+      height: overrideHeight,
+    },
+    pointResizer,
   };
 }
 
@@ -610,17 +560,18 @@ export function computeResizing(
     return [];
   }
 
+  const { elements, connectingPathElements } = resizableProperties;
+
   if (isLineElementHandlePosition(handlePosition)) {
     const { dragX, dragY } = computeDrag(
-      event,
+      event.x,
+      event.y,
       viewportWidth,
       viewportHeight,
       gridCellSize,
     );
 
-    const [elementId, element] = Object.entries(
-      resizableProperties.elements,
-    )[0];
+    const [elementId, element] = Object.entries(elements)[0];
     if (element.type !== 'path' || element.kind !== 'line') {
       return [];
     }
@@ -643,115 +594,113 @@ export function computeResizing(
     ];
   }
 
-  const dimensions = calculateDimensions(
+  const startDimensions: Dimensions = {
+    x: resizableProperties.x,
+    y: resizableProperties.y,
+    width: resizableProperties.width,
+    height: resizableProperties.height,
+  };
+
+  const endDimensions = calculateDimensions(
     handlePosition.name,
-    resizableProperties.elements,
+    elements,
     event,
-    resizableProperties, // start dimensions
+    startDimensions,
     viewportWidth,
     viewportHeight,
     invertLockAspectRatio,
     gridCellSize,
   );
 
-  const multiselect = checkMultiselect(resizableProperties.elements);
-
-  // pointResizer function will be used to move connected arrows later
-  // (so we can repeat the exact same calculations on the connector points)
-  const resizeInfo: {
-    elementOverride: ElementOverrideUpdate;
-    elementId: string;
+  let resizeData: {
+    updates: ElementOverrideUpdate[];
     pointResizer: (p: Point) => Point;
-  }[] = Object.entries(resizableProperties.elements).map(
-    ([elementId, element]) => {
-      // Note: in multiselect mode resizing is always performed along the SVG axis
-      // and not along the rotated element's axis.
-      // We can't calculate the resize neatly in this case, and will not invoke resizeInfoRotated;
+  };
 
-      if (isRotateableElement(element) && !multiselect && element.rotation) {
-        const { override, pointResizerRotated } = resizeInfoRotated(
-          elementId,
-          element,
-          dimensions,
-          resizableProperties,
-        );
-        return {
-          elementOverride: override,
-          pointResizer: pointResizerRotated,
-          elementId,
-        };
-      }
+  const entries = Object.entries(elements);
+  const [head, ...tail] = entries;
+  if (head && tail.length === 0) {
+    // Resizing of single element is performed along the rotated element's axis
+    const [elementId, element] = head;
 
-      const { override: unrotatedOverride, pointResizerUnrotated } =
-        resizeInfoUnrotated(
+    const { elementOverride, pointResizer } = computeElementResize(
+      element,
+      startDimensions,
+      endDimensions,
+      false,
+    );
+
+    resizeData = {
+      updates: [
+        {
           elementId,
-          element,
-          resizableProperties,
-          dimensions,
-        );
+          elementOverride,
+        },
+      ],
+      pointResizer,
+    };
+  } else {
+    // Resizing of multiple elements is performed along the SVG axis
+    const updates = entries.map(([elementId, element]) => {
+      const { elementOverride } = computeElementResize(
+        element,
+        startDimensions,
+        endDimensions,
+        true,
+      );
 
       return {
-        elementOverride: unrotatedOverride,
-        pointResizer: pointResizerUnrotated,
         elementId,
+        elementOverride,
       };
-    },
-  );
+    });
 
-  // just collect all the resizer functions into a map elementId->resizerFn
-  const resizers: Record<string, (p: Point) => Point> = {};
-  for (const o of resizeInfo) {
-    if (o.pointResizer) resizers[o.elementId] = o.pointResizer;
+    resizeData = {
+      updates,
+      pointResizer: pointResizerUnrotatedFactory(
+        startDimensions,
+        endDimensions,
+      ),
+    };
   }
 
-  // add resized elements
-  const elementOverrides = resizeInfo.map((o) => o.elementOverride);
+  const { updates, pointResizer } = resizeData;
 
   // add resized connected elements
-  if (resizableProperties.connectingPathElements) {
-    elementOverrides.push(
+  if (connectingPathElements) {
+    updates.push(
       ...computeResizingConnectingPathElements(
-        resizableProperties.connectingPathElements,
-        resizableProperties.elements,
-        resizableProperties,
-        dimensions,
-        resizers,
+        connectingPathElements,
+        elements,
+        startDimensions,
+        endDimensions,
+        pointResizer,
       ),
     );
   }
 
-  return elementOverrides;
+  return updates;
 }
 
 export function computeResizingConnectingPathElements(
   connectingPathElements: Record<string, PathElement>,
   elements: Elements,
-  resizableProperties: {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-  },
-  dimensions: {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-  },
-  resizers?: Record<string, (p: Point) => Point>,
+  startDimensions: Dimensions,
+  endDimensions: Dimensions,
+  pointResizer?: (p: Point) => Point,
 ): ElementOverrideUpdate[] {
+  if (!pointResizer) {
+    pointResizer = pointResizerUnrotatedFactory(startDimensions, endDimensions);
+  }
+
   const res: ElementOverrideUpdate[] = [];
 
   for (const [elementId, element] of Object.entries(connectingPathElements)) {
     const eos = computeResizingConnectingPathElement(
-      {
-        elementId,
-        element,
-      },
+      elementId,
+      element,
       elements,
-      resizableProperties,
-      dimensions,
-      resizers,
+      pointResizer,
     );
     if (eos) {
       res.push(eos);
@@ -762,27 +711,10 @@ export function computeResizingConnectingPathElements(
 }
 
 export function computeResizingConnectingPathElement(
-  {
-    elementId,
-    element,
-  }: {
-    elementId: string;
-    element: PathElement;
-  },
+  elementId: string,
+  element: PathElement,
   elements: Elements,
-  resizableProperties: {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-  },
-  dimensions: {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-  },
-  resizers?: Record<string, (p: Point) => Point>,
+  pointResizer: (p: Point) => Point,
 ): ElementOverrideUpdate | undefined {
   if (!(element.connectedElementStart || element.connectedElementEnd)) {
     return undefined;
@@ -805,25 +737,7 @@ export function computeResizingConnectingPathElement(
 
       const positionName = i === 0 ? 'start' : 'end';
 
-      let drag = undefined;
-      if (resizers && resizers[connectedElementId]) {
-        const resizeFn = resizers[connectedElementId];
-        const resizedPoint = resizeFn({ x: pointX, y: pointY });
-        drag = resizedPoint;
-      } else {
-        // default drag calculation in case this function gets called
-        // without, or parttially filled resizers
-        drag = {
-          x:
-            dimensions.x +
-            ((pointX - resizableProperties.x) / resizableProperties.width) *
-              dimensions.width,
-          y:
-            dimensions.y +
-            ((pointY - resizableProperties.y) / resizableProperties.height) *
-              dimensions.height,
-        };
-      }
+      const drag: Point = pointResizer({ x: pointX, y: pointY });
 
       linePosition = computeResizingOfLine(
         positionName,
@@ -844,9 +758,7 @@ export function computeResizingConnectingPathElementOverDeltaPoints(
   elementLinePosition: LinePosition,
   deltaPoints: (Point | undefined)[],
 ): LinePosition {
-  let linePosition: LinePosition = {
-    ...elementLinePosition,
-  };
+  let linePosition: LinePosition = elementLinePosition;
 
   for (let i = 0; i < deltaPoints.length; i++) {
     const deltaPoint = deltaPoints[i];
@@ -869,4 +781,22 @@ export function computeResizingConnectingPathElementOverDeltaPoints(
   }
 
   return linePosition;
+}
+
+const cursors = [
+  'ns-resize', // top
+  'ne-resize', // top-right
+  'ew-resize', // right
+  'se-resize',
+  'ns-resize',
+  'sw-resize',
+  'ew-resize',
+  'nw-resize',
+];
+
+export function rotateCursor(cursor: string, angle: number): string {
+  const nAngle = clampAngle(angle);
+  const times = Math.round(nAngle / 45);
+  const idx = cursors.indexOf(cursor);
+  return idx === -1 ? cursor : cursors[(idx + times) % 8];
 }

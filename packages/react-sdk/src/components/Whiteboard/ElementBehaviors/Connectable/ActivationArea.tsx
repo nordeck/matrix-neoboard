@@ -23,6 +23,7 @@ export function ActivationArea({
   y,
   width,
   height,
+  rotation,
 }: {
   elementId: string;
   kind: ShapeKind;
@@ -30,8 +31,12 @@ export function ActivationArea({
   y: number;
   width: number;
   height: number;
+  rotation?: number;
 }) {
   const shapeMargin = 40;
+  const transform = rotation
+    ? `rotate(${rotation} ${x + width / 2} ${y + height / 2})`
+    : undefined;
 
   if (kind === 'circle' || kind === 'ellipse') {
     return (
@@ -43,6 +48,7 @@ export function ActivationArea({
         fill="transparent"
         rx={width / 2 + shapeMargin}
         ry={height / 2 + shapeMargin}
+        transform={transform}
       />
     );
   } else if (kind === 'rectangle' || kind === 'block-arrow') {
@@ -55,6 +61,7 @@ export function ActivationArea({
         width={width + 2 * shapeMargin}
         height={height + 2 * shapeMargin}
         fill="transparent"
+        transform={transform}
       />
     );
   } else if (kind === 'triangle') {
@@ -73,6 +80,7 @@ export function ActivationArea({
         data-connect-element-id={elementId}
         fill="transparent"
         points={`${p0X},${p0Y} ${p1X},${p1Y} ${p2X},${p2Y}`}
+        transform={transform}
       />
     );
   } else {

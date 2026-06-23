@@ -20,10 +20,9 @@ import { DraggableCore, DraggableData, DraggableEvent } from 'react-draggable';
 import { useConnectionPoint } from '../../../ConnectionPointProvider';
 import { useSvgCanvasContext } from '../../SvgCanvas';
 import { useSvgScaleContext } from '../../SvgScaleContext';
-import { rotateCursor } from '../Rotatable/rotatorMath';
 import { findConnectData } from './findConnectData';
 import { HandlePosition, LineElementHandlePositionName } from './types';
-import { isLineElementHandlePosition } from './utils';
+import { isLineElementHandlePosition, rotateCursor } from './utils';
 
 function calculateResizeHandlePosition(params: {
   position: HandlePosition;
@@ -276,8 +275,6 @@ export function ResizeHandle(props: ResizeHandleProps) {
     ev.stopPropagation();
   }, []);
 
-  const rotatedCursor = rotateCursor(cursor, rotation ?? 0);
-
   return (
     <DraggableCore
       // disable the hack since we already added it via <DraggableStyles>.
@@ -292,7 +289,7 @@ export function ResizeHandle(props: ResizeHandleProps) {
     >
       <rect
         data-testid={`resize-handle-${name}`}
-        cursor={rotatedCursor}
+        cursor={rotation ? rotateCursor(cursor, rotation) : cursor}
         fill="transparent"
         height={height}
         ref={nodeRef}
