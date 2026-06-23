@@ -64,7 +64,7 @@ describe('<CopyAndPasteShortcuts>', () => {
   let whiteboardManager: Mocked<WhiteboardManager>;
   let activeWhiteboardInstance: WhiteboardInstance;
   let activeSlide: WhiteboardSlideInstance;
-  let setPresentationMode: (enable: boolean) => void;
+  let setPresentationMode: (enable: boolean, enableEdit?: boolean) => void;
 
   beforeEach(() => {
     ({ whiteboardManager, setPresentationMode } = mockWhiteboardManager({
@@ -193,6 +193,60 @@ describe('<CopyAndPasteShortcuts>', () => {
     });
   });
 
+  it('should copy if the presentation mode is active and is in edit mode', () => {
+    setPresentationMode(true, true);
+    activeSlide.setActiveElementIds(['element-2', 'element-1']);
+
+    render(<ClipboardShortcuts />, { wrapper: Wrapper });
+
+    const clipboardData = fireClipboardEvent('copy');
+
+    expect(clipboardData.setData).toHaveBeenCalledWith(
+      'text/plain',
+      'Hello World 1 Hello World 2',
+    );
+    expect(clipboardData.setData).toHaveBeenCalledWith(
+      'text/html',
+      expect.stringContaining('<span data-meta='),
+    );
+    expect(clipboardData.getData('text/plain')).toEqual(
+      'Hello World 1 Hello World 2',
+    );
+    expect(clipboardData.getData('text/html')).toContain('<span data-meta=');
+    expect(
+      Object.entries(
+        deserializeFromHtml(clipboardData.getData('text/html')).elements ?? {},
+      ),
+    ).toEqual([
+      [
+        'element-1',
+        {
+          type: 'shape',
+          kind: 'ellipse',
+          position: { x: 0, y: 1 },
+          fillColor: '#ffffff',
+          textFontFamily: 'Inter',
+          height: 100,
+          width: 50,
+          text: 'Hello World 1',
+        },
+      ],
+      [
+        'element-2',
+        {
+          type: 'shape',
+          kind: 'ellipse',
+          position: { x: 0, y: 1 },
+          fillColor: '#ffffff',
+          textFontFamily: 'Inter',
+          height: 100,
+          width: 50,
+          text: 'Hello World 2',
+        },
+      ],
+    ]);
+  });
+
   it.each([
     ['only frame is selected', ['frame-0']],
     ['frame with attached element is selected', ['frame-0', 'element-1']],
@@ -279,8 +333,8 @@ describe('<CopyAndPasteShortcuts>', () => {
     expect(clipboardData.setData).not.toHaveBeenCalled();
   });
 
-  it('should ignore copy if the presentation mode is active', () => {
-    setPresentationMode(true);
+  it('should ignore copy if the presentation mode is active and is not in edit mode', () => {
+    setPresentationMode(true, false);
 
     render(<ClipboardShortcuts />, { wrapper: Wrapper });
 
