@@ -34,7 +34,7 @@ const UnSelectElementHandlerTouchWrapper: React.FC<PropsWithChildren> = ({
   const { updateTranslation } = useSvgScaleContext();
   const { state: presentationState } = usePresentationMode();
 
-  const touchTimestamp = useRef(new Date());
+  const touchTimestamp = useRef<Date | undefined>(undefined);
 
   const panEnabled = presentationState.type === 'idle';
 
@@ -91,9 +91,10 @@ const UnSelectElementHandlerTouchWrapper: React.FC<PropsWithChildren> = ({
   // a default mouse down event may happen from a tap
   const handleMouseDown = useCallback(
     (event: MouseEvent<SVGRectElement>) => {
+      if (!touchTimestamp.current) return;
       if (event.button === 0) {
         // if we had touch recently, show drag select layer briefly
-        if (new Date().getTime() - touchTimestamp.current.getTime() < 200) {
+        if (Date.now() - touchTimestamp.current.getTime() < 200) {
           setTimeout(() => {
             if (!isDragSelectingRef.current) setDragSelectStartCoords();
           }, DRAG_SELECT_SHOW_TIMEOUT_MS);

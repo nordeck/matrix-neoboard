@@ -149,15 +149,14 @@ export function DragSelect() {
   );
 
   const lastMoveRef = useRef(0);
+
   const handlePointerMove = useCallback(
     (event: PointerEvent<SVGRectElement>) => {
+      if (isTouchScaling) return;
       const now = Date.now();
       if (now - lastMoveRef.current < POINTER_MOVE_THROTTLE_MS) return;
-      lastMoveRef.current = now;
-      setEndCoords(calculateSvgCoords({ x: event.clientX, y: event.clientY }));
-      if (isTouchScaling) return;
-
       const point = calculateSvgCoords({ x: event.clientX, y: event.clientY });
+      lastMoveRef.current = now;
       setEndCoords(point);
       setIsDragSelecting(true);
     },

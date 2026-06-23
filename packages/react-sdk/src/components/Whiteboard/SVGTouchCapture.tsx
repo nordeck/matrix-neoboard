@@ -99,9 +99,9 @@ const SVGTouchCapture: React.FC<PropsWithChildren> = ({ children }) => {
 
   const handleTouchEnd = useCallback(
     (e: TouchEvent<SVGGElement>) => {
-      const cur = new Date();
-      if (cur.getTime() - touchContextRef.current.dt.getTime() < TAP_TIMEOUT_MS)
+      if (Date.now() - touchContextRef.current.dt.getTime() < TAP_TIMEOUT_MS) {
         e.stopPropagation();
+      }
 
       setIsTouchScaling(false);
     },
@@ -155,11 +155,7 @@ const SVGTouchCapture: React.FC<PropsWithChildren> = ({ children }) => {
         return;
       }
 
-      const cur = new Date();
-      if (
-        cur.getTime() - touchContextRef.current.dt.getTime() <
-        DRAG_TIMEOUT_MS
-      ) {
+      if (Date.now() - touchContextRef.current.dt.getTime() < DRAG_TIMEOUT_MS) {
         e.stopPropagation();
       }
       setIsTouchScaling(false);
