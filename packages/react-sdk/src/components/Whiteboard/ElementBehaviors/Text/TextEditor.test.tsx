@@ -45,36 +45,34 @@ describe('<TextEditor />', () => {
     };
   });
 
-  describe('Escape key', () => {
-    it('should call onBlur and disable text tools when Escape is pressed if editable and edit mode is true', async () => {
-      render(<TextEditor {...defaultProps} editable editModeOnMount />, {
-        wrapper: Wrapper,
-      });
-
-      await userEvent.keyboard('{Escape}');
-
-      expect(defaultProps.onBlur).toHaveBeenCalledOnce();
-      expect(defaultProps.setTextToolsEnabled).toHaveBeenCalledWith(false);
+  it('should call onBlur and disable text tools when Escape is pressed if editable and edit mode is true', async () => {
+    render(<TextEditor {...defaultProps} editable editModeOnMount />, {
+      wrapper: Wrapper,
     });
 
-    it('should not call onBlur and disable text tools when Escape is pressed if editable and edit mode is false', async () => {
-      render(<TextEditor {...defaultProps} editable />, { wrapper: Wrapper });
+    await userEvent.keyboard('{Escape}');
 
-      await userEvent.keyboard('{Escape}');
+    expect(defaultProps.onBlur).toHaveBeenCalledOnce();
+    expect(defaultProps.setTextToolsEnabled).toHaveBeenCalledWith(false);
+  });
 
-      expect(defaultProps.onBlur).not.toHaveBeenCalled();
-      expect(defaultProps.setTextToolsEnabled).not.toHaveBeenCalled();
+  it('should not call onBlur and disable text tools when Escape is pressed if editable and edit mode is false', async () => {
+    render(<TextEditor {...defaultProps} editable />, { wrapper: Wrapper });
+
+    await userEvent.keyboard('{Escape}');
+
+    expect(defaultProps.onBlur).not.toHaveBeenCalled();
+    expect(defaultProps.setTextToolsEnabled).not.toHaveBeenCalled();
+  });
+
+  it('should not call onBlur when Escape is pressed if not editable', async () => {
+    render(<TextEditor {...defaultProps} editable={false} />, {
+      wrapper: Wrapper,
     });
 
-    it('should not call onBlur when Escape is pressed if not editable', async () => {
-      render(<TextEditor {...defaultProps} editable={false} />, {
-        wrapper: Wrapper,
-      });
+    await userEvent.keyboard('{Escape}');
 
-      await userEvent.keyboard('{Escape}');
-
-      expect(defaultProps.onBlur).not.toHaveBeenCalled();
-      expect(defaultProps.setTextToolsEnabled).not.toHaveBeenCalled();
-    });
+    expect(defaultProps.onBlur).not.toHaveBeenCalled();
+    expect(defaultProps.setTextToolsEnabled).not.toHaveBeenCalled();
   });
 });
