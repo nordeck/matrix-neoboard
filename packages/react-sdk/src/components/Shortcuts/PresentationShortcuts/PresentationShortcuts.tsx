@@ -18,6 +18,7 @@ import React, { useCallback } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { isInfiniteCanvasMode } from '../../../lib';
 import {
+  useActiveElements,
   useActiveSlideOrFrame,
   useActiveWhiteboardInstance,
   usePresentationMode,
@@ -29,10 +30,11 @@ export const PresentationShortcuts: React.FC = function () {
   const { activeId } = useActiveSlideOrFrame();
   const whiteboardInstance = useActiveWhiteboardInstance();
   const slideOrFrameIds = useWhiteboardSlideOrFrameIds();
+  const { activeElementIds } = useActiveElements();
 
   const handleHotkey = useCallback(
     (event: KeyboardEvent) => {
-      if (activeId === undefined) {
+      if (activeId === undefined || activeElementIds.length > 0) {
         return;
       }
 
@@ -65,7 +67,7 @@ export const PresentationShortcuts: React.FC = function () {
         whiteboardInstance.setActiveSlideId(newActive);
       }
     },
-    [activeId, whiteboardInstance, slideOrFrameIds],
+    [activeId, whiteboardInstance, slideOrFrameIds, activeElementIds],
   );
 
   useHotkeys(['ArrowLeft', 'ArrowRight', 'space'], handleHotkey, {

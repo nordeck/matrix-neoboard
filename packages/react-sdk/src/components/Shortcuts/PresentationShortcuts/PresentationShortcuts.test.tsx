@@ -21,6 +21,7 @@ import { ComponentType, PropsWithChildren } from 'react';
 import { Mocked, afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
   WhiteboardTestingContextProvider,
+  mockEllipseElement,
   mockWhiteboardManager,
 } from '../../../lib/testUtils/documentTestUtils';
 import { WhiteboardInstance, WhiteboardManager } from '../../../state';
@@ -38,7 +39,13 @@ describe('PresentationShortcuts', () => {
     ({ whiteboardManager } = mockWhiteboardManager({
       slides: [
         ['slide-0', []],
-        ['slide-1', []],
+        [
+          'slide-1',
+          [
+            ['element-0', mockEllipseElement({ position: { x: 100, y: 100 } })],
+            ['element-1', mockEllipseElement({ position: { x: 200, y: 200 } })],
+          ],
+        ],
         ['slide-2', []],
       ],
     }));
@@ -98,4 +105,19 @@ describe('PresentationShortcuts', () => {
     await userEvent.keyboard(' ');
     expect(activeWhiteboardInstance.getActiveSlideId()).toBe('slide-1');
   });
+
+  it.each(['{arrowleft}', '{arrowright}'])(
+    'when presenting with multiple elements selected, %s should not navigate slides',
+    async (key) => {
+      activeWhiteboardInstance.getPresentationManager()?.startPresentation();
+      const activeSlide = activeWhiteboardInstance.getSlide('slide-1');
+      activeSlide.setActiveElementIds(['element-0', 'element-1']);
+
+      render(<PresentationShortcuts />, { wrapper: Wrapper });
+
+      await userEvent.keyboard(key);
+
+      expect(activeWhiteboardInstance.getActiveSlideId()).toBe('slide-1');
+    },
+  );
 });

@@ -20,11 +20,12 @@ import userEvent from '@testing-library/user-event';
 import { ComponentType, PropsWithChildren } from 'react';
 import { Mocked, afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
+  DisableWhiteboardHotkeys,
   WhiteboardTestingContextProvider,
   mockEllipseElement,
   mockLineElement,
   mockWhiteboardManager,
-} from '../../../lib/testUtils/documentTestUtils';
+} from '../../../lib/testUtils';
 import { WhiteboardInstance, WhiteboardManager } from '../../../state';
 import { WhiteboardHotkeysProvider } from '../../WhiteboardHotkeysProvider';
 import { ReorderElementsShortcuts } from './ReorderElementsShortcuts';
@@ -185,4 +186,27 @@ describe('<ReorderElementsShortcuts>', () => {
       'element-2',
     ]);
   });
+
+  it.each(['{Control>}{ArrowUp}', '{Control>}{ArrowDown}'])(
+    'should ignore %s if keyboard scope is disabled',
+    async (key) => {
+      const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
+      activeSlide.setActiveElementId('element-1');
+
+      render(
+        <DisableWhiteboardHotkeys>
+          <ReorderElementsShortcuts />
+        </DisableWhiteboardHotkeys>,
+        { wrapper: Wrapper },
+      );
+
+      await userEvent.keyboard(key);
+
+      expect(activeSlide.getElementIds()).toEqual([
+        'element-0',
+        'element-1',
+        'element-2',
+      ]);
+    },
+  );
 });
