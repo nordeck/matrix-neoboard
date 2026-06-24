@@ -15,9 +15,23 @@
  */
 
 import { getEnvironment } from '@matrix-widget-toolkit/mui';
+import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { firstValueFrom, Subject, take, toArray } from 'rxjs';
-import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
-import { mockFrameElement, mockLineElement } from '../lib/testUtils';
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  Mocked,
+  vi,
+} from 'vitest';
+import {
+  mockCircleElement,
+  mockEllipseElement,
+  mockFrameElement,
+  mockLineElement,
+} from '../lib/testUtils';
 import { mockWhiteboard } from '../lib/testUtils/matrixTestUtils';
 import {
   CommunicationChannel,
@@ -33,12 +47,17 @@ import {
   generateAddSlide,
   generateMoveSlide,
   generateRemoveSlide,
-  getFrameElementIds,
-  getSlide,
+  getNormalizedElementIds,
+  getNormalizedSlideIds,
   WhiteboardDocument,
+  WhiteboardDocumentVersion,
 } from './crdt';
-import { YArray } from './crdt/y';
-import { PresentationState, SynchronizedDocument } from './types';
+import { WhiteboardDocumentExport } from './export';
+import {
+  MismatchedSnapshot,
+  PresentationState,
+  SynchronizedDocument,
+} from './types';
 import {
   findNewActiveSlideId,
   WhiteboardInstanceImpl,
@@ -52,12 +71,21 @@ vi.mock('@matrix-widget-toolkit/mui', async () => ({
   getEnvironment: vi.fn(),
 }));
 
+let widgetApi: MockedWidgetApi;
+
+afterEach(() => widgetApi.stop());
+
+beforeEach(() => {
+  widgetApi = mockWidgetApi();
+});
+
 // createWhiteboardDocument() always contains a slide with this id
 const slide0 = 'IN4h74suMiIAK4AVMAdl_';
 
 describe('WhiteboardInstanceImpl', () => {
   let observeCommunicationStatisticsSubject: Subject<CommunicationChannelStatistics>;
   let observeIsLoadingSubject: Subject<boolean>;
+  let observeMismatchedSnapshotSubject: Subject<MismatchedSnapshot | undefined>;
   let communicationChannel: Mocked<CommunicationChannel>;
   let messageSubject: Subject<Message>;
   let observeDocumentStatisticsSubject: Subject<DocumentStatistics>;
@@ -72,6 +100,9 @@ describe('WhiteboardInstanceImpl', () => {
     observeCommunicationStatisticsSubject =
       new Subject<CommunicationChannelStatistics>();
     observeIsLoadingSubject = new Subject<boolean>();
+    observeMismatchedSnapshotSubject = new Subject<
+      MismatchedSnapshot | undefined
+    >();
     observeDocumentStatisticsSubject = new Subject<DocumentStatistics>();
     messageSubject = new Subject<Message>();
 
@@ -96,6 +127,9 @@ describe('WhiteboardInstanceImpl', () => {
         .fn()
         .mockReturnValue(observeDocumentStatisticsSubject),
       observeIsLoading: vi.fn().mockReturnValue(observeIsLoadingSubject),
+      observeMismatchedSnapshot: vi
+        .fn()
+        .mockReturnValue(observeMismatchedSnapshotSubject),
       persist: vi.fn(),
     };
   });
@@ -255,6 +289,90 @@ describe('WhiteboardInstanceImpl', () => {
     expect(whiteboardInstance.isLoading()).toBe(false);
   });
 
+  it('should merge a mismatched snapshot having older document version', async () => {
+    const document1 = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
+
+    const persist = firstValueFrom(document1.observePersist());
+
+    synchronizedDocument.getDocument.mockReturnValue(document1);
+
+    const whiteboardInstance = new WhiteboardInstanceImpl(
+      synchronizedDocument,
+      communicationChannel,
+      mockWhiteboard(),
+      '@user-id:example.com',
+    );
+
+    const mismatchedSnapshotDetails = firstValueFrom(
+      whiteboardInstance
+        .observeMismatchedSnapshotDetails()
+        .pipe(take(3), toArray()),
+    );
+
+    const remoteDocument = createWhiteboardDocument(
+      WhiteboardDocumentVersion.v0,
+    );
+
+    const ellipseElement = mockEllipseElement();
+    const [addElement0] = generateAddElement(slide0, ellipseElement);
+    remoteDocument.performChange(addElement0);
+
+    observeMismatchedSnapshotSubject.next({
+      documentVersion: remoteDocument.getDocumentVersion(),
+      data: remoteDocument.store(),
+    });
+
+    whiteboardInstance.mergeMismatchedSnapshot();
+
+    expect(whiteboardInstance.getMismatchedSnapshotDetails()).toBeUndefined();
+    expect(await mismatchedSnapshotDetails).toEqual([
+      undefined,
+      { canUpdate: true },
+      undefined,
+    ]);
+
+    expect(document1.getData().toJSON().slides[slide0].elementIds.length).toBe(
+      2,
+    );
+    expect(
+      document1.getData().toJSON().slides[slide0].frameElementIds?.length,
+    ).toBe(1);
+
+    await expect(persist).resolves.toEqual(document1);
+  });
+
+  it('should fail to merge a mismatched snapshot having newer document version', async () => {
+    const whiteboardInstance = new WhiteboardInstanceImpl(
+      synchronizedDocument,
+      communicationChannel,
+      mockWhiteboard(),
+      '@user-id:example.com',
+    );
+
+    const mismatchedSnapshotDetails = firstValueFrom(
+      whiteboardInstance
+        .observeMismatchedSnapshotDetails()
+        .pipe(take(2), toArray()),
+    );
+
+    const remoteDocument = createWhiteboardDocument(
+      WhiteboardDocumentVersion.v1,
+    );
+    observeMismatchedSnapshotSubject.next({
+      documentVersion: remoteDocument.getDocumentVersion(),
+      data: remoteDocument.store(),
+    });
+
+    expect(await mismatchedSnapshotDetails).toEqual([
+      undefined,
+      { canUpdate: false },
+    ]);
+
+    expect(() => whiteboardInstance.mergeMismatchedSnapshot()).toThrow(
+      "Update generation failed: update from '1' to '0' is not implemented",
+    );
+  });
+
   it('should select the first slide of the whiteboard after the document was loaded initially', async () => {
     const whiteboardInstance = new WhiteboardInstanceImpl(
       synchronizedDocument,
@@ -287,75 +405,6 @@ describe('WhiteboardInstanceImpl', () => {
     // now the first slide of the updated document should be selected
     expect(whiteboardInstance.isLoading()).toBe(false);
     expect(whiteboardInstance.getActiveSlideId()).toBe(slide1);
-  });
-
-  it('should set frame element ids for active slide when loaded document without frames in infinite canvas mode', async () => {
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-    );
-
-    const whiteboardInstance = new WhiteboardInstanceImpl(
-      synchronizedDocument,
-      communicationChannel,
-      mockWhiteboard(),
-      '@user-id:example.com',
-    );
-
-    observeIsLoadingSubject.next(false);
-    expect(whiteboardInstance.isLoading()).toBe(false);
-
-    expect(getFrameElementIds(document.getData(), slide0)).toEqual([]);
-  });
-
-  it('should set frame element ids for active slide if not set when loaded document with frames in infinite canvas mode', async () => {
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-    );
-
-    const whiteboardInstance = new WhiteboardInstanceImpl(
-      synchronizedDocument,
-      communicationChannel,
-      mockWhiteboard(),
-      '@user-id:example.com',
-    );
-
-    const [changeFn, elementId] = generateAddElement(
-      slide0,
-      mockFrameElement(),
-    );
-    document.performChange(changeFn);
-
-    observeIsLoadingSubject.next(false);
-    expect(whiteboardInstance.isLoading()).toBe(false);
-
-    expect(getFrameElementIds(document.getData(), slide0)).toEqual([elementId]);
-  });
-
-  it('should not set frame element ids for active slide when loaded document with existing frame element ids in infinite canvas mode', async () => {
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-    );
-
-    const whiteboardInstance = new WhiteboardInstanceImpl(
-      synchronizedDocument,
-      communicationChannel,
-      mockWhiteboard(),
-      '@user-id:example.com',
-    );
-
-    const [changeFn] = generateAddElement(slide0, mockFrameElement());
-    document.performChange(changeFn);
-
-    // explicitly set frameElementIds to value without frame id to test for it later
-    document.performChange((doc) => {
-      getSlide(doc, slide0)?.set('frameElementIds', new YArray());
-    });
-
-    observeIsLoadingSubject.next(false);
-    expect(whiteboardInstance.isLoading()).toBe(false);
-
-    // check that it is not modified
-    expect(getFrameElementIds(document.getData(), slide0)).toEqual([]);
   });
 
   it('should add a new slide', async () => {
@@ -579,6 +628,10 @@ describe('WhiteboardInstanceImpl', () => {
   });
 
   it('should switch a specific active frame', async () => {
+    const document1 = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
+
+    synchronizedDocument.getDocument.mockReturnValue(document1);
+
     vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
       name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
     );
@@ -634,6 +687,10 @@ describe('WhiteboardInstanceImpl', () => {
   });
 
   it('should reset active element selection when switching a frame', () => {
+    const document1 = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
+
+    synchronizedDocument.getDocument.mockReturnValue(document1);
+
     vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
       name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
     );
@@ -752,6 +809,128 @@ describe('WhiteboardInstanceImpl', () => {
       { canUndo: false, canRedo: true }, // after undo
       { canUndo: true, canRedo: false }, // after redo
     ]);
+  });
+
+  it('should export', async () => {
+    const whiteboardInstance = new WhiteboardInstanceImpl(
+      synchronizedDocument,
+      communicationChannel,
+      mockWhiteboard(),
+      '@user-id:example.com',
+    );
+
+    expect(await whiteboardInstance.export(widgetApi)).toEqual({
+      version: 'net.nordeck.whiteboard@v1',
+      whiteboard: {
+        slides: [{ elements: [] }],
+      },
+    });
+  });
+
+  it('should export a mismatched snapshot if received', async () => {
+    const document1 = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
+
+    synchronizedDocument.getDocument.mockReturnValue(document1);
+
+    const whiteboardInstance = new WhiteboardInstanceImpl(
+      synchronizedDocument,
+      communicationChannel,
+      mockWhiteboard(),
+      '@user-id:example.com',
+    );
+
+    const remoteDocument = createWhiteboardDocument(
+      WhiteboardDocumentVersion.v0,
+    );
+
+    const ellipseElement = mockEllipseElement();
+    const [addElement0] = generateAddElement(slide0, ellipseElement);
+    remoteDocument.performChange(addElement0);
+
+    observeMismatchedSnapshotSubject.next({
+      documentVersion: remoteDocument.getDocumentVersion(),
+      data: remoteDocument.store(),
+    });
+
+    expect(await whiteboardInstance.export(widgetApi)).toEqual({
+      version: 'net.nordeck.whiteboard@v1',
+      whiteboard: {
+        slides: [{ elements: [mockEllipseElement()] }],
+      },
+    });
+  });
+
+  it('should import', () => {
+    const exportDocument: WhiteboardDocumentExport = {
+      version: 'net.nordeck.whiteboard@v1',
+      whiteboard: {
+        slides: [
+          {
+            elements: [mockCircleElement()],
+          },
+        ],
+      },
+    };
+
+    const whiteboardInstance = new WhiteboardInstanceImpl(
+      synchronizedDocument,
+      communicationChannel,
+      mockWhiteboard(),
+      '@user-id:example.com',
+    );
+
+    whiteboardInstance.import(exportDocument);
+
+    const doc = document.getData();
+
+    const [slide0] = getNormalizedSlideIds(doc);
+
+    const [slide0Element0] = getNormalizedElementIds(doc, slide0);
+
+    expect(document.getData().toJSON()).toEqual({
+      slides: {
+        [slide0]: {
+          elements: {
+            [slide0Element0]: mockCircleElement(),
+          },
+          elementIds: [slide0Element0],
+        },
+      },
+      slideIds: [slide0],
+    });
+  });
+
+  it('should import initial whiteboard export into document with frames version', () => {
+    const document1 = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
+
+    synchronizedDocument.getDocument.mockReturnValue(document1);
+
+    const exportDocument: WhiteboardDocumentExport = {
+      version: 'net.nordeck.whiteboard@v1',
+      whiteboard: {
+        slides: [
+          {
+            elements: [mockCircleElement()],
+          },
+        ],
+      },
+    };
+
+    const whiteboardInstance = new WhiteboardInstanceImpl(
+      synchronizedDocument,
+      communicationChannel,
+      mockWhiteboard(),
+      '@user-id:example.com',
+    );
+
+    whiteboardInstance.import(exportDocument);
+
+    expect(document1.getData().toJSON().slides[slide0].elementIds.length).toBe(
+      2,
+    );
+    expect(
+      document1.getData().toJSON().slides[slide0].frameElementIds?.length,
+    ).toBe(1);
   });
 
   it('should close observables on destroy', async () => {

@@ -216,7 +216,7 @@ describe('SynchronizedDocumentImpl', () => {
     );
 
     const { diff: diff0 } = await mockUpdate((doc) =>
-      doc.get('text').insert(0, 'Hello'),
+      doc.get('text')?.insert(0, 'Hello'),
     );
     messageChannel.next({
       type: 'net.nordeck.whiteboard.document_update',
@@ -269,7 +269,7 @@ describe('SynchronizedDocumentImpl', () => {
     );
 
     const { diff: diff0 } = await mockUpdate((doc) =>
-      doc.get('text').insert(0, 'Hello'),
+      doc.get('text')?.insert(0, 'Hello'),
     );
     messageChannel.next({
       type: 'other_message',
@@ -373,6 +373,80 @@ describe('SynchronizedDocumentImpl', () => {
     });
   });
 
+  it('should skip v0 snapshot with document version mismatched from local storage and then merge snapshot stored in the room', async () => {
+    const documentVersion = '1';
+    const doc = createExampleDocument(documentVersion);
+    const store = createStore({ widgetApi });
+
+    const { document } = await mockUpdate((doc) => doc.set('num', 10));
+    storage.load.mockImplementation(async (documentId) =>
+      documentId === '$document-0' ? document.store() : undefined,
+    );
+
+    const synchronizedDocument = new SynchronizedDocumentImpl(
+      doc,
+      store,
+      communicationChannel,
+      storage,
+      '$document-0',
+    );
+    const mismatchedSnapshot = firstValueFrom(
+      synchronizedDocument.observeMismatchedSnapshot(),
+    );
+
+    expect(await mismatchedSnapshot).toEqual({
+      documentVersion: '0',
+      data: expect.any(Uint8Array),
+    });
+
+    const nextStatistics = firstValueFrom(
+      synchronizedDocument.observeDocumentStatistics().pipe(take(2), toArray()),
+    );
+    const nextMismatchedSnapshot = firstValueFrom(
+      synchronizedDocument.observeMismatchedSnapshot(),
+    );
+
+    const { document: nextDocument } = await mockUpdate(
+      (doc) => doc.get('list')?.insert(0, ['Hello World']),
+      documentVersion, // sets the same document version
+    );
+    const { snapshot: nextSnapshot, chunks: nextChunks } = mockDocumentSnapshot(
+      {
+        document: nextDocument,
+        origin_server_ts: 1000,
+      },
+    );
+    widgetApi.mockSendRoomEvent(nextSnapshot);
+    nextChunks.forEach(widgetApi.mockSendRoomEvent);
+
+    await waitFor(() => {
+      expect(doc.getData().toJSON()).toEqual({
+        num: 5,
+        list: ['Hello World'],
+      });
+    });
+
+    expect(storage.store).toHaveBeenCalledWith('$document-0', doc.store());
+
+    expect(await nextStatistics).toEqual([
+      {
+        contentSizeInBytes: 19,
+        documentSizeInBytes: expect.any(Number),
+        snapshotOutstanding: false,
+        snapshotsReceived: 1,
+        snapshotsSend: 0,
+      },
+      {
+        contentSizeInBytes: 32,
+        documentSizeInBytes: expect.any(Number),
+        snapshotOutstanding: false,
+        snapshotsReceived: 1,
+        snapshotsSend: 0,
+      },
+    ]);
+    expect(await nextMismatchedSnapshot).toBeUndefined();
+  });
+
   it('should ignore invalid snapshot from local storage', async () => {
     const doc = createExampleDocument();
     const store = createStore({ widgetApi });
@@ -469,6 +543,97 @@ describe('SynchronizedDocumentImpl', () => {
       },
     ]);
     expect(await loading).toEqual([true, false]);
+  });
+
+  it('should skip a snapshot with a document version mismatched and then merge another snapshot stored into the room', async () => {
+    const documentVersion = '1';
+    const doc = createExampleDocument(documentVersion);
+    const store = createStore({ widgetApi });
+
+    const synchronizedDocument = new SynchronizedDocumentImpl(
+      doc,
+      store,
+      communicationChannel,
+      storage,
+      '$document-0',
+    );
+    const statistics = firstValueFrom(
+      synchronizedDocument.observeDocumentStatistics(),
+    );
+    const loading = firstValueFrom(
+      synchronizedDocument.observeIsLoading().pipe(take(2), toArray()),
+    );
+    const mismatchedSnapshot = firstValueFrom(
+      synchronizedDocument.observeMismatchedSnapshot(),
+    );
+
+    const { document } = await mockUpdate(
+      (doc) => doc.set('num', 10),
+      '0', // sets a different document version
+    );
+    const { snapshot, chunks } = mockDocumentSnapshot({ document });
+    widgetApi.mockSendRoomEvent(snapshot);
+    chunks.forEach(widgetApi.mockSendRoomEvent);
+
+    expect(await statistics).toEqual({
+      contentSizeInBytes: 19,
+      documentSizeInBytes: expect.any(Number),
+      snapshotOutstanding: false,
+      snapshotsReceived: 1,
+      snapshotsSend: 0,
+    });
+    expect(await loading).toEqual([true, false]);
+    expect(await mismatchedSnapshot).toEqual({
+      documentVersion: '0',
+      data: expect.any(Uint8Array),
+    });
+
+    const nextStatistics = firstValueFrom(
+      synchronizedDocument.observeDocumentStatistics().pipe(take(2), toArray()),
+    );
+    const nextMismatchedSnapshot = firstValueFrom(
+      synchronizedDocument.observeMismatchedSnapshot(),
+    );
+
+    const { document: nextDocument } = await mockUpdate(
+      (doc) => doc.get('list')?.insert(0, ['Hello World']),
+      documentVersion, // sets the same document version
+    );
+    const { snapshot: nextSnapshot, chunks: nextChunks } = mockDocumentSnapshot(
+      {
+        document: nextDocument,
+        origin_server_ts: 1000,
+      },
+    );
+    widgetApi.mockSendRoomEvent(nextSnapshot);
+    nextChunks.forEach(widgetApi.mockSendRoomEvent);
+
+    await waitFor(() => {
+      expect(doc.getData().toJSON()).toEqual({
+        num: 5,
+        list: ['Hello World'],
+      });
+    });
+
+    expect(storage.store).toHaveBeenCalledWith('$document-0', doc.store());
+
+    expect(await nextStatistics).toEqual([
+      {
+        contentSizeInBytes: 19,
+        documentSizeInBytes: expect.any(Number),
+        snapshotOutstanding: false,
+        snapshotsReceived: 2,
+        snapshotsSend: 0,
+      },
+      {
+        contentSizeInBytes: 32,
+        documentSizeInBytes: expect.any(Number),
+        snapshotOutstanding: false,
+        snapshotsReceived: 2,
+        snapshotsSend: 0,
+      },
+    ]);
+    expect(await nextMismatchedSnapshot).toBeUndefined();
   });
 
   it('should skip invalid snapshots stored in the room', async () => {
@@ -721,11 +886,15 @@ describe('SynchronizedDocumentImpl', () => {
     const loading = firstValueFrom(
       synchronizedDocument.observeDocumentStatistics().pipe(toArray()),
     );
+    const mismatchedSnapshot = firstValueFrom(
+      synchronizedDocument.observeMismatchedSnapshot().pipe(toArray()),
+    );
 
     synchronizedDocument.destroy();
 
     expect(await statistics).toEqual([]);
     expect(await loading).toEqual([]);
+    expect(await mismatchedSnapshot).toEqual([]);
   });
 
   describe('load snapshot', () => {
@@ -911,7 +1080,8 @@ describe('SynchronizedDocumentImpl', () => {
 
 type Example = {
   num: number;
-  text: Y.Text;
+  text?: Y.Text;
+  list?: Y.Array<string>;
 };
 
 function initMigration(doc: SharedMap<Example>) {
@@ -919,16 +1089,36 @@ function initMigration(doc: SharedMap<Example>) {
   doc.set('text', new Y.Text());
 }
 
-const exampleMigrations = createMigrations([initMigration], '0');
+function migrateToList(doc: SharedMap<Example>) {
+  doc.set('list', new Y.Array<string>());
+  doc.delete('text');
+}
 
-function createExampleDocument(): Document<Example> {
-  return YDocument.create<Example>(exampleMigrations, '0');
+const exampleMigrations = createMigrations([initMigration], '0');
+const example1Migrations = createMigrations(
+  [initMigration, migrateToList],
+  '1',
+);
+
+function createExampleDocument(
+  exampleDocumentVersion: '0' | '1' = '0',
+): Document<Example> {
+  let migrations: Uint8Array[];
+  if (exampleDocumentVersion === '0') {
+    migrations = exampleMigrations;
+  } else if (exampleDocumentVersion === '1') {
+    migrations = example1Migrations;
+  } else {
+    throw new Error('Unexpected version');
+  }
+  return YDocument.create<Example>(migrations, exampleDocumentVersion);
 }
 
 async function mockUpdate(
   callback: ChangeFn<Example>,
+  exampleDocumentVersion: '0' | '1' = '0',
 ): Promise<{ diff: Uint8Array; document: Document<Example> }> {
-  const document = createExampleDocument();
+  const document = createExampleDocument(exampleDocumentVersion);
   const change = firstValueFrom(document.observePublish());
   document.performChange(callback);
   const diff = await change;
@@ -942,7 +1132,11 @@ function isValidExampleDocument(
 
   const json = doc.getData().toJSON();
 
-  return typeof json.num === 'number' && typeof json.text === 'string';
+  return (
+    typeof json.num === 'number' &&
+    (json.text === undefined || typeof json.text === 'string') &&
+    (json.list === undefined || Array.isArray(json.list))
+  );
 }
 
 function isValidExampleDocumentSnapshot(data: Uint8Array): boolean {
