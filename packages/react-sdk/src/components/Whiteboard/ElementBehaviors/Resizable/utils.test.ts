@@ -14,19 +14,26 @@
  * limitations under the License.
  */
 
-import { beforeEach, describe, expect, it, test } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import {
   mockEllipseElement,
   mockFrameElement,
   mockLineElement,
 } from '../../../../lib/testUtils/documentTestUtils';
-import { Element } from '../../../../state';
+import { Element, Elements, Point } from '../../../../state';
+import { DragEvent } from './ResizeHandle';
 import { Dimensions } from './types';
 import {
   calculateDimensions,
   calculateDragDimension,
   calculateDragOrigin,
+  computeElementResize,
   computeResizing,
+  computeResizingConnectingPathElement,
+  getLockAspectRatio,
+  pointResizerRotatedFactory,
+  pointResizerUnrotatedFactory,
+  rotateCursor,
 } from './utils';
 
 describe('calculateDragDimension', () => {
@@ -72,7 +79,7 @@ describe('calculateDragDimension', () => {
 });
 
 describe('calculateDragOrigin', () => {
-  test.each`
+  it.each`
     handlePosition   | expectedDragOriginX | expectedDragOriginY
     ${'top'}         | ${40}               | ${65}
     ${'topRight'}    | ${10}               | ${65}
@@ -113,7 +120,7 @@ describe('calculateDimensions', () => {
     };
   });
 
-  test.each`
+  it.each`
     handlePosition   | dragX | dragY | expectedX | expectedY | expectedWidth | expectedHeight
     ${'top'}         | ${25} | ${20} | ${15}     | ${20}     | ${20}         | ${50}
     ${'top'}         | ${25} | ${50} | ${15}     | ${50}     | ${20}         | ${20}
@@ -132,7 +139,7 @@ describe('calculateDimensions', () => {
     ${'topLeft'}     | ${25} | ${20} | ${25}     | ${20}     | ${10}         | ${50}
     ${'topLeft'}     | ${5}  | ${50} | ${5}      | ${50}     | ${30}         | ${20}
   `(
-    'should calculate dimensions for drag at $position to $dragX,$dragY',
+    'should calculate dimensions for drag at $handlePosition to $dragX,$dragY',
     ({
       handlePosition,
       dragX,
@@ -152,6 +159,7 @@ describe('calculateDimensions', () => {
       expect(
         calculateDimensions(
           handlePosition,
+          {}, // skip rotation related logic
           event,
           startDimension,
           viewportWidth,
@@ -166,7 +174,7 @@ describe('calculateDimensions', () => {
     },
   );
 
-  test.each`
+  it.each`
     handlePosition   | dragX | dragY | expectedX | expectedY | expectedWidth | expectedHeight
     ${'top'}         | ${25} | ${20} | ${15}     | ${20}     | ${20}         | ${50}
     ${'top'}         | ${25} | ${50} | ${15}     | ${50}     | ${20}         | ${20}
@@ -205,6 +213,7 @@ describe('calculateDimensions', () => {
       expect(
         calculateDimensions(
           handlePosition,
+          {}, // skip rotation related logic
           event,
           startDimension,
           viewportWidth,
@@ -220,7 +229,69 @@ describe('calculateDimensions', () => {
     },
   );
 
-  test.each`
+  it.each`
+    handlePosition   | dragX | dragY | expectedX | expectedY | expectedWidth | expectedHeight
+    ${'top'}         | ${25} | ${20} | ${15}     | ${51.46}  | ${20}         | ${18.54}
+    ${'top'}         | ${25} | ${50} | ${15}     | ${70}     | ${20}         | ${2.68}
+    ${'topRight'}    | ${25} | ${20} | ${9.04}   | ${51.46}  | ${5.96}       | ${18.54}
+    ${'topRight'}    | ${25} | ${50} | ${15}     | ${70}     | ${15.25}      | ${2.68}
+    ${'right'}       | ${45} | ${50} | ${15}     | ${30}     | ${29.39}      | ${40}
+    ${'right'}       | ${5}  | ${50} | ${15}     | ${30}     | ${1.11}       | ${40}
+    ${'bottomRight'} | ${45} | ${50} | ${15}     | ${30}     | ${29.39}      | ${28.54}
+    ${'bottomRight'} | ${5}  | ${20} | ${-5.1}   | ${30}     | ${20.1}       | ${35.61}
+    ${'bottom'}      | ${15} | ${80} | ${15}     | ${30}     | ${20}         | ${70.96}
+    ${'bottom'}      | ${15} | ${5}  | ${15}     | ${30}     | ${20}         | ${17.93}
+    ${'bottomLeft'}  | ${30} | ${80} | ${35}     | ${30}     | ${20}         | ${60.36}
+    ${'bottomLeft'}  | ${5}  | ${5}  | ${-15.71} | ${30}     | ${50.71}      | ${25}
+    ${'left'}        | ${30} | ${40} | ${26.72}  | ${30}     | ${8.28}       | ${40}
+    ${'left'}        | ${5}  | ${5}  | ${-15.71} | ${30}     | ${50.71}      | ${40}
+    ${'topLeft'}     | ${25} | ${20} | ${9.04}   | ${51.46}  | ${25.96}      | ${18.54}
+    ${'topLeft'}     | ${5}  | ${50} | ${16.11}  | ${70}     | ${18.89}      | ${16.82}
+  `(
+    'should calculate dimensions for drag at $handlePosition to $dragX,$dragY rotated',
+    ({
+      handlePosition,
+      dragX,
+      dragY,
+      expectedX,
+      expectedY,
+      expectedWidth,
+      expectedHeight,
+    }) => {
+      const event = {
+        deltaX: 1,
+        deltaY: 1,
+        lockAspectRatio: false,
+        x: dragX,
+        y: dragY,
+      };
+
+      const rotatedElement = mockEllipseElement({
+        position: { x: 50, y: 50 },
+        width: 10,
+        height: 10,
+        rotation: 45,
+      });
+
+      const result = calculateDimensions(
+        handlePosition,
+        { a: rotatedElement },
+        event,
+        startDimension,
+        viewportWidth,
+        viewportHeight,
+      );
+
+      expect(result).toEqual({
+        x: expect.closeTo(expectedX),
+        y: expect.closeTo(expectedY),
+        width: expect.closeTo(expectedWidth),
+        height: expect.closeTo(expectedHeight),
+      });
+    },
+  );
+
+  it.each`
     handlePosition   | dragX  | dragY  | expectedX | expectedY | expectedWidth | expectedHeight
     ${'bottomRight'} | ${120} | ${40}  | ${15}     | ${30}     | ${85}         | ${10}
     ${'bottomRight'} | ${20}  | ${120} | ${15}     | ${30}     | ${5}          | ${80}
@@ -247,6 +318,7 @@ describe('calculateDimensions', () => {
       expect(
         calculateDimensions(
           handlePosition,
+          {}, // skip rotation related logic
           event,
           startDimension,
           viewportWidth,
@@ -272,6 +344,7 @@ describe('calculateDimensions', () => {
     expect(
       calculateDimensions(
         'bottomRight',
+        {}, // skip rotation related logic
         event,
         startDimension,
         viewportWidth,
@@ -285,7 +358,7 @@ describe('calculateDimensions', () => {
     });
   });
 
-  test.each`
+  it.each`
     handlePosition   | dragX | dragY | expectedX | expectedY | expectedWidth | expectedHeight
     ${'top'}         | ${40} | ${20} | ${12.5}   | ${20}     | ${25}         | ${50}
     ${'top'}         | ${5}  | ${40} | ${17.5}   | ${40}     | ${15}         | ${30}
@@ -324,6 +397,7 @@ describe('calculateDimensions', () => {
       expect(
         calculateDimensions(
           handlePosition,
+          {}, // skip rotation related logic
           event,
           startDimension,
           viewportWidth,
@@ -338,7 +412,7 @@ describe('calculateDimensions', () => {
     },
   );
 
-  test.each`
+  it.each`
     handlePosition   | dragX  | dragY  | expectedX | expectedY | expectedWidth | expectedHeight
     ${'topRight'}    | ${100} | ${100} | ${15}     | ${0}      | ${35}         | ${70}
     ${'topRight'}    | ${0}   | ${0}   | ${0}      | ${70}     | ${15}         | ${30}
@@ -373,6 +447,7 @@ describe('calculateDimensions', () => {
       expect(
         calculateDimensions(
           handlePosition,
+          {}, // skip rotation related logic
           event,
           startDimension,
           viewportWidth,
@@ -387,7 +462,7 @@ describe('calculateDimensions', () => {
     },
   );
 
-  test.each`
+  it.each`
     handlePosition | dragX | dragY | expectedX | expectedY | expectedWidth | expectedHeight
     ${'top'}       | ${25} | ${20} | ${15}     | ${40}     | ${20}         | ${30}
     ${'top'}       | ${25} | ${50} | ${15}     | ${40}     | ${20}         | ${30}
@@ -414,6 +489,7 @@ describe('calculateDimensions', () => {
       expect(
         calculateDimensions(
           handlePosition,
+          {}, // skip rotation related logic
           event,
           startDimension,
           viewportWidth,
@@ -429,6 +505,38 @@ describe('calculateDimensions', () => {
       });
     },
   );
+});
+
+describe('getLockAspectRatio', () => {
+  let event: DragEvent;
+
+  beforeEach(() => {
+    event = {
+      x: 0,
+      y: 0,
+      lockAspectRatio: false,
+    };
+  });
+
+  it('should not lock aspect ration when multiple elements are selected', () => {
+    const elements = {
+      a: mockEllipseElement(),
+      b: mockEllipseElement(),
+    };
+    const result = getLockAspectRatio(event, elements, false);
+    expect(result).toBe(false);
+  });
+
+  it('should lock aspect ration when multiple elements are selected and any element is rotated', () => {
+    const elements = {
+      a: mockEllipseElement({
+        rotation: 10,
+      }),
+      b: mockEllipseElement(),
+    };
+    const result = getLockAspectRatio(event, elements, false);
+    expect(result).toBe(true);
+  });
 });
 
 describe('computeResizing', () => {
@@ -478,7 +586,7 @@ describe('computeResizing', () => {
     ).toEqual([]);
   });
 
-  test.each`
+  it.each`
     name       | x      | y      | dragX  | dragY  | expectedX | expectedY
     ${'start'} | ${120} | ${160} | ${80}  | ${120} | ${80}     | ${120}
     ${'end'}   | ${240} | ${200} | ${280} | ${240} | ${120}    | ${160}
@@ -536,7 +644,7 @@ describe('computeResizing', () => {
     ).toEqual([]);
   });
 
-  test.each`
+  it.each`
     name             | element    | dragX  | dragY  | expectedX | expectedY | expectedWidth | expectedHeight
     ${'top'}         | ${ellipse} | ${120} | ${80}  | ${120}    | ${80}     | ${40}         | ${80}
     ${'topRight'}    | ${ellipse} | ${200} | ${80}  | ${120}    | ${80}     | ${80}         | ${80}
@@ -596,7 +704,7 @@ describe('computeResizing', () => {
     },
   );
 
-  test.each`
+  it.each`
     name             | dragX  | dragY  | expectedEllipseX | expectedEllipseY | expectedEllipseWidth | expectedEllipseHeight | expectedLineX | expectedLineY | expectedLineWidth | expectedLineHeight
     ${'top'}         | ${120} | ${40}  | ${120}           | ${40}            | ${40}                | ${80}                 | ${120}        | ${120}        | ${120}            | ${80}
     ${'topRight'}    | ${360} | ${40}  | ${120}           | ${40}            | ${80}                | ${80}                 | ${120}        | ${120}        | ${240}            | ${80}
@@ -660,6 +768,405 @@ describe('computeResizing', () => {
           },
         },
       ]);
+    },
+  );
+});
+
+describe('computeResizing with rotated elements', () => {
+  const event = {
+    deltaX: 0,
+    deltaY: 0,
+    lockAspectRatio: false,
+    x: 0,
+    y: 0,
+  };
+
+  const viewportWidth = 100;
+  const viewportHeight = 110;
+  const gridCellSize = 20;
+
+  it.each`
+    name             | dragX  | dragY  | expectedEllipseX | expectedEllipseY | expectedEllipseWidth | expectedEllipseHeight | expectedLineX | expectedLineY | expectedLineWidth | expectedLineHeight
+    ${'top'}         | ${120} | ${40}  | ${179.25}        | ${306.67}        | ${0.5}               | ${0.5}                | ${179.25}     | ${307.17}     | ${1.5}            | ${0.5}
+    ${'topRight'}    | ${360} | ${40}  | ${255}           | ${200}           | ${0.33}              | ${0.33}               | ${255}        | ${200.33}     | ${1}              | ${0.33}
+    ${'right'}       | ${360} | ${120} | ${270}           | ${159.67}        | ${0.33}              | ${0.33}               | ${270}        | ${160}        | ${1}              | ${0.33}
+    ${'bottomRight'} | ${360} | ${280} | ${100}           | ${106.67}        | ${6.67}              | ${6.67}               | ${100}        | ${113.33}     | ${20}             | ${6.67}
+    ${'bottom'}      | ${120} | ${280} | ${100}           | ${120}           | ${53.33}             | ${53.33}              | ${100}        | ${173.33}     | ${160}            | ${53.33}
+    ${'bottomLeft'}  | ${0}   | ${280} | ${255}           | ${120}           | ${0.33}              | ${0.33}               | ${255}        | ${120.33}     | ${1}              | ${0.33}
+    ${'left'}        | ${0}   | ${120} | ${390}           | ${159.67}        | ${0.33}              | ${0.33}               | ${390}        | ${160}        | ${1}              | ${0.33}
+    ${'topLeft'}     | ${0}   | ${40}  | ${0}             | ${40}            | ${80}                | ${80}                 | ${0}          | ${120}        | ${240}            | ${80}
+  `(
+    'should computeResizing of multi-select with a rotated ellipse and line when dragging handle $name',
+    ({
+      name,
+      dragX,
+      dragY,
+      expectedEllipseX,
+      expectedEllipseY,
+      expectedEllipseWidth,
+      expectedEllipseHeight,
+      expectedLineX,
+      expectedLineY,
+      expectedLineWidth,
+      expectedLineHeight,
+    }) => {
+      const line = mockLineElement({
+        position: { x: 120, y: 160 },
+        points: [
+          { x: 0, y: 0 },
+          { x: 120, y: 40 },
+        ],
+      });
+
+      const ellipse = mockEllipseElement({
+        position: { x: 120, y: 120 },
+        width: 40,
+        height: 40,
+        rotation: 45,
+      });
+
+      // because this is a multi-select, the aspect ratio should be locked
+
+      const result = computeResizing(
+        { name, containerWidth: 120, containerHeight: 80 },
+        { ...event, x: dragX, y: dragY },
+        viewportWidth,
+        viewportHeight,
+        false,
+        gridCellSize,
+        {
+          x: 120,
+          y: 120,
+          width: 120,
+          height: 80,
+          elements: { ellipse, line },
+        },
+      );
+
+      expect(result).toEqual([
+        {
+          elementId: 'ellipse',
+          elementOverride: {
+            position: {
+              x: expect.closeTo(expectedEllipseX),
+              y: expect.closeTo(expectedEllipseY),
+            },
+            width: expect.closeTo(expectedEllipseWidth),
+            height: expect.closeTo(expectedEllipseHeight),
+          },
+        },
+        {
+          elementId: 'line',
+          elementOverride: {
+            position: {
+              x: expect.closeTo(expectedLineX),
+              y: expect.closeTo(expectedLineY),
+            },
+            points: [
+              { x: 0, y: 0 },
+              {
+                x: expect.closeTo(expectedLineWidth),
+                y: expect.closeTo(expectedLineHeight),
+              },
+            ],
+          },
+        },
+      ]);
+    },
+  );
+
+  it.each`
+    name             | dragX  | dragY  | expectedEllipseX | expectedEllipseY | expectedEllipseWidth | expectedEllipseHeight
+    ${'top'}         | ${120} | ${40}  | ${141.21}        | ${88.79}         | ${40}                | ${60}
+    ${'topRight'}    | ${360} | ${40}  | ${227.04}        | ${-38.42}        | ${33.33}             | ${140}
+    ${'right'}       | ${360} | ${120} | ${118.047}       | ${124.71}        | ${53.33}             | ${40}
+    ${'bottomRight'} | ${360} | ${280} | ${147.54}        | ${113.5}         | ${93.33}             | ${20}
+    ${'bottom'}      | ${120} | ${280} | ${109.39}        | ${115.606}       | ${40}                | ${70}
+    ${'bottomLeft'}  | ${0}   | ${280} | ${110.37}        | ${121.53}        | ${33.33}             | ${110}
+    ${'left'}        | ${0}   | ${120} | ${44.41}         | ${61.07}         | ${73.33}             | ${40}
+    ${'topLeft'}     | ${0}   | ${40}  | ${-7.04}         | ${68.72}         | ${86.67}             | ${20}
+  `(
+    'should computeResizing of a rotated ellipse when dragging handle $name',
+    ({
+      name,
+      dragX,
+      dragY,
+      expectedEllipseX,
+      expectedEllipseY,
+      expectedEllipseWidth,
+      expectedEllipseHeight,
+    }) => {
+      const ellipse = mockEllipseElement({
+        position: { x: 120, y: 120 },
+        width: 40,
+        height: 40,
+        rotation: 45,
+      });
+
+      const result = computeResizing(
+        { name, containerWidth: 120, containerHeight: 80 },
+        { ...event, x: dragX, y: dragY },
+        viewportWidth,
+        viewportHeight,
+        false,
+        gridCellSize,
+        {
+          x: 120,
+          y: 120,
+          width: 120,
+          height: 80,
+          elements: { ellipse },
+        },
+      );
+
+      expect(result).toEqual([
+        {
+          elementId: 'ellipse',
+          elementOverride: {
+            position: {
+              x: expect.closeTo(expectedEllipseX),
+              y: expect.closeTo(expectedEllipseY),
+            },
+            width: expect.closeTo(expectedEllipseWidth),
+            height: expect.closeTo(expectedEllipseHeight),
+          },
+        },
+      ]);
+    },
+  );
+});
+
+describe('pointResizer factory', () => {
+  it('should transform point using function created by pointResizerUnrotatedFactory', () => {
+    const startDimensions: Dimensions = {
+      x: 0,
+      y: 0,
+      height: 20,
+      width: 20,
+    };
+
+    const endDimensions: Dimensions = {
+      x: 0,
+      y: 0,
+      width: 10,
+      height: 10,
+    };
+
+    const pointResizer = pointResizerUnrotatedFactory(
+      startDimensions,
+      endDimensions,
+    );
+
+    expect(pointResizer({ x: 10, y: 10 })).toEqual({
+      x: expect.closeTo(5),
+      y: expect.closeTo(5),
+    });
+  });
+
+  it('should transform point using function created by pointResizerRotatedFactory', () => {
+    const startDimensions: Dimensions = {
+      x: 0,
+      y: 0,
+      height: 20,
+      width: 20,
+    };
+
+    const endDimensions: Dimensions = {
+      x: 0,
+      y: 0,
+      width: 10,
+      height: 10,
+    };
+
+    const originalCenter: Point = { x: 5, y: 5 };
+    const angle = 45;
+    const newCenter: Point = { x: 6, y: 6 };
+    const error = { x: 1, y: 1 };
+
+    const pointResizer = pointResizerRotatedFactory({
+      startDimensions,
+      endDimensions,
+      originalCenter,
+      newCenter,
+      angle,
+      error,
+    });
+
+    expect(pointResizer({ x: 10, y: 10 })).toEqual({
+      x: expect.closeTo(9.5),
+      y: expect.closeTo(4.55),
+    });
+  });
+});
+
+describe('computeElementResize', () => {
+  let startDimensions: Dimensions;
+  let endDimensions: Dimensions;
+
+  beforeEach(() => {
+    startDimensions = {
+      x: 0,
+      y: 0,
+      height: 20,
+      width: 20,
+    };
+
+    endDimensions = {
+      x: 0,
+      y: 0,
+      width: 100,
+      height: 100,
+    };
+  });
+
+  it('should compute update to resize rotated element', () => {
+    const element = mockEllipseElement({ rotation: 45 });
+
+    const { elementOverride, pointResizer } = computeElementResize(
+      element,
+      startDimensions,
+      endDimensions,
+      false,
+    );
+
+    expect(elementOverride).toEqual({
+      height: 500,
+      width: 250,
+      position: {
+        x: expect.closeTo(-173.54),
+        y: expect.closeTo(15.96),
+      },
+    });
+
+    expect(pointResizer({ x: 10, y: 10 })).toEqual({
+      x: expect.closeTo(-123.54),
+      y: expect.closeTo(60.96),
+    });
+  });
+
+  it('should compute update to resize rotated element along svg axis', () => {
+    const element = mockEllipseElement({ rotation: 45 });
+
+    const { elementOverride, pointResizer } = computeElementResize(
+      element,
+      startDimensions,
+      endDimensions,
+      true,
+    );
+
+    expect(elementOverride).toEqual({
+      height: 500,
+      width: 250,
+      position: {
+        x: 0,
+        y: 5,
+      },
+    });
+
+    expect(pointResizer({ x: 10, y: 10 })).toEqual({
+      x: 50,
+      y: 50,
+    });
+  });
+
+  it('should compute update to resize unrotated element', () => {
+    const element = mockEllipseElement();
+
+    const { elementOverride, pointResizer } = computeElementResize(
+      element,
+      startDimensions,
+      endDimensions,
+      true,
+    );
+
+    expect(elementOverride).toEqual({
+      height: 500,
+      width: 250,
+      position: {
+        x: 0,
+        y: 5,
+      },
+    });
+
+    expect(pointResizer({ x: 10, y: 10 })).toEqual({
+      x: 50,
+      y: 50,
+    });
+  });
+});
+
+describe('computeResizingConnectingPathElement', () => {
+  it('should compute update to a line connected to a resized rotated ellipse', () => {
+    const ellipseId = 'e';
+    const ellipse = mockEllipseElement({ rotation: 45 });
+    const lineId = 'l';
+    const line = mockLineElement({
+      connectedElementStart: ellipseId,
+    });
+
+    const elements: Elements = {
+      [ellipseId]: ellipse,
+    };
+
+    const startDimensions = {
+      x: 0,
+      y: 0,
+      height: 20,
+      width: 20,
+    };
+
+    const endDimensions: Dimensions = {
+      x: 0,
+      y: 0,
+      width: 100,
+      height: 100,
+    };
+
+    const { pointResizer } = computeElementResize(
+      ellipse,
+      startDimensions,
+      endDimensions,
+      false,
+    );
+
+    const result = computeResizingConnectingPathElement(
+      lineId,
+      line,
+      elements,
+      pointResizer,
+    );
+
+    expect(result).toEqual({
+      elementId: lineId,
+      elementOverride: {
+        points: [
+          { x: expect.closeTo(0), y: expect.closeTo(16.96) },
+          { x: expect.closeTo(175.54), y: expect.closeTo(0) },
+        ],
+        position: { x: expect.closeTo(-173.54), y: expect.closeTo(4) },
+      },
+    });
+  });
+});
+
+describe('rotateCursor', () => {
+  it.each`
+    cursor         | angle  | expected
+    ${'ns-resize'} | ${0}   | ${'ns-resize'}
+    ${'ns-resize'} | ${20}  | ${'ns-resize'}
+    ${'ns-resize'} | ${30}  | ${'ne-resize'}
+    ${'ns-resize'} | ${45}  | ${'ne-resize'}
+    ${'ns-resize'} | ${60}  | ${'ne-resize'}
+    ${'ns-resize'} | ${90}  | ${'ew-resize'}
+    ${'ns-resize'} | ${135} | ${'se-resize'}
+    ${'ns-resize'} | ${180} | ${'ns-resize'}
+    ${'ns-resize'} | ${225} | ${'sw-resize'}
+    ${'ns-resize'} | ${-45} | ${'nw-resize'}
+    ${'se-resize'} | ${60}  | ${'ns-resize'}
+  `(
+    'should rotate cursor $cursor and at angle $angle to be $expected',
+    ({ cursor, angle, expected }) => {
+      expect(rotateCursor(cursor, angle)).toBe(expected);
     },
   );
 });

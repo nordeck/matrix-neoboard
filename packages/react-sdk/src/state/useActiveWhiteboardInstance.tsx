@@ -17,7 +17,11 @@
 import { useMemo } from 'react';
 import { useObservable } from 'react-use';
 import { isInfiniteCanvasMode, useLatestValue } from '../lib';
-import { WhiteboardInstance, WhiteboardStatistics } from './types';
+import {
+  MismatchedSnapshotDetails,
+  WhiteboardInstance,
+  WhiteboardStatistics,
+} from './types';
 import { useDistinctObserveBehaviorSubject } from './useDistinctObserveBehaviorSubject';
 import { useWhiteboardManager } from './useWhiteboardManager';
 import { useWhiteboardSlideOrFrameIds } from './useWhiteboardSlideInstance';
@@ -142,4 +146,24 @@ export function useUndoRedoState(): { canUndo: boolean; canRedo: boolean } {
   );
 
   return useObservable(observable, { canUndo: false, canRedo: false });
+}
+
+export function useWhiteboardSlideIds(): string[] {
+  const whiteboardInstance = useActiveWhiteboardInstance();
+
+  return useLatestValue(
+    () => whiteboardInstance.getSlideIds(),
+    whiteboardInstance.observeSlideIds(),
+  );
+}
+
+export function useWhiteboardMismatchedSnapshotDetails():
+  | MismatchedSnapshotDetails
+  | undefined {
+  const whiteboardInstance = useActiveWhiteboardInstance();
+
+  return useLatestValue(
+    () => whiteboardInstance.getMismatchedSnapshotDetails(),
+    whiteboardInstance.observeMismatchedSnapshotDetails(),
+  );
 }

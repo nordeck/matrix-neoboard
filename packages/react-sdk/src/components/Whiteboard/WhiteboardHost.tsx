@@ -50,6 +50,7 @@ import {
   ElementOutline,
   MoveableElement,
   ResizeElement,
+  RotateElement,
   UnSelectElementHandler,
 } from './ElementBehaviors';
 import { DragSelect } from './ElementBehaviors/Selection/DragSelect';
@@ -71,9 +72,9 @@ const WhiteboardHost = ({
   withOutline?: boolean;
 }) => {
   const slideInstance = useWhiteboardSlideInstance();
-  const { isShowCollaboratorsCursors, dragSelectStartCoords } =
+  const { isShowCollaboratorsCursors, dragSelectStartCoords, isRotating } =
     useLayoutState();
-  const { activeElementIds } = useActiveElements();
+  const { activeElementIds, activeElementSet } = useActiveElements();
 
   const activeAndAttachedElementIds = findActiveAndAttachedElementIds(
     activeElementIds,
@@ -119,6 +120,7 @@ const WhiteboardHost = ({
         additionalChildren={
           dragSelectStartCoords === undefined &&
           !readOnly &&
+          !isRotating &&
           activeElementIds.length > 0 && (
             <ElementBarWrapper elementIds={activeElementIds}>
               <ElementBar showTextTools={showTextTools} />
@@ -144,7 +146,7 @@ const WhiteboardHost = ({
 
         {elementIds.map((elementId) => {
           const override = getElementOverride(elementId);
-          const isSelected = activeElementIds.includes(elementId);
+          const isSelected = activeElementSet.has(elementId);
 
           return (
             <ConnectedElement
@@ -185,6 +187,10 @@ const WhiteboardHost = ({
               />
             )}
           </>
+        )}
+
+        {!readOnly && activeElementIds.length === 1 && (
+          <RotateElement elementId={activeElementIds[0]} />
         )}
 
         {isShowCollaboratorsCursors && !hideCursors && <CursorRenderer />}
