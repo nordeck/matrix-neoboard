@@ -177,7 +177,7 @@ export function TextEditor({
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      if (isEditMode && e.key === 'Escape') {
         e.preventDefault();
         onBlur();
         setEditMode(false);
@@ -195,7 +195,14 @@ export function TextEditor({
         }
       });
     },
-    [onBlur, setTextToolsEnabled, fontSize, contentBold, contentItalic],
+    [
+      onBlur,
+      setTextToolsEnabled,
+      fontSize,
+      contentBold,
+      contentItalic,
+      isEditMode,
+    ],
   );
 
   const handleKeyUp = useCallback(() => {

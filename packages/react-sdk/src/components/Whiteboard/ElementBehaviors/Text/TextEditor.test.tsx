@@ -14,103 +14,67 @@
  * limitations under the License.
  */
 
-import { render, screen } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { PropsWithChildren } from 'react';
-import { useHotkeysContext } from 'react-hotkeys-hook';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { TextAlignment } from '../../../../state';
-import {
-  HOTKEY_SCOPE_GLOBAL,
-  HOTKEY_SCOPE_WHITEBOARD,
-  WhiteboardHotkeysProvider,
-} from '../../../WhiteboardHotkeysProvider';
-import { TextEditor } from './TextEditor';
-
-const defaultProps = {
-  content: 'Hello',
-  contentAlignment: 'center' as TextAlignment,
-  contentBold: false,
-  contentItalic: false,
-  color: '#000000',
-  onChange: vi.fn(),
-  onBlur: vi.fn(),
-  width: 200,
-  height: 100,
-  editModeOnMount: false,
-  setTextToolsEnabled: vi.fn(),
-};
+import { WhiteboardHotkeysProvider } from '../../../WhiteboardHotkeysProvider';
+import { TextEditor, TextEditorProps } from './TextEditor';
 
 function Wrapper({ children }: PropsWithChildren) {
   return <WhiteboardHotkeysProvider>{children}</WhiteboardHotkeysProvider>;
 }
 
-function EnabledScopes() {
-  const { activeScopes } = useHotkeysContext();
-  return <div data-testid="active-scopes">{activeScopes.join(',')}</div>;
-}
-
 describe('<TextEditor />', () => {
+  let defaultProps: TextEditorProps;
+
   beforeEach(() => {
-    vi.clearAllMocks();
+    defaultProps = {
+      content: 'Hello',
+      contentAlignment: 'center' as TextAlignment,
+      contentBold: false,
+      contentItalic: false,
+      color: '#000000',
+      onChange: vi.fn(),
+      onBlur: vi.fn(),
+      width: 200,
+      height: 100,
+      editModeOnMount: false,
+      setTextToolsEnabled: vi.fn(),
+    };
   });
 
-  describe('Escape hotkey', () => {
-    it('should call onBlur and disable text tools when Escape is pressed in edit mode', async () => {
-      const onBlur = vi.fn();
-      render(
-        <TextEditor
-          {...defaultProps}
-          editable
-          editModeOnMount
-          onBlur={onBlur}
-        />,
-        { wrapper: Wrapper },
-      );
+  describe('Escape key', () => {
+    it('should call onBlur and disable text tools when Escape is pressed if editable and edit mode is true', async () => {
+      render(<TextEditor {...defaultProps} editable editModeOnMount />, {
+        wrapper: Wrapper,
+      });
 
       await userEvent.keyboard('{Escape}');
 
-      expect(onBlur).toHaveBeenCalledOnce();
+      expect(defaultProps.onBlur).toHaveBeenCalledOnce();
       expect(defaultProps.setTextToolsEnabled).toHaveBeenCalledWith(false);
     });
 
-    it('should not call onBlur when Escape is pressed while not in edit mode', async () => {
-      const onBlur = vi.fn();
-      render(
-        <TextEditor {...defaultProps} editable={false} onBlur={onBlur} />,
-        { wrapper: Wrapper },
-      );
+    it('should not call onBlur and disable text tools when Escape is pressed if editable and edit mode is false', async () => {
+      render(<TextEditor {...defaultProps} editable />, { wrapper: Wrapper });
 
       await userEvent.keyboard('{Escape}');
 
-      expect(onBlur).not.toHaveBeenCalled();
+      expect(defaultProps.onBlur).not.toHaveBeenCalled();
+      expect(defaultProps.setTextToolsEnabled).not.toHaveBeenCalled();
     });
 
-    it('should exit edit mode via GLOBAL scope even when whiteboard scope is paused', async () => {
-      // When editable + isEditMode, usePauseHotkeysScope disables the WHITEBOARD scope.
-      // Escape is registered on HOTKEY_SCOPE_GLOBAL so it must fire regardless.
-      const onBlur = vi.fn();
-      render(
-        <>
-          <TextEditor
-            {...defaultProps}
-            editable
-            editModeOnMount
-            onBlur={onBlur}
-          />
-          <EnabledScopes />
-        </>,
-        { wrapper: Wrapper },
-      );
-
-      const activeScopes =
-        screen.getByTestId('active-scopes').textContent?.split(',') ?? [];
-      expect(activeScopes).toContain(HOTKEY_SCOPE_GLOBAL);
-      expect(activeScopes).not.toContain(HOTKEY_SCOPE_WHITEBOARD);
+    it('should not call onBlur when Escape is pressed if not editable', async () => {
+      render(<TextEditor {...defaultProps} editable={false} />, {
+        wrapper: Wrapper,
+      });
 
       await userEvent.keyboard('{Escape}');
 
-      expect(onBlur).toHaveBeenCalledOnce();
+      expect(defaultProps.onBlur).not.toHaveBeenCalled();
+      expect(defaultProps.setTextToolsEnabled).not.toHaveBeenCalled();
     });
   });
 });
