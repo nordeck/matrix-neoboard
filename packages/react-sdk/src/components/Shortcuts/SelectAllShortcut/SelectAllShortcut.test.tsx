@@ -35,13 +35,19 @@ import {
   mockLineElement,
   mockWhiteboardManager,
 } from '../../../lib/testUtils';
-import { WhiteboardInstance, WhiteboardManager } from '../../../state';
+import {
+  WhiteboardInstance,
+  WhiteboardManager,
+  WhiteboardSlideInstance,
+} from '../../../state';
 import {
   HOTKEY_SCOPE_WHITEBOARD,
   WhiteboardHotkeysProvider,
   usePauseHotkeysScope,
 } from '../../WhiteboardHotkeysProvider';
 import { SelectAllShortcut } from './SelectAllShortcut';
+
+let widgetApi: MockedWidgetApi;
 
 vi.mock('@matrix-widget-toolkit/mui', async () => ({
   ...(await vi.importActual<typeof import('@matrix-widget-toolkit/mui')>(
@@ -50,11 +56,13 @@ vi.mock('@matrix-widget-toolkit/mui', async () => ({
   getEnvironment: vi.fn(),
 }));
 
-let widgetApi: MockedWidgetApi;
-
 afterEach(() => widgetApi.stop());
 
 beforeEach(() => {
+  vi.mocked(getEnvironment).mockImplementation(
+    (_, defaultValue) => defaultValue,
+  );
+
   widgetApi = mockWidgetApi();
 });
 
@@ -62,6 +70,8 @@ describe('<SelectAllShortcut>', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
   let whiteboardManager: Mocked<WhiteboardManager>;
   let activeWhiteboardInstance: WhiteboardInstance;
+  let activeSlide: WhiteboardSlideInstance;
+
   let setPresentationMode: (
     enable: boolean,
     enableEdit?: boolean,
@@ -69,23 +79,18 @@ describe('<SelectAllShortcut>', () => {
   ) => void;
 
   beforeEach(() => {
-    vi.mocked(getEnvironment).mockImplementation(
-      (_, defaultValue) => defaultValue,
-    );
-
     ({ whiteboardManager, setPresentationMode } = mockWhiteboardManager({
       slides: [
         [
           'slide-0',
           [
-            ['element-0', mockLineElement()],
-            ['element-1', mockEllipseElement()],
+            ['element-0', mockLineElement({ attachedFrame: 'frame-0' })],
+            ['element-1', mockEllipseElement({ attachedFrame: 'frame-0' })],
+            ['element-2', mockEllipseElement()],
             [
               'frame-0',
               mockFrameElement({
-                position: { x: 500, y: 500 },
-                width: 300,
-                height: 300,
+                attachedElements: ['element-0', 'element-1'],
               }),
             ],
           ],
@@ -93,6 +98,7 @@ describe('<SelectAllShortcut>', () => {
       ],
     }));
     activeWhiteboardInstance = whiteboardManager.getActiveWhiteboardInstance()!;
+    activeSlide = activeWhiteboardInstance.getSlide('slide-0');
 
     Wrapper = ({ children }) => (
       <WhiteboardHotkeysProvider>
@@ -107,10 +113,8 @@ describe('<SelectAllShortcut>', () => {
   });
 
   it.each(['{Control>}a{/Control}', '{meta>}a{/meta}'])(
-    'should select all elements including frames with %s',
+    'should select all elements with %s',
     async (key) => {
-      const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
-
       render(<SelectAllShortcut />, { wrapper: Wrapper });
 
       await userEvent.keyboard(key);
@@ -118,14 +122,13 @@ describe('<SelectAllShortcut>', () => {
       expect(activeSlide.getActiveElementIds()).toEqual([
         'element-0',
         'element-1',
+        'element-2',
         'frame-0',
       ]);
     },
   );
 
   it('should ignore select all if keyboard scope is disabled', async () => {
-    const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
-
     render(
       <DisableWhiteboardHotkeys>
         <SelectAllShortcut />
@@ -138,68 +141,19 @@ describe('<SelectAllShortcut>', () => {
     expect(activeSlide.getActiveElementIds()).toEqual([]);
   });
 
-  it('should ignore select all if the presentation mode is active', async () => {
-    setPresentationMode(true, false);
+  describe('presentation mode for slides', () => {
+    it('should ignore select all', async () => {
+      setPresentationMode(true, false);
 
-    const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
+      render(<SelectAllShortcut />, { wrapper: Wrapper });
 
-    render(<SelectAllShortcut />, { wrapper: Wrapper });
+      await userEvent.keyboard('{Control>}a{/Control}');
 
-    await userEvent.keyboard('{Control>}a{/Control}');
-
-    expect(activeSlide.getActiveElementIds()).toEqual([]);
-  });
-
-  it('should select all elements including frames when presentation mode is active with edit enabled', async () => {
-    setPresentationMode(true, true);
-
-    const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
-
-    render(<SelectAllShortcut />, { wrapper: Wrapper });
-
-    await userEvent.keyboard('{Control>}a{/Control}');
-
-    expect(activeSlide.getActiveElementIds()).toEqual([
-      'element-0',
-      'element-1',
-      'frame-0',
-    ]);
-  });
-
-  describe('in infinite canvas mode', () => {
-    beforeEach(() => {
-      vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-        name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-      );
-
-      // element-0 and element-1 are attached to frame-0 via attachedFrame;
-      // element-2 belongs to no frame.
-      ({ whiteboardManager, setPresentationMode } = mockWhiteboardManager({
-        slides: [
-          [
-            'slide-0',
-            [
-              ['element-0', mockLineElement({ attachedFrame: 'frame-0' })],
-              ['element-1', mockEllipseElement({ attachedFrame: 'frame-0' })],
-              ['element-2', mockEllipseElement()],
-              [
-                'frame-0',
-                mockFrameElement({
-                  position: { x: 0, y: 0 },
-                  width: 1000,
-                  height: 1000,
-                }),
-              ],
-            ],
-          ],
-        ],
-      }));
-      activeWhiteboardInstance =
-        whiteboardManager.getActiveWhiteboardInstance()!;
+      expect(activeSlide.getActiveElementIds()).toEqual([]);
     });
 
-    it('should select all elements including frames when not in presentation mode', async () => {
-      const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
+    it('should select all elements if edit is enabled', async () => {
+      setPresentationMode(true, true);
 
       render(<SelectAllShortcut />, { wrapper: Wrapper });
 
@@ -213,10 +167,8 @@ describe('<SelectAllShortcut>', () => {
       ]);
     });
 
-    it('should select only elements inside the active frame when the presentee is in edit mode', async () => {
-      setPresentationMode(true, true);
-
-      const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
+    it('should select all elements if presenting', async () => {
+      setPresentationMode(true, false, 'presenting');
 
       render(<SelectAllShortcut />, { wrapper: Wrapper });
 
@@ -225,13 +177,36 @@ describe('<SelectAllShortcut>', () => {
       expect(activeSlide.getActiveElementIds()).toEqual([
         'element-0',
         'element-1',
+        'element-2',
+        'frame-0',
       ]);
     });
 
-    it('should ignore select all when the presentee is not in edit mode', async () => {
-      setPresentationMode(true, false);
+    it('should select all elements if presenting if edit is enabled', async () => {
+      setPresentationMode(true, true, 'presenting');
 
-      const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
+      render(<SelectAllShortcut />, { wrapper: Wrapper });
+
+      await userEvent.keyboard('{Control>}a{/Control}');
+
+      expect(activeSlide.getActiveElementIds()).toEqual([
+        'element-0',
+        'element-1',
+        'element-2',
+        'frame-0',
+      ]);
+    });
+  });
+
+  describe('presentation mode for frames', () => {
+    beforeEach(() => {
+      vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+        name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
+      );
+    });
+
+    it('should ignore select all', async () => {
+      setPresentationMode(true, false);
 
       render(<SelectAllShortcut />, { wrapper: Wrapper });
 
@@ -240,10 +215,8 @@ describe('<SelectAllShortcut>', () => {
       expect(activeSlide.getActiveElementIds()).toEqual([]);
     });
 
-    it('should select only elements inside the active frame when the presenter is in edit mode', async () => {
-      setPresentationMode(true, true, 'presenting');
-
-      const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
+    it('should select elements inside the active frame if edit is enabled', async () => {
+      setPresentationMode(true, true);
 
       render(<SelectAllShortcut />, { wrapper: Wrapper });
 
@@ -255,10 +228,52 @@ describe('<SelectAllShortcut>', () => {
       ]);
     });
 
-    it('should select only elements inside the active frame when the presenter is not in edit mode', async () => {
+    it('should select elements inside the active frame if presenting', async () => {
       setPresentationMode(true, false, 'presenting');
 
-      const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
+      render(<SelectAllShortcut />, { wrapper: Wrapper });
+
+      await userEvent.keyboard('{Control>}a{/Control}');
+
+      expect(activeSlide.getActiveElementIds()).toEqual([
+        'element-0',
+        'element-1',
+      ]);
+    });
+
+    it('should select no elements inside the active frame if presenting if frame has no elements attached', async () => {
+      activeSlide.updateElements([
+        {
+          elementId: 'element-0',
+          patch: {
+            attachedFrame: undefined,
+          },
+        },
+        {
+          elementId: 'element-1',
+          patch: {
+            attachedFrame: undefined,
+          },
+        },
+        {
+          elementId: 'frame-0',
+          patch: {
+            attachedElements: undefined,
+          },
+        },
+      ]);
+
+      setPresentationMode(true, false, 'presenting');
+
+      render(<SelectAllShortcut />, { wrapper: Wrapper });
+
+      await userEvent.keyboard('{Control>}a{/Control}');
+
+      expect(activeSlide.getActiveElementIds()).toEqual([]);
+    });
+
+    it('should select elements inside the active frame if presenting if edit is enabled', async () => {
+      setPresentationMode(true, true, 'presenting');
 
       render(<SelectAllShortcut />, { wrapper: Wrapper });
 

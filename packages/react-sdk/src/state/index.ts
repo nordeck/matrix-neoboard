@@ -29,6 +29,7 @@ export type {
 } from './types';
 export { useActiveCursors } from './useActiveCursors';
 export {
+  useActiveFrame,
   useActiveSlide,
   useActiveSlideOrFrame,
   useActiveWhiteboardInstance,

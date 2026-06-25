@@ -16,10 +16,8 @@
 
 import { useCallback } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
-import { isInfiniteCanvasMode } from '../../../lib';
 import {
-  isInfiniteCanvasPresentationEdit,
-  useActiveSlideOrFrame,
+  useActiveFrame,
   usePresentationMode,
   useWhiteboardSlideInstance,
 } from '../../../state';
@@ -28,36 +26,37 @@ import { HOTKEY_SCOPE_WHITEBOARD } from '../../WhiteboardHotkeysProvider';
 export function SelectAllShortcut() {
   const slideInstance = useWhiteboardSlideInstance();
   const { state: presentationState } = usePresentationMode();
-  const { activeId } = useActiveSlideOrFrame();
+  const { activeFrameElementId } = useActiveFrame();
 
   const isViewingPresentation =
     presentationState.type === 'presentation' && !presentationState.isEditMode;
 
-  const isInfiniteCanvasPresentationMode =
-    isInfiniteCanvasPresentationEdit(presentationState) ||
-    (isInfiniteCanvasMode() && presentationState.type === 'presenting');
-
   const handleSelectAll = useCallback(() => {
     if (isViewingPresentation) return;
-    const elementIds = slideInstance.getElementIds().filter((id) => {
-      const element = slideInstance.getElement(id);
-      if (!element) return false;
-      if (isInfiniteCanvasPresentationMode) {
-        if (element.type === 'frame') return false;
-        if (activeId) return element.attachedFrame === activeId;
-      }
-      return true;
-    });
 
-    if (isInfiniteCanvasPresentationMode || elementIds.length > 0) {
+    // get active frame if any and use it to filter element ids
+    const activeFrame = activeFrameElementId
+      ? slideInstance.getFrameElements()[activeFrameElementId]
+      : undefined;
+
+    let elementIds: string[] = slideInstance.getElementIds();
+
+    if (activeFrame) {
+      const { attachedElements } = activeFrame;
+
+      if (!attachedElements || attachedElements.length === 0) {
+        elementIds = [];
+      } else {
+        elementIds = elementIds.filter((elementId) => {
+          return attachedElements.includes(elementId);
+        });
+      }
+    }
+
+    if (elementIds.length > 0) {
       slideInstance.setActiveElementIds(elementIds);
     }
-  }, [
-    isViewingPresentation,
-    isInfiniteCanvasPresentationMode,
-    activeId,
-    slideInstance,
-  ]);
+  }, [isViewingPresentation, activeFrameElementId, slideInstance]);
 
   useHotkeys(
     ['ctrl+a', 'meta+a'],
