@@ -33,7 +33,7 @@ import {
 } from '../../../state';
 import { gridCellSize } from '../../Whiteboard';
 import { WhiteboardHotkeysProvider } from '../../WhiteboardHotkeysProvider';
-import { DragShortcut } from './DragShortcut';
+import { MoveShortcuts } from './MoveShortcuts';
 
 let widgetApi: MockedWidgetApi;
 
@@ -58,7 +58,7 @@ function createWrapper(
   );
 }
 
-describe('<DragShortcut>', () => {
+describe('<MoveShortcuts>', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
   let whiteboardManager: Mocked<WhiteboardManager>;
   let activeWhiteboardInstance: WhiteboardInstance;
@@ -83,7 +83,7 @@ describe('<DragShortcut>', () => {
     const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
     activeSlide.setActiveElementIds(['element-0']);
 
-    render(<DragShortcut />, { wrapper: Wrapper });
+    render(<MoveShortcuts />, { wrapper: Wrapper });
 
     await userEvent.keyboard('{ArrowUp}');
 
@@ -97,7 +97,7 @@ describe('<DragShortcut>', () => {
     const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
     activeSlide.setActiveElementIds(['element-0']);
 
-    render(<DragShortcut />, { wrapper: Wrapper });
+    render(<MoveShortcuts />, { wrapper: Wrapper });
 
     await userEvent.keyboard('{ArrowDown}');
 
@@ -111,7 +111,7 @@ describe('<DragShortcut>', () => {
     const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
     activeSlide.setActiveElementIds(['element-0']);
 
-    render(<DragShortcut />, { wrapper: Wrapper });
+    render(<MoveShortcuts />, { wrapper: Wrapper });
 
     await userEvent.keyboard('{ArrowLeft}');
 
@@ -125,7 +125,7 @@ describe('<DragShortcut>', () => {
     const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
     activeSlide.setActiveElementIds(['element-0']);
 
-    render(<DragShortcut />, { wrapper: Wrapper });
+    render(<MoveShortcuts />, { wrapper: Wrapper });
 
     await userEvent.keyboard('{ArrowRight}');
 
@@ -139,7 +139,7 @@ describe('<DragShortcut>', () => {
     const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
     activeSlide.setActiveElementIds(['element-0', 'element-1']);
 
-    render(<DragShortcut />, { wrapper: Wrapper });
+    render(<MoveShortcuts />, { wrapper: Wrapper });
 
     await userEvent.keyboard('{ArrowDown}');
 
@@ -200,7 +200,7 @@ describe('<DragShortcut>', () => {
     const slide = instance.getSlide('slide-0');
     slide.setActiveElementIds(['element-0']);
 
-    render(<DragShortcut />, { wrapper: createWrapper(wm) });
+    render(<MoveShortcuts />, { wrapper: createWrapper(wm) });
 
     await userEvent.keyboard('{ArrowDown}');
 
@@ -239,7 +239,7 @@ describe('<DragShortcut>', () => {
     const slide = wm.getActiveWhiteboardInstance()!.getSlide('slide-0');
     slide.setActiveElementIds(['element-0']);
 
-    render(<DragShortcut />, { wrapper: createWrapper(wm) });
+    render(<MoveShortcuts />, { wrapper: createWrapper(wm) });
     await userEvent.keyboard('{ArrowRight}');
 
     expect(slide.getElement('element-0')?.position).toEqual({
@@ -267,7 +267,7 @@ describe('<DragShortcut>', () => {
     const slide = wm.getActiveWhiteboardInstance()!.getSlide('slide-0');
     slide.setActiveElementIds(['element-0']);
 
-    render(<DragShortcut />, { wrapper: createWrapper(wm) });
+    render(<MoveShortcuts />, { wrapper: createWrapper(wm) });
     await userEvent.keyboard('{ArrowRight}');
 
     expect(slide.getElement('element-0')?.position).toEqual({
@@ -312,7 +312,7 @@ describe('<DragShortcut>', () => {
     const slide = wm.getActiveWhiteboardInstance()!.getSlide('slide-0');
     slide.setActiveElementIds(['frame-0']);
 
-    render(<DragShortcut />, { wrapper: createWrapper(wm) });
+    render(<MoveShortcuts />, { wrapper: createWrapper(wm) });
 
     await userEvent.keyboard('{ArrowDown}');
 
@@ -360,7 +360,7 @@ describe('<DragShortcut>', () => {
     const slide = wm.getActiveWhiteboardInstance()!.getSlide('slide-0');
     slide.setActiveElementIds(['frame-0']);
 
-    render(<DragShortcut />, { wrapper: createWrapper(wm) });
+    render(<MoveShortcuts />, { wrapper: createWrapper(wm) });
 
     await userEvent.keyboard('{ArrowDown}');
 
@@ -399,7 +399,7 @@ describe('<DragShortcut>', () => {
     const slide = wm.getActiveWhiteboardInstance()!.getSlide('slide-0');
     slide.setActiveElementIds(['child-0']);
 
-    render(<DragShortcut />, { wrapper: createWrapper(wm) });
+    render(<MoveShortcuts />, { wrapper: createWrapper(wm) });
 
     await userEvent.keyboard('{ArrowDown}');
 
@@ -417,7 +417,7 @@ describe('<DragShortcut>', () => {
     const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
     activeSlide.setActiveElementIds([]);
 
-    render(<DragShortcut />, { wrapper: Wrapper });
+    render(<MoveShortcuts />, { wrapper: Wrapper });
 
     await userEvent.keyboard('{ArrowUp}');
 

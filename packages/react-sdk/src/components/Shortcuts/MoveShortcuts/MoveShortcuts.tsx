@@ -19,25 +19,25 @@ import { useCallback } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import {
   calculateBoundingRectForElements,
+  Element,
   findActiveAndAttachedElementIds,
   findConnectingPaths,
   useWhiteboardSlideInstance,
 } from '../../../state';
 import {
+  calculateMoveElementsOverrideUpdates,
   elementsUpdates,
   findElementAttachFrame,
   findElementFrameChanges,
   getPathElements,
   gridCellSize,
-  infiniteCanvasMode,
   mergeElementsAndOverrides,
-  moveActiveElementsOverrides,
   whiteboardHeight,
   whiteboardWidth,
 } from '../../Whiteboard';
 import { HOTKEY_SCOPE_WHITEBOARD } from '../../WhiteboardHotkeysProvider';
 
-export function DragShortcut() {
+export function MoveShortcuts() {
   const slideInstance = useWhiteboardSlideInstance();
 
   const moveElements = useCallback(
@@ -51,29 +51,26 @@ export function DragShortcut() {
         frameElements,
       );
 
-      const activeElements = Object.fromEntries(
-        elementIds
-          .map((id) => [id, slideInstance.getElement(id)] as const)
-          .filter(
-            (entry): entry is [string, NonNullable<(typeof entry)[1]>] =>
-              entry[1] !== undefined,
-          ),
-      );
-
-      if (!infiniteCanvasMode) {
-        const { offsetX, offsetY, width, height } =
-          calculateBoundingRectForElements(Object.values(activeElements));
-        dx = clamp(dx, -offsetX, whiteboardWidth - offsetX - width);
-        dy = clamp(dy, -offsetY, whiteboardHeight - offsetY - height);
-        if (dx === 0 && dy === 0) return;
+      const activeElementsEntries: [string, Element][] = [];
+      for (const elementId of elementIds) {
+        const element = slideInstance.getElement(elementId);
+        if (element) {
+          activeElementsEntries.push([elementId, element]);
+        }
       }
+      const activeElements = Object.fromEntries(activeElementsEntries);
+
+      const { offsetX, offsetY, width, height } =
+        calculateBoundingRectForElements(Object.values(activeElements));
+      dx = clamp(dx, -offsetX, whiteboardWidth - offsetX - width);
+      dy = clamp(dy, -offsetY, whiteboardHeight - offsetY - height);
 
       const connectingPathElements = getPathElements(
         slideInstance,
         findConnectingPaths(activeElements),
       );
 
-      const allOverrideUpdates = moveActiveElementsOverrides(
+      const allOverrideUpdates = calculateMoveElementsOverrideUpdates(
         activeElements,
         dx,
         dy,

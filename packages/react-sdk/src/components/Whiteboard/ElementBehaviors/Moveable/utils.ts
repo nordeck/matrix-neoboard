@@ -35,7 +35,7 @@ import {
   computeResizingConnectingPathElements,
 } from '../Resizable';
 
-export function moveActiveElementsOverrides(
+export function calculateMoveElementsOverrideUpdates(
   elements: Elements,
   dx: number,
   dy: number,
@@ -59,8 +59,12 @@ export function moveActiveElementsOverrides(
     elementOverride: computeResizingConnectingPathElementOverDeltaPoints(
       { position: path.position, points: path.points },
       [
-        elements[path.connectedElementStart ?? ''] ? delta : undefined,
-        elements[path.connectedElementEnd ?? ''] ? delta : undefined,
+        path.connectedElementStart && elements[path.connectedElementStart]
+          ? delta
+          : undefined,
+        path.connectedElementEnd && elements[path.connectedElementEnd]
+          ? delta
+          : undefined,
       ],
     ),
   }));

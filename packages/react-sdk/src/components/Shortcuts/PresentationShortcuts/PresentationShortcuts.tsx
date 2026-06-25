@@ -34,7 +34,7 @@ export const PresentationShortcuts: React.FC = function () {
 
   const handleHotkey = useCallback(
     (event: KeyboardEvent) => {
-      if (activeId === undefined || activeElementIds.length > 0) {
+      if (activeId === undefined) {
         return;
       }
 
@@ -67,11 +67,11 @@ export const PresentationShortcuts: React.FC = function () {
         whiteboardInstance.setActiveSlideId(newActive);
       }
     },
-    [activeId, whiteboardInstance, slideOrFrameIds, activeElementIds],
+    [activeId, whiteboardInstance, slideOrFrameIds],
   );
 
   useHotkeys(['ArrowLeft', 'ArrowRight', 'space'], handleHotkey, {
-    enabled: state.type === 'presenting',
+    enabled: state.type === 'presenting' && activeElementIds.length === 0,
     useKey: true,
   });
 

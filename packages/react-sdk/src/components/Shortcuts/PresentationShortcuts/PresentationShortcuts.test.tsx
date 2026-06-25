@@ -106,12 +106,12 @@ describe('PresentationShortcuts', () => {
     expect(activeWhiteboardInstance.getActiveSlideId()).toBe('slide-1');
   });
 
-  it.each(['{arrowleft}', '{arrowright}'])(
-    'when presenting with multiple elements selected, %s should not navigate slides',
+  it.each(['{ArrowLeft}', '{ArrowRight}'])(
+    'when presenting with element selected, %s should not navigate slides',
     async (key) => {
       activeWhiteboardInstance.getPresentationManager()?.startPresentation();
       const activeSlide = activeWhiteboardInstance.getSlide('slide-1');
-      activeSlide.setActiveElementIds(['element-0', 'element-1']);
+      activeSlide.setActiveElementIds(['element-0']);
 
       render(<PresentationShortcuts />, { wrapper: Wrapper });
 

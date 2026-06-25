@@ -16,4 +16,4 @@
 
 export { DraggableStyles } from './DraggableStyles';
 export { MoveableElement } from './MoveableElement';
-export { moveActiveElementsOverrides } from './utils';
+export { calculateMoveElementsOverrideUpdates } from './utils';
