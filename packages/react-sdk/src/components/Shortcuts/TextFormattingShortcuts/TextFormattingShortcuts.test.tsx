@@ -22,7 +22,7 @@ import {
   mockRectangleElement,
   mockWhiteboardManager,
   WhiteboardTestingContextProvider,
-} from '../../../lib/testUtils/documentTestUtils';
+} from '../../../lib/testUtils';
 import { WhiteboardSlideInstance } from '../../../state';
 import { Toolbar } from '../../common/Toolbar';
 import { TextFormattingShortcuts } from './TextFormattingShortcuts';
@@ -46,7 +46,11 @@ describe('<TextFormattingShortcuts />', () => {
           [
             [
               'rectangle',
-              mockRectangleElement({ textBold: false, textItalic: false }),
+              mockRectangleElement({
+                textBold: false,
+                textItalic: false,
+                textUnderline: false,
+              }),
             ],
             ['line', mockLineElement()],
           ],
@@ -103,6 +107,23 @@ describe('<TextFormattingShortcuts />', () => {
       await userEvent.keyboard(shortcut);
       expect(slide.getElement('rectangle')).toEqual(
         expect.objectContaining({ textItalic: false }),
+      );
+    },
+  );
+
+  it.each([['{Control>}u'], ['{Meta>}u']])(
+    '%s should toggle underline',
+    async (shortcut) => {
+      render(<TextFormattingShortcuts />, { wrapper: Wrapper });
+
+      await userEvent.keyboard(shortcut);
+      expect(slide.getElement('rectangle')).toEqual(
+        expect.objectContaining({ textUnderline: true }),
+      );
+
+      await userEvent.keyboard(shortcut);
+      expect(slide.getElement('rectangle')).toEqual(
+        expect.objectContaining({ textUnderline: false }),
       );
     },
   );
