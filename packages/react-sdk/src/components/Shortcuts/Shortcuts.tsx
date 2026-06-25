@@ -18,6 +18,7 @@ import { infiniteCanvasMode } from '../Whiteboard';
 import { ClipboardShortcuts } from './ClipboardShortcuts';
 import { DeleteShortcut } from './DeleteShortcut';
 import { DuplicateShortcut } from './DuplicateShortcut';
+import { MoveShortcuts } from './MoveShortcuts';
 import { PresentationShortcuts } from './PresentationShortcuts';
 import { ReorderElementsShortcuts } from './ReorderElementShortcuts';
 import { SelectAllShortcut } from './SelectAllShortcut';
@@ -34,6 +35,7 @@ export function Shortcuts() {
       <ReorderElementsShortcuts />
       <DeleteShortcut />
       <DuplicateShortcut />
+      <MoveShortcuts />
       <PresentationShortcuts />
       <TextFormattingShortcuts />
       <SelectAllShortcut />
