@@ -19,6 +19,7 @@ import {
   ClipboardEvent,
   Dispatch,
   DispatchWithoutAction,
+  KeyboardEvent,
   MouseEvent,
   useCallback,
   useEffect,
@@ -186,30 +187,36 @@ export function TextEditor({
     [isEditMode],
   );
 
-  const handleKeyDown = useCallback(() => {
-    // We defer till the next rerender to make sure that the content was updated
-    // as part of this keystroke.
-    window.requestAnimationFrame(() => {
-      if (textRef.current) {
-        fitText(
-          textRef.current,
-          fontSize,
-          contentBold,
-          contentItalic,
-          contentUnderline,
-        );
-        if (!isEmptyText(textRef.current.innerText)) {
-          setTextToolsEnabled(true);
-        }
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (isEditMode && e.key === 'Escape') {
+        e.preventDefault();
+        onBlur();
+        setEditMode(false);
+        setTextToolsEnabled(false);
+        return;
       }
-    });
-  }, [
-    fontSize,
-    contentBold,
-    contentItalic,
-    contentUnderline,
-    setTextToolsEnabled,
-  ]);
+      // We defer till the next rerender to make sure that the content was updated
+      // as part of this keystroke.
+      window.requestAnimationFrame(() => {
+        if (textRef.current) {
+          fitText(textRef.current, fontSize, contentBold, contentItalic, contentUnderline);
+          if (!isEmptyText(textRef.current.innerText)) {
+            setTextToolsEnabled(true);
+          }
+        }
+      });
+    },
+    [
+      onBlur,
+      setTextToolsEnabled,
+      fontSize,
+      contentBold,
+      contentItalic,
+      contentUnderline,
+      isEditMode,
+    ],
+  );
 
   const handleKeyUp = useCallback(() => {
     if (textRef.current) {

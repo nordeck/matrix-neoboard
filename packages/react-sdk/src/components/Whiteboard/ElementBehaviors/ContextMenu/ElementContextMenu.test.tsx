@@ -33,7 +33,7 @@ import {
   mockEllipseElement,
   mockLineElement,
   mockWhiteboardManager,
-} from '../../../../lib/testUtils/documentTestUtils';
+} from '../../../../lib/testUtils';
 import { WhiteboardInstance, WhiteboardManager } from '../../../../state';
 import { LayoutStateProvider } from '../../../Layout';
 import { SlidesProvider } from '../../../Layout/SlidesProvider';
@@ -128,10 +128,14 @@ describe('<ElementContextMenu/>', () => {
       within(menu).getByRole('menuitem', { name: 'Bring backward Ctrl + ↓' }),
     ).toBeInTheDocument();
     expect(
-      within(menu).getByRole('menuitem', { name: 'Bring to front' }),
+      within(menu).getByRole('menuitem', {
+        name: 'Bring to front Ctrl + Shift + ↑',
+      }),
     ).toBeInTheDocument();
     expect(
-      within(menu).getByRole('menuitem', { name: 'Bring to back' }),
+      within(menu).getByRole('menuitem', {
+        name: 'Bring to back Ctrl + Shift + ↓',
+      }),
     ).toBeInTheDocument();
     expect(
       within(menu).getByRole('menuitem', { name: 'Delete Del' }),
@@ -224,10 +228,10 @@ describe('<ElementContextMenu/>', () => {
       within(menu).getByRole('menuitem', { name: 'Bring backward ⌘ ↓' }),
     ).toBeInTheDocument();
     expect(
-      within(menu).getByRole('menuitem', { name: 'Bring to front' }),
+      within(menu).getByRole('menuitem', { name: 'Bring to front ⌘ ⇧ ↑' }),
     ).toBeInTheDocument();
     expect(
-      within(menu).getByRole('menuitem', { name: 'Bring to back' }),
+      within(menu).getByRole('menuitem', { name: 'Bring to back ⌘ ⇧ ↓' }),
     ).toBeInTheDocument();
     expect(
       within(menu).getByRole('menuitem', { name: 'Delete ⌫' }),

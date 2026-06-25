@@ -47,8 +47,12 @@ const EllipseDisplay = ({
 
   const { strokeColor, strokeWidth, text } = getRenderProperties(shape);
 
+  const transform = shape.rotation
+    ? `rotate(${shape.rotation} ${shape.position.x + shape.width / 2} ${shape.position.y + shape.height / 2})`
+    : undefined;
+
   const renderedChild = (
-    <g data-testid={`element-ellipse-${elementId}`}>
+    <g data-testid={`element-ellipse-${elementId}`} transform={transform}>
       <ellipse
         data-connect-type="activation-area"
         cx={shape.position.x + cx}
