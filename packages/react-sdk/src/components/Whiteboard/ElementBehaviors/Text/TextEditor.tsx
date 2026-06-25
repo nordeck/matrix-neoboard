@@ -200,7 +200,13 @@ export function TextEditor({
       // as part of this keystroke.
       window.requestAnimationFrame(() => {
         if (textRef.current) {
-          fitText(textRef.current, fontSize, contentBold, contentItalic, contentUnderline);
+          fitText(
+            textRef.current,
+            fontSize,
+            contentBold,
+            contentItalic,
+            contentUnderline,
+          );
           if (!isEmptyText(textRef.current.innerText)) {
             setTextToolsEnabled(true);
           }

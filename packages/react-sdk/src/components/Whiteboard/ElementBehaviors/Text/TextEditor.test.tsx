@@ -35,6 +35,7 @@ describe('<TextEditor />', () => {
       contentAlignment: 'center' as TextAlignment,
       contentBold: false,
       contentItalic: false,
+      contentUnderline: false,
       color: '#000000',
       onChange: vi.fn(),
       onBlur: vi.fn(),
