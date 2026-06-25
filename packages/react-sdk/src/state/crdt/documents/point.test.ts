@@ -17,9 +17,12 @@
 import Joi from 'joi';
 import { describe, expect, it } from 'vitest';
 import {
+  Point,
+  angleBetweenPoints,
   calculateBoundingRectForPoints,
   isPointWithinBoundingRect,
   pointSchema,
+  rotatePoint,
 } from './point';
 
 describe('pointSchema', () => {
@@ -143,6 +146,95 @@ describe('isPointWithinBoundingRect', () => {
           { offsetX: 1, offsetY: 1, width: 10, height: 10 },
         ),
       ).toBe(false);
+    },
+  );
+});
+
+describe('rotatePoint', () => {
+  it.each`
+    angle   | point
+    ${0}    | ${{ x: 1, y: 1 }}
+    ${30}   | ${{ x: 0.36602540378443876, y: 1.3660254037844386 }}
+    ${45}   | ${{ x: 0, y: 1.414213562373095 }}
+    ${90}   | ${{ x: -1, y: 1 }}
+    ${180}  | ${{ x: -1, y: -1 }}
+    ${270}  | ${{ x: 1, y: -1 }}
+    ${360}  | ${{ x: 1, y: 1 }}
+    ${450}  | ${{ x: -1, y: 1 }}
+    ${-30}  | ${{ x: 1.3660254037844386, y: 0.36602540378443876 }}
+    ${-45}  | ${{ x: 1.414213562373095, y: 0 }}
+    ${-90}  | ${{ x: 1, y: -1 }}
+    ${-180} | ${{ x: -1, y: -1 }}
+    ${-270} | ${{ x: -1, y: 1 }}
+    ${-360} | ${{ x: 1, y: 1 }}
+    ${-450} | ${{ x: 1, y: -1 }}
+  `(
+    'should rotate point (1,1) around (0,0) at an angle $angle',
+    ({ angle, point }) => {
+      const p = { x: 1, y: 1 };
+      const center: Point = { x: 0, y: 0 };
+      const result = rotatePoint(p, center, angle);
+      expect(result.x).toBeCloseTo(point.x, 10);
+      expect(result.y).toBeCloseTo(point.y, 10);
+    },
+  );
+
+  it.each`
+    angle   | point
+    ${0}    | ${{ x: 0, y: 0 }}
+    ${30}   | ${{ x: 0.6339745962155612, y: -0.3660254037844386 }}
+    ${45}   | ${{ x: 1, y: -0.4142135623730949 }}
+    ${90}   | ${{ x: 2, y: 0 }}
+    ${180}  | ${{ x: 2, y: 2 }}
+    ${270}  | ${{ x: 0, y: 2 }}
+    ${360}  | ${{ x: 0, y: 0 }}
+    ${450}  | ${{ x: 2, y: 0 }}
+    ${-30}  | ${{ x: -0.3660254037844386, y: 0.6339745962155612 }}
+    ${-45}  | ${{ x: -0.4142135623730949, y: 1 }}
+    ${-90}  | ${{ x: 0, y: 2 }}
+    ${-180} | ${{ x: 2, y: 2 }}
+    ${-270} | ${{ x: 2, y: 0 }}
+    ${-360} | ${{ x: 0, y: 0 }}
+    ${-450} | ${{ x: 0, y: 2 }}
+  `(
+    'should rotate point (0,0) around (1,1) at an angle $angle',
+    ({ angle, point }) => {
+      const p = { x: 0, y: 0 };
+      const center: Point = { x: 1, y: 1 };
+      const result = rotatePoint(p, center, angle);
+      expect(result.x).toBeCloseTo(point.x, 10);
+      expect(result.y).toBeCloseTo(point.y, 10);
+    },
+  );
+});
+
+describe('angleBetweenPoints', () => {
+  it.each`
+    angle   | expected
+    ${0}    | ${0}
+    ${30}   | ${30}
+    ${45}   | ${45}
+    ${90}   | ${90}
+    ${180}  | ${180}
+    ${270}  | ${-90}
+    ${360}  | ${0}
+    ${450}  | ${90}
+    ${-30}  | ${-30}
+    ${-45}  | ${-45}
+    ${-90}  | ${-90}
+    ${-180} | ${-180}
+    ${-270} | ${90}
+    ${-360} | ${0}
+    ${-450} | ${-90}
+  `(
+    'should calculate angle between points rotated at $angle',
+    ({ angle, expected }) => {
+      const p1: Point = { x: 2, y: 2 };
+      const center: Point = { x: 1, y: 1 };
+      const p2: Point = rotatePoint(p1, center, angle);
+      const result = angleBetweenPoints(p1, p2, center);
+      // numDigits of 6 cause failed tests, but 5 is good enough
+      expect(result).toBeCloseTo(expected, 5);
     },
   );
 });

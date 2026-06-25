@@ -44,8 +44,12 @@ const BlockArrowDisplay = ({
   const { strokeColor, strokeWidth, text, points } = getRenderProperties(shape);
   const boundingRect = calculateBoundingRectForPoints(points);
 
+  const transform = shape.rotation
+    ? `rotate(${shape.rotation} ${shape.position.x + shape.width / 2} ${shape.position.y + shape.height / 2})`
+    : undefined;
+
   const renderedChild = (
-    <g data-testid={dataTestid}>
+    <g data-testid={dataTestid} transform={transform}>
       {/* Block arrow shape with narrow body */}
       <polygon
         data-connect-type="connectable-element"

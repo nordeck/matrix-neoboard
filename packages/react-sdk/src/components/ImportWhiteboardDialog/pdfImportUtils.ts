@@ -22,9 +22,8 @@ import {
 } from 'pdfjs-dist';
 import * as pdfJSWorker from 'pdfjs-dist/build/pdf.worker.mjs?url';
 import { RenderParameters } from 'pdfjs-dist/types/src/display/api';
+import { frameHeight, frameWidth } from '../../state';
 import {
-  frameHeight,
-  frameWidth,
   infiniteCanvasMode,
   whiteboardHeight,
   whiteboardWidth,

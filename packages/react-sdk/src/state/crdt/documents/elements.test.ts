@@ -18,7 +18,9 @@ import { describe, expect, it } from 'vitest';
 import {
   mockEllipseElement,
   mockFrameElement,
+  mockImageElement,
   mockLineElement,
+  mockPolylineElement,
   mockRectangleElement,
 } from '../../../lib/testUtils';
 import {
@@ -28,9 +30,12 @@ import {
   elementSchema,
   findFrameToAttach,
   includesTextShape,
+  isRotatableElement,
   isShapeWithText,
   isTextShape,
   isValidElement,
+  ShapeElement,
+  ShapeKind,
 } from './elements';
 
 describe('isValidElement', () => {
@@ -120,6 +125,74 @@ describe('isValidElement', () => {
       expect(isValidElement(data)).toBe(true);
     },
   );
+
+  it.each(['rectangle', 'circle', 'ellipse', 'triangle', 'block-arrow'])(
+    'should accept %j shape element with rotation',
+    (kind) => {
+      const data = {
+        type: 'shape',
+        position: { x: 1, y: 2 },
+        kind,
+        width: 100,
+        height: 100,
+        fillColor: 'red',
+        text: '',
+        connectedPaths: ['element-id-1'],
+        rotation: 45,
+      };
+
+      expect(isValidElement(data)).toBe(true);
+    },
+  );
+
+  it.each(['rectangle', 'circle', 'ellipse', 'triangle', 'block-arrow'])(
+    'should accept %j shape element with rotation 0',
+    (kind) => {
+      const data = {
+        type: 'shape',
+        position: { x: 1, y: 2 },
+        kind,
+        width: 100,
+        height: 100,
+        fillColor: 'red',
+        text: '',
+        connectedPaths: ['element-id-1'],
+        rotation: 0,
+      };
+
+      expect(isValidElement(data)).toBe(true);
+    },
+  );
+
+  it('should accept image element with rotation', () => {
+    const data = {
+      type: 'image',
+      mxc: 'mxc://example.com/test1234',
+      fileName: 'example.jpg',
+      mimeType: 'image/jpeg',
+      position: { x: 10, y: 20 },
+      width: 100,
+      height: 100,
+      rotation: 45,
+    };
+
+    expect(isValidElement(data)).toBe(true);
+  });
+
+  it('should accept image element with rotation 0', () => {
+    const data = {
+      type: 'image',
+      mxc: 'mxc://example.com/test1234',
+      fileName: 'example.jpg',
+      mimeType: 'image/jpeg',
+      position: { x: 10, y: 20 },
+      width: 100,
+      height: 100,
+      rotation: 0,
+    };
+
+    expect(isValidElement(data)).toBe(true);
+  });
 
   it.each([
     {
@@ -321,6 +394,12 @@ describe('isValidElement', () => {
     { attachedFrame: '' },
     { attachedFrame: '__proto__' },
     { attachedFrame: 'constructor' },
+    { rotation: 'other' },
+    { rotation: '45' },
+    { rotation: 520 },
+    { rotation: 360 },
+    { rotation: -1 },
+    { rotation: null },
   ])('should reject shape event with patch %j', (patch: object) => {
     const data = {
       type: 'shape',
@@ -422,6 +501,12 @@ describe('isValidElement', () => {
     { attachedFrame: '' },
     { attachedFrame: '__proto__' },
     { attachedFrame: 'constructor' },
+    { rotation: 'other' },
+    { rotation: '45' },
+    { rotation: 520 },
+    { rotation: 360 },
+    { rotation: -1 },
+    { rotation: null },
   ])('should reject an image event with patch %j', (patch: object) => {
     const data = {
       type: 'image',
@@ -491,8 +576,33 @@ describe('calculateBoundingRectForElements', () => {
     });
   });
 
+  it('should calculate the bounding rect for an array of elements with single rotated shape element', () => {
+    const elements = [
+      mockEllipseElement({
+        position: {
+          x: 200,
+          y: 201,
+        },
+        rotation: 30,
+      }),
+    ];
+    expect(calculateBoundingRectForElements(elements)).toEqual({
+      offsetX: expect.closeTo(178.349),
+      offsetY: expect.closeTo(195.198),
+      width: expect.closeTo(93.301),
+      height: expect.closeTo(111.602),
+    });
+  });
+
   it('should calculate the bounding rect for an array of elements with single path element', () => {
-    const elements = [mockLineElement()];
+    const elements = [
+      mockLineElement({
+        points: [
+          { x: 0, y: 0 },
+          { x: 2, y: 2 },
+        ],
+      }),
+    ];
     expect(calculateBoundingRectForElements(elements)).toEqual({
       offsetX: 0,
       offsetY: 1,
@@ -517,6 +627,25 @@ describe('calculateBoundingRectForElements', () => {
       offsetY: 0,
       width: 12,
       height: 6,
+    });
+  });
+
+  it('should calculate the bounding rect for an array of elements with rotated element', () => {
+    const elements = [
+      mockEllipseElement(),
+      mockEllipseElement({
+        position: {
+          x: 200,
+          y: 201,
+        },
+        rotation: 30,
+      }),
+    ];
+    expect(calculateBoundingRectForElements(elements)).toEqual({
+      offsetX: 0,
+      offsetY: 1,
+      width: expect.closeTo(271.65),
+      height: expect.closeTo(305.801),
     });
   });
 
@@ -802,5 +931,44 @@ describe('findFrameToAttach', () => {
 
   it('should find no frame', () => {
     expect(findFrameToAttach(mockRectangleElement(), {})).toBeUndefined();
+  });
+});
+
+describe('isRotatableElement', () => {
+  it.each(['rectangle', 'circle', 'ellipse', 'triangle', 'block-arrow'])(
+    `should return true for shape of kind %s`,
+    (kind) => {
+      const element: ShapeElement = {
+        type: 'shape',
+        kind: kind as ShapeKind,
+        position: { x: 0, y: 1 },
+        fillColor: '#ffffff',
+        textFontFamily: 'Inter',
+        height: 100,
+        width: 50,
+        text: '',
+      };
+      expect(isRotatableElement(element)).toBe(true);
+    },
+  );
+
+  it('should return true for image', () => {
+    const element = mockImageElement();
+    expect(isRotatableElement(element)).toBe(true);
+  });
+
+  it('should return false for line', () => {
+    const element = mockLineElement();
+    expect(isRotatableElement(element)).toBe(false);
+  });
+
+  it('should return false for polyline', () => {
+    const element = mockPolylineElement();
+    expect(isRotatableElement(element)).toBe(false);
+  });
+
+  it('should return false for frame', () => {
+    const element = mockFrameElement();
+    expect(isRotatableElement(element)).toBe(false);
   });
 });

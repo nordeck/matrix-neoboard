@@ -29,6 +29,7 @@ export type {
 } from './types';
 export { useActiveCursors } from './useActiveCursors';
 export {
+  useActiveFrame,
   useActiveSlide,
   useActiveSlideOrFrame,
   useActiveWhiteboardInstance,
@@ -36,6 +37,8 @@ export {
   useActiveWhiteboardInstanceStatistics,
   useIsWhiteboardLoading,
   useUndoRedoState,
+  useWhiteboardMismatchedSnapshotDetails,
+  useWhiteboardSlideIds,
 } from './useActiveWhiteboardInstance';
 export { useActiveWhiteboardMembers } from './useActiveWhiteboardMembers';
 export type { ActiveWhiteboardMember } from './useActiveWhiteboardMembers';

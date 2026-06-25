@@ -21,6 +21,7 @@ import { DuplicateShortcut } from './DuplicateShortcut';
 import { MoveShortcuts } from './MoveShortcuts';
 import { PresentationShortcuts } from './PresentationShortcuts';
 import { ReorderElementsShortcuts } from './ReorderElementShortcuts';
+import { SelectAllShortcut } from './SelectAllShortcut';
 import { TextFormattingShortcuts } from './TextFormattingShortcuts';
 import { UndoRedoShortcuts } from './UndoRedoShortcuts';
 import { ZoomShortcuts } from './ZoomShortcuts';
@@ -37,6 +38,7 @@ export function Shortcuts() {
       <MoveShortcuts />
       <PresentationShortcuts />
       <TextFormattingShortcuts />
+      <SelectAllShortcut />
       {infiniteCanvasMode && <ZoomShortcuts />}
     </>
   );

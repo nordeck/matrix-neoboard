@@ -17,11 +17,14 @@
 import { clamp } from 'lodash';
 import { useCallback } from 'react';
 import { filterRecord } from '../../lib';
-import { FrameElement, useWhiteboardSlideInstance } from '../../state';
 import {
-  calculateIntersect,
+  FrameElement,
   frameHeight,
   frameWidth,
+  useWhiteboardSlideInstance,
+} from '../../state';
+import {
+  calculateIntersect,
   gridCellSize,
   useSvgScaleContext,
   whiteboardHeight,
