@@ -15,7 +15,7 @@
  */
 
 import { noop } from 'lodash';
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { useIsomorphicLayoutEffect } from 'react-use';
 import { UseMeasureRect, UseMeasureResult } from 'react-use/lib/useMeasure';
@@ -34,10 +34,14 @@ const defaultState: UseMeasureRect = {
 /**
  * Copy of https://github.com/streamich/react-use/blob/master/src/useMeasure.ts
  * but with flushSync to fix glitches after React 18 update.
+ *
+ * Extended to skip setRect when dimensions haven't actually changed, preventing
+ * spurious React re-renders (and the cascading fitText calls they trigger).
  */
 function useBrowserMeasure<E extends Element = Element>(): UseMeasureResult<E> {
   const [element, ref] = useState<E | null>(null);
   const [rect, setRect] = useState<UseMeasureRect>(defaultState);
+  const prevRect = useRef<UseMeasureRect>(defaultState);
 
   const observer = useMemo(
     () =>
@@ -48,7 +52,24 @@ function useBrowserMeasure<E extends Element = Element>(): UseMeasureResult<E> {
           if (entries[0]) {
             const { x, y, width, height, top, left, bottom, right } =
               entries[0].contentRect;
-            setRect({ x, y, width, height, top, left, bottom, right });
+            const prev = prevRect.current;
+            // Skip state update when nothing actually changed to avoid triggering
+            // downstream useLayoutEffects (e.g. fitText) on every observer fire.
+            if (
+              prev.x === x &&
+              prev.y === y &&
+              prev.width === width &&
+              prev.height === height &&
+              prev.top === top &&
+              prev.left === left &&
+              prev.bottom === bottom &&
+              prev.right === right
+            ) {
+              return;
+            }
+            const next = { x, y, width, height, top, left, bottom, right };
+            prevRect.current = next;
+            setRect(next);
           }
         });
       }),
@@ -59,9 +80,9 @@ function useBrowserMeasure<E extends Element = Element>(): UseMeasureResult<E> {
     if (!element) return;
     observer.observe(element);
     return () => {
-      observer.disconnect();
+      observer.unobserve(element);
     };
-  }, [element]);
+  }, [element, observer]);
 
   return [ref, rect];
 }
