@@ -60,6 +60,7 @@ type LayoutState = {
   activeShapeTextShade: number;
   activeStartLineMarker: LineMarker | undefined;
   activeEndLineMarker: LineMarker | undefined;
+  isRotating: boolean;
   setSlideOverviewVisible: (value: boolean) => void;
   setDeveloperToolsVisible: (value: boolean) => void;
   setShowCollaboratorsCursors: (value: boolean) => void;
@@ -76,6 +77,7 @@ type LayoutState = {
   setActiveShapeTextShade: (shade: number) => void;
   setActiveStartLineMarker: (marker: LineMarker | undefined) => void;
   setActiveEndLineMarker: (marker: LineMarker | undefined) => void;
+  setIsRotating: (value: boolean) => void;
   /**
    * Whether the layout is displayed in fullscreen mode.
    */
@@ -142,6 +144,7 @@ export function LayoutStateProvider({ children }: PropsWithChildren<{}>) {
   const setActiveFontFamily = (font: TextFontFamily) => {
     setActiveFontFamilyState(font ?? 'Inter');
   };
+  const [isRotating, setIsRotating] = useState<boolean>(false);
 
   const value = useMemo(
     () => ({
@@ -149,6 +152,7 @@ export function LayoutStateProvider({ children }: PropsWithChildren<{}>) {
       isDeveloperToolsVisible,
       isShowCollaboratorsCursors,
       isShowGrid,
+      isRotating,
       activeTool,
       activeColor,
       activeShade,
@@ -181,6 +185,7 @@ export function LayoutStateProvider({ children }: PropsWithChildren<{}>) {
       setDragSelectStartCoords,
       setActiveStartLineMarker,
       setActiveEndLineMarker,
+      setIsRotating,
     }),
     [
       activeColor,
@@ -200,11 +205,13 @@ export function LayoutStateProvider({ children }: PropsWithChildren<{}>) {
       isShowGrid,
       isSlideOverviewVisible,
       isFullscreenMode,
+      isRotating,
       setFullscreenMode,
       dragSelectStartCoords,
       setDragSelectStartCoords,
       setActiveStartLineMarker,
       setActiveEndLineMarker,
+      setIsRotating,
     ],
   );
 

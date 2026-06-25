@@ -18,6 +18,7 @@ import { describe, expect, it } from 'vitest';
 import {
   mockCircleElement,
   mockEllipseElement,
+  mockFrameElement,
   mockLineElement,
   mockTriangleElement,
 } from '../../lib/testUtils/documentTestUtils';
@@ -25,6 +26,7 @@ import {
   createWhiteboardDocument,
   getNormalizedElementIds,
   getNormalizedSlideIds,
+  WhiteboardDocumentVersion,
 } from '../crdt';
 import { generateLoadWhiteboardFromExport } from './loadWhiteboardFromExport';
 import { WhiteboardDocumentExport } from './whiteboardDocumentExport';
@@ -295,5 +297,104 @@ describe('generateLoadWhiteboardFromExport', () => {
       },
       slideIds: [slide0, slide1, slide2, slide3],
     });
+  });
+
+  it('should load v1 whiteboard without frames', () => {
+    const exportDocument: WhiteboardDocumentExport = {
+      version: 'net.nordeck.whiteboard@v2',
+      whiteboard: {
+        slides: [{ elements: [mockEllipseElement()] }],
+      },
+    };
+
+    const document = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
+
+    const importWhiteboard = generateLoadWhiteboardFromExport(
+      exportDocument,
+      '@user-id:example.com',
+    );
+    document.performChange(importWhiteboard);
+
+    const doc = document.getData();
+
+    const [slide0] = getNormalizedSlideIds(doc);
+
+    const [slide0Element0] = getNormalizedElementIds(doc, slide0);
+
+    expect(doc.toJSON()).toEqual({
+      slides: {
+        [slide0]: {
+          elements: {
+            [slide0Element0]: mockEllipseElement(),
+          },
+          elementIds: [slide0Element0],
+          frameElementIds: [],
+        },
+      },
+      slideIds: [slide0],
+    });
+  });
+
+  it('should load v1 whiteboard with frames', () => {
+    const exportDocument: WhiteboardDocumentExport = {
+      version: 'net.nordeck.whiteboard@v2',
+      whiteboard: {
+        slides: [
+          {
+            elements: [
+              mockEllipseElement(),
+              mockFrameElement(),
+              mockFrameElement({ position: { x: 5, y: 10 } }),
+            ],
+          },
+        ],
+      },
+    };
+
+    const document = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
+
+    const importWhiteboard = generateLoadWhiteboardFromExport(
+      exportDocument,
+      '@user-id:example.com',
+    );
+    document.performChange(importWhiteboard);
+
+    const doc = document.getData();
+
+    const [slide0] = getNormalizedSlideIds(doc);
+
+    const [slide0Element0, slide0Element1, slide0Element2] =
+      getNormalizedElementIds(doc, slide0);
+
+    expect(doc.toJSON()).toEqual({
+      slides: {
+        [slide0]: {
+          elements: {
+            [slide0Element0]: mockEllipseElement(),
+            [slide0Element1]: mockFrameElement(),
+            [slide0Element2]: mockFrameElement({ position: { x: 5, y: 10 } }),
+          },
+          elementIds: [slide0Element0, slide0Element1, slide0Element2],
+          frameElementIds: [slide0Element1, slide0Element2],
+        },
+      },
+      slideIds: [slide0],
+    });
+  });
+
+  it('should fail to load v1 whiteboard with several slides', () => {
+    const exportDocument: WhiteboardDocumentExport = {
+      version: 'net.nordeck.whiteboard@v2',
+      whiteboard: {
+        slides: [
+          { elements: [mockEllipseElement()] },
+          { elements: [mockEllipseElement()] },
+        ],
+      },
+    };
+
+    expect(() =>
+      generateLoadWhiteboardFromExport(exportDocument, '@user-id:example.com'),
+    ).toThrow('Must have a single slide');
   });
 });

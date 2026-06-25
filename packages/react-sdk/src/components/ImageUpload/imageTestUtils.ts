@@ -32,8 +32,16 @@ const readFileAsFile = async (original_path: string): Promise<File> => {
 
   // Add `test_files` to the path.
   const fullPath = join('test_files', original_path);
+
   // Convert to real path.
-  const path = new URL(fullPath, import.meta.url).pathname;
+  let path: string = new URL(fullPath, import.meta.url).pathname;
+
+  if (process.platform === 'win32') {
+    // on windows, path looks like this \D:\Directory...
+    // remove the \ at the very beginning
+    path = path.substring(1, path.length);
+  }
+
   const file = await readFile(path);
   const fileBlob = file.buffer as ArrayBuffer;
   const fileObj = new File([fileBlob], original_path, { type: mime });

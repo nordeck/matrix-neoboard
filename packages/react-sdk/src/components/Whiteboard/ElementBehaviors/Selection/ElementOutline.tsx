@@ -15,7 +15,10 @@
  */
 
 import { useTheme } from '@mui/material';
-import { calculateBoundingRectForPoints } from '../../../../state';
+import {
+  calculateBoundingRectForPoints,
+  isRotatableElement,
+} from '../../../../state';
 import { useElementOverrides } from '../../../ElementOverridesProvider';
 
 type ElementOutlineProps = {
@@ -26,35 +29,40 @@ export function ElementOutline({ elementIds }: ElementOutlineProps) {
   const elements = Object.values(useElementOverrides(elementIds));
   const theme = useTheme();
 
-  return elements.length > 1 ? (
+  if (elements.length < 2) return null;
+
+  return (
     <g pointerEvents="none">
       {elements.map((element, index) => {
-        let width;
-        let height;
+        let width: number;
+        let height: number;
 
         if (element.type === 'path') {
-          const boundingRect = calculateBoundingRectForPoints(element.points);
-
-          width = boundingRect.width;
-          height = boundingRect.height;
+          ({ width, height } = calculateBoundingRectForPoints(element.points));
         } else {
-          width = element.width;
-          height = element.height;
+          ({ width, height } = element);
         }
+
+        const transform =
+          isRotatableElement(element) && element.rotation
+            ? `rotate(${element.rotation} ${element.position.x + element.width / 2} ${element.position.y + element.height / 2})`
+            : undefined;
 
         return (
           <rect
             key={`element-${elementIds[index]}-outline`}
+            data-testid={`element-${elementIds[index]}-outline`}
             fill="transparent"
             height={height}
             stroke={theme.palette.primary.main}
             strokeWidth={1}
             width={width}
+            transform={transform}
             x={element.position.x}
             y={element.position.y}
           />
         );
       })}
     </g>
-  ) : null;
+  );
 }

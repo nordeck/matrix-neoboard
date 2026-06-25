@@ -26,6 +26,7 @@ import {
   isPointWithinBoundingRect,
   Point,
   pointSchema,
+  rotatePoint,
 } from './point';
 
 export const disallowElementIds = ['__proto__', 'constructor'];
@@ -77,6 +78,7 @@ export type ShapeElement = ElementBase & {
   textFontFamily: TextFontFamily;
   connectedPaths?: string[];
   attachedFrame?: string;
+  rotation?: number;
 };
 
 const emptyCoordinateSchema = Joi.any().valid(null, 0, '');
@@ -103,6 +105,7 @@ export const shapeElementSchema = elementBaseSchema
     textFontFamily: Joi.string().strict().default('Inter'),
     connectedPaths: Joi.array().items(Joi.string().not(...disallowElementIds)),
     attachedFrame: Joi.string().not(...disallowElementIds),
+    rotation: Joi.number().min(0).less(360).strict().optional(),
   })
   .required();
 
@@ -175,6 +178,7 @@ export type ImageElement = ElementBase & {
    */
   mimeType?: ImageMimeType;
   attachedFrame?: string;
+  rotation?: number;
 };
 
 export const imageElementSchema = elementBaseSchema
@@ -192,6 +196,7 @@ export const imageElementSchema = elementBaseSchema
     width: Joi.number().strict().empty(emptyCoordinateSchema).default(1),
     height: Joi.number().strict().empty(emptyCoordinateSchema).default(1),
     attachedFrame: Joi.string().not(...disallowElementIds),
+    rotation: Joi.number().min(0).less(360).strict().optional(),
   })
   .required();
 
@@ -219,38 +224,65 @@ export function isValidElement(element: unknown): element is Element {
 export function calculateBoundingRectForElements(
   elements: Element[],
 ): BoundingRect {
-  const element = elements.length === 1 ? elements[0] : undefined;
+  return calculateBoundingRectForPoints(
+    elements.flatMap((e) => getElementBoundingPoints(e)),
+  );
+}
 
-  const elementsBoundingRect =
-    elements.length > 1
-      ? calculateBoundingRectForPoints(
-          elements.flatMap((e) =>
-            e.type === 'path'
-              ? e.points.map((p) => ({
-                  x: e.position.x + p.x,
-                  y: e.position.y + p.y,
-                }))
-              : [
-                  { x: e.position.x, y: e.position.y },
-                  { x: e.position.x + e.width, y: e.position.y + e.height },
-                ],
-          ),
-        )
-      : undefined;
+function getElementBoundingPoints(element: Element): Point[] {
+  if (isRotatableElement(element) && element.rotation) {
+    const {
+      position: { x, y },
+      width,
+      height,
+      rotation,
+    } = element;
 
-  const x = element?.position.x ?? elementsBoundingRect?.offsetX ?? 0;
-  const y = element?.position.y ?? elementsBoundingRect?.offsetY ?? 0;
+    const center: Point = {
+      x: x + width / 2,
+      y: y + height / 2,
+    };
 
-  const height =
-    element?.type === 'path'
-      ? calculateBoundingRectForPoints(element.points).height
-      : (element?.height ?? elementsBoundingRect?.height ?? 0);
-  const width =
-    element?.type === 'path'
-      ? calculateBoundingRectForPoints(element.points).width
-      : (element?.width ?? elementsBoundingRect?.width ?? 0);
+    const points: Point[] = [
+      { x: x, y: y },
+      { x: x + width, y: y },
+      { x: x, y: y + height },
+      { x: x + width, y: y + height },
+    ];
 
-  return { offsetX: x, offsetY: y, width, height };
+    const rotatedPoints = points.map((p) => rotatePoint(p, center, rotation));
+    const {
+      offsetX,
+      offsetY,
+      width: rectWidth,
+      height: rectHeight,
+    } = calculateBoundingRectForPoints(rotatedPoints);
+    return [
+      { x: offsetX, y: offsetY },
+      { x: offsetX + rectWidth, y: offsetY + rectHeight },
+    ];
+  }
+
+  if (element.type === 'path') {
+    return element.points.map((p) => ({
+      x: element.position.x + p.x,
+      y: element.position.y + p.y,
+    }));
+  }
+
+  // default way to get the boundary
+  const {
+    position: { x, y },
+    width,
+    height,
+  } = element;
+  return [
+    { x, y },
+    {
+      x: x + width,
+      y: y + height,
+    },
+  ];
 }
 
 export type Size = {
@@ -346,6 +378,12 @@ export function isShapeElementPair(
   pair: [string, Element],
 ): pair is [string, ShapeElement] {
   return pair[1].type === 'shape';
+}
+
+export function isRotatableElement(
+  element: Element,
+): element is ShapeElement | ImageElement {
+  return element.type === 'shape' || element.type === 'image';
 }
 
 export function modifyElementPosition<T extends ElementBase>(

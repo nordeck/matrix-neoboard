@@ -76,22 +76,24 @@ export function calculateElementOverrideUpdates(
   );
 
   if (connectingPathElements && boundingRect) {
+    const startDimensions = {
+      x: boundingRect.offsetX,
+      y: boundingRect.offsetY,
+      width: boundingRect.width,
+      height: boundingRect.height,
+    };
+    const endDimensions = {
+      x: rectX,
+      y: rectY,
+      width: rectWidth,
+      height: rectHeight,
+    };
     overrides.push(
       ...computeResizingConnectingPathElements(
         connectingPathElements,
         elements,
-        {
-          x: boundingRect.offsetX,
-          y: boundingRect.offsetY,
-          width: boundingRect.width,
-          height: boundingRect.height,
-        },
-        {
-          x: rectX,
-          y: rectY,
-          width: rectWidth,
-          height: rectHeight,
-        },
+        startDimensions,
+        endDimensions,
       ),
     );
   }

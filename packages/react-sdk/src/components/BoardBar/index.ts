@@ -15,3 +15,4 @@
  */
 
 export { BoardBar } from './BoardBar';
+export { ExportWhiteboardDialogDownloadFile } from './ExportWhiteboardDialogDownloadFile';

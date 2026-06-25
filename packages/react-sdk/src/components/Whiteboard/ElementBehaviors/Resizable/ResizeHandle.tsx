@@ -22,7 +22,7 @@ import { useSvgCanvasContext } from '../../SvgCanvas';
 import { useSvgScaleContext } from '../../SvgScaleContext';
 import { findConnectData } from './findConnectData';
 import { HandlePosition, LineElementHandlePositionName } from './types';
-import { isLineElementHandlePosition } from './utils';
+import { isLineElementHandlePosition, rotateCursor } from './utils';
 
 function calculateResizeHandlePosition(params: {
   position: HandlePosition;
@@ -158,6 +158,7 @@ export type DragConnectData = {
 
 export type ResizeHandleProps = {
   position: HandlePosition;
+  rotation?: number;
   onDrag?: Dispatch<DragEvent>;
   onDragStart?: Dispatch<DragEvent>;
   onDragStop?: Dispatch<DragEvent>;
@@ -172,6 +173,7 @@ export function ResizeHandle(props: ResizeHandleProps) {
 
   const {
     position: { name },
+    rotation,
     onDrag,
     onDragStart,
     onDragStop,
@@ -287,7 +289,7 @@ export function ResizeHandle(props: ResizeHandleProps) {
     >
       <rect
         data-testid={`resize-handle-${name}`}
-        cursor={cursor}
+        cursor={rotation ? rotateCursor(cursor, rotation) : cursor}
         fill="transparent"
         height={height}
         ref={nodeRef}
