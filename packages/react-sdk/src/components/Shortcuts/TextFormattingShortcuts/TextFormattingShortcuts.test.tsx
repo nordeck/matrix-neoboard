@@ -18,11 +18,12 @@ import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { render } from '@testing-library/react';
 import { ComponentType, PropsWithChildren } from 'react';
 import {
+  DisableWhiteboardHotkeys,
   mockLineElement,
   mockRectangleElement,
   mockWhiteboardManager,
   WhiteboardTestingContextProvider,
-} from '../../../lib/testUtils/documentTestUtils';
+} from '../../../lib/testUtils';
 import { WhiteboardSlideInstance } from '../../../state';
 import { Toolbar } from '../../common/Toolbar';
 import { TextFormattingShortcuts } from './TextFormattingShortcuts';
@@ -103,6 +104,24 @@ describe('<TextFormattingShortcuts />', () => {
       await userEvent.keyboard(shortcut);
       expect(slide.getElement('rectangle')).toEqual(
         expect.objectContaining({ textItalic: false }),
+      );
+    },
+  );
+
+  it.each([['{Control>}b'], ['{Control>}i']])(
+    'should ignore %s if keyboard scope is disabled',
+    async (shortcut) => {
+      render(
+        <DisableWhiteboardHotkeys>
+          <TextFormattingShortcuts />
+        </DisableWhiteboardHotkeys>,
+        { wrapper: Wrapper },
+      );
+
+      await userEvent.keyboard(shortcut);
+
+      expect(slide.getElement('rectangle')).toEqual(
+        expect.objectContaining({ textBold: false, textItalic: false }),
       );
     },
   );

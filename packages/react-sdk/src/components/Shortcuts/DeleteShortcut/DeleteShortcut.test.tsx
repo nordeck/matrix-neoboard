@@ -20,12 +20,13 @@ import userEvent from '@testing-library/user-event';
 import { ComponentType, PropsWithChildren } from 'react';
 import { Mocked, afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
+  DisableWhiteboardHotkeys,
   WhiteboardTestingContextProvider,
   mockEllipseElement,
   mockFrameElement,
   mockLineElement,
   mockWhiteboardManager,
-} from '../../../lib/testUtils/documentTestUtils';
+} from '../../../lib/testUtils';
 import { WhiteboardInstance, WhiteboardManager } from '../../../state';
 import { WhiteboardHotkeysProvider } from '../../WhiteboardHotkeysProvider';
 import { DeleteShortcut } from './DeleteShortcut';
@@ -143,6 +144,25 @@ describe('<DeleteShortcut>', () => {
           { x: 2, y: 3 },
         ],
       });
+    },
+  );
+
+  it.each(['{delete}', '{backspace}'])(
+    'should ignore %s if keyboard scope is disabled',
+    async (key) => {
+      const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
+      activeSlide.setActiveElementId('element-1');
+
+      render(
+        <DisableWhiteboardHotkeys>
+          <DeleteShortcut />
+        </DisableWhiteboardHotkeys>,
+        { wrapper: Wrapper },
+      );
+
+      await userEvent.keyboard(key);
+
+      expect(activeSlide.getElement('element-1')).toBeDefined();
     },
   );
 });

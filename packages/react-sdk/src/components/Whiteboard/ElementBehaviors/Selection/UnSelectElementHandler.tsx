@@ -31,6 +31,7 @@ import {
   whiteboardHeight,
   whiteboardWidth,
 } from '../../constants';
+import UnSelectElementHandlerTouchWrapper from './UnSelectElementHandlerTouchWrapper';
 
 export function UnSelectElementHandler() {
   const { activeElementId } = useActiveElement();
@@ -55,6 +56,7 @@ export function UnSelectElementHandler() {
           x: event.clientX,
           y: event.clientY,
         });
+
         setDragSelectStartCoords(point);
 
         if (activeElementId) {
@@ -151,17 +153,20 @@ export function UnSelectElementHandler() {
   }, [panEnabled, previousPanCoordinates, updateTranslation]);
 
   return (
-    <rect
-      fill="transparent"
-      height={whiteboardHeight}
-      onMouseDown={handleMouseDown}
-      onMouseEnter={handleMouseEnter}
-      onContextMenu={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-      }}
-      width={whiteboardWidth}
-      data-testid="unselect-element-layer"
-    />
+    <UnSelectElementHandlerTouchWrapper>
+      <rect
+        fill="transparent"
+        style={{ WebkitTouchCallout: 'none', WebkitUserSelect: 'none' }}
+        height={whiteboardHeight}
+        onMouseDown={handleMouseDown}
+        onMouseEnter={handleMouseEnter}
+        onContextMenu={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+        }}
+        width={whiteboardWidth}
+        data-testid="unselect-element-layer"
+      />
+    </UnSelectElementHandlerTouchWrapper>
   );
 }

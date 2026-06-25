@@ -28,15 +28,12 @@ import {
   vi,
 } from 'vitest';
 import {
+  DisableWhiteboardHotkeys,
   WhiteboardTestingContextProvider,
   mockWhiteboardManager,
 } from '../../../lib/testUtils';
 import { WhiteboardManager } from '../../../state';
-import {
-  HOTKEY_SCOPE_WHITEBOARD,
-  WhiteboardHotkeysProvider,
-  usePauseHotkeysScope,
-} from '../../WhiteboardHotkeysProvider';
+import { WhiteboardHotkeysProvider } from '../../WhiteboardHotkeysProvider';
 import { UndoRedoShortcuts } from './UndoRedoShortcuts';
 
 let widgetApi: MockedWidgetApi;
@@ -305,8 +302,3 @@ describe('<UndoRedoShortcuts>', () => {
     ).toHaveLength(1);
   });
 });
-
-function DisableWhiteboardHotkeys({ children }: PropsWithChildren<{}>) {
-  usePauseHotkeysScope(HOTKEY_SCOPE_WHITEBOARD);
-  return <>{children}</>;
-}
