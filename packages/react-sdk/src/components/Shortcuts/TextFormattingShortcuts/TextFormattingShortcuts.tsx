@@ -16,12 +16,17 @@
 
 import React from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
-import { useToggleBold, useToggleItalic } from '../../../lib/text-formatting';
+import {
+  useToggleBold,
+  useToggleItalic,
+  useToggleUnderline,
+} from '../../../lib/text-formatting';
 import { HOTKEY_SCOPE_WHITEBOARD } from '../../WhiteboardHotkeysProvider';
 
 export const TextFormattingShortcuts: React.FC = function () {
   const { toggleBold } = useToggleBold();
   const { toggleItalic } = useToggleItalic();
+  const { toggleUnderline } = useToggleUnderline();
 
   useHotkeys(
     ['ctrl+b', 'meta+b'],
@@ -43,6 +48,17 @@ export const TextFormattingShortcuts: React.FC = function () {
       scopes: HOTKEY_SCOPE_WHITEBOARD,
     },
     [toggleItalic],
+  );
+
+  useHotkeys(
+    ['ctrl+u', 'meta+u'],
+    toggleUnderline,
+    {
+      preventDefault: true,
+      enableOnContentEditable: true,
+      scopes: HOTKEY_SCOPE_WHITEBOARD,
+    },
+    [toggleUnderline],
   );
 
   return null;
