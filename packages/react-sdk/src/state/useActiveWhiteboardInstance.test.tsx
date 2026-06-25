@@ -19,6 +19,7 @@ import { ComponentType, PropsWithChildren } from 'react';
 import { Subject, of } from 'rxjs';
 import { Mocked, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
+  mockFrameElement,
   mockPeerConnectionStatistics,
   mockWhiteboardManager,
 } from '../lib/testUtils/documentTestUtils';
@@ -28,6 +29,7 @@ import {
   WhiteboardStatistics,
 } from './types';
 import {
+  useActiveFrame,
   useActiveSlide,
   useActiveSlideOrFrame,
   useActiveWhiteboardInstance,
@@ -212,6 +214,65 @@ describe('useActiveWhiteboardInstanceStatistics', () => {
     ).toThrow(Error('No active whiteboard instance'));
 
     consoleSpy.mockRestore();
+  });
+});
+
+describe('useActiveFrame', () => {
+  beforeEach(() => {
+    ({ whiteboardManager } = mockWhiteboardManager({
+      slides: [
+        [
+          'slide-0',
+          [
+            ['frame-0', mockFrameElement()],
+            ['frame-1', mockFrameElement()],
+          ],
+        ],
+      ],
+    }));
+    activeWhiteboardInstance = whiteboardManager.getActiveWhiteboardInstance()!;
+  });
+
+  it('should return active frame', () => {
+    activeWhiteboardInstance.setActiveFrameElementId('frame-0');
+
+    const { result } = renderHook(() => useActiveFrame(), {
+      wrapper: Wrapper,
+    });
+
+    expect(result.current).toStrictEqual({
+      activeFrameElementId: 'frame-0',
+    });
+  });
+
+  it('should return undefined when no active frame', () => {
+    const { result } = renderHook(() => useActiveFrame(), {
+      wrapper: Wrapper,
+    });
+
+    expect(result.current).toStrictEqual({
+      activeFrameElementId: undefined,
+    });
+  });
+
+  it('should observe active frame', () => {
+    activeWhiteboardInstance.setActiveFrameElementId('frame-0');
+
+    const { result } = renderHook(() => useActiveFrame(), {
+      wrapper: Wrapper,
+    });
+
+    expect(result.current).toEqual({
+      activeFrameElementId: 'frame-0',
+    });
+
+    act(() => {
+      activeWhiteboardInstance.setActiveFrameElementId('frame-1');
+    });
+
+    expect(result.current).toEqual({
+      activeFrameElementId: 'frame-1',
+    });
   });
 });
 

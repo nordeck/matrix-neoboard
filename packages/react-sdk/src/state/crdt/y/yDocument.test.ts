@@ -168,20 +168,40 @@ describe('YDocument', () => {
   });
 
   it('should merge from remote document and notify if there are further local changes', async () => {
-    const remoteData = mockRemoteData();
     const yDoc = YDocument.create<Example>(exampleMigrations, '0');
     const persist = firstValueFrom(yDoc.observePersist());
 
     yDoc.performChange((doc) => {
       doc.set('num', 10);
     });
-    yDoc.mergeFrom(remoteData);
+    yDoc.mergeFrom(mockRemoteData());
 
     await expect(persist).resolves.toEqual(yDoc);
     expect(yDoc.getData().toJSON()).toEqual({
       num: 10,
       text: 'HELLO',
     });
+  });
+
+  it('should merge from remote document and notify if there are no local changes but snapshot data marked as updated', async () => {
+    const yDoc = YDocument.create<Example>(exampleMigrations, '0');
+    const persist = firstValueFrom(yDoc.observePersist());
+
+    yDoc.mergeFrom(mockRemoteData(), true);
+
+    await expect(persist).resolves.toEqual(yDoc);
+    expect(yDoc.getData().toJSON()).toEqual({
+      num: 5,
+      text: 'HELLO',
+    });
+  });
+
+  it('should throw error if try to merge snapshot data having a different document version', async () => {
+    const yDoc = YDocument.create<Example>(exampleMigrations, '1');
+
+    expect(() => yDoc.mergeFrom(mockRemoteData())).toThrow(
+      `Cannot merge snapshot data that has a document version: '0'`,
+    );
   });
 
   it('should throw error if merge fails', async () => {
