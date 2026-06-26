@@ -2,4 +2,4 @@
 '@nordeck/matrix-neoboard-react-sdk': patch
 ---
 
-Update react-hotkeys-hook to fix hotkeys firing when the whiteboard scope is paused (e.g. during text editing)
+Update react-hotkeys-hook to 5.3.2 and add tests to other shortcuts to check hotkey disabling
