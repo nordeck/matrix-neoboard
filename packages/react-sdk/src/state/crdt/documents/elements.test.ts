@@ -24,6 +24,7 @@ import {
   mockRectangleElement,
 } from '../../../lib/testUtils';
 import {
+  calculateBoundingRectForElement,
   calculateBoundingRectForElements,
   calculateFittedElementSize,
   clampElementPosition,
@@ -659,6 +660,49 @@ describe('calculateBoundingRectForElements', () => {
   });
 });
 
+describe('calculateBoundingRectForElement', () => {
+  it('should calculate the bounding rect for element with shape element', () => {
+    const element = mockEllipseElement();
+    expect(calculateBoundingRectForElement(element)).toEqual({
+      offsetX: 0,
+      offsetY: 1,
+      width: 50,
+      height: 100,
+    });
+  });
+
+  it('should calculate the bounding rect for element with rotated shape element', () => {
+    const element = mockEllipseElement({
+      position: {
+        x: 200,
+        y: 201,
+      },
+      rotation: 30,
+    });
+    expect(calculateBoundingRectForElement(element)).toEqual({
+      offsetX: expect.closeTo(178.349),
+      offsetY: expect.closeTo(195.198),
+      width: expect.closeTo(93.301),
+      height: expect.closeTo(111.602),
+    });
+  });
+
+  it('should calculate the bounding rect for element with single path element', () => {
+    const element = mockLineElement({
+      points: [
+        { x: 0, y: 0 },
+        { x: 2, y: 2 },
+      ],
+    });
+    expect(calculateBoundingRectForElement(element)).toEqual({
+      offsetX: 0,
+      offsetY: 1,
+      width: 2,
+      height: 2,
+    });
+  });
+});
+
 describe('calculateFittedElementSize', () => {
   it('should return 0, 0 if everything is 0', () => {
     expect(
@@ -847,7 +891,29 @@ describe('findFrameToAttach', () => {
     ).toEqual('frame-id-0');
   });
 
-  it('should not find frame if element top left is not within the frame', () => {
+  it('should find frame if rotated element bounding rect top left and bottom right corners are withing frame', () => {
+    expect(
+      findFrameToAttach(
+        mockRectangleElement({
+          position: {
+            x: 11,
+            y: 12,
+          },
+          height: 50,
+          rotation: 45,
+        }),
+        {
+          'frame-id-0': mockFrameElement({
+            position: { x: 0, y: 1 },
+            width: 100,
+            height: 100,
+          }),
+        },
+      ),
+    ).toEqual('frame-id-0');
+  });
+
+  it('should not find frame if element top left corner is not within the frame', () => {
     expect(
       findFrameToAttach(mockRectangleElement(), {
         'frame-id-0': mockFrameElement({
@@ -856,6 +922,28 @@ describe('findFrameToAttach', () => {
           height: 100,
         }),
       }),
+    ).toBeUndefined();
+  });
+
+  it('should not find frame if rotated element bounding rect top left corner is not within the frame', () => {
+    expect(
+      findFrameToAttach(
+        mockRectangleElement({
+          position: {
+            x: 10,
+            y: 12,
+          },
+          height: 50,
+          rotation: 45,
+        }),
+        {
+          'frame-id-0': mockFrameElement({
+            position: { x: 0, y: 1 },
+            width: 100,
+            height: 100,
+          }),
+        },
+      ),
     ).toBeUndefined();
   });
 
@@ -868,6 +956,28 @@ describe('findFrameToAttach', () => {
           height: 50,
         }),
       }),
+    ).toBeUndefined();
+  });
+
+  it('should not find frame if rotated element bounding rect bottom right corner is not within the frame', () => {
+    expect(
+      findFrameToAttach(
+        mockRectangleElement({
+          position: {
+            x: 11,
+            y: 42,
+          },
+          height: 50,
+          rotation: 45,
+        }),
+        {
+          'frame-id-0': mockFrameElement({
+            position: { x: 0, y: 1 },
+            width: 100,
+            height: 100,
+          }),
+        },
+      ),
     ).toBeUndefined();
   });
 

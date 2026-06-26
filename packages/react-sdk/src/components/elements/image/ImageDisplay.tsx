@@ -220,6 +220,7 @@ function ImageDisplay({
             {renderedPlaceholder}
             {elementMovedHasFrame && (
               <ElementFrameOverlay
+                transform={transform}
                 offsetX={position.x}
                 offsetY={position.y}
                 width={width}

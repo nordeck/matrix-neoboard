@@ -229,6 +229,12 @@ export function calculateBoundingRectForElements(
   );
 }
 
+export function calculateBoundingRectForElement(
+  element: Element,
+): BoundingRect {
+  return calculateBoundingRectForPoints(getElementBoundingPoints(element));
+}
+
 function getElementBoundingPoints(element: Element): Point[] {
   if (isRotatableElement(element) && element.rotation) {
     const {
@@ -432,11 +438,8 @@ export function findFrameToAttach(
   element: ShapeElement | PathElement | ImageElement,
   frameElements: Elements<FrameElement>,
 ): string | undefined {
-  const { position } = element;
-  const { width, height } =
-    element.type === 'path'
-      ? calculateBoundingRectForPoints(element.points)
-      : element;
+  const { offsetX, offsetY, width, height } =
+    calculateBoundingRectForElement(element);
 
   const entry = Object.entries(frameElements)
     .reverse()
@@ -448,11 +451,17 @@ export function findFrameToAttach(
         height: frameElement.height,
       };
       return (
-        isPointWithinBoundingRect(position, frameBoundingRect) &&
         isPointWithinBoundingRect(
           {
-            x: position.x + width,
-            y: position.y + height,
+            x: offsetX,
+            y: offsetY,
+          },
+          frameBoundingRect,
+        ) &&
+        isPointWithinBoundingRect(
+          {
+            x: offsetX + width,
+            y: offsetY + height,
           },
           frameBoundingRect,
         )
