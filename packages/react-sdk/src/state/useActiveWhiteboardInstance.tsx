@@ -94,6 +94,26 @@ export function useActiveSlide(): ActiveSlide {
   };
 }
 
+type ActiveFrame = {
+  activeFrameElementId?: string;
+};
+
+export function useActiveFrame(): ActiveFrame {
+  const whiteboardInstance = useActiveWhiteboardInstance();
+  const observable = useMemo(
+    () => whiteboardInstance.observeActiveFrameElementId(),
+    [whiteboardInstance],
+  );
+  const activeFrameElementId = useLatestValue(
+    () => whiteboardInstance.getActiveFrameElementId(),
+    observable,
+  );
+
+  return {
+    activeFrameElementId,
+  };
+}
+
 type ActiveSlideOrFrame = {
   activeId: string | undefined;
   isLastActive: boolean;
