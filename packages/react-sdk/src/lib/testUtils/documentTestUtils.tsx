@@ -446,11 +446,6 @@ export function mockFrameElement(
   };
 }
 
-export function DisableWhiteboardHotkeys({ children }: PropsWithChildren<{}>) {
-  usePauseHotkeysScope(HOTKEY_SCOPE_WHITEBOARD);
-  return <>{children}</>;
-}
-
 /**
  * Text elements are rectangles with a transparent background.
  */
@@ -466,6 +461,11 @@ export function mockTextElement(shape: Partial<ShapeElement> = {}): Element {
     text: 'text',
     ...shape,
   };
+}
+
+export function DisableWhiteboardHotkeys({ children }: PropsWithChildren<{}>) {
+  usePauseHotkeysScope(HOTKEY_SCOPE_WHITEBOARD);
+  return <>{children}</>;
 }
 
 /**
