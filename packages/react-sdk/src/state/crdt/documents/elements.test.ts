@@ -891,7 +891,7 @@ describe('findFrameToAttach', () => {
     ).toEqual('frame-id-0');
   });
 
-  it('should find frame if rotated element bounding rect top left and bottom right corners are withing frame', () => {
+  it('should find frame if rotated element bounding rect top left and bottom right corners are within frame', () => {
     expect(
       findFrameToAttach(
         mockRectangleElement({

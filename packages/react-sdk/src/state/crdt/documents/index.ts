@@ -15,7 +15,6 @@
  */
 
 export {
-  calculateBoundingRectForElement,
   calculateBoundingRectForElements,
   calculateFittedElementSize,
   clampElementPosition,
