@@ -36,6 +36,7 @@ import {
   Slide,
   SlideProvider,
   WhiteboardDocument,
+  WhiteboardDocumentVersion,
   WhiteboardManager,
   WhiteboardManagerProvider,
   createWhiteboardDocument,
@@ -47,16 +48,25 @@ import {
   PeerConnectionStatistics,
 } from '../../state/communication';
 import { SharedMap, YArray, YMap } from '../../state/crdt/y';
-import { SynchronizedDocument, WhiteboardInstance } from '../../state/types';
+import {
+  MismatchedSnapshot,
+  SynchronizedDocument,
+  WhiteboardInstance,
+} from '../../state/types';
 import { WhiteboardInstanceImpl } from '../../state/whiteboardInstanceImpl';
 import { createStore } from '../../store';
 import { isInfiniteCanvasMode } from '../isInfiniteCanvasMode';
 import { mockWhiteboard } from './matrixTestUtils';
 
 type MockWhiteboardOptions =
-  | { slideCount: number; slides?: undefined }
+  | {
+      slideCount: number;
+      whiteboardDocumentVersion?: WhiteboardDocumentVersion;
+      slides?: undefined;
+    }
   | {
       slideCount?: undefined;
+      whiteboardDocumentVersion?: WhiteboardDocumentVersion;
       slides: Array<[string, Array<[string, Element]>]>;
     };
 
@@ -77,8 +87,9 @@ export function mockWhiteboardManager(
     presentationType?: 'presentation' | 'presenting',
   ) => void;
   synchronizedDocument: SynchronizedDocument<WhiteboardDocument>;
+  mismatchedSnapshotSubject: Subject<MismatchedSnapshot | undefined>;
 } {
-  const document = createWhiteboardDocument();
+  const document = createWhiteboardDocument(opts.whiteboardDocumentVersion);
 
   // we can't use the existing operations because we want to have predictable
   // slide and element ids.
@@ -150,10 +161,16 @@ export function mockWhiteboardManager(
     destroy: vi.fn(),
   };
 
-  const synchronizedDocument = {
+  const mismatchedSnapshotSubject = new Subject<
+    MismatchedSnapshot | undefined
+  >();
+  const synchronizedDocument: SynchronizedDocument<WhiteboardDocument> = {
     getDocument: () => document,
     observeDocumentStatistics: () => NEVER,
     observeIsLoading: () => of(false),
+    observeMismatchedSnapshot: vi
+      .fn()
+      .mockReturnValue(mismatchedSnapshotSubject),
     destroy: () => {},
     persist: vi.fn().mockResolvedValue(undefined),
   };
@@ -184,6 +201,7 @@ export function mockWhiteboardManager(
     communicationChannel,
     messageSubject,
     synchronizedDocument,
+    mismatchedSnapshotSubject,
     setPresentationMode: (enable, enableEdit, presentationType) => {
       let senderUserId: string;
       let senderSessionId: string;

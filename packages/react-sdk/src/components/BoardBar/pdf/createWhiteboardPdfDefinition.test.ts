@@ -14,15 +14,28 @@
  * limitations under the License.
  */
 
+import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { mockWidgetApi } from '@matrix-widget-toolkit/testing';
+import { Content, ContentStack } from 'pdfmake/interfaces';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   mockEllipseElement,
+  mockFrameElement,
   mockLineElement,
+  mockTextElement,
   mockWhiteboardManager,
 } from '../../../lib/testUtils/documentTestUtils';
+import { WhiteboardInstance } from '../../../state';
+import * as whiteboardConstants from '../../Whiteboard/constants';
 import { createWhiteboardPdfDefinition } from './createWhiteboardPdfDefinition';
 import * as font from './forceLoadFontFamily';
+
+vi.mock('@matrix-widget-toolkit/mui', async () => ({
+  ...(await vi.importActual<typeof import('@matrix-widget-toolkit/mui')>(
+    '@matrix-widget-toolkit/mui',
+  )),
+  getEnvironment: vi.fn(),
+}));
 
 describe('createWhiteboardPdfDefinition', () => {
   beforeEach(() => {
@@ -128,5 +141,193 @@ describe('createWhiteboardPdfDefinition', () => {
     });
 
     expect(spy).toHaveBeenCalledWith('Noto Emoji');
+  });
+});
+
+describe('createWhiteboardPdfDefinition in infinite canvas mode', () => {
+  let whiteboardInstance: WhiteboardInstance;
+
+  beforeEach(() => {
+    const { whiteboardManager } = mockWhiteboardManager({
+      slides: [
+        [
+          'slide-0',
+          [
+            [
+              'element-rectangle',
+              mockEllipseElement({
+                kind: 'rectangle',
+                text: 'Rectangle',
+                textFontFamily: 'Inter',
+                position: { x: 100, y: 100 },
+              }),
+            ],
+            [
+              'element-rectangle-text',
+              mockEllipseElement({
+                kind: 'rectangle',
+                text: 'Rectangle Text',
+                fillColor: 'transparent',
+                textFontFamily: 'Inter',
+                position: { x: 200, y: 200 },
+              }),
+            ],
+            [
+              'element-circle',
+              mockEllipseElement({
+                kind: 'circle',
+                text: 'Circle ✅',
+                textAlignment: 'right',
+                textFontFamily: 'Inter',
+                position: { x: 300, y: 300 },
+              }),
+            ],
+            [
+              'element-ellipse',
+              mockEllipseElement({
+                kind: 'ellipse',
+                text: 'Ellipse',
+                textFontFamily: 'Inter',
+                position: { x: 400, y: 400 },
+              }),
+            ],
+            [
+              'element-triangle',
+              mockEllipseElement({
+                kind: 'triangle',
+                text: 'Triangle 👍',
+                textFontFamily: 'Inter',
+                position: { x: 500, y: 500 },
+              }),
+            ],
+          ],
+        ],
+      ],
+    });
+    whiteboardInstance = whiteboardManager.getActiveWhiteboardInstance()!;
+
+    // Enable infinite canvas mode for this test
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
+    );
+    vi.spyOn(whiteboardConstants, 'infiniteCanvasMode', 'get').mockReturnValue(
+      true,
+    );
+    vi.spyOn(whiteboardConstants, 'whiteboardWidth', 'get').mockReturnValue(
+      19200,
+    );
+    vi.spyOn(whiteboardConstants, 'whiteboardHeight', 'get').mockReturnValue(
+      10800,
+    );
+  });
+
+  it(`should export all elements when there are no frames`, async () => {
+    const doc = await createWhiteboardPdfDefinition({
+      whiteboardInstance,
+      roomName: 'My Room',
+      authorName: 'Alice',
+      widgetApi: mockWidgetApi(),
+      themePaletteErrorMain: '#d51928',
+    });
+
+    expect(doc).toMatchObject({
+      pageSize: {
+        height: 500,
+        width: 450,
+      },
+    });
+    expect(doc).toMatchSnapshot();
+  });
+
+  it('should export each frame as a page', async () => {
+    const activeSlide = whiteboardInstance.getSlide('slide-0');
+
+    const textId = activeSlide.addElement(
+      mockTextElement({
+        position: { x: 600, y: 600 },
+      }),
+    );
+
+    const frameId = activeSlide.addElement(
+      mockFrameElement({
+        position: { x: 500, y: 500 },
+        width: 300,
+        height: 300,
+      }),
+    );
+
+    const textId2 = activeSlide.addElement(
+      mockTextElement({
+        position: { x: 1100, y: 1100 },
+      }),
+    );
+
+    const frameId2 = activeSlide.addElement(
+      mockFrameElement({
+        position: { x: 1000, y: 1000 },
+        width: 300,
+        height: 700,
+      }),
+    );
+
+    activeSlide.updateElements([
+      {
+        elementId: frameId,
+        patch: {
+          attachedElements: [textId],
+        },
+      },
+      {
+        elementId: textId,
+        patch: {
+          attachedFrame: frameId,
+        },
+      },
+      {
+        elementId: frameId2,
+        patch: {
+          attachedElements: [textId2],
+        },
+      },
+      {
+        elementId: textId2,
+        patch: {
+          attachedFrame: frameId2,
+        },
+      },
+    ]);
+
+    const doc = await createWhiteboardPdfDefinition({
+      whiteboardInstance,
+      roomName: 'My Room',
+      authorName: 'Alice',
+      widgetApi: mockWidgetApi(),
+      themePaletteErrorMain: '#d51928',
+    });
+
+    // page size check
+    expect(doc).toMatchObject({
+      pageSize: {
+        height: 700,
+        width: 300,
+      },
+    });
+
+    const { content } = doc;
+
+    // should be 2 pages
+    expect((content as Content[]).length).toBe(2);
+
+    // check that element coordinate system is local to the frame
+    const stack = (content as ContentStack[])[0].stack as Content[];
+    const textTable = ((stack[0] as Content[])[0] as Content[])[1];
+    expect(textTable).toMatchObject({
+      absolutePosition: {
+        x: 110,
+        y: 150,
+      },
+    });
+
+    expect(doc).toMatchSnapshot();
   });
 });

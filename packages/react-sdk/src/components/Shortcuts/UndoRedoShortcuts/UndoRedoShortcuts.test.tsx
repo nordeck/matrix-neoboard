@@ -109,6 +109,24 @@ describe('<UndoRedoShortcuts>', () => {
     ).toHaveLength(1);
   });
 
+  it('should not undo when pressing z without modifier', async () => {
+    render(<UndoRedoShortcuts />, { wrapper: Wrapper });
+
+    act(() => {
+      whiteboardManager.getActiveWhiteboardInstance()?.addSlide();
+    });
+
+    expect(
+      whiteboardManager.getActiveWhiteboardInstance()?.getSlideIds(),
+    ).toHaveLength(2);
+
+    await userEvent.keyboard('z');
+
+    expect(
+      whiteboardManager.getActiveWhiteboardInstance()?.getSlideIds(),
+    ).toHaveLength(2);
+  });
+
   it('should ignore undo if keyboard scope is disabled', async () => {
     render(
       <DisableWhiteboardHotkeys>
@@ -173,6 +191,48 @@ describe('<UndoRedoShortcuts>', () => {
       ).toHaveLength(2);
     },
   );
+
+  it('should not redo when pressing y without modifier', async () => {
+    render(<UndoRedoShortcuts />, { wrapper: Wrapper });
+
+    act(() => {
+      whiteboardManager.getActiveWhiteboardInstance()?.addSlide();
+      whiteboardManager.getActiveWhiteboardInstance()?.undo();
+    });
+
+    expect(
+      whiteboardManager.getActiveWhiteboardInstance()?.getSlideIds(),
+    ).toHaveLength(1);
+
+    await userEvent.keyboard('y');
+
+    expect(
+      whiteboardManager.getActiveWhiteboardInstance()?.getSlideIds(),
+    ).toHaveLength(1);
+  });
+
+  it('should not redo with ctrl+y on mac os', async () => {
+    vi.spyOn(window.navigator, 'userAgent', 'get').mockReturnValue(
+      'Mac OS (jsdom)',
+    );
+
+    render(<UndoRedoShortcuts />, { wrapper: Wrapper });
+
+    act(() => {
+      whiteboardManager.getActiveWhiteboardInstance()?.addSlide();
+      whiteboardManager.getActiveWhiteboardInstance()?.undo();
+    });
+
+    expect(
+      whiteboardManager.getActiveWhiteboardInstance()?.getSlideIds(),
+    ).toHaveLength(1);
+
+    await userEvent.keyboard('{Control>}y{/Control}');
+
+    expect(
+      whiteboardManager.getActiveWhiteboardInstance()?.getSlideIds(),
+    ).toHaveLength(1);
+  });
 
   it('should redo with meta+shift+z on mac os', async () => {
     vi.spyOn(window.navigator, 'userAgent', 'get').mockReturnValue(

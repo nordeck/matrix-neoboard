@@ -15,6 +15,7 @@
  */
 
 import Joi from 'joi';
+import { clamp } from 'lodash';
 
 export type Point = { x: number; y: number };
 
@@ -62,4 +63,45 @@ export function isPointWithinBoundingRect(
     offsetY <= y &&
     y <= offsetY + height
   );
+}
+
+/**
+ * Rotates point around the center to the specified angle
+ */
+export function rotatePoint(point: Point, center: Point, angle: number): Point {
+  const { x: pointX, y: pointY } = point;
+  if (angle === 0) return { x: pointX, y: pointY };
+  const { x: centerX, y: centerY } = center;
+  const rad = angle * (Math.PI / 180);
+  const x = pointX - centerX;
+  const y = pointY - centerY;
+  const cosRad = Math.cos(rad);
+  const sinRad = Math.sin(rad);
+  const rx = x * cosRad - y * sinRad;
+  const ry = x * sinRad + y * cosRad;
+  return {
+    x: rx + centerX,
+    y: ry + centerY,
+  };
+}
+
+/**
+ * Calculates angle between points around the center point.
+ * Positive value means b was rotated from a clockwise around the center point.
+ */
+export function angleBetweenPoints(a: Point, b: Point, center: Point): number {
+  const aX = a.x - center.x;
+  const aY = a.y - center.y;
+  const bX = b.x - center.x;
+  const bY = b.y - center.y;
+  const dotProduct = aX * bX + aY * bY;
+  const lenA = Math.sqrt(aX * aX + aY * aY);
+  const lenB = Math.sqrt(bX * bX + bY * bY);
+  if (lenA === 0 || lenB === 0) return 0;
+  // clamp cos to [-1,1], it's possible that rawCos may slightly go out of acos bounds
+  const rawCos = dotProduct / (lenA * lenB);
+  const cos = clamp(rawCos, -1, 1);
+  // vector cross product to detect forward and backward rotations
+  const direction = Math.sign(aX * bY - aY * bX);
+  return (direction * Math.acos(cos) * 180.0) / Math.PI;
 }

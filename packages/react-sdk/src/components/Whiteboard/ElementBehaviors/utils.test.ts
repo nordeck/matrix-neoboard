@@ -31,10 +31,14 @@ import {
 } from '../../../state';
 import { ElementOverrideUpdate } from '../../ElementOverridesProvider';
 import {
+  calculateRotationHandleCenter,
+  clampAngle,
   elementsUpdates,
   findAttachedElementsMovedByFrame,
   findElementAttachFrame,
   findElementFrameChanges,
+  getBoundingRectForElements,
+  getRotationTransformForElements,
   lineResizeUpdates,
 } from './utils';
 
@@ -1083,5 +1087,165 @@ describe('findAttachedElementsMovedByFrame', () => {
         'frame-id-0': mockFrameElement(),
       }),
     ).toEqual(['element-id-1', 'element-id-3']);
+  });
+});
+
+describe('clampAngle', () => {
+  it.each`
+    angle   | expected
+    ${0}    | ${0}
+    ${0.1}  | ${0}
+    ${0.5}  | ${1}
+    ${0.9}  | ${1}
+    ${1}    | ${1}
+    ${30}   | ${30}
+    ${45}   | ${45}
+    ${90}   | ${90}
+    ${180}  | ${180}
+    ${270}  | ${270}
+    ${360}  | ${0}
+    ${450}  | ${90}
+    ${-30}  | ${330}
+    ${-45}  | ${315}
+    ${-90}  | ${270}
+    ${-180} | ${180}
+    ${-270} | ${90}
+    ${-360} | ${0}
+    ${-450} | ${270}
+  `('should clamp the angle $angle to $expected', ({ angle, expected }) => {
+    expect(clampAngle(angle)).toBe(expected);
+  });
+});
+
+describe('calculateRotationHandleCenter', () => {
+  it.each`
+    containerHeight | scale | expected
+    ${10}           | ${10} | ${{ x: -2.2, y: 12.2 }}
+  `(
+    `should calculate the rotation handle's center point and size for containerHeight:$containerHeight scale:$scale`,
+    ({ containerHeight, scale, expected }) => {
+      expect(
+        calculateRotationHandleCenter({
+          containerHeight,
+          scale,
+        }),
+      ).toMatchObject(expected);
+    },
+  );
+});
+
+describe('getRotationTransformForElements', () => {
+  it('should get the rotated transform for array with the single element', () => {
+    const elements = [mockEllipseElement({ rotation: 45 })];
+    expect(getRotationTransformForElements(elements)).toEqual({
+      rotation: 45,
+      center: {
+        x: 25,
+        y: 50,
+      },
+    });
+  });
+
+  it('should not get the rotated transform for array with the single unrotated element', () => {
+    const elements = [mockEllipseElement()];
+    expect(getRotationTransformForElements(elements)).toBeUndefined();
+  });
+
+  it('should not get the rotated transform for array with multiple elements', () => {
+    const elements = [
+      mockEllipseElement({ rotation: 45 }),
+      mockEllipseElement(),
+    ];
+    expect(getRotationTransformForElements(elements)).toBeUndefined();
+  });
+});
+
+describe('getBoundingRectForElements', () => {
+  it('should get the bounding rect for an array of elements with single shape element', () => {
+    const elements = [mockEllipseElement()];
+    expect(getBoundingRectForElements(elements)).toEqual({
+      offsetX: 0,
+      offsetY: 1,
+      width: 50,
+      height: 100,
+    });
+  });
+
+  it('should get the bounding rect for an array of elements with single rotated shape element ignoring rotation', () => {
+    const elements = [
+      mockEllipseElement({
+        rotation: 30,
+      }),
+    ];
+    expect(getBoundingRectForElements(elements)).toEqual({
+      offsetX: 0,
+      offsetY: 1,
+      width: 50,
+      height: 100,
+    });
+  });
+
+  it('should get the bounding rect for an array of elements with single path element', () => {
+    const elements = [
+      mockLineElement({
+        points: [
+          { x: 0, y: 0 },
+          { x: 2, y: 2 },
+        ],
+      }),
+    ];
+    expect(getBoundingRectForElements(elements)).toEqual({
+      offsetX: 0,
+      offsetY: 1,
+      width: 2,
+      height: 2,
+    });
+  });
+
+  it('should get the bounding rect for an array of elements', () => {
+    const elements = [
+      mockEllipseElement({ width: 2, height: 5 }),
+      mockLineElement({
+        position: { x: 10, y: 0 },
+        points: [
+          { x: 0, y: 0 },
+          { x: 2, y: 2 },
+        ],
+      }),
+    ];
+    expect(getBoundingRectForElements(elements)).toEqual({
+      offsetX: 0,
+      offsetY: 0,
+      width: 12,
+      height: 6,
+    });
+  });
+
+  it('should get the bounding rect for an array of elements with rotated element', () => {
+    const elements = [
+      mockEllipseElement(),
+      mockEllipseElement({
+        position: {
+          x: 200,
+          y: 201,
+        },
+        rotation: 30,
+      }),
+    ];
+    expect(getBoundingRectForElements(elements)).toEqual({
+      offsetX: 0,
+      offsetY: 1,
+      width: expect.closeTo(271.65),
+      height: expect.closeTo(305.801),
+    });
+  });
+
+  it('should get the bounding rect for empty array', () => {
+    expect(getBoundingRectForElements([])).toEqual({
+      offsetX: 0,
+      offsetY: 0,
+      width: 0,
+      height: 0,
+    });
   });
 });
