@@ -29,6 +29,7 @@ import {
   vi,
 } from 'vitest';
 import {
+  DisableWhiteboardHotkeys,
   WhiteboardTestingContextProvider,
   mockEllipseElement,
   mockFrameElement,
@@ -40,11 +41,7 @@ import {
   WhiteboardManager,
   WhiteboardSlideInstance,
 } from '../../../state';
-import {
-  HOTKEY_SCOPE_WHITEBOARD,
-  WhiteboardHotkeysProvider,
-  usePauseHotkeysScope,
-} from '../../WhiteboardHotkeysProvider';
+import { WhiteboardHotkeysProvider } from '../../WhiteboardHotkeysProvider';
 import { SelectAllShortcut } from './SelectAllShortcut';
 
 let widgetApi: MockedWidgetApi;
@@ -286,8 +283,3 @@ describe('<SelectAllShortcut>', () => {
     });
   });
 });
-
-function DisableWhiteboardHotkeys({ children }: PropsWithChildren<{}>) {
-  usePauseHotkeysScope(HOTKEY_SCOPE_WHITEBOARD);
-  return <>{children}</>;
-}

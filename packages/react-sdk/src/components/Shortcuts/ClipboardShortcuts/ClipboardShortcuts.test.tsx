@@ -27,6 +27,7 @@ import {
   vi,
 } from 'vitest';
 import {
+  DisableWhiteboardHotkeys,
   WhiteboardTestingContextProvider,
   mockEllipseElement,
   mockFrameElement,
@@ -43,11 +44,7 @@ import {
 import { ImageUploadProvider } from '../../ImageUpload';
 import { SnackbarProvider } from '../../Snackbar';
 import { useSvgScaleContext } from '../../Whiteboard';
-import {
-  HOTKEY_SCOPE_WHITEBOARD,
-  WhiteboardHotkeysProvider,
-  usePauseHotkeysScope,
-} from '../../WhiteboardHotkeysProvider';
+import { WhiteboardHotkeysProvider } from '../../WhiteboardHotkeysProvider';
 import { ClipboardShortcuts } from './ClipboardShortcuts';
 import { deserializeFromHtml, serializeToClipboard } from './serialization';
 
@@ -885,9 +882,4 @@ function fireClipboardEvent(
   fireEvent(document, event);
 
   return clipboardData;
-}
-
-function DisableWhiteboardHotkeys({ children }: PropsWithChildren<{}>) {
-  usePauseHotkeysScope(HOTKEY_SCOPE_WHITEBOARD);
-  return <>{children}</>;
 }
