@@ -148,6 +148,7 @@ describe('<HelpCenterBar/>', () => {
     });
     expect(menu).not.toBeInTheDocument();
   });
+
   it('should open the shortcuts dialog and close the menu', async () => {
     render(<HelpCenterBar />, { wrapper: Wrapper });
 
