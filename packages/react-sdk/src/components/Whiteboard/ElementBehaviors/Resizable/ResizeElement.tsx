@@ -18,7 +18,6 @@ import { Dispatch, useCallback, useState } from 'react';
 import { useUnmount } from 'react-use';
 import { filterRecord } from '../../../../lib';
 import {
-  calculateBoundingRectForElements,
   ElementFrameChange,
   ElementUpdate,
   findConnectingPaths,
@@ -45,7 +44,9 @@ import {
   findElementAttachFrame,
   findElementFrameChanges,
   frameResizeUpdates,
+  getBoundingRectForElements,
   getPathElements,
+  getRotationTransformForElements,
   lineResizeUpdates,
 } from '../utils';
 import { DragEvent, ResizeHandle } from './ResizeHandle';
@@ -60,6 +61,7 @@ export type ResizeHandleWrapperProps = {
   onDragStart: Dispatch<DragEvent>;
   onDragStop: Dispatch<DragEvent>;
   resizableProperties?: ResizableProperties;
+  rotation?: number;
 };
 
 export function ResizeHandleWrapper({
@@ -69,6 +71,7 @@ export function ResizeHandleWrapper({
   onDragStart,
   onDragStop,
   resizableProperties,
+  rotation,
 }: ResizeHandleWrapperProps) {
   const { isShowGrid } = useLayoutState();
   const { viewportWidth, viewportHeight } = useSvgCanvasContext();
@@ -104,6 +107,7 @@ export function ResizeHandleWrapper({
   return (
     <ResizeHandle
       position={handlePosition}
+      rotation={rotation}
       onDrag={handleDrag}
       onDragStart={onDragStart}
       onDragStop={onDragStop}
@@ -135,13 +139,14 @@ export function ResizeElement({ elementIds }: ResizeElementProps) {
   });
 
   const handleDragStart = useCallback(() => {
-    const boundingRect = calculateBoundingRectForElements(activeElements);
+    const { offsetX, offsetY, width, height } =
+      getBoundingRectForElements(activeElements);
 
     setResizableProperties({
-      x: boundingRect.offsetX,
-      y: boundingRect.offsetY,
-      width: boundingRect.width,
-      height: boundingRect.height,
+      x: offsetX,
+      y: offsetY,
+      width,
+      height,
       elements,
       connectingPathElements: getPathElements(
         slideInstance,
@@ -299,19 +304,29 @@ export function ResizeElement({ elementIds }: ResizeElementProps) {
     );
   }
 
-  const boundingRect = calculateBoundingRectForElements(activeElements);
+  const {
+    offsetX,
+    offsetY,
+    width: containerWidth,
+    height: containerHeight,
+  } = getBoundingRectForElements(activeElements);
 
-  const offsetX = boundingRect.offsetX;
-  const offsetY = boundingRect.offsetY;
-  const containerHeight = boundingRect.height;
-  const containerWidth = boundingRect.width;
   const invertLockAspectRatio =
     activeElements.length > 1 || activeElements[0].type === 'image';
+
+  const rotationParameters = getRotationTransformForElements(activeElements);
+  let rotation: number | undefined;
+  let rotationTransform: string | undefined;
+  if (rotationParameters) {
+    const { rotation: rotationParameter, center } = rotationParameters;
+    rotation = rotationParameter;
+    rotationTransform = `rotate(${rotation} ${center.x} ${center.y})`;
+  }
 
   return (
     <g
       data-testid="resize-element"
-      transform={`translate(${offsetX} ${offsetY})`}
+      transform={`translate(${offsetX} ${offsetY})${rotationTransform ? ` ${rotationTransform}` : ''}`}
     >
       <ResizeHandleWrapper
         handlePosition={{
@@ -324,6 +339,7 @@ export function ResizeElement({ elementIds }: ResizeElementProps) {
         onDragStop={handleDragStop}
         resizableProperties={resizableProperties}
         invertLockAspectRatio={invertLockAspectRatio}
+        rotation={rotation}
       />
 
       <ResizeHandleWrapper
@@ -337,6 +353,7 @@ export function ResizeElement({ elementIds }: ResizeElementProps) {
         onDragStop={handleDragStop}
         resizableProperties={resizableProperties}
         invertLockAspectRatio={invertLockAspectRatio}
+        rotation={rotation}
       />
 
       <ResizeHandleWrapper
@@ -350,6 +367,7 @@ export function ResizeElement({ elementIds }: ResizeElementProps) {
         onDragStop={handleDragStop}
         resizableProperties={resizableProperties}
         invertLockAspectRatio={invertLockAspectRatio}
+        rotation={rotation}
       />
 
       <ResizeHandleWrapper
@@ -363,6 +381,7 @@ export function ResizeElement({ elementIds }: ResizeElementProps) {
         onDragStop={handleDragStop}
         resizableProperties={resizableProperties}
         invertLockAspectRatio={invertLockAspectRatio}
+        rotation={rotation}
       />
 
       <ResizeHandleWrapper
@@ -376,6 +395,7 @@ export function ResizeElement({ elementIds }: ResizeElementProps) {
         onDragStop={handleDragStop}
         resizableProperties={resizableProperties}
         invertLockAspectRatio={invertLockAspectRatio}
+        rotation={rotation}
       />
 
       <ResizeHandleWrapper
@@ -389,6 +409,7 @@ export function ResizeElement({ elementIds }: ResizeElementProps) {
         onDragStop={handleDragStop}
         resizableProperties={resizableProperties}
         invertLockAspectRatio={invertLockAspectRatio}
+        rotation={rotation}
       />
 
       <ResizeHandleWrapper
@@ -402,6 +423,7 @@ export function ResizeElement({ elementIds }: ResizeElementProps) {
         onDragStop={handleDragStop}
         resizableProperties={resizableProperties}
         invertLockAspectRatio={invertLockAspectRatio}
+        rotation={rotation}
       />
 
       <ResizeHandleWrapper
@@ -415,6 +437,7 @@ export function ResizeElement({ elementIds }: ResizeElementProps) {
         onDragStop={handleDragStop}
         resizableProperties={resizableProperties}
         invertLockAspectRatio={invertLockAspectRatio}
+        rotation={rotation}
       />
     </g>
   );

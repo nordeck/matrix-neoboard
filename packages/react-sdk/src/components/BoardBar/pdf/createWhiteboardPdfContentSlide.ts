@@ -15,7 +15,7 @@
  */
 
 import { Content } from 'pdfmake/interfaces';
-import { WhiteboardSlideInstance } from '../../../state';
+import { Element, Point, WhiteboardSlideInstance } from '../../../state';
 import { WhiteboardFileExport } from '../../../state/export/whiteboardDocumentExport';
 import { createWhiteboardPdfElementImage } from './createWhiteboardPdfElementImage';
 import { createWhiteboardPdfElementPath } from './createWhiteboardPdfElementPath';
@@ -24,25 +24,33 @@ import { ThemeOptions } from './themeOptions';
 
 export async function createWhiteboardPdfContentSlide(
   slideInstance: WhiteboardSlideInstance,
+  elementIds: string[],
   files: Array<WhiteboardFileExport>,
   themeOptions: ThemeOptions,
   noImageSvg: string,
+  offset: Point | undefined,
 ): Promise<Content> {
   return await Promise.all(
-    slideInstance.getElementIds().map(async (elementId) => {
+    elementIds.map(async (elementId) => {
       const element = slideInstance.getElement(elementId);
 
-      switch (element?.type) {
+      if (element === undefined) {
+        return [];
+      }
+
+      const newElement = offset ? transformElement(element, offset) : element;
+
+      switch (newElement.type) {
         case 'shape':
-          return createWhiteboardPdfElementShape(element);
+          return createWhiteboardPdfElementShape(newElement);
 
         case 'path':
-          return createWhiteboardPdfElementPath(element);
+          return createWhiteboardPdfElementPath(newElement);
 
         case 'image': {
-          const file = files.find((f) => f.mxc === element.mxc);
+          const file = files.find((f) => f.mxc === newElement.mxc);
           return await createWhiteboardPdfElementImage(
-            element,
+            newElement,
             file,
             themeOptions,
             noImageSvg,
@@ -50,9 +58,23 @@ export async function createWhiteboardPdfContentSlide(
         }
 
         default:
-          console.error('Unknown element type', element);
+          console.error('Unknown element type', newElement);
           return [];
       }
     }),
   );
+}
+
+function transformElement(element: Element, offset: Point): Element {
+  const {
+    position: { x, y },
+    ...otherProperties
+  } = element;
+  return {
+    ...otherProperties,
+    position: {
+      x: x + offset.x,
+      y: y + offset.y,
+    },
+  };
 }

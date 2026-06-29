@@ -16,7 +16,7 @@
 
 import { KeyboardEvent, useCallback, useRef } from 'react';
 import { useHotkeysContext } from 'react-hotkeys-hook';
-import { usePresentationMode } from '../../../state';
+import { useActiveElements, usePresentationMode } from '../../../state';
 import { HOTKEY_SCOPE_WHITEBOARD } from '../../WhiteboardHotkeysProvider';
 import { gridCellSize } from '../constants';
 import { useSvgScaleContext } from '../SvgScaleContext';
@@ -37,6 +37,7 @@ export function useArrowKeys(): UseArrowKeys {
   const enableShortcuts =
     activeScopes.includes(HOTKEY_SCOPE_WHITEBOARD) && !isPresentationMode;
   const pressedKeys = useRef<Set<string>>(new Set());
+  const { activeElementIds } = useActiveElements();
 
   const getKeyboardOffset = useCallback(() => {
     const scrollStep = gridCellSize * scale;
@@ -61,7 +62,11 @@ export function useArrowKeys(): UseArrowKeys {
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
-      if (enableShortcuts && isArrowKey(e.key)) {
+      if (
+        enableShortcuts &&
+        isArrowKey(e.key) &&
+        activeElementIds.length === 0
+      ) {
         if (!pressedKeys.current.has(e.key)) {
           pressedKeys.current.add(e.key);
         }
@@ -69,18 +74,22 @@ export function useArrowKeys(): UseArrowKeys {
         applyKeyboardNavigation();
       }
     },
-    [applyKeyboardNavigation, enableShortcuts],
+    [applyKeyboardNavigation, enableShortcuts, activeElementIds],
   );
 
   const handleKeyUp = useCallback(
     (e: KeyboardEvent) => {
-      if (enableShortcuts && isArrowKey(e.key)) {
+      if (
+        enableShortcuts &&
+        isArrowKey(e.key) &&
+        activeElementIds.length === 0
+      ) {
         pressedKeys.current.delete(e.key);
         e.preventDefault();
         applyKeyboardNavigation();
       }
     },
-    [applyKeyboardNavigation, enableShortcuts],
+    [applyKeyboardNavigation, enableShortcuts, activeElementIds],
   );
 
   return {

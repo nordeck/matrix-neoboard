@@ -118,6 +118,7 @@ type ActiveElement = {
 
 type ActiveElements = {
   activeElementIds: string[];
+  activeElementSet: ReadonlySet<string>;
 };
 
 /**
@@ -156,7 +157,12 @@ export function useActiveElements(): ActiveElements {
     observable,
   );
 
-  return { activeElementIds };
+  const activeElementSet = useMemo(
+    () => new Set(activeElementIds),
+    [activeElementIds],
+  );
+
+  return { activeElementIds, activeElementSet };
 }
 
 export function useSlideIsLocked(slideId?: string): boolean {

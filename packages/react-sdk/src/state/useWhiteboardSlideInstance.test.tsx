@@ -392,7 +392,10 @@ describe('useActiveElements', () => {
       wrapper: Wrapper,
     });
 
-    expect(result.current).toEqual({ activeElementIds: [] });
+    expect(result.current).toEqual({
+      activeElementIds: [],
+      activeElementSet: new Set(),
+    });
   });
 
   it('should return selected elements', () => {
@@ -406,6 +409,7 @@ describe('useActiveElements', () => {
 
     expect(result.current).toEqual({
       activeElementIds: ['element-0', 'element-1'],
+      activeElementSet: new Set(['element-0', 'element-1']),
     });
   });
 
@@ -414,7 +418,10 @@ describe('useActiveElements', () => {
       wrapper: Wrapper,
     });
 
-    expect(result.current).toEqual({ activeElementIds: [] });
+    expect(result.current).toEqual({
+      activeElementIds: [],
+      activeElementSet: new Set(),
+    });
 
     act(() => {
       activeWhiteboardInstance
@@ -424,6 +431,7 @@ describe('useActiveElements', () => {
 
     expect(result.current).toEqual({
       activeElementIds: ['element-0', 'element-1'],
+      activeElementSet: new Set(['element-0', 'element-1']),
     });
   });
 });

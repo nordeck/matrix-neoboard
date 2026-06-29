@@ -22,6 +22,7 @@ export type ElementOverride = {
   width?: number;
   position?: Point;
   points?: Point[];
+  rotation?: number;
 };
 
 export type ElementOverrides = Record<string, ElementOverride>;

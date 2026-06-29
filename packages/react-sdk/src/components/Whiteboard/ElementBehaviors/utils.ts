@@ -16,6 +16,8 @@
 
 import { uniq } from 'lodash';
 import {
+  BoundingRect,
+  calculateBoundingRectForElements,
   changeElementFrame,
   changeFrameElements,
   connectPathElement,
@@ -30,7 +32,9 @@ import {
   findFrameToAttach,
   FrameElement,
   getFrameElementsChanges,
+  isRotatableElement,
   PathElement,
+  Point,
   ShapeElement,
   WhiteboardSlideInstance,
 } from '../../../state';
@@ -559,4 +563,73 @@ export function getPathElements(
   }
 
   return Object.fromEntries(entries);
+}
+
+// makes 0..360 angle
+export function clampAngle(angle: number): number {
+  return ((Math.round(angle) % 360) + 360) % 360;
+}
+
+export function calculateRotationHandleCenter({
+  scale,
+  containerHeight,
+}: {
+  containerHeight: number;
+  scale: number;
+}): Point {
+  const padding = 2 * (10 / scale);
+  const selectionBorderPadding = 2 / scale;
+
+  return {
+    x: -selectionBorderPadding - padding,
+    y: containerHeight + selectionBorderPadding + padding,
+  };
+}
+
+export function getRotationTransformForElements(elements: Element[]):
+  | {
+      rotation: number;
+      center: Point;
+    }
+  | undefined {
+  if (
+    elements.length === 1 &&
+    isRotatableElement(elements[0]) &&
+    elements[0].rotation
+  ) {
+    const { width, height, rotation } = elements[0];
+    return {
+      rotation,
+      center: {
+        x: width / 2,
+        y: height / 2,
+      },
+    };
+  }
+  return undefined;
+}
+
+/**
+ * Same as calculateBoundingRectForElements but ignores rotation if single element is passed
+ */
+export function getBoundingRectForElements(elements: Element[]): BoundingRect {
+  if (
+    elements.length === 1 &&
+    isRotatableElement(elements[0]) &&
+    elements[0].rotation
+  ) {
+    const {
+      position: { x: offsetX, y: offsetY },
+      width,
+      height,
+    } = elements[0];
+    return {
+      offsetX,
+      offsetY,
+      width,
+      height,
+    };
+  } else {
+    return calculateBoundingRectForElements(elements);
+  }
 }

@@ -969,4 +969,98 @@ describe('<WhiteboardHost/>', () => {
 
     expect(screen.getByTestId('grid')).toBeInTheDocument();
   });
+
+  it('should show selection rotated if a rotated element is selected', () => {
+    activeSlide.setActiveElementIds(['element-0']);
+    activeSlide.updateElement('element-0', {
+      rotation: 45,
+    });
+
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    expect(
+      screen.getByTestId('selection-anchors-shape').getAttribute('transform'),
+    ).toBe('rotate(45 25 51)');
+    expect(
+      screen
+        .getByTestId('selection-solid-line-borders')
+        .getAttribute('transform'),
+    ).toBe('rotate(45 25 51)');
+  });
+
+  it('should show the resize handles rotated if a rotated element is selected', () => {
+    activeSlide.setActiveElementIds(['element-0']);
+    activeSlide.updateElement('element-0', {
+      rotation: 45,
+    });
+
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    const el = screen.getByTestId('resize-element');
+    expect(el).toBeInTheDocument();
+    expect(el.getAttribute('transform')).toBe(
+      'translate(0 1) rotate(45 25 50)',
+    );
+  });
+
+  it('should show thin selection outline rotated in multi-select', () => {
+    activeSlide.setActiveElementIds(['element-0', 'element-1']);
+    activeSlide.updateElement('element-0', {
+      rotation: 45,
+    });
+    activeSlide.updateElement('element-1', {
+      rotation: 45,
+    });
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    const e0 = screen.queryByTestId(`element-element-0-outline`);
+    const e1 = screen.queryByTestId(`element-element-1-outline`);
+
+    expect(e0).toBeInTheDocument();
+    expect(e1).toBeInTheDocument();
+    expect(e0?.getAttribute('transform')).toBe('rotate(45 25 51)');
+    expect(e1?.getAttribute('transform')).toBe('rotate(45 225 250)');
+  });
+
+  it('should show rotation handle', () => {
+    activeSlide.setActiveElementIds(['element-0']);
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    expect(screen.getByTestId(`rotate-handle`)).toBeInTheDocument();
+  });
+
+  it('should not show rotation handle when multiple elements are selected', () => {
+    activeSlide.setActiveElementIds(['element-0', 'element-1']);
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    expect(screen.queryByTestId(`rotate-handle`)).not.toBeInTheDocument();
+  });
+
+  it.each<{
+    type: 'presenting' | 'presentation';
+    isEditMode: boolean;
+  }>([
+    { type: 'presentation', isEditMode: true },
+    { type: 'presenting', isEditMode: true },
+    { type: 'presenting', isEditMode: false },
+  ])(
+    'should show the rotation handle in presentation mode type $type if edit mode is $isEditMode',
+    async ({ type: presentationType, isEditMode }) => {
+      setPresentationMode(true, isEditMode, presentationType);
+
+      activeSlide.setActiveElementIds(['element-0']);
+      render(<WhiteboardHost />, { wrapper: Wrapper });
+
+      expect(screen.getByTestId(`rotate-handle`)).toBeInTheDocument();
+    },
+  );
+
+  it('should hide the rotation handle in presentation mode type presentation if edit mode is false', async () => {
+    setPresentationMode(true, false, 'presentation');
+
+    activeSlide.setActiveElementIds(['element-0']);
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    expect(screen.queryByTestId(`rotate-handle`)).not.toBeInTheDocument();
+  });
 });

@@ -50,8 +50,13 @@ import {
   isValidDocumentUpdateMessage,
 } from './communication';
 import { Document, DocumentValidator } from './crdt';
+import { getYDocUpdateDocumentVersion } from './crdt/y';
 import { DocumentStorage } from './storage';
-import { DocumentSyncStatistics, SynchronizedDocument } from './types';
+import {
+  DocumentSyncStatistics,
+  MismatchedSnapshot,
+  SynchronizedDocument,
+} from './types';
 
 export class SynchronizedDocumentImpl<
   T extends Record<string, unknown>,
@@ -67,6 +72,10 @@ export class SynchronizedDocumentImpl<
     snapshotsReceived: 0,
     snapshotsSend: 0,
   };
+  private mismatchedSnapshot: MismatchedSnapshot | undefined;
+  private readonly mismatchedSnapshotSubject = new Subject<
+    MismatchedSnapshot | undefined
+  >();
 
   constructor(
     private readonly document: Document<T>,
@@ -128,6 +137,28 @@ export class SynchronizedDocumentImpl<
     concat(storageObservable, snapshotsObservable)
       .pipe(takeUntil(this.destroySubject))
       .subscribe((data) => {
+        const snapshotDocumentVersion = getYDocUpdateDocumentVersion(data);
+        if (!snapshotDocumentVersion) {
+          this.logger.warn(
+            'Cannot get snapshot document version for validated snapshot',
+          );
+          return;
+        }
+
+        if (this.document.getDocumentVersion() !== snapshotDocumentVersion) {
+          this.mismatchedSnapshot = {
+            documentVersion: snapshotDocumentVersion,
+            data,
+          };
+          this.mismatchedSnapshotSubject.next(this.mismatchedSnapshot);
+          return;
+        }
+
+        if (this.mismatchedSnapshot !== undefined) {
+          this.mismatchedSnapshot = undefined;
+          this.mismatchedSnapshotSubject.next(undefined);
+        }
+
         try {
           document.mergeFrom(data);
         } catch (ex) {
@@ -192,6 +223,7 @@ export class SynchronizedDocumentImpl<
     this.destroySubject.next();
     this.statisticsSubject.complete();
     this.loadingSubject.complete();
+    this.mismatchedSnapshotSubject.complete();
   }
 
   observeDocumentStatistics(): Observable<DocumentSyncStatistics> {
@@ -200,6 +232,10 @@ export class SynchronizedDocumentImpl<
 
   observeIsLoading(): Observable<boolean> {
     return this.loadingSubject.pipe(distinctUntilChanged());
+  }
+
+  observeMismatchedSnapshot(): Observable<MismatchedSnapshot | undefined> {
+    return this.mismatchedSnapshotSubject;
   }
 
   private async persistDocument(doc: Document<T>) {
