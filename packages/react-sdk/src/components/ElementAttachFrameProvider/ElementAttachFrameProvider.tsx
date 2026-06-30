@@ -96,14 +96,21 @@ export function ElementAttachFrameProvider({
     [elementAttachFrame, attachedElementsMovedByFrame, connectingPathIds],
   );
 
+  const setterContext = useMemo<ElementAttachFrameSetterContextType>(
+    () => ({
+      setElementAttachFrame,
+      setAttachedElementsMovedByFrame,
+      setConnectingPathIds,
+    }),
+    [
+      setElementAttachFrame,
+      setAttachedElementsMovedByFrame,
+      setConnectingPathIds,
+    ],
+  );
+
   return (
-    <ElementAttachFrameSetterContext.Provider
-      value={{
-        setElementAttachFrame,
-        setAttachedElementsMovedByFrame,
-        setConnectingPathIds,
-      }}
-    >
+    <ElementAttachFrameSetterContext.Provider value={setterContext}>
       <ElementAttachFrameGetterContext.Provider value={context}>
         {children}
       </ElementAttachFrameGetterContext.Provider>
