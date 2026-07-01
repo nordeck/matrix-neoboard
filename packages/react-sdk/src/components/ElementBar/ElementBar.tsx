@@ -27,6 +27,7 @@ import { LineMarkerButtons } from './LineMarkerButtons';
 import { TextAlignmentButtons } from './TextAlignmentButtons';
 import { TextBoldButton } from './TextBoldButton';
 import { TextItalicButton } from './TextItalicButton';
+import { TextUnderlineButton } from './TextUnderlineButton';
 
 function ElementBar({
   showTextTools = true,
@@ -43,6 +44,7 @@ function ElementBar({
           <FontSizeButton />
           <TextBoldButton />
           <TextItalicButton />
+          <TextUnderlineButton />
           <TextAlignmentButtons />
           <TextColorPicker />
         </>

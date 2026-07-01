@@ -45,6 +45,7 @@ export type TextElementProps = {
   textAlignment: TextAlignment;
   textBold: boolean;
   textItalic: boolean;
+  textUnderline: boolean;
 
   x: number;
   y: number;
@@ -66,6 +67,7 @@ export const TextElement = ({
   textAlignment,
   textBold,
   textItalic,
+  textUnderline,
   x,
   y,
   width,
@@ -128,6 +130,7 @@ export const TextElement = ({
         contentAlignment={textAlignment}
         contentBold={textBold}
         contentItalic={textItalic}
+        contentUnderline={textUnderline}
         editModeOnMount={editModeOnMount}
         editable={active}
         onBlur={handleBlur}

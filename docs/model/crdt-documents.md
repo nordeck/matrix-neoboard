@@ -142,6 +142,7 @@ An Element that has a shape attached, that has a text and a fill color.
 | `textColor`      | `string \| undefined`                                                                              | The text color of the shape as [CSS color value][csscolor].                |
 | `textBold`       | `boolean \| undefined`                                                                             | Should the text have a bold formatting?                                    |
 | `textItalic`     | `boolean \| undefined`                                                                             | Should the text have an italic formatting?                                 |
+| `textUnderline`  | `boolean \| undefined`                                                                             | Should the text have an underline formatting?                              |
 | `textSize`       | `number \| undefined`                                                                              | Font size of the text in CSS pixel unit, `undefined` for auto text size.   |
 | `textFontFamily` | `'Inter' \| 'Abel' \| 'Actor' \| 'Adamina' \| 'Chewy' \| 'Gwendolyn' \| 'Pirata One' \| undefined` | The font family of the text. Defaults to `"Inter"`.                        |
 | `connectedPaths` | `string[] \| undefined`                                                                            | The IDs of connected path elements. Currently only lines can be connected. |
@@ -193,7 +194,7 @@ An element that consists of points.
     { "x": 25, "y": 25 }
   ],
   "strokeColor": "#ff0000",
-  "startMarker": "arrow-head-line"
+  "startMarker": "arrow-head-line",
   "endMarker": "arrow-head-line"
 }
 ```

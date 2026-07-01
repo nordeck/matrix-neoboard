@@ -43,6 +43,7 @@ describe('getRenderProperties', () => {
         alignment: 'center',
         bold: false,
         italic: false,
+        underline: false,
       },
     });
 
@@ -77,6 +78,7 @@ describe('getRenderProperties', () => {
         alignment: 'right',
         bold: false,
         italic: false,
+        underline: false,
       },
     });
   });
@@ -97,6 +99,7 @@ describe('getRenderProperties', () => {
         alignment: 'center',
         bold: true,
         italic: false,
+        underline: false,
       },
     });
   });
@@ -117,6 +120,28 @@ describe('getRenderProperties', () => {
         alignment: 'center',
         bold: false,
         italic: true,
+        underline: false,
+      },
+    });
+  });
+
+  it('should provide the properties for an ellipse element with text underline', () => {
+    const shape = mockEllipseElement({ textUnderline: true });
+    const view = getRenderProperties(shape);
+
+    expect(view).toEqual({
+      strokeColor: '#ffffff',
+      strokeWidth: 2,
+
+      text: {
+        position: { x: expect.any(Number), y: expect.any(Number) },
+        fontFamily: 'Inter',
+        width: expect.any(Number),
+        height: expect.any(Number),
+        alignment: 'center',
+        bold: false,
+        italic: false,
+        underline: true,
       },
     });
   });

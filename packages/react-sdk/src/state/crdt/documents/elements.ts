@@ -18,7 +18,7 @@ import Joi from 'joi';
 import loglevel from 'loglevel';
 // Do not import from the index file to prevent cyclic dependencies
 import { clamp } from 'lodash';
-import { defaultAcceptedImageTypes } from '../../../components/ImageUpload/consts';
+import { defaultAcceptedImageTypes } from '../../../components/ImageUpload';
 import { Elements } from '../../types';
 import {
   BoundingRect,
@@ -72,6 +72,7 @@ export type ShapeElement = ElementBase & {
   textAlignment?: TextAlignment;
   textColor?: string;
   textBold?: boolean;
+  textUnderline?: boolean;
   textItalic?: boolean;
   stickyNote?: boolean;
   textSize?: number;
@@ -100,6 +101,7 @@ export const shapeElementSchema = elementBaseSchema
     textColor: Joi.string().strict(),
     textBold: Joi.boolean(),
     textItalic: Joi.boolean(),
+    textUnderline: Joi.boolean(),
     stickyNote: Joi.boolean(),
     textSize: Joi.number().strict(),
     textFontFamily: Joi.string().strict().default('Inter'),

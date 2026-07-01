@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Nordeck IT + Consulting GmbH
+ * Copyright 2026 Nordeck IT + Consulting GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,24 +17,24 @@
 import { Elements, ElementUpdate } from '../../state';
 
 /**
- * Calculate the text bold updates for all shape elements.
+ * Calculate the text underline updates for all shape elements.
  *
- * @param elements - Elements for which the text bold is to be calculated for
- * @param textBold - The desired value for the text bold property
+ * @param elements - Elements for which the text underline is to be calculated for
+ * @param textUnderline - The desired value for the text underline property
  * @returns List of element updates
  */
-export function calculateTextBoldUpdates(
+export function calculateTextUnderlineUpdates(
   elements: Elements,
-  textBold: boolean,
+  textUnderline: boolean,
 ): ElementUpdate[] {
   const updates: ElementUpdate[] = [];
 
   for (const [elementId, element] of Object.entries(elements)) {
-    if (element.type !== 'shape' || !!element.textBold === textBold) {
+    if (element.type !== 'shape' || !!element.textUnderline === textUnderline) {
       continue;
     }
 
-    updates.push({ elementId, patch: { textBold } });
+    updates.push({ elementId, patch: { textUnderline } });
   }
 
   return updates;

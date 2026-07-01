@@ -43,6 +43,7 @@ describe('getRenderProperties', () => {
         alignment: 'center',
         bold: false,
         italic: false,
+        underline: false,
       },
     });
   });
@@ -73,6 +74,7 @@ describe('getRenderProperties', () => {
         alignment: 'center',
         bold: false,
         italic: false,
+        underline: false,
       },
     });
   });
@@ -102,6 +104,7 @@ describe('getRenderProperties', () => {
         alignment: 'right',
         bold: false,
         italic: false,
+        underline: false,
       },
     });
   });
@@ -120,6 +123,7 @@ describe('getRenderProperties', () => {
         alignment: 'center',
         bold: true,
         italic: false,
+        underline: false,
       },
     });
   });
@@ -141,6 +145,29 @@ describe('getRenderProperties', () => {
         alignment: 'center',
         bold: false,
         italic: true,
+        underline: false,
+      },
+    });
+  });
+
+  it('should provide the properties for a rectangle element with text underline', () => {
+    const view = getRenderProperties(
+      mockRectangleElement({ textUnderline: true }),
+    );
+
+    expect(view).toEqual({
+      strokeColor: '#ffffff',
+      strokeWidth: 2,
+
+      text: {
+        position: { x: expect.any(Number), y: expect.any(Number) },
+        fontFamily: 'Inter',
+        width: expect.any(Number),
+        height: expect.any(Number),
+        alignment: 'center',
+        bold: false,
+        italic: false,
+        underline: true,
       },
     });
   });
@@ -171,6 +198,7 @@ describe('getRenderProperties', () => {
         alignment: 'center',
         bold: false,
         italic: false,
+        underline: false,
       },
     });
   });
