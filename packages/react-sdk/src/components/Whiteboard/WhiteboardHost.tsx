@@ -57,6 +57,7 @@ import { DragSelect } from './ElementBehaviors/Selection/DragSelect';
 import { DotGrid } from './Grid';
 import { SlideSkeleton } from './SlideSkeleton';
 import { SvgCanvas } from './SvgCanvas';
+import SVGTouchCapture from './SVGTouchCapture';
 
 const WhiteboardHost = ({
   elementIds,
@@ -110,6 +111,9 @@ const WhiteboardHost = ({
       {...(infiniteCanvasMode && {
         sx: {
           touchAction: 'none',
+          WebkitTouchCallout: 'none',
+          WebkitUserSelect: 'none',
+          userSelect: 'none',
         },
         overflow: 'hidden',
       })}
@@ -141,59 +145,61 @@ const WhiteboardHost = ({
           slideInstance.setCursorPosition(undefined);
         }, [slideInstance])}
       >
-        {!hideDotGrid && <DotGrid />}
-        {!readOnly && <UnSelectElementHandler />}
+        <SVGTouchCapture>
+          {!hideDotGrid && <DotGrid />}
+          {!readOnly && <UnSelectElementHandler />}
 
-        {elementIds.map((elementId) => {
-          const override = getElementOverride(elementId);
-          const isSelected = activeElementSet.has(elementId);
+          {elementIds.map((elementId) => {
+            const override = getElementOverride(elementId);
+            const isSelected = activeElementSet.has(elementId);
 
-          return (
-            <ConnectedElement
-              id={elementId}
-              key={elementId}
-              readOnly={readOnly}
-              override={override}
-              activeElementIds={isSelected ? activeElementIds : undefined}
-              elements={isSelected ? elements : undefined}
-              setTextToolsEnabled={setTextToolsEnabled}
-              frameHasElementMoved={isFrameHasElementMoved(elementId)}
-              elementMovedHasFrame={isElementMovedHasFrame(elementId)}
-            />
-          );
-        })}
-
-        {!readOnly && <DraftPicker />}
-
-        {!readOnly && activeElementIds.length > 0 && (
-          <MoveableElement elements={elements}>
-            <ElementBorder elementIds={activeElementIds} />
-          </MoveableElement>
-        )}
-
-        {dragSelectStartCoords && <DragSelect />}
-
-        {!readOnly && activeElementIds.length > 0 && (
-          <>
-            <ElementOutline elementIds={activeElementIds} />
-            {dragSelectStartCoords === undefined && (
-              <ResizeElement
-                elementIds={
-                  // To resize a single frame without resizing its attached elements, pass only one active element.
-                  activeElementIds.length === 1
-                    ? activeElementIds
-                    : activeAndAttachedElementIds
-                }
+            return (
+              <ConnectedElement
+                id={elementId}
+                key={elementId}
+                readOnly={readOnly}
+                override={override}
+                activeElementIds={isSelected ? activeElementIds : undefined}
+                elements={isSelected ? elements : undefined}
+                setTextToolsEnabled={setTextToolsEnabled}
+                frameHasElementMoved={isFrameHasElementMoved(elementId)}
+                elementMovedHasFrame={isElementMovedHasFrame(elementId)}
               />
-            )}
-          </>
-        )}
+            );
+          })}
 
-        {!readOnly && activeElementIds.length === 1 && (
-          <RotateElement elementId={activeElementIds[0]} />
-        )}
+          {!readOnly && <DraftPicker />}
 
-        {isShowCollaboratorsCursors && !hideCursors && <CursorRenderer />}
+          {!readOnly && activeElementIds.length > 0 && (
+            <MoveableElement elements={elements}>
+              <ElementBorder elementIds={activeElementIds} />
+            </MoveableElement>
+          )}
+
+          {dragSelectStartCoords && <DragSelect />}
+
+          {!readOnly && activeElementIds.length > 0 && (
+            <>
+              <ElementOutline elementIds={activeElementIds} />
+              {dragSelectStartCoords === undefined && (
+                <ResizeElement
+                  elementIds={
+                    // To resize a single frame without resizing its attached elements, pass only one active element.
+                    activeElementIds.length === 1
+                      ? activeElementIds
+                      : activeAndAttachedElementIds
+                  }
+                />
+              )}
+            </>
+          )}
+
+          {!readOnly && activeElementIds.length === 1 && (
+            <RotateElement elementId={activeElementIds[0]} />
+          )}
+
+          {isShowCollaboratorsCursors && !hideCursors && <CursorRenderer />}
+        </SVGTouchCapture>
       </SvgCanvas>
     </Box>
   );
