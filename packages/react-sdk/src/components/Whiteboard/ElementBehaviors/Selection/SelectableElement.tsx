@@ -14,13 +14,33 @@
  * limitations under the License.
  */
 
-import { MouseEvent, PropsWithChildren, useRef } from 'react';
+import { MouseEvent, PropsWithChildren, useCallback, useRef } from 'react';
 import { isMousePositionEqual, MousePosition } from '../../../../lib';
-import { useWhiteboardSlideInstance } from '../../../../state';
+import {
+  useWhiteboardSlideInstance,
+  WhiteboardSlideInstance,
+} from '../../../../state';
 import { useLayoutState } from '../../../Layout';
+import SelectableElementTouchWrapper from './SelectableElementTouchWrapper';
 import { WithSelectionProps } from './types';
 
 export type SelectableElementProps = PropsWithChildren<WithSelectionProps>;
+
+function selectElement(
+  slideInstance: WhiteboardSlideInstance,
+  shiftKey: boolean,
+  elementId: string,
+) {
+  if (!shiftKey) {
+    if (!slideInstance.getActiveElementIds().includes(elementId)) {
+      slideInstance.setActiveElementId(elementId);
+    }
+  } else if (slideInstance.getActiveElementIds().includes(elementId)) {
+    slideInstance.unselectActiveElementId(elementId);
+  } else {
+    slideInstance.addActiveElementId(elementId);
+  }
+}
 
 export function SelectableElement({
   children,
@@ -31,51 +51,47 @@ export function SelectableElement({
   const { activeTool } = useLayoutState();
   const isInSelectionMode = activeTool === 'select';
 
-  function selectElement(shiftKey: boolean) {
-    if (!shiftKey) {
-      if (!slideInstance.getActiveElementIds().includes(elementId)) {
-        slideInstance.setActiveElementId(elementId);
+  const handleMouseDown = useCallback(
+    (event: MouseEvent) => {
+      if (isInSelectionMode) {
+        event.stopPropagation();
+        if (event.button === 0) {
+          selectElement(slideInstance, event.shiftKey, elementId);
+        } else {
+          mousePositionRef.current = {
+            clientX: event.clientX,
+            clientY: event.clientY,
+          };
+        }
       }
-    } else if (slideInstance.getActiveElementIds().includes(elementId)) {
-      slideInstance.unselectActiveElementId(elementId);
-    } else {
-      slideInstance.addActiveElementId(elementId);
-    }
-  }
+    },
+    [elementId, isInSelectionMode, slideInstance],
+  );
 
-  function handleMouseDown(event: MouseEvent) {
-    if (isInSelectionMode) {
-      event.stopPropagation();
-      if (event.button === 0) {
-        selectElement(event.shiftKey);
-      } else {
-        mousePositionRef.current = {
-          clientX: event.clientX,
-          clientY: event.clientY,
-        };
+  const handleMouseUp = useCallback(
+    (event: MouseEvent) => {
+      if (isInSelectionMode) {
+        event.stopPropagation();
+        if (
+          event.button !== 0 &&
+          mousePositionRef.current &&
+          isMousePositionEqual(mousePositionRef.current, {
+            clientX: event.clientX,
+            clientY: event.clientY,
+          })
+        ) {
+          selectElement(slideInstance, event.shiftKey, elementId);
+        }
       }
-    }
-  }
-
-  function handleMouseUp(event: MouseEvent) {
-    if (isInSelectionMode) {
-      event.stopPropagation();
-      if (
-        event.button !== 0 &&
-        mousePositionRef.current &&
-        isMousePositionEqual(mousePositionRef.current, {
-          clientX: event.clientX,
-          clientY: event.clientY,
-        })
-      ) {
-        selectElement(event.shiftKey);
-      }
-    }
-  }
+    },
+    [elementId, isInSelectionMode, slideInstance],
+  );
 
   return (
-    <g onMouseDown={handleMouseDown} onMouseUp={handleMouseUp}>
-      {children}
-    </g>
+    <SelectableElementTouchWrapper elementId={elementId}>
+      <g onMouseDown={handleMouseDown} onMouseUp={handleMouseUp}>
+        {children}
+      </g>
+    </SelectableElementTouchWrapper>
   );
 }

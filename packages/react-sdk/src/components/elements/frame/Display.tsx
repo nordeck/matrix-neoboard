@@ -23,6 +23,7 @@ import {
   SelectableElement,
   WithExtendedSelectionProps,
 } from '../../Whiteboard';
+import FrameTouchWrapper from './FrameTouchWrapper';
 
 type DisplayProps = FrameElement & WithExtendedSelectionProps;
 
@@ -67,7 +68,9 @@ const FrameDisplay: React.FC<DisplayProps> = ({
     >
       <MoveableElement elementId={elementId} elements={elements}>
         <ElementContextMenu activeElementIds={activeElementIds}>
-          {renderedChild}
+          <FrameTouchWrapper elementId={elementId}>
+            {renderedChild}
+          </FrameTouchWrapper>
         </ElementContextMenu>
       </MoveableElement>
     </SelectableElement>
