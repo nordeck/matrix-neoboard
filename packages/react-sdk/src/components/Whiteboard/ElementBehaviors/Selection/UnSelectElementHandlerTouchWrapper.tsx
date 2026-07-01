@@ -25,7 +25,9 @@ import { Point, usePresentationMode } from '../../../../state';
 import { useLayoutState } from '../../../Layout';
 import { useSvgScaleContext } from '../../SvgScaleContext';
 
-const DRAG_SELECT_SHOW_TIMEOUT_MS = 300;
+const DRAG_SELECT_SHOW_TIMEOUT_MS = 200;
+const TOUCH_IS_RECENT_MS = 200;
+const MOVE_START_TIMEOUT_MS = 300;
 
 const UnSelectElementHandlerTouchWrapper: React.FC<PropsWithChildren> = ({
   children,
@@ -53,7 +55,8 @@ const UnSelectElementHandlerTouchWrapper: React.FC<PropsWithChildren> = ({
       if (e.touches.length > 1) return;
 
       if (!fingerRef.current.dt) return;
-      if (Date.now() - fingerRef.current.dt.getTime() > 300) return;
+      if (Date.now() - fingerRef.current.dt.getTime() > MOVE_START_TIMEOUT_MS)
+        return;
 
       fingerRef.current.dt = new Date();
 
@@ -112,7 +115,10 @@ const UnSelectElementHandlerTouchWrapper: React.FC<PropsWithChildren> = ({
       if (isTouchScaling) return;
       if (event.button === 0) {
         // if we had touch recently, show drag select layer briefly
-        if (Date.now() - touchTimestamp.current.getTime() < 200) {
+        if (
+          Date.now() - touchTimestamp.current.getTime() <
+          TOUCH_IS_RECENT_MS
+        ) {
           setTimeout(() => {
             if (!isDragSelectingRef.current) setDragSelectStartCoords();
           }, DRAG_SELECT_SHOW_TIMEOUT_MS);
