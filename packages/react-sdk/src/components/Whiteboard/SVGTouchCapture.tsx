@@ -15,6 +15,7 @@
  */
 
 import { PropsWithChildren, TouchEvent, useCallback, useRef } from 'react';
+import { usePresentationMode } from '../../state';
 import { Point } from '../../state/crdt/documents/point';
 import { useLayoutState } from '../Layout';
 import { useSvgCanvasContext } from './SvgCanvas';
@@ -41,6 +42,9 @@ const SVGTouchCapture: React.FC<PropsWithChildren> = ({ children }) => {
 
   const { scale, updateScale } = useSvgScaleContext();
 
+  const { state: presentationState } = usePresentationMode();
+  const zoomEnabled = presentationState.type === 'idle';
+
   const touchContextRef = useRef<{
     clienta?: Point;
     clientb?: Point;
@@ -57,7 +61,7 @@ const SVGTouchCapture: React.FC<PropsWithChildren> = ({ children }) => {
 
   const handleTouchStart = useCallback(
     (e: TouchEvent<SVGGElement>) => {
-      if (e.touches.length === 2) {
+      if (e.touches.length === 2 && zoomEnabled) {
         e.stopPropagation();
 
         const a = calculateSvgCoords({
@@ -91,12 +95,15 @@ const SVGTouchCapture: React.FC<PropsWithChildren> = ({ children }) => {
         e.stopPropagation();
       }
     },
-    [calculateSvgCoords, isTouchScaling, scale, setIsTouchScaling],
+    [calculateSvgCoords, isTouchScaling, scale, setIsTouchScaling, zoomEnabled],
   );
 
   const handleTouchEnd = useCallback(
     (e: TouchEvent<SVGGElement>) => {
-      // ignore touches after scale ended
+      // Ignore fast taps that may happen after you stop zooming.
+      // Maybe it's not needed, but it sometimes happens that
+      // at the end of the zoom, a tap is registered that selects or unselects an element
+      // so the propagation is stopped for a short time
       if (
         Date.now() - touchContextRef.current.dt.getTime() <
         SCALE_TIMEOUT_MS
@@ -110,11 +117,14 @@ const SVGTouchCapture: React.FC<PropsWithChildren> = ({ children }) => {
 
   const handleTouchMove = useCallback(
     (e: TouchEvent<SVGGElement>) => {
+      // just don't deal with more than 2 fingers
       if (e.touches.length > 2) {
         e.stopPropagation();
+        e.preventDefault();
       }
 
-      if (e.touches.length === 2) {
+      // zooming
+      if (e.touches.length === 2 && zoomEnabled) {
         e.stopPropagation();
         touchContextRef.current.dt = new Date();
 
@@ -149,7 +159,8 @@ const SVGTouchCapture: React.FC<PropsWithChildren> = ({ children }) => {
         return;
       }
 
-      // ignore touches after scale ended
+      // not zooming if we got here, but ignore touches for some time, should
+      // prevent things from being unexpectedly selected or moved
       if (
         Date.now() - touchContextRef.current.dt.getTime() <
         SCALE_TIMEOUT_MS
@@ -157,7 +168,7 @@ const SVGTouchCapture: React.FC<PropsWithChildren> = ({ children }) => {
         e.stopPropagation();
       }
     },
-    [setIsTouchScaling, updateScale],
+    [setIsTouchScaling, updateScale, zoomEnabled],
   );
 
   const handleTouchCancel = useCallback(() => {
