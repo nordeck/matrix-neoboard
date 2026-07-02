@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { isEqual } from 'lodash';
+import isEqual from 'lodash/isEqual';
 import { useEffect, useRef, useState } from 'react';
 import { Observable } from 'rxjs';
 

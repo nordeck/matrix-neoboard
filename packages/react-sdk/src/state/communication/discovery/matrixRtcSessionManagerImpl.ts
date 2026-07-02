@@ -15,7 +15,9 @@
  */
 
 import { StateEvent, WidgetApi } from '@matrix-widget-toolkit/api';
-import { clone, isEqual, isError } from 'lodash';
+import clone from 'lodash/clone';
+import isEqual from 'lodash/isEqual';
+import isError from 'lodash/isError';
 import { getLogger } from 'loglevel';
 import { UpdateDelayedEventAction } from 'matrix-widget-api';
 import {

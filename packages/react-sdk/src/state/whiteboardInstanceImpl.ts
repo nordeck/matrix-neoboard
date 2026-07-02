@@ -15,7 +15,8 @@
  */
 
 import { StateEvent, WidgetApi } from '@matrix-widget-toolkit/api';
-import { cloneDeep, isEqual } from 'lodash';
+import cloneDeep from 'lodash/cloneDeep';
+import isEqual from 'lodash/isEqual';
 import {
   BehaviorSubject,
   Observable,

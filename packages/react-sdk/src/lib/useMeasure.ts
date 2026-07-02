@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { noop } from 'lodash';
+import noop from 'lodash/noop';
 import { useMemo, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { useIsomorphicLayoutEffect } from 'react-use';

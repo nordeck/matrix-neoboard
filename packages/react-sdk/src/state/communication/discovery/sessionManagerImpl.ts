@@ -16,7 +16,8 @@
 
 import { StateEvent, WidgetApi } from '@matrix-widget-toolkit/api';
 import { nanoid } from '@reduxjs/toolkit';
-import { clone, isEqual } from 'lodash';
+import clone from 'lodash/clone';
+import isEqual from 'lodash/isEqual';
 import { getLogger } from 'loglevel';
 import {
   Observable,

@@ -15,7 +15,7 @@
  */
 
 import { Base64 } from 'js-base64';
-import { clone } from 'lodash';
+import clone from 'lodash/clone';
 import { getLogger } from 'loglevel';
 import {
   BehaviorSubject,

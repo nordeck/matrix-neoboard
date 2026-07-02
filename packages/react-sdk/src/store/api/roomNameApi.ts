@@ -15,7 +15,8 @@
  */
 
 import { StateEvent } from '@matrix-widget-toolkit/api';
-import { first, isError } from 'lodash';
+import first from 'lodash/first';
+import isError from 'lodash/isError';
 import { filter } from 'rxjs';
 import {
   RoomNameEvent,

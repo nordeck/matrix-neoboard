@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { last } from 'lodash';
+import last from 'lodash/last';
 import { fromEvent, map, merge, mergeMap, Observable, of, Subject } from 'rxjs';
 import * as Y from 'yjs';
 import { DocumentUndoManager } from '../types';

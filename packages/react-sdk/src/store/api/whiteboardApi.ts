@@ -20,7 +20,9 @@ import {
   StateEvent,
 } from '@matrix-widget-toolkit/api';
 import { createEntityAdapter, EntityState } from '@reduxjs/toolkit';
-import { isEqual, isError, last } from 'lodash';
+import isEqual from 'lodash/isEqual';
+import isError from 'lodash/isError';
+import last from 'lodash/last';
 import { bufferTime, filter } from 'rxjs';
 import {
   isValidWhiteboardStateEvent,

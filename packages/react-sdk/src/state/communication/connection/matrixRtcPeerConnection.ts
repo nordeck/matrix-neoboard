@@ -20,7 +20,7 @@ import {
   Room,
   RoomEvent,
 } from 'livekit-client';
-import { clone } from 'lodash';
+import clone from 'lodash/clone';
 import { getLogger } from 'loglevel';
 import {
   concat,

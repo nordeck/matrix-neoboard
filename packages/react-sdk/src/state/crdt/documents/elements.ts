@@ -17,7 +17,7 @@
 import Joi from 'joi';
 import loglevel from 'loglevel';
 // Do not import from the index file to prevent cyclic dependencies
-import { clamp } from 'lodash';
+import clamp from 'lodash/clamp';
 import { defaultAcceptedImageTypes } from '../../../components/ImageUpload/consts';
 import { Elements } from '../../types';
 import {

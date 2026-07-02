@@ -22,7 +22,8 @@ import {
   PopoverPosition,
   Typography,
 } from '@mui/material';
-import { first, last } from 'lodash';
+import first from 'lodash/first';
+import last from 'lodash/last';
 import {
   MouseEvent,
   PropsWithChildren,

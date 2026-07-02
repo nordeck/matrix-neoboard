@@ -21,7 +21,7 @@ import {
   isValidRoomMemberStateEvent,
 } from '@matrix-widget-toolkit/api';
 import { EntityState, createEntityAdapter } from '@reduxjs/toolkit';
-import { isError } from 'lodash';
+import isError from 'lodash/isError';
 import { bufferTime, filter } from 'rxjs';
 import { ThunkExtraArgument } from '../store';
 import { baseApi } from './baseApi';

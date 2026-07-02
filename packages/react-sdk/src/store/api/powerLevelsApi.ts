@@ -23,7 +23,10 @@ import {
   isValidCreateEventSchema,
   isValidPowerLevelStateEvent,
 } from '@matrix-widget-toolkit/api';
-import { isEqual, isError, last, merge } from 'lodash';
+import isEqual from 'lodash/isEqual';
+import isError from 'lodash/isError';
+import last from 'lodash/last';
+import merge from 'lodash/merge';
 import { bufferTime, filter } from 'rxjs';
 import { ThunkExtraArgument } from '../store';
 import { baseApi } from './baseApi';

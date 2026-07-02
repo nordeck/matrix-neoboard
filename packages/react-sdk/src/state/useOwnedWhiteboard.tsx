@@ -16,7 +16,7 @@
 
 import { StateEvent } from '@matrix-widget-toolkit/api';
 import { useWidgetApi } from '@matrix-widget-toolkit/react';
-import { first } from 'lodash';
+import first from 'lodash/first';
 import loglevel from 'loglevel';
 import { useAsync } from 'react-use';
 import { matrixRtcMode } from '../components/Whiteboard';

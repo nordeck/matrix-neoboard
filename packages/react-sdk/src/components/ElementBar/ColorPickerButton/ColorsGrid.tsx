@@ -15,7 +15,7 @@
  */
 
 import { IconButton, styled } from '@mui/material';
-import { chunk } from 'lodash';
+import chunk from 'lodash/chunk';
 import {
   Dispatch,
   DispatchWithoutAction,

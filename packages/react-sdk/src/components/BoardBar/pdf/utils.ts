@@ -15,7 +15,7 @@
  */
 
 import emojiRegex from 'emoji-regex';
-import { get } from 'lodash';
+import get from 'lodash/get';
 import { CanvasElement, Content, ContentText } from 'pdfmake/interfaces';
 import tinycolor2 from 'tinycolor2';
 import {

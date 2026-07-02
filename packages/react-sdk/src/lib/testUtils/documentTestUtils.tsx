@@ -16,7 +16,7 @@
 
 import { WidgetApi } from '@matrix-widget-toolkit/api';
 import { WidgetApiMockProvider } from '@matrix-widget-toolkit/react';
-import { range } from 'lodash';
+import range from 'lodash/range';
 import { Fragment, PropsWithChildren, useState } from 'react';
 import { Provider } from 'react-redux';
 import { BehaviorSubject, NEVER, Subject, of } from 'rxjs';

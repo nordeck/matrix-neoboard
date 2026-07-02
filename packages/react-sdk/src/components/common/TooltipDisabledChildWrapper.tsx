@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { omit } from 'lodash';
+import omit from 'lodash/omit';
 import React, { AriaAttributes, forwardRef, ReactElement } from 'react';
 
 /**

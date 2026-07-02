@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { last } from 'lodash';
+import last from 'lodash/last';
 import { ComponentType, useCallback, useMemo, useState } from 'react';
 import {
   PathElement,
