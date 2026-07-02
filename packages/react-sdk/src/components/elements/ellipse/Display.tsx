@@ -101,6 +101,7 @@ const EllipseDisplay = ({
           {renderedChild}
           {elementMovedHasFrame && (
             <ElementFrameOverlay
+              transform={transform}
               offsetX={shape.position.x}
               offsetY={shape.position.y}
               width={shape.width}

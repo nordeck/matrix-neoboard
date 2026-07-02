@@ -17,6 +17,10 @@
 import { useTheme } from '@mui/material';
 import { BoundingRect } from '../../state';
 
+type ElementFrameOverlayProps = BoundingRect & {
+  transform?: string;
+};
+
 /**
  * An overlay that is shown when the element is moved over the frame.
  */
@@ -25,11 +29,13 @@ export function ElementFrameOverlay({
   offsetY,
   width,
   height,
-}: BoundingRect) {
+  transform,
+}: ElementFrameOverlayProps) {
   const theme = useTheme();
 
   return (
     <rect
+      transform={transform}
       x={offsetX}
       y={offsetY}
       fill={theme.palette.grey[500]}
