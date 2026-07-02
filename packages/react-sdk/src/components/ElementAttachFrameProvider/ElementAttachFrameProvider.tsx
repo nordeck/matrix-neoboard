@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import isEqual from 'lodash/isEqual';
 import { createContext, PropsWithChildren, useMemo, useState } from 'react';
 
 export type ElementAttachFrameSetterContextType = {
@@ -77,7 +78,28 @@ export function ElementAttachFrameProvider({
     useState<string[]>([]);
   const [connectingPathIds, setConnectingPathIds] = useState<string[]>([]);
 
-  const context = useMemo<ElementAttachFrameGetterContextType>(
+  const setterContext = useMemo<ElementAttachFrameSetterContextType>(
+    () => ({
+      setElementAttachFrame: (newValue) => {
+        setElementAttachFrame((oldValue) =>
+          isEqual(newValue, oldValue) ? oldValue : newValue,
+        );
+      },
+      setAttachedElementsMovedByFrame: (newValue) => {
+        setAttachedElementsMovedByFrame((oldValue) =>
+          isEqual(newValue, oldValue) ? oldValue : newValue,
+        );
+      },
+      setConnectingPathIds: (newValue) => {
+        setConnectingPathIds((oldValue) =>
+          isEqual(newValue, oldValue) ? oldValue : newValue,
+        );
+      },
+    }),
+    [],
+  );
+
+  const getterContext = useMemo<ElementAttachFrameGetterContextType>(
     () => ({
       elementAttachFrame,
       connectingPathIds,
@@ -97,14 +119,8 @@ export function ElementAttachFrameProvider({
   );
 
   return (
-    <ElementAttachFrameSetterContext.Provider
-      value={{
-        setElementAttachFrame,
-        setAttachedElementsMovedByFrame,
-        setConnectingPathIds,
-      }}
-    >
-      <ElementAttachFrameGetterContext.Provider value={context}>
+    <ElementAttachFrameSetterContext.Provider value={setterContext}>
+      <ElementAttachFrameGetterContext.Provider value={getterContext}>
         {children}
       </ElementAttachFrameGetterContext.Provider>
     </ElementAttachFrameSetterContext.Provider>
