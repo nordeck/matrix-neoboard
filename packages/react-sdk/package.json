@@ -25,7 +25,7 @@
     "@mui/utils": "^6.4.9",
     "@reduxjs/toolkit": "^2.11.2",
     "emoji-regex": "^10.6.0",
-    "joi": "^17.13.3",
+    "joi": "^17.13.4",
     "js-base64": "^3.7.8",
     "livekit-client": "^2.18.10",
     "localforage": "^1.10.0",
