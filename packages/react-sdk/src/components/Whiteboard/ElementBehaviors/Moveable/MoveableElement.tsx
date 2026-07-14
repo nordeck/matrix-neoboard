@@ -76,7 +76,7 @@ export function MoveableElement({
   elementId,
   elements = {},
 }: MoveableElementProps) {
-  const { isShowGrid } = useLayoutState();
+  const { isShowGrid, isTouchScaling } = useLayoutState();
   const isDragging = useRef<boolean>(false);
   const nodeRef = useRef<SVGRectElement>(null);
   const setElementOverride = useSetElementOverride();
@@ -159,26 +159,25 @@ export function MoveableElement({
         deltaY: old.deltaY + data.deltaY,
       }));
 
-      const cursorPosition: Point = calculateSvgCoords({
-        x: data.x * scale,
-        y: data.y * scale,
-      });
-
-      if (isMouseEvent(event) && isButtonToPan(event.buttons)) {
+      if (
+        (isMouseEvent(event) && isButtonToPan(event.buttons)) ||
+        (event.type === 'touchmove' &&
+          !isTouchScaling &&
+          elementId &&
+          !slideInstance.getActiveElementIds().includes(elementId))
+      ) {
         if (isInfiniteCanvasMode() && presentationState.type !== 'idle') {
           // don't apply translation
           return;
         }
 
-        const { offsetX, offsetY } = calculateBoundingRectForElements(
-          Object.values(elements),
-        );
-
-        const deltaX = cursorPosition.x - boundingRectCursorOffset.x - offsetX;
-        const deltaY = cursorPosition.y - boundingRectCursorOffset.y - offsetY;
-
-        updateTranslation(deltaX * scale, deltaY * scale);
+        updateTranslation(data.deltaX * scale, data.deltaY * scale);
       } else {
+        const cursorPosition: Point = calculateSvgCoords({
+          x: data.x * scale,
+          y: data.y * scale,
+        });
+
         const elementOverrideUpdates = calculateElementOverrideUpdates(
           elements,
           cursorPosition.x - boundingRectCursorOffset.x,
@@ -237,6 +236,8 @@ export function MoveableElement({
       setAttachedElementsMovedByFrame,
       setConnectingPathIds,
       presentationState,
+      isTouchScaling,
+      elementId,
     ],
   );
 

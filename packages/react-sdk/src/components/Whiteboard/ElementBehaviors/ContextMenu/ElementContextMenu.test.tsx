@@ -15,7 +15,7 @@
  */
 
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
-import { render, screen, within } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import axe from 'axe-core';
 import { ComponentType, PropsWithChildren } from 'react';
@@ -34,8 +34,12 @@ import {
   mockLineElement,
   mockWhiteboardManager,
 } from '../../../../lib/testUtils';
-import { WhiteboardInstance, WhiteboardManager } from '../../../../state';
-import { LayoutStateProvider } from '../../../Layout';
+import {
+  WhiteboardInstance,
+  WhiteboardManager,
+  WhiteboardSlideInstance,
+} from '../../../../state';
+import { LayoutStateProvider, useLayoutState } from '../../../Layout';
 import { SlidesProvider } from '../../../Layout/SlidesProvider';
 import { WhiteboardHotkeysProvider } from '../../../WhiteboardHotkeysProvider';
 import { ElementContextMenu } from './ElementContextMenu';
@@ -52,6 +56,8 @@ describe('<ElementContextMenu/>', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
   let whiteboardManager: Mocked<WhiteboardManager>;
   let activeWhiteboardInstance: WhiteboardInstance;
+  let activeSlide: WhiteboardSlideInstance;
+  let setIsTouchScaling: (value: boolean) => void;
 
   beforeEach(() => {
     ({ whiteboardManager } = mockWhiteboardManager({
@@ -68,9 +74,17 @@ describe('<ElementContextMenu/>', () => {
     }));
 
     activeWhiteboardInstance = whiteboardManager.getActiveWhiteboardInstance()!;
+    activeSlide = activeWhiteboardInstance.getSlide('slide-0');
+
+    function LayoutStateExtractor() {
+      const tmp = useLayoutState();
+      ({ setIsTouchScaling } = tmp);
+      return null;
+    }
 
     Wrapper = ({ children }) => (
       <LayoutStateProvider>
+        <LayoutStateExtractor />
         <WhiteboardHotkeysProvider>
           <WhiteboardTestingContextProvider
             whiteboardManager={whiteboardManager}
@@ -88,11 +102,16 @@ describe('<ElementContextMenu/>', () => {
   afterEach(() => {
     // restore the mock on window.navigator.userAgent
     vi.restoreAllMocks();
+
+    vi.useRealTimers();
   });
 
   it('should render without exploding', async () => {
     render(
-      <ElementContextMenu activeElementIds={['element-1']}>
+      <ElementContextMenu
+        elementId="element-1"
+        activeElementIds={['element-1']}
+      >
         <text data-testid="example-text" />
       </ElementContextMenu>,
       { wrapper: Wrapper },
@@ -107,9 +126,15 @@ describe('<ElementContextMenu/>', () => {
   });
 
   it('should open the context menu on right click', async () => {
-    render(<ElementContextMenu activeElementIds={['element-1']} />, {
-      wrapper: Wrapper,
-    });
+    render(
+      <ElementContextMenu
+        elementId="element-1"
+        activeElementIds={['element-1']}
+      />,
+      {
+        wrapper: Wrapper,
+      },
+    );
 
     const contextMenuTarget = screen.getByTestId(
       'element-context-menu-container',
@@ -143,9 +168,15 @@ describe('<ElementContextMenu/>', () => {
   });
 
   it('should reopen the context menu', async () => {
-    render(<ElementContextMenu activeElementIds={['element-1']} />, {
-      wrapper: Wrapper,
-    });
+    render(
+      <ElementContextMenu
+        elementId="element-1"
+        activeElementIds={['element-1']}
+      />,
+      {
+        wrapper: Wrapper,
+      },
+    );
 
     const contextMenuTarget = screen.getByTestId(
       'element-context-menu-container',
@@ -172,9 +203,165 @@ describe('<ElementContextMenu/>', () => {
     expect(screen.getByRole('menu', { name: 'Element' })).toBeInTheDocument();
   });
 
+  it('should open the context menu with long touch press', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+
+    render(
+      <ElementContextMenu
+        elementId="element-0"
+        activeElementIds={['element-1']}
+      />,
+      {
+        wrapper: Wrapper,
+      },
+    );
+
+    const contextMenuTarget = screen.getByTestId(
+      'element-context-menu-container',
+    );
+
+    await user.pointer({
+      keys: '[TouchA>]',
+      target: contextMenuTarget,
+    });
+
+    act(() => {
+      vi.advanceTimersByTime(600);
+    });
+
+    expect(activeSlide.getActiveElementIds()).toEqual(['element-0']);
+
+    const menu = screen.getByRole('menu', { name: 'Element' });
+
+    expect(menu).toBeInTheDocument();
+  });
+
+  it('should not open the context menu with long touch press if touch scaling happens between press and context menu appearance', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+
+    render(
+      <ElementContextMenu
+        elementId="element-0"
+        activeElementIds={['element-1']}
+      />,
+      {
+        wrapper: Wrapper,
+      },
+    );
+
+    const contextMenuTarget = screen.getByTestId(
+      'element-context-menu-container',
+    );
+    await user.pointer({
+      keys: '[TouchA>]',
+      target: contextMenuTarget,
+    });
+
+    act(() => setIsTouchScaling(true));
+
+    act(() => {
+      vi.advanceTimersByTime(600);
+    });
+
+    expect(activeSlide.getActiveElementIds()).toEqual([]);
+
+    expect(
+      screen.queryByRole('menu', { name: 'Element' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('should not open the context menu with long touch press if touch scaling happens before press and context menu appearance', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+
+    render(
+      <ElementContextMenu
+        elementId="element-0"
+        activeElementIds={['element-1']}
+      />,
+      {
+        wrapper: Wrapper,
+      },
+    );
+
+    act(() => setIsTouchScaling(true));
+
+    const contextMenuTarget = screen.getByTestId(
+      'element-context-menu-container',
+    );
+    await user.pointer({
+      keys: '[TouchA>]',
+      target: contextMenuTarget,
+    });
+
+    act(() => {
+      vi.advanceTimersByTime(600);
+    });
+
+    expect(activeSlide.getActiveElementIds()).toEqual([]);
+
+    expect(
+      screen.queryByRole('menu', { name: 'Element' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('should not open the context menu with long touch press and move', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+
+    const user = userEvent.setup({
+      delay: 250,
+      advanceTimers: vi.advanceTimersByTime,
+    });
+
+    render(
+      <ElementContextMenu
+        elementId="element-0"
+        activeElementIds={['element-1']}
+      />,
+      {
+        wrapper: Wrapper,
+      },
+    );
+
+    const contextMenuTarget = screen.getByTestId(
+      'element-context-menu-container',
+    );
+
+    await user.pointer([
+      {
+        keys: '[TouchA>]',
+        target: contextMenuTarget,
+        coords: { clientX: 50, clientY: 101 },
+      },
+      {
+        pointerName: 'TouchA',
+        target: contextMenuTarget,
+        coords: { clientX: 100, clientY: 151 },
+      },
+      {
+        keys: '[/TouchA]',
+        target: contextMenuTarget,
+      },
+    ]);
+
+    expect(activeSlide.getActiveElementIds()).toEqual([]);
+
+    expect(
+      screen.queryByRole('menu', { name: 'Element' }),
+    ).not.toBeInTheDocument();
+  });
+
   it('should have no accessibility violations', async () => {
     const { container } = render(
-      <ElementContextMenu activeElementIds={['id']} />,
+      <ElementContextMenu
+        elementId="element-1"
+        activeElementIds={['element-1']}
+      />,
       {
         wrapper: Wrapper,
       },
@@ -185,7 +372,10 @@ describe('<ElementContextMenu/>', () => {
 
   it('should have no accessibility violations for context menu', async () => {
     const { container } = render(
-      <ElementContextMenu activeElementIds={['id']} />,
+      <ElementContextMenu
+        elementId="element-1"
+        activeElementIds={['element-1']}
+      />,
       {
         wrapper: Wrapper,
       },
@@ -207,9 +397,15 @@ describe('<ElementContextMenu/>', () => {
       'Mac OS (jsdom)',
     );
 
-    render(<ElementContextMenu activeElementIds={['element-1']} />, {
-      wrapper: Wrapper,
-    });
+    render(
+      <ElementContextMenu
+        elementId="element-1"
+        activeElementIds={['element-1']}
+      />,
+      {
+        wrapper: Wrapper,
+      },
+    );
 
     const contextMenuTarget = screen.getByTestId(
       'element-context-menu-container',
@@ -243,6 +439,7 @@ describe('<ElementContextMenu/>', () => {
     activeSlide.setActiveElementId('element-1');
     render(
       <ElementContextMenu
+        elementId="element-1"
         activeElementIds={activeSlide.getActiveElementIds()}
       />,
       {
@@ -282,6 +479,7 @@ describe('<ElementContextMenu/>', () => {
     activeSlide.setActiveElementId('element-0');
     render(
       <ElementContextMenu
+        elementId="element-0"
         activeElementIds={activeSlide.getActiveElementIds()}
       />,
       {
@@ -321,6 +519,7 @@ describe('<ElementContextMenu/>', () => {
     activeSlide.setActiveElementIds(['element-0', 'element-1']);
     render(
       <ElementContextMenu
+        elementId="element-0"
         activeElementIds={activeSlide.getActiveElementIds()}
       />,
       {
@@ -360,6 +559,7 @@ describe('<ElementContextMenu/>', () => {
     activeSlide.setActiveElementId('element-1');
     render(
       <ElementContextMenu
+        elementId="element-1"
         activeElementIds={activeSlide.getActiveElementIds()}
       />,
       {
@@ -399,6 +599,7 @@ describe('<ElementContextMenu/>', () => {
     activeSlide.setActiveElementId('element-2');
     render(
       <ElementContextMenu
+        elementId="element-2"
         activeElementIds={activeSlide.getActiveElementIds()}
       />,
       {
@@ -438,6 +639,7 @@ describe('<ElementContextMenu/>', () => {
     activeSlide.setActiveElementIds(['element-1', 'element-2']);
     render(
       <ElementContextMenu
+        elementId="element-1"
         activeElementIds={activeSlide.getActiveElementIds()}
       />,
       {
@@ -480,6 +682,7 @@ describe('<ElementContextMenu/>', () => {
     activeSlide.setActiveElementIds(elementIdsToBeDeleted);
     render(
       <ElementContextMenu
+        elementId="element-1"
         activeElementIds={activeSlide.getActiveElementIds()}
       />,
       {

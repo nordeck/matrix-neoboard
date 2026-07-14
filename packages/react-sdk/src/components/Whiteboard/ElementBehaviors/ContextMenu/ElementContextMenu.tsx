@@ -26,9 +26,10 @@ import first from 'lodash/first';
 import last from 'lodash/last';
 import {
   MouseEvent,
+  PointerEvent,
   PropsWithChildren,
-  TouchEvent,
   useCallback,
+  useEffect,
   useRef,
   useState,
 } from 'react';
@@ -41,88 +42,129 @@ import {
 } from '../../../../state';
 import { HotkeysHelp } from '../../../common/HotkeysHelp';
 import { isMacOS } from '../../../common/platform';
+import { useLayoutState } from '../../../Layout';
 
 type ContextMenuState = { position: PopoverPosition } | undefined;
 
-const TOUCH_HOLD_MENU_SHOW_TIMEOUT_MS = 500;
-
 export function ElementContextMenu({
   children,
+  elementId,
   activeElementIds = [],
-}: PropsWithChildren<{ activeElementIds: string[] }>) {
-  const mousePositionRef = useRef<MousePosition>();
+}: PropsWithChildren<{ elementId: string; activeElementIds: string[] }>) {
+  const slideInstance = useWhiteboardSlideInstance();
+  const positionRef = useRef<MousePosition>();
+  const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const { isTouchScaling } = useLayoutState();
+
   const [state, setState] = useState<ContextMenuState>();
 
-  const [wasShownByTouch, setWasShownByTouch] = useState(false);
+  useEffect(() => {
+    if (!isTouchScaling) return;
+
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+  }, [isTouchScaling]);
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, []);
 
   const handleContextMenu = useCallback((event: MouseEvent<SVGElement>) => {
     event.preventDefault();
   }, []);
 
-  const handleMouseDown = useCallback((event: MouseEvent<SVGElement>) => {
-    if (event.button !== 2) {
-      return;
-    }
-    mousePositionRef.current = {
-      clientX: event.clientX,
-      clientY: event.clientY,
-    };
+  const openContextMenu = useCallback((clientX: number, clientY: number) => {
+    setState((state) =>
+      !state
+        ? {
+            position: {
+              left: clientX + 2,
+              top: clientY - 6,
+            },
+          }
+        : undefined,
+    );
   }, []);
 
-  const handleMouseUp = useCallback((event: MouseEvent<SVGElement>) => {
-    if (!mousePositionRef.current) {
-      return;
-    }
+  const handlePointerDown = useCallback(
+    (event: PointerEvent<SVGGElement>) => {
+      if (event.pointerType === 'touch') {
+        if (isTouchScaling) return;
 
-    const mousePosition: MousePosition = {
-      clientX: event.clientX,
-      clientY: event.clientY,
-    };
-    if (isMousePositionEqual(mousePositionRef.current, mousePosition)) {
-      setState((state) =>
-        !state
-          ? {
-              position: { left: event.clientX + 2, top: event.clientY - 6 },
-            }
-          : undefined,
-      );
-      setWasShownByTouch(false);
-    }
+        positionRef.current = {
+          clientX: event.clientX,
+          clientY: event.clientY,
+        };
 
-    mousePositionRef.current = undefined;
+        const { clientX, clientY } = event;
+
+        timeoutRef.current = setTimeout(() => {
+          slideInstance.setActiveElementId(elementId);
+          openContextMenu(clientX, clientY);
+        }, 500);
+        return;
+      }
+
+      if (event.button !== 2) {
+        return;
+      }
+
+      positionRef.current = {
+        clientX: event.clientX,
+        clientY: event.clientY,
+      };
+    },
+    [openContextMenu, slideInstance, elementId, isTouchScaling],
+  );
+
+  const handlePointerUp = useCallback(
+    (event: PointerEvent<SVGGElement>) => {
+      if (event.pointerType === 'touch') {
+        if (timeoutRef.current) clearTimeout(timeoutRef.current);
+        return;
+      }
+
+      if (!positionRef.current) {
+        return;
+      }
+
+      const { clientX, clientY } = event;
+      const mousePosition: MousePosition = {
+        clientX,
+        clientY,
+      };
+      if (isMousePositionEqual(positionRef.current, mousePosition)) {
+        openContextMenu(clientX, clientY);
+      }
+
+      positionRef.current = undefined;
+    },
+    [openContextMenu],
+  );
+
+  const handlePointerMove = useCallback((event: PointerEvent<SVGGElement>) => {
+    if (event.pointerType === 'touch') {
+      event.preventDefault();
+
+      if (!positionRef.current) {
+        return;
+      }
+
+      const threshold = 2;
+      if (
+        Math.abs(positionRef.current.clientX - event.clientX) < threshold &&
+        Math.abs(positionRef.current.clientY - event.clientY) < threshold
+      ) {
+        return;
+      }
+
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      setState(undefined);
+    }
   }, []);
 
   const handleClose = useCallback(() => {
-    setState(undefined);
-  }, []);
-
-  const timer = useRef<NodeJS.Timeout | undefined>(undefined);
-
-  const handleTouchStart = useCallback((e: TouchEvent<SVGGElement>) => {
-    const { clientX, clientY } = e.touches[0];
-
-    timer.current = setTimeout(() => {
-      setState((state) =>
-        !state
-          ? {
-              position: {
-                left: clientX + 2,
-                top: clientY - 6,
-              },
-            }
-          : undefined,
-      );
-      setWasShownByTouch(true);
-    }, TOUCH_HOLD_MENU_SHOW_TIMEOUT_MS);
-  }, []);
-
-  const handleTouchEnd = useCallback(() => {
-    if (timer.current) clearTimeout(timer.current);
-  }, []);
-
-  const handleTouchMove = useCallback((e: TouchEvent<SVGGElement>) => {
-    e.preventDefault();
-    if (timer.current) clearTimeout(timer.current);
     setState(undefined);
   }, []);
 
@@ -131,11 +173,9 @@ export function ElementContextMenu({
       <Box
         component="g"
         onContextMenu={handleContextMenu} // prevents context menu if context menu is fired before mouse up
-        onMouseDown={handleMouseDown}
-        onMouseUp={handleMouseUp}
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
-        onTouchMove={handleTouchMove}
+        onPointerDown={handlePointerDown}
+        onPointerUp={handlePointerUp}
+        onPointerMove={handlePointerMove}
         data-testid="element-context-menu-container"
       >
         {children}
@@ -146,7 +186,6 @@ export function ElementContextMenu({
           state={state}
           activeElementIds={activeElementIds}
           onClose={handleClose}
-          disableRestoreFocus={wasShownByTouch}
         />
       )}
     </>
@@ -157,14 +196,12 @@ type ContextMenuOptionsProps = PropsWithChildren<{
   state: ContextMenuState;
   activeElementIds: string[];
   onClose: () => void;
-  disableRestoreFocus?: boolean;
 }>;
 
 function ContextMenuOptions({
   state,
   activeElementIds,
   onClose,
-  disableRestoreFocus,
 }: ContextMenuOptionsProps) {
   const isLocked = useSlideIsLocked();
   const slideInstance = useWhiteboardSlideInstance();
@@ -238,7 +275,6 @@ function ContextMenuOptions({
       anchorReference="anchorPosition"
       anchorPosition={state?.position}
       onContextMenu={handleContextMenu} // prevents context menu if context menu is fired after mouse up
-      disableRestoreFocus={disableRestoreFocus}
     >
       {activeElementIds.length < 2 && (
         <MenuItem onClick={handleClickBringForward} disabled={!canMoveUp}>

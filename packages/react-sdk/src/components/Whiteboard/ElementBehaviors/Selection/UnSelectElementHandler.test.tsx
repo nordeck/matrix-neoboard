@@ -15,7 +15,7 @@
  */
 
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ComponentType, PropsWithChildren } from 'react';
 import {
@@ -110,10 +110,23 @@ describe('<UnSelectElementHandler/>', () => {
     expect(window.getSelection()?.containsNode(textElement)).toBe(false);
   });
 
+  it('should clear active elements and selection on touch', async () => {
+    activeSlide.setActiveElementIds(['element-0']);
+    render(<UnSelectElementHandler />, { wrapper: Wrapper });
+    selectText();
+
+    const layer = screen.getByTestId('unselect-element-layer');
+    await userEvent.pointer({ keys: '[TouchA]', target: layer });
+
+    expect(activeSlide.getActiveElementIds()).toEqual([]);
+    expect(window.getSelection()?.containsNode(textElement)).toBe(false);
+  });
+
   it('should set the drag select start coordinates on mouse down', async () => {
     render(<UnSelectElementHandler />, { wrapper: Wrapper });
 
-    fireEvent.mouseDown(screen.getByTestId('unselect-element-layer'));
+    const layer = screen.getByTestId('unselect-element-layer');
+    await userEvent.pointer({ keys: '[MouseLeft>]', target: layer });
 
     expect(dragSelectStartCoords).toEqual({ x: 23, y: 42 });
   });

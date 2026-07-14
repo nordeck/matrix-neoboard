@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 
-import { MouseEvent, PropsWithChildren, useCallback, useRef } from 'react';
+import { PointerEvent, PropsWithChildren, useCallback, useRef } from 'react';
 import { isMousePositionEqual, MousePosition } from '../../../../lib';
 import {
   useWhiteboardSlideInstance,
   WhiteboardSlideInstance,
 } from '../../../../state';
 import { useLayoutState } from '../../../Layout';
-import SelectableElementTouchWrapper from './SelectableElementTouchWrapper';
 import { WithSelectionProps } from './types';
 
 export type SelectableElementProps = PropsWithChildren<WithSelectionProps>;
 
-function selectElement(
+export function selectElement(
   slideInstance: WhiteboardSlideInstance,
   shiftKey: boolean,
   elementId: string,
@@ -47,12 +46,21 @@ export function SelectableElement({
   elementId,
 }: SelectableElementProps) {
   const mousePositionRef = useRef<MousePosition>();
+  const touchRef = useRef<{ isPrimary: boolean; time: number }>();
   const slideInstance = useWhiteboardSlideInstance();
   const { activeTool } = useLayoutState();
   const isInSelectionMode = activeTool === 'select';
 
-  const handleMouseDown = useCallback(
-    (event: MouseEvent) => {
+  const handlePointerDown = useCallback(
+    (event: PointerEvent) => {
+      if (event.pointerType === 'touch') {
+        touchRef.current = {
+          isPrimary: event.isPrimary,
+          time: Date.now(),
+        };
+        return;
+      }
+
       if (isInSelectionMode) {
         event.stopPropagation();
         if (event.button === 0) {
@@ -68,8 +76,21 @@ export function SelectableElement({
     [elementId, isInSelectionMode, slideInstance],
   );
 
-  const handleMouseUp = useCallback(
-    (event: MouseEvent) => {
+  const handlePointerUp = useCallback(
+    (event: PointerEvent) => {
+      if (event.pointerType === 'touch') {
+        if (
+          touchRef.current &&
+          touchRef.current.isPrimary &&
+          isInSelectionMode &&
+          Date.now() - touchRef.current.time < 300
+        ) {
+          selectElement(slideInstance, false, elementId);
+        }
+        touchRef.current = undefined;
+        return;
+      }
+
       if (isInSelectionMode) {
         event.stopPropagation();
         if (
@@ -88,10 +109,8 @@ export function SelectableElement({
   );
 
   return (
-    <SelectableElementTouchWrapper elementId={elementId}>
-      <g onMouseDown={handleMouseDown} onMouseUp={handleMouseUp}>
-        {children}
-      </g>
-    </SelectableElementTouchWrapper>
+    <g onPointerDown={handlePointerDown} onPointerUp={handlePointerUp}>
+      {children}
+    </g>
   );
 }

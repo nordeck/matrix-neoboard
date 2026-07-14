@@ -15,7 +15,7 @@
  */
 
 import { Point } from 'pdfmake/interfaces';
-import { MouseEvent, useCallback, useEffect, useState } from 'react';
+import { PointerEvent, useCallback, useRef } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import {
   useActiveElement,
@@ -31,17 +31,18 @@ import {
   whiteboardHeight,
   whiteboardWidth,
 } from '../../constants';
-import UnSelectElementHandlerTouchWrapper from './UnSelectElementHandlerTouchWrapper';
 
 export function UnSelectElementHandler() {
   const { activeElementId } = useActiveElement();
   const slideInstance = useWhiteboardSlideInstance();
-  const { setDragSelectStartCoords } = useLayoutState();
+  const { isTouchScaling, setDragSelectStartCoords } = useLayoutState();
   const { calculateSvgCoords } = useSvgCanvasContext();
-  const [previousPanCoordinates, setPreviousPanCoordinates] = useState<Point>();
-  const [panEnabled, setPanEnabled] = useState(false);
   const { updateTranslation } = useSvgScaleContext();
   const { state: presentationState } = usePresentationMode();
+
+  const isPanningEnabled = presentationState.type === 'idle';
+
+  const positionRef = useRef<Point | undefined>();
 
   const unselectElement = useCallback(() => {
     if (activeElementId) {
@@ -49,36 +50,40 @@ export function UnSelectElementHandler() {
     }
   }, [activeElementId, slideInstance]);
 
-  const handleMouseDown = useCallback(
-    (event: MouseEvent<SVGRectElement>) => {
+  const handlePointerDown = useCallback(
+    (event: PointerEvent<SVGRectElement>) => {
       if (event.button === 0) {
-        const point = calculateSvgCoords({
-          x: event.clientX,
-          y: event.clientY,
-        });
-
-        setDragSelectStartCoords(point);
-
         if (activeElementId) {
           slideInstance.setActiveElementId(undefined);
           window.getSelection()?.empty();
         }
+
+        if (event.pointerType === 'touch') {
+          if (!event.isPrimary || !infiniteCanvasMode) return;
+
+          positionRef.current = {
+            x: event.clientX,
+            y: event.clientY,
+          };
+        } else {
+          const point = calculateSvgCoords({
+            x: event.clientX,
+            y: event.clientY,
+          });
+
+          setDragSelectStartCoords(point);
+        }
       } else if (event.button === 1 || event.button === 2) {
-        // Middle or Right click
         event.preventDefault();
         event.stopPropagation();
 
-        if (
-          !infiniteCanvasMode ||
-          (infiniteCanvasMode && presentationState.type !== 'idle')
-        ) {
-          // don't enable panning
+        if (!infiniteCanvasMode || !isPanningEnabled) {
           return;
         }
 
-        setPanEnabled(true);
+        event.currentTarget.setPointerCapture(event.pointerId);
         document.body.style.cursor = 'grabbing';
-        setPreviousPanCoordinates({ x: event.clientX, y: event.clientY });
+        positionRef.current = { x: event.clientX, y: event.clientY };
       }
     },
     [
@@ -86,19 +91,41 @@ export function UnSelectElementHandler() {
       slideInstance,
       calculateSvgCoords,
       setDragSelectStartCoords,
-      setPreviousPanCoordinates,
-      presentationState,
+      isPanningEnabled,
     ],
   );
 
-  const handleMouseEnter = useCallback((event: MouseEvent<SVGRectElement>) => {
-    if (event.buttons !== 2) {
-      // Stop pan
-      setPanEnabled(false);
-      setPreviousPanCoordinates(undefined);
-      document.body.style.cursor = 'default';
-    }
-  }, []);
+  const handlePointerMove = useCallback(
+    (event: PointerEvent<SVGRectElement>) => {
+      if (!infiniteCanvasMode || !positionRef.current || !isPanningEnabled)
+        return;
+
+      if (isTouchScaling) {
+        positionRef.current = { x: event.clientX, y: event.clientY };
+        return;
+      }
+
+      const deltaX = positionRef.current.x - event.clientX;
+      const deltaY = positionRef.current.y - event.clientY;
+
+      updateTranslation(-deltaX, -deltaY);
+
+      positionRef.current = { x: event.clientX, y: event.clientY };
+    },
+    [isPanningEnabled, updateTranslation, isTouchScaling],
+  );
+
+  const handleLostPointerCapture = useCallback(
+    (event: PointerEvent<SVGRectElement>) => {
+      if (!positionRef.current) return;
+
+      positionRef.current = undefined;
+      if (event.pointerType !== 'touch') {
+        document.body.style.cursor = 'default';
+      }
+    },
+    [],
+  );
 
   useHotkeys(
     'Escape',
@@ -111,62 +138,19 @@ export function UnSelectElementHandler() {
     [unselectElement],
   );
 
-  // Add window-level event listeners when panning starts
-  useEffect(() => {
-    if (!panEnabled) return;
-
-    const handleMouseMove = (event: globalThis.MouseEvent) => {
-      if (previousPanCoordinates === undefined) {
-        return;
-      }
-
-      updateTranslation(
-        event.clientX - previousPanCoordinates.x,
-        event.clientY - previousPanCoordinates.y,
-      );
-
-      setPreviousPanCoordinates({ x: event.clientX, y: event.clientY });
-    };
-
-    const handleMouseUp = (event: globalThis.MouseEvent) => {
-      if (event.button === 1 || event.button === 2) {
-        // Middle and Right click
-        event.preventDefault();
-        event.stopPropagation();
-
-        if (!infiniteCanvasMode) {
-          return;
-        }
-
-        setPanEnabled(false);
-        document.body.style.cursor = 'default';
-      }
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
-
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-    };
-  }, [panEnabled, previousPanCoordinates, updateTranslation]);
-
   return (
-    <UnSelectElementHandlerTouchWrapper>
-      <rect
-        fill="transparent"
-        style={{ WebkitTouchCallout: 'none', WebkitUserSelect: 'none' }}
-        height={whiteboardHeight}
-        onMouseDown={handleMouseDown}
-        onMouseEnter={handleMouseEnter}
-        onContextMenu={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-        }}
-        width={whiteboardWidth}
-        data-testid="unselect-element-layer"
-      />
-    </UnSelectElementHandlerTouchWrapper>
+    <rect
+      fill="transparent"
+      height={whiteboardHeight}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onLostPointerCapture={handleLostPointerCapture}
+      onContextMenu={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      }}
+      width={whiteboardWidth}
+      data-testid="unselect-element-layer"
+    />
   );
 }

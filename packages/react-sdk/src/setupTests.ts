@@ -106,6 +106,7 @@ Object.defineProperty(global.globalThis, 'crypto', { value: webcrypto });
 // Provide a mock for the Clipboard API
 Object.defineProperty(navigator, 'clipboard', {
   value: { writeText: vi.fn() },
+  configurable: true,
 });
 
 // Set up SVG mocks
@@ -174,3 +175,8 @@ class DOMMatrix {
 Object.defineProperty(global.globalThis, 'DOMMatrix', { value: DOMMatrix });
 
 document.elementsFromPoint = vi.fn();
+
+// Mock element pointer capture api
+Element.prototype.setPointerCapture = vi.fn();
+Element.prototype.releasePointerCapture = vi.fn();
+Element.prototype.hasPointerCapture = vi.fn().mockReturnValue(false);

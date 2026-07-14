@@ -41,9 +41,6 @@ import { calculateIntersect } from './calculateIntersect';
 
 const NoInteraction = styled('g')({
   pointerEvents: 'none',
-  WebkitTouchCallout: 'none',
-  WebkitUserSelect: 'none',
-  userSelect: 'none',
 });
 
 // Throttle pointer move updates to 60fps (1000ms / 60 ≈ 16ms per frame)
@@ -58,7 +55,6 @@ export function DragSelect() {
   const [endCoords, setEndCoords] = useState<Point>();
   const { state: presentationState } = usePresentationMode();
   const { activeId } = useActiveSlideOrFrame();
-  const { isTouchScaling, setIsDragSelecting } = useLayoutState();
 
   const shape: ShapeElement | undefined = useMemo(() => {
     if (dragSelectStartCoords === undefined || endCoords === undefined) {
@@ -93,11 +89,6 @@ export function DragSelect() {
       width,
     };
   }, [endCoords, dragSelectStartCoords, theme, activeFontFamily]);
-
-  // when this component mounts
-  useEffect(() => {
-    setIsDragSelecting(false);
-  }, [setIsDragSelecting]);
 
   useEffect(() => {
     if (shape) {
@@ -139,28 +130,19 @@ export function DragSelect() {
     }
   }, [shape, slideInstance, presentationState, activeId]);
 
-  const handlePointerUp = useCallback(
-    (e: PointerEvent<SVGRectElement>) => {
-      e.preventDefault();
-      if (isTouchScaling) return;
-      setDragSelectStartCoords();
-    },
-    [setDragSelectStartCoords, isTouchScaling],
-  );
+  const handlePointerUp = useCallback(() => {
+    setDragSelectStartCoords();
+  }, [setDragSelectStartCoords]);
 
   const lastMoveRef = useRef(0);
-
   const handlePointerMove = useCallback(
     (event: PointerEvent<SVGRectElement>) => {
-      if (isTouchScaling) return;
       const now = Date.now();
       if (now - lastMoveRef.current < POINTER_MOVE_THROTTLE_MS) return;
-      const point = calculateSvgCoords({ x: event.clientX, y: event.clientY });
       lastMoveRef.current = now;
-      setEndCoords(point);
-      setIsDragSelecting(true);
+      setEndCoords(calculateSvgCoords({ x: event.clientX, y: event.clientY }));
     },
-    [calculateSvgCoords, isTouchScaling, setIsDragSelecting],
+    [calculateSvgCoords],
   );
 
   return (

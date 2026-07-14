@@ -45,8 +45,6 @@ type EditableProps = {
   textItalic: boolean;
 };
 
-const DOUBLE_TAP_TIMEOUT_MS = 300;
-
 const Editable = styled('div', {
   shouldForwardProp: (p) =>
     p !== 'editMode' &&
@@ -133,6 +131,9 @@ export function TextEditor({
   setTextToolsEnabled = () => {},
 }: TextEditorProps) {
   const textRef = useRef<HTMLDivElement>(null);
+  const pointerRef = useRef<{
+    time: number;
+  }>();
   const [isEditMode, setEditMode] = useState(editModeOnMount);
   usePauseHotkeysScope(HOTKEY_SCOPE_WHITEBOARD, isEditMode && editable);
 
@@ -142,6 +143,10 @@ export function TextEditor({
 
       setEditMode(false);
       setTextToolsEnabled(false);
+    }
+
+    if (!editable) {
+      pointerRef.current = undefined;
     }
   }, [editable, isEditMode, onBlur, setTextToolsEnabled]);
 
@@ -161,40 +166,30 @@ export function TextEditor({
     [editable, isEditMode, setTextToolsEnabled],
   );
 
-  const pointerRef = useRef<{
-    date: Date;
-  }>({ date: new Date() });
-
   const handlePointerDown = useCallback(
     (event: PointerEvent<HTMLDivElement>) => {
-      if (!event.isPrimary) return;
+      if (event.pointerType === 'mouse' || !event.isPrimary) return;
 
-      const prev = pointerRef.current;
-
-      const current = {
-        date: new Date(),
-      };
-
-      pointerRef.current = current;
-
-      const delta = Math.abs(prev.date.getTime() - current.date.getTime());
-
-      if (delta < DOUBLE_TAP_TIMEOUT_MS) {
-        // double-tap
-        if (editable) {
-          setEditMode(true);
-          setTextToolsEnabled(true);
-
-          if (textRef.current) {
-            textRef.current.focus();
-            setCaretToTheEnd(textRef.current);
-          }
-        }
+      if (editable || isEditMode) {
+        event.stopPropagation();
       }
 
-      event.stopPropagation();
+      const currentTime = Date.now();
+
+      if (
+        editable &&
+        pointerRef.current !== undefined &&
+        currentTime - pointerRef.current.time < 300
+      ) {
+        setEditMode(true);
+        setTextToolsEnabled(true);
+      }
+
+      pointerRef.current = {
+        time: currentTime,
+      };
     },
-    [editable, setTextToolsEnabled],
+    [editable, isEditMode, setTextToolsEnabled],
   );
 
   const handleFocus = useCallback(() => {

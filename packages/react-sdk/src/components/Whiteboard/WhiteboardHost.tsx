@@ -15,7 +15,7 @@
  */
 
 import { Box } from '@mui/material';
-import { useCallback, useState } from 'react';
+import { Fragment, useCallback, useState } from 'react';
 import {
   findActiveAndAttachedElementIds,
   includesShapeWithText,
@@ -57,7 +57,7 @@ import { DragSelect } from './ElementBehaviors/Selection/DragSelect';
 import { DotGrid } from './Grid';
 import { SlideSkeleton } from './SlideSkeleton';
 import { SvgCanvas } from './SvgCanvas';
-import SVGTouchCapture from './SVGTouchCapture';
+import { TouchZoomHandler } from './TouchZoomHandler';
 
 const WhiteboardHost = ({
   elementIds,
@@ -96,6 +96,8 @@ const WhiteboardHost = ({
     includesShapeWithText(Object.values(elements));
 
   const showTextTools = textToolsEnabled || hasElementWithText;
+
+  const ChildrenWrapper = infiniteCanvasMode ? TouchZoomHandler : Fragment;
 
   return (
     <Box
@@ -145,7 +147,7 @@ const WhiteboardHost = ({
           slideInstance.setCursorPosition(undefined);
         }, [slideInstance])}
       >
-        <SVGTouchCapture>
+        <ChildrenWrapper>
           {!hideDotGrid && <DotGrid />}
           {!readOnly && <UnSelectElementHandler />}
 
@@ -199,7 +201,7 @@ const WhiteboardHost = ({
           )}
 
           {isShowCollaboratorsCursors && !hideCursors && <CursorRenderer />}
-        </SVGTouchCapture>
+        </ChildrenWrapper>
       </SvgCanvas>
     </Box>
   );

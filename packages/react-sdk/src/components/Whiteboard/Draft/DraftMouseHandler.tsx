@@ -18,8 +18,8 @@ import { styled } from '@mui/material';
 import {
   Dispatch,
   MouseEvent,
+  PointerEvent,
   PropsWithChildren,
-  TouchEvent,
   useCallback,
 } from 'react';
 import { Point } from '../../../state';
@@ -82,8 +82,8 @@ export function DraftMouseHandler({
     [calculateSvgCoords, onClick],
   );
 
-  const handleMouseUp = useCallback(
-    (ev: MouseEvent<SVGRectElement>) => {
+  const handlePointerUp = useCallback(
+    (ev: PointerEvent<SVGRectElement>) => {
       if (onMouseUp) {
         const point = calculateSvgCoords({ x: ev.clientX, y: ev.clientY });
         onMouseUp({ point, clientX: ev.clientX, clientY: ev.clientY });
@@ -92,8 +92,8 @@ export function DraftMouseHandler({
     [onMouseUp, calculateSvgCoords],
   );
 
-  const handleMouseDown = useCallback(
-    (ev: MouseEvent<SVGRectElement>) => {
+  const handlePointerDown = useCallback(
+    (ev: PointerEvent<SVGRectElement>) => {
       if (onMouseDown) {
         const point = calculateSvgCoords({ x: ev.clientX, y: ev.clientY });
         if (activeTool !== 'sticky-note') {
@@ -104,8 +104,8 @@ export function DraftMouseHandler({
     [onMouseDown, calculateSvgCoords, activeTool],
   );
 
-  const handleMouseMove = useCallback(
-    (ev: MouseEvent<SVGRectElement>) => {
+  const handlePointerMove = useCallback(
+    (ev: PointerEvent<SVGRectElement>) => {
       if (onMouseMove) {
         const point = calculateSvgCoords({ x: ev.clientX, y: ev.clientY });
         onMouseMove({ point, clientX: ev.clientX, clientY: ev.clientY });
@@ -114,83 +114,14 @@ export function DraftMouseHandler({
     [onMouseMove, calculateSvgCoords],
   );
 
-  const handleMouseLeave = useCallback(
-    (ev: MouseEvent<SVGRectElement>) => {
+  const handlePointerLeave = useCallback(
+    (ev: PointerEvent<SVGRectElement>) => {
       if (onMouseLeave) {
         const point = calculateSvgCoords({ x: ev.clientX, y: ev.clientY });
         onMouseLeave({ point, clientX: ev.clientX, clientY: ev.clientY });
       }
     },
     [onMouseLeave, calculateSvgCoords],
-  );
-
-  const handleTouchMove = useCallback(
-    (e: TouchEvent<SVGRectElement>) => {
-      e.preventDefault();
-      if (onMouseMove) {
-        const point = calculateSvgCoords({
-          x: e.touches[0].clientX,
-          y: e.touches[0].clientY,
-        });
-        onMouseMove({
-          point,
-          clientX: e.touches[0].clientX,
-          clientY: e.touches[0].clientY,
-        });
-      }
-    },
-    [calculateSvgCoords, onMouseMove],
-  );
-
-  const handleTouchStart = useCallback(
-    (e: TouchEvent<SVGRectElement>) => {
-      e.preventDefault();
-      if (onMouseDown) {
-        const point = calculateSvgCoords({
-          x: e.touches[0].clientX,
-          y: e.touches[0].clientY,
-        });
-        if (activeTool !== 'sticky-note') {
-          onMouseDown({
-            point,
-            clientX: e.touches[0].clientX,
-            clientY: e.touches[0].clientY,
-          });
-        }
-      }
-    },
-    [activeTool, calculateSvgCoords, onMouseDown],
-  );
-
-  const handleTouchEnd = useCallback(
-    (e: TouchEvent<SVGRectElement>) => {
-      if (e.touches.length > 0) {
-        if (onMouseUp) {
-          const point = calculateSvgCoords({
-            x: e.touches[0].clientX,
-            y: e.touches[0].clientY,
-          });
-          onMouseUp({
-            point,
-            clientX: e.touches[0].clientX,
-            clientY: e.touches[0].clientY,
-          });
-        }
-      } else {
-        if (onMouseUp) {
-          const point = calculateSvgCoords({
-            x: e.changedTouches[0].clientX,
-            y: e.changedTouches[0].clientY,
-          });
-          onMouseUp({
-            point,
-            clientX: e.changedTouches[0].clientX,
-            clientY: e.changedTouches[0].clientY,
-          });
-        }
-      }
-    },
-    [calculateSvgCoords, onMouseUp],
   );
 
   return (
@@ -202,13 +133,10 @@ export function DraftMouseHandler({
         data-testid="draft-mouse-handler"
         height={whiteboardHeight}
         onClick={handleClick}
-        onMouseDown={handleMouseDown}
-        onMouseLeave={handleMouseLeave}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
-        onTouchMove={handleTouchMove}
+        onPointerDown={handlePointerDown}
+        onPointerLeave={handlePointerLeave}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
         width={whiteboardWidth}
         cursor={shapeCursor}
       />

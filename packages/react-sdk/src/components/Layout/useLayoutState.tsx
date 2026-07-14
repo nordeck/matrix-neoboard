@@ -49,7 +49,6 @@ type LayoutState = {
   isShowCollaboratorsCursors: boolean;
   isShowGrid: boolean;
   isTouchScaling: boolean;
-  isDragSelecting: boolean;
   activeTool: ActiveTool;
   activeColor: string;
   activeShade: number;
@@ -65,7 +64,6 @@ type LayoutState = {
   isRotating: boolean;
 
   setIsTouchScaling: (value: boolean) => void;
-  setIsDragSelecting: (value: boolean) => void;
   setSlideOverviewVisible: (value: boolean) => void;
   setDeveloperToolsVisible: (value: boolean) => void;
   setShowCollaboratorsCursors: (value: boolean) => void;
@@ -117,8 +115,6 @@ export function LayoutStateProvider({ children }: PropsWithChildren<{}>) {
   } = useColorPalette();
 
   const [isTouchScaling, setIsTouchScaling] = useState<boolean>(false);
-
-  const [isDragSelecting, setIsDragSelecting] = useState<boolean>(false);
 
   const [isSlideOverviewVisible, setSlideOverviewVisible] =
     useState<boolean>(false);
@@ -197,8 +193,6 @@ export function LayoutStateProvider({ children }: PropsWithChildren<{}>) {
       setIsRotating,
       isTouchScaling,
       setIsTouchScaling,
-      isDragSelecting,
-      setIsDragSelecting,
     }),
     [
       activeColor,
@@ -227,8 +221,6 @@ export function LayoutStateProvider({ children }: PropsWithChildren<{}>) {
       setIsRotating,
       setIsTouchScaling,
       isTouchScaling,
-      isDragSelecting,
-      setIsDragSelecting,
     ],
   );
 
