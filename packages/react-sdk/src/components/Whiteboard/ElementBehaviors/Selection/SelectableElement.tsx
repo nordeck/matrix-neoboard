@@ -25,6 +25,96 @@ import { WithSelectionProps } from './types';
 
 export type SelectableElementProps = PropsWithChildren<WithSelectionProps>;
 
+export function SelectableElement({
+  children,
+  elementId,
+  isFrameElement,
+}: SelectableElementProps) {
+  const mousePositionRef = useRef<MousePosition>();
+  const touchRef = useRef<{ isPrimary: boolean; time: number }>();
+  const slideInstance = useWhiteboardSlideInstance();
+  const { activeTool } = useLayoutState();
+  const isInSelectionMode = activeTool === 'select';
+
+  const handlePointerDown = useCallback(
+    (event: PointerEvent) => {
+      if (!isInSelectionMode) return;
+
+      event.stopPropagation();
+
+      if (event.pointerType === 'touch') {
+        touchRef.current = {
+          isPrimary: event.isPrimary,
+          time: Date.now(),
+        };
+        return;
+      }
+
+      if (event.button === 0 && !isFrameElement) {
+        selectElement(slideInstance, event.shiftKey, elementId);
+      } else if (event.button === 0 && isFrameElement) {
+        const activeElementIds = slideInstance.getActiveElementIds();
+        if (
+          activeElementIds.length > 0 &&
+          !activeElementIds.includes(elementId)
+        ) {
+          slideInstance.setActiveElementId(undefined);
+        } else {
+          mousePositionRef.current = {
+            clientX: event.clientX,
+            clientY: event.clientY,
+          };
+        }
+      } else {
+        mousePositionRef.current = {
+          clientX: event.clientX,
+          clientY: event.clientY,
+        };
+      }
+    },
+    [elementId, isFrameElement, isInSelectionMode, slideInstance],
+  );
+
+  const handlePointerUp = useCallback(
+    (event: PointerEvent) => {
+      if (!isInSelectionMode) return;
+
+      event.stopPropagation();
+
+      if (event.pointerType === 'touch') {
+        if (
+          touchRef.current &&
+          touchRef.current.isPrimary &&
+          isInSelectionMode &&
+          Date.now() - touchRef.current.time < 300
+        ) {
+          selectElement(slideInstance, false, elementId);
+        }
+        touchRef.current = undefined;
+        return;
+      }
+
+      if (
+        (event.button !== 0 || (event.button === 0 && isFrameElement)) &&
+        mousePositionRef.current &&
+        isMousePositionEqual(mousePositionRef.current, {
+          clientX: event.clientX,
+          clientY: event.clientY,
+        })
+      ) {
+        selectElement(slideInstance, event.shiftKey, elementId);
+      }
+    },
+    [elementId, isFrameElement, isInSelectionMode, slideInstance],
+  );
+
+  return (
+    <g onPointerDown={handlePointerDown} onPointerUp={handlePointerUp}>
+      {children}
+    </g>
+  );
+}
+
 export function selectElement(
   slideInstance: WhiteboardSlideInstance,
   shiftKey: boolean,
@@ -39,78 +129,4 @@ export function selectElement(
   } else {
     slideInstance.addActiveElementId(elementId);
   }
-}
-
-export function SelectableElement({
-  children,
-  elementId,
-}: SelectableElementProps) {
-  const mousePositionRef = useRef<MousePosition>();
-  const touchRef = useRef<{ isPrimary: boolean; time: number }>();
-  const slideInstance = useWhiteboardSlideInstance();
-  const { activeTool } = useLayoutState();
-  const isInSelectionMode = activeTool === 'select';
-
-  const handlePointerDown = useCallback(
-    (event: PointerEvent) => {
-      if (event.pointerType === 'touch') {
-        touchRef.current = {
-          isPrimary: event.isPrimary,
-          time: Date.now(),
-        };
-        return;
-      }
-
-      if (isInSelectionMode) {
-        event.stopPropagation();
-        if (event.button === 0) {
-          selectElement(slideInstance, event.shiftKey, elementId);
-        } else {
-          mousePositionRef.current = {
-            clientX: event.clientX,
-            clientY: event.clientY,
-          };
-        }
-      }
-    },
-    [elementId, isInSelectionMode, slideInstance],
-  );
-
-  const handlePointerUp = useCallback(
-    (event: PointerEvent) => {
-      if (event.pointerType === 'touch') {
-        if (
-          touchRef.current &&
-          touchRef.current.isPrimary &&
-          isInSelectionMode &&
-          Date.now() - touchRef.current.time < 300
-        ) {
-          selectElement(slideInstance, false, elementId);
-        }
-        touchRef.current = undefined;
-        return;
-      }
-
-      if (isInSelectionMode) {
-        event.stopPropagation();
-        if (
-          event.button !== 0 &&
-          mousePositionRef.current &&
-          isMousePositionEqual(mousePositionRef.current, {
-            clientX: event.clientX,
-            clientY: event.clientY,
-          })
-        ) {
-          selectElement(slideInstance, event.shiftKey, elementId);
-        }
-      }
-    },
-    [elementId, isInSelectionMode, slideInstance],
-  );
-
-  return (
-    <g onPointerDown={handlePointerDown} onPointerUp={handlePointerUp}>
-      {children}
-    </g>
-  );
 }

@@ -250,7 +250,7 @@ describe('<WhiteboardHost/>', () => {
     }
   });
 
-  it('should select element with left button', async () => {
+  it('should select element with left button down', async () => {
     render(<WhiteboardHost />, { wrapper: Wrapper });
 
     const element = screen.getByTestId('element-ellipse-element-0');
@@ -258,10 +258,77 @@ describe('<WhiteboardHost/>', () => {
       {
         keys: '[MouseLeft>]',
         target: element,
-        coords: { clientX: 50, clientY: 101 },
       },
     ]);
     expect(activeSlide.getActiveElementIds()).toEqual(['element-0']);
+  });
+
+  it('should not select frame element with left button down', async () => {
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    const element = screen.getByTestId('element-frame-frame-0');
+    await userEvent.pointer({
+      keys: '[MouseLeft>]',
+      target: element,
+    });
+    expect(activeSlide.getActiveElementIds()).toEqual([]);
+  });
+
+  it('should select frame element with left button down and up', async () => {
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    const element = screen.getByTestId('element-frame-frame-0');
+    await userEvent.pointer({
+      keys: '[MouseLeft]',
+      target: element,
+    });
+    expect(activeSlide.getActiveElementIds()).toEqual(['frame-0']);
+  });
+
+  it('should not select frame element with left button down move and up', async () => {
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    const element = screen.getByTestId('element-frame-frame-0');
+    await userEvent.pointer([
+      {
+        keys: '[MouseLeft>]',
+        target: element,
+      },
+      {
+        pointerName: 'mouse',
+        target: element,
+        coords: { clientX: 10, clientY: 10 },
+      },
+      {
+        keys: '[/MouseLeft]',
+        target: element,
+      },
+    ]);
+    expect(activeSlide.getActiveElementIds()).toEqual([]);
+  });
+
+  it('should unselect elements when another frame element left button down', async () => {
+    activeSlide.setActiveElementId('element-0');
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    const element = screen.getByTestId('element-frame-frame-0');
+    await userEvent.pointer({
+      keys: '[MouseLeft>]',
+      target: element,
+    });
+    expect(activeSlide.getActiveElementIds()).toEqual([]);
+  });
+
+  it('should unselect elements and not select frame when another frame element left button down and up', async () => {
+    activeSlide.setActiveElementId('element-0');
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    const element = screen.getByTestId('element-frame-frame-0');
+    await userEvent.pointer({
+      keys: '[MouseLeft]',
+      target: element,
+    });
+    expect(activeSlide.getActiveElementIds()).toEqual([]);
   });
 
   it('should select element with touch press and release', async () => {
@@ -904,7 +971,7 @@ describe('<WhiteboardHost/>', () => {
     );
   });
 
-  it('should move an attached element if the frame is moved', async () => {
+  it('should move an attached element if the frame is selected and moved', async () => {
     render(<WhiteboardHost />, { wrapper: Wrapper });
 
     const element = screen.getByTestId('element-ellipse-element-0');
@@ -936,6 +1003,10 @@ describe('<WhiteboardHost/>', () => {
         attachedFrame: 'frame-0',
       }),
     );
+
+    act(() => {
+      activeSlide.setActiveElementId('frame-0');
+    });
 
     const frameElement = screen.getByTestId('element-frame-frame-0');
     await userEvent.pointer([

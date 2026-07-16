@@ -84,7 +84,7 @@ export function MoveableElement({
   const slideInstance = useWhiteboardSlideInstance();
   const { calculateSvgCoords } = useSvgCanvasContext();
   const { scale, updateTranslation } = useSvgScaleContext();
-  const [cursor, setCursor] = useState<string>('move');
+  const [cursor, setCursor] = useState<string>();
   const { state: presentationState } = usePresentationMode();
 
   const [{ deltaX, deltaY }, setDelta] = useState({ deltaX: 0, deltaY: 0 });
@@ -273,7 +273,7 @@ export function MoveableElement({
     setElementOverrideUpdates([]);
     isDragging.current = false;
     removeUserSelectStyles();
-    setCursor('move');
+    setCursor(undefined);
     setElementAttachFrame({});
   }, [
     deltaX,
