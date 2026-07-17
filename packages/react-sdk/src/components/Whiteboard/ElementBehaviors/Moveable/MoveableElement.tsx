@@ -117,12 +117,12 @@ export function MoveableElement({
 
   const handleDrag = useCallback(
     (event: DraggableEvent, data: DraggableData) => {
-      let boundingRect: BoundingRect | undefined;
+      let boundingRectOfSelectedElements: BoundingRect | undefined;
       let boundingRectCursorOffset: Point | undefined;
       let connectingPathElements: Record<string, PathElement> | undefined;
 
       if (!resizableProperties) {
-        boundingRect = calculateBoundingRectForElements(
+        boundingRectOfSelectedElements = calculateBoundingRectForElements(
           Object.values(elements),
         );
         const lastCursorPosition: Point = calculateSvgCoords({
@@ -130,15 +130,15 @@ export function MoveableElement({
           y: data.lastY * scale,
         });
         boundingRectCursorOffset = {
-          x: lastCursorPosition.x - boundingRect.offsetX,
-          y: lastCursorPosition.y - boundingRect.offsetY,
+          x: lastCursorPosition.x - boundingRectOfSelectedElements.offsetX,
+          y: lastCursorPosition.y - boundingRectOfSelectedElements.offsetY,
         };
         connectingPathElements = getPathElements(
           slideInstance,
           findConnectingPaths(elements),
         );
         setResizableProperties({
-          boundingRect,
+          boundingRect: boundingRectOfSelectedElements,
           boundingRectCursorOffset,
           connectingPathElements,
         });
@@ -150,8 +150,11 @@ export function MoveableElement({
           setCursor('grabbing');
         }
       } else {
-        ({ boundingRect, boundingRectCursorOffset, connectingPathElements } =
-          resizableProperties);
+        ({
+          boundingRect: boundingRectOfSelectedElements,
+          boundingRectCursorOffset,
+          connectingPathElements,
+        } = resizableProperties);
       }
 
       setDelta((old) => ({
@@ -166,6 +169,7 @@ export function MoveableElement({
           elementId &&
           !slideInstance.getActiveElementIds().includes(elementId))
       ) {
+        // PAN the screen
         if (isInfiniteCanvasMode() && presentationState.type !== 'idle') {
           // don't apply translation
           return;
@@ -173,6 +177,18 @@ export function MoveableElement({
 
         updateTranslation(data.deltaX * scale, data.deltaY * scale);
       } else {
+        // MOVE the element
+
+        // If an element started receiving move events when nothing has been selected,
+        // we should not move it anywhere afterwards,
+        // even if the element somehow becomes selected while the move/hold gesture is ongoing.
+        if (
+          boundingRectOfSelectedElements.height === 0 &&
+          boundingRectOfSelectedElements.width === 0
+        ) {
+          return;
+        }
+
         const cursorPosition: Point = calculateSvgCoords({
           x: data.x * scale,
           y: data.y * scale,
@@ -185,7 +201,7 @@ export function MoveableElement({
           viewportWidth,
           viewportHeight,
           connectingPathElements,
-          boundingRect,
+          boundingRectOfSelectedElements,
         );
 
         setElementOverride(elementOverrideUpdates);
