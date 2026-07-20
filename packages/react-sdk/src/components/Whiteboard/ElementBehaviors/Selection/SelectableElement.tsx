@@ -16,7 +16,7 @@
 
 import { PointerEvent, PropsWithChildren, useCallback, useRef } from 'react';
 import {
-  isPositionEqual,
+  isPositionClose,
   Point,
   PointerType,
   useWhiteboardSlideInstance,
@@ -128,7 +128,7 @@ export function SelectableElement({
           positionRef.current.isPrimary &&
           isInSelectionMode &&
           Date.now() - positionRef.current.time < 300 &&
-          isPositionEqual(positionRef.current.position, {
+          isPositionClose(positionRef.current.position, {
             x: event.clientX,
             y: event.clientY,
           })
@@ -142,7 +142,7 @@ export function SelectableElement({
       if (
         (event.button !== 0 || (event.button === 0 && isFrameElement)) &&
         positionRef.current &&
-        isPositionEqual(positionRef.current.position, {
+        isPositionClose(positionRef.current.position, {
           x: event.clientX,
           y: event.clientY,
         })

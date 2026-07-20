@@ -18,7 +18,6 @@ import Joi from 'joi';
 import loglevel from 'loglevel';
 // Do not import from the index file to prevent cyclic dependencies
 import clamp from 'lodash/clamp';
-import isEqual from 'lodash/isEqual';
 import { defaultAcceptedImageTypes } from '../../../components/ImageUpload/consts';
 import { Elements } from '../../types';
 import {
@@ -594,9 +593,15 @@ export function positionElementsToWhiteboard<
   );
 }
 
-export function isPositionEqual(
+export function isPositionClose(
   previousPosition: Point,
   nextPosition: Point,
+  distance: number = 2,
 ): boolean {
-  return isEqual(previousPosition, nextPosition);
+  return (
+    Math.hypot(
+      previousPosition.x - nextPosition.x,
+      previousPosition.y - nextPosition.y,
+    ) <= distance
+  );
 }

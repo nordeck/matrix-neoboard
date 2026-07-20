@@ -25,7 +25,7 @@ export {
   imageElementSchema,
   includesShapeWithText,
   includesTextShape,
-  isPositionEqual,
+  isPositionClose,
   isRotatableElement,
   isShapeElementPair,
   isShapeWithText,

@@ -35,7 +35,7 @@ import {
 } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  isPositionEqual,
+  isPositionClose,
   Point,
   useSlideElementIds,
   useSlideIsLocked,
@@ -132,7 +132,7 @@ export function ElementContextMenu({
 
       const { clientX, clientY } = event;
       if (
-        isPositionEqual(positionRef.current, {
+        isPositionClose(positionRef.current, {
           x: clientX,
           y: clientY,
         })
@@ -153,10 +153,11 @@ export function ElementContextMenu({
         return;
       }
 
-      const threshold = 2;
       if (
-        Math.abs(positionRef.current.x - event.clientX) < threshold &&
-        Math.abs(positionRef.current.y - event.clientY) < threshold
+        isPositionClose(positionRef.current, {
+          x: event.clientX,
+          y: event.clientY,
+        })
       ) {
         return;
       }
