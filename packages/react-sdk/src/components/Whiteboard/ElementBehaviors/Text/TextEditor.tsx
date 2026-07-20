@@ -21,7 +21,7 @@ import {
   DispatchWithoutAction,
   KeyboardEvent,
   MouseEvent,
-  PointerEvent,
+  TouchEvent,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -131,7 +131,7 @@ export function TextEditor({
   setTextToolsEnabled = () => {},
 }: TextEditorProps) {
   const textRef = useRef<HTMLDivElement>(null);
-  const pointerRef = useRef<{
+  const touchRef = useRef<{
     time: number;
   }>();
   const [isEditMode, setEditMode] = useState(editModeOnMount);
@@ -146,7 +146,7 @@ export function TextEditor({
     }
 
     if (!editable) {
-      pointerRef.current = undefined;
+      touchRef.current = undefined;
     }
   }, [editable, isEditMode, onBlur, setTextToolsEnabled]);
 
@@ -166,32 +166,6 @@ export function TextEditor({
     [editable, isEditMode, setTextToolsEnabled],
   );
 
-  const handlePointerDown = useCallback(
-    (event: PointerEvent<HTMLDivElement>) => {
-      if (event.pointerType === 'mouse' || !event.isPrimary) return;
-
-      if (editable || isEditMode) {
-        event.stopPropagation();
-      }
-
-      const currentTime = Date.now();
-
-      if (
-        editable &&
-        pointerRef.current !== undefined &&
-        currentTime - pointerRef.current.time < 300
-      ) {
-        setEditMode(true);
-        setTextToolsEnabled(true);
-      }
-
-      pointerRef.current = {
-        time: currentTime,
-      };
-    },
-    [editable, isEditMode, setTextToolsEnabled],
-  );
-
   const handleFocus = useCallback(() => {
     if (textRef.current) {
       setCaretToTheEnd(textRef.current);
@@ -207,6 +181,36 @@ export function TextEditor({
       }
     },
     [isEditMode],
+  );
+
+  const handleTouchEvents = useCallback(
+    (event: TouchEvent) => {
+      if (isEditMode) {
+        event.stopPropagation();
+      }
+
+      if (event.type !== 'touchstart') return;
+
+      const currentTime = Date.now();
+
+      if (
+        editable &&
+        touchRef.current !== undefined &&
+        currentTime - touchRef.current.time < 300
+      ) {
+        setEditMode(true);
+        setTextToolsEnabled(true);
+
+        if (textRef.current) {
+          textRef.current.focus();
+        }
+      }
+
+      touchRef.current = {
+        time: currentTime,
+      };
+    },
+    [editable, isEditMode, setTextToolsEnabled],
   );
 
   const handleKeyDown = useCallback(
@@ -297,7 +301,7 @@ export function TextEditor({
 
   return (
     <Editable
-      style={{ color, touchAction: 'none' }}
+      style={{ color }}
       contentEditable={editable}
       editMode={isEditMode}
       textAlign={contentAlignment}
@@ -312,7 +316,9 @@ export function TextEditor({
       onMouseDown={handleMouseEvents}
       onMouseMove={handleMouseEvents}
       onMouseUp={handleMouseEvents}
-      onPointerDown={handlePointerDown}
+      onTouchStartCapture={handleTouchEvents}
+      onTouchMoveCapture={handleTouchEvents}
+      onTouchEndCapture={handleTouchEvents}
       onPaste={handlePaste}
       ref={textRef}
       suppressContentEditableWarning
