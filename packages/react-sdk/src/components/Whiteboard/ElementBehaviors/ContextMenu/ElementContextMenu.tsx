@@ -34,8 +34,9 @@ import {
   useState,
 } from 'react';
 import { useTranslation } from 'react-i18next';
-import { isMousePositionEqual, MousePosition } from '../../../../lib';
 import {
+  isPositionEqual,
+  Point,
   useSlideElementIds,
   useSlideIsLocked,
   useWhiteboardSlideInstance,
@@ -52,7 +53,7 @@ export function ElementContextMenu({
   activeElementIds = [],
 }: PropsWithChildren<{ elementId: string; activeElementIds: string[] }>) {
   const slideInstance = useWhiteboardSlideInstance();
-  const positionRef = useRef<MousePosition>();
+  const positionRef = useRef<Point>();
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
   const { isTouchScaling } = useLayoutState();
 
@@ -93,8 +94,8 @@ export function ElementContextMenu({
         if (isTouchScaling) return;
 
         positionRef.current = {
-          clientX: event.clientX,
-          clientY: event.clientY,
+          x: event.clientX,
+          y: event.clientY,
         };
 
         const { clientX, clientY } = event;
@@ -111,8 +112,8 @@ export function ElementContextMenu({
       }
 
       positionRef.current = {
-        clientX: event.clientX,
-        clientY: event.clientY,
+        x: event.clientX,
+        y: event.clientY,
       };
     },
     [openContextMenu, slideInstance, elementId, isTouchScaling],
@@ -130,11 +131,12 @@ export function ElementContextMenu({
       }
 
       const { clientX, clientY } = event;
-      const mousePosition: MousePosition = {
-        clientX,
-        clientY,
-      };
-      if (isMousePositionEqual(positionRef.current, mousePosition)) {
+      if (
+        isPositionEqual(positionRef.current, {
+          x: clientX,
+          y: clientY,
+        })
+      ) {
         openContextMenu(clientX, clientY);
       }
 
@@ -153,8 +155,8 @@ export function ElementContextMenu({
 
       const threshold = 2;
       if (
-        Math.abs(positionRef.current.clientX - event.clientX) < threshold &&
-        Math.abs(positionRef.current.clientY - event.clientY) < threshold
+        Math.abs(positionRef.current.x - event.clientX) < threshold &&
+        Math.abs(positionRef.current.y - event.clientY) < threshold
       ) {
         return;
       }

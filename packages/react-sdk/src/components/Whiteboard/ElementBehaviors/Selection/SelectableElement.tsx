@@ -15,8 +15,9 @@
  */
 
 import { PointerEvent, PropsWithChildren, useCallback, useRef } from 'react';
-import { isMousePositionEqual, MousePosition } from '../../../../lib';
 import {
+  isPositionEqual,
+  Point,
   useWhiteboardSlideInstance,
   WhiteboardSlideInstance,
 } from '../../../../state';
@@ -30,8 +31,11 @@ export function SelectableElement({
   elementId,
   isFrameElement,
 }: SelectableElementProps) {
-  const mousePositionRef = useRef<MousePosition>();
-  const touchRef = useRef<{ isPrimary: boolean; time: number }>();
+  const positionRef = useRef<{
+    isPrimary: boolean;
+    time: number;
+    position: Point;
+  }>();
   const slideInstance = useWhiteboardSlideInstance();
   const { activeTool } = useLayoutState();
   const isInSelectionMode = activeTool === 'select';
@@ -43,10 +47,33 @@ export function SelectableElement({
       event.stopPropagation();
 
       if (event.pointerType === 'touch') {
-        touchRef.current = {
-          isPrimary: event.isPrimary,
-          time: Date.now(),
-        };
+        if (isFrameElement) {
+          const activeElementIds = slideInstance.getActiveElementIds();
+          if (
+            activeElementIds.length > 0 &&
+            !activeElementIds.includes(elementId)
+          ) {
+            slideInstance.setActiveElementId(undefined);
+          } else {
+            positionRef.current = {
+              isPrimary: event.isPrimary,
+              time: Date.now(),
+              position: {
+                x: event.clientX,
+                y: event.clientY,
+              },
+            };
+          }
+        } else {
+          positionRef.current = {
+            isPrimary: event.isPrimary,
+            time: Date.now(),
+            position: {
+              x: event.clientX,
+              y: event.clientY,
+            },
+          };
+        }
         return;
       }
 
@@ -60,15 +87,23 @@ export function SelectableElement({
         ) {
           slideInstance.setActiveElementId(undefined);
         } else {
-          mousePositionRef.current = {
-            clientX: event.clientX,
-            clientY: event.clientY,
+          positionRef.current = {
+            isPrimary: event.isPrimary,
+            time: Date.now(),
+            position: {
+              x: event.clientX,
+              y: event.clientY,
+            },
           };
         }
       } else {
-        mousePositionRef.current = {
-          clientX: event.clientX,
-          clientY: event.clientY,
+        positionRef.current = {
+          isPrimary: event.isPrimary,
+          time: Date.now(),
+          position: {
+            x: event.clientX,
+            y: event.clientY,
+          },
         };
       }
     },
@@ -83,27 +118,32 @@ export function SelectableElement({
 
       if (event.pointerType === 'touch') {
         if (
-          touchRef.current &&
-          touchRef.current.isPrimary &&
+          positionRef.current &&
+          positionRef.current.isPrimary &&
           isInSelectionMode &&
-          Date.now() - touchRef.current.time < 300
+          Date.now() - positionRef.current.time < 300 &&
+          isPositionEqual(positionRef.current.position, {
+            x: event.clientX,
+            y: event.clientY,
+          })
         ) {
           selectElement(slideInstance, false, elementId);
         }
-        touchRef.current = undefined;
+        positionRef.current = undefined;
         return;
       }
 
       if (
         (event.button !== 0 || (event.button === 0 && isFrameElement)) &&
-        mousePositionRef.current &&
-        isMousePositionEqual(mousePositionRef.current, {
-          clientX: event.clientX,
-          clientY: event.clientY,
+        positionRef.current &&
+        isPositionEqual(positionRef.current.position, {
+          x: event.clientX,
+          y: event.clientY,
         })
       ) {
         selectElement(slideInstance, event.shiftKey, elementId);
       }
+      positionRef.current = undefined;
     },
     [elementId, isFrameElement, isInSelectionMode, slideInstance],
   );

@@ -18,6 +18,7 @@ import Joi from 'joi';
 import loglevel from 'loglevel';
 // Do not import from the index file to prevent cyclic dependencies
 import clamp from 'lodash/clamp';
+import isEqual from 'lodash/isEqual';
 import { defaultAcceptedImageTypes } from '../../../components/ImageUpload/consts';
 import { Elements } from '../../types';
 import {
@@ -591,4 +592,11 @@ export function positionElementsToWhiteboard<
   return positionedElements.map((element) =>
     modifyElementPosition(element, positionClamp, offsetX, offsetY),
   );
+}
+
+export function isPositionEqual(
+  previousPosition: Point,
+  nextPosition: Point,
+): boolean {
+  return isEqual(previousPosition, nextPosition);
 }

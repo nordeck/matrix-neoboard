@@ -412,6 +412,54 @@ describe('<WhiteboardHost/>', () => {
     expect(activeSlide.getActiveElementIds()).toEqual([]);
   });
 
+  it('should not select element with touch press move and release', async () => {
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    const element = screen.getByTestId('element-ellipse-element-0');
+
+    await userEvent.pointer([
+      {
+        keys: '[TouchA>]',
+        target: element,
+      },
+      {
+        pointerName: 'TouchA',
+        target: element,
+        coords: { clientX: 10, clientY: 10 },
+      },
+      {
+        keys: '[/TouchA]',
+        target: element,
+      },
+    ]);
+
+    expect(activeSlide.getActiveElementIds()).toEqual([]);
+  });
+
+  it('should unselect elements when another frame element touch press', async () => {
+    activeSlide.setActiveElementId('element-0');
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    const element = screen.getByTestId('element-frame-frame-0');
+    await userEvent.pointer({
+      keys: '[TouchA>]',
+      target: element,
+    });
+    expect(activeSlide.getActiveElementIds()).toEqual([]);
+  });
+
+  it('should unselect elements and not select frame when another frame element touch press and release', async () => {
+    activeSlide.setActiveElementId('element-0');
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    const element = screen.getByTestId('element-frame-frame-0');
+    await userEvent.pointer({
+      keys: '[TouchA]',
+      target: element,
+    });
+    expect(activeSlide.getActiveElementIds()).toEqual([]);
+  });
+
   it('should scale with two pointers', async () => {
     vi.spyOn(constants, 'infiniteCanvasMode', 'get').mockReturnValue(true);
     vi.spyOn(constants, 'whiteboardWidth', 'get').mockReturnValue(19200);
