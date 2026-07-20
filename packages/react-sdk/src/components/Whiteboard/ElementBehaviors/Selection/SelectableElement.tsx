@@ -18,6 +18,7 @@ import { PointerEvent, PropsWithChildren, useCallback, useRef } from 'react';
 import {
   isPositionEqual,
   Point,
+  PointerType,
   useWhiteboardSlideInstance,
   WhiteboardSlideInstance,
 } from '../../../../state';
@@ -78,7 +79,12 @@ export function SelectableElement({
       }
 
       if (event.button === 0 && !isFrameElement) {
-        selectElement(slideInstance, event.shiftKey, elementId);
+        selectElement(
+          slideInstance,
+          event.shiftKey,
+          elementId,
+          event.pointerType,
+        );
       } else if (event.button === 0 && isFrameElement) {
         const activeElementIds = slideInstance.getActiveElementIds();
         if (
@@ -127,7 +133,7 @@ export function SelectableElement({
             y: event.clientY,
           })
         ) {
-          selectElement(slideInstance, false, elementId);
+          selectElement(slideInstance, false, elementId, event.pointerType);
         }
         positionRef.current = undefined;
         return;
@@ -141,7 +147,12 @@ export function SelectableElement({
           y: event.clientY,
         })
       ) {
-        selectElement(slideInstance, event.shiftKey, elementId);
+        selectElement(
+          slideInstance,
+          event.shiftKey,
+          elementId,
+          event.pointerType,
+        );
       }
       positionRef.current = undefined;
     },
@@ -159,6 +170,7 @@ export function selectElement(
   slideInstance: WhiteboardSlideInstance,
   shiftKey: boolean,
   elementId: string,
+  eventType: PointerType,
 ) {
   if (!shiftKey) {
     if (!slideInstance.getActiveElementIds().includes(elementId)) {
@@ -169,4 +181,5 @@ export function selectElement(
   } else {
     slideInstance.addActiveElementId(elementId);
   }
+  slideInstance.setActiveElementSelectionPointerType(eventType);
 }

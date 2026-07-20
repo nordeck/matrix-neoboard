@@ -16,15 +16,34 @@
 
 import { render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { PropsWithChildren } from 'react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { TextAlignment } from '../../../../state';
+import { ComponentType, PropsWithChildren } from 'react';
+import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
+import { mockWhiteboardManager } from '../../../../lib/testUtils';
+import {
+  SlideProvider,
+  TextAlignment,
+  WhiteboardManager,
+  WhiteboardManagerProvider,
+} from '../../../../state';
 import { WhiteboardHotkeysProvider } from '../../../WhiteboardHotkeysProvider';
 import { TextEditor, TextEditorProps } from './TextEditor';
 
-function Wrapper({ children }: PropsWithChildren) {
-  return <WhiteboardHotkeysProvider>{children}</WhiteboardHotkeysProvider>;
-}
+let Wrapper: ComponentType<PropsWithChildren<{}>>;
+let whiteboardManager: Mocked<WhiteboardManager>;
+
+beforeEach(() => {
+  ({ whiteboardManager } = mockWhiteboardManager());
+
+  Wrapper = ({ children }) => {
+    return (
+      <WhiteboardManagerProvider whiteboardManager={whiteboardManager}>
+        <SlideProvider slideId="slide-0">
+          <WhiteboardHotkeysProvider>{children}</WhiteboardHotkeysProvider>
+        </SlideProvider>
+      </WhiteboardManagerProvider>
+    );
+  };
+});
 
 describe('<TextEditor />', () => {
   let defaultProps: TextEditorProps;

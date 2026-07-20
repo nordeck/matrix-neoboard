@@ -30,7 +30,7 @@ import {
 } from 'react';
 import { useFontsLoaded } from '../../../../lib';
 import { isEmptyText } from '../../../../lib/text-formatting';
-import { TextAlignment } from '../../../../state';
+import { TextAlignment, useWhiteboardSlideInstance } from '../../../../state';
 import {
   HOTKEY_SCOPE_WHITEBOARD,
   usePauseHotkeysScope,
@@ -136,6 +136,7 @@ export function TextEditor({
   }>();
   const [isEditMode, setEditMode] = useState(editModeOnMount);
   usePauseHotkeysScope(HOTKEY_SCOPE_WHITEBOARD, isEditMode && editable);
+  const slideInstance = useWhiteboardSlideInstance();
 
   useEffect(() => {
     if (!editable && isEditMode) {
@@ -272,13 +273,16 @@ export function TextEditor({
   }, [textRef, content]);
 
   useLayoutEffect(() => {
+    const pointerType = slideInstance.getActiveElementSelectionPointerType();
+    if (pointerType === 'touch' || pointerType === 'pen') return;
+
     if (textRef.current && editable) {
       // It's not possible to focus the editable intermediately, we have to
       // plan it for the next event.
       const timeout = setTimeout(() => textRef.current?.focus(), 0);
       return () => clearTimeout(timeout);
     }
-  }, [textRef, editable]);
+  }, [textRef, editable, slideInstance]);
 
   const fontsLoaded = useFontsLoaded();
 
