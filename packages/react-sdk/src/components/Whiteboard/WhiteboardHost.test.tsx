@@ -514,7 +514,7 @@ describe('<WhiteboardHost/>', () => {
 
     act(() => setActiveTool('line'));
 
-    const draftHandler = screen.getByTestId('draft-mouse-handler');
+    const draftHandler = screen.getByTestId('draft-pointer-handler');
 
     await userEvent.pointer([
       {
@@ -563,7 +563,7 @@ describe('<WhiteboardHost/>', () => {
 
     act(() => setActiveTool('line'));
 
-    const draftHandler = screen.getByTestId('draft-mouse-handler');
+    const draftHandler = screen.getByTestId('draft-pointer-handler');
 
     await userEvent.pointer([
       {
@@ -614,7 +614,7 @@ describe('<WhiteboardHost/>', () => {
 
     act(() => setActiveTool('polyline'));
 
-    const draftHandler = screen.getByTestId('draft-mouse-handler');
+    const draftHandler = screen.getByTestId('draft-pointer-handler');
 
     await userEvent.pointer([
       {
@@ -672,7 +672,7 @@ describe('<WhiteboardHost/>', () => {
 
     act(() => setActiveTool('polyline'));
 
-    const draftHandler = screen.getByTestId('draft-mouse-handler');
+    const draftHandler = screen.getByTestId('draft-pointer-handler');
 
     await userEvent.pointer([
       {

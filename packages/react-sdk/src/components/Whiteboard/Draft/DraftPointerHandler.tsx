@@ -130,7 +130,7 @@ export function DraftPointerHandler({
 
       <rect
         fill="transparent"
-        data-testid="draft-mouse-handler"
+        data-testid="draft-pointer-handler"
         height={whiteboardHeight}
         onClick={handleClick}
         onPointerDown={handlePointerDown}
