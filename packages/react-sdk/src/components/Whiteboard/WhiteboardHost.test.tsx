@@ -509,7 +509,56 @@ describe('<WhiteboardHost/>', () => {
     });
   });
 
-  it('should add a connector line', async () => {
+  it('should use line tool to add line with mouse', async () => {
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    act(() => setActiveTool('line'));
+
+    const draftHandler = screen.getByTestId('draft-mouse-handler');
+
+    await userEvent.pointer([
+      {
+        keys: '[MouseLeft>]',
+        target: draftHandler,
+        coords: { clientX: 50, clientY: 101 },
+      },
+      {
+        pointerName: 'mouse',
+        target: draftHandler,
+        coords: { clientX: 50 + 20, clientY: 100 + 20 },
+      },
+      {
+        keys: '[/MouseLeft]',
+        target: draftHandler,
+      },
+    ]);
+
+    expect(activeSlide.getActiveElementIds().length).toBe(1);
+
+    const line = activeSlide.getElement(activeSlide.getActiveElementIds()[0]);
+
+    expect(line).toEqual({
+      type: 'path',
+      kind: 'line',
+      points: [
+        {
+          x: 0,
+          y: 0,
+        },
+        {
+          x: 20,
+          y: 20,
+        },
+      ],
+      position: {
+        x: 60,
+        y: 100,
+      },
+      strokeColor: '#9e9e9e',
+    });
+  });
+
+  it('should use line tool to add line with touch', async () => {
     render(<WhiteboardHost />, { wrapper: Wrapper });
 
     act(() => setActiveTool('line'));
@@ -535,13 +584,12 @@ describe('<WhiteboardHost/>', () => {
 
     expect(activeSlide.getActiveElementIds().length).toBe(1);
 
-    const line = activeSlide.getElement(activeSlide.getActiveElementIds()[0]);
+    const element = activeSlide.getElement(
+      activeSlide.getActiveElementIds()[0],
+    );
 
-    expect(line).toMatchObject({
-      attachedFrame: undefined,
-      connectedElementEnd: undefined,
-      connectedElementStart: undefined,
-      endMarker: undefined,
+    expect(element).toEqual({
+      type: 'path',
       kind: 'line',
       points: [
         {
@@ -557,13 +605,69 @@ describe('<WhiteboardHost/>', () => {
         x: 60,
         y: 100,
       },
-      startMarker: undefined,
       strokeColor: '#9e9e9e',
-      type: 'path',
     });
   });
 
-  it('should draw with the pencil tool', async () => {
+  it('should use polyline tool to add polyline with mouse', async () => {
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    act(() => setActiveTool('polyline'));
+
+    const draftHandler = screen.getByTestId('draft-mouse-handler');
+
+    await userEvent.pointer([
+      {
+        keys: '[MouseLeft>]',
+        target: draftHandler,
+        coords: { clientX: 50, clientY: 100 },
+      },
+      {
+        pointerName: 'mouse',
+        target: draftHandler,
+        coords: { clientX: 50 + 20, clientY: 100 + 20 },
+      },
+      {
+        pointerName: 'mouse',
+        target: draftHandler,
+        coords: { clientX: 50, clientY: 100 + 40 },
+      },
+      {
+        keys: '[/MouseLeft]',
+        target: draftHandler,
+      },
+    ]);
+
+    const element = activeSlide.getElement(
+      activeSlide.getActiveElementIds()[0],
+    );
+
+    expect(element).toEqual({
+      type: 'path',
+      kind: 'polyline',
+      points: [
+        {
+          x: 0,
+          y: 0,
+        },
+        {
+          x: 20,
+          y: 20,
+        },
+        {
+          x: 0,
+          y: 40,
+        },
+      ],
+      position: {
+        x: 50,
+        y: 100,
+      },
+      strokeColor: '#9e9e9e',
+    });
+  });
+
+  it('should use polyline tool to add polyline with touch', async () => {
     render(<WhiteboardHost />, { wrapper: Wrapper });
 
     act(() => setActiveTool('polyline'));
@@ -595,6 +699,7 @@ describe('<WhiteboardHost/>', () => {
     const line = activeSlide.getElement(activeSlide.getActiveElementIds()[0]);
 
     expect(line).toEqual({
+      type: 'path',
       kind: 'polyline',
       points: [
         {
@@ -614,9 +719,7 @@ describe('<WhiteboardHost/>', () => {
         x: 50,
         y: 100,
       },
-      startMarker: undefined,
       strokeColor: '#9e9e9e',
-      type: 'path',
     });
   });
 
