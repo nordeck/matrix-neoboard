@@ -20,6 +20,7 @@ export type WithSelectionProps = {
   readOnly: boolean;
   active: boolean;
   elementId: string;
+  isFrameElement?: boolean;
 };
 
 export type WithExtendedSelectionProps = WithSelectionProps & {

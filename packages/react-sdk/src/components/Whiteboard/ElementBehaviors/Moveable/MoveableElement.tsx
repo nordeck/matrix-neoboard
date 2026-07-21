@@ -76,7 +76,7 @@ export function MoveableElement({
   elementId,
   elements = {},
 }: MoveableElementProps) {
-  const { isShowGrid } = useLayoutState();
+  const { isShowGrid, isPinchZooming } = useLayoutState();
   const isDragging = useRef<boolean>(false);
   const nodeRef = useRef<SVGRectElement>(null);
   const setElementOverride = useSetElementOverride();
@@ -84,7 +84,7 @@ export function MoveableElement({
   const slideInstance = useWhiteboardSlideInstance();
   const { calculateSvgCoords } = useSvgCanvasContext();
   const { scale, updateTranslation } = useSvgScaleContext();
-  const [cursor, setCursor] = useState<string>('move');
+  const [cursor, setCursor] = useState<string>();
   const { state: presentationState } = usePresentationMode();
 
   const [{ deltaX, deltaY }, setDelta] = useState({ deltaX: 0, deltaY: 0 });
@@ -117,12 +117,12 @@ export function MoveableElement({
 
   const handleDrag = useCallback(
     (event: DraggableEvent, data: DraggableData) => {
-      let boundingRect: BoundingRect | undefined;
+      let boundingRectOfSelectedElements: BoundingRect | undefined;
       let boundingRectCursorOffset: Point | undefined;
       let connectingPathElements: Record<string, PathElement> | undefined;
 
       if (!resizableProperties) {
-        boundingRect = calculateBoundingRectForElements(
+        boundingRectOfSelectedElements = calculateBoundingRectForElements(
           Object.values(elements),
         );
         const lastCursorPosition: Point = calculateSvgCoords({
@@ -130,15 +130,15 @@ export function MoveableElement({
           y: data.lastY * scale,
         });
         boundingRectCursorOffset = {
-          x: lastCursorPosition.x - boundingRect.offsetX,
-          y: lastCursorPosition.y - boundingRect.offsetY,
+          x: lastCursorPosition.x - boundingRectOfSelectedElements.offsetX,
+          y: lastCursorPosition.y - boundingRectOfSelectedElements.offsetY,
         };
         connectingPathElements = getPathElements(
           slideInstance,
           findConnectingPaths(elements),
         );
         setResizableProperties({
-          boundingRect,
+          boundingRect: boundingRectOfSelectedElements,
           boundingRectCursorOffset,
           connectingPathElements,
         });
@@ -150,8 +150,11 @@ export function MoveableElement({
           setCursor('grabbing');
         }
       } else {
-        ({ boundingRect, boundingRectCursorOffset, connectingPathElements } =
-          resizableProperties);
+        ({
+          boundingRect: boundingRectOfSelectedElements,
+          boundingRectCursorOffset,
+          connectingPathElements,
+        } = resizableProperties);
       }
 
       setDelta((old) => ({
@@ -159,26 +162,35 @@ export function MoveableElement({
         deltaY: old.deltaY + data.deltaY,
       }));
 
-      const cursorPosition: Point = calculateSvgCoords({
-        x: data.x * scale,
-        y: data.y * scale,
-      });
-
-      if (isMouseEvent(event) && isButtonToPan(event.buttons)) {
+      if (
+        (isMouseEvent(event) && isButtonToPan(event.buttons)) ||
+        (event.type === 'touchmove' &&
+          !isPinchZooming &&
+          elementId &&
+          !slideInstance.getActiveElementIds().includes(elementId))
+      ) {
         if (isInfiniteCanvasMode() && presentationState.type !== 'idle') {
           // don't apply translation
           return;
         }
 
-        const { offsetX, offsetY } = calculateBoundingRectForElements(
-          Object.values(elements),
-        );
-
-        const deltaX = cursorPosition.x - boundingRectCursorOffset.x - offsetX;
-        const deltaY = cursorPosition.y - boundingRectCursorOffset.y - offsetY;
-
-        updateTranslation(deltaX * scale, deltaY * scale);
+        updateTranslation(data.deltaX * scale, data.deltaY * scale);
       } else {
+        // If an element started receiving move events when nothing has been selected,
+        // we should not move it anywhere afterward, even if it becomes selected
+        // while the move/hold gesture is ongoing.
+        if (
+          boundingRectOfSelectedElements.height === 0 &&
+          boundingRectOfSelectedElements.width === 0
+        ) {
+          return;
+        }
+
+        const cursorPosition: Point = calculateSvgCoords({
+          x: data.x * scale,
+          y: data.y * scale,
+        });
+
         const elementOverrideUpdates = calculateElementOverrideUpdates(
           elements,
           cursorPosition.x - boundingRectCursorOffset.x,
@@ -186,7 +198,7 @@ export function MoveableElement({
           viewportWidth,
           viewportHeight,
           connectingPathElements,
-          boundingRect,
+          boundingRectOfSelectedElements,
         );
 
         setElementOverride(elementOverrideUpdates);
@@ -237,6 +249,8 @@ export function MoveableElement({
       setAttachedElementsMovedByFrame,
       setConnectingPathIds,
       presentationState,
+      isPinchZooming,
+      elementId,
     ],
   );
 
@@ -272,7 +286,7 @@ export function MoveableElement({
     setElementOverrideUpdates([]);
     isDragging.current = false;
     removeUserSelectStyles();
-    setCursor('move');
+    setCursor(undefined);
     setElementAttachFrame({});
   }, [
     deltaX,

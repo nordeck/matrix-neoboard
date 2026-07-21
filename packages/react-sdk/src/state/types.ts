@@ -194,6 +194,8 @@ export type ElementUpdate = {
   patch: UpdateElementPatch;
 };
 
+export type PointerType = 'mouse' | 'pen' | 'touch';
+
 /** An instance of a whiteboard slide that can be used to read and manipulate it. */
 export type WhiteboardSlideInstance = {
   /** Lock the slide to disable all edit operations in the UI. */
@@ -318,6 +320,11 @@ export type WhiteboardSlideInstance = {
    * Sort given element IDs based on the order of element IDs in the slide ignoring unknown ones.
    */
   sortElementIds(elementIds: string[]): string[];
+
+  /** Set the pointer type used to select the active element */
+  setActiveElementSelectionPointerType(value: PointerType | undefined): void;
+  /** Get the pointer type used to select the active element */
+  getActiveElementSelectionPointerType(): PointerType | undefined;
 };
 
 export type Elements<T extends Element = Element> = Record<string, T>;

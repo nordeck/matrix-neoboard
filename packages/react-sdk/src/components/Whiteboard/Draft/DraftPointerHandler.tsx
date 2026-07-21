@@ -15,7 +15,13 @@
  */
 
 import { styled } from '@mui/material';
-import { Dispatch, MouseEvent, PropsWithChildren, useCallback } from 'react';
+import {
+  Dispatch,
+  MouseEvent,
+  PointerEvent,
+  PropsWithChildren,
+  useCallback,
+} from 'react';
 import { Point } from '../../../state';
 import { ActiveTool, useLayoutState } from '../../Layout';
 import { whiteboardHeight, whiteboardWidth } from '../constants';
@@ -48,18 +54,18 @@ export type DraftEvent = {
 
 export type DraftMouseHandlerProps = PropsWithChildren<{
   onClick?: Dispatch<Point>;
-  onMouseDown?: Dispatch<DraftEvent>;
-  onMouseLeave?: Dispatch<DraftEvent>;
-  onMouseMove?: Dispatch<DraftEvent>;
-  onMouseUp?: Dispatch<DraftEvent>;
+  onPointerDown?: Dispatch<DraftEvent>;
+  onPointerLeave?: Dispatch<DraftEvent>;
+  onPointerMove?: Dispatch<DraftEvent>;
+  onPointerUp?: Dispatch<DraftEvent>;
 }>;
 
-export function DraftMouseHandler({
+export function DraftPointerHandler({
   onClick,
-  onMouseUp,
-  onMouseLeave,
-  onMouseDown,
-  onMouseMove,
+  onPointerUp,
+  onPointerLeave,
+  onPointerDown,
+  onPointerMove,
   children,
 }: DraftMouseHandlerProps) {
   const { calculateSvgCoords } = useSvgCanvasContext();
@@ -76,46 +82,46 @@ export function DraftMouseHandler({
     [calculateSvgCoords, onClick],
   );
 
-  const handleMouseUp = useCallback(
-    (ev: MouseEvent<SVGRectElement>) => {
-      if (onMouseUp) {
+  const handlePointerUp = useCallback(
+    (ev: PointerEvent<SVGRectElement>) => {
+      if (onPointerUp) {
         const point = calculateSvgCoords({ x: ev.clientX, y: ev.clientY });
-        onMouseUp({ point, clientX: ev.clientX, clientY: ev.clientY });
+        onPointerUp({ point, clientX: ev.clientX, clientY: ev.clientY });
       }
     },
-    [onMouseUp, calculateSvgCoords],
+    [onPointerUp, calculateSvgCoords],
   );
 
-  const handleMouseDown = useCallback(
-    (ev: MouseEvent<SVGRectElement>) => {
-      if (onMouseDown) {
+  const handlePointerDown = useCallback(
+    (ev: PointerEvent<SVGRectElement>) => {
+      if (onPointerDown) {
         const point = calculateSvgCoords({ x: ev.clientX, y: ev.clientY });
         if (activeTool !== 'sticky-note') {
-          onMouseDown({ point, clientX: ev.clientX, clientY: ev.clientY });
+          onPointerDown({ point, clientX: ev.clientX, clientY: ev.clientY });
         }
       }
     },
-    [onMouseDown, calculateSvgCoords, activeTool],
+    [onPointerDown, calculateSvgCoords, activeTool],
   );
 
-  const handleMouseMove = useCallback(
-    (ev: MouseEvent<SVGRectElement>) => {
-      if (onMouseMove) {
+  const handlePointerMove = useCallback(
+    (ev: PointerEvent<SVGRectElement>) => {
+      if (onPointerMove) {
         const point = calculateSvgCoords({ x: ev.clientX, y: ev.clientY });
-        onMouseMove({ point, clientX: ev.clientX, clientY: ev.clientY });
+        onPointerMove({ point, clientX: ev.clientX, clientY: ev.clientY });
       }
     },
-    [onMouseMove, calculateSvgCoords],
+    [onPointerMove, calculateSvgCoords],
   );
 
-  const handleMouseLeave = useCallback(
-    (ev: MouseEvent<SVGRectElement>) => {
-      if (onMouseLeave) {
+  const handlePointerLeave = useCallback(
+    (ev: PointerEvent<SVGRectElement>) => {
+      if (onPointerLeave) {
         const point = calculateSvgCoords({ x: ev.clientX, y: ev.clientY });
-        onMouseLeave({ point, clientX: ev.clientX, clientY: ev.clientY });
+        onPointerLeave({ point, clientX: ev.clientX, clientY: ev.clientY });
       }
     },
-    [onMouseLeave, calculateSvgCoords],
+    [onPointerLeave, calculateSvgCoords],
   );
 
   return (
@@ -124,12 +130,13 @@ export function DraftMouseHandler({
 
       <rect
         fill="transparent"
+        data-testid="draft-pointer-handler"
         height={whiteboardHeight}
         onClick={handleClick}
-        onMouseDown={handleMouseDown}
-        onMouseLeave={handleMouseLeave}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
+        onPointerDown={handlePointerDown}
+        onPointerLeave={handlePointerLeave}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
         width={whiteboardWidth}
         cursor={shapeCursor}
       />

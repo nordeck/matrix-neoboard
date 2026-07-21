@@ -68,6 +68,7 @@ import { generate, generateRemoveElements } from './crdt/documents/operations';
 import {
   ElementUpdate,
   Elements,
+  PointerType,
   WhiteboardSlideInstance,
   WhiteboardUndoManagerContext,
 } from './types';
@@ -158,6 +159,12 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
       takeUntil(this.destroySubject),
     );
   private cursorPosition: Point | undefined;
+
+  private activeElementSelectionPointerType:
+    | 'mouse'
+    | 'pen'
+    | 'touch'
+    | undefined;
 
   constructor(
     private readonly communicationChannel: CommunicationChannel | undefined,
@@ -842,6 +849,16 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
       map((doc) => getSlideLock(doc, this.slideId) !== undefined),
       distinctUntilChanged(),
     );
+  }
+
+  getActiveElementSelectionPointerType(): PointerType | undefined {
+    return this.activeElementSelectionPointerType;
+  }
+
+  setActiveElementSelectionPointerType(
+    pointerType: PointerType | undefined,
+  ): void {
+    this.activeElementSelectionPointerType = pointerType;
   }
 
   destroy() {

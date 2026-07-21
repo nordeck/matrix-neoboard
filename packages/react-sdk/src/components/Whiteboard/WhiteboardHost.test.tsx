@@ -18,6 +18,7 @@
 import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { fireEvent, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { act, ComponentType, PropsWithChildren } from 'react';
 import {
   afterEach,
@@ -45,7 +46,7 @@ import {
 } from '../../state';
 import { ConnectionPointProvider } from '../ConnectionPointProvider';
 import { ElementOverridesProvider } from '../ElementOverridesProvider';
-import { LayoutStateProvider, useLayoutState } from '../Layout';
+import { ActiveTool, LayoutStateProvider, useLayoutState } from '../Layout';
 import { WhiteboardHotkeysProvider } from '../WhiteboardHotkeysProvider';
 import * as constants from './constants';
 import { SvgScaleContextType, useSvgScaleContext } from './SvgScaleContext';
@@ -71,6 +72,7 @@ describe('<WhiteboardHost/>', () => {
   let activeSlide: WhiteboardSlideInstance;
   let setDragSelectStartCoords: (point: Point | undefined) => void;
   let setShowGrid: (value: boolean) => void;
+  let setActiveTool: (value: ActiveTool) => void;
   let svgScaleContextState: SvgScaleContextType;
   let widgetApi: MockedWidgetApi;
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
@@ -85,6 +87,8 @@ describe('<WhiteboardHost/>', () => {
     vi.mocked(getEnvironment).mockImplementation(
       (_, defaultValue) => defaultValue,
     );
+
+    document.elementsFromPoint = vi.fn().mockReturnValue([]);
 
     widgetApi = mockWidgetApi();
 
@@ -116,7 +120,8 @@ describe('<WhiteboardHost/>', () => {
     activeSlide = activeWhiteboard.getSlide('slide-0');
 
     function LayoutStateExtractor() {
-      ({ setDragSelectStartCoords, setShowGrid } = useLayoutState());
+      ({ setDragSelectStartCoords, setShowGrid, setActiveTool } =
+        useLayoutState());
       return null;
     }
 
@@ -149,6 +154,8 @@ describe('<WhiteboardHost/>', () => {
 
   afterEach(() => {
     widgetApi.stop();
+
+    vi.useRealTimers();
   });
 
   it('should show the element bar if an element is selected', () => {
@@ -243,16 +250,536 @@ describe('<WhiteboardHost/>', () => {
     }
   });
 
-  it('should select element with left button', () => {
+  it('should select element with left button down', async () => {
     render(<WhiteboardHost />, { wrapper: Wrapper });
 
     const element = screen.getByTestId('element-ellipse-element-0');
-    fireEvent.mouseDown(element, {
-      clientX: 50,
-      clientY: 101,
-      buttons: 1,
-    });
+    await userEvent.pointer([
+      {
+        keys: '[MouseLeft>]',
+        target: element,
+      },
+    ]);
     expect(activeSlide.getActiveElementIds()).toEqual(['element-0']);
+  });
+
+  it('should not select frame element with left button down', async () => {
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    const element = screen.getByTestId('element-frame-frame-0');
+    await userEvent.pointer({
+      keys: '[MouseLeft>]',
+      target: element,
+    });
+    expect(activeSlide.getActiveElementIds()).toEqual([]);
+  });
+
+  it('should select frame element with left button down and up', async () => {
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    const element = screen.getByTestId('element-frame-frame-0');
+    await userEvent.pointer({
+      keys: '[MouseLeft]',
+      target: element,
+    });
+    expect(activeSlide.getActiveElementIds()).toEqual(['frame-0']);
+  });
+
+  it('should not select frame element with left button down move and up', async () => {
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    const element = screen.getByTestId('element-frame-frame-0');
+    await userEvent.pointer([
+      {
+        keys: '[MouseLeft>]',
+        target: element,
+      },
+      {
+        pointerName: 'mouse',
+        target: element,
+        coords: { clientX: 10, clientY: 10 },
+      },
+      {
+        keys: '[/MouseLeft]',
+        target: element,
+      },
+    ]);
+    expect(activeSlide.getActiveElementIds()).toEqual([]);
+  });
+
+  it('should unselect elements when another frame element left button down', async () => {
+    activeSlide.setActiveElementId('element-0');
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    const element = screen.getByTestId('element-frame-frame-0');
+    await userEvent.pointer({
+      keys: '[MouseLeft>]',
+      target: element,
+    });
+    expect(activeSlide.getActiveElementIds()).toEqual([]);
+  });
+
+  it('should unselect elements and not select frame when another frame element left button down and up', async () => {
+    activeSlide.setActiveElementId('element-0');
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    const element = screen.getByTestId('element-frame-frame-0');
+    await userEvent.pointer({
+      keys: '[MouseLeft]',
+      target: element,
+    });
+    expect(activeSlide.getActiveElementIds()).toEqual([]);
+  });
+
+  it('should select element with touch press and release', async () => {
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    const element = screen.getByTestId('element-ellipse-element-0');
+
+    await userEvent.pointer([
+      {
+        keys: '[TouchA]',
+        target: element,
+      },
+    ]);
+
+    expect(activeSlide.getActiveElementIds()).toEqual(['element-0']);
+  });
+
+  it('should not select element with touch press', async () => {
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    const element = screen.getByTestId('element-ellipse-element-0');
+
+    await userEvent.pointer([
+      {
+        keys: '[TouchA>]',
+        target: element,
+      },
+    ]);
+
+    expect(activeSlide.getActiveElementIds()).toEqual([]);
+  });
+
+  it('should not select element with touch press wait and release', async () => {
+    vi.useFakeTimers({
+      shouldAdvanceTime: true,
+    });
+
+    const user = userEvent.setup({
+      delay: 400,
+      advanceTimers: vi.advanceTimersByTime,
+    });
+
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    const element = screen.getByTestId('element-ellipse-element-0');
+
+    await user.pointer([
+      {
+        keys: '[TouchA>]',
+        target: element,
+      },
+      {
+        keys: '[/TouchA]',
+        target: element,
+      },
+    ]);
+
+    expect(activeSlide.getActiveElementIds()).toEqual([]);
+  });
+
+  it('should not select element with multi touch press and single release', async () => {
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    const element = screen.getByTestId('element-ellipse-element-0');
+
+    await userEvent.pointer([
+      {
+        keys: '[TouchA>]',
+        target: element,
+      },
+      {
+        keys: '[TouchB>]',
+        target: element,
+      },
+      {
+        keys: '[/TouchA]',
+        target: element,
+      },
+    ]);
+
+    expect(activeSlide.getActiveElementIds()).toEqual([]);
+  });
+
+  it('should not select element with touch press move and release', async () => {
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    const element = screen.getByTestId('element-ellipse-element-0');
+
+    await userEvent.pointer([
+      {
+        keys: '[TouchA>]',
+        target: element,
+      },
+      {
+        pointerName: 'TouchA',
+        target: element,
+        coords: { clientX: 10, clientY: 10 },
+      },
+      {
+        keys: '[/TouchA]',
+        target: element,
+      },
+    ]);
+
+    expect(activeSlide.getActiveElementIds()).toEqual([]);
+  });
+
+  it('should unselect elements when another frame element touch press', async () => {
+    activeSlide.setActiveElementId('element-0');
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    const element = screen.getByTestId('element-frame-frame-0');
+    await userEvent.pointer({
+      keys: '[TouchA>]',
+      target: element,
+    });
+    expect(activeSlide.getActiveElementIds()).toEqual([]);
+  });
+
+  it('should unselect elements and not select frame when another frame element touch press and release', async () => {
+    activeSlide.setActiveElementId('element-0');
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    const element = screen.getByTestId('element-frame-frame-0');
+    await userEvent.pointer({
+      keys: '[TouchA]',
+      target: element,
+    });
+    expect(activeSlide.getActiveElementIds()).toEqual([]);
+  });
+
+  it('should pinch to zoom with two pointers', async () => {
+    vi.spyOn(constants, 'infiniteCanvasMode', 'get').mockReturnValue(true);
+    vi.spyOn(constants, 'whiteboardWidth', 'get').mockReturnValue(19200);
+    vi.spyOn(constants, 'whiteboardHeight', 'get').mockReturnValue(10800);
+
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    const element = screen.getByTestId('pinch-zoom-handler');
+
+    await userEvent.pointer([
+      {
+        keys: '[TouchA>]',
+        target: element,
+        coords: { clientX: 100, clientY: 100 },
+      },
+      {
+        keys: '[TouchB>]',
+        target: element,
+        coords: { clientX: 300, clientY: 300 },
+      },
+      {
+        pointerName: 'TouchA',
+        target: element,
+        coords: { clientX: 150, clientY: 150 },
+      },
+      {
+        pointerName: 'TouchB',
+        target: element,
+        coords: { clientX: 250, clientY: 250 },
+      },
+      {
+        keys: '[/TouchA]',
+        target: element,
+      },
+      {
+        keys: '[/TouchB]',
+        target: element,
+      },
+    ]);
+
+    expect(svgScaleContextState).toMatchObject({
+      scale: 0.5,
+      translation: {
+        x: -3840,
+        y: -2160,
+      },
+    });
+  });
+
+  it('should use line tool to add line with mouse', async () => {
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    act(() => setActiveTool('line'));
+
+    const draftHandler = screen.getByTestId('draft-pointer-handler');
+
+    await userEvent.pointer([
+      {
+        keys: '[MouseLeft>]',
+        target: draftHandler,
+        coords: { clientX: 50, clientY: 101 },
+      },
+      {
+        pointerName: 'mouse',
+        target: draftHandler,
+        coords: { clientX: 50 + 20, clientY: 100 + 20 },
+      },
+      {
+        keys: '[/MouseLeft]',
+        target: draftHandler,
+      },
+    ]);
+
+    expect(activeSlide.getActiveElementIds().length).toBe(1);
+
+    const line = activeSlide.getElement(activeSlide.getActiveElementIds()[0]);
+
+    expect(line).toEqual({
+      type: 'path',
+      kind: 'line',
+      points: [
+        {
+          x: 0,
+          y: 0,
+        },
+        {
+          x: 20,
+          y: 20,
+        },
+      ],
+      position: {
+        x: 60,
+        y: 100,
+      },
+      strokeColor: '#9e9e9e',
+    });
+  });
+
+  it('should use line tool to add line with touch', async () => {
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    act(() => setActiveTool('line'));
+
+    const draftHandler = screen.getByTestId('draft-pointer-handler');
+
+    await userEvent.pointer([
+      {
+        keys: '[TouchA>]',
+        target: draftHandler,
+        coords: { clientX: 50, clientY: 101 },
+      },
+      {
+        pointerName: 'TouchA',
+        target: draftHandler,
+        coords: { clientX: 50 + 20, clientY: 100 + 20 },
+      },
+      {
+        keys: '[/TouchA]',
+        target: draftHandler,
+      },
+    ]);
+
+    expect(activeSlide.getActiveElementIds().length).toBe(1);
+
+    const element = activeSlide.getElement(
+      activeSlide.getActiveElementIds()[0],
+    );
+
+    expect(element).toEqual({
+      type: 'path',
+      kind: 'line',
+      points: [
+        {
+          x: 0,
+          y: 0,
+        },
+        {
+          x: 20,
+          y: 20,
+        },
+      ],
+      position: {
+        x: 60,
+        y: 100,
+      },
+      strokeColor: '#9e9e9e',
+    });
+  });
+
+  it('should use polyline tool to add polyline with mouse', async () => {
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    act(() => setActiveTool('polyline'));
+
+    const draftHandler = screen.getByTestId('draft-pointer-handler');
+
+    await userEvent.pointer([
+      {
+        keys: '[MouseLeft>]',
+        target: draftHandler,
+        coords: { clientX: 50, clientY: 100 },
+      },
+      {
+        pointerName: 'mouse',
+        target: draftHandler,
+        coords: { clientX: 50 + 20, clientY: 100 + 20 },
+      },
+      {
+        pointerName: 'mouse',
+        target: draftHandler,
+        coords: { clientX: 50, clientY: 100 + 40 },
+      },
+      {
+        keys: '[/MouseLeft]',
+        target: draftHandler,
+      },
+    ]);
+
+    const element = activeSlide.getElement(
+      activeSlide.getActiveElementIds()[0],
+    );
+
+    expect(element).toEqual({
+      type: 'path',
+      kind: 'polyline',
+      points: [
+        {
+          x: 0,
+          y: 0,
+        },
+        {
+          x: 20,
+          y: 20,
+        },
+        {
+          x: 0,
+          y: 40,
+        },
+      ],
+      position: {
+        x: 50,
+        y: 100,
+      },
+      strokeColor: '#9e9e9e',
+    });
+  });
+
+  it('should use polyline tool to add polyline with touch', async () => {
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    act(() => setActiveTool('polyline'));
+
+    const draftHandler = screen.getByTestId('draft-pointer-handler');
+
+    await userEvent.pointer([
+      {
+        keys: '[TouchA>]',
+        target: draftHandler,
+        coords: { clientX: 50, clientY: 100 },
+      },
+      {
+        pointerName: 'TouchA',
+        target: draftHandler,
+        coords: { clientX: 50 + 20, clientY: 100 + 20 },
+      },
+      {
+        pointerName: 'TouchA',
+        target: draftHandler,
+        coords: { clientX: 50, clientY: 100 + 40 },
+      },
+      {
+        keys: '[/TouchA]',
+        target: draftHandler,
+      },
+    ]);
+
+    const line = activeSlide.getElement(activeSlide.getActiveElementIds()[0]);
+
+    expect(line).toEqual({
+      type: 'path',
+      kind: 'polyline',
+      points: [
+        {
+          x: 0,
+          y: 0,
+        },
+        {
+          x: 20,
+          y: 20,
+        },
+        {
+          x: 0,
+          y: 40,
+        },
+      ],
+      position: {
+        x: 50,
+        y: 100,
+      },
+      strokeColor: '#9e9e9e',
+    });
+  });
+
+  it('should pan the canvas by touch and dragging the empty area', async () => {
+    vi.spyOn(constants, 'infiniteCanvasMode', 'get').mockReturnValue(true);
+    vi.spyOn(constants, 'whiteboardWidth', 'get').mockReturnValue(19200);
+    vi.spyOn(constants, 'whiteboardHeight', 'get').mockReturnValue(10800);
+
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    const unselect = screen.getByTestId('unselect-element-layer');
+
+    await userEvent.pointer([
+      {
+        keys: '[TouchA>]',
+        target: unselect,
+        coords: { clientX: 50, clientY: 100 },
+      },
+      {
+        pointerName: 'TouchA',
+        target: unselect,
+        coords: { clientX: 50 + 20, clientY: 100 + 20 },
+      },
+      {
+        keys: '[/TouchA]',
+        target: unselect,
+      },
+    ]);
+
+    expect(svgScaleContextState.translation).toEqual({ x: 20, y: 20 });
+  });
+
+  it('should not pan the canvas if we are touch-dragging the selected frame', async () => {
+    vi.spyOn(constants, 'infiniteCanvasMode', 'get').mockReturnValue(true);
+    vi.spyOn(constants, 'whiteboardWidth', 'get').mockReturnValue(19200);
+    vi.spyOn(constants, 'whiteboardHeight', 'get').mockReturnValue(10800);
+
+    activeSlide.setActiveElementId('frame-0');
+
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    const frame = screen.getByTestId('element-frame-frame-0');
+
+    await userEvent.pointer([
+      {
+        keys: '[TouchA>]',
+        target: frame,
+        coords: { clientX: 50, clientY: 100 },
+      },
+      {
+        pointerName: 'TouchA',
+        target: frame,
+        coords: { clientX: 50 + 20, clientY: 100 + 20 },
+      },
+      {
+        keys: '[/TouchA]',
+        target: frame,
+      },
+    ]);
+    expect(svgScaleContextState.translation).toEqual({ x: 0, y: 0 });
   });
 
   it('should not select element with left button in the presentation mode', () => {
@@ -269,35 +796,39 @@ describe('<WhiteboardHost/>', () => {
     expect(activeSlide.getActiveElementIds()).toEqual([]);
   });
 
-  it('should select element with left button in the presentation mode if presenting', () => {
+  it('should select element with left button in the presentation mode if presenting', async () => {
     setPresentationMode(true, false, 'presenting');
 
     render(<WhiteboardHost />, { wrapper: Wrapper });
 
     const element = screen.getByTestId('element-ellipse-element-0');
-    fireEvent.mouseDown(element, {
-      clientX: 50,
-      clientY: 101,
-      buttons: 1,
-    });
+    await userEvent.pointer([
+      {
+        keys: '[MouseLeft>]',
+        target: element,
+        coords: { clientX: 50, clientY: 101 },
+      },
+    ]);
     expect(activeSlide.getActiveElementIds()).toEqual(['element-0']);
   });
 
-  it('should select element with left button in the presentation mode if edit mode is enabled', () => {
+  it('should select element with left button in the presentation mode if edit mode is enabled', async () => {
     setPresentationMode(true, true);
 
     render(<WhiteboardHost />, { wrapper: Wrapper });
 
     const element = screen.getByTestId('element-ellipse-element-0');
-    fireEvent.mouseDown(element, {
-      clientX: 50,
-      clientY: 101,
-      buttons: 1,
-    });
+    await userEvent.pointer([
+      {
+        keys: '[MouseLeft>]',
+        target: element,
+        coords: { clientX: 50, clientY: 101 },
+      },
+    ]);
     expect(activeSlide.getActiveElementIds()).toEqual(['element-0']);
   });
 
-  it('should select an element attached to active frame with left button in infinite canvas mode in the presentation mode if edit mode is enabled', () => {
+  it('should select an element attached to active frame with left button in infinite canvas mode in the presentation mode if edit mode is enabled', async () => {
     vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
       name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
     );
@@ -323,11 +854,13 @@ describe('<WhiteboardHost/>', () => {
     render(<WhiteboardHost />, { wrapper: Wrapper });
 
     const element = screen.getByTestId('element-ellipse-element-0');
-    fireEvent.mouseDown(element, {
-      clientX: 50,
-      clientY: 101,
-      buttons: 1,
-    });
+    await userEvent.pointer([
+      {
+        keys: '[MouseLeft>]',
+        target: element,
+        coords: { clientX: 50, clientY: 101 },
+      },
+    ]);
     expect(activeSlide.getActiveElementIds()).toEqual(['element-0']);
   });
 
@@ -409,18 +942,22 @@ describe('<WhiteboardHost/>', () => {
 
     // move 150px on x and 250px on y axis
     const element = screen.getByTestId('element-ellipse-element-0');
-    fireEvent.mouseDown(element, {
-      clientX: 150,
-      clientY: 150,
-      buttons: 1,
-    });
+
+    await userEvent.pointer([
+      {
+        keys: '[MouseLeft>]',
+        target: element,
+        coords: { clientX: 150, clientY: 150 },
+      },
+      {
+        pointerName: 'mouse',
+        target: element,
+        coords: { clientX: 300, clientY: 400 },
+      },
+      { keys: '[/MouseLeft]', target: element },
+    ]);
+
     expect(activeSlide.getActiveElementIds()).toEqual(['element-0']);
-    fireEvent.mouseMove(element, {
-      clientX: 300,
-      clientY: 400,
-      buttons: 1,
-    });
-    fireEvent.mouseUp(element);
 
     expect(activeSlide.getElement('element-0')?.position).toEqual({
       x: 160,
@@ -432,11 +969,13 @@ describe('<WhiteboardHost/>', () => {
     render(<WhiteboardHost />, { wrapper: Wrapper });
 
     const element = screen.getByTestId('element-ellipse-element-0');
-    fireEvent.mouseDown(element, {
-      clientX: 20,
-      clientY: 20,
-      buttons: 1,
-    });
+    await userEvent.pointer([
+      {
+        keys: '[MouseLeft>]',
+        target: element,
+        coords: { clientX: 20, clientY: 20 },
+      },
+    ]);
     fireEvent.mouseMove(element, {
       clientX: 560,
       clientY: 560,
@@ -464,11 +1003,13 @@ describe('<WhiteboardHost/>', () => {
     render(<WhiteboardHost />, { wrapper: Wrapper });
 
     const element = screen.getByTestId('element-ellipse-element-0');
-    fireEvent.mouseDown(element, {
-      clientX: 20,
-      clientY: 20,
-      buttons: 1,
-    });
+    await userEvent.pointer([
+      {
+        keys: '[MouseLeft>]',
+        target: element,
+        coords: { clientX: 20, clientY: 20 },
+      },
+    ]);
     fireEvent.mouseMove(element, {
       clientX: 560,
       clientY: 560,
@@ -519,7 +1060,7 @@ describe('<WhiteboardHost/>', () => {
     );
   });
 
-  it('should move the element connected to line and attach both to frame', () => {
+  it('should move the element connected to line and attach both to frame', async () => {
     const lineElementId = activeSlide.addElement(
       mockLineElement({
         points: [
@@ -546,11 +1087,13 @@ describe('<WhiteboardHost/>', () => {
     render(<WhiteboardHost />, { wrapper: Wrapper });
 
     const element = screen.getByTestId('element-ellipse-element-0');
-    fireEvent.mouseDown(element, {
-      clientX: 20,
-      clientY: 20,
-      buttons: 1,
-    });
+    await userEvent.pointer([
+      {
+        keys: '[MouseLeft>]',
+        target: element,
+        coords: { clientX: 20, clientY: 20 },
+      },
+    ]);
     fireEvent.mouseMove(element, {
       clientX: 560,
       clientY: 560,
@@ -579,15 +1122,17 @@ describe('<WhiteboardHost/>', () => {
     );
   });
 
-  it('should move an attached element if the frame is moved', () => {
+  it('should move an attached element if the frame is selected and moved', async () => {
     render(<WhiteboardHost />, { wrapper: Wrapper });
 
     const element = screen.getByTestId('element-ellipse-element-0');
-    fireEvent.mouseDown(element, {
-      clientX: 20,
-      clientY: 20,
-      buttons: 1,
-    });
+    await userEvent.pointer([
+      {
+        keys: '[MouseLeft>]',
+        target: element,
+        coords: { clientX: 20, clientY: 20 },
+      },
+    ]);
     fireEvent.mouseMove(element, {
       clientX: 560,
       clientY: 560,
@@ -610,12 +1155,18 @@ describe('<WhiteboardHost/>', () => {
       }),
     );
 
-    const frameElement = screen.getByTestId('element-frame-frame-0');
-    fireEvent.mouseDown(frameElement, {
-      clientX: 520,
-      clientY: 520,
-      buttons: 1,
+    act(() => {
+      activeSlide.setActiveElementId('frame-0');
     });
+
+    const frameElement = screen.getByTestId('element-frame-frame-0');
+    await userEvent.pointer([
+      {
+        keys: '[MouseLeft>]',
+        target: frameElement,
+        coords: { clientX: 520, clientY: 520 },
+      },
+    ]);
     fireEvent.mouseMove(frameElement, {
       clientX: 40,
       clientY: 40,
@@ -841,12 +1392,9 @@ describe('<WhiteboardHost/>', () => {
     },
   );
 
-  it.each([
-    ['right', 2],
-    ['middle', 1],
-  ])(
+  it.each(['MouseRight', 'MouseMiddle'])(
     'should pan the infinite canvas by dragging canvas with the %s mouse button',
-    async (_, button) => {
+    async (mouseButton) => {
       vi.spyOn(constants, 'infiniteCanvasMode', 'get').mockReturnValue(true);
       vi.spyOn(constants, 'whiteboardWidth', 'get').mockReturnValue(19200);
       vi.spyOn(constants, 'whiteboardHeight', 'get').mockReturnValue(10800);
@@ -854,16 +1402,22 @@ describe('<WhiteboardHost/>', () => {
       render(<WhiteboardHost />, { wrapper: Wrapper });
 
       const element = screen.getByTestId('unselect-element-layer');
-      fireEvent.mouseDown(element, {
-        clientX: 150,
-        clientY: 150,
-        button,
-      });
-      fireEvent.mouseMove(element, {
-        clientX: 300,
-        clientY: 400,
-      });
-      fireEvent.mouseUp(element);
+      await userEvent.pointer([
+        {
+          keys: `[${mouseButton}>]`,
+          target: element,
+          coords: { clientX: 150, clientY: 150 },
+        },
+        {
+          pointerName: 'mouse',
+          target: element,
+          coords: { clientX: 300, clientY: 400 },
+        },
+        {
+          keys: `[/${mouseButton}]`,
+          target: element,
+        },
+      ]);
 
       expect(svgScaleContextState.translation).toEqual({ x: 150, y: 250 });
     },

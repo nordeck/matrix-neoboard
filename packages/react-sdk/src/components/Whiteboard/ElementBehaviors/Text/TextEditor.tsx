@@ -21,6 +21,7 @@ import {
   DispatchWithoutAction,
   KeyboardEvent,
   MouseEvent,
+  TouchEvent,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -29,7 +30,7 @@ import {
 } from 'react';
 import { useFontsLoaded } from '../../../../lib';
 import { isEmptyText } from '../../../../lib/text-formatting';
-import { TextAlignment } from '../../../../state';
+import { TextAlignment, useWhiteboardSlideInstance } from '../../../../state';
 import {
   HOTKEY_SCOPE_WHITEBOARD,
   usePauseHotkeysScope,
@@ -130,8 +131,12 @@ export function TextEditor({
   setTextToolsEnabled = () => {},
 }: TextEditorProps) {
   const textRef = useRef<HTMLDivElement>(null);
+  const touchRef = useRef<{
+    time: number;
+  }>();
   const [isEditMode, setEditMode] = useState(editModeOnMount);
   usePauseHotkeysScope(HOTKEY_SCOPE_WHITEBOARD, isEditMode && editable);
+  const slideInstance = useWhiteboardSlideInstance();
 
   useEffect(() => {
     if (!editable && isEditMode) {
@@ -139,6 +144,10 @@ export function TextEditor({
 
       setEditMode(false);
       setTextToolsEnabled(false);
+    }
+
+    if (!editable) {
+      touchRef.current = undefined;
     }
   }, [editable, isEditMode, onBlur, setTextToolsEnabled]);
 
@@ -173,6 +182,36 @@ export function TextEditor({
       }
     },
     [isEditMode],
+  );
+
+  const handleTouchEvents = useCallback(
+    (event: TouchEvent) => {
+      if (isEditMode) {
+        event.stopPropagation();
+      }
+
+      if (event.type !== 'touchstart') return;
+
+      const currentTime = Date.now();
+
+      if (
+        editable &&
+        touchRef.current !== undefined &&
+        currentTime - touchRef.current.time < 300
+      ) {
+        setEditMode(true);
+        setTextToolsEnabled(true);
+
+        if (textRef.current) {
+          textRef.current.focus();
+        }
+      }
+
+      touchRef.current = {
+        time: currentTime,
+      };
+    },
+    [editable, isEditMode, setTextToolsEnabled],
   );
 
   const handleKeyDown = useCallback(
@@ -234,13 +273,16 @@ export function TextEditor({
   }, [textRef, content]);
 
   useLayoutEffect(() => {
+    const pointerType = slideInstance.getActiveElementSelectionPointerType();
+    if (pointerType === 'touch' || pointerType === 'pen') return;
+
     if (textRef.current && editable) {
       // It's not possible to focus the editable intermediately, we have to
       // plan it for the next event.
       const timeout = setTimeout(() => textRef.current?.focus(), 0);
       return () => clearTimeout(timeout);
     }
-  }, [textRef, editable]);
+  }, [textRef, editable, slideInstance]);
 
   const fontsLoaded = useFontsLoaded();
 
@@ -278,6 +320,9 @@ export function TextEditor({
       onMouseDown={handleMouseEvents}
       onMouseMove={handleMouseEvents}
       onMouseUp={handleMouseEvents}
+      onTouchStartCapture={handleTouchEvents}
+      onTouchMoveCapture={handleTouchEvents}
+      onTouchEndCapture={handleTouchEvents}
       onPaste={handlePaste}
       ref={textRef}
       suppressContentEditableWarning

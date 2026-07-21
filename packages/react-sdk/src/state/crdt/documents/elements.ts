@@ -592,3 +592,16 @@ export function positionElementsToWhiteboard<
     modifyElementPosition(element, positionClamp, offsetX, offsetY),
   );
 }
+
+export function isPositionClose(
+  previousPosition: Point,
+  nextPosition: Point,
+  distance: number = 2,
+): boolean {
+  return (
+    Math.hypot(
+      previousPosition.x - nextPosition.x,
+      previousPosition.y - nextPosition.y,
+    ) <= distance
+  );
+}

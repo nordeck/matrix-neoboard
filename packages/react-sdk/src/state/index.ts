@@ -20,6 +20,7 @@ export { isInfiniteCanvasPresentationEdit } from './types';
 export type {
   ElementUpdate,
   Elements,
+  PointerType,
   PresentationManager,
   PresentationState,
   WhiteboardInstance,

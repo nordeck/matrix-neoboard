@@ -31,7 +31,7 @@ import {
 } from '../ElementBehaviors';
 import { useSvgCanvasContext } from '../SvgCanvas';
 import { gridCellSize } from '../constants';
-import { DraftEvent, DraftMouseHandler } from './DraftMouseHandler';
+import { DraftEvent, DraftPointerHandler } from './DraftPointerHandler';
 import { createShapeFromPoints } from './createShape';
 
 export type DraftLineChildProps = {
@@ -59,7 +59,7 @@ export const DraftLineChild = ({
   const { calculateSvgCoords } = useSvgCanvasContext();
   const { setConnectElementIds } = useConnectionPoint();
 
-  const handleMouseUp = useCallback(() => {
+  const handlePointerUp = useCallback(() => {
     if (cursorPoints) {
       if (cursorPoints.length > 1) {
         slideInstance.addPathElementAndRelate(
@@ -100,7 +100,7 @@ export const DraftLineChild = ({
     setConnectElementIds,
   ]);
 
-  const handleMouseMove = useCallback(
+  const handlePointerMove = useCallback(
     ({ point, clientX, clientY }: DraftEvent) => {
       const { connectElementIds, connectPoint } = findConnectData(
         clientX,
@@ -124,7 +124,7 @@ export const DraftLineChild = ({
     [cursorPoints, setConnectElementIds, calculateSvgCoords],
   );
 
-  const handleMouseDown = useCallback(
+  const handlePointerDown = useCallback(
     ({ point, clientX, clientY }: DraftEvent) => {
       const { connectElementIds, connectPoint } = findConnectData(
         clientX,
@@ -172,15 +172,15 @@ export const DraftLineChild = ({
   );
 
   return (
-    <DraftMouseHandler
-      onMouseDown={handleMouseDown}
-      onMouseLeave={handleMouseUp}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
+    <DraftPointerHandler
+      onPointerDown={handlePointerDown}
+      onPointerLeave={handlePointerUp}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
     >
       {shape && (
         <Display {...shape} elementId="draft" readOnly active={false} />
       )}
-    </DraftMouseHandler>
+    </DraftPointerHandler>
   );
 };

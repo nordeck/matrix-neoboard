@@ -91,7 +91,10 @@ const TriangleDisplay = ({
       elementId={elementId}
     >
       <MoveableElement elementId={elementId} elements={elements}>
-        <ElementContextMenu activeElementIds={activeElementIds}>
+        <ElementContextMenu
+          elementId={elementId}
+          activeElementIds={activeElementIds}
+        >
           {renderedChild}
           {elementMovedHasFrame && (
             <ElementFrameOverlay

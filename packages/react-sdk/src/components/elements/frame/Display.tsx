@@ -64,9 +64,13 @@ const FrameDisplay: React.FC<DisplayProps> = ({
       active={active}
       readOnly={readOnly}
       elementId={elementId}
+      isFrameElement={true}
     >
       <MoveableElement elementId={elementId} elements={elements}>
-        <ElementContextMenu activeElementIds={activeElementIds}>
+        <ElementContextMenu
+          elementId={elementId}
+          activeElementIds={activeElementIds}
+        >
           {renderedChild}
         </ElementContextMenu>
       </MoveableElement>

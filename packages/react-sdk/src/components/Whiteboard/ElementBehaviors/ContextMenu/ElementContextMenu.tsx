@@ -26,64 +26,145 @@ import first from 'lodash/first';
 import last from 'lodash/last';
 import {
   MouseEvent,
+  PointerEvent,
   PropsWithChildren,
   useCallback,
+  useEffect,
   useRef,
   useState,
 } from 'react';
 import { useTranslation } from 'react-i18next';
-import { isMousePositionEqual, MousePosition } from '../../../../lib';
 import {
+  isPositionClose,
+  Point,
   useSlideElementIds,
   useSlideIsLocked,
   useWhiteboardSlideInstance,
 } from '../../../../state';
 import { HotkeysHelp } from '../../../common/HotkeysHelp';
 import { isMacOS } from '../../../common/platform';
+import { useLayoutState } from '../../../Layout';
 
 type ContextMenuState = { position: PopoverPosition } | undefined;
 
 export function ElementContextMenu({
   children,
+  elementId,
   activeElementIds = [],
-}: PropsWithChildren<{ activeElementIds: string[] }>) {
-  const mousePositionRef = useRef<MousePosition>();
+}: PropsWithChildren<{ elementId: string; activeElementIds: string[] }>) {
+  const slideInstance = useWhiteboardSlideInstance();
+  const positionRef = useRef<Point>();
+  const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const { isPinchZooming } = useLayoutState();
+
   const [state, setState] = useState<ContextMenuState>();
+
+  useEffect(() => {
+    if (!isPinchZooming) return;
+
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+  }, [isPinchZooming]);
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, []);
 
   const handleContextMenu = useCallback((event: MouseEvent<SVGElement>) => {
     event.preventDefault();
   }, []);
 
-  const handleMouseDown = useCallback((event: MouseEvent<SVGElement>) => {
-    if (event.button !== 2) {
-      return;
-    }
-    mousePositionRef.current = {
-      clientX: event.clientX,
-      clientY: event.clientY,
-    };
+  const openContextMenu = useCallback((clientX: number, clientY: number) => {
+    setState((state) =>
+      !state
+        ? {
+            position: {
+              left: clientX + 2,
+              top: clientY - 6,
+            },
+          }
+        : undefined,
+    );
   }, []);
 
-  const handleMouseUp = useCallback((event: MouseEvent<SVGElement>) => {
-    if (!mousePositionRef.current) {
-      return;
-    }
+  const handlePointerDown = useCallback(
+    (event: PointerEvent<SVGGElement>) => {
+      if (event.pointerType === 'touch') {
+        if (isPinchZooming) return;
 
-    const mousePosition: MousePosition = {
-      clientX: event.clientX,
-      clientY: event.clientY,
-    };
-    if (isMousePositionEqual(mousePositionRef.current, mousePosition)) {
-      setState((state) =>
-        !state
-          ? {
-              position: { left: event.clientX + 2, top: event.clientY - 6 },
-            }
-          : undefined,
-      );
-    }
+        positionRef.current = {
+          x: event.clientX,
+          y: event.clientY,
+        };
 
-    mousePositionRef.current = undefined;
+        const { clientX, clientY } = event;
+
+        timeoutRef.current = setTimeout(() => {
+          slideInstance.setActiveElementId(elementId);
+          openContextMenu(clientX, clientY);
+        }, 500);
+        return;
+      }
+
+      if (event.button !== 2) {
+        return;
+      }
+
+      positionRef.current = {
+        x: event.clientX,
+        y: event.clientY,
+      };
+    },
+    [openContextMenu, slideInstance, elementId, isPinchZooming],
+  );
+
+  const handlePointerUp = useCallback(
+    (event: PointerEvent<SVGGElement>) => {
+      if (event.pointerType === 'touch') {
+        if (timeoutRef.current) clearTimeout(timeoutRef.current);
+        return;
+      }
+
+      if (!positionRef.current) {
+        return;
+      }
+
+      const { clientX, clientY } = event;
+      if (
+        isPositionClose(positionRef.current, {
+          x: clientX,
+          y: clientY,
+        })
+      ) {
+        openContextMenu(clientX, clientY);
+      }
+
+      positionRef.current = undefined;
+    },
+    [openContextMenu],
+  );
+
+  const handlePointerMove = useCallback((event: PointerEvent<SVGGElement>) => {
+    if (event.pointerType === 'touch') {
+      event.preventDefault();
+
+      if (!positionRef.current) {
+        return;
+      }
+
+      if (
+        isPositionClose(positionRef.current, {
+          x: event.clientX,
+          y: event.clientY,
+        })
+      ) {
+        return;
+      }
+
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      setState(undefined);
+    }
   }, []);
 
   const handleClose = useCallback(() => {
@@ -95,8 +176,9 @@ export function ElementContextMenu({
       <Box
         component="g"
         onContextMenu={handleContextMenu} // prevents context menu if context menu is fired before mouse up
-        onMouseDown={handleMouseDown}
-        onMouseUp={handleMouseUp}
+        onPointerDown={handlePointerDown}
+        onPointerUp={handlePointerUp}
+        onPointerMove={handlePointerMove}
         data-testid="element-context-menu-container"
       >
         {children}

@@ -30,7 +30,7 @@ import { useLayoutState } from '../../Layout';
 import { WithExtendedSelectionProps } from '../ElementBehaviors';
 import { useSvgScaleContext } from '../SvgScaleContext';
 import { defaultTextSize, gridCellSize, stickySize } from '../constants';
-import { DraftEvent, DraftMouseHandler } from './DraftMouseHandler';
+import { DraftEvent, DraftPointerHandler } from './DraftPointerHandler';
 import { calculateShapeCoords } from './calculateShapeCoords';
 import { createShape } from './createShape';
 
@@ -131,7 +131,7 @@ export const DraftShapeChild = ({
     ],
   );
 
-  const handleMouseUp = useCallback(() => {
+  const handlePointerUp = useCallback(() => {
     if (startCoords && endCoords) {
       slideInstance.addShapeElementAndAttach(
         createShape({
@@ -169,7 +169,7 @@ export const DraftShapeChild = ({
     activeFontFamily,
   ]);
 
-  const handleMouseMove = useCallback(
+  const handlePointerMove = useCallback(
     ({ point }: DraftEvent) => {
       if (startCoords) {
         setEndCoords(point);
@@ -178,7 +178,7 @@ export const DraftShapeChild = ({
     [startCoords],
   );
 
-  const handleMouseDown = useCallback(({ point }: DraftEvent) => {
+  const handlePointerDown = useCallback(({ point }: DraftEvent) => {
     setStartCoords(point);
   }, []);
 
@@ -214,16 +214,16 @@ export const DraftShapeChild = ({
   );
 
   return (
-    <DraftMouseHandler
+    <DraftPointerHandler
       onClick={handleClick}
-      onMouseDown={handleMouseDown}
-      onMouseLeave={handleMouseUp}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
+      onPointerDown={handlePointerDown}
+      onPointerLeave={handlePointerUp}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
     >
       {shape && (
         <Display {...shape} elementId="draft" readOnly active={false} />
       )}
-    </DraftMouseHandler>
+    </DraftPointerHandler>
   );
 };
