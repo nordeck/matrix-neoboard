@@ -170,7 +170,7 @@ describe('MovableElement', () => {
       ],
     });
 
-    // somehow the element got selected
+    // the element got selected
     act(() => activeSlide.setActiveElementIds(['element-0']));
 
     // another move event, this time element is selected

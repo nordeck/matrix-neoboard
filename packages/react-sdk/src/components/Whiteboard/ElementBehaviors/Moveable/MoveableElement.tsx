@@ -169,7 +169,6 @@ export function MoveableElement({
           elementId &&
           !slideInstance.getActiveElementIds().includes(elementId))
       ) {
-        // PAN the screen
         if (isInfiniteCanvasMode() && presentationState.type !== 'idle') {
           // don't apply translation
           return;
@@ -177,11 +176,9 @@ export function MoveableElement({
 
         updateTranslation(data.deltaX * scale, data.deltaY * scale);
       } else {
-        // MOVE the element
-
         // If an element started receiving move events when nothing has been selected,
-        // we should not move it anywhere afterwards,
-        // even if the element somehow becomes selected while the move/hold gesture is ongoing.
+        // we should not move it anywhere afterward, even if it becomes selected
+        // while the move/hold gesture is ongoing.
         if (
           boundingRectOfSelectedElements.height === 0 &&
           boundingRectOfSelectedElements.width === 0
