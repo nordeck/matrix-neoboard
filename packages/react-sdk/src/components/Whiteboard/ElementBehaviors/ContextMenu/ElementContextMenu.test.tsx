@@ -57,7 +57,7 @@ describe('<ElementContextMenu/>', () => {
   let whiteboardManager: Mocked<WhiteboardManager>;
   let activeWhiteboardInstance: WhiteboardInstance;
   let activeSlide: WhiteboardSlideInstance;
-  let setIsTouchScaling: (value: boolean) => void;
+  let setIsPinchZooming: (value: boolean) => void;
 
   beforeEach(() => {
     ({ whiteboardManager } = mockWhiteboardManager({
@@ -77,8 +77,7 @@ describe('<ElementContextMenu/>', () => {
     activeSlide = activeWhiteboardInstance.getSlide('slide-0');
 
     function LayoutStateExtractor() {
-      const tmp = useLayoutState();
-      ({ setIsTouchScaling } = tmp);
+      ({ setIsPinchZooming } = useLayoutState());
       return null;
     }
 
@@ -238,7 +237,7 @@ describe('<ElementContextMenu/>', () => {
     expect(menu).toBeInTheDocument();
   });
 
-  it('should not open the context menu with long touch press if touch scaling happens between press and context menu appearance', async () => {
+  it('should not open the context menu with long touch press if pinch zoom scaling happens between press and context menu appearance', async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
 
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
@@ -261,7 +260,7 @@ describe('<ElementContextMenu/>', () => {
       target: contextMenuTarget,
     });
 
-    act(() => setIsTouchScaling(true));
+    act(() => setIsPinchZooming(true));
 
     act(() => {
       vi.advanceTimersByTime(600);
@@ -274,7 +273,7 @@ describe('<ElementContextMenu/>', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('should not open the context menu with long touch press if touch scaling happens before press and context menu appearance', async () => {
+  it('should not open the context menu with long touch press if pinch zoom scaling happens before press and context menu appearance', async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
 
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
@@ -289,7 +288,7 @@ describe('<ElementContextMenu/>', () => {
       },
     );
 
-    act(() => setIsTouchScaling(true));
+    act(() => setIsPinchZooming(true));
 
     const contextMenuTarget = screen.getByTestId(
       'element-context-menu-container',

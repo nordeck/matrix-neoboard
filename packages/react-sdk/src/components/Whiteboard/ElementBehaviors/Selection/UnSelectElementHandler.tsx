@@ -35,7 +35,7 @@ import {
 export function UnSelectElementHandler() {
   const { activeElementId } = useActiveElement();
   const slideInstance = useWhiteboardSlideInstance();
-  const { isTouchScaling, setDragSelectStartCoords } = useLayoutState();
+  const { isPinchZooming, setDragSelectStartCoords } = useLayoutState();
   const { calculateSvgCoords } = useSvgCanvasContext();
   const { updateTranslation } = useSvgScaleContext();
   const { state: presentationState } = usePresentationMode();
@@ -100,7 +100,7 @@ export function UnSelectElementHandler() {
       if (!infiniteCanvasMode || !positionRef.current || !isPanningEnabled)
         return;
 
-      if (isTouchScaling) {
+      if (isPinchZooming) {
         positionRef.current = { x: event.clientX, y: event.clientY };
         return;
       }
@@ -112,7 +112,7 @@ export function UnSelectElementHandler() {
 
       positionRef.current = { x: event.clientX, y: event.clientY };
     },
-    [isPanningEnabled, updateTranslation, isTouchScaling],
+    [isPanningEnabled, updateTranslation, isPinchZooming],
   );
 
   const handleLostPointerCapture = useCallback(

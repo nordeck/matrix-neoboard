@@ -55,15 +55,15 @@ export function ElementContextMenu({
   const slideInstance = useWhiteboardSlideInstance();
   const positionRef = useRef<Point>();
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
-  const { isTouchScaling } = useLayoutState();
+  const { isPinchZooming } = useLayoutState();
 
   const [state, setState] = useState<ContextMenuState>();
 
   useEffect(() => {
-    if (!isTouchScaling) return;
+    if (!isPinchZooming) return;
 
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
-  }, [isTouchScaling]);
+  }, [isPinchZooming]);
 
   useEffect(() => {
     return () => {
@@ -91,7 +91,7 @@ export function ElementContextMenu({
   const handlePointerDown = useCallback(
     (event: PointerEvent<SVGGElement>) => {
       if (event.pointerType === 'touch') {
-        if (isTouchScaling) return;
+        if (isPinchZooming) return;
 
         positionRef.current = {
           x: event.clientX,
@@ -116,7 +116,7 @@ export function ElementContextMenu({
         y: event.clientY,
       };
     },
-    [openContextMenu, slideInstance, elementId, isTouchScaling],
+    [openContextMenu, slideInstance, elementId, isPinchZooming],
   );
 
   const handlePointerUp = useCallback(

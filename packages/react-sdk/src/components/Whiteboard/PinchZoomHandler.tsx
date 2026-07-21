@@ -21,7 +21,7 @@ import { useSvgCanvasContext } from './SvgCanvas';
 import { useSvgScaleContext } from './SvgScaleContext';
 
 export function PinchZoomHandler({ children }: PropsWithChildren<{}>) {
-  const { setIsTouchScaling } = useLayoutState();
+  const { setIsPinchZooming } = useLayoutState();
   const { calculateSvgCoords } = useSvgCanvasContext();
   const { scale, updateScale } = useSvgScaleContext();
   const { state: presentationState } = usePresentationMode();
@@ -60,10 +60,10 @@ export function PinchZoomHandler({ children }: PropsWithChildren<{}>) {
           scale,
         };
 
-        setIsTouchScaling(true);
+        setIsPinchZooming(true);
       }
     },
-    [calculateSvgCoords, scale, isZoomEnabled, setIsTouchScaling],
+    [calculateSvgCoords, scale, isZoomEnabled, setIsPinchZooming],
   );
 
   const handlePointerMove = useCallback(
@@ -125,10 +125,10 @@ export function PinchZoomHandler({ children }: PropsWithChildren<{}>) {
 
       if (activePointersRef.current.size < 2) {
         touchContextRef.current = undefined;
-        setIsTouchScaling(false);
+        setIsPinchZooming(false);
       }
     },
-    [setIsTouchScaling],
+    [setIsPinchZooming],
   );
 
   return (

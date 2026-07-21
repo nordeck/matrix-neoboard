@@ -48,7 +48,6 @@ type LayoutState = {
   isDeveloperToolsVisible: boolean;
   isShowCollaboratorsCursors: boolean;
   isShowGrid: boolean;
-  isTouchScaling: boolean;
   activeTool: ActiveTool;
   activeColor: string;
   activeShade: number;
@@ -62,8 +61,8 @@ type LayoutState = {
   activeStartLineMarker: LineMarker | undefined;
   activeEndLineMarker: LineMarker | undefined;
   isRotating: boolean;
+  isPinchZooming: boolean;
 
-  setIsTouchScaling: (value: boolean) => void;
   setSlideOverviewVisible: (value: boolean) => void;
   setDeveloperToolsVisible: (value: boolean) => void;
   setShowCollaboratorsCursors: (value: boolean) => void;
@@ -81,6 +80,8 @@ type LayoutState = {
   setActiveStartLineMarker: (marker: LineMarker | undefined) => void;
   setActiveEndLineMarker: (marker: LineMarker | undefined) => void;
   setIsRotating: (value: boolean) => void;
+  setIsPinchZooming: (value: boolean) => void;
+
   /**
    * Whether the layout is displayed in fullscreen mode.
    */
@@ -114,8 +115,6 @@ export function LayoutStateProvider({ children }: PropsWithChildren<{}>) {
     defaultTextShade,
   } = useColorPalette();
 
-  const [isTouchScaling, setIsTouchScaling] = useState<boolean>(false);
-
   const [isSlideOverviewVisible, setSlideOverviewVisible] =
     useState<boolean>(false);
   const [isDeveloperToolsVisible, setDeveloperToolsVisible] =
@@ -145,6 +144,7 @@ export function LayoutStateProvider({ children }: PropsWithChildren<{}>) {
   const [activeEndLineMarker, setActiveEndLineMarker] = useState<
     LineMarker | undefined
   >('arrow-head-line');
+  const [isPinchZooming, setIsPinchZooming] = useState<boolean>(false);
 
   const setActiveFontFamily = (font: TextFontFamily) => {
     setActiveFontFamilyState(font ?? 'Inter');
@@ -191,8 +191,8 @@ export function LayoutStateProvider({ children }: PropsWithChildren<{}>) {
       setActiveStartLineMarker,
       setActiveEndLineMarker,
       setIsRotating,
-      isTouchScaling,
-      setIsTouchScaling,
+      isPinchZooming,
+      setIsPinchZooming,
     }),
     [
       activeColor,
@@ -219,8 +219,8 @@ export function LayoutStateProvider({ children }: PropsWithChildren<{}>) {
       setActiveStartLineMarker,
       setActiveEndLineMarker,
       setIsRotating,
-      setIsTouchScaling,
-      isTouchScaling,
+      isPinchZooming,
+      setIsPinchZooming,
     ],
   );
 

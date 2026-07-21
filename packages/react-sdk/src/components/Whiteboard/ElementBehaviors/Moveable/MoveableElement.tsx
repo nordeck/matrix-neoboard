@@ -76,7 +76,7 @@ export function MoveableElement({
   elementId,
   elements = {},
 }: MoveableElementProps) {
-  const { isShowGrid, isTouchScaling } = useLayoutState();
+  const { isShowGrid, isPinchZooming } = useLayoutState();
   const isDragging = useRef<boolean>(false);
   const nodeRef = useRef<SVGRectElement>(null);
   const setElementOverride = useSetElementOverride();
@@ -165,7 +165,7 @@ export function MoveableElement({
       if (
         (isMouseEvent(event) && isButtonToPan(event.buttons)) ||
         (event.type === 'touchmove' &&
-          !isTouchScaling &&
+          !isPinchZooming &&
           elementId &&
           !slideInstance.getActiveElementIds().includes(elementId))
       ) {
@@ -252,7 +252,7 @@ export function MoveableElement({
       setAttachedElementsMovedByFrame,
       setConnectingPathIds,
       presentationState,
-      isTouchScaling,
+      isPinchZooming,
       elementId,
     ],
   );
