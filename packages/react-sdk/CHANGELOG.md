@@ -1,5 +1,32 @@
 # @nordeck/matrix-neoboard-react-sdk
 
+## 1.5.0
+
+### Minor Changes
+
+- e80cb9f: Add bring to front, bring to back shortcuts to reorder elements
+- 8084e86: List keyboard shortcuts in a modal dialog available via the Help Center.
+- cf33767: Add select all elements shortcut
+- 8c3bc36: Update PDF export in the infinite canvas mode. Each frame now exports as a page. If no frames exist, all elements are exported and the surrounding whitespace is cropped.
+- 35492d8: Move elements with arrow keys
+- 1e3cda7: Migrate slides into frames in infinite canvas mode
+- b591225: Exit text editing mode on Escape key
+- 3c6f791: Presentation mode for frames
+- 3a891e1: Implement single element rotation
+- 6ce67c3: Add block arrow shape
+- b9234ce: Add basic touchscreen support. Tap and drag with one finger to pan, select, deselect, add, and draw. Pinch with two fingers to zoom. Simplify frame selection mechanic to adapt to touchscreens. Double-tap elements to edit text. Long press to open an element's context menu.
+
+### Patch Changes
+
+- c37fe96: Switch lodash imports to per-function entry points
+- 57b6f5f: fix clipboard shortcuts not working in presentation mode when edit mode is enabled
+- 29457e8: Update lodash to 4.18.1 for CVEs: `CVE-2026-2950`, `CVE-2026-4800`
+- ef0749c: Refactor infinite canvas to use `viewBox` for transformations and simplify API
+- 94d98c9: Update react-hotkeys-hook to 5.3.2 and add tests to other shortcuts to check hotkey disabling
+- 1ec862b: Fix re-rendering of all MoveableElements when a single element is moved
+- 19aad07: Fix the rotated element frame overlay to display correctly when attached. Update the attach logic to consider element rotation.
+- a9532ff: Fix undo/redo shortcuts for non-QWERTY keyboard layouts (e.g. German QWERTZ)
+
 ## 1.4.0
 
 ### Minor Changes
