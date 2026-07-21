@@ -3,4 +3,4 @@
 '@nordeck/matrix-neoboard-widget': minor
 ---
 
-Add touchscreen gestures. Use one finger to pan, select, deselect, add, and draw. Use two fingers to scale. Improve support for frame elements. Double-tap selected elements to edit text. Press and hold a finger to see an element's context menu.
+Add basic touchscreen support. Tap and drag with one finger to pan, select, deselect, add, and draw. Pinch with two fingers to scale. Simplify frame selection mechanic to adapt to touchscreens. Double-tap elements to edit text. Long press to open an element's context menu.
