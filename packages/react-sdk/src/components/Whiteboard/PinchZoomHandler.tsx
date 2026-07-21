@@ -100,8 +100,7 @@ export function PinchZoomHandler({ children }: PropsWithChildren<{}>) {
 
         const ratio = newDist / oldDist;
 
-        // have to move for some distance to prevent jitter
-        if (Math.abs(newDist - oldDist) < 20) {
+        if (Math.abs(ratio - 1) < 0.05) {
           return;
         }
 
