@@ -138,7 +138,6 @@ export function PinchZoomHandler({ children }: PropsWithChildren<{}>) {
       onPointerMoveCapture={handlePointerMove}
       onPointerUpCapture={handlePointerUp}
       onPointerCancel={handlePointerUp}
-      onPointerOut={handlePointerUp}
       onPointerLeave={handlePointerUp}
     >
       {children}
