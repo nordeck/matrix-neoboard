@@ -30,7 +30,7 @@ import { useLayoutState } from '../../Layout';
 import { WithExtendedSelectionProps } from '../ElementBehaviors';
 import { useSvgScaleContext } from '../SvgScaleContext';
 import { defaultTextSize, gridCellSize, stickySize } from '../constants';
-import { DraftEvent, DraftMouseHandler } from './DraftMouseHandler';
+import { DraftEvent, DraftPointerHandler } from './DraftPointerHandler';
 import { calculateShapeCoords } from './calculateShapeCoords';
 import { createShape } from './createShape';
 
@@ -214,7 +214,7 @@ export const DraftShapeChild = ({
   );
 
   return (
-    <DraftMouseHandler
+    <DraftPointerHandler
       onClick={handleClick}
       onPointerDown={handlePointerDown}
       onPointerLeave={handlePointerUp}
@@ -224,6 +224,6 @@ export const DraftShapeChild = ({
       {shape && (
         <Display {...shape} elementId="draft" readOnly active={false} />
       )}
-    </DraftMouseHandler>
+    </DraftPointerHandler>
   );
 };

@@ -60,7 +60,7 @@ export type DraftMouseHandlerProps = PropsWithChildren<{
   onPointerUp?: Dispatch<DraftEvent>;
 }>;
 
-export function DraftMouseHandler({
+export function DraftPointerHandler({
   onClick,
   onPointerUp,
   onPointerLeave,

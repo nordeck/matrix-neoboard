@@ -31,7 +31,7 @@ import {
 } from '../ElementBehaviors';
 import { useSvgCanvasContext } from '../SvgCanvas';
 import { gridCellSize } from '../constants';
-import { DraftEvent, DraftMouseHandler } from './DraftMouseHandler';
+import { DraftEvent, DraftPointerHandler } from './DraftPointerHandler';
 import { createShapeFromPoints } from './createShape';
 
 export type DraftLineChildProps = {
@@ -172,7 +172,7 @@ export const DraftLineChild = ({
   );
 
   return (
-    <DraftMouseHandler
+    <DraftPointerHandler
       onPointerDown={handlePointerDown}
       onPointerLeave={handlePointerUp}
       onPointerMove={handlePointerMove}
@@ -181,6 +181,6 @@ export const DraftLineChild = ({
       {shape && (
         <Display {...shape} elementId="draft" readOnly active={false} />
       )}
-    </DraftMouseHandler>
+    </DraftPointerHandler>
   );
 };
