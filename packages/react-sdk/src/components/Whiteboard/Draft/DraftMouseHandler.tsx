@@ -54,18 +54,18 @@ export type DraftEvent = {
 
 export type DraftMouseHandlerProps = PropsWithChildren<{
   onClick?: Dispatch<Point>;
-  onMouseDown?: Dispatch<DraftEvent>;
-  onMouseLeave?: Dispatch<DraftEvent>;
-  onMouseMove?: Dispatch<DraftEvent>;
-  onMouseUp?: Dispatch<DraftEvent>;
+  onPointerDown?: Dispatch<DraftEvent>;
+  onPointerLeave?: Dispatch<DraftEvent>;
+  onPointerMove?: Dispatch<DraftEvent>;
+  onPointerUp?: Dispatch<DraftEvent>;
 }>;
 
 export function DraftMouseHandler({
   onClick,
-  onMouseUp,
-  onMouseLeave,
-  onMouseDown,
-  onMouseMove,
+  onPointerUp,
+  onPointerLeave,
+  onPointerDown,
+  onPointerMove,
   children,
 }: DraftMouseHandlerProps) {
   const { calculateSvgCoords } = useSvgCanvasContext();
@@ -84,44 +84,44 @@ export function DraftMouseHandler({
 
   const handlePointerUp = useCallback(
     (ev: PointerEvent<SVGRectElement>) => {
-      if (onMouseUp) {
+      if (onPointerUp) {
         const point = calculateSvgCoords({ x: ev.clientX, y: ev.clientY });
-        onMouseUp({ point, clientX: ev.clientX, clientY: ev.clientY });
+        onPointerUp({ point, clientX: ev.clientX, clientY: ev.clientY });
       }
     },
-    [onMouseUp, calculateSvgCoords],
+    [onPointerUp, calculateSvgCoords],
   );
 
   const handlePointerDown = useCallback(
     (ev: PointerEvent<SVGRectElement>) => {
-      if (onMouseDown) {
+      if (onPointerDown) {
         const point = calculateSvgCoords({ x: ev.clientX, y: ev.clientY });
         if (activeTool !== 'sticky-note') {
-          onMouseDown({ point, clientX: ev.clientX, clientY: ev.clientY });
+          onPointerDown({ point, clientX: ev.clientX, clientY: ev.clientY });
         }
       }
     },
-    [onMouseDown, calculateSvgCoords, activeTool],
+    [onPointerDown, calculateSvgCoords, activeTool],
   );
 
   const handlePointerMove = useCallback(
     (ev: PointerEvent<SVGRectElement>) => {
-      if (onMouseMove) {
+      if (onPointerMove) {
         const point = calculateSvgCoords({ x: ev.clientX, y: ev.clientY });
-        onMouseMove({ point, clientX: ev.clientX, clientY: ev.clientY });
+        onPointerMove({ point, clientX: ev.clientX, clientY: ev.clientY });
       }
     },
-    [onMouseMove, calculateSvgCoords],
+    [onPointerMove, calculateSvgCoords],
   );
 
   const handlePointerLeave = useCallback(
     (ev: PointerEvent<SVGRectElement>) => {
-      if (onMouseLeave) {
+      if (onPointerLeave) {
         const point = calculateSvgCoords({ x: ev.clientX, y: ev.clientY });
-        onMouseLeave({ point, clientX: ev.clientX, clientY: ev.clientY });
+        onPointerLeave({ point, clientX: ev.clientX, clientY: ev.clientY });
       }
     },
-    [onMouseLeave, calculateSvgCoords],
+    [onPointerLeave, calculateSvgCoords],
   );
 
   return (

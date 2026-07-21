@@ -131,7 +131,7 @@ export const DraftShapeChild = ({
     ],
   );
 
-  const handleMouseUp = useCallback(() => {
+  const handlePointerUp = useCallback(() => {
     if (startCoords && endCoords) {
       slideInstance.addShapeElementAndAttach(
         createShape({
@@ -169,7 +169,7 @@ export const DraftShapeChild = ({
     activeFontFamily,
   ]);
 
-  const handleMouseMove = useCallback(
+  const handlePointerMove = useCallback(
     ({ point }: DraftEvent) => {
       if (startCoords) {
         setEndCoords(point);
@@ -178,7 +178,7 @@ export const DraftShapeChild = ({
     [startCoords],
   );
 
-  const handleMouseDown = useCallback(({ point }: DraftEvent) => {
+  const handlePointerDown = useCallback(({ point }: DraftEvent) => {
     setStartCoords(point);
   }, []);
 
@@ -216,10 +216,10 @@ export const DraftShapeChild = ({
   return (
     <DraftMouseHandler
       onClick={handleClick}
-      onMouseDown={handleMouseDown}
-      onMouseLeave={handleMouseUp}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
+      onPointerDown={handlePointerDown}
+      onPointerLeave={handlePointerUp}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
     >
       {shape && (
         <Display {...shape} elementId="draft" readOnly active={false} />
