@@ -55,9 +55,9 @@ import {
 } from './ElementBehaviors';
 import { DragSelect } from './ElementBehaviors/Selection/DragSelect';
 import { DotGrid } from './Grid';
+import { PinchZoomHandler } from './PinchZoomHandler';
 import { SlideSkeleton } from './SlideSkeleton';
 import { SvgCanvas } from './SvgCanvas';
-import { TouchZoomHandler } from './TouchZoomHandler';
 
 const WhiteboardHost = ({
   elementIds,
@@ -97,7 +97,7 @@ const WhiteboardHost = ({
 
   const showTextTools = textToolsEnabled || hasElementWithText;
 
-  const ChildrenWrapper = infiniteCanvasMode ? TouchZoomHandler : Fragment;
+  const ChildrenWrapper = infiniteCanvasMode ? PinchZoomHandler : Fragment;
 
   return (
     <Box

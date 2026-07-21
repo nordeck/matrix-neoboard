@@ -460,14 +460,14 @@ describe('<WhiteboardHost/>', () => {
     expect(activeSlide.getActiveElementIds()).toEqual([]);
   });
 
-  it('should scale with two pointers', async () => {
+  it('should pinch to zoom with two pointers', async () => {
     vi.spyOn(constants, 'infiniteCanvasMode', 'get').mockReturnValue(true);
     vi.spyOn(constants, 'whiteboardWidth', 'get').mockReturnValue(19200);
     vi.spyOn(constants, 'whiteboardHeight', 'get').mockReturnValue(10800);
 
     render(<WhiteboardHost />, { wrapper: Wrapper });
 
-    const element = screen.getByTestId('touch-zoom-handler');
+    const element = screen.getByTestId('pinch-zoom-handler');
 
     await userEvent.pointer([
       {

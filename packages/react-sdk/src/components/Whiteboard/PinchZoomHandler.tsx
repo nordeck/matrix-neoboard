@@ -20,7 +20,7 @@ import { useLayoutState } from '../Layout';
 import { useSvgCanvasContext } from './SvgCanvas';
 import { useSvgScaleContext } from './SvgScaleContext';
 
-export function TouchZoomHandler({ children }: PropsWithChildren<{}>) {
+export function PinchZoomHandler({ children }: PropsWithChildren<{}>) {
   const { setIsTouchScaling } = useLayoutState();
   const { calculateSvgCoords } = useSvgCanvasContext();
   const { scale, updateScale } = useSvgScaleContext();
@@ -133,7 +133,7 @@ export function TouchZoomHandler({ children }: PropsWithChildren<{}>) {
 
   return (
     <g
-      data-testid="touch-zoom-handler"
+      data-testid="pinch-zoom-handler"
       onPointerDownCapture={handlePointerDown}
       onPointerMoveCapture={handlePointerMove}
       onPointerUpCapture={handlePointerUp}
