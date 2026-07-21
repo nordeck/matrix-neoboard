@@ -1,5 +1,45 @@
 # @nordeck/matrix-neoboard-widget
 
+## 2.5.0
+
+### Minor Changes
+
+- 1e3cda7: Migrate slides into frames in infinite canvas mode
+- 3c6f791: Presentation mode for frames
+- b9234ce: Add basic touchscreen support. Tap and drag with one finger to pan, select, deselect, add, and draw. Pinch with two fingers to zoom. Simplify frame selection mechanic to adapt to touchscreens. Double-tap elements to edit text. Long press to open an element's context menu.
+
+### Patch Changes
+
+- 3728736: Update `widget-server` base image to v1.2.2
+- 1d61887: Upload helm chart to OCI Registry, release helm chart
+- c7360e1: Set trivy version to 0.69.3 instead of latest.
+- 29457e8: Update lodash to 4.18.1 for CVEs: `CVE-2026-2950`, `CVE-2026-4800`
+- 2c8c78a: Include sha256 digest for trivy image
+  Pin trivy-action to v0.35.0
+- ef0749c: Refactor infinite canvas to use `viewBox` for transformations and simplify API
+- 1ec862b: Fix re-rendering of all MoveableElements when a single element is moved
+- 19aad07: Fix the rotated element frame overlay to display correctly when attached. Update the attach logic to consider element rotation.
+- Updated dependencies [e80cb9f]
+- Updated dependencies [c37fe96]
+- Updated dependencies [8084e86]
+- Updated dependencies [cf33767]
+- Updated dependencies [8c3bc36]
+- Updated dependencies [35492d8]
+- Updated dependencies [57b6f5f]
+- Updated dependencies [1e3cda7]
+- Updated dependencies [29457e8]
+- Updated dependencies [b591225]
+- Updated dependencies [ef0749c]
+- Updated dependencies [3c6f791]
+- Updated dependencies [3a891e1]
+- Updated dependencies [94d98c9]
+- Updated dependencies [1ec862b]
+- Updated dependencies [19aad07]
+- Updated dependencies [6ce67c3]
+- Updated dependencies [a9532ff]
+- Updated dependencies [b9234ce]
+  - @nordeck/matrix-neoboard-react-sdk@1.5.0
+
 ## 2.4.0
 
 ### Minor Changes
