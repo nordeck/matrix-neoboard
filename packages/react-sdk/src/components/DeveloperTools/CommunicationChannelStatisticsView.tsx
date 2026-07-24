@@ -43,7 +43,7 @@ export function CommunicationChannelStatisticsView({
           <StyledDevtoolsHeaderCell
             content={t(
               'boardBar.developerToolsDialog.communicationChannelStatistics.localSessionId',
-              'Local Session Id',
+              'Local Session ID',
             )}
           />
           <StyledDevtoolsHeaderCell
@@ -56,10 +56,10 @@ export function CommunicationChannelStatisticsView({
       </TableHead>
       <TableBody>
         <TableRow>
-          <StyledDevtoolsTableCell align="right">
+          <StyledDevtoolsTableCell align="center" monospace={true}>
             {communicationChannel.localSessionId}
           </StyledDevtoolsTableCell>
-          <StyledDevtoolsTableCell align="right">
+          <StyledDevtoolsTableCell align="center">
             {Object.keys(communicationChannel.peerConnections).length}
           </StyledDevtoolsTableCell>
         </TableRow>
