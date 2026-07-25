@@ -31,7 +31,7 @@ import {
   WhiteboardInstance,
   WhiteboardManager,
 } from '../../../state';
-import { gridCellSize } from '../../Whiteboard';
+import { MoveShiftMultiplier, moveStepSize } from '../../Whiteboard';
 import { WhiteboardHotkeysProvider } from '../../WhiteboardHotkeysProvider';
 import { MoveShortcuts } from './MoveShortcuts';
 
@@ -89,7 +89,7 @@ describe('<MoveShortcuts>', () => {
 
     expect(activeSlide.getElement('element-0')?.position).toEqual({
       x: 100,
-      y: 100 - gridCellSize,
+      y: 100 - moveStepSize,
     });
   });
 
@@ -103,7 +103,7 @@ describe('<MoveShortcuts>', () => {
 
     expect(activeSlide.getElement('element-0')?.position).toEqual({
       x: 100,
-      y: 100 + gridCellSize,
+      y: 100 + moveStepSize,
     });
   });
 
@@ -116,7 +116,7 @@ describe('<MoveShortcuts>', () => {
     await userEvent.keyboard('{ArrowLeft}');
 
     expect(activeSlide.getElement('element-0')?.position).toEqual({
-      x: 100 - gridCellSize,
+      x: 100 - moveStepSize,
       y: 100,
     });
   });
@@ -130,8 +130,22 @@ describe('<MoveShortcuts>', () => {
     await userEvent.keyboard('{ArrowRight}');
 
     expect(activeSlide.getElement('element-0')?.position).toEqual({
-      x: 100 + gridCellSize,
+      x: 100 + moveStepSize,
       y: 100,
+    });
+  });
+
+  it('should move a selected element further with Shift+ArrowDown', async () => {
+    const activeSlide = activeWhiteboardInstance.getSlide('slide-0');
+    activeSlide.setActiveElementIds(['element-0']);
+
+    render(<MoveShortcuts />, { wrapper: Wrapper });
+
+    await userEvent.keyboard('{Shift>}{ArrowDown}{/Shift}');
+
+    expect(activeSlide.getElement('element-0')?.position).toEqual({
+      x: 100,
+      y: 100 + moveStepSize * MoveShiftMultiplier,
     });
   });
 
@@ -145,11 +159,11 @@ describe('<MoveShortcuts>', () => {
 
     expect(activeSlide.getElement('element-0')?.position).toEqual({
       x: 100,
-      y: 100 + gridCellSize,
+      y: 100 + moveStepSize,
     });
     expect(activeSlide.getElement('element-1')?.position).toEqual({
       x: 200,
-      y: 200 + gridCellSize,
+      y: 200 + moveStepSize,
     });
   });
 
@@ -157,10 +171,10 @@ describe('<MoveShortcuts>', () => {
     // element-0 at (100,100), element-1 at (200,200), connected by path-0
     // path-0: position=(100,100), points=[{0,0},{100,100}]
     // selecting element-0 and pressing ArrowDown:
-    //   - element-0 moves to (100, 120)
-    //   - path start (connected to element-0) moves to (100, 120)
+    //   - element-0 moves to (100, 101)
+    //   - path start (connected to element-0) moves to (100, 101)
     //   - path end (connected to element-1) stays at (200, 200)
-    //   => path-0: position=(100,120), points=[{0,0},{100,80}]
+    //   => path-0: position=(100,101), points=[{0,0},{100,99}]
     const { whiteboardManager: wm } = mockWhiteboardManager({
       slides: [
         [
@@ -206,23 +220,23 @@ describe('<MoveShortcuts>', () => {
 
     expect(slide.getElement('element-0')?.position).toEqual({
       x: 100,
-      y: 100 + gridCellSize,
+      y: 100 + moveStepSize,
     });
     expect(slide.getElement('element-1')?.position).toEqual({
       x: 200,
       y: 200,
     });
     const path = slide.getElement('path-0') as PathElement;
-    expect(path.position).toEqual({ x: 100, y: 100 + gridCellSize });
+    expect(path.position).toEqual({ x: 100, y: 100 + moveStepSize });
     expect(path.points).toEqual([
       { x: 0, y: 0 },
-      { x: 100, y: 100 - gridCellSize },
+      { x: 100, y: 100 - moveStepSize },
     ]);
   });
 
-  it('should clamp ArrowRight at the right canvas edge', async () => {
-    // element width=50 at x=1860 → right edge=1910 (within 1920 canvas)
-    // ArrowRight wants dx=+20 → right edge would be 1930 → clamped to x=1870 (right edge=1920)
+  it('should clamp Shift+ArrowRight at the right canvas edge', async () => {
+    // element width=50 at x=1866 → right edge=1916 (within 1920 canvas)
+    // Shift+ArrowRight wants dx=+5 (SHIFT_STEP) → right edge would be 1921 → clamped to x=1870 (right edge=1920)
     const { whiteboardManager: wm } = mockWhiteboardManager({
       slides: [
         [
@@ -230,7 +244,7 @@ describe('<MoveShortcuts>', () => {
           [
             [
               'element-0',
-              mockEllipseElement({ position: { x: 1860, y: 100 } }),
+              mockEllipseElement({ position: { x: 1866, y: 100 } }),
             ],
           ],
         ],
@@ -240,7 +254,7 @@ describe('<MoveShortcuts>', () => {
     slide.setActiveElementIds(['element-0']);
 
     render(<MoveShortcuts />, { wrapper: createWrapper(wm) });
-    await userEvent.keyboard('{ArrowRight}');
+    await userEvent.keyboard('{Shift>}{ArrowRight}{/Shift}');
 
     expect(slide.getElement('element-0')?.position).toEqual({
       x: 1870,
@@ -318,15 +332,15 @@ describe('<MoveShortcuts>', () => {
 
     expect(slide.getElement('frame-0')?.position).toEqual({
       x: 0,
-      y: gridCellSize,
+      y: moveStepSize,
     });
     expect(slide.getElement('child-0')?.position).toEqual({
       x: 10,
-      y: 10 + gridCellSize,
+      y: 10 + moveStepSize,
     });
     expect(slide.getElement('child-1')?.position).toEqual({
       x: 50,
-      y: 50 + gridCellSize,
+      y: 50 + moveStepSize,
     });
   });
 
@@ -405,7 +419,7 @@ describe('<MoveShortcuts>', () => {
 
     expect(slide.getElement('child-0')?.position).toEqual({
       x: 10,
-      y: 10 + gridCellSize,
+      y: 10 + moveStepSize,
     });
     expect(slide.getElement('frame-0')?.position).toEqual({
       x: 0,
