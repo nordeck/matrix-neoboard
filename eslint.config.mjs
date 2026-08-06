@@ -62,7 +62,10 @@ export default ts.config(
           templateFile: path.resolve(__dirname, './scripts/license-header.txt'),
           onNonMatchingHeader: 'replace',
           templateVars: { NAME: 'Nordeck IT + Consulting GmbH' },
-          varRegexps: { NAME: /.+/ },
+          varRegexps: {
+            NAME: /.+/,
+            YEAR: /\d{4}(\s?-\s?\d{4})?/,
+          },
         },
       ],
       'no-restricted-imports': [
