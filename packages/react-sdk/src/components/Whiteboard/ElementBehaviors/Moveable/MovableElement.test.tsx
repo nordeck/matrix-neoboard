@@ -36,9 +36,7 @@ import {
   WhiteboardTestingContextProvider,
 } from '../../../../lib/testUtils';
 import {
-  FrameElement,
   Point,
-  ShapeElement,
   WhiteboardInstance,
   WhiteboardManager,
   WhiteboardSlideInstance,
@@ -204,13 +202,10 @@ describe('MovableElement', () => {
   it('should not detach elements from a frame using touch move if a selection happens during move', () => {
     render(<WhiteboardHost />, { wrapper: Wrapper });
 
-    const frame = activeSlide.getElement('frame-0') as FrameElement;
+    const frame = activeSlide.getElement('frame-0');
 
     // Using the touch events here because the react-draggable
     // library does not listen to pointer events.
-
-    // clear selection
-    act(() => activeSlide.setActiveElementIds([]));
 
     const htmlFrameElement = screen.getByTestId('element-frame-frame-0');
 
@@ -250,14 +245,15 @@ describe('MovableElement', () => {
       ],
     });
 
-    const newFrame = activeSlide.getElement('frame-0') as FrameElement;
-    const ellipse = activeSlide.getElement(
-      'ellipse-in-frame-0',
-    ) as ShapeElement;
-
-    // check that ellipse is connected to the frame
+    const newFrame = activeSlide.getElement('frame-0');
     expect(newFrame).toEqual(frame);
-    expect(newFrame.attachedElements).toEqual(['ellipse-in-frame-0']);
-    expect(ellipse.attachedFrame).toBe('frame-0');
+
+    expect(newFrame).toMatchObject({
+      attachedElements: ['ellipse-in-frame-0'],
+    });
+    // check that ellipse is connected to the frame
+    expect(activeSlide.getElement('ellipse-in-frame-0')).toMatchObject({
+      attachedFrame: 'frame-0',
+    });
   });
 });
