@@ -106,6 +106,16 @@ describe('MovableElement', () => {
                 position: { x: 500, y: 500 },
                 width: 300,
                 height: 300,
+                attachedElements: ['ellipse-in-frame-0'],
+              }),
+            ],
+            [
+              'ellipse-in-frame-0',
+              mockEllipseElement({
+                position: { x: 510, y: 510 },
+                width: 100,
+                height: 100,
+                attachedFrame: 'frame-0',
               }),
             ],
           ],
@@ -187,5 +197,63 @@ describe('MovableElement', () => {
     // expect that element stays in place
     const newEllipse = activeSlide.getElement('element-0');
     expect(oldEllipse?.position).toEqual(newEllipse?.position);
+  });
+
+  it('should not detach elements from a frame using touch move if a selection happens during move', () => {
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    const frame = activeSlide.getElement('frame-0');
+
+    // Using the touch events here because the react-draggable
+    // library does not listen to pointer events.
+
+    const htmlFrameElement = screen.getByTestId('element-frame-frame-0');
+
+    fireEvent.touchStart(htmlFrameElement, {
+      touches: [
+        {
+          identifier: 0,
+          clientX: 505,
+          clientY: 505,
+          isPrimary: true,
+        },
+      ],
+    });
+
+    fireEvent.touchMove(htmlFrameElement, {
+      touches: [
+        {
+          identifier: 0,
+          clientX: 510,
+          clientY: 510,
+          isPrimary: true,
+        },
+      ],
+    });
+
+    // frame got selected before the touch ends
+    act(() => activeSlide.setActiveElementIds(['frame-0']));
+
+    fireEvent.touchEnd(htmlFrameElement, {
+      touches: [],
+      changedTouches: [
+        {
+          identifier: 0,
+          clientX: 510,
+          clientY: 510,
+        },
+      ],
+    });
+
+    const newFrame = activeSlide.getElement('frame-0');
+    expect(newFrame).toEqual(frame);
+
+    expect(newFrame).toMatchObject({
+      attachedElements: ['ellipse-in-frame-0'],
+    });
+    // check that ellipse is connected to the frame
+    expect(activeSlide.getElement('ellipse-in-frame-0')).toMatchObject({
+      attachedFrame: 'frame-0',
+    });
   });
 });

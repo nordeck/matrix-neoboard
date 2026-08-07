@@ -100,6 +100,8 @@ export function MoveableElement({
     setConnectingPathIds,
   } = useSetElementAttachFrame();
 
+  const selectionSizeAtStartRef = useRef(0);
+
   useUnmount(() => {
     if (isDragging.current) {
       removeUserSelectStyles();
@@ -112,8 +114,9 @@ export function MoveableElement({
   const handleStart = useCallback(() => {
     isDragging.current = true;
     addUserSelectStyles();
+    selectionSizeAtStartRef.current = Object.values(elements).length;
     setDelta({ deltaX: 0, deltaY: 0 });
-  }, []);
+  }, [elements]);
 
   const handleDrag = useCallback(
     (event: DraggableEvent, data: DraggableData) => {
@@ -257,7 +260,14 @@ export function MoveableElement({
   const handleStop = useCallback(() => {
     const connectingPathElements =
       resizableProperties?.connectingPathElements ?? {};
-    if (deltaX !== 0 || deltaY !== 0) {
+
+    const cursorMoveDistance = Math.hypot(deltaX, deltaY);
+
+    const selectionHappenedDuringMove =
+      selectionSizeAtStartRef.current === 0 &&
+      Object.values(elements).length > 0;
+
+    if (cursorMoveDistance > 2 && !selectionHappenedDuringMove) {
       const newElementOverrideUpdates = isShowGrid
         ? snapToGridElementOverrideUpdates(
             elementOverrideUpdates,
