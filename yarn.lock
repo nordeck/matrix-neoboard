@@ -162,10 +162,10 @@
   dependencies:
     "@changesets/types" "^6.1.0"
 
-"@changesets/cli@^2.30.0":
-  version "2.31.0"
-  resolved "https://registry.yarnpkg.com/@changesets/cli/-/cli-2.31.0.tgz#7576348cb96ec7ec1d103f5a830cdf6d1ee60426"
-  integrity sha512-AhI4enNTgHu2IZr6K4WZyf0EPch4XVMn1yOMFmCD9gsfBGqMYaHXls5HyDv6/CL5axVQABz68eG30eCtbr2wFg==
+"@changesets/cli@^2.31.0":
+  version "2.31.1"
+  resolved "https://registry.yarnpkg.com/@changesets/cli/-/cli-2.31.1.tgz#aaef4fc5cc4a2aae4e952696593e48ddc7d75a74"
+  integrity sha512-uO05WTcRBwuVOJVSW8Cmpqw6q0WDL53ajGCMyszutvOe5toOnunbpM4jZzf+qxBOz7i0AzopZ8diBuewjmF40w==
   dependencies:
     "@changesets/apply-release-plan" "^7.1.1"
     "@changesets/assemble-release-plan" "^6.0.10"
@@ -1870,10 +1870,10 @@
   resolved "https://registry.yarnpkg.com/@types/node/-/node-12.20.55.tgz#c329cbd434c42164f846b909bd6f85b5537f6240"
   integrity sha512-J8xLz7q2OFulZ2cyGTLE1TbbZcjpno7FaN6zdJNrgAdrJ+DZzh/uFR6YrTb4C+nXakvud8Q4+rbhoIWlYQbUFQ==
 
-"@types/node@^22.19.19":
-  version "22.20.0"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-22.20.0.tgz#431f5007396bc1a1a47b9c7df60f3e5e0b5b7304"
-  integrity sha512-QWlFW2wf3nTjC13/DqRnBpR4ZO36VJH/JVBkA/vcnmbTBNQIlnObqyqZE1tUR7+Ni23Lda8R1BxMfbXRpCUx5g==
+"@types/node@^22.20.0":
+  version "22.20.1"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-22.20.1.tgz#84e7cdf63cdaa20c134aa317ccc901aa21e16f0e"
+  integrity sha512-EANqOCF9QFyra+4pfxUcX9STKJpCLjMbObVzljIJomAWSnuSIEAvyzEU53GaajbXJEgdh0iEcPL+DGvpUd4k1Q==
   dependencies:
     undici-types "~6.21.0"
 

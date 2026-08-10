@@ -1,7 +1,7 @@
 /*
  * Copyright 2018 New Vector Ltd
  * Copyright 2019 The Matrix.org Foundation C.I.C.
- * Copyright 2025 Nordeck IT + Consulting GmbH
+ * Copyright 2025-2026 Nordeck IT + Consulting GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -178,7 +178,15 @@ export default class AutoDiscovery {
         },
         body: JSON.stringify({
           room: roomName,
-          openid_token: openIDToken,
+          // Only forward the credential fields. The Widget API result carries
+          // identity request permissions metadata such as `state` that the
+          // LiveKit JWT Token Service rejects.
+          openid_token: {
+            access_token: openIDToken.access_token,
+            expires_in: openIDToken.expires_in,
+            matrix_server_name: openIDToken.matrix_server_name,
+            token_type: openIDToken.token_type,
+          },
           device_id: widgetApi.widgetParameters.deviceId,
         }),
       });
