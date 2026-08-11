@@ -15,6 +15,7 @@
  */
 
 type DocumentVisibilityState = Document['visibilityState'];
+import { fireEvent } from '@testing-library/react';
 import { vi } from 'vitest';
 
 export function mockDocumentVisibilityState(
@@ -22,4 +23,14 @@ export function mockDocumentVisibilityState(
 ): void {
   vi.spyOn(document, 'visibilityState', 'get').mockReturnValue(visibility);
   document.dispatchEvent(new Event('visibilitychange'));
+}
+
+// jsdom lacks proper pointer event support and fields such as pointerType, clientX
+// will be undefined in the event handlers if we use fireEvent.pointerMove
+export function firePointerMoveEvent(
+  element: Element | Node | Document | Window,
+  options?: {} | undefined,
+): boolean {
+  const event = new Event('pointermove', { bubbles: true, cancelable: true });
+  return fireEvent(element, Object.assign(event, options));
 }
