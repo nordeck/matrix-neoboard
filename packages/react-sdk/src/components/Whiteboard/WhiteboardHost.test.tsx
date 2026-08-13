@@ -162,9 +162,7 @@ describe('<WhiteboardHost/>', () => {
     activeSlide.setActiveElementIds(['element-0']);
     render(<WhiteboardHost />, { wrapper: Wrapper });
 
-    expect(
-      screen.getByRole('button', { name: 'Delete element' }),
-    ).toBeInTheDocument();
+    expect(screen.getByTestId('element-bar-wrapper')).toBeInTheDocument();
   });
 
   it('should not show the element bar if an element is selected and the drag selection start coordinates are set', () => {
@@ -1616,5 +1614,32 @@ describe('<WhiteboardHost/>', () => {
     render(<WhiteboardHost />, { wrapper: Wrapper });
 
     expect(screen.queryByTestId(`rotate-handle`)).not.toBeInTheDocument();
+  });
+
+  it('should not show the element bar or resize handles when drawing with the pen tool', async () => {
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+    act(() => setActiveTool('polyline'));
+    const draftHandler = screen.getByTestId('draft-pointer-handler');
+    await userEvent.pointer([
+      {
+        keys: '[MouseLeft>]',
+        target: draftHandler,
+        coords: { clientX: 50, clientY: 100 },
+      },
+      {
+        pointerName: 'mouse',
+        target: draftHandler,
+        coords: { clientX: 50 + 20, clientY: 100 + 20 },
+      },
+      {
+        keys: '[/MouseLeft]',
+        target: draftHandler,
+      },
+    ]);
+
+    // check that after the polyline was commited we don't see the element bar, resize handlers, outlines
+    expect(screen.queryByTestId(/-outline$/)).not.toBeInTheDocument();
+    expect(screen.queryByTestId('resize-element')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('element-bar-wrapper')).not.toBeInTheDocument();
   });
 });

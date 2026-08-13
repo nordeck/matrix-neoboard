@@ -100,6 +100,7 @@ const FiniteElementBarWrapper: React.FC<ElementBarWrapperProps> = ({
   return (
     <Box
       ref={sizeRef}
+      data-testid="element-bar-wrapper"
       position="absolute"
       zIndex={(theme) => theme.zIndex.appBar}
       left={calculateLeftPosition()}
@@ -183,6 +184,7 @@ const InfiniteElementBarWrapper: React.FC<ElementBarWrapperProps> = ({
   return (
     <Box
       ref={sizeRef}
+      data-testid="element-bar-wrapper"
       position="absolute"
       zIndex={(theme) => theme.zIndex.appBar}
       {...position}
