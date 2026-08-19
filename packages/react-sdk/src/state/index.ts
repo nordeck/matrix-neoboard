@@ -16,6 +16,7 @@
 
 export * from './crdt';
 export * from './export';
+export { defaultStrokeWidth } from './pathConstants';
 export { isInfiniteCanvasPresentationEdit } from './types';
 export type {
   ElementUpdate,

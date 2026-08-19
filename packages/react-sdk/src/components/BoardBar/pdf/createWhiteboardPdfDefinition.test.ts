@@ -22,6 +22,7 @@ import {
   mockEllipseElement,
   mockFrameElement,
   mockLineElement,
+  mockPolylineElement,
   mockTextElement,
   mockWhiteboardManager,
 } from '../../../lib/testUtils/documentTestUtils';
@@ -330,5 +331,60 @@ describe('createWhiteboardPdfDefinition in infinite canvas mode', () => {
     });
 
     expect(doc).toMatchSnapshot();
+  });
+
+  it('should fit strokes of different widths completely', async () => {
+    const { whiteboardManager } = mockWhiteboardManager({
+      slides: [
+        [
+          'slide-0',
+          [
+            [
+              // thick polyline in the top left
+              'element-thick',
+              mockPolylineElement({
+                position: { x: 100, y: 100 },
+                points: [
+                  { x: 0, y: 0 },
+                  { x: 50, y: 0 },
+                  { x: 50, y: 50 },
+                ],
+                strokeWidth: 20,
+              }),
+            ],
+            [
+              // thin polyline in the bottom right
+              'element-thin',
+              mockPolylineElement({
+                position: { x: 300, y: 300 },
+                points: [
+                  { x: 0, y: 0 },
+                  { x: 50, y: 0 },
+                  { x: 50, y: 50 },
+                ],
+                strokeWidth: 2,
+              }),
+            ],
+          ],
+        ],
+      ],
+    });
+
+    const doc = await createWhiteboardPdfDefinition({
+      whiteboardInstance: whiteboardManager.getActiveWhiteboardInstance()!,
+      roomName: 'My Room',
+      authorName: 'Alice',
+      widgetApi: mockWidgetApi(),
+      themePaletteErrorMain: '#d51928',
+    });
+
+    // left / top: thick stroke overflows by 10
+    // right / bottom: thin stroke overflow by 1
+    expect(doc).toMatchObject({
+      pageSize: {
+        width: 351 - 90,
+        height: 351 - 90,
+      },
+    });
   });
 });

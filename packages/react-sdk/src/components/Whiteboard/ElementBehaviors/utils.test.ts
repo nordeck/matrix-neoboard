@@ -895,8 +895,11 @@ describe('findElementAttachFrame', () => {
           'element-id-1': mockRectangleElement({ width: 50, height: 50 }),
           'element-id-2': mockLineElement({
             points: [
-              { x: 0, y: 0 },
-              { x: 50, y: 100 },
+              { x: 0 + 2, y: 0 + 2 },
+              {
+                x: 50 - 2,
+                y: 100 - 2,
+              },
             ],
           }),
           'element-id-3': mockRectangleElement({
@@ -1158,9 +1161,7 @@ describe('getRotationTransformForElements', () => {
     ];
     expect(getRotationTransformForElements(elements)).toBeUndefined();
   });
-});
 
-describe('getBoundingRectForElements', () => {
   it('should get the bounding rect for an array of elements with single shape element', () => {
     const elements = [mockEllipseElement()];
     expect(getBoundingRectForElements(elements)).toEqual({
@@ -1194,11 +1195,12 @@ describe('getBoundingRectForElements', () => {
         ],
       }),
     ];
+    // the default stroke width of 4 overflows by 2 on every side
     expect(getBoundingRectForElements(elements)).toEqual({
-      offsetX: 0,
-      offsetY: 1,
-      width: 2,
-      height: 2,
+      offsetX: -2,
+      offsetY: -1,
+      width: 6,
+      height: 6,
     });
   });
 
@@ -1215,9 +1217,9 @@ describe('getBoundingRectForElements', () => {
     ];
     expect(getBoundingRectForElements(elements)).toEqual({
       offsetX: 0,
-      offsetY: 0,
-      width: 12,
-      height: 6,
+      offsetY: -2,
+      width: 14,
+      height: 8,
     });
   });
 
@@ -1246,6 +1248,86 @@ describe('getBoundingRectForElements', () => {
       offsetY: 0,
       width: 0,
       height: 0,
+    });
+  });
+});
+
+describe('getBoundingRectForElements with strokeWidth', () => {
+  it('should contain the whole stroke of a path', () => {
+    const elements = [
+      mockLineElement({
+        kind: 'polyline',
+        position: { x: 10, y: 10 },
+        points: [
+          { x: 0, y: 0 },
+          { x: 20, y: 20 },
+        ],
+        strokeWidth: 10,
+      }),
+    ];
+    expect(getBoundingRectForElements(elements)).toEqual({
+      offsetX: 5,
+      offsetY: 5,
+      width: 30,
+      height: 30,
+    });
+  });
+
+  it('should pad polylines at boundary corners', () => {
+    const elements = [
+      mockLineElement({
+        kind: 'polyline',
+        position: { x: 100, y: 100 },
+        points: [
+          { x: 0, y: 0 },
+          { x: 50, y: 50 },
+        ],
+        strokeWidth: 20,
+      }),
+      mockLineElement({
+        kind: 'polyline',
+        position: { x: 300, y: 300 },
+        points: [
+          { x: 0, y: 0 },
+          { x: 50, y: 50 },
+        ],
+        strokeWidth: 2,
+      }),
+    ];
+    expect(getBoundingRectForElements(elements)).toEqual({
+      offsetX: 90,
+      offsetY: 90,
+      width: 351 - 90,
+      height: 351 - 90,
+    });
+  });
+
+  it('should not pad shapes', () => {
+    const elements = [mockEllipseElement()];
+    expect(getBoundingRectForElements(elements)).toEqual({
+      offsetX: 0,
+      offsetY: 1,
+      width: 50,
+      height: 100,
+    });
+  });
+
+  it('should use the default stroke width if the path has none', () => {
+    const elements = [
+      mockLineElement({
+        kind: 'polyline',
+        position: { x: 10, y: 10 },
+        points: [
+          { x: 0, y: 0 },
+          { x: 20, y: 20 },
+        ],
+      }),
+    ];
+    expect(getBoundingRectForElements(elements)).toEqual({
+      offsetX: 10 - 2,
+      offsetY: 10 - 2,
+      width: 20 + 4,
+      height: 20 + 4,
     });
   });
 });
