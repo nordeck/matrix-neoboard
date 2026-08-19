@@ -16,6 +16,7 @@
 
 import { PathElement, Point } from '../../../state';
 import { ElementRenderProperties } from '../../Whiteboard';
+import { defaultStrokeWidth } from '../../Whiteboard/constants';
 
 type PolylineRenderProperties = {
   points: Point[];
@@ -26,7 +27,7 @@ export function getRenderProperties(
 ): ElementRenderProperties & PolylineRenderProperties {
   return {
     strokeColor: element.strokeColor,
-    strokeWidth: 4,
+    strokeWidth: element.strokeWidth || defaultStrokeWidth,
 
     points: element.points.map(({ x, y }) => ({
       x: element.position.x + x,

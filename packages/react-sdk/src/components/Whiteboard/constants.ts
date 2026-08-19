@@ -43,3 +43,5 @@ export const stickyColor = '#ffefc1';
 export const zoomStep = 0.1;
 export const zoomMax = 4;
 export const zoomMin = 0.05;
+
+export const defaultStrokeWidth = 4;
