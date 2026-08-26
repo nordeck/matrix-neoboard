@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { segmentsToSvgPath, simplifyPathPaperSegments } from '../../../lib';
 import { calculateBoundingRectForPoints, PathElement } from '../../../state';
 import {
   ElementContextMenu,
@@ -39,15 +40,39 @@ const PolylineDisplay = ({
   const { strokeColor, strokeWidth, points } = getRenderProperties(element);
   const boundingRect = calculateBoundingRectForPoints(element.points);
 
+  const [d, setD] = useState('');
+
+  useEffect(() => {
+    if (elementId === 'draft') return;
+
+    // Timeout should make the UI more responsive if many paths are being siplified at the same time (initial load for example).
+    const timer = setTimeout(() => {
+      const segments = simplifyPathPaperSegments(points);
+      const d = segmentsToSvgPath(segments, 4);
+      setD(d);
+    }, 0);
+
+    return () => clearTimeout(timer);
+  }, [points, elementId]);
+
   const renderedChild = (
     <g>
-      <polyline
-        fill="none"
-        points={points.map(({ x, y }) => `${x},${y}`).join(' ')}
-        stroke={strokeColor}
-        strokeLinejoin="round"
-        strokeWidth={strokeWidth}
-      />
+      {d ? (
+        <path
+          d={d}
+          fill="none"
+          stroke={strokeColor}
+          strokeWidth={strokeWidth}
+        ></path>
+      ) : (
+        <polyline
+          fill="none"
+          points={points.map(({ x, y }) => `${x},${y}`).join(' ')}
+          stroke={strokeColor}
+          strokeLinejoin="round"
+          strokeWidth={strokeWidth}
+        />
+      )}
     </g>
   );
 
