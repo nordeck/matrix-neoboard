@@ -24,6 +24,7 @@ import { DuplicateActiveElementButton } from './DuplicateActiveElementButton';
 import { FontFamilyButton } from './FontFamilyButton';
 import { FontSizeButton } from './FontSizeButton';
 import { LineMarkerButtons } from './LineMarkerButtons';
+import { PolylineThicknessSelect } from './PolylineThicknessSelect';
 import { TextAlignmentButtons } from './TextAlignmentButtons';
 import { TextBoldButton } from './TextBoldButton';
 import { TextItalicButton } from './TextItalicButton';
@@ -48,6 +49,7 @@ function ElementBar({
         </>
       )}
       <ElementColorPicker />
+      <PolylineThicknessSelect />
       <DuplicateActiveElementButton />
       <DeleteActiveElementButton />
     </Toolbar>

@@ -60,6 +60,7 @@ type LayoutState = {
   activeShapeTextShade: number;
   activeStartLineMarker: LineMarker | undefined;
   activeEndLineMarker: LineMarker | undefined;
+  activePolylineThickness: number | undefined;
   isRotating: boolean;
   isPinchZooming: boolean;
 
@@ -81,6 +82,7 @@ type LayoutState = {
   setActiveEndLineMarker: (marker: LineMarker | undefined) => void;
   setIsRotating: (value: boolean) => void;
   setIsPinchZooming: (value: boolean) => void;
+  setActivePolylineThickness: (value: number | undefined) => void;
 
   /**
    * Whether the layout is displayed in fullscreen mode.
@@ -151,6 +153,10 @@ export function LayoutStateProvider({ children }: PropsWithChildren<{}>) {
   };
   const [isRotating, setIsRotating] = useState<boolean>(false);
 
+  const [activePolylineThickness, setActivePolylineThickness] = useState<
+    number | undefined
+  >();
+
   const value = useMemo(
     () => ({
       isSlideOverviewVisible,
@@ -170,6 +176,7 @@ export function LayoutStateProvider({ children }: PropsWithChildren<{}>) {
       activeShapeTextShade,
       activeStartLineMarker,
       activeEndLineMarker,
+      activePolylineThickness,
       setSlideOverviewVisible,
       setDeveloperToolsVisible,
       setShowCollaboratorsCursors,
@@ -184,6 +191,7 @@ export function LayoutStateProvider({ children }: PropsWithChildren<{}>) {
       setActiveShapeShade,
       setActiveShapeTextColor,
       setActiveShapeTextShade,
+      setActivePolylineThickness,
       isFullscreenMode,
       setFullscreenMode,
       dragSelectStartCoords,
@@ -221,6 +229,8 @@ export function LayoutStateProvider({ children }: PropsWithChildren<{}>) {
       setIsRotating,
       isPinchZooming,
       setIsPinchZooming,
+      activePolylineThickness,
+      setActivePolylineThickness,
     ],
   );
 

@@ -135,6 +135,7 @@ export function createShapeFromPoints({
   kind,
   cursorPoints,
   strokeColor,
+  strokeWidth,
   frameElements = {},
   gridCellSize,
   onlyStartAndEndPoints = false,
@@ -146,6 +147,7 @@ export function createShapeFromPoints({
   kind: PathKind;
   cursorPoints: Point[];
   strokeColor: string;
+  strokeWidth?: number;
   frameElements?: Elements<FrameElement>;
   gridCellSize?: number;
   onlyStartAndEndPoints?: boolean;
@@ -183,6 +185,10 @@ export function createShapeFromPoints({
     connectedElementStart,
     connectedElementEnd,
   };
+
+  if (kind === 'polyline') {
+    pathElement.strokeWidth = strokeWidth;
+  }
 
   return copyElementWithAttachedFrame(pathElement, frameElements);
 }
