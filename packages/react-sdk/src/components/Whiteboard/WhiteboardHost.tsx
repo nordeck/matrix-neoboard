@@ -73,8 +73,12 @@ const WhiteboardHost = ({
   withOutline?: boolean;
 }) => {
   const slideInstance = useWhiteboardSlideInstance();
-  const { isShowCollaboratorsCursors, dragSelectStartCoords, isRotating } =
-    useLayoutState();
+  const {
+    isShowCollaboratorsCursors,
+    dragSelectStartCoords,
+    isRotating,
+    activeTool,
+  } = useLayoutState();
   const { activeElementIds, activeElementSet } = useActiveElements();
 
   const activeAndAttachedElementIds = findActiveAndAttachedElementIds(
@@ -96,6 +100,8 @@ const WhiteboardHost = ({
     includesShapeWithText(Object.values(elements));
 
   const showTextTools = textToolsEnabled || hasElementWithText;
+
+  const isInPenMode = activeTool === 'polyline';
 
   const ChildrenWrapper = infiniteCanvasMode ? PinchZoomHandler : Fragment;
 
@@ -127,6 +133,7 @@ const WhiteboardHost = ({
           dragSelectStartCoords === undefined &&
           !readOnly &&
           !isRotating &&
+          !isInPenMode &&
           activeElementIds.length > 0 && (
             <ElementBarWrapper elementIds={activeElementIds}>
               <ElementBar showTextTools={showTextTools} />
@@ -180,7 +187,7 @@ const WhiteboardHost = ({
 
           {dragSelectStartCoords && <DragSelect />}
 
-          {!readOnly && activeElementIds.length > 0 && (
+          {!readOnly && activeElementIds.length > 0 && !isInPenMode && (
             <>
               <ElementOutline elementIds={activeElementIds} />
               {dragSelectStartCoords === undefined && (
