@@ -164,6 +164,7 @@ export function textContent(
     text,
     alignment: textProperties.alignment,
     color: findForegroundColor(element.fillColor),
+    decoration: textProperties.underline ? ['underline'] : [],
     fontSize,
     lineHeight: 1,
     margin: 0,

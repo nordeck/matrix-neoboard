@@ -74,7 +74,7 @@ describe('useToggleUnderline', () => {
     expect(result.current.isUnderline).toBe(false);
   });
 
-  it('should toggle underline for one element', async () => {
+  it('should set underline for one element', async () => {
     slide.setActiveElementId('rectangle');
     const { result } = renderHook(useToggleUnderline, { wrapper: Wrapper });
 
@@ -84,6 +84,19 @@ describe('useToggleUnderline', () => {
 
     expect(slide.getElement('rectangle')).toEqual(
       expect.objectContaining({ textUnderline: true }),
+    );
+  });
+
+  it('should remove underline from one element', () => {
+    slide.setActiveElementId('circle');
+    const { result } = renderHook(useToggleUnderline, { wrapper: Wrapper });
+
+    act(() => {
+      result.current.toggleUnderline();
+    });
+
+    expect(slide.getElement('circle')).toEqual(
+      expect.objectContaining({ textUnderline: false }),
     );
   });
 
