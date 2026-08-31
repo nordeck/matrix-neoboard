@@ -24,6 +24,7 @@ export function fitText(
   fontSize?: number,
   fontWeightBold = false,
   fontStyleItalic = false,
+  textDecorationUnderline = false,
 ) {
   const width = element.clientWidth;
   const height = element.clientHeight;
@@ -43,6 +44,7 @@ export function fitText(
       fontSize,
       fontWeightBold,
       fontStyleItalic,
+      textDecorationUnderline,
     },
   );
 
@@ -94,6 +96,7 @@ export function getTextSize(
     fontSize?: number;
     fontWeightBold?: boolean;
     fontStyleItalic?: boolean;
+    textDecorationUnderline?: boolean;
   } = {},
 ): {
   fontSize: number;
@@ -119,6 +122,9 @@ export function getTextSize(
   element.style.textAlign = 'center';
   element.style.fontWeight = opts.fontWeightBold ? 'bold' : 'normal';
   element.style.fontStyle = opts.fontStyleItalic ? 'italic' : 'normal';
+  element.style.textDecorationLine = opts.textDecorationUnderline
+    ? 'underline'
+    : 'none';
   element.style.overflow = 'visible';
   element.style.fontVariantLigatures = opts?.disableLigatures
     ? 'none'

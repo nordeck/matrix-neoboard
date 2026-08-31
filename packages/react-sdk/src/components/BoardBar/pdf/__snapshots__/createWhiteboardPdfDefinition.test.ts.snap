@@ -41,6 +41,9 @@ exports[`createWhiteboardPdfDefinition > should generate a pdf header and table 
                     {
                       "alignment": "center",
                       "color": "#000",
+                      "decoration": [
+                        "underline",
+                      ],
                       "font": "Inter",
                       "fontSize": 10,
                       "lineHeight": 1,
@@ -96,6 +99,7 @@ exports[`createWhiteboardPdfDefinition > should generate a pdf header and table 
                     {
                       "alignment": "center",
                       "color": "#000",
+                      "decoration": [],
                       "font": "Inter",
                       "fontSize": 10,
                       "lineHeight": 1,
@@ -149,6 +153,7 @@ exports[`createWhiteboardPdfDefinition > should generate a pdf header and table 
                     {
                       "alignment": "right",
                       "color": "#000",
+                      "decoration": [],
                       "font": "Inter",
                       "fontSize": 10,
                       "lineHeight": 1,
@@ -206,6 +211,7 @@ exports[`createWhiteboardPdfDefinition > should generate a pdf header and table 
                     {
                       "alignment": "center",
                       "color": "#000",
+                      "decoration": [],
                       "font": "Inter",
                       "fontSize": 10,
                       "lineHeight": 1,
@@ -270,6 +276,7 @@ exports[`createWhiteboardPdfDefinition > should generate a pdf header and table 
                     {
                       "alignment": "center",
                       "color": "#000",
+                      "decoration": [],
                       "font": "Inter",
                       "fontSize": 10,
                       "lineHeight": 1,
@@ -410,6 +417,7 @@ exports[`createWhiteboardPdfDefinition in infinite canvas mode > should export a
                     {
                       "alignment": "center",
                       "color": "#000",
+                      "decoration": [],
                       "font": "Inter",
                       "fontSize": 10,
                       "lineHeight": 1,
@@ -465,6 +473,7 @@ exports[`createWhiteboardPdfDefinition in infinite canvas mode > should export a
                     {
                       "alignment": "center",
                       "color": "#000",
+                      "decoration": [],
                       "font": "Inter",
                       "fontSize": 10,
                       "lineHeight": 1,
@@ -518,6 +527,7 @@ exports[`createWhiteboardPdfDefinition in infinite canvas mode > should export a
                     {
                       "alignment": "right",
                       "color": "#000",
+                      "decoration": [],
                       "font": "Inter",
                       "fontSize": 10,
                       "lineHeight": 1,
@@ -575,6 +585,7 @@ exports[`createWhiteboardPdfDefinition in infinite canvas mode > should export a
                     {
                       "alignment": "center",
                       "color": "#000",
+                      "decoration": [],
                       "font": "Inter",
                       "fontSize": 10,
                       "lineHeight": 1,
@@ -639,6 +650,7 @@ exports[`createWhiteboardPdfDefinition in infinite canvas mode > should export a
                     {
                       "alignment": "center",
                       "color": "#000",
+                      "decoration": [],
                       "font": "Inter",
                       "fontSize": 10,
                       "lineHeight": 1,
@@ -730,6 +742,7 @@ exports[`createWhiteboardPdfDefinition in infinite canvas mode > should export e
                     {
                       "alignment": "center",
                       "color": "#000",
+                      "decoration": [],
                       "font": "Inter",
                       "fontSize": 10,
                       "lineHeight": 1,
@@ -792,6 +805,7 @@ exports[`createWhiteboardPdfDefinition in infinite canvas mode > should export e
                     {
                       "alignment": "center",
                       "color": "#000",
+                      "decoration": [],
                       "font": "Inter",
                       "fontSize": 10,
                       "lineHeight": 1,

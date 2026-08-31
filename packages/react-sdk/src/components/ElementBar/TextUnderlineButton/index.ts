@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Nordeck IT + Consulting GmbH
+ * Copyright 2026 Nordeck IT + Consulting GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,4 @@
  * limitations under the License.
  */
 
-export { isEmptyText } from './isEmptyText';
-export { useFontSize } from './useFontSize';
-export { useToggleBold } from './useToggleBold';
-export { useToggleItalic } from './useToggleItalic';
-export { useToggleUnderline } from './useToggleUnderline';
+export { TextUnderlineButton } from '././TextUnderlineButton';

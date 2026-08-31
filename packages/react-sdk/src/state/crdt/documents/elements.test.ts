@@ -250,6 +250,7 @@ describe('isValidElement', () => {
       textColor: '#ffffff',
       textBold: false,
       textItalic: true,
+      textUnderline: false,
       additional: 'data',
     };
 
@@ -383,6 +384,9 @@ describe('isValidElement', () => {
     { textItalic: null },
     { textItalic: 111 },
     { textItalic: 'other' },
+    { textUnderline: null },
+    { textUnderline: 111 },
+    { textUnderline: 'other' },
     { connectedPaths: 111 },
     { connectedPaths: null },
     { connectedPaths: [{}] },

@@ -61,14 +61,11 @@ const RectangleDisplay = ({
     : undefined;
 
   const renderedChild = (
-    <g
-      data-testid={dataTestid}
-      transform={transform}
-      style={stickyNote ? { filter: 'url(#bottom-shadow)' } : {}}
-    >
+    <g data-testid={dataTestid} transform={transform}>
       {stickyNote && shadowFilter}
       <rect
         data-connect-type="connectable-element"
+        style={stickyNote ? { filter: 'url(#bottom-shadow)' } : {}}
         x={shape.position.x}
         y={shape.position.y}
         fill={shape.fillColor}
@@ -86,6 +83,7 @@ const RectangleDisplay = ({
           textAlignment={text.alignment}
           textBold={text.bold}
           textItalic={text.italic}
+          textUnderline={text.underline}
           elementId={elementId}
           x={text.position.x}
           y={text.position.y}

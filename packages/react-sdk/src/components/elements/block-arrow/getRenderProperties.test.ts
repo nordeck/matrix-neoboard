@@ -42,6 +42,7 @@ describe('getRenderProperties', () => {
         alignment: 'center',
         bold: false,
         italic: false,
+        underline: false,
         fontFamily: 'Inter',
         fontSize: 12,
       },
@@ -82,6 +83,7 @@ describe('getRenderProperties', () => {
         alignment: 'center',
         bold: false,
         italic: false,
+        underline: false,
         fontFamily: 'Inter',
         fontSize: 12,
       },
@@ -130,6 +132,7 @@ describe('getRenderProperties', () => {
         text: expect.objectContaining({
           bold: true,
           italic: false,
+          underline: false,
         }),
       }),
     );
@@ -145,8 +148,27 @@ describe('getRenderProperties', () => {
     expect(view).toEqual(
       expect.objectContaining({
         text: expect.objectContaining({
-          italic: true,
           bold: false,
+          italic: true,
+          underline: false,
+        }),
+      }),
+    );
+  });
+
+  it('should provide the properties for a block arrow element with underline text', () => {
+    const element = mockBlockArrowElement({
+      textUnderline: true,
+    });
+
+    const view = getRenderProperties(element);
+
+    expect(view).toEqual(
+      expect.objectContaining({
+        text: expect.objectContaining({
+          bold: false,
+          italic: false,
+          underline: true,
         }),
       }),
     );

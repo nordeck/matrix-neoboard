@@ -66,6 +66,7 @@ describe('createWhiteboardPdfDefinition', () => {
                 kind: 'rectangle',
                 text: 'Rectangle',
                 textFontFamily: 'Inter',
+                textUnderline: true,
               }),
             ],
             [
