@@ -193,8 +193,7 @@ export class MatrixRtcSessionManagerImpl implements SessionManager<MatrixRtcSess
         await this.handleRtcMemberEvent(rtcMemberEvent);
       });
 
-    const transports: Transport[] = (await widgetApi.getRtcTransports())
-      .rtc_transports;
+    const transports: Transport[] = await widgetApi.getRtcTransports();
     const livekitTransport = getLivekitTransport(transports);
 
     await this.sendRtcMemberJoinEvent(memberId, whiteboardId, transports);

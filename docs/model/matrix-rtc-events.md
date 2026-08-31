@@ -42,14 +42,14 @@ All other events and relations remain as described in [Matrix Events](matrix-eve
 ### `org.matrix.msc4143.rtc.slot` (State event)
 
 This is a renamed `net.nordeck.whiteboard` event with [MSC4143: MatrixRTC][MSC4143] slot specific fields
-added to the content: `status`, `applicaiton.type`.
+added to the content: `status`, `application.type`.
 
 #### Fields
 
 | Field                    | Type                     | Description                                              |
 | ------------------------ | ------------------------ | -------------------------------------------------------- |
-| `status`                 | `'open'`                 | A slot's status.                                         |
-| `application.type`       | `net.nordeck.whiteboard` | Nordeck whiteboard application identifier.               |
+| `status`                 | `string`                 | A slot's status, either 'open' or 'closed'.                                         |
+| `application.type`       | `string` | Nordeck whiteboard application identifier: `net.nordeck.whiteboard`               |
 | `application.documentId` | `string`                 | A `net.nordeck.whiteboard.document.create` room event id |
 
 #### Example
@@ -58,7 +58,7 @@ added to the content: `status`, `applicaiton.type`.
 {
   "type": "org.matrix.msc4143.rtc.slot",
   "sender": "@user-id:example.com",
-  "state_key": "<whiteboard-id>",
+  "state_key": "net.nordeck.whiteboard#whiteboard-id",
   "content": {
     "status": "open",
     "application": {
@@ -89,7 +89,7 @@ Sending a `m.rtc.member` event with `membership` equal to `join` for an opened s
 | `member.deviceId`           | `string`                   | The Device ID of the user's client.                                             |
 | `application.type`          | `'net.nordeck.whiteboard'` | Nordeck whiteboard application identifier.                                      |
 | `application.whiteboard_id` | `string`                   | A whiteboard id.                                                                |
-| `transports.published[]`    | `array`                    | Array of transports used by member to publis media, see MatrixRTC transports.   |
+| `transports.published[]`    | `array`                    | Array of transports used by member to publish media, see MatrixRTC transports.   |
 | `transports.can_subscribe`  | `array`                    | Array of transports member can subscribe to. At the moment: `['livekit']` only. |
 | `msc4354_sticky_key`        | `string`                   | The sticky key. Must be the same as `member.id`.                                |
 
@@ -141,7 +141,7 @@ The `leave_reason.code` is set to `delayed_leave` when user's [MSC4140 delayed e
 | -------------------- | ---------------------------- | -------------------------------------------------------------------------- |
 | `slot_id`            | `string`                     | A MatrixRTC slot ID, example: `net.nordeck.whiteboard#whiteboard-id`       |
 | `member.id`          | `string`                     | A unique user identifier for each join, even for the same user and device. |
-| `member.membership`  | `'leave'`                    | Idnentifies membership event as `leave`.                                   |
+| `member.membership`  | `'leave'`                    | Identifies membership event as `leave`.                                   |
 | `member.deviceId`    | `string`                     | The Device ID of the user's client.                                        |
 | `leave_reason.code`  | `'leave' \| 'delayed_leave'` | Leave code.                                                                |
 | `msc4354_sticky_key` | `string`                     | The sticky key. Must be the same as `member.id`.                           |

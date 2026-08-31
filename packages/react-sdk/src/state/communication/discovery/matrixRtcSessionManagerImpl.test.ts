@@ -62,14 +62,12 @@ describe('MatrixRtcSessionManagerImpl', () => {
     // @ts-ignore forcefully set for tests
     widgetApi.widgetParameters.roomId = '!room-id:example.com';
 
-    widgetApi.getRtcTransports.mockResolvedValue({
-      rtc_transports: [
-        {
-          type: 'livekit',
-          livekit_service_url: 'https://livekit-jwt.example.com',
-        },
-      ],
-    });
+    widgetApi.getRtcTransports.mockResolvedValue([
+      {
+        type: 'livekit',
+        livekit_service_url: 'https://livekit-jwt.example.com',
+      },
+    ]);
 
     rtcSessionManager = new MatrixRtcSessionManagerImpl(
       widgetApi,
