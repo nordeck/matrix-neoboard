@@ -15,9 +15,11 @@
  */
 
 export {
+  MoveShiftMultiplier,
   gridCellSize,
   infiniteCanvasMode,
   matrixRtcMode,
+  moveStepSize,
   whiteboardHeight,
   whiteboardWidth,
 } from './constants';

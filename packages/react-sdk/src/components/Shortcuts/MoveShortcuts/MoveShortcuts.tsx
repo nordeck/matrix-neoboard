@@ -30,8 +30,9 @@ import {
   findElementAttachFrame,
   findElementFrameChanges,
   getPathElements,
-  gridCellSize,
   mergeElementsAndOverrides,
+  MoveShiftMultiplier,
+  moveStepSize,
   whiteboardHeight,
   whiteboardWidth,
 } from '../../Whiteboard';
@@ -39,6 +40,18 @@ import { HOTKEY_SCOPE_WHITEBOARD } from '../../WhiteboardHotkeysProvider';
 
 export function MoveShortcuts() {
   const slideInstance = useWhiteboardSlideInstance();
+
+  /**
+   * Calculates the distance to move an element for a single key press.
+   *
+   * @param shiftKey - Whether the shift key is held down, which multiplies the step size.
+   * @returns The step size, in whiteboard units.
+   */
+  const getStepSize = useCallback(
+    (shiftKey: boolean) =>
+      shiftKey ? moveStepSize * MoveShiftMultiplier : moveStepSize,
+    [],
+  );
 
   const moveElements = useCallback(
     (dx: number, dy: number) => {
@@ -110,26 +123,27 @@ export function MoveShortcuts() {
   );
 
   const handleMoveUp = useCallback(
-    () => moveElements(0, -gridCellSize),
-    [moveElements],
+    (event: KeyboardEvent) => moveElements(0, -getStepSize(event.shiftKey)),
+    [moveElements, getStepSize],
   );
   const handleMoveDown = useCallback(
-    () => moveElements(0, gridCellSize),
-    [moveElements],
+    (event: KeyboardEvent) => moveElements(0, getStepSize(event.shiftKey)),
+    [moveElements, getStepSize],
   );
   const handleMoveLeft = useCallback(
-    () => moveElements(-gridCellSize, 0),
-    [moveElements],
+    (event: KeyboardEvent) => moveElements(-getStepSize(event.shiftKey), 0),
+    [moveElements, getStepSize],
   );
   const handleMoveRight = useCallback(
-    () => moveElements(gridCellSize, 0),
-    [moveElements],
+    (event: KeyboardEvent) => moveElements(getStepSize(event.shiftKey), 0),
+    [moveElements, getStepSize],
   );
 
   const options = {
     preventDefault: true,
     enableOnContentEditable: true,
     scopes: HOTKEY_SCOPE_WHITEBOARD,
+    ignoreModifiers: true,
   } as const;
 
   useHotkeys('arrowup', handleMoveUp, options, [handleMoveUp]);
