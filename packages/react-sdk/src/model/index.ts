@@ -36,20 +36,28 @@ export {
 } from './documentSnapshot';
 export type { DocumentSnapshot } from './documentSnapshot';
 export {
-  STATE_EVENT_RTC_MEMBER,
-  isRTCSessionNotExpired,
-  isValidRTCSessionStateEvent,
-  isWhiteboardRTCSessionStateEvent,
-  newRTCSession,
-} from './matrixRtcSessions';
-export type { RTCSessionEventContent } from './matrixRtcSessions';
+  ROOM_EVENT_4143_RTC_MEMBER,
+  isLivekitTransport,
+  isRtcMemberJoinEvent,
+  isRtcMemberLeaveEvent,
+  isValidWhiteboardRtcMemberEvent,
+} from './matrixRtcMember';
+export type {
+  LivekitTransport,
+  RtcMember,
+  RtcMemberJoin,
+  RtcMemberLeave,
+  Transport,
+} from './matrixRtcMember';
 export { STATE_EVENT_ROOM_NAME, isValidRoomNameEvent } from './roomNameEvent';
 export type { RoomNameEvent } from './roomNameEvent';
 export {
+  STATE_EVENT_4143_RTC_SLOT,
   STATE_EVENT_WHITEBOARD,
+  isValidNordeckWhiteboardStateEvent,
   isValidWhiteboardStateEvent,
 } from './whiteboard';
-export type { Whiteboard } from './whiteboard';
+export type { NordeckWhiteboard, Whiteboard } from './whiteboard';
 export {
   STATE_EVENT_WHITEBOARD_SESSIONS,
   isNotExpired,

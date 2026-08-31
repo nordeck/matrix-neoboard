@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import { TableBody, TableHead, TableRow } from '@mui/material';
+import { TableBody, TableRow } from '@mui/material';
 import { useTranslation } from 'react-i18next';
+import { isMatrixRtcMode } from '../../lib';
 import { CommunicationChannelStatistics } from '../../state/communication';
 import { PeerConnectionDetail } from './PeerConnectionDetail';
 import {
-  StyledDevtoolsHeaderCell,
   StyledDevtoolsTable,
   StyledDevtoolsTableCell,
 } from './StyledDevtoolsTable';
@@ -30,6 +30,7 @@ export function CommunicationChannelStatisticsView({
   communicationChannel: CommunicationChannelStatistics;
 }) {
   const { t } = useTranslation('neoboard');
+  const matrixRtcMode = isMatrixRtcMode();
 
   return (
     <StyledDevtoolsTable
@@ -38,28 +39,52 @@ export function CommunicationChannelStatisticsView({
         'Communication Channel Statistics',
       )}
     >
-      <TableHead>
+      <TableBody>
         <TableRow>
-          <StyledDevtoolsHeaderCell
-            content={t(
+          <StyledDevtoolsTableCell>
+            {t(
               'boardBar.developerToolsDialog.communicationChannelStatistics.localSessionId',
               'Local Session Id',
             )}
-          />
-          <StyledDevtoolsHeaderCell
-            content={t(
+          </StyledDevtoolsTableCell>
+          <StyledDevtoolsTableCell>
+            {communicationChannel.localSession?.sessionId}
+          </StyledDevtoolsTableCell>
+        </TableRow>
+        {matrixRtcMode && (
+          <TableRow>
+            <StyledDevtoolsTableCell>
+              {t(
+                'boardBar.developerToolsDialog.communicationChannelStatistics.localMemberId',
+                'Local Member Id',
+              )}
+            </StyledDevtoolsTableCell>
+            <StyledDevtoolsTableCell>
+              {communicationChannel.localSession?.memberId}
+            </StyledDevtoolsTableCell>
+          </TableRow>
+        )}
+        {matrixRtcMode && (
+          <TableRow>
+            <StyledDevtoolsTableCell>
+              {t(
+                'boardBar.developerToolsDialog.communicationChannelStatistics.localSfuConnectionId',
+                'Local SFU Connection Id',
+              )}
+            </StyledDevtoolsTableCell>
+            <StyledDevtoolsTableCell>
+              {communicationChannel.localSession?.livekitServiceUrl}
+            </StyledDevtoolsTableCell>
+          </TableRow>
+        )}
+        <TableRow>
+          <StyledDevtoolsTableCell>
+            {t(
               'boardBar.developerToolsDialog.communicationChannelStatistics.peers',
               'Peers',
             )}
-          />
-        </TableRow>
-      </TableHead>
-      <TableBody>
-        <TableRow>
-          <StyledDevtoolsTableCell align="right">
-            {communicationChannel.localSessionId}
           </StyledDevtoolsTableCell>
-          <StyledDevtoolsTableCell align="right">
+          <StyledDevtoolsTableCell>
             {Object.keys(communicationChannel.peerConnections).length}
           </StyledDevtoolsTableCell>
         </TableRow>

@@ -16,7 +16,7 @@
 
 import { TableBody, TableHead, TableRow } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { SessionState } from '../../state/communication/discovery/sessionManagerImpl';
+import { SessionStatistics } from '../../state/communication';
 import {
   StyledDevtoolsHeaderCell,
   StyledDevtoolsTable,
@@ -26,7 +26,7 @@ import {
 export function WhiteboardSessionsTable({
   sessions,
 }: {
-  sessions: SessionState[] | undefined;
+  sessions: [string, SessionStatistics][];
 }) {
   const { t } = useTranslation('neoboard');
 
@@ -51,32 +51,21 @@ export function WhiteboardSessionsTable({
               'Session ID',
             )}
           />
-          <StyledDevtoolsHeaderCell
-            content={t(
-              'boardBar.developerToolsDialog.communicationChannelStatistics.whiteboardSessionsTable.expiresState',
-              'State',
-            )}
-          />
         </TableRow>
       </TableHead>
       <TableBody>
-        {sessions && sessions.length > 0 ? (
+        {sessions.length > 0 ? (
           sessions
-            .sort((a, b) => a.userId.localeCompare(b.userId))
-            .map((session) => (
-              <TableRow key={session.userId}>
+            .sort(([_sessionIdA, a], [_sessionIdB, b]) =>
+              a.userId.localeCompare(b.userId),
+            )
+            .map(([sessionId, session]) => (
+              <TableRow key={sessionId}>
                 <StyledDevtoolsTableCell align="left">
                   {session.userId}
                 </StyledDevtoolsTableCell>
                 <StyledDevtoolsTableCell align="left">
-                  {session.sessionId}
-                </StyledDevtoolsTableCell>
-                <StyledDevtoolsTableCell align="right">
-                  {t(
-                    'boardBar.developerToolsDialog.communicationChannelStatistics.whiteboardSessionsTable.expire',
-                    'Session will expire in {{expire}}.',
-                    { expire: formatTime(session.expiresTs - Date.now()) },
-                  )}
+                  {sessionId}
                 </StyledDevtoolsTableCell>
               </TableRow>
             ))
@@ -93,11 +82,4 @@ export function WhiteboardSessionsTable({
       </TableBody>
     </StyledDevtoolsTable>
   );
-}
-
-function formatTime(milliseconds: number): string {
-  const minutes = Math.floor(milliseconds / 60000);
-  const seconds = Math.floor((milliseconds % 60000) / 1000);
-
-  return `${minutes}m ${seconds}s`;
 }

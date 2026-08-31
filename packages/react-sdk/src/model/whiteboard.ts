@@ -19,19 +19,42 @@ import Joi from 'joi';
 import { isValidEvent } from './validation';
 
 export const STATE_EVENT_WHITEBOARD = 'net.nordeck.whiteboard';
+export const STATE_EVENT_4143_RTC_SLOT = 'org.matrix.msc4143.rtc.slot';
 
-export type Whiteboard = {
+export type NordeckWhiteboard = {
   documentId: string;
-
-  // TODO: controlling whiteboard?
 };
 
-const whiteboardSchema = Joi.object<Whiteboard, true>({
+export type Whiteboard = {
+  status: string;
+  application: {
+    type: 'net.nordeck.whiteboard';
+    documentId: string;
+  };
+};
+
+const nordeckWhiteboardSchema = Joi.object<NordeckWhiteboard, true>({
   documentId: Joi.string().required(),
 }).unknown();
+
+const whiteboardSchema = Joi.object<Whiteboard, true>({
+  status: Joi.string().valid('open').required(),
+  application: Joi.object({
+    type: Joi.string().valid('net.nordeck.whiteboard').required(),
+    documentId: Joi.string().required(),
+  })
+    .unknown()
+    .required(),
+}).unknown();
+
+export function isValidNordeckWhiteboardStateEvent(
+  event: StateEvent<unknown>,
+): event is StateEvent<NordeckWhiteboard> {
+  return isValidEvent(event, STATE_EVENT_WHITEBOARD, nordeckWhiteboardSchema);
+}
 
 export function isValidWhiteboardStateEvent(
   event: StateEvent<unknown>,
 ): event is StateEvent<Whiteboard> {
-  return isValidEvent(event, STATE_EVENT_WHITEBOARD, whiteboardSchema);
+  return isValidEvent(event, STATE_EVENT_4143_RTC_SLOT, whiteboardSchema);
 }

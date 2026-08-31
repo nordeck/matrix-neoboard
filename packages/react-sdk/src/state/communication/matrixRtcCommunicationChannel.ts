@@ -15,9 +15,9 @@
  */
 
 import { WidgetApi } from '@matrix-widget-toolkit/api';
-import { ConnectionState } from 'livekit-client';
 import cloneDeep from 'lodash/cloneDeep';
 import { getLogger } from 'loglevel';
+import { IOpenIDCredentials } from 'matrix-widget-api';
 import {
   BehaviorSubject,
   distinctUntilChanged,
@@ -27,28 +27,23 @@ import {
   switchMap,
   takeUntil,
 } from 'rxjs';
-import { MatrixRtcPeerConnection, PeerConnection } from './connection';
+import { getServerNameFromUserId } from '../../lib';
 import {
-  isLivekitFocusConfig,
-  LivekitFocus,
-  RTCFocus,
-  Session,
-} from './discovery';
-import AutoDiscovery from './discovery/autodiscovery';
-import { SessionState } from './discovery/sessionManagerImpl';
-import { MatrixRtcSessionManager } from './discovery/types';
-import {
-  CommunicationChannel,
-  CommunicationChannelStatistics,
+  MatrixRtcPeerConnection,
   Message,
+  MessageOptions,
+  PeerConnection,
   PeerConnectionStatistics,
-} from './types';
+} from './connection';
+import { MatrixRtcSession, SessionManager } from './discovery';
+import AutoDiscovery from './discovery/autodiscovery';
+import { CommunicationChannel, CommunicationChannelStatistics } from './types';
 import { observeVisibilityState } from './visibilityState';
 
-export interface SFUConfig {
-  url: string;
-  jwt: string;
-}
+type PeerConnectionWrapper = {
+  connectionId: string;
+  connection?: PeerConnection;
+};
 
 export class MatrixRtcCommunicationChannel implements CommunicationChannel {
   private readonly logger = getLogger('MatrixRtcCommunicationChannel');
@@ -56,16 +51,17 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
   private readonly messagesSubject = new Subject<Message>();
   private readonly statisticsSubject =
     new Subject<CommunicationChannelStatistics>();
+
+  private readonly peerConnections: Map<string, PeerConnectionWrapper> =
+    new Map<string, PeerConnectionWrapper>();
   private readonly statistics: CommunicationChannelStatistics = {
     peerConnections: {},
-    sessions: [],
+    sessions: {},
   };
-  private readonly peerConnections: PeerConnection[] = [];
-  private sfuConfig: SFUConfig | undefined;
 
   constructor(
     private readonly widgetApiPromise: Promise<WidgetApi> | WidgetApi,
-    private readonly sessionManager: MatrixRtcSessionManager,
+    private readonly sessionManager: SessionManager<MatrixRtcSession>,
     private readonly whiteboardId: string,
     onEnableObserveVisibilityState: Observable<boolean> = new BehaviorSubject(
       true,
@@ -74,32 +70,28 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
   ) {
     this.logger.log('Creating communication channel');
 
-    this.sessionManager.initFociDiscovery();
+    this.sessionManager
+      .observeSessionJoined()
+      .pipe(takeUntil(this.destroySubject))
+      .subscribe(this.handleSessionJoined.bind(this));
 
     this.sessionManager
-      .observeActiveFocus()
-      .pipe(takeUntil(this.destroySubject))
-      .subscribe({
-        next: (focus) => {
-          this.logger.debug('RTC Focus update received', focus);
-          this.initFocusBackend(focus);
-        },
-        error: (error) => {
-          this.logger.error('Error while updating focus', error);
-        },
-      });
-
-    this.sessionManager
-      .observeSession()
-      .pipe(takeUntil(this.destroySubject))
-      .subscribe((session) => {
-        this.logger.debug('Got session changes for', session);
-        if (session.expiresTs !== undefined) {
-          this.addSessionStatistics(session);
-        } else {
-          this.removeSessionStatistics(session);
-        }
-      });
+      .observeSessionLeft()
+      .pipe(
+        takeUntil(
+          // Wait with unsubscribing the session left events till we processed
+          // all of then, which is after completing the disconnect
+          this.destroySubject.pipe(
+            mergeMap(async () => {
+              this.logger.log(
+                'Communication channel destroyed, disconnecting…',
+              );
+              await this.disconnect();
+            }),
+          ),
+        ),
+      )
+      .subscribe(this.handleSessionLeft.bind(this));
 
     // If the tab is in the background, we want to disconnect from the room to
     // save resources. We reconnect once the tab is active again.
@@ -112,23 +104,14 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
             takeUntil(this.destroySubject),
             mergeMap(async (v) => {
               if (v === 'visible') {
-                if (this.statistics.localSessionId) {
+                if (this.statistics.localSession) {
                   // already connected
                   return;
                 }
 
                 try {
-                  const activeFocus = this.sessionManager.getActiveFocus();
-                  if (activeFocus) {
-                    this.logger.log(
-                      'Visibility changed to visible, connecting…',
-                    );
-                    await this.initFocusBackend(activeFocus);
-                  } else {
-                    this.logger.warn(
-                      'Visibility changed to visible but no active focus found, not connecting',
-                    );
-                  }
+                  this.logger.log('Visibility changed to visible, connecting…');
+                  await this.connect();
                 } catch (err) {
                   this.logger.error(
                     'Error while connecting to focus backend',
@@ -155,8 +138,19 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
       .subscribe();
   }
 
-  broadcastMessage<T = unknown>(type: string, content: T): void {
-    this.peerConnections.forEach((c) => c.sendMessage(type, content));
+  broadcastMessage<T = unknown>(
+    type: string,
+    content: T,
+    options?: MessageOptions,
+  ): void {
+    this.peerConnections.forEach(({ connectionId, connection }) => {
+      if (
+        connectionId === this.statistics.localSession?.livekitServiceUrl &&
+        connection
+      ) {
+        connection.sendMessage(type, content, options);
+      }
+    });
   }
 
   observeMessages(): Observable<Message> {
@@ -169,10 +163,6 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
     this.messagesSubject.complete();
     this.statisticsSubject.complete();
     this.destroySubject.next();
-
-    this.disconnect().catch((err) => {
-      this.logger.error('Error while disconnecting communication channel', err);
-    });
   }
 
   getStatistics(): CommunicationChannelStatistics {
@@ -184,116 +174,213 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
   }
 
   private async connect() {
-    if (this.statistics.localSessionId) {
+    if (this.statistics.localSession) {
       this.logger.log('Communication channel is already open');
       return;
     }
 
     this.logger.log('Connecting communication channel');
-    const { sessionId } = await this.sessionManager.join(this.whiteboardId);
+    const {
+      sessionId,
+      memberId,
+      livekitTransport: { livekitServiceUrl },
+    } = await this.sessionManager.join(this.whiteboardId);
 
-    this.statistics.localSessionId = sessionId;
+    this.statistics.localSession = {
+      sessionId,
+      memberId,
+      livekitServiceUrl: livekitServiceUrl,
+    };
     this.statisticsSubject.next(cloneDeep(this.statistics));
+
+    await this.ensurePeerConnectionExists(livekitServiceUrl, memberId);
   }
 
   private async disconnect(): Promise<void> {
     this.logger.log('Disconnecting communication channel');
 
-    this.sfuConfig = undefined;
-    await this.sessionManager.leave();
-
-    this.statistics.localSessionId = undefined;
+    // Reset all statistics first before leave to not reconnect
+    // when session leave event is sent to channel from session manager
+    this.statistics.localSession = undefined;
+    this.statistics.sessions = {};
     this.statisticsSubject.next(cloneDeep(this.statistics));
 
-    this.statistics.sessions = [];
-    this.peerConnections.forEach((c) => c.close());
+    await this.sessionManager.leave();
+
+    this.peerConnections.forEach((c) => {
+      if (c.connection) {
+        c.connection.close();
+      }
+    });
+    this.peerConnections.clear();
   }
 
-  private async initFocusBackend(focus: RTCFocus): Promise<void> {
-    this.logger.debug('Initializing focus backend with focus', focus);
-
-    if (focus.type !== 'livekit') {
-      this.logger.error(
-        'Unable to init focus backend due to unsupported active focus type',
-        focus.type,
-      );
-      throw new Error('Unsupported active focus type');
-    }
-
-    if (!isLivekitFocusConfig(focus)) {
-      this.logger.error(
-        'Unable to init focus backend due to unsupported LiveKit configuration',
-        focus,
-      );
-      throw new Error('Unsupported active focus backend configuration');
-    }
+  private async handleSessionJoined(session: MatrixRtcSession): Promise<void> {
+    this.logger.log('Joined', session.sessionId, session.userId);
+    this.addSessionStatistics(session.sessionId, session);
 
     const widgetApi = await this.widgetApiPromise;
-    if (!widgetApi.widgetParameters.roomId) {
-      this.logger.error('Room ID not found in widget parameters');
-      throw new Error('Room ID not found in widget parameters');
+    const { userId } = widgetApi.widgetParameters;
+    if (!userId) {
+      throw new Error('User id not found in widget parameters');
     }
 
-    // Disconnect before starting a new backend connection
-    await this.disconnect();
+    if (
+      getServerNameFromUserId(userId) ===
+      getServerNameFromUserId(session.userId)
+    ) {
+      // Skip connection to local SFU, should be connected already
+      return;
+    }
 
-    // The LiveKit alias is required to check for room membership when requesting the
-    // OpenID token and place users in the same LiveKit data exchange room
-    const activeFocus: LivekitFocus = {
-      ...focus,
-      livekit_alias: widgetApi.widgetParameters.roomId,
+    const localMemberId = this.statistics.localSession?.memberId;
+    if (!localMemberId) {
+      this.logger.warn(
+        'Ignore incoming session, local session member id is undefined',
+      );
+      return;
+    }
+
+    // Establish connection to remote SFU if not connected already
+    await this.ensurePeerConnectionExists(
+      session.livekitTransport.livekitServiceUrl,
+      localMemberId,
+    );
+  }
+
+  private async handleSessionLeft(session: MatrixRtcSession): Promise<void> {
+    this.logger.log('Left', session.sessionId, session.userId);
+    this.addSessionStatistics(session.sessionId);
+
+    if (this.statistics.localSession?.sessionId === session.sessionId) {
+      this.logger.log('Observe own session left, rejoin peer connections');
+
+      const {
+        sessionId,
+        memberId,
+        livekitTransport: { livekitServiceUrl },
+      } = await this.sessionManager.join(this.whiteboardId);
+
+      this.statistics.localSession = {
+        sessionId,
+        memberId,
+        livekitServiceUrl,
+      };
+      this.statisticsSubject.next(cloneDeep(this.statistics));
+
+      for (const peerConnectionWrapper of this.peerConnections.values()) {
+        if (peerConnectionWrapper.connection) {
+          const existingPeerConnection = peerConnectionWrapper.connection;
+          const connectionId = existingPeerConnection.getConnectionId();
+
+          this.logger.log(
+            `Close peer connection to ${connectionId} for session ${session.sessionId}`,
+          );
+
+          existingPeerConnection.close();
+
+          try {
+            peerConnectionWrapper.connection = await this.createPeerConnection(
+              memberId,
+              connectionId,
+            );
+          } catch (e) {
+            this.logger.error(
+              `Could not create a peer connection to ${livekitServiceUrl}`,
+              e,
+            );
+            this.peerConnections.delete(livekitServiceUrl);
+          }
+        }
+      }
+    }
+  }
+
+  private async ensurePeerConnectionExists(
+    livekitServiceUrl: string,
+    memberId: string,
+  ): Promise<void> {
+    let peerConnectionWrapper: PeerConnectionWrapper | undefined =
+      this.peerConnections.get(livekitServiceUrl);
+    if (peerConnectionWrapper) {
+      this.logger.log(`Use existing peer connection to ${livekitServiceUrl}`);
+    } else {
+      this.logger.log(`Create peer connection to ${livekitServiceUrl}`);
+    }
+    if (!peerConnectionWrapper) {
+      peerConnectionWrapper = {
+        connectionId: livekitServiceUrl,
+      };
+      this.peerConnections.set(livekitServiceUrl, peerConnectionWrapper);
+
+      try {
+        peerConnectionWrapper.connection = await this.createPeerConnection(
+          memberId,
+          livekitServiceUrl,
+        );
+      } catch (e) {
+        this.logger.error(
+          `Could not create a peer connection to ${livekitServiceUrl}`,
+          e,
+        );
+        this.peerConnections.delete(livekitServiceUrl);
+      }
+    }
+  }
+
+  private async createPeerConnection(
+    memberId: string,
+    livekitServiceUrl: string,
+  ): Promise<MatrixRtcPeerConnection> {
+    const widgetApi = await this.widgetApiPromise;
+
+    const { userId, roomId, deviceId } = widgetApi.widgetParameters;
+    if (!userId || !roomId || !deviceId) {
+      throw new Error('Unexpected widget parameters');
+    }
+
+    const openIdToken = await widgetApi.requestOpenIDConnectToken();
+
+    const newOpenIdToken: IOpenIDCredentials = {
+      access_token: openIdToken.access_token,
+      expires_in: openIdToken.expires_in,
+      matrix_server_name: openIdToken.matrix_server_name,
+      token_type: openIdToken.token_type,
     };
 
-    this.sfuConfig = await AutoDiscovery.getSFUConfigWithOpenID(
-      widgetApi,
-      activeFocus,
+    const sfuConfig = await AutoDiscovery.getSFUConfigWithOpenID(
+      newOpenIdToken,
+      {
+        type: 'livekit',
+        livekit_service_url: livekitServiceUrl,
+        livekit_alias: roomId,
+      },
+      `net.nordeck.whiteboard#${this.whiteboardId}`,
+      userId,
+      deviceId,
+      memberId,
     );
 
-    if (!this.sfuConfig) {
-      this.logger.error('Unable to retrieve LiveKit SFU configuration');
+    if (!sfuConfig) {
       throw new Error('Unable to retrieve LiveKit SFU configuration');
     }
 
-    const { userId, deviceId } = widgetApi.widgetParameters;
-    if (!userId || !deviceId) {
-      this.logger.error('User ID or device ID not found in widget parameters');
-      throw new Error('User ID or device ID not found in widget parameters');
-    }
-
-    const sessionId = `_${userId}_${deviceId}`;
-    const session: Session = { sessionId: sessionId, userId: userId };
-
-    this.logger.debug(
-      'Creating peer connection with focus config',
-      JSON.stringify(this.sfuConfig),
-      'for session',
-      session.sessionId,
+    const peerConnection = new MatrixRtcPeerConnection(
+      livekitServiceUrl,
+      sfuConfig.url,
+      sfuConfig.jwt,
+      (sessionId) => {
+        const session = this.statistics.sessions[sessionId];
+        return session ? session.userId : undefined;
+      },
     );
-    const peerConnection = new MatrixRtcPeerConnection(session, this.sfuConfig);
-    this.peerConnections.push(peerConnection);
 
-    peerConnection.observeConnectionState().subscribe(async (state) => {
-      this.logger.debug('Peer connection state changed:', state);
+    this.initPeerConnectionStatistics(peerConnection);
 
-      switch (state) {
-        case ConnectionState.Connected:
-          await this.connect();
-          break;
+    return peerConnection;
+  }
 
-        case ConnectionState.Disconnected:
-          await this.disconnect();
-          break;
-
-        case ConnectionState.Connecting:
-        case ConnectionState.Reconnecting:
-        case ConnectionState.SignalReconnecting:
-          break;
-
-        default:
-          break;
-      }
-    });
-
+  private initPeerConnectionStatistics(peerConnection: PeerConnection): void {
     peerConnection.observeMessages().subscribe((m) => {
       return this.messagesSubject.next(m);
     });
@@ -324,33 +411,15 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
     this.statisticsSubject.next(cloneDeep(this.statistics));
   }
 
-  private addSessionStatistics(session: SessionState) {
-    if (!this.statistics.sessions) {
-      this.statistics.sessions = [];
-    }
-
-    // Find the index of the session if it already exists
-    const existingSessionIndex = this.statistics.sessions.findIndex(
-      (existingSession) => existingSession.sessionId === session.sessionId,
-    );
-
-    // If session exists, replace it with the new session
-    if (existingSessionIndex !== -1) {
-      this.statistics.sessions[existingSessionIndex] = session;
+  private addSessionStatistics(sessionId: string, session?: MatrixRtcSession) {
+    if (!session) {
+      delete this.statistics.sessions[sessionId];
     } else {
-      // If session does not exist, add it
-      this.statistics.sessions.push(session);
-    }
-  }
-
-  private removeSessionStatistics(session: SessionState) {
-    if (!this.statistics.sessions) {
-      return;
+      this.statistics.sessions[sessionId] = {
+        userId: session.userId,
+      };
     }
 
-    // Remove the session from the list
-    this.statistics.sessions = this.statistics.sessions.filter(
-      (s) => s.sessionId !== session.sessionId,
-    );
+    this.statisticsSubject.next(cloneDeep(this.statistics));
   }
 }

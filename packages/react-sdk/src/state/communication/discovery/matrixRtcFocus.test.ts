@@ -14,15 +14,11 @@
  * limitations under the License.
  */
 
-import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import AutoDiscovery from './autodiscovery';
 import {
   getWellKnownFoci,
-  isEqualFocus,
-  isLivekitFocusActive,
   isLivekitFocusConfig,
-  makeFociPreferred,
   RTCFocus,
 } from './matrixRtcFocus';
 
@@ -93,130 +89,6 @@ describe('matrixRtcFocus', () => {
     });
   });
 
-  describe('makeFociPreferred', () => {
-    const memberFocus: RTCFocus = {
-      type: 'livekit',
-      livekit_service_url: 'https://member.livekit.example.com',
-      livekit_alias: '!room-id:example.com',
-    };
-    const wellKnownFoci: RTCFocus[] = [
-      {
-        type: 'livekit',
-        livekit_service_url: 'https://wellknown1.livekit.example.com',
-      },
-      {
-        type: 'livekit',
-        livekit_service_url: 'https://wellknown2.livekit.example.com',
-      },
-    ];
-
-    beforeEach(() => {
-      vi.mocked(getEnvironment).mockImplementation(
-        (_, defaultValue) => defaultValue,
-      );
-    });
-
-    it('should return only member focus when no well-known foci and no env var', () => {
-      const result = makeFociPreferred(memberFocus, []);
-
-      expect(result).toEqual([memberFocus]);
-    });
-
-    it('should return only well-known foci when no member focus and no env var', () => {
-      const result = makeFociPreferred(undefined, wellKnownFoci);
-
-      expect(result).toEqual([
-        {
-          type: 'livekit',
-          livekit_service_url: 'https://wellknown1.livekit.example.com',
-        },
-        {
-          type: 'livekit',
-          livekit_service_url: 'https://wellknown2.livekit.example.com',
-        },
-      ]);
-    });
-
-    it('should return member focus first, then well-known foci', () => {
-      const result = makeFociPreferred(memberFocus, wellKnownFoci);
-
-      expect(result).toEqual([
-        memberFocus,
-        {
-          type: 'livekit',
-          livekit_service_url: 'https://wellknown1.livekit.example.com',
-        },
-        {
-          type: 'livekit',
-          livekit_service_url: 'https://wellknown2.livekit.example.com',
-        },
-      ]);
-    });
-
-    it('should add environment variable focus when provided', () => {
-      const envServiceUrl = 'https://env.livekit.example.com';
-      vi.mocked(getEnvironment).mockImplementation((_value) => {
-        return envServiceUrl;
-      });
-
-      const result = makeFociPreferred(memberFocus, wellKnownFoci);
-
-      expect(result).toEqual([
-        memberFocus,
-        {
-          type: 'livekit',
-          livekit_service_url: 'https://wellknown1.livekit.example.com',
-        },
-        {
-          type: 'livekit',
-          livekit_service_url: 'https://wellknown2.livekit.example.com',
-        },
-        {
-          type: 'livekit',
-          livekit_service_url: envServiceUrl,
-        },
-      ]);
-    });
-
-    it('should remove duplicate foci', () => {
-      const envServiceUrl = 'https://wellknown1.livekit.example.com';
-      vi.mocked(getEnvironment).mockImplementation((_value) => {
-        return envServiceUrl;
-      });
-
-      const duplicateWellKnownFoci: RTCFocus[] = [
-        {
-          type: 'livekit',
-          livekit_service_url: 'https://wellknown1.livekit.example.com', // same as the env foci
-        },
-        {
-          type: 'livekit',
-          livekit_service_url: 'https://member.livekit.example.com', // same as the member focus
-        },
-      ];
-
-      const result = makeFociPreferred(memberFocus, duplicateWellKnownFoci);
-
-      expect(result).toEqual([
-        {
-          type: 'livekit',
-          livekit_service_url: 'https://member.livekit.example.com',
-          livekit_alias: '!room-id:example.com',
-        },
-        {
-          type: 'livekit',
-          livekit_service_url: 'https://wellknown1.livekit.example.com',
-        },
-      ]);
-    });
-
-    it('should handle empty inputs', () => {
-      const result = makeFociPreferred(undefined, []);
-
-      expect(result).toEqual([]);
-    });
-  });
-
   describe('isLivekitFocusConfig', () => {
     it('should return true for valid LivekitFocusConfig objects', () => {
       const validConfig: RTCFocus = {
@@ -251,101 +123,6 @@ describe('matrixRtcFocus', () => {
       };
 
       expect(isLivekitFocusConfig(extraProps)).toBe(true);
-    });
-  });
-
-  describe('isEqualFocus', () => {
-    it('should return true for identical objects', () => {
-      const focus1: RTCFocus = {
-        type: 'livekit',
-        livekit_service_url: 'https://livekit.example.com',
-      };
-
-      const focus2: RTCFocus = {
-        type: 'livekit',
-        livekit_service_url: 'https://livekit.example.com',
-      };
-
-      expect(isEqualFocus(focus1, focus2)).toBe(true);
-    });
-
-    it('should return true for identical objects with additional properties', () => {
-      const focus1: RTCFocus = {
-        type: 'livekit',
-        livekit_service_url: 'https://livekit.example.com',
-        livekit_alias: '!room-alias',
-      };
-
-      const focus2: RTCFocus = {
-        type: 'livekit',
-        livekit_service_url: 'https://livekit.example.com',
-      };
-
-      expect(isEqualFocus(focus1, focus2)).toBe(true);
-    });
-
-    it('should return false for different types', () => {
-      const focus1: RTCFocus = {
-        type: 'livekit',
-        livekit_service_url: 'https://livekit.example.com',
-      };
-
-      const focus2: RTCFocus = {
-        type: 'full_mesh',
-      };
-
-      expect(isEqualFocus(focus1, focus2)).toBe(false);
-    });
-
-    it('should return false for different URLs', () => {
-      const focus1: RTCFocus = {
-        type: 'livekit',
-        livekit_service_url: 'https://livekit.example.com',
-      };
-
-      const focus2: RTCFocus = {
-        type: 'livekit',
-        livekit_service_url: 'https://livekit.example.org',
-      };
-
-      expect(isEqualFocus(focus1, focus2)).toBe(false);
-    });
-  });
-
-  describe('isLivekitFocusActive', () => {
-    it('should return true for valid LivekitFocusActive objects', () => {
-      const validActive: RTCFocus = {
-        type: 'livekit',
-        focus_selection: 'oldest_membership',
-      };
-
-      expect(isLivekitFocusActive(validActive)).toBe(true);
-    });
-
-    it('should return false for non-livekit type', () => {
-      const invalidType: RTCFocus = {
-        type: 'full_mesh',
-      };
-
-      expect(isLivekitFocusActive(invalidType)).toBe(false);
-    });
-
-    it('should return false when focus_selection is missing', () => {
-      const missingSelection: RTCFocus = {
-        type: 'livekit',
-      };
-
-      expect(isLivekitFocusActive(missingSelection)).toBe(false);
-    });
-
-    it('should return true when additional properties are present', () => {
-      const extraProps: RTCFocus = {
-        type: 'livekit',
-        focus_selection: 'oldest_membership',
-        additional_property: 'value',
-      };
-
-      expect(isLivekitFocusActive(extraProps)).toBe(true);
     });
   });
 });

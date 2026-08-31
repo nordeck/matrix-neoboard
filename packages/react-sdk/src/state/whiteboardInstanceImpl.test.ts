@@ -109,9 +109,12 @@ describe('WhiteboardInstanceImpl', () => {
     communicationChannel = {
       broadcastMessage: vi.fn(),
       observeMessages: vi.fn().mockReturnValue(messageSubject),
-      getStatistics: vi
-        .fn()
-        .mockReturnValue({ localSessionId: 'own', peerConnections: {} }),
+      getStatistics: vi.fn().mockReturnValue({
+        localSession: {
+          sessionId: 'own',
+        },
+        peerConnections: {},
+      }),
       observeStatistics: vi
         .fn()
         .mockReturnValue(observeCommunicationStatisticsSubject),
@@ -205,7 +208,12 @@ describe('WhiteboardInstanceImpl', () => {
     );
 
     expect(whiteboardInstance.getWhiteboardStatistics()).toEqual({
-      communicationChannel: { localSessionId: 'own', peerConnections: {} },
+      communicationChannel: {
+        localSession: {
+          sessionId: 'own',
+        },
+        peerConnections: {},
+      },
     });
 
     const statistics = firstValueFrom(
@@ -227,14 +235,20 @@ describe('WhiteboardInstanceImpl', () => {
     };
 
     observeCommunicationStatisticsSubject.next({
-      localSessionId: 'own',
+      localSession: {
+        sessionId: 'own',
+      },
       peerConnections: { key: peerConnectionStatistics },
+      sessions: {},
     });
 
     expect(await statistics).toEqual({
       communicationChannel: {
-        localSessionId: 'own',
+        localSession: {
+          sessionId: 'own',
+        },
         peerConnections: { key: peerConnectionStatistics },
+        sessions: {},
       },
     });
   });
@@ -248,7 +262,12 @@ describe('WhiteboardInstanceImpl', () => {
     );
 
     expect(whiteboardInstance.getWhiteboardStatistics()).toEqual({
-      communicationChannel: { localSessionId: 'own', peerConnections: {} },
+      communicationChannel: {
+        localSession: {
+          sessionId: 'own',
+        },
+        peerConnections: {},
+      },
     });
 
     const statistics = firstValueFrom(
@@ -261,7 +280,12 @@ describe('WhiteboardInstanceImpl', () => {
     });
 
     expect(await statistics).toEqual({
-      communicationChannel: { localSessionId: 'own', peerConnections: {} },
+      communicationChannel: {
+        localSession: {
+          sessionId: 'own',
+        },
+        peerConnections: {},
+      },
       document: {
         contentSizeInBytes: 100,
         documentSizeInBytes: 200,

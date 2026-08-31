@@ -1,7 +1,7 @@
 /*
  * Copyright 2018 New Vector Ltd
  * Copyright 2019 The Matrix.org Foundation C.I.C.
- * Copyright 2025-2026 Nordeck IT + Consulting GmbH
+ * Copyright 2025 Nordeck IT + Consulting GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,10 +20,8 @@
 // copyright notices
 
 // eslint-disable-next-line notice/notice
-import { WidgetApi } from '@matrix-widget-toolkit/api';
 import { getLogger } from 'loglevel';
 import { IOpenIDCredentials } from 'matrix-widget-api';
-import { SFUConfig } from '../matrixRtcCommunicationChannel';
 import { LivekitFocus } from './matrixRtcFocus';
 
 export interface IWellKnownConfig<T = IClientWellKnown> {
@@ -39,6 +37,11 @@ export interface IClientWellKnown {
 }
 
 export const FOCI_WK_KEY = 'org.matrix.msc4143.rtc_foci';
+
+export interface SFUConfig {
+  url: string;
+  jwt: string;
+}
 
 /*
  * This AutoDiscovery class is inspired on the matrix-js-sdk one
@@ -126,25 +129,23 @@ export default class AutoDiscovery {
    * @returns
    */
   public static async getSFUConfigWithOpenID(
-    widgetApi: WidgetApi,
+    openIDToken: IOpenIDCredentials,
     activeFocus: LivekitFocus,
+    slotId: string,
+    userId: string,
+    deviceId: string,
+    memberId: string,
   ): Promise<SFUConfig | undefined> {
-    const openIdToken = await widgetApi.requestOpenIDConnectToken();
-
-    AutoDiscovery.logger.debug('Got openID token', openIdToken);
-
     try {
-      AutoDiscovery.logger.info(
-        `Trying to get JWT from call's active focus URL of ${activeFocus.livekit_service_url}...`,
-      );
       const sfuConfig = await AutoDiscovery.getLiveKitJWT(
-        widgetApi,
         activeFocus.livekit_service_url,
         activeFocus.livekit_alias,
-        openIdToken,
+        openIDToken,
+        slotId,
+        userId,
+        deviceId,
+        memberId,
       );
-      AutoDiscovery.logger.info(`Got JWT from call's active focus URL.`);
-
       return sfuConfig;
     } catch (e) {
       AutoDiscovery.logger.warn(
@@ -165,29 +166,29 @@ export default class AutoDiscovery {
    * @returns
    */
   public static async getLiveKitJWT(
-    widgetApi: WidgetApi,
     livekitServiceURL: string,
     roomName: string,
     openIDToken: IOpenIDCredentials,
+    slotId: string,
+    userId: string,
+    deviceId: string,
+    memberId: string,
   ): Promise<SFUConfig> {
     try {
-      const res = await fetch(livekitServiceURL + '/sfu/get', {
+      const res = await fetch(livekitServiceURL + '/get_token', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          room: roomName,
-          // Only forward the credential fields. The Widget API result carries
-          // identity request permissions metadata such as `state` that the
-          // LiveKit JWT Token Service rejects.
-          openid_token: {
-            access_token: openIDToken.access_token,
-            expires_in: openIDToken.expires_in,
-            matrix_server_name: openIDToken.matrix_server_name,
-            token_type: openIDToken.token_type,
+          room_id: roomName,
+          slot_id: slotId,
+          openid_token: openIDToken,
+          member: {
+            id: memberId,
+            claimed_user_id: userId,
+            claimed_device_id: deviceId,
           },
-          device_id: widgetApi.widgetParameters.deviceId,
         }),
       });
       if (!res.ok) {

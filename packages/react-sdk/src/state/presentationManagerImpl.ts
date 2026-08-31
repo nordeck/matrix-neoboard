@@ -31,7 +31,6 @@ import {
   takeWhile,
 } from 'rxjs';
 import { isDefined, isInfiniteCanvasMode, isMatrixRtcMode } from '../lib';
-import { isNotExpired } from '../model';
 import {
   CommunicationChannel,
   isValidPresentFrameMessage,
@@ -72,18 +71,13 @@ export class PresentationManagerImpl implements PresentationManager {
         filter(
           (statistics) =>
             this.currentPresenterSessionId !== undefined &&
-            this.currentPresenterSessionId === statistics.localSessionId,
+            this.currentPresenterSessionId ===
+              statistics.localSession?.sessionId,
         ),
         map((statistics) => {
           if (isMatrixRtcMode()) {
-            return (
-              statistics.sessions
-                ?.filter(
-                  (session) =>
-                    session.sessionId !== statistics.localSessionId &&
-                    isNotExpired(session),
-                )
-                .map((session) => session.sessionId) ?? []
+            return Object.values(statistics.peerConnections).flatMap(
+              (peer) => peer.remoteParticipantIdentities,
             );
           } else {
             return Object.values(statistics.peerConnections)
@@ -110,6 +104,9 @@ export class PresentationManagerImpl implements PresentationManager {
                   frameId: activeFrameId,
                 },
               },
+              {
+                reliable: true,
+              },
             );
           }
         } else {
@@ -123,6 +120,9 @@ export class PresentationManagerImpl implements PresentationManager {
                   isEditMode: this.isEditMode,
                   slideId: activeSlideId,
                 },
+              },
+              {
+                reliable: true,
               },
             );
           }
@@ -187,7 +187,7 @@ export class PresentationManagerImpl implements PresentationManager {
 
   startPresentation(frameElementId?: string): void {
     const localSessionId =
-      this.communicationChannel.getStatistics().localSessionId;
+      this.communicationChannel.getStatistics().localSession?.sessionId;
 
     if (!localSessionId) {
       return;
@@ -212,7 +212,7 @@ export class PresentationManagerImpl implements PresentationManager {
           () =>
             this.currentPresenterSessionId !== undefined &&
             this.currentPresenterSessionId ===
-              this.communicationChannel.getStatistics().localSessionId,
+              this.communicationChannel.getStatistics().localSession?.sessionId,
         ),
       )
       .subscribe((slideOrFrameId) => {
@@ -222,11 +222,17 @@ export class PresentationManagerImpl implements PresentationManager {
           this.communicationChannel.broadcastMessage<PresentFrame>(
             PRESENT_FRAME_MESSAGE,
             { view: { isEditMode: false, frameId: slideOrFrameId } },
+            {
+              reliable: true,
+            },
           );
         } else {
           this.communicationChannel.broadcastMessage<PresentSlide>(
             PRESENT_SLIDE_MESSAGE,
             { view: { isEditMode: false, slideId: slideOrFrameId } },
+            {
+              reliable: true,
+            },
           );
         }
       });
@@ -242,11 +248,17 @@ export class PresentationManagerImpl implements PresentationManager {
       this.communicationChannel.broadcastMessage<PresentFrame>(
         PRESENT_FRAME_MESSAGE,
         { view: undefined },
+        {
+          reliable: true,
+        },
       );
     } else {
       this.communicationChannel.broadcastMessage<PresentSlide>(
         PRESENT_SLIDE_MESSAGE,
         { view: undefined },
+        {
+          reliable: true,
+        },
       );
     }
     this.activeSlidePublisher?.unsubscribe();
@@ -265,17 +277,16 @@ export class PresentationManagerImpl implements PresentationManager {
       map(([statistics, presenterSessionId, isEditMode]): PresentationState => {
         if (
           presenterSessionId &&
-          presenterSessionId === statistics.localSessionId
+          presenterSessionId === statistics.localSession?.sessionId
         ) {
           return { type: 'presenting', isEditMode };
         }
 
         let presenterUserId: string | undefined = undefined;
         if (isMatrixRtcMode()) {
-          const presenterSession = statistics.sessions?.find(
-            (session) =>
-              session.sessionId === presenterSessionId && isNotExpired(session),
-          );
+          const presenterSession = presenterSessionId
+            ? statistics.sessions[presenterSessionId]
+            : undefined;
 
           if (presenterSession) {
             presenterUserId = presenterSession.userId;
@@ -319,11 +330,17 @@ export class PresentationManagerImpl implements PresentationManager {
         this.communicationChannel.broadcastMessage<PresentFrame>(
           PRESENT_FRAME_MESSAGE,
           { view: { isEditMode, frameId: slideOrFrameId } },
+          {
+            reliable: true,
+          },
         );
       } else {
         this.communicationChannel.broadcastMessage<PresentSlide>(
           PRESENT_SLIDE_MESSAGE,
           { view: { isEditMode, slideId: slideOrFrameId } },
+          {
+            reliable: true,
+          },
         );
       }
     }

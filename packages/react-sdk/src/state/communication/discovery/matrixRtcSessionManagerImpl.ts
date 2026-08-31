@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
-import { StateEvent, WidgetApi } from '@matrix-widget-toolkit/api';
-import clone from 'lodash/clone';
-import isEqual from 'lodash/isEqual';
+import {
+  RoomEvent,
+  WidgetApi,
+  isRoomEventCurrentlySticky,
+} from '@matrix-widget-toolkit/api';
+import { nanoid } from '@reduxjs/toolkit';
 import isError from 'lodash/isError';
 import { getLogger } from 'loglevel';
 import { UpdateDelayedEventAction } from 'matrix-widget-api';
@@ -28,77 +31,81 @@ import {
   interval,
   switchMap,
   takeUntil,
+  timer,
 } from 'rxjs';
 import {
-  RTCSessionEventContent,
-  STATE_EVENT_RTC_MEMBER,
-  isRTCSessionNotExpired,
-  newRTCSession,
+  ROOM_EVENT_4143_RTC_MEMBER,
+  RtcMember,
+  RtcMemberJoin,
+  RtcMemberLeave,
+  Transport,
+  isLivekitTransport,
+  isRtcMemberJoinEvent,
+  isRtcMemberLeaveEvent,
+  isValidWhiteboardRtcMemberEvent,
 } from '../../../model';
-import {
-  DEFAULT_RTC_EXPIRE_DURATION,
-  isWhiteboardRTCSessionStateEvent,
-} from '../../../model/matrixRtcSessions';
-import {
-  RTCFocus,
-  getWellKnownFoci,
-  makeFociPreferred,
-} from './matrixRtcFocus';
-import { SessionState } from './sessionManagerImpl';
-import { MatrixRtcSessionManager, Session } from './types';
 
-export class MatrixRtcSessionManagerImpl implements MatrixRtcSessionManager {
-  private readonly logger = getLogger('RTCSessionManager');
+import { matrixRtcParticipantIdentity } from '../../../lib';
+import { SessionManager } from './types';
+
+export type MatrixRtcSession = {
+  userId: string;
+  sessionId: string;
+  memberId: string;
+  livekitTransport: { livekitServiceUrl: string };
+};
+
+export class MatrixRtcSessionManagerImpl implements SessionManager<MatrixRtcSession> {
+  private readonly logger = getLogger('MatrixRtcSessionManager');
   private readonly destroySubject = new Subject<void>();
   private readonly leaveSubject = new Subject<void>();
-  private readonly sessionJoinedSubject = new Subject<Session>();
-  private readonly sessionLeftSubject = new Subject<Session>();
-  private readonly activeFocusSubject = new Subject<RTCFocus>();
-  private readonly sessionSubject = new Subject<SessionState>();
-  private sessions: StateEvent<RTCSessionEventContent>[] = [];
-  private joinState: { whiteboardId: string; sessionId: string } | undefined;
-  private fociPreferred: RTCFocus[] = [];
-  private wellKnownFoci: RTCFocus[] = [];
-  private activeFocus: RTCFocus | undefined;
+  private readonly sessionJoinedSubject = new Subject<MatrixRtcSession>();
+  private readonly sessionLeftSubject = new Subject<MatrixRtcSession>();
+  private readonly stickyDurationMs: number = 3600000;
+
+  private sessions: MatrixRtcSession[] = [];
+  private joinState:
+    | {
+        whiteboardId: string;
+        sessionId: string;
+        userId: string;
+        deviceId: string;
+        memberId: string;
+      }
+    | undefined;
   /**
    * Holds remove membership event delay id.
    * Is undefined is homeserver doesn't support delayed events.
-   * Is assigned undefined if cannot refresh a delayed event with this id.
+   * Is assigned undefined if cannot restart a delayed event with this id.
    */
   private removeSessionDelayId?: string;
 
   constructor(
     private readonly widgetApiPromise: Promise<WidgetApi> | WidgetApi,
-    private readonly sessionTimeout = DEFAULT_RTC_EXPIRE_DURATION,
-    private readonly wellKnownPollingInterval = 60 * 1000,
     private readonly removeSessionDelay: number = 8000,
   ) {}
-
-  initFociDiscovery(): void {
-    this.checkForWellKnownFoci().catch((error) => {
-      this.logger.error('Failed to check for well-known foci:', error);
-    });
-
-    interval(this.wellKnownPollingInterval)
-      .pipe(takeUntil(this.destroySubject))
-      .subscribe(async () => {
-        await this.checkForWellKnownFoci();
-      });
-  }
 
   getSessionId(): string | undefined {
     return this.joinState?.sessionId;
   }
 
-  getSessions(): Session[] {
-    return this.sessions.map(({ state_key, sender }) => ({
-      sessionId: state_key,
-      userId: sender,
-    }));
-  }
-
-  getActiveFocus(): RTCFocus | undefined {
-    return this.activeFocus;
+  /** Gets a list of all active sessions, including the own session. */
+  getSessions(): MatrixRtcSession[] {
+    return this.sessions.map(
+      ({
+        userId,
+        sessionId,
+        memberId,
+        livekitTransport: { livekitServiceUrl },
+      }) => ({
+        userId,
+        sessionId,
+        memberId,
+        livekitTransport: {
+          livekitServiceUrl,
+        },
+      }),
+    );
   }
 
   /**
@@ -108,23 +115,24 @@ export class MatrixRtcSessionManagerImpl implements MatrixRtcSessionManager {
     return this.removeSessionDelayId;
   }
 
-  observeSessionJoined(): Observable<Session> {
+  /**
+   * Observes new sessions that joined the current whiteboard.
+   * Is also triggered for the own session.
+   */
+  observeSessionJoined(): Observable<MatrixRtcSession> {
     return this.sessionJoinedSubject;
   }
 
-  observeSessionLeft(): Observable<Session> {
+  /**
+   * Observes sessions that left the current whiteboard, like expired
+   * sessions.
+   * Is also triggered for the own session.
+   */
+  observeSessionLeft(): Observable<MatrixRtcSession> {
     return this.sessionLeftSubject;
   }
 
-  observeActiveFocus(): Observable<RTCFocus> {
-    return this.activeFocusSubject;
-  }
-
-  observeSession(): Observable<SessionState> {
-    return this.sessionSubject;
-  }
-
-  async join(whiteboardId: string): Promise<{ sessionId: string }> {
+  async join(whiteboardId: string): Promise<MatrixRtcSession> {
     if (this.joinState) {
       this.logger.debug('Already joined a whiteboard, must leave first.');
       await this.leave();
@@ -132,126 +140,171 @@ export class MatrixRtcSessionManagerImpl implements MatrixRtcSessionManager {
 
     const widgetApi = await this.widgetApiPromise;
     const { userId, deviceId } = widgetApi.widgetParameters;
-    const sessionId = `_${userId}_${deviceId}`;
 
-    this.logger.debug(
-      `Joining whiteboard ${whiteboardId} as session ${sessionId}`,
+    if (!userId || !deviceId) {
+      throw new Error('Unknown user id or device id ');
+    }
+
+    const memberId = nanoid();
+    const sessionId = await matrixRtcParticipantIdentity(
+      userId,
+      deviceId,
+      memberId,
     );
 
-    interval(this.sessionTimeout * 0.75)
-      .pipe(
-        takeUntil(this.destroySubject),
-        takeUntil(this.leaveSubject),
-        switchMap(() => this.refreshOwnSession(sessionId, whiteboardId)),
-      )
-      .subscribe();
+    this.logger.debug(
+      `Joining whiteboard ${whiteboardId} as session ${sessionId}, member ${memberId}`,
+    );
 
-    await this.refreshOwnSession(sessionId, whiteboardId);
-    await this.scheduleRemoveMembershipDelayedEvent(widgetApi, sessionId);
-
-    // Handle session events
+    const leftSet = new Set<string>();
+    let ownJoinEventReceived: boolean = false;
     from(Promise.resolve(this.widgetApiPromise))
       .pipe(
         switchMap((widgetApi) =>
-          widgetApi.observeStateEvents(STATE_EVENT_RTC_MEMBER),
+          widgetApi.observeRoomEvents(ROOM_EVENT_4143_RTC_MEMBER),
         ),
-        filter(isWhiteboardRTCSessionStateEvent),
+        filter(isRoomEventCurrentlySticky),
+        filter(isValidWhiteboardRtcMemberEvent),
+        filter((event) => {
+          if (ownJoinEventReceived) {
+            // do not filter events
+            return true;
+          }
+
+          // filter out join events that are left until we get a join event for this session
+          const { id: eventMemberId, membership } = event.content.member;
+          if (membership === 'leave') {
+            leftSet.add(eventMemberId);
+            return true;
+          } else {
+            if (eventMemberId === memberId) {
+              leftSet.clear();
+              ownJoinEventReceived = true;
+              return true;
+            }
+
+            return !leftSet.has(eventMemberId);
+          }
+        }),
         takeUntil(this.destroySubject),
         takeUntil(this.leaveSubject),
       )
-      .subscribe(async (rtcSession) => {
-        if (
-          Object.keys(rtcSession.content).length === 0 &&
-          rtcSession.state_key === sessionId
-        ) {
-          // refresh a membership event when event for this session is removed
-          await this.refreshOwnSession(sessionId, whiteboardId);
-
-          if (!this.removeSessionDelayId || rtcSession.sender !== userId) {
-            /**
-             * Re-schedule if delay id is empty (failed to refresh a delayed event)
-             *
-             * Re-schedule if a remove membership event is sent by another user.
-             * In this case a delayed state event is cancelled according to MSC4140.
-             */
-            await this.scheduleRemoveMembershipDelayedEvent(
-              widgetApi,
-              sessionId,
-            );
-          }
-        } else {
-          this.handleRTCSessionEvent(rtcSession);
-        }
+      .subscribe(async (rtcMemberEvent) => {
+        await this.handleRtcMemberEvent(rtcMemberEvent);
       });
 
-    this.observeSessionLeft()
-      .pipe(takeUntil(this.destroySubject), takeUntil(this.leaveSubject))
-      .subscribe(async () => {
-        await this.computeActiveFocus();
-      });
+    const transports: Transport[] = (await widgetApi.getRtcTransports())
+      .rtc_transports;
+    const livekitTransport = getLivekitTransport(transports);
 
-    this.joinState = { sessionId, whiteboardId };
+    await this.sendRtcMemberJoinEvent(memberId, whiteboardId, transports);
+    await this.sendRtcMemberLeaveDelayedEvent(
+      widgetApi,
+      memberId,
+      deviceId,
+      whiteboardId,
+    );
+    await this.scheduleRestartRtcMemberLeaveDelayedEvent(widgetApi, memberId);
 
-    return { sessionId };
+    this.joinState = { sessionId, whiteboardId, userId, deviceId, memberId };
+
+    return { sessionId, userId, memberId, livekitTransport };
   }
 
   /**
    * Sends a remove membership delayed event, updates delay id.
-   * Refreshes a delayed event periodically.
-   * Invalidates a delay id if failed to refresh.
    * @param widgetApi Widget API
-   * @param sessionId session id
+   * @param memberId member id
+   * @param deviceId device id
+   * @param whiteboardId whiteboard id
    */
-  private async scheduleRemoveMembershipDelayedEvent(
+  private async sendRtcMemberLeaveDelayedEvent(
     widgetApi: WidgetApi,
-    sessionId: string,
+    memberId: string,
+    deviceId: string,
+    whiteboardId: string,
   ): Promise<void> {
+    this.logger.debug(
+      `Sending RTC member leave delayed event for memberId: ${memberId}`,
+    );
+
     let removeSessionDelayId: string | undefined;
+    const rtcMemberLeave: RtcMemberLeave = {
+      slot_id: `net.nordeck.whiteboard#${whiteboardId}`,
+      member: {
+        id: memberId,
+        membership: 'leave',
+        device_id: deviceId,
+      },
+      leave_reason: {
+        code: 'delayed_leave',
+      },
+      msc4354_sticky_key: memberId,
+    };
     try {
       ({ delay_id: removeSessionDelayId } =
-        await widgetApi.sendDelayedStateEvent(
-          STATE_EVENT_RTC_MEMBER,
-          {},
+        await widgetApi.sendDelayedRoomEvent(
+          ROOM_EVENT_4143_RTC_MEMBER,
+          rtcMemberLeave,
           this.removeSessionDelay,
-          {
-            stateKey: sessionId,
-          },
+          { stickyDurationMs: this.stickyDurationMs },
         ));
+
+      this.logger.debug(
+        `Sent RTC member leave delayed event for memberId: ${memberId}, removeSessionDelayId: ${removeSessionDelayId}`,
+      );
+
+      this.removeSessionDelayId = removeSessionDelayId;
     } catch (ex) {
       this.logger.error(
         'Could not send remove membership delayed event:',
         isError(ex) ? ex.message : ex,
       );
     }
+  }
 
-    if (removeSessionDelayId) {
+  /**
+   * Restarts a delayed event periodically.
+   * Invalidates a delay id if failed to restart.
+   * @param widgetApi Widget API
+   * @param memberId member id
+   */
+  private async scheduleRestartRtcMemberLeaveDelayedEvent(
+    widgetApi: WidgetApi,
+    memberId: string,
+  ): Promise<void> {
+    this.logger.debug(
+      `Scheduling RTC member leave delayed event restart for memberId: ${memberId}`,
+    );
+
+    if (this.removeSessionDelayId) {
       interval(this.removeSessionDelay * 0.75)
         .pipe(
           takeUntil(this.destroySubject),
           takeUntil(this.leaveSubject),
-          switchMap(() =>
-            widgetApi.updateDelayedEvent(
-              removeSessionDelayId,
-              UpdateDelayedEventAction.Restart,
-            ),
-          ),
+          switchMap(() => {
+            this.logger.debug(
+              `Restarting membership leave delayed event: ${this.removeSessionDelayId}`,
+            );
+            if (this.removeSessionDelayId) {
+              return widgetApi.updateDelayedEvent(
+                this.removeSessionDelayId,
+                UpdateDelayedEventAction.Restart,
+              );
+            } else {
+              return Promise.resolve();
+            }
+          }),
         )
         .subscribe({
           error: (err) => {
-            if (
-              this.removeSessionDelayId &&
-              this.removeSessionDelayId === removeSessionDelayId
-            ) {
-              this.removeSessionDelayId = undefined;
-            }
             this.logger.error(
-              'Could not refresh delayed event:',
+              `Could not restart delayed event: ${this.removeSessionDelayId}, error:`,
               isError(err) ? err.message : err,
             );
+            this.removeSessionDelayId = undefined;
           },
         });
-
-      this.removeSessionDelayId = removeSessionDelayId;
     }
   }
 
@@ -259,7 +312,8 @@ export class MatrixRtcSessionManagerImpl implements MatrixRtcSessionManager {
     if (!this.joinState) {
       return;
     }
-    const { sessionId, whiteboardId } = this.joinState;
+    const { sessionId, whiteboardId, userId, deviceId, memberId } =
+      this.joinState;
 
     this.joinState = undefined;
     this.leaveSubject.next();
@@ -268,16 +322,17 @@ export class MatrixRtcSessionManagerImpl implements MatrixRtcSessionManager {
       `Leaving whiteboard ${whiteboardId} as session ${sessionId}`,
     );
 
-    const widgetApi = await this.widgetApiPromise;
-    const { userId } = widgetApi.widgetParameters;
+    this.removeSession(sessionId, userId, memberId);
 
-    if (userId) {
-      this.removeSession(sessionId, userId);
-    }
-
-    await this.endRtcSession(sessionId);
+    await this.sendRtcMemberLeaveEvent(
+      userId,
+      deviceId,
+      memberId,
+      whiteboardId,
+    );
     if (this.removeSessionDelayId) {
-      widgetApi.updateDelayedEvent(
+      const widgetApi = await this.widgetApiPromise;
+      await widgetApi.updateDelayedEvent(
         this.removeSessionDelayId,
         UpdateDelayedEventAction.Cancel,
       );
@@ -286,264 +341,258 @@ export class MatrixRtcSessionManagerImpl implements MatrixRtcSessionManager {
   }
 
   destroy(): void {
+    this.logger.log(`Destroy session manager`);
+
     this.destroySubject.next();
     this.sessionJoinedSubject.complete();
-    this.sessionSubject.complete();
     this.sessionLeftSubject.complete();
-    this.activeFocusSubject.complete();
   }
 
-  private async checkForWellKnownFoci(): Promise<void> {
-    this.logger.debug('Looking up the homeserver RTC foci');
+  private async handleRtcMemberEvent(
+    event: RoomEvent<RtcMember>,
+  ): Promise<void> {
+    const {
+      sender,
+      content: {
+        member: { id: memberId, device_id: deviceId },
+      },
+    } = event;
 
-    // Check for foci in .well-known/matrix/client
-    const widgetApi = await this.widgetApiPromise;
-    const domain = widgetApi.widgetParameters.userId?.replace(/^.*?:/, '');
-
-    const foci = await getWellKnownFoci(domain);
-    this.logger.debug('Found homeserver foci', JSON.stringify(foci));
-
-    // There was a change in the homeserver's foci
-    if (!isEqual(foci, this.wellKnownFoci)) {
-      this.logger.debug('Homeserver foci changed');
-      this.wellKnownFoci = foci;
-      await this.computeActiveFocus();
-    } else {
-      this.logger.debug('No new homeserver foci found');
-    }
-  }
-
-  private async computeActiveFocus() {
-    this.logger.debug('Checking if a new active focus is required');
-
-    const memberFocus = await this.selectMemberFocus();
-
-    this.fociPreferred = makeFociPreferred(memberFocus, this.wellKnownFoci);
-
-    // Check for a new active foci to change to
-    const newActiveFocus = this.fociPreferred[0];
-    if (!isEqual(this.activeFocus, newActiveFocus)) {
-      this.logger.debug('New active focus:', newActiveFocus);
-      this.activeFocus = newActiveFocus;
-      this.activeFocusSubject.next(newActiveFocus);
-    }
-  }
-
-  private async selectMemberFocus(): Promise<RTCFocus | undefined> {
-    const widgetApi = await this.widgetApiPromise;
-    let sessions: StateEvent<RTCSessionEventContent>[] = [];
-
-    if (!this.joinState) {
-      this.logger.debug(
-        'Not joined yet, need to retrieve session member state events',
-      );
-      try {
-        sessions = await widgetApi.receiveStateEvents(STATE_EVENT_RTC_MEMBER);
-      } catch (error) {
-        this.logger.error(
-          'Failed to receive session member state events',
-          error,
-        );
-        return;
-      }
-    } else {
-      this.logger.debug(
-        'Already joined, using cached session member state events',
-      );
-      sessions = this.sessions;
-    }
-
-    // Filter out invalid and expired sessions
-    sessions = sessions
-      .filter(isWhiteboardRTCSessionStateEvent)
-      .filter(isRTCSessionNotExpired);
-
-    if (sessions.length < 1) {
-      this.logger.debug('No member focus to check, skipping');
-      return;
-    }
-
-    // sort the sessions by expire time
-    const sortedSessions = sessions.sort((a, b) => {
-      const aExpire = a.content.expires || Infinity;
-      const bExpire = b.content.expires || Infinity;
-      return aExpire - bExpire;
-    });
-
-    // get the oldest session (smaller expires) preferred focus
-    const oldestSession = sortedSessions[0];
-    this.logger.debug('Found oldest session:', oldestSession.state_key);
-    if (oldestSession && oldestSession.state_key) {
-      // check for active focus selection type
-      if (
-        oldestSession.content.focus_active.type === 'livekit' &&
-        oldestSession.content.focus_active.focus_selection ===
-          'oldest_membership'
-      ) {
-        // if this is the oldest session, we don't care about member focus
-        if (oldestSession.state_key === this.getSessionId()) {
-          return undefined;
-        } else {
-          const newMemberFocus = oldestSession.content.foci_preferred[0];
-          this.logger.debug('New member focus:', newMemberFocus);
-          return newMemberFocus;
-        }
-      } else {
-        this.logger.error(
-          'Unsupported focus selection type on oldest session member',
-        );
-      }
-    }
-  }
-
-  private handleRTCSessionEvent(
-    event: StateEvent<RTCSessionEventContent>,
-  ): void {
-    const sessionId = event.state_key;
-    const whiteboardId = event.content.call_id;
-
-    this.logger.debug('Handling RTC event', JSON.stringify(event));
-
-    this.sessionSubject.next({
-      sessionId,
-      userId: event.sender,
-      expiresTs: event.content.expires,
-      whiteboardId,
-    });
-
-    if (Object.keys(event.content).length === 0) {
-      this.removeSession(sessionId, event.sender);
-      return;
-    }
-
-    this.sessions = this.sessions.filter(isRTCSessionNotExpired);
-
-    const existingSessionIndex = this.sessions.findIndex(
-      (s) => s.state_key === sessionId && s.content.call_id === whiteboardId,
+    const sessionId = await matrixRtcParticipantIdentity(
+      sender,
+      deviceId,
+      memberId,
     );
 
-    if (existingSessionIndex >= 0) {
-      this.sessions[existingSessionIndex] = event;
-    } else {
-      if (sessionId !== this.getSessionId()) {
-        this.addSession(event);
-      } else {
-        this.sessions.push(event);
-      }
+    if (event.content.member.membership === 'join') {
+      this.logger.debug(
+        'Handling RTC join event',
+        event.event_id,
+        event.sender,
+        sessionId,
+        new Date(event.origin_server_ts).toISOString(),
+      );
     }
 
-    this.logger.debug('Sessions updated', JSON.stringify(this.sessions));
+    if (isRtcMemberLeaveEvent(event)) {
+      if (sessionId === this.joinState?.sessionId) {
+        this.logger.log(`Leaving session ${sessionId}`);
+        // Reset the join state
+        this.joinState = undefined;
+      }
+
+      this.removeSession(sessionId, event.sender, memberId);
+      return;
+    } else if (isRtcMemberJoinEvent(event)) {
+      if (sessionId === this.joinState?.sessionId) {
+        const {
+          content: {
+            application: { whiteboard_id: whiteboardId },
+            transports: { published: transports },
+          },
+        } = event;
+
+        timer(this.stickyDurationMs * 0.9)
+          .pipe(takeUntil(this.destroySubject), takeUntil(this.leaveSubject))
+          .subscribe(async () => {
+            this.logger.log(`Updating RTC member for memberId: ${memberId}`);
+
+            await this.sendRtcMemberJoinEvent(
+              memberId,
+              whiteboardId,
+              transports,
+            );
+
+            const widgetApi = await this.widgetApiPromise;
+
+            if (this.removeSessionDelayId) {
+              this.logger.log(
+                `Cancelling RTC removeSessionDelayId: ${this.removeSessionDelayId}`,
+              );
+              await widgetApi.updateDelayedEvent(
+                this.removeSessionDelayId,
+                UpdateDelayedEventAction.Cancel,
+              );
+              this.removeSessionDelayId = undefined;
+            }
+
+            await this.sendRtcMemberLeaveDelayedEvent(
+              widgetApi,
+              memberId,
+              deviceId,
+              whiteboardId,
+            );
+          });
+      }
+
+      this.addSession(sessionId, memberId, event);
+      return;
+    }
   }
 
-  private addSession(session: StateEvent<RTCSessionEventContent>): void {
-    const { sender, state_key } = session;
+  private addSession(
+    sessionId: string,
+    memberId: string,
+    event: RoomEvent<RtcMemberJoin>,
+  ): void {
+    const {
+      sender,
+      content: {
+        application: { whiteboard_id },
+        transports,
+      },
+    } = event;
+    this.logger.debug(
+      `Session ${sessionId} by ${sender} joined whiteboard ${whiteboard_id} event`,
+      event,
+      'member',
+      memberId,
+    );
+
+    const livekitTransport = getLivekitTransport(transports.published);
+
+    const session: MatrixRtcSession = {
+      userId: sender,
+      sessionId,
+      memberId,
+      livekitTransport,
+    };
+    this.sessions = [...this.sessions, session];
 
     this.logger.debug(
-      `Session ${state_key} by ${sender} joined whiteboard ${session.content.call_id}`,
+      'Sessions updated',
+      JSON.stringify(this.sessions),
+      'length',
+      this.sessions.length,
     );
 
-    this.sessions = [...this.sessions, session];
-    this.sessionJoinedSubject.next({ sessionId: state_key, userId: sender });
-  }
-
-  private removeSession(sessionId: string, userId: string): void {
-    this.logger.debug(`Session ${sessionId} left whiteboard`);
-
-    this.sessions = this.sessions.filter((s) => s.state_key !== sessionId);
-    this.sessionLeftSubject.next({
+    this.sessionJoinedSubject.next({
       sessionId,
-      userId,
+      userId: sender,
+      memberId,
+      livekitTransport,
     });
   }
 
-  private async refreshOwnSession(
-    sessionId: string | undefined,
+  private removeSession(
+    sessionId: string,
+    userId: string,
+    memberId: string,
+  ): void {
+    const session = this.sessions.find((s) => s.sessionId === sessionId);
+    if (session === undefined) {
+      return;
+    }
+
+    this.logger.debug(
+      `Session ${sessionId} left whiteboard, user ${userId}, member: ${memberId}`,
+    );
+
+    this.sessions = this.sessions.filter((s) => s.sessionId !== sessionId);
+
+    this.logger.debug(
+      'Sessions updated',
+      JSON.stringify(this.sessions),
+      'length',
+      this.sessions.length,
+    );
+
+    this.sessionLeftSubject.next({
+      sessionId: session.sessionId,
+      userId: session.userId,
+      memberId: session.memberId,
+      livekitTransport: session.livekitTransport,
+    });
+  }
+
+  private async sendRtcMemberJoinEvent(
+    memberId: string,
+    whiteboardId: string,
+    transports: Transport[],
+  ): Promise<void> {
+    this.logger.debug(
+      `Sending RTC member join event for memberId: ${memberId}`,
+    );
+
+    const widgetApi = await this.widgetApiPromise;
+    const { userId, deviceId } = widgetApi.widgetParameters;
+
+    if (!userId || !deviceId) {
+      throw new Error('Unknown user id or device id ');
+    }
+
+    const rtcMemberJoin: RtcMemberJoin = {
+      slot_id: `net.nordeck.whiteboard#${whiteboardId}`,
+      member: {
+        id: memberId,
+        membership: 'join',
+        device_id: deviceId,
+      },
+      application: {
+        type: 'net.nordeck.whiteboard',
+        whiteboard_id: whiteboardId,
+      },
+      transports: {
+        published: transports,
+        can_subscribe: ['livekit'],
+      },
+      msc4354_sticky_key: memberId,
+    };
+    try {
+      await widgetApi.sendRoomEvent(ROOM_EVENT_4143_RTC_MEMBER, rtcMemberJoin, {
+        stickyDurationMs: this.stickyDurationMs,
+      });
+    } catch (ex) {
+      this.logger.error('Error while sending RTC member join event', ex);
+    }
+  }
+
+  private async sendRtcMemberLeaveEvent(
+    userId: string,
+    deviceId: string,
+    memberId: string,
     whiteboardId: string,
   ): Promise<void> {
-    const expires = Date.now() + this.sessionTimeout;
-    const widgetApi = await this.widgetApiPromise;
-    const { userId, deviceId } = widgetApi.widgetParameters;
-
-    this.logger.debug(`Refreshing session ${sessionId}`);
-
-    if (!userId || !deviceId || !whiteboardId) {
-      // @todo this needs to be handled better so it bubbles up to the user
-      this.logger.error(
-        'Unknown user id or device id or whiteboard id when patching RTC session',
-      );
-      throw new Error('Unknown user id or device id or whiteboard id');
-    }
-
-    try {
-      // Get the existing session event, if any
-      const sessionEvent = (await widgetApi.receiveSingleStateEvent(
-        STATE_EVENT_RTC_MEMBER,
-        sessionId,
-      )) as StateEvent<RTCSessionEventContent>;
-
-      // Determine the base session object
-      let baseSession: RTCSessionEventContent;
-
-      if (
-        sessionEvent &&
-        Object.keys(sessionEvent.content).length !== 0 &&
-        isWhiteboardRTCSessionStateEvent(sessionEvent)
-      ) {
-        // If a valid session exists, clone it
-        baseSession = clone(sessionEvent.content);
-      } else {
-        // Otherwise create a new session event content
-        baseSession = newRTCSession(deviceId, whiteboardId);
-      }
-
-      // make sure the livekit alias for foci is set to the current room
-      const foci_preferred = this.fociPreferred.map((focus) => {
-        if (focus.type === 'livekit') {
-          return {
-            ...focus,
-            livekit_alias: widgetApi.widgetParameters.roomId,
-          };
-        }
-        return focus;
-      });
-
-      const updatedSession: RTCSessionEventContent = {
-        ...baseSession,
-        expires,
-        foci_preferred,
-      };
-
-      // Check if session has been modified compared to the original
-      if (!isEqual(updatedSession, sessionEvent)) {
-        await widgetApi.sendStateEvent(STATE_EVENT_RTC_MEMBER, updatedSession, {
-          stateKey: `_${userId}_${deviceId}`,
-        });
-        this.logger.debug('RTC session sent', JSON.stringify(updatedSession));
-      }
-    } catch (ex) {
-      this.logger.error('Error while sending RTC session', ex);
-    }
-  }
-
-  private async endRtcSession(sessionId: string): Promise<void> {
-    const widgetApi = await this.widgetApiPromise;
-    const { userId, deviceId } = widgetApi.widgetParameters;
-
     this.logger.debug(
-      'Ending RTC session with empty content in membership state',
-      userId,
-      deviceId,
-      sessionId,
+      `Sending RTC member leave event for userId: ${userId}, deviceId: ${deviceId}, memberId: ${memberId}`,
     );
 
+    const widgetApi = await this.widgetApiPromise;
+
+    const rtcMemberLeave: RtcMemberLeave = {
+      slot_id: `net.nordeck.whiteboard#${whiteboardId}`,
+      member: {
+        id: memberId,
+        membership: 'leave',
+        device_id: deviceId,
+      },
+      leave_reason: {
+        code: 'leave',
+      },
+      msc4354_sticky_key: memberId,
+    };
     try {
-      await widgetApi.sendStateEvent(
-        STATE_EVENT_RTC_MEMBER,
-        {},
-        { stateKey: `_${userId}_${deviceId}` },
+      await widgetApi.sendRoomEvent(
+        ROOM_EVENT_4143_RTC_MEMBER,
+        rtcMemberLeave,
+        { stickyDurationMs: this.stickyDurationMs },
       );
     } catch (ex) {
-      this.logger.error('Error while sending RTC session', ex);
+      this.logger.error('Error while sending RTC member leave event', ex);
     }
   }
+}
+
+function getLivekitTransport(transports: Transport[]): {
+  livekitServiceUrl: string;
+} {
+  const transport = transports.find(isLivekitTransport);
+
+  if (!transport) {
+    throw new Error('Could not find livekit transport');
+  }
+
+  return {
+    livekitServiceUrl: transport.livekit_service_url,
+  };
 }

@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-import { getEnvironment } from '@matrix-widget-toolkit/mui';
-import uniqWith from 'lodash/uniqWith';
+import first from 'lodash/first';
 import { getLogger } from 'loglevel';
 import AutoDiscovery, { FOCI_WK_KEY } from './autodiscovery';
 
@@ -66,74 +65,24 @@ export async function getWellKnownFoci(
   return foci;
 }
 
-// As defined in MSC4143
-// https://github.com/matrix-org/matrix-spec-proposals/blob/toger5/matrixRTC/proposals/4143-matrix-rtc.md#choosing-the-value-of-foci_preferred-for-the-mrtcmember-state-event
-export function makeFociPreferred(
-  memberFocus: RTCFocus | undefined,
-  wellKnownFoci: RTCFocus[],
-): RTCFocus[] {
-  const logger = getLogger('matrixRtcFocus.makeFociPreferred');
-
-  const preferredFoci: RTCFocus[] = [];
-
-  if (memberFocus) {
-    logger.debug('Adding member focus to preferred foci', memberFocus);
-    preferredFoci.push(memberFocus);
-  } else {
-    logger.debug('No member focus provided, skipping');
-  }
-
-  if (wellKnownFoci.length > 0) {
-    logger.debug('Adding .well-known foci to preferred foci');
-    preferredFoci.push(...wellKnownFoci);
-  } else {
-    logger.debug('No .well-known preferred foci provided, skipping');
-  }
-
-  // check for specific livekit backend config underride
-  const envFoci = getEnvironment('REACT_APP_RTC_LIVEKIT_SERVICE_URL');
-  if (envFoci) {
-    logger.debug(
-      'Adding environment variable for LiveKit service URL',
-      envFoci,
-    );
-    const livekit_config: LivekitFocusConfig = {
-      type: 'livekit',
-      livekit_service_url: envFoci,
-    };
-    preferredFoci.push(livekit_config);
-  }
-
-  const foci = uniqWith(preferredFoci, isEqualFocus);
-
-  logger.debug('Final preferred foci:', foci);
-  return foci;
-}
-
-export function isEqualFocus(
-  value: RTCFocus | undefined,
-  other: RTCFocus | undefined,
-): boolean {
-  let isEqual = false;
-
-  if (!value || !other) {
-    return false;
-  }
-
-  if (value.type === 'livekit' && other.type === 'livekit') {
-    isEqual = value.livekit_service_url === other.livekit_service_url;
-  } else {
-    isEqual = value.type === other.type;
-  }
-  return isEqual;
-}
-
 export const isLivekitFocusConfig = (
   object: RTCFocus,
 ): object is LivekitFocusConfig =>
   object.type === 'livekit' && 'livekit_service_url' in object;
 
-export const isLivekitFocusActive = (
-  focus_active: RTCFocus,
-): focus_active is LivekitFocusActive =>
-  focus_active.type === 'livekit' && 'focus_selection' in focus_active;
+export function getActiveFocus(fociPreferred: RTCFocus[]): LivekitFocusConfig {
+  const firstFociPreferred = first(fociPreferred);
+
+  if (firstFociPreferred === undefined) {
+    throw new Error('Foci preferred must be not empty');
+  }
+
+  if (!isLivekitFocusConfig(firstFociPreferred)) {
+    throw new Error('Foci preferred must contain a livekit focus config');
+  }
+
+  return {
+    type: 'livekit',
+    livekit_service_url: firstFociPreferred.livekit_service_url,
+  };
+}

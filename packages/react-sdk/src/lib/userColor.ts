@@ -35,7 +35,6 @@ import {
   teal,
   yellow,
 } from '@mui/material/colors';
-import { normalizeMatrixUserId } from './matrixRtcMode';
 
 const colors = [
   amber[500],
@@ -70,7 +69,7 @@ function hashUserId(userId: string): number {
 }
 
 export function getUserColor(userId: string): string {
-  const hash = hashUserId(normalizeMatrixUserId(userId));
+  const hash = hashUserId(userId);
   const index = hash % colors.length;
   return colors[index];
 }

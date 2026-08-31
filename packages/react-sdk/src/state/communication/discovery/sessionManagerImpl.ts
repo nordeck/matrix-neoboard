@@ -37,7 +37,7 @@ import {
 } from '../../../model';
 import { Session, SessionManager } from './types';
 
-export type SessionState = { userId: string } & WhiteboardSession;
+type SessionState = { userId: string } & WhiteboardSession;
 
 export class SessionManagerImpl implements SessionManager {
   private readonly logger = getLogger('SessionManager');
@@ -61,6 +61,7 @@ export class SessionManagerImpl implements SessionManager {
     return this.joinState?.sessionId;
   }
 
+  /** Gets a list of all active sessions, excluding the own session. */
   getSessions(): Session[] {
     return this.sessions.map(({ sessionId, userId }) => ({
       sessionId,
@@ -68,19 +69,24 @@ export class SessionManagerImpl implements SessionManager {
     }));
   }
 
+  /**
+   * Observes new sessions that joined the current whiteboard.
+   * Is never triggered for the own session.
+   */
   observeSessionJoined(): Observable<Session> {
     return this.sessionJoinedSubject;
   }
 
+  /**
+   * Observes sessions that left the current whiteboard, like expired
+   * sessions.
+   * Is never triggered for the own session.
+   */
   observeSessionLeft(): Observable<Session> {
     return this.sessionLeftSubject;
   }
 
-  observeSession(): Observable<SessionState> {
-    return this.sessionSubject;
-  }
-
-  async join(whiteboardId: string): Promise<{ sessionId: string }> {
+  async join(whiteboardId: string): Promise<Session> {
     if (this.joinState) {
       await this.leave();
     }
@@ -133,7 +139,13 @@ export class SessionManagerImpl implements SessionManager {
     // Write session initially
     await this.refreshOwnSession(whiteboardId, sessionId);
 
-    return { sessionId };
+    const widgetApi = await this.widgetApiPromise;
+    const { userId } = widgetApi.widgetParameters;
+
+    if (!userId) {
+      throw new Error('Unknown user id');
+    }
+    return { userId, sessionId };
   }
 
   async leave(): Promise<void> {

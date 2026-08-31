@@ -53,7 +53,11 @@ const widgetApiPromise = WidgetApiImpl.create({
 });
 
 const store = createStore({ widgetApi: widgetApiPromise });
-const whiteboardManager = createWhiteboardManager(store, widgetApiPromise);
+const whiteboardManager = createWhiteboardManager(
+  store,
+  widgetApiPromise,
+  false,
+);
 
 const container = document.getElementById('root');
 const root = createRoot(container!);

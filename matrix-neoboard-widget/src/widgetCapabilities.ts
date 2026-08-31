@@ -21,16 +21,17 @@ import {
   STATE_EVENT_ROOM_MEMBER,
 } from '@matrix-widget-toolkit/api';
 import {
+  isMatrixRtcMode,
+  ROOM_EVENT_4143_RTC_MEMBER,
   ROOM_EVENT_DOCUMENT_CHUNK,
   ROOM_EVENT_DOCUMENT_CREATE,
   ROOM_EVENT_DOCUMENT_SNAPSHOT,
+  STATE_EVENT_4143_RTC_SLOT,
   STATE_EVENT_ROOM_NAME,
-  STATE_EVENT_RTC_MEMBER,
   STATE_EVENT_WHITEBOARD,
   STATE_EVENT_WHITEBOARD_SESSIONS,
   TO_DEVICE_MESSAGE_CONNECTION_SIGNALING,
 } from '@nordeck/matrix-neoboard-react-sdk';
-import { matrixRtcMode } from '@nordeck/matrix-neoboard-react-sdk/src/components/Whiteboard';
 import {
   EventDirection,
   MatrixCapabilities,
@@ -38,7 +39,7 @@ import {
   WidgetEventCapability,
 } from 'matrix-widget-api';
 
-const { userId, deviceId } = extractWidgetParameters();
+const { userId } = extractWidgetParameters();
 
 export const widgetCapabilities = [
   WidgetEventCapability.forRoomEvent(
@@ -87,12 +88,16 @@ export const widgetCapabilities = [
   ),
 
   WidgetEventCapability.forStateEvent(
-    EventDirection.Send,
+    EventDirection.Receive,
     STATE_EVENT_WHITEBOARD,
   ),
   WidgetEventCapability.forStateEvent(
+    EventDirection.Send,
+    STATE_EVENT_4143_RTC_SLOT,
+  ),
+  WidgetEventCapability.forStateEvent(
     EventDirection.Receive,
-    STATE_EVENT_WHITEBOARD,
+    STATE_EVENT_4143_RTC_SLOT,
   ),
   WidgetEventCapability.forStateEvent(
     EventDirection.Receive,
@@ -112,18 +117,19 @@ export const widgetCapabilities = [
   WidgetApiFromWidgetAction.MSC4039DownloadFileAction,
 ];
 
-if (matrixRtcMode) {
+if (isMatrixRtcMode()) {
   widgetCapabilities.push(
-    WidgetEventCapability.forStateEvent(
+    MatrixCapabilities.MSC4515RtcTransports,
+    WidgetEventCapability.forRoomEvent(
       EventDirection.Send,
-      STATE_EVENT_RTC_MEMBER,
-      // We only need to write the own state, but read state from everyone
-      `_${userId}_${deviceId}`,
+      ROOM_EVENT_4143_RTC_MEMBER,
     ),
-    WidgetEventCapability.forStateEvent(
+    WidgetEventCapability.forRoomEvent(
       EventDirection.Receive,
-      STATE_EVENT_RTC_MEMBER,
+      ROOM_EVENT_4143_RTC_MEMBER,
     ),
+    MatrixCapabilities.MSC4407ReceiveStickyEvent,
+    MatrixCapabilities.MSC4407SendStickyEvent,
     MatrixCapabilities.MSC4157SendDelayedEvent,
     MatrixCapabilities.MSC4157UpdateDelayedEvent,
   );

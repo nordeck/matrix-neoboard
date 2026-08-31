@@ -41,7 +41,6 @@ import {
   WebRtcPeerConnection,
 } from './connection';
 import { Session, SessionManager } from './discovery';
-import { SessionState } from './discovery/sessionManagerImpl';
 import { SignalingChannel } from './signaling';
 import {
   CommunicationChannel,
@@ -85,10 +84,10 @@ export class WebRtcCommunicationChannel implements CommunicationChannel {
       });
 
     this.sessionManager
-      .observeSession()
+      .observeSessionJoined()
       .pipe(takeUntil(this.destroySubject))
       .subscribe((session) => {
-        this.addSessionStatistics(session);
+        this.addSessionStatistics(session.sessionId, session);
       });
 
     this.sessionManager
@@ -188,7 +187,7 @@ export class WebRtcCommunicationChannel implements CommunicationChannel {
   }
 
   private async connect() {
-    if (this.statistics.localSessionId) {
+    if (this.statistics.localSession) {
       this.logger.log('Communication channel is already open');
       return;
     }
@@ -196,7 +195,9 @@ export class WebRtcCommunicationChannel implements CommunicationChannel {
     this.logger.log('Connecting communication channel');
     const { sessionId } = await this.sessionManager.join(this.whiteboardId);
 
-    this.statistics.localSessionId = sessionId;
+    this.statistics.localSession = {
+      sessionId,
+    };
     this.statisticsSubject.next(cloneDeep(this.statistics));
   }
 
@@ -205,7 +206,7 @@ export class WebRtcCommunicationChannel implements CommunicationChannel {
 
     await this.sessionManager.leave();
 
-    this.statistics.localSessionId = undefined;
+    this.statistics.localSession = undefined;
     this.statisticsSubject.next(cloneDeep(this.statistics));
   }
 
@@ -288,25 +289,15 @@ export class WebRtcCommunicationChannel implements CommunicationChannel {
     this.statisticsSubject.next(cloneDeep(this.statistics));
   }
 
-  private addSessionStatistics(session: SessionState) {
-    if (!this.statistics.sessions) {
-      this.statistics.sessions = [];
-    }
-
-    // Find the index of the session if it already exists
-    const existingSessionIndex = this.statistics.sessions.findIndex(
-      (existingSession) =>
-        existingSession.sessionId === session.sessionId &&
-        existingSession.userId === session.userId &&
-        existingSession.whiteboardId === session.whiteboardId,
-    );
-
-    // If session exists, replace it with the new session
-    if (existingSessionIndex !== -1) {
-      this.statistics.sessions[existingSessionIndex] = session;
+  private addSessionStatistics(sessionId: string, session?: Session) {
+    if (!session) {
+      delete this.statistics.sessions[sessionId];
     } else {
-      // If session does not exist, add it
-      this.statistics.sessions.push(session);
+      this.statistics.sessions[sessionId] = {
+        userId: session.userId,
+      };
     }
+
+    this.statisticsSubject.next(cloneDeep(this.statistics));
   }
 }

@@ -1122,10 +1122,10 @@
   resolved "https://registry.yarnpkg.com/@livekit/mutex/-/mutex-1.1.1.tgz#72492b611d55be8130ba2271b7a436d94b1bc6d4"
   integrity sha512-EsshAucklmpuUAfkABPxJNhzj9v2sG7JuzFDL4ML1oJQSV14sqrpTYnsaOudMAw9yOaW53NU3QQTlUQoRs4czw==
 
-"@livekit/protocol@1.45.8":
-  version "1.45.8"
-  resolved "https://registry.yarnpkg.com/@livekit/protocol/-/protocol-1.45.8.tgz#8314925fcd285f3fe5e3cc3b38110dbc4ed77d8f"
-  integrity sha512-Q+l57E7w/xxOBFVWzdX5rkAZO7ffyF+rlDzNUYq2SU114+5aTyCq+PK4unaEVDNd4952Af7wteKr3sOgasGuaA==
+"@livekit/protocol@1.50.4":
+  version "1.50.4"
+  resolved "https://registry.yarnpkg.com/@livekit/protocol/-/protocol-1.50.4.tgz#31495741dd786924b8ba6e190dd2a6e5d3711c51"
+  integrity sha512-L1uggNQAqyY21smQY8AllyOYbcv9Me9TaxwuLytL1R8ck9nbYPmQLNwEDi3pOFGAMa5F8I2nUi2Jc59W5awxlA==
   dependencies:
     "@bufbuild/protobuf" "^1.10.0"
 
@@ -4628,20 +4628,20 @@ listr2@^8.2.5:
     rfdc "^1.4.1"
     wrap-ansi "^9.0.0"
 
-livekit-client@^2.18.10:
-  version "2.19.2"
-  resolved "https://registry.yarnpkg.com/livekit-client/-/livekit-client-2.19.2.tgz#641fca83b7edf3f4022134a7079553794e04017f"
-  integrity sha512-Kvk07QYDWRAbmYNLRll04ZIuxMQobW/oLPYnmR1kCy8GGHpU0gqyHf704Rz+29zfy8IJZRjKqeVbzGSKn9sumw==
+livekit-client@^2.21.0:
+  version "2.22.0"
+  resolved "https://registry.yarnpkg.com/livekit-client/-/livekit-client-2.22.0.tgz#1557dd5f7c0654efbb81cbac0f4a81aa008aeb86"
+  integrity sha512-GLtYQfRh/RsvXaOX1x609bFZ17yyKmKWDqu9JmkMKn9vIFLi2GsapRv9gT8OJO/1R2dsitrkbGmloyUfxWQsaA==
   dependencies:
     "@livekit/mutex" "1.1.1"
-    "@livekit/protocol" "1.45.8"
+    "@livekit/protocol" "1.50.4"
     events "^3.3.0"
     jose "^6.1.0"
     loglevel "^1.9.2"
     sdp-transform "^2.15.0"
     tslib "2.8.1"
     typed-emitter "^2.1.0"
-    webrtc-adapter "9.0.5"
+    webrtc-adapter "9.0.6"
 
 localforage@^1.10.0:
   version "1.10.0"
@@ -4763,10 +4763,10 @@ math-intrinsics@^1.1.0:
   resolved "https://registry.yarnpkg.com/math-intrinsics/-/math-intrinsics-1.1.0.tgz#a0dd74be81e2aa5c2f27e65ce283605ee4e2b7f9"
   integrity sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g==
 
-matrix-widget-api@^1.13.1, matrix-widget-api@^1.16.1:
-  version "1.16.1"
-  resolved "https://registry.yarnpkg.com/matrix-widget-api/-/matrix-widget-api-1.16.1.tgz#a447f28f0af07e1bdc960881971de7d1ec9e6464"
-  integrity sha512-oCfTV4xNPo02qIgveqdkIyKQjOPpsjhF3bmJBotHrhr8TsrhVa7kx8PtuiUPnQTjz0tdBle7falR2Fw8VKsedw==
+matrix-widget-api@1.18.0, matrix-widget-api@^1.13.1:
+  version "1.18.0"
+  resolved "https://registry.yarnpkg.com/matrix-widget-api/-/matrix-widget-api-1.18.0.tgz#3366d7ad14df62df1465a9384bc9557e72bbab79"
+  integrity sha512-4T2f2koWmx05p1BLcT/9YGGGPSXpPT+PA4Oap/5fjhXsWPxMGJiGL97YpANMYLKsnE1sScYFeuyxIgdc1Qo+Ew==
   dependencies:
     "@types/events" "^3.0.0"
     events "^3.2.0"
@@ -6605,10 +6605,10 @@ webidl-conversions@^7.0.0:
   resolved "https://registry.yarnpkg.com/webidl-conversions/-/webidl-conversions-7.0.0.tgz#256b4e1882be7debbf01d05f0aa2039778ea080a"
   integrity sha512-VwddBukDzu71offAQR975unBIGqfKZpM+8ZX6ySk8nYhVoo5CYaZyzt3YBvYtRtO+aoGlqxPg/B87NGVZ/fu6g==
 
-webrtc-adapter@9.0.5:
-  version "9.0.5"
-  resolved "https://registry.yarnpkg.com/webrtc-adapter/-/webrtc-adapter-9.0.5.tgz#fb036c3db06e1a0d86c264da649e130187783b3f"
-  integrity sha512-U9vjByy/sK2OMXu5mmfuZFKTMIUQe34c0JXRO+oDrxJTsntdYT2iIFwYMOV7HhMTuktcZLGf2W1N/OcSf9ssWg==
+webrtc-adapter@9.0.6:
+  version "9.0.6"
+  resolved "https://registry.yarnpkg.com/webrtc-adapter/-/webrtc-adapter-9.0.6.tgz#d89ce0d7b6b8b49f07bdbd1273074006744905a6"
+  integrity sha512-CHbl2ZQbxx164IgWRgzJno4hWtM4tFbRam1QfI3Yxhs3w/DvqluVxVWeXs3oL5/fbGkSNLKo0Ty5MgUWceNhog==
   dependencies:
     sdp "^3.2.0"
 

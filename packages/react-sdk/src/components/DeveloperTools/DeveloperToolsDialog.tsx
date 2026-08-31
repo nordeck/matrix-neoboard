@@ -111,7 +111,7 @@ export function DeveloperToolsDialog({
               <Typography variant="subtitle1" component="h3">
                 {t(
                   'boardBar.developerToolsDialog.communicationChannelStatisticsTitle',
-                  'Communication Channel Statistics (WRTC)',
+                  'Communication Channel Statistics',
                 )}
               </Typography>
             </AccordionSummary>
@@ -132,12 +132,11 @@ export function DeveloperToolsDialog({
               </Typography>
             </AccordionSummary>
             <AccordionDetails>
+              <Typography variant="subtitle1" gutterBottom>
+                {communicationChannel.localSession?.sessionId}
+              </Typography>
               <WhiteboardSessionsTable
-                sessions={communicationChannel.sessions?.filter(
-                  (s) =>
-                    s.sessionId !== communicationChannel.localSessionId &&
-                    s.expiresTs - Date.now() > 0,
-                )}
+                sessions={Object.entries(communicationChannel.sessions)}
               />
             </AccordionDetails>
           </Accordion>

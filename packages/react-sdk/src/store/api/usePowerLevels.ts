@@ -21,7 +21,7 @@ import {
   STATE_EVENT_POWER_LEVELS,
 } from '@matrix-widget-toolkit/api';
 import { useWidgetApi } from '@matrix-widget-toolkit/react';
-import { STATE_EVENT_WHITEBOARD } from '../../model';
+import { STATE_EVENT_4143_RTC_SLOT } from '../../model';
 import {
   useGetCreateEventQuery,
   useGetPowerLevelsQuery,
@@ -69,7 +69,7 @@ export function usePowerLevels({
         powerContent,
         createEvent?.event,
         userId,
-        STATE_EVENT_WHITEBOARD,
+        STATE_EVENT_4143_RTC_SLOT,
       );
     canImportWhiteboard = canModerate;
     canStopPresentation = canModerate;

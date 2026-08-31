@@ -19,10 +19,10 @@ import { useWidgetApi } from '@matrix-widget-toolkit/react';
 import first from 'lodash/first';
 import loglevel from 'loglevel';
 import { useAsync } from 'react-use';
-import { matrixRtcMode } from '../components/Whiteboard';
-import { isInfiniteCanvasMode } from '../lib';
+import { isInfiniteCanvasMode, isMatrixRtcMode } from '../lib';
 import {
-  STATE_EVENT_RTC_MEMBER,
+  isValidNordeckWhiteboardStateEvent,
+  STATE_EVENT_WHITEBOARD,
   STATE_EVENT_WHITEBOARD_SESSIONS,
   Whiteboard,
 } from '../model';
@@ -80,43 +80,59 @@ export function useOwnedWhiteboard(): UseOwnedWhiteboardResponse {
     error,
   } = useAsync(async () => {
     if (canInitializeWhiteboard && !whiteboard && !isLoading && !isError) {
-      try {
-        // TODO: We only set the power level once, if it's later changed we can't
-        // handle it. It would be better to show a UI to a moderator to repair
-        // the power level setting if it is wrong.
-        const sessionStateEvent = matrixRtcMode
-          ? STATE_EVENT_RTC_MEMBER
-          : STATE_EVENT_WHITEBOARD_SESSIONS;
-        await patchPowerLevels({
-          changes: {
-            events: {
-              [sessionStateEvent]: 0,
+      if (!isMatrixRtcMode()) {
+        try {
+          // TODO: We only set the power level once, if it's later changed we can't
+          // handle it. It would be better to show a UI to a moderator to repair
+          // the power level setting if it is wrong.
+          await patchPowerLevels({
+            changes: {
+              events: {
+                [STATE_EVENT_WHITEBOARD_SESSIONS]: 0,
+              },
             },
-          },
-        }).unwrap();
-      } catch (err) {
-        loglevel.error('could not configure power level', err);
+          }).unwrap();
+        } catch (err) {
+          loglevel.error('could not configure power level', err);
+        }
       }
 
-      const documentId = (await createDocument().unwrap()).event.event_id;
+      const nordeckWhiteboard = await widgetApi.receiveSingleStateEvent(
+        STATE_EVENT_WHITEBOARD,
+        widgetApi.widgetId,
+      );
 
-      // Create initial empty snapshot, so that there is always a snapshot.
-      // This is done to reduce "cannot find snapshot" messages when creating new boards.
-      const whiteboardDocumentVersion = isInfiniteCanvasMode()
-        ? WhiteboardDocumentVersion.v1
-        : WhiteboardDocumentVersion.v0;
-      const document = createWhiteboardDocument(whiteboardDocumentVersion);
-      await dispatch(
-        documentSnapshotApi.endpoints.createDocumentSnapshot.initiate({
-          documentId,
-          data: document.store(),
-        }),
-      ).unwrap();
+      let documentId: string;
+      if (
+        nordeckWhiteboard &&
+        isValidNordeckWhiteboardStateEvent(nordeckWhiteboard)
+      ) {
+        documentId = nordeckWhiteboard.content.documentId;
+      } else {
+        documentId = (await createDocument().unwrap()).event.event_id;
+
+        // Create initial empty snapshot, so that there is always a snapshot.
+        // This is done to reduce "cannot find snapshot" messages when creating new boards.
+        const whiteboardDocumentVersion = isInfiniteCanvasMode()
+          ? WhiteboardDocumentVersion.v1
+          : WhiteboardDocumentVersion.v0;
+        const document = createWhiteboardDocument(whiteboardDocumentVersion);
+        await dispatch(
+          documentSnapshotApi.endpoints.createDocumentSnapshot.initiate({
+            documentId,
+            data: document.store(),
+          }),
+        ).unwrap();
+      }
 
       const result = await updateWhiteboard({
         whiteboardId: widgetApi.widgetId,
         content: {
-          documentId,
+          status: 'open',
+          application: {
+            type: 'net.nordeck.whiteboard',
+            documentId,
+          },
         },
       }).unwrap();
 

@@ -22,7 +22,7 @@ export { acquireImageUrl, releaseImageUrl } from './imageBlobCache';
 export { isDefined } from './isDefined';
 export { isInfiniteCanvasMode } from './isInfiniteCanvasMode';
 export { setLocale } from './locale';
-export { WidgetApiActionError, convertMxcToHttpUrl } from './matrix';
+export * from './matrix';
 export { isMatrixRtcMode } from './matrixRtcMode';
 export { findColor, useColorPalette } from './useColorPalette';
 export type { Color } from './useColorPalette';

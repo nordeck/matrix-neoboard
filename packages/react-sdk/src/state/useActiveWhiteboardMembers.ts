@@ -15,7 +15,7 @@
  */
 
 import { useMemo } from 'react';
-import { matrixRtcMode } from '../components/Whiteboard';
+import { isMatrixRtcMode } from '../lib';
 import { isPeerConnected } from './communication/connection';
 import { useActiveWhiteboardInstanceStatistics } from './useActiveWhiteboardInstance';
 
@@ -29,22 +29,29 @@ export function useActiveWhiteboardMembers(): ActiveWhiteboardMember[] {
   return useMemo(() => {
     const activeWhiteboardMembers = new Map<string, ActiveWhiteboardMember>();
 
-    if (matrixRtcMode) {
-      const allRtcMembers = statistics.communicationChannel.sessions
-        ? statistics.communicationChannel.sessions.filter(
-            (s) => s.expiresTs > Date.now(),
-          )
-        : undefined;
-
-      allRtcMembers?.forEach((s) => {
-        activeWhiteboardMembers.set(s.userId, {
-          userId: s.userId,
-        });
-      });
+    if (isMatrixRtcMode()) {
+      Object.values(statistics.communicationChannel.peerConnections).forEach(
+        (p) => {
+          if (p.remoteParticipantIdentities) {
+            for (const remoteParticipantIdentity of p.remoteParticipantIdentities) {
+              const session =
+                statistics.communicationChannel.sessions[
+                  remoteParticipantIdentity
+                ];
+              if (session) {
+                const participantUserId = session.userId;
+                activeWhiteboardMembers.set(participantUserId, {
+                  userId: participantUserId,
+                });
+              }
+            }
+          }
+        },
+      );
     } else {
       Object.values(statistics.communicationChannel.peerConnections).forEach(
         (p) => {
-          if (isPeerConnected(p)) {
+          if (p.remoteUserId && isPeerConnected(p)) {
             activeWhiteboardMembers.set(p.remoteUserId, {
               userId: p.remoteUserId,
             });
