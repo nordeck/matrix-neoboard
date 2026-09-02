@@ -15,31 +15,43 @@
  */
 
 import { RoomEvent, StateEvent } from '@matrix-widget-toolkit/api';
+import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { WidgetApiMockProvider } from '@matrix-widget-toolkit/react';
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { renderHook, waitFor } from '@testing-library/react';
 import { ComponentType, PropsWithChildren, useState } from 'react';
 import { Provider } from 'react-redux';
-import { afterEach, beforeEach, describe, expect, it, test } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, test, vi } from 'vitest';
 import {
   mockDocumentCreate,
-  mockNordeckWhiteboard,
   mockPowerLevelsEvent,
   mockWhiteboard,
 } from '../lib/testUtils/matrixTestUtils';
 import {
   ROOM_EVENT_DOCUMENT_CHUNK,
   ROOM_EVENT_DOCUMENT_SNAPSHOT,
-  STATE_EVENT_WHITEBOARD,
 } from '../model';
 import { createStore } from '../store';
 import { useOwnedWhiteboard } from './useOwnedWhiteboard';
+
+vi.mock('@matrix-widget-toolkit/mui', async () => ({
+  ...(await vi.importActual<typeof import('@matrix-widget-toolkit/mui')>(
+    '@matrix-widget-toolkit/mui',
+  )),
+  getEnvironment: vi.fn(),
+}));
 
 let widgetApi: MockedWidgetApi;
 
 afterEach(() => widgetApi.stop());
 
-beforeEach(() => (widgetApi = mockWidgetApi()));
+beforeEach(() => {
+  vi.mocked(getEnvironment).mockImplementation(
+    (_, defaultValue) => defaultValue,
+  );
+
+  widgetApi = mockWidgetApi();
+});
 
 describe('useOwnedWhiteboard', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
@@ -71,7 +83,7 @@ describe('useOwnedWhiteboard', () => {
       expect.anything(),
     );
     expect(widgetApi.sendStateEvent).not.toHaveBeenCalledWith(
-      'org.matrix.msc4143.rtc.slot',
+      'net.nordeck.whiteboard',
       expect.anything(),
       expect.anything(),
     );
@@ -94,7 +106,7 @@ describe('useOwnedWhiteboard', () => {
     widgetApi.receiveStateEvents.mockImplementation((eventType: string) => {
       if (eventType === 'm.room.power_levels') {
         return Promise.resolve([mockPowerLevelsEvent()]);
-      } else if (eventType === 'org.matrix.msc4143.rtc.slot') {
+      } else if (eventType === 'net.nordeck.whiteboard') {
         return new Promise((resolve) => {
           resolveWhiteboards = resolve;
         });
@@ -118,7 +130,7 @@ describe('useOwnedWhiteboard', () => {
       expect.anything(),
     );
     expect(widgetApi.sendStateEvent).not.toHaveBeenCalledWith(
-      'org.matrix.msc4143.rtc.slot',
+      'net.nordeck.whiteboard',
       expect.anything(),
       expect.anything(),
     );
@@ -142,7 +154,7 @@ describe('useOwnedWhiteboard', () => {
     widgetApi.receiveStateEvents.mockImplementation((eventType: string) => {
       if (eventType === 'm.room.power_levels') {
         return Promise.resolve([mockPowerLevelsEvent()]);
-      } else if (eventType === 'org.matrix.msc4143.rtc.slot') {
+      } else if (eventType === 'net.nordeck.whiteboard') {
         return new Promise((_resolve, reject) => {
           rejectWhiteboards = reject;
         });
@@ -166,7 +178,7 @@ describe('useOwnedWhiteboard', () => {
       expect.anything(),
     );
     expect(widgetApi.sendStateEvent).not.toHaveBeenCalledWith(
-      'org.matrix.msc4143.rtc.slot',
+      'net.nordeck.whiteboard',
       expect.anything(),
       expect.anything(),
     );
@@ -229,14 +241,8 @@ describe('useOwnedWhiteboard', () => {
     );
 
     expect(widgetApi.sendStateEvent).toHaveBeenCalledWith(
-      'org.matrix.msc4143.rtc.slot',
-      {
-        status: 'open',
-        application: {
-          type: 'net.nordeck.whiteboard',
-          documentId,
-        },
-      },
+      'net.nordeck.whiteboard',
+      { documentId },
       { stateKey: 'widget-id' },
     );
 
@@ -246,7 +252,7 @@ describe('useOwnedWhiteboard', () => {
         value: {
           type: 'whiteboard',
           event: mockWhiteboard({
-            application: { documentId },
+            content: { documentId },
             event_id: expect.any(String),
             origin_server_ts: expect.any(Number),
             state_key: 'widget-id',
@@ -256,15 +262,12 @@ describe('useOwnedWhiteboard', () => {
     });
   });
 
-  it('should create a new slot whiteboard from existing nordeck whiteboard', async () => {
-    widgetApi.mockSendStateEvent(mockPowerLevelsEvent());
-
-    const whiteboard = widgetApi.mockSendStateEvent(
-      mockNordeckWhiteboard({
-        state_key: widgetApi.widgetId,
-      }),
+  it('should create a new document, snapshot, whiteboard and slot in Matrix RTC mode', async () => {
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+      name === 'REACT_APP_RTC' ? 'matrixrtc' : defaultValue,
     );
-    const documentId = whiteboard.content.documentId;
+
+    widgetApi.mockSendStateEvent(mockPowerLevelsEvent());
 
     const { result } = renderHook(() => useOwnedWhiteboard(), {
       wrapper: Wrapper,
@@ -274,7 +277,7 @@ describe('useOwnedWhiteboard', () => {
       expect(result.current).toEqual({ loading: true });
     });
 
-    expect(widgetApi.sendStateEvent).toHaveBeenCalledWith(
+    expect(widgetApi.sendStateEvent).not.toHaveBeenCalledWith(
       'm.room.power_levels',
       {
         events: { 'net.nordeck.whiteboard.sessions': 0 },
@@ -282,24 +285,29 @@ describe('useOwnedWhiteboard', () => {
       },
     );
 
-    expect(widgetApi.receiveSingleStateEvent).toHaveBeenCalledWith(
-      STATE_EVENT_WHITEBOARD,
-      widgetApi.widgetId,
-    );
-
-    expect(widgetApi.sendRoomEvent).not.toHaveBeenCalledWith(
+    expect(widgetApi.sendRoomEvent).toHaveBeenCalledWith(
       'net.nordeck.whiteboard.document.create',
       {},
     );
 
-    // Expect no snapshot and no chunk
-    expect(widgetApi.sendRoomEvent).not.toHaveBeenCalledWith(
+    // Expect a snapshot with a chunk
+    expect(widgetApi.sendRoomEvent).toHaveBeenCalledWith(
       ROOM_EVENT_DOCUMENT_SNAPSHOT,
       expect.anything(),
     );
-    expect(widgetApi.sendRoomEvent).not.toHaveBeenCalledWith(
+    expect(widgetApi.sendRoomEvent).toHaveBeenCalledWith(
       ROOM_EVENT_DOCUMENT_CHUNK,
       expect.anything(),
+    );
+
+    const documentId = await widgetApi.sendRoomEvent.mock.results[0].value.then(
+      (e: RoomEvent) => e.event_id,
+    );
+
+    expect(widgetApi.sendStateEvent).toHaveBeenCalledWith(
+      'net.nordeck.whiteboard',
+      { documentId },
+      { stateKey: 'widget-id' },
     );
 
     expect(widgetApi.sendStateEvent).toHaveBeenCalledWith(
@@ -308,18 +316,18 @@ describe('useOwnedWhiteboard', () => {
         status: 'open',
         application: {
           type: 'net.nordeck.whiteboard',
-          documentId,
         },
       },
-      { stateKey: 'widget-id' },
+      { stateKey: 'net.nordeck.whiteboard#widget-id' },
     );
+
     await waitFor(() => {
       expect(result.current).toEqual({
         loading: false,
         value: {
           type: 'whiteboard',
           event: mockWhiteboard({
-            application: { documentId },
+            content: { documentId },
             event_id: expect.any(String),
             origin_server_ts: expect.any(Number),
             state_key: 'widget-id',
@@ -363,7 +371,7 @@ describe('useOwnedWhiteboard', () => {
     widgetApi.mockSendStateEvent(
       mockWhiteboard({
         sender: '@moderator-user:example.com',
-        application: {
+        content: {
           documentId: '$document-0',
         },
       }),
@@ -374,7 +382,7 @@ describe('useOwnedWhiteboard', () => {
       expect.anything(),
     );
     expect(widgetApi.sendStateEvent).not.toHaveBeenCalledWith(
-      'org.matrix.msc4143.rtc.slot',
+      'net.nordeck.whiteboard',
       expect.anything(),
       expect.anything(),
     );
@@ -386,7 +394,7 @@ describe('useOwnedWhiteboard', () => {
           type: 'whiteboard',
           event: mockWhiteboard({
             sender: '@moderator-user:example.com',
-            application: { documentId: '$document-0' },
+            content: { documentId: '$document-0' },
             event_id: expect.any(String),
             origin_server_ts: expect.any(Number),
           }),
@@ -424,7 +432,7 @@ describe('useOwnedWhiteboard', () => {
         value: {
           type: 'whiteboard',
           event: mockWhiteboard({
-            application: { documentId: expect.any(String) },
+            content: { documentId: expect.any(String) },
             event_id: expect.any(String),
             origin_server_ts: expect.any(Number),
             state_key: 'widget-id',

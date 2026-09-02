@@ -88,16 +88,12 @@ export const widgetCapabilities = [
   ),
 
   WidgetEventCapability.forStateEvent(
-    EventDirection.Receive,
+    EventDirection.Send,
     STATE_EVENT_WHITEBOARD,
   ),
   WidgetEventCapability.forStateEvent(
-    EventDirection.Send,
-    STATE_EVENT_4143_RTC_SLOT,
-  ),
-  WidgetEventCapability.forStateEvent(
     EventDirection.Receive,
-    STATE_EVENT_4143_RTC_SLOT,
+    STATE_EVENT_WHITEBOARD,
   ),
   WidgetEventCapability.forStateEvent(
     EventDirection.Receive,
@@ -120,6 +116,10 @@ export const widgetCapabilities = [
 if (isMatrixRtcMode()) {
   widgetCapabilities.push(
     MatrixCapabilities.MSC4515RtcTransports,
+    WidgetEventCapability.forStateEvent(
+      EventDirection.Send,
+      STATE_EVENT_4143_RTC_SLOT,
+    ),
     WidgetEventCapability.forRoomEvent(
       EventDirection.Send,
       ROOM_EVENT_4143_RTC_MEMBER,

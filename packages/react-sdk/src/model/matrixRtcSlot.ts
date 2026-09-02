@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Nordeck IT + Consulting GmbH
+ * Copyright 2026 Nordeck IT + Consulting GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,20 +18,26 @@ import { StateEvent } from '@matrix-widget-toolkit/api';
 import Joi from 'joi';
 import { isValidEvent } from './validation';
 
-export const STATE_EVENT_WHITEBOARD = 'net.nordeck.whiteboard';
+export const STATE_EVENT_4143_RTC_SLOT = 'org.matrix.msc4143.rtc.slot';
 
-export type Whiteboard = {
-  documentId: string;
-
-  // TODO: controlling whiteboard?
+export type RtcSlot = {
+  status: string;
+  application: {
+    type: 'net.nordeck.whiteboard';
+  };
 };
 
-const whiteboardSchema = Joi.object<Whiteboard, true>({
-  documentId: Joi.string().required(),
+const rtcSlotSchema = Joi.object<RtcSlot, true>({
+  status: Joi.string().valid('open').required(),
+  application: Joi.object({
+    type: Joi.string().valid('net.nordeck.whiteboard').required(),
+  })
+    .unknown()
+    .required(),
 }).unknown();
 
-export function isValidWhiteboardStateEvent(
+export function isValidWhiteboardRtcSlotEvent(
   event: StateEvent<unknown>,
-): event is StateEvent<Whiteboard> {
-  return isValidEvent(event, STATE_EVENT_WHITEBOARD, whiteboardSchema);
+): event is StateEvent<RtcSlot> {
+  return isValidEvent(event, STATE_EVENT_4143_RTC_SLOT, rtcSlotSchema);
 }

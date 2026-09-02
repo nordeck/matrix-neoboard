@@ -244,7 +244,7 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
       store,
       communicationChannel,
       storage,
-      whiteboardEvent.content.application.documentId,
+      whiteboardEvent.content.documentId,
       {
         documentValidator: isValidWhiteboardDocument,
         snapshotValidator: isValidWhiteboardDocumentSnapshot,

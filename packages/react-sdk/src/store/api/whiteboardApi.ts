@@ -26,7 +26,7 @@ import last from 'lodash/last';
 import { bufferTime, filter } from 'rxjs';
 import {
   isValidWhiteboardStateEvent,
-  STATE_EVENT_4143_RTC_SLOT,
+  STATE_EVENT_WHITEBOARD,
   Whiteboard,
 } from '../../model';
 import { ThunkExtraArgument } from '../store';
@@ -57,7 +57,7 @@ export const whiteboardApi = baseApi.injectEndpoints({
         try {
           const initialState = whiteboardsEntityAdapter.getInitialState();
           const events = await widgetApi.receiveStateEvents(
-            STATE_EVENT_4143_RTC_SLOT,
+            STATE_EVENT_WHITEBOARD,
           );
 
           return {
@@ -90,7 +90,7 @@ export const whiteboardApi = baseApi.injectEndpoints({
         await cacheDataLoaded;
 
         const subscription = widgetApi
-          .observeStateEvents(STATE_EVENT_4143_RTC_SLOT)
+          .observeStateEvents(STATE_EVENT_WHITEBOARD)
           .pipe(
             bufferTime(0),
             filter((list) => list.length > 0),
@@ -101,8 +101,7 @@ export const whiteboardApi = baseApi.injectEndpoints({
             const eventIdsToDelete = events
               .filter(
                 (e) =>
-                  e.type === STATE_EVENT_4143_RTC_SLOT &&
-                  isEqual(e.content, {}),
+                  e.type === STATE_EVENT_WHITEBOARD && isEqual(e.content, {}),
               )
               .map((e) => e.state_key);
 
@@ -131,7 +130,7 @@ export const whiteboardApi = baseApi.injectEndpoints({
 
         try {
           const whiteboardEvents = await widgetApi.receiveStateEvents(
-            STATE_EVENT_4143_RTC_SLOT,
+            STATE_EVENT_WHITEBOARD,
             { stateKey: whiteboardId },
           );
           const whiteboardEvent = last(
@@ -150,7 +149,7 @@ export const whiteboardApi = baseApi.injectEndpoints({
           }
 
           const result = await widgetApi.sendStateEvent(
-            STATE_EVENT_4143_RTC_SLOT,
+            STATE_EVENT_WHITEBOARD,
             whiteboard,
             { stateKey: whiteboardId },
           );
@@ -162,7 +161,7 @@ export const whiteboardApi = baseApi.injectEndpoints({
           return {
             data: {
               event: makeEventFromSendStateEventResult(
-                STATE_EVENT_4143_RTC_SLOT,
+                STATE_EVENT_WHITEBOARD,
                 whiteboardId,
                 whiteboard,
                 widgetApi.widgetParameters.userId,

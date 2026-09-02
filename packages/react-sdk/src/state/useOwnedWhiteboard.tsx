@@ -21,8 +21,8 @@ import loglevel from 'loglevel';
 import { useAsync } from 'react-use';
 import { isInfiniteCanvasMode, isMatrixRtcMode } from '../lib';
 import {
-  isValidNordeckWhiteboardStateEvent,
-  STATE_EVENT_WHITEBOARD,
+  RtcSlot,
+  STATE_EVENT_4143_RTC_SLOT,
   STATE_EVENT_WHITEBOARD_SESSIONS,
   Whiteboard,
 } from '../model';
@@ -97,44 +97,44 @@ export function useOwnedWhiteboard(): UseOwnedWhiteboardResponse {
         }
       }
 
-      const nordeckWhiteboard = await widgetApi.receiveSingleStateEvent(
-        STATE_EVENT_WHITEBOARD,
-        widgetApi.widgetId,
-      );
+      const documentId = (await createDocument().unwrap()).event.event_id;
 
-      let documentId: string;
-      if (
-        nordeckWhiteboard &&
-        isValidNordeckWhiteboardStateEvent(nordeckWhiteboard)
-      ) {
-        documentId = nordeckWhiteboard.content.documentId;
-      } else {
-        documentId = (await createDocument().unwrap()).event.event_id;
+      // Create initial empty snapshot, so that there is always a snapshot.
+      // This is done to reduce "cannot find snapshot" messages when creating new boards.
+      const whiteboardDocumentVersion = isInfiniteCanvasMode()
+        ? WhiteboardDocumentVersion.v1
+        : WhiteboardDocumentVersion.v0;
+      const document = createWhiteboardDocument(whiteboardDocumentVersion);
+      await dispatch(
+        documentSnapshotApi.endpoints.createDocumentSnapshot.initiate({
+          documentId,
+          data: document.store(),
+        }),
+      ).unwrap();
 
-        // Create initial empty snapshot, so that there is always a snapshot.
-        // This is done to reduce "cannot find snapshot" messages when creating new boards.
-        const whiteboardDocumentVersion = isInfiniteCanvasMode()
-          ? WhiteboardDocumentVersion.v1
-          : WhiteboardDocumentVersion.v0;
-        const document = createWhiteboardDocument(whiteboardDocumentVersion);
-        await dispatch(
-          documentSnapshotApi.endpoints.createDocumentSnapshot.initiate({
-            documentId,
-            data: document.store(),
-          }),
-        ).unwrap();
-      }
-
+      const whiteboardId = widgetApi.widgetId;
       const result = await updateWhiteboard({
-        whiteboardId: widgetApi.widgetId,
+        whiteboardId,
         content: {
+          documentId,
+        },
+      }).unwrap();
+
+      if (isMatrixRtcMode()) {
+        const whiteboardRtcSlot: RtcSlot = {
           status: 'open',
           application: {
             type: 'net.nordeck.whiteboard',
-            documentId,
           },
-        },
-      }).unwrap();
+        };
+        await widgetApi.sendStateEvent(
+          STATE_EVENT_4143_RTC_SLOT,
+          whiteboardRtcSlot,
+          {
+            stateKey: `net.nordeck.whiteboard#${whiteboardId}`,
+          },
+        );
+      }
 
       return result.event;
     }

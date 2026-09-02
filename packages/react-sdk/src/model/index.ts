@@ -49,15 +49,18 @@ export type {
   RtcMemberLeave,
   Transport,
 } from './matrixRtcMember';
+export {
+  STATE_EVENT_4143_RTC_SLOT,
+  isValidWhiteboardRtcSlotEvent,
+} from './matrixRtcSlot';
+export type { RtcSlot } from './matrixRtcSlot';
 export { STATE_EVENT_ROOM_NAME, isValidRoomNameEvent } from './roomNameEvent';
 export type { RoomNameEvent } from './roomNameEvent';
 export {
-  STATE_EVENT_4143_RTC_SLOT,
   STATE_EVENT_WHITEBOARD,
-  isValidNordeckWhiteboardStateEvent,
   isValidWhiteboardStateEvent,
 } from './whiteboard';
-export type { NordeckWhiteboard, Whiteboard } from './whiteboard';
+export type { Whiteboard } from './whiteboard';
 export {
   STATE_EVENT_WHITEBOARD_SESSIONS,
   isNotExpired,

@@ -80,7 +80,7 @@ export function PeerConnectionDetail({
             <TableRow>
               <StyledDevtoolsTableCell>
                 {t(
-                  'boardBar.developerToolsDialog.communicationChannelStatistics.remoteParticipantIdentitites',
+                  'boardBar.developerToolsDialog.communicationChannelStatistics.remoteParticipantIdentities',
                   'Remote Participant Identities',
                 )}
               </StyledDevtoolsTableCell>

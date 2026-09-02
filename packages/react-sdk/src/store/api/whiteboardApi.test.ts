@@ -131,7 +131,7 @@ describe('getWhiteboards', () => {
 
     // Delete whiteboard
     widgetApi.mockSendStateEvent({
-      type: 'org.matrix.msc4143.rtc.slot',
+      type: 'net.nordeck.whiteboard',
       sender: '@user-id:example.com',
       content: {},
       state_key: whiteboard.state_key,
@@ -170,7 +170,7 @@ describe('updateWhiteboard', () => {
     });
 
     expect(widgetApi.sendStateEvent).toHaveBeenCalledWith(
-      'org.matrix.msc4143.rtc.slot',
+      'net.nordeck.whiteboard',
       whiteboard,
       {
         stateKey: 'whiteboard-0',
@@ -184,7 +184,7 @@ describe('updateWhiteboard', () => {
     widgetApi.mockSendStateEvent(mockWhiteboard());
 
     const whiteboard = mockWhiteboard({
-      application: {
+      content: {
         documentId: '$new-document-id',
       },
     }).content;
@@ -206,7 +206,7 @@ describe('updateWhiteboard', () => {
     });
 
     expect(widgetApi.sendStateEvent).toHaveBeenCalledWith(
-      'org.matrix.msc4143.rtc.slot',
+      'net.nordeck.whiteboard',
       whiteboard,
       { stateKey: 'whiteboard-0' },
     );
