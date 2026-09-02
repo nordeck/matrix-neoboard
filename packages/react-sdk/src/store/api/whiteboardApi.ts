@@ -32,7 +32,10 @@ import {
 import { ThunkExtraArgument } from '../store';
 import { baseApi } from './baseApi';
 
-const whiteboardsEntityAdapter = createEntityAdapter({
+const whiteboardsEntityAdapter = createEntityAdapter<
+  StateEvent<Whiteboard>,
+  string
+>({
   selectId: (event: StateEvent<Whiteboard>) => event.state_key,
   sortComparer: compareOriginServerTS,
 });
