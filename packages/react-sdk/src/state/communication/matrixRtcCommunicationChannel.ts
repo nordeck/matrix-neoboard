@@ -207,6 +207,7 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
 
     this.statistics.sessions = [];
     this.peerConnections.forEach((c) => c.close());
+    this.peerConnections.length = 0;
   }
 
   private async initFocusBackend(focus: RTCFocus): Promise<void> {

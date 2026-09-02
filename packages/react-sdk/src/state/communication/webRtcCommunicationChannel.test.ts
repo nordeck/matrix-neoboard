@@ -288,6 +288,22 @@ describe('WebRtcCommunicationChannel', () => {
       });
     });
 
+    it('should close peer connections when destroyed even without a session-left event', async () => {
+      joinedSubject.next(anotherSession);
+      await waitForSessionExists();
+
+      // Simulate a leave that does not emit a session-left event for the
+      // remote peer (e.g. the channel is destroyed while a peer is still
+      // connected). The peer connection must still be closed.
+      sessionManager.leave.mockImplementation(async () => {});
+
+      channel.destroy();
+
+      await waitFor(() => {
+        expect(peerConnection.close).toHaveBeenCalled();
+      });
+    });
+
     it('should leave after destroying', async () => {
       joinedSubject.next(anotherSession);
       await waitForSessionExists();

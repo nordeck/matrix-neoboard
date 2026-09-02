@@ -174,6 +174,12 @@ export class WebRtcCommunicationChannel implements CommunicationChannel {
   destroy() {
     this.logger.log('Destroying communication channel');
 
+    // Close any peer connections that are still open (e.g. if destroy is
+    // called before the peers leave). Closing completes the peer connection
+    // subjects, which also tears down the per-peer subscriptions.
+    this.peerConnections.forEach((peerConnection) => peerConnection.close());
+    this.peerConnections.length = 0;
+
     this.messagesSubject.complete();
     this.statisticsSubject.complete();
     this.destroySubject.next();
@@ -260,19 +266,23 @@ export class WebRtcCommunicationChannel implements CommunicationChannel {
 
     peerConnection
       .observeMessages()
+      .pipe(takeUntil(this.destroySubject))
       .subscribe((m) => this.messagesSubject.next(m));
 
-    peerConnection.observeStatistics().subscribe({
-      next: (peerConnectionStatistics) => {
-        this.addPeerConnectionStatistics(
-          peerConnection.getConnectionId(),
-          peerConnectionStatistics,
-        );
-      },
-      complete: () => {
-        this.addPeerConnectionStatistics(peerConnection.getConnectionId());
-      },
-    });
+    peerConnection
+      .observeStatistics()
+      .pipe(takeUntil(this.destroySubject))
+      .subscribe({
+        next: (peerConnectionStatistics) => {
+          this.addPeerConnectionStatistics(
+            peerConnection.getConnectionId(),
+            peerConnectionStatistics,
+          );
+        },
+        complete: () => {
+          this.addPeerConnectionStatistics(peerConnection.getConnectionId());
+        },
+      });
   }
 
   private addPeerConnectionStatistics(
