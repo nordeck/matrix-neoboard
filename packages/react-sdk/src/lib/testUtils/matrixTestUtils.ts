@@ -34,6 +34,7 @@ import {
   RtcMember,
   RtcMemberJoin,
   RtcMemberLeave,
+  RtcSlot,
   Transport,
   Whiteboard,
   WhiteboardSession,
@@ -205,6 +206,38 @@ export function mockWhiteboard({
     origin_server_ts,
     event_id,
     room_id: '!room-id:example.com',
+  };
+}
+
+export function mockRtcSlot({
+  sender = '@user-id:example.com',
+  whiteboardId = 'whiteboard-0',
+  event_id = '$event-id-0',
+  content = {},
+  origin_server_ts = 0,
+  room_id = '!room-id:example.com',
+}: {
+  sender?: string;
+  whiteboardId?: string;
+  event_id?: string;
+  content?: Partial<RtcSlot>;
+  origin_server_ts?: number;
+  room_id?: string;
+} = {}): StateEvent<RtcSlot> {
+  return {
+    type: 'org.matrix.msc4143.rtc.slot',
+    sender,
+    content: {
+      status: 'open',
+      application: {
+        type: 'net.nordeck.whiteboard',
+      },
+      ...content,
+    },
+    state_key: `net.nordeck.whiteboard#${whiteboardId}`,
+    origin_server_ts,
+    event_id,
+    room_id,
   };
 }
 

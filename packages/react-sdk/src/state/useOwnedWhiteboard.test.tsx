@@ -262,7 +262,55 @@ describe('useOwnedWhiteboard', () => {
     });
   });
 
-  it('should create a new document, snapshot, whiteboard and slot in Matrix RTC mode', async () => {
+  it('should return an existing whiteboard and send a slot if slot is missing in MatrixRTC mode', async () => {
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+      name === 'REACT_APP_RTC' ? 'matrixrtc' : defaultValue,
+    );
+
+    widgetApi.mockSendStateEvent(mockPowerLevelsEvent());
+
+    const whiteboard = widgetApi.mockSendStateEvent(mockWhiteboard());
+
+    const { result } = renderHook(() => useOwnedWhiteboard(), {
+      wrapper: Wrapper,
+    });
+
+    expect(result.current).toEqual({ loading: true });
+
+    expect(widgetApi.sendRoomEvent).not.toHaveBeenCalledWith(
+      'net.nordeck.whiteboard.document.create',
+      expect.anything(),
+    );
+    expect(widgetApi.sendStateEvent).not.toHaveBeenCalledWith(
+      'net.nordeck.whiteboard',
+      expect.anything(),
+      expect.anything(),
+    );
+    await waitFor(() => {
+      expect(widgetApi.sendStateEvent).toHaveBeenCalledWith(
+        'org.matrix.msc4143.rtc.slot',
+        {
+          status: 'open',
+          application: {
+            type: 'net.nordeck.whiteboard',
+          },
+        },
+        { stateKey: 'net.nordeck.whiteboard#whiteboard-0' },
+      );
+    });
+
+    await waitFor(() => {
+      expect(result.current).toEqual({
+        loading: false,
+        value: {
+          type: 'whiteboard',
+          event: whiteboard,
+        },
+      });
+    });
+  });
+
+  it('should create a new document, snapshot, whiteboard and slot in MatrixRTC mode', async () => {
     vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
       name === 'REACT_APP_RTC' ? 'matrixrtc' : defaultValue,
     );
@@ -310,16 +358,18 @@ describe('useOwnedWhiteboard', () => {
       { stateKey: 'widget-id' },
     );
 
-    expect(widgetApi.sendStateEvent).toHaveBeenCalledWith(
-      'org.matrix.msc4143.rtc.slot',
-      {
-        status: 'open',
-        application: {
-          type: 'net.nordeck.whiteboard',
+    await waitFor(() => {
+      expect(widgetApi.sendStateEvent).toHaveBeenCalledWith(
+        'org.matrix.msc4143.rtc.slot',
+        {
+          status: 'open',
+          application: {
+            type: 'net.nordeck.whiteboard',
+          },
         },
-      },
-      { stateKey: 'net.nordeck.whiteboard#widget-id' },
-    );
+        { stateKey: 'net.nordeck.whiteboard#widget-id' },
+      );
+    });
 
     await waitFor(() => {
       expect(result.current).toEqual({

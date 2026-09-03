@@ -120,6 +120,10 @@ if (isMatrixRtcMode()) {
       EventDirection.Send,
       STATE_EVENT_4143_RTC_SLOT,
     ),
+    WidgetEventCapability.forStateEvent(
+      EventDirection.Receive,
+      STATE_EVENT_4143_RTC_SLOT,
+    ),
     WidgetEventCapability.forRoomEvent(
       EventDirection.Send,
       ROOM_EVENT_4143_RTC_MEMBER,

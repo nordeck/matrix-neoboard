@@ -20,20 +20,18 @@ import first from 'lodash/first';
 import loglevel from 'loglevel';
 import { useAsync } from 'react-use';
 import { isInfiniteCanvasMode, isMatrixRtcMode } from '../lib';
-import {
-  RtcSlot,
-  STATE_EVENT_4143_RTC_SLOT,
-  STATE_EVENT_WHITEBOARD_SESSIONS,
-  Whiteboard,
-} from '../model';
+import { RtcSlot, STATE_EVENT_WHITEBOARD_SESSIONS, Whiteboard } from '../model';
 import { useAppDispatch } from '../store';
 import {
   documentSnapshotApi,
   selectAllWhiteboards,
+  selectRtcSlotById,
   selectWhiteboardById,
   useCreateDocumentMutation,
+  useGetRtcSlotsQuery,
   useGetWhiteboardsQuery,
   usePatchPowerLevelsMutation,
+  useUpdateRtcSlotMutation,
   useUpdateWhiteboardMutation,
 } from '../store/api';
 import { usePowerLevels } from '../store/api/usePowerLevels';
@@ -58,6 +56,7 @@ export function useOwnedWhiteboard(): UseOwnedWhiteboardResponse {
   const dispatch = useAppDispatch();
   const [createDocument] = useCreateDocumentMutation();
   const [updateWhiteboard] = useUpdateWhiteboardMutation();
+  const [updateRtcSlot] = useUpdateRtcSlotMutation();
   const [patchPowerLevels] = usePatchPowerLevelsMutation();
   const { canInitializeWhiteboard } = usePowerLevels();
 
@@ -67,11 +66,28 @@ export function useOwnedWhiteboard(): UseOwnedWhiteboardResponse {
     isError,
   } = useGetWhiteboardsQuery();
 
+  const {
+    data: rtcSlotsState,
+    isLoading: isRtcSlotApiLoading,
+    isError: isRtcSlotApiInError,
+  } = useGetRtcSlotsQuery(undefined, {
+    skip: !isMatrixRtcMode(),
+  });
+
   // TODO: Build UI to select the whiteboard to display it in the widget
   // For now we select the own / first whiteboard we find.
   const whiteboard = whiteboardsState
     ? (selectWhiteboardById(whiteboardsState, widgetApi.widgetId) ??
       first(selectAllWhiteboards(whiteboardsState)))
+    : undefined;
+
+  const rtcSlot = rtcSlotsState
+    ? whiteboard
+      ? selectRtcSlotById(
+          rtcSlotsState,
+          `net.nordeck.whiteboard#${whiteboard.state_key}`,
+        )
+      : undefined
     : undefined;
 
   const {
@@ -120,23 +136,30 @@ export function useOwnedWhiteboard(): UseOwnedWhiteboardResponse {
         },
       }).unwrap();
 
-      if (isMatrixRtcMode()) {
-        const whiteboardRtcSlot: RtcSlot = {
-          status: 'open',
-          application: {
-            type: 'net.nordeck.whiteboard',
-          },
-        };
-        await widgetApi.sendStateEvent(
-          STATE_EVENT_4143_RTC_SLOT,
-          whiteboardRtcSlot,
-          {
-            stateKey: `net.nordeck.whiteboard#${whiteboardId}`,
-          },
-        );
-      }
-
       return result.event;
+    }
+
+    if (
+      isMatrixRtcMode() &&
+      canInitializeWhiteboard &&
+      whiteboard &&
+      !rtcSlot &&
+      !isLoading &&
+      !isError &&
+      !isRtcSlotApiLoading &&
+      !isRtcSlotApiInError
+    ) {
+      const whiteboardId = whiteboard.state_key;
+      const whiteboardRtcSlot: RtcSlot = {
+        status: 'open',
+        application: {
+          type: 'net.nordeck.whiteboard',
+        },
+      };
+      await updateRtcSlot({
+        slotId: `net.nordeck.whiteboard#${whiteboardId}`,
+        content: whiteboardRtcSlot,
+      });
     }
 
     return whiteboard;
@@ -146,6 +169,9 @@ export function useOwnedWhiteboard(): UseOwnedWhiteboardResponse {
     whiteboard,
     isLoading,
     isError,
+    rtcSlot,
+    isRtcSlotApiLoading,
+    isRtcSlotApiInError,
     !!canInitializeWhiteboard,
   ]);
 
