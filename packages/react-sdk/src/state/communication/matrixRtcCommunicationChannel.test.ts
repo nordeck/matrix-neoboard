@@ -147,11 +147,9 @@ describe('MatrixRtcCommunicationChannel', () => {
       },
     );
     vi.spyOn(AutoDiscovery, 'getSFUConfigWithOpenID').mockImplementation(
-      (_widgetApi, activeFocus) => {
+      (_widgetApi, livekitServiceUrl) => {
         let sfuConfig: SFUConfig;
-        if (
-          activeFocus.livekit_service_url === 'https://livekit-jwt.example.com'
-        ) {
+        if (livekitServiceUrl === 'https://livekit-jwt.example.com') {
           sfuConfig = {
             url: 'wss://mock-livekit-server.example.com',
             jwt: 'mock-jwt-token',
@@ -187,11 +185,8 @@ describe('MatrixRtcCommunicationChannel', () => {
     expect(sessionManager.join).toHaveBeenCalledWith('whiteboard-id');
     expect(AutoDiscovery.getSFUConfigWithOpenID).toHaveBeenCalledWith(
       {},
-      {
-        type: 'livekit',
-        livekit_service_url: 'https://livekit-jwt.example.com',
-        livekit_alias: '!room-id:example.com',
-      },
+      'https://livekit-jwt.example.com',
+      '!room-id:example.com',
       'net.nordeck.whiteboard#whiteboard-id',
       '@user-id:example.com',
       'DEVICEID',
@@ -331,11 +326,8 @@ describe('MatrixRtcCommunicationChannel', () => {
     expect(AutoDiscovery.getSFUConfigWithOpenID).toHaveBeenNthCalledWith(
       2,
       {},
-      {
-        type: 'livekit',
-        livekit_service_url: 'https://livekit-jwt.example-1.com',
-        livekit_alias: '!room-id:example.com',
-      },
+      'https://livekit-jwt.example-1.com',
+      '!room-id:example.com',
       'net.nordeck.whiteboard#whiteboard-id',
       '@user-id:example.com',
       'DEVICEID',

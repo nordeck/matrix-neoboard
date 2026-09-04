@@ -25,7 +25,6 @@ import {
   mockRtcMemberLeaveContent,
 } from '../../../lib/testUtils/matrixTestUtils';
 import { ROOM_EVENT_4143_RTC_MEMBER } from '../../../model';
-import * as matrixRtcFocus from './matrixRtcFocus';
 import { MatrixRtcSessionManagerImpl } from './matrixRtcSessionManagerImpl';
 
 vi.mock('@reduxjs/toolkit', async () => ({
@@ -73,14 +72,6 @@ describe('MatrixRtcSessionManagerImpl', () => {
       widgetApi,
       removeSessionDelay,
     );
-
-    // need to mock getWellKnownFoci to return a value
-    vi.spyOn(matrixRtcFocus, 'getWellKnownFoci').mockResolvedValue([
-      {
-        type: 'livekit',
-        livekit_service_url: 'https://livekit-jwt.example.com',
-      },
-    ]);
 
     // Sets system time for RTC member events to be sticky according to duration
     vi.setSystemTime(0);

@@ -1,7 +1,7 @@
 /*
  * Copyright 2018 New Vector Ltd
  * Copyright 2019 The Matrix.org Foundation C.I.C.
- * Copyright 2025 Nordeck IT + Consulting GmbH
+ * Copyright 2025-2026 Nordeck IT + Consulting GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@
 // eslint-disable-next-line notice/notice
 import { getLogger } from 'loglevel';
 import { IOpenIDCredentials } from 'matrix-widget-api';
-import { LivekitFocus } from './matrixRtcFocus';
 
 export interface IWellKnownConfig<T = IClientWellKnown> {
   raw?: T;
@@ -35,8 +34,6 @@ export interface IClientWellKnown {
   'm.homeserver'?: IWellKnownConfig;
   'm.identity_server'?: IWellKnownConfig;
 }
-
-export const FOCI_WK_KEY = 'org.matrix.msc4143.rtc_foci';
 
 export interface SFUConfig {
   url: string;
@@ -122,15 +119,12 @@ export default class AutoDiscovery {
 
   /**
    * This function will try to get the JWT Token from the active focus URL using an OpenID token.
-   * The focus URL points to the LiveKit JWT Token Service and includes the room name in the alias.
-   *
-   * @param widgetApi - The widget API promise.
-   * @param activeFocus - The active focus of the RTC session.
-   * @returns
+   * The livekit service URL points to the LiveKit JWT Token Service and includes the room name in the alias.
    */
   public static async getSFUConfigWithOpenID(
     openIDToken: IOpenIDCredentials,
-    activeFocus: LivekitFocus,
+    livekitServiceUrl: string,
+    livekitAlias: string,
     slotId: string,
     userId: string,
     deviceId: string,
@@ -138,8 +132,8 @@ export default class AutoDiscovery {
   ): Promise<SFUConfig | undefined> {
     try {
       const sfuConfig = await AutoDiscovery.getLiveKitJWT(
-        activeFocus.livekit_service_url,
-        activeFocus.livekit_alias,
+        livekitServiceUrl,
+        livekitAlias,
         openIDToken,
         slotId,
         userId,
@@ -149,7 +143,7 @@ export default class AutoDiscovery {
       return sfuConfig;
     } catch (e) {
       AutoDiscovery.logger.warn(
-        `Failed to get JWT from RTC session's active focus URL of ${activeFocus.livekit_service_url}.`,
+        `Failed to get JWT from RTC session's active focus URL of ${livekitServiceUrl}.`,
         e,
       );
       return undefined;

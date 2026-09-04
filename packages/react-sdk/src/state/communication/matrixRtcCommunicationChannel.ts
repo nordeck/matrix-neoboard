@@ -350,11 +350,8 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
 
     const sfuConfig = await AutoDiscovery.getSFUConfigWithOpenID(
       newOpenIdToken,
-      {
-        type: 'livekit',
-        livekit_service_url: livekitServiceUrl,
-        livekit_alias: roomId,
-      },
+      livekitServiceUrl,
+      roomId,
       `net.nordeck.whiteboard#${this.whiteboardId}`,
       userId,
       deviceId,
