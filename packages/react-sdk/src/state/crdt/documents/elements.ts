@@ -120,6 +120,7 @@ export type PathElement = ElementBase & {
   kind: PathKind;
   points: Point[];
   strokeColor: string;
+  strokeWidth?: number;
   startMarker?: LineMarker;
   endMarker?: LineMarker;
   connectedElementStart?: string;
