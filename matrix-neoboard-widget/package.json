@@ -52,7 +52,7 @@
     "docker:build": "docker build --build-context root=../ -t nordeck/matrix-neoboard-widget .",
     "docker:run": "dotenv -c -- docker run -it --rm -e REACT_APP_HOME_SERVER_URL -p 3000:8080 --name matrix-neoboard-widget nordeck/matrix-neoboard-widget",
     "dev": "vite",
-    "dev:https": "VITE_DEV_SSL=true vite --force",
+    "dev:https": "VITE_DEV_SSL=true vite",
     "preview": "vite preview",
     "preview:https": "VITE_DEV_SSL=true vite preview",
     "build": "tsc && vite build",
