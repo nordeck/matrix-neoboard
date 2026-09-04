@@ -44,6 +44,8 @@ export function UnSelectElementHandler() {
 
   const positionRef = useRef<Point | undefined>();
 
+  const rectRef = useRef<SVGRectElement>(null);
+
   const unselectElement = useCallback(() => {
     if (activeElementId) {
       slideInstance.setActiveElementId(undefined);
@@ -72,6 +74,11 @@ export function UnSelectElementHandler() {
           });
 
           setDragSelectStartCoords(point);
+
+          if (event.pointerType === 'pen') {
+            // release the event capture, or the drag select layer won't get pointer move events
+            rectRef.current?.releasePointerCapture(event.pointerId);
+          }
         }
       } else if (event.button === 1 || event.button === 2) {
         event.preventDefault();
@@ -97,6 +104,11 @@ export function UnSelectElementHandler() {
 
   const handlePointerMove = useCallback(
     (event: PointerEvent<SVGRectElement>) => {
+      // ignore when pen isn't touching the surface
+      if (event.pointerType === 'pen' && event.buttons === 0) {
+        return;
+      }
+
       if (!infiniteCanvasMode || !positionRef.current || !isPanningEnabled)
         return;
 
@@ -140,6 +152,7 @@ export function UnSelectElementHandler() {
 
   return (
     <rect
+      ref={rectRef}
       fill="transparent"
       height={whiteboardHeight}
       onPointerDown={handlePointerDown}

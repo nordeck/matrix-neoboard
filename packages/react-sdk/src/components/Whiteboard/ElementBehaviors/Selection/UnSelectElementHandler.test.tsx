@@ -33,9 +33,12 @@ import {
   mockEllipseElement,
   mockWhiteboardManager,
 } from '../../../../lib/testUtils/documentTestUtils';
+import { firePointerMoveEvent } from '../../../../lib/testUtils/domTestUtils';
 import { Point, WhiteboardSlideInstance } from '../../../../state';
 import { LayoutStateProvider, useLayoutState } from '../../../Layout';
+import * as constants from '../../constants';
 import { SvgCanvas } from '../../SvgCanvas';
+import { SvgScaleContextType, useSvgScaleContext } from '../../SvgScaleContext';
 import { UnSelectElementHandler } from './UnSelectElementHandler';
 
 vi.mock('@matrix-widget-toolkit/mui', async () => {
@@ -51,6 +54,7 @@ vi.mock('@matrix-widget-toolkit/mui', async () => {
 describe('<UnSelectElementHandler/>', () => {
   let activeSlide: WhiteboardSlideInstance;
   let dragSelectStartCoords: Point | undefined;
+  let contextState: SvgScaleContextType;
   let widgetApi: MockedWidgetApi;
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
   let textElement: HTMLDivElement;
@@ -76,6 +80,11 @@ describe('<UnSelectElementHandler/>', () => {
       return null;
     }
 
+    const SvgContextExtractor = () => {
+      contextState = useSvgScaleContext();
+      return null;
+    };
+
     Wrapper = ({ children }) => (
       <LayoutStateProvider>
         <LayoutStateExtractor />
@@ -84,6 +93,7 @@ describe('<UnSelectElementHandler/>', () => {
           widgetApi={widgetApi}
         >
           <SvgCanvas viewportWidth={200} viewportHeight={200}>
+            <SvgContextExtractor />
             {children}
           </SvgCanvas>
         </WhiteboardTestingContextProvider>
@@ -129,6 +139,27 @@ describe('<UnSelectElementHandler/>', () => {
     await userEvent.pointer({ keys: '[MouseLeft>]', target: layer });
 
     expect(dragSelectStartCoords).toEqual({ x: 23, y: 42 });
+  });
+
+  it('should ignore pointer move events when pen is not touching the surface', async () => {
+    vi.spyOn(constants, 'infiniteCanvasMode', 'get').mockReturnValue(true);
+    render(<UnSelectElementHandler />, { wrapper: Wrapper });
+    const layer = screen.getByTestId('unselect-element-layer');
+    const translationBeforeMove = contextState.translation;
+
+    // Setup for the canvas pan
+    await userEvent.pointer({ keys: '[TouchA>]', target: layer });
+
+    // Should ignore when the pen is hovering above the surface
+    firePointerMoveEvent(layer, {
+      isPrimary: true,
+      pointerType: 'pen',
+      button: -1,
+      buttons: 0, // not touching the surface
+      clientX: 50,
+      clientY: 50,
+    });
+    expect(contextState.translation).toEqual(translationBeforeMove);
   });
 
   const selectText = () => {
