@@ -307,6 +307,7 @@ describe('SynchronizedDocumentImpl', () => {
   });
 
   it('should publish changes to the communication channel', async () => {
+    vi.useFakeTimers();
     const doc = createExampleDocument();
     const store = createStore({ widgetApi });
 
@@ -318,7 +319,9 @@ describe('SynchronizedDocumentImpl', () => {
       '$document-0',
     );
     const statistics = firstValueFrom(
-      synchronizedDocument.observeDocumentStatistics(),
+      synchronizedDocument
+        .observeDocumentStatistics()
+        .pipe(filter((s) => s.contentSizeInBytes === 20)),
     );
 
     doc.performChange((doc) => doc.set('num', 10));
@@ -328,10 +331,12 @@ describe('SynchronizedDocumentImpl', () => {
       { documentId: '$document-0', data: expect.any(String) },
     );
 
+    await vi.advanceTimersByTimeAsync(1000);
+
     expect(await statistics).toEqual({
       contentSizeInBytes: 20,
       documentSizeInBytes: expect.any(Number),
-      snapshotOutstanding: false,
+      snapshotOutstanding: true,
       snapshotsReceived: 0,
       snapshotsSend: 0,
     });
@@ -679,6 +684,7 @@ describe('SynchronizedDocumentImpl', () => {
   });
 
   it('should persist snapshot to local storage', async () => {
+    vi.useFakeTimers();
     const doc = createExampleDocument();
     const store = createStore({ widgetApi });
 
@@ -691,15 +697,19 @@ describe('SynchronizedDocumentImpl', () => {
     );
 
     const outstandingStatistics = firstValueFrom(
-      synchronizedDocument.observeDocumentStatistics(),
+      synchronizedDocument
+        .observeDocumentStatistics()
+        .pipe(filter((s) => s.contentSizeInBytes === 20)),
     );
 
     doc.performChange((doc) => doc.set('num', 10));
 
+    await vi.advanceTimersByTimeAsync(1000);
+
     expect(await outstandingStatistics).toEqual({
       contentSizeInBytes: 20,
       documentSizeInBytes: expect.any(Number),
-      snapshotOutstanding: false,
+      snapshotOutstanding: true,
       snapshotsReceived: 0,
       snapshotsSend: 0,
     });
@@ -739,11 +749,13 @@ describe('SynchronizedDocumentImpl', () => {
 
     doc.performChange((doc) => doc.set('num', 10));
 
+    await vi.advanceTimersByTimeAsync(1000);
+
     expect(await outstandingStatistics).toEqual([
       {
-        contentSizeInBytes: 20,
+        contentSizeInBytes: 19,
         documentSizeInBytes: expect.any(Number),
-        snapshotOutstanding: false,
+        snapshotOutstanding: true,
         snapshotsReceived: 0,
         snapshotsSend: 0,
       },
@@ -993,6 +1005,7 @@ describe('SynchronizedDocumentImpl', () => {
 
   describe('persist', () => {
     it('should create a snapshot when there are changes', async () => {
+      vi.useFakeTimers();
       const doc = createExampleDocument();
       const store = createStore({ widgetApi });
 
@@ -1009,8 +1022,12 @@ describe('SynchronizedDocumentImpl', () => {
           .observeDocumentStatistics()
           .pipe(take(2), toArray()),
       );
+      // Use filter instead of skip(N) because intermediate emissions (e.g. from
+      // a snapshot being received) can shift the position of the debounced one.
       const statistics = firstValueFrom(
-        synchronizedDocument.observeDocumentStatistics().pipe(skip(2)),
+        synchronizedDocument
+          .observeDocumentStatistics()
+          .pipe(filter((s) => s.contentSizeInBytes === 20)),
       );
 
       const isReady = firstValueFrom(
@@ -1023,32 +1040,40 @@ describe('SynchronizedDocumentImpl', () => {
 
       synchronizedDocument.persist();
 
+      // First two emissions arrive synchronously: persist tap sets snapshotOutstanding=true,
+      // then persist() sync path clears it and records the send.
       expect(await outstandingStatistics).toEqual([
         {
-          contentSizeInBytes: 20,
-          documentSizeInBytes: expect.any(Number),
-          snapshotOutstanding: false,
-          snapshotsReceived: 0,
-          snapshotsSend: 0,
-        },
-        {
-          contentSizeInBytes: 20,
+          contentSizeInBytes: 19,
           documentSizeInBytes: expect.any(Number),
           snapshotOutstanding: true,
           snapshotsReceived: 0,
           snapshotsSend: 0,
         },
+        {
+          contentSizeInBytes: 19,
+          documentSizeInBytes: expect.any(Number),
+          snapshotOutstanding: false,
+          snapshotsReceived: 0,
+          snapshotsSend: 1,
+        },
       ]);
 
       await isReady;
 
+      // Advance past the debounce so the statistics emission with the updated
+      // contentSizeInBytes arrives before we assert on it.
+      await vi.advanceTimersByTimeAsync(1000);
+
       expectSnapshot();
 
+      // snapshotsReceived is 1 because a room snapshot is received while
+      // loading resolves (between the two awaits above).
       expect(await statistics).toEqual({
         contentSizeInBytes: 20,
         documentSizeInBytes: expect.any(Number),
         snapshotOutstanding: false,
-        snapshotsReceived: 0,
+        snapshotsReceived: 1,
         snapshotsSend: 1,
       });
     });

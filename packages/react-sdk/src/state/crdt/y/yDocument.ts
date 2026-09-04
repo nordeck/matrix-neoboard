@@ -15,7 +15,7 @@
  */
 
 import { getLogger } from 'loglevel';
-import { concat, map, Observable, of, Subject } from 'rxjs';
+import { concat, debounceTime, map, Observable, of, Subject } from 'rxjs';
 import * as Y from 'yjs';
 import {
   ChangeFn,
@@ -147,18 +147,21 @@ export class YDocument<
 
   observeStatistics(): Observable<DocumentStatistics> {
     const encoder = new TextEncoder();
+    const compute = (): DocumentStatistics => {
+      const documentSizeInBytes = this.store().length;
+      const content = JSON.stringify(this.getRoot().toJSON());
+      const contentSizeInBytes = encoder.encode(content).length;
+      return { documentSizeInBytes, contentSizeInBytes };
+    };
 
-    return concat(of(this.getData()), this.changesSubject).pipe(
-      map(() => {
-        const documentSizeInBytes = this.store().length;
-        const content = JSON.stringify(this.getRoot().toJSON());
-        const contentSizeInBytes = encoder.encode(content).length;
-
-        return {
-          documentSizeInBytes,
-          contentSizeInBytes,
-        };
-      }),
+    return concat(
+      // Emit once immediately so subscribers receive a populated baseline
+      // before any change fires (preserves the ordering that synchronizedDocumentImpl
+      // relies on: contentSizeInBytes is set before snapshotOutstanding changes).
+      of(null).pipe(map(compute)),
+      // Debounce subsequent changes so that rapid bursts (e.g. during
+      // collaboration) produce only one JSON.stringify per idle window.
+      this.changesSubject.pipe(debounceTime(1000), map(compute)),
     );
   }
 

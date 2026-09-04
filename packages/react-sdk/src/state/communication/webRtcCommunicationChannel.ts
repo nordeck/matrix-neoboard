@@ -22,6 +22,7 @@ import {
   NEVER,
   Observable,
   Subject,
+  debounceTime,
   distinctUntilChanged,
   filter,
   firstValueFrom,
@@ -59,6 +60,10 @@ export class WebRtcCommunicationChannel implements CommunicationChannel {
   private readonly statistics: CommunicationChannelStatistics =
     emptyCommunicationChannelStatistics();
   private readonly peerConnections: PeerConnection[] = [];
+  // Internal trigger for statistics emission. Callers push to this subject;
+  // emissions are debounced so that rapid bursts (e.g. one tick per peer
+  // connection per second) produce only one cloneDeep + emit per window.
+  private readonly pendingStatistics = new Subject<void>();
   private turnServers: TurnServer | undefined;
 
   constructor(
@@ -72,6 +77,14 @@ export class WebRtcCommunicationChannel implements CommunicationChannel {
     visibilityTimeout = 30 * 1000,
   ) {
     this.logger.log('Creating communication channel');
+
+    // Batch rapid statistics updates (e.g. one tick per peer per second) into
+    // a single cloneDeep + emit per 200 ms window.
+    this.pendingStatistics
+      .pipe(debounceTime(200), takeUntil(this.destroySubject))
+      .subscribe(() => {
+        this.statisticsSubject.next(cloneDeep(this.statistics));
+      });
 
     from(Promise.resolve(this.widgetApiPromise))
       .pipe(
@@ -197,7 +210,7 @@ export class WebRtcCommunicationChannel implements CommunicationChannel {
     const { sessionId } = await this.sessionManager.join(this.whiteboardId);
 
     this.statistics.localSessionId = sessionId;
-    this.statisticsSubject.next(cloneDeep(this.statistics));
+    this.pendingStatistics.next();
   }
 
   private async disconnect(): Promise<void> {
@@ -206,7 +219,7 @@ export class WebRtcCommunicationChannel implements CommunicationChannel {
     await this.sessionManager.leave();
 
     this.statistics.localSessionId = undefined;
-    this.statisticsSubject.next(cloneDeep(this.statistics));
+    this.pendingStatistics.next();
   }
 
   /**
@@ -285,7 +298,7 @@ export class WebRtcCommunicationChannel implements CommunicationChannel {
       this.statistics.peerConnections[connectionId] = peerConnectionStatistics;
     }
 
-    this.statisticsSubject.next(cloneDeep(this.statistics));
+    this.pendingStatistics.next();
   }
 
   private addSessionStatistics(session: SessionState) {
