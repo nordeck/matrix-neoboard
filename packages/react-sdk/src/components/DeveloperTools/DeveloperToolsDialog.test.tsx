@@ -81,7 +81,7 @@ describe('<DeveloperToolsDialog/>', () => {
       screen.getByText('Document Sync Statistics (Snapshots)'),
     ).toBeInTheDocument();
     expect(
-      screen.getByText('Communication Channel Statistics (WRTC)'),
+      screen.getByText('Communication Channel Statistics'),
     ).toBeInTheDocument();
     expect(screen.getByText('Sessions')).toBeInTheDocument();
   });
@@ -134,13 +134,13 @@ describe('<DeveloperToolsDialog/>', () => {
     });
   });
 
-  it('should open and close the "Communication Channel Statistics (WRTC)" accordion when clicked', async () => {
+  it('should open and close the "Communication Channel Statistics" accordion when clicked', async () => {
     render(<DeveloperToolsDialog open handleClose={onClose} />, {
       wrapper: Wrapper,
     });
 
     const communicationChannelAccordion = screen.getByRole('button', {
-      name: 'Communication Channel Statistics (WRTC)',
+      name: 'Communication Channel Statistics',
     });
 
     await userEvent.click(communicationChannelAccordion);

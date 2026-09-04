@@ -24,17 +24,19 @@ export type Message<T = unknown> = {
 };
 
 export type PeerConnectionStatistics = {
-  remoteUserId: string;
-  remoteSessionId: string;
-  impolite: boolean;
+  remoteUserId?: string;
+  remoteSessionId?: string;
+  localParticipantIdentity?: string;
+  remoteParticipantIdentities?: string[];
+  impolite?: boolean;
   packetsReceived: number;
   bytesReceived: number;
   packetsSent: number;
   bytesSent: number;
   connectionState: string;
-  signalingState: string;
-  iceConnectionState: string;
-  iceGatheringState: string;
+  signalingState?: string;
+  iceConnectionState?: string;
+  iceGatheringState?: string;
   dataChannelState?: string;
   localCandidateType?: string;
   remoteCandidateType?: string;
@@ -48,7 +50,11 @@ export type PeerConnection = {
   /** Close the connection. */
   close(): void;
   /** Send a message with a type using the connection. */
-  sendMessage<T = unknown>(type: string, content: T): void;
+  sendMessage<T = unknown>(
+    type: string,
+    content: T,
+    options?: MessageOptions,
+  ): void;
   /**
    * Returns an observable that contains all incoming messages on this
    * connection.
@@ -63,4 +69,8 @@ export type PeerConnection = {
    * Returns an observable that emits when the connection state changes.
    */
   observeConnectionState(): Observable<string>;
+};
+
+export type MessageOptions = {
+  reliable?: boolean;
 };

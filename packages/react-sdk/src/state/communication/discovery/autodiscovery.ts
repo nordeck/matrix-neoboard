@@ -20,11 +20,8 @@
 // copyright notices
 
 // eslint-disable-next-line notice/notice
-import { WidgetApi } from '@matrix-widget-toolkit/api';
 import { getLogger } from 'loglevel';
 import { IOpenIDCredentials } from 'matrix-widget-api';
-import { SFUConfig } from '../matrixRtcCommunicationChannel';
-import { LivekitFocus } from './matrixRtcFocus';
 
 export interface IWellKnownConfig<T = IClientWellKnown> {
   raw?: T;
@@ -38,7 +35,10 @@ export interface IClientWellKnown {
   'm.identity_server'?: IWellKnownConfig;
 }
 
-export const FOCI_WK_KEY = 'org.matrix.msc4143.rtc_foci';
+export interface SFUConfig {
+  url: string;
+  jwt: string;
+}
 
 /*
  * This AutoDiscovery class is inspired on the matrix-js-sdk one
@@ -49,106 +49,32 @@ export default class AutoDiscovery {
   private static logger = getLogger('AutoDiscovery');
 
   /**
-   * Gets the raw discovery client configuration for the given domain.
-   * @param domain - The homeserver domain to get the client config for, without the protocol prefix.
-   * @returns Promise which resolves to the domain's client config. Can be an empty object.
-   */
-  public static async getRawClientConfig(
-    domain: string | undefined,
-  ): Promise<IClientWellKnown> {
-    if (!domain || typeof domain !== 'string' || domain.length === 0) {
-      throw new Error("'domain' must be a string of non-zero length");
-    }
-
-    const response = await this.fetchWellKnownObject(
-      `https://${domain}/.well-known/matrix/client`,
-    );
-    if (!response) return {};
-    return response.raw !== undefined ? response.raw : {};
-  }
-
-  /**
-   * Fetches a JSON object from a given URL, as expected by all .well-known
-   * related lookups.
-   *
-   * @param url - The URL to fetch a JSON object from.
-   * @returns Promise which resolves to the returned state.
-   */
-  private static async fetchWellKnownObject<T = IWellKnownConfig>(
-    url: string,
-  ): Promise<IWellKnownConfig<Partial<T>>> {
-    let response: Response;
-
-    try {
-      response = await AutoDiscovery.fetch(url, {
-        method: 'GET',
-        signal: AbortSignal.timeout(5000),
-      });
-
-      if (response.status === 404 || !response.ok) {
-        return {
-          raw: {},
-        };
-      }
-
-      return {
-        raw: await response.json(),
-      };
-    } catch {
-      return {
-        raw: {},
-      };
-    }
-  }
-
-  private static fetch(
-    resource: URL | string,
-    options?: RequestInit,
-  ): ReturnType<typeof globalThis.fetch> {
-    if (this.fetchFn) {
-      return this.fetchFn(resource, options);
-    }
-    return globalThis.fetch(resource, options);
-  }
-
-  private static fetchFn?: typeof globalThis.fetch;
-
-  public static setFetchFn(fetchFn: typeof globalThis.fetch): void {
-    AutoDiscovery.fetchFn = fetchFn;
-  }
-
-  /**
    * This function will try to get the JWT Token from the active focus URL using an OpenID token.
-   * The focus URL points to the LiveKit JWT Token Service and includes the room name in the alias.
-   *
-   * @param widgetApi - The widget API promise.
-   * @param activeFocus - The active focus of the RTC session.
-   * @returns
+   * The livekit service URL points to the LiveKit JWT Token Service and includes the room name in the alias.
    */
   public static async getSFUConfigWithOpenID(
-    widgetApi: WidgetApi,
-    activeFocus: LivekitFocus,
+    openIDToken: IOpenIDCredentials,
+    livekitServiceUrl: string,
+    livekitAlias: string,
+    slotId: string,
+    userId: string,
+    deviceId: string,
+    memberId: string,
   ): Promise<SFUConfig | undefined> {
-    const openIdToken = await widgetApi.requestOpenIDConnectToken();
-
-    AutoDiscovery.logger.debug('Got openID token', openIdToken);
-
     try {
-      AutoDiscovery.logger.info(
-        `Trying to get JWT from call's active focus URL of ${activeFocus.livekit_service_url}...`,
-      );
       const sfuConfig = await AutoDiscovery.getLiveKitJWT(
-        widgetApi,
-        activeFocus.livekit_service_url,
-        activeFocus.livekit_alias,
-        openIdToken,
+        livekitServiceUrl,
+        livekitAlias,
+        openIDToken,
+        slotId,
+        userId,
+        deviceId,
+        memberId,
       );
-      AutoDiscovery.logger.info(`Got JWT from call's active focus URL.`);
-
       return sfuConfig;
     } catch (e) {
       AutoDiscovery.logger.warn(
-        `Failed to get JWT from RTC session's active focus URL of ${activeFocus.livekit_service_url}.`,
+        `Failed to get JWT from RTC session's active focus URL of ${livekitServiceUrl}.`,
         e,
       );
       return undefined;
@@ -165,29 +91,29 @@ export default class AutoDiscovery {
    * @returns
    */
   public static async getLiveKitJWT(
-    widgetApi: WidgetApi,
     livekitServiceURL: string,
     roomName: string,
     openIDToken: IOpenIDCredentials,
+    slotId: string,
+    userId: string,
+    deviceId: string,
+    memberId: string,
   ): Promise<SFUConfig> {
     try {
-      const res = await fetch(livekitServiceURL + '/sfu/get', {
+      const res = await fetch(livekitServiceURL + '/get_token', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          room: roomName,
-          // Only forward the credential fields. The Widget API result carries
-          // identity request permissions metadata such as `state` that the
-          // LiveKit JWT Token Service rejects.
-          openid_token: {
-            access_token: openIDToken.access_token,
-            expires_in: openIDToken.expires_in,
-            matrix_server_name: openIDToken.matrix_server_name,
-            token_type: openIDToken.token_type,
+          room_id: roomName,
+          slot_id: slotId,
+          openid_token: openIDToken,
+          member: {
+            id: memberId,
+            claimed_user_id: userId,
+            claimed_device_id: deviceId,
           },
-          device_id: widgetApi.widgetParameters.deviceId,
         }),
       });
       if (!res.ok) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Nordeck IT + Consulting GmbH
+ * Copyright 2026 Nordeck IT + Consulting GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-export { MatrixRtcSessionManagerImpl } from './matrixRtcSessionManagerImpl';
-export type { MatrixRtcSession } from './matrixRtcSessionManagerImpl';
-
-export { SessionManagerImpl } from './sessionManagerImpl';
-export type { Session, SessionManager } from './types';
+/**
+ * Gets a server name from user id, example: @user-id:example.com -> example.com
+ * @param userId matrix user id
+ */
+export function getServerNameFromUserId(userId: string): string {
+  return userId.split(':').splice(1).join(':');
+}

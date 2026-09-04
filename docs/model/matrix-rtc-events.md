@@ -1,98 +1,172 @@
 # MatrixRTC Events Data Model
 
-Having the option to use MatrixRTC as an alternative to WebRTC introduces some
-changes to the data model.
+Having the option to use [MSC4143: MatrixRTC][MSC4143] as an alternative to WebRTC introduces some
+changes:
 
-Specifically, we replace the `net.nordeck.whiteboard.sessions`events with the
-`m.rtc.member` MatrixRTC membership state events (or the unstable `org.matrix.msc3401.call.member`)
-and no longer need to use To Device Messages for establishing peer connections,
-as all signaling and connection logic is now handled by the LiveKit Client SDK
-and LiveKit Server backend.
+We add the `m.rtc.slot` state event (or the unstable `org.matrix.msc4143.rtc.slot`).
+It is defined in MatrixRTC as an application virtual location.
 
-## Room Messages
+We replace the `net.nordeck.whiteboard.sessions` state event with the
+MatrixRTC `m.rtc.member` **sticky** membership event (or the unstable `org.matrix.msc4143.rtc.member`).
+Sticky events are defined by [MSC4354: Sticky Event][MSC4354].
 
-The whiteboard state and RTC session membership is stored using the following events in a Matrix room:
+We no longer need to use To Device Messages for establishing peer connections.
+All signaling and connection logic is now handled by the LiveKit Client SDK and LiveKit Server backend.
+
+## Room Events
+
+The whiteboard RTC state and membership is stored using the following events in a Matrix room:
 
 ```
-┌────────────────────────────────┐                  ┌────────────────────────────────────┐
-│                                │                  │                                    │
-│ net.nordeck.whiteboard         │◄─────────────────┤ org.matrix.msc3401.call.member     │
-│ (state_key: <whiteboard-id>)   │  (whiteboard-id) │ (state_key: _<user_id>_<device_id>)│
-│                                │                  │                                    │
-└──┬─────────────────────────────┘                  └────────────────────────────────────┘
-   │
-   │ content.documentId
-   │
-   ▼
-┌────────────────────────────────────────┐
-│                                        │ ◄─────── <net.nordeck.whiteboard.document.snapshot>
-│ net.nordeck.whiteboard.document.create │
-│ event_id ≙ documentId                  │ ◄─────── <net.nordeck.whiteboard.document.snapshot>
-│                                        │
-└────────────────────────────────────────┘    ...
+┌───────────────────────────────────────────────────┐
+│                                                   │
+│ org.matrix.msc4143.rtc.slot                       │                    ┌───────────────────────────────┐
+│ state_key: net.nordeck.whiteboard#<whiteboard-id> │   content.slot_id  │                               │
+│ content.status: open                              │◄───────────────────┤ org.matrix.msc4143.rtc.member │
+│ content.application.type: net.nordeck.whiteboard  │                    │                               │
+│                                                   │                    └───────────────────────────────┘
+└───────────────────────────────────────────────────┘
 ```
 
 All other events and relations remain as described in [Matrix Events](matrix-events.md)
 
-### `org.matrix.msc3401.call.member` (State Event)
+### `org.matrix.msc4143.rtc.slot` (State event)
 
-According to [MSC4143: MatrixRTC][MSC4143], a RTC application must keep it's session state in
-a state event of type `m.rtc.member` (or the unstable `org.matrix.msc3401.call.member`),
-with a state key composed of the user's Matrix ID and the user's Device ID.
+This is a new MatrixRTC state event with the fields: `status`, `applicaiton.type`.
 
-This state event will keep RTC and app-specific medatada in it's `content` field.
+It holds a slot ID as a state key that is specific to Nordeck whiteboard
+and has the form: `net.nordeck.whiteboard#<whiteboard-id>`.
 
-The termination of a RTC session is signaled by clearing the state event's `content`. This is done using delayed events.
+#### Fields
 
-#### Content
-
-| Field                                  | Type     | Description                                                                |
-| -------------------------------------- | -------- | -------------------------------------------------------------------------- |
-| `application`                          | `string` | The NeoBoard application identifier, which is `net.nordeck.whiteboard`.    |
-| `call_id`                              | `string` | The ID of the Whiteboard for this session, which matches the Widget ID.    |
-| `device_id`                            | `string` | The Device ID of the user's client.                                        |
-| `focus_active`                         | `object` | The currently active backend focus type and focus selection strategy.      |
-| `focus_active.type`                    | `string` | The type of the focus, `livekit` for LiveKit.                              |
-| `focus_active.focus_selection`         | `string` | The focus selection strategy. Currently only supports `oldest_membership`. |
-| `foci_preferred[]`                     | `array`  | A list of possible foci this user knows about.                             |
-| `foci_preferred[].type`                | `string` | The type of the focus, `livekit` for LiveKit.                              |
-| `foci_preferred[].livekit_service_url` | `string` | The URL of the LiveKit MatrixRTC backend to use for the session.           |
-| `scope`                                | `string` | The scope of the RTC session. Only supported value is 'm.room'.            |
-| `expires`                              | `number` | The expiration timestamp for this session membership.                      |
+| Field                    | Type                     | Description                                              |
+| ------------------------ | ------------------------ | -------------------------------------------------------- |
+| `status`                 | `'open'`                 | A slot's status.                                         |
+| `application.type`       | `net.nordeck.whiteboard` | Nordeck whiteboard application identifier.               |
+| `application.documentId` | `string`                 | A `net.nordeck.whiteboard.document.create` room event id |
 
 #### Example
 
 ```json
 {
-  "type": "org.matrix.msc3401.call.member",
-  "sender": "@alice:matrix.internal",
+  "type": "org.matrix.msc4143.rtc.slot",
+  "sender": "@user-id:example.com",
+  "state_key": "net.nordeck.whiteboard#<whiteboard-id>",
   "content": {
-    "application": "net.nordeck.whiteboard",
-    "call_id": "whiteboard-id",
-    "device_id": "SDXDZRNDJA",
-    "focus_active": {
-      "type": "livekit",
-      "focus_selection": "oldest_membership"
+    "status": "open",
+    "application": {
+      "type": "net.nordeck.whiteboard",
+      "documentId": "$H1-nssrxUGbrMdKSDJcACCpmc4PrClb2WDSOrGUv6bs"
+    }
+  },
+  "event_id": "$event-id",
+  "origin_server_ts": 1665134498391,
+  "room_id": "!room-id:example.com"
+}
+```
+
+### `org.matrix.msc4143.rtc.member` (Sticky event) with `join` membership
+
+According to [MSC4143: MatrixRTC][MSC4143], a RTC application must keep it's membership data in
+the sticky event of type `m.rtc.member` with `member.membership` to be `join`.
+
+Sending a `m.rtc.member` event with `membership` equal to `join` for an opened slot opens a session.
+
+#### Fields
+
+| Field                       | Type                       | Description                                                                     |
+| --------------------------- | -------------------------- | ------------------------------------------------------------------------------- |
+| `slot_id`                   | `string`                   | A MatrixRTC slot ID, example: `net.nordeck.whiteboard#whiteboard-id`            |
+| `member.id`                 | `string`                   | A unique user identifier for each join, even for the same user and device.      |
+| `member.membership`         | `'join'`                   | Identifies membership event as `join`.                                          |
+| `member.deviceId`           | `string`                   | The Device ID of the user's client.                                             |
+| `application.type`          | `'net.nordeck.whiteboard'` | Nordeck whiteboard application identifier.                                      |
+| `application.whiteboard_id` | `string`                   | A whiteboard id.                                                                |
+| `transports.published[]`    | `array`                    | Array of transports used by member to publish media, see MatrixRTC transports.  |
+| `transports.can_subscribe`  | `array`                    | Array of transports member can subscribe to. At the moment: `['livekit']` only. |
+| `msc4354_sticky_key`        | `string`                   | The sticky key. Must be the same as `member.id`.                                |
+
+#### Example
+
+```json
+{
+  "type": "org.matrix.msc4143.rtc.member",
+  "sender": "@user-id:example.com",
+  "content": {
+    "slot_id": "net.nordeck.whiteboard#whiteboard-id",
+    "member": {
+      "id": "$member-id-0",
+      "membership": "join",
+      "device_id": "$device-id-0"
     },
-    "foci_preferred": [
-      {
-        "type": "livekit",
-        "livekit_service_url": "https//livekit-jwt.matrix.internal"
-      }
-    ],
-    "scope": "m.room",
-    "expires": 1743778636001
+    "application": {
+      "type": "net.nordeck.whiteboard",
+      "whiteboard_id": "whiteboard-id"
+    },
+    "transports": {
+      "published": [
+        {
+          "type": "livekit",
+          "livekit_service_url": "https://livekit-jwt.example.com"
+        }
+      ],
+      "can_subscribe": ["livekit"]
+    },
+    "msc4354_sticky_key": "$member-id-0"
   },
-  "state_key": "_@alice:matrix.internal_SDXDZRNDJA",
-  "origin_server_ts": 1743764236021,
-  "unsigned": {
-    "membership": "join",
-    "age": 68
+  "origin_server_ts": 0,
+  "event_id": "$event-id",
+  "room_id": "!room-id:example.com"
+}
+```
+
+### `org.matrix.msc4143.rtc.member` (Sticky event) with `leave` membership
+
+A session is terminated when a `m.rtc.member` event with a `leave` `membership` is sent.
+
+The `leave_reason.code` is set to `leave` when users leaves intentionally.
+
+The `leave_reason.code` is set to `delayed_leave` when user's [MSC4140 delayed event][MSC4140] to leave is sent.
+
+#### Fields
+
+| Field                | Type                         | Description                                                                |
+| -------------------- | ---------------------------- | -------------------------------------------------------------------------- |
+| `slot_id`            | `string`                     | A MatrixRTC slot ID, example: `net.nordeck.whiteboard#whiteboard-id`       |
+| `member.id`          | `string`                     | A unique user identifier for each join, even for the same user and device. |
+| `member.membership`  | `'leave'`                    | Identifies membership event as `leave`.                                    |
+| `member.deviceId`    | `string`                     | The Device ID of the user's client.                                        |
+| `leave_reason.code`  | `'leave' \| 'delayed_leave'` | Leave code.                                                                |
+| `msc4354_sticky_key` | `string`                     | The sticky key. Must be the same as `member.id`.                           |
+
+#### Example
+
+```json
+{
+  "type": "org.matrix.msc4143.rtc.member",
+  "sender": "@user-id:example.com",
+  "content": {
+    "slot_id": "net.nordeck.whiteboard#whiteboard-id",
+    "member": {
+      "id": "$member-id-0",
+      "membership": "leave",
+      "device_id": "$device-id-0"
+    },
+    "leave_reason": {
+      "code": "leave"
+    },
+    "msc4354_sticky_key": "$member-id-0"
   },
-  "event_id": "$bFsA4Obl-sneiJlq4SAM2WGMLe00ie3f-Mod7VQfF_c",
-  "room_id": "!BWCjlIjHYWgJyZySxE:matrix.internal"
+  "origin_server_ts": 0,
+  "event_id": "$event-id",
+  "room_id": "!room-id:example.com",
+  "msc4354_sticky": {
+    "duration_ms": 3600000
+  }
 }
 ```
 
 [matrix-events]: ./matrix-events.md
 [MSC4143]: https://github.com/matrix-org/matrix-spec-proposals/blob/toger5/matrixRTC/proposals/4143-matrix-rtc.md
+[MSC4354]: https://github.com/matrix-org/matrix-spec-proposals/blob/kegan/persist-edu/proposals/4354-sticky-events.md
+[MSC4140]: https://github.com/matrix-org/matrix-spec-proposals/blob/toger5/expiring-events-keep-alive/proposals/4140-delayed-events-futures.md

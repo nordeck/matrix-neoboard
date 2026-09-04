@@ -17,7 +17,6 @@
 export {
   gridCellSize,
   infiniteCanvasMode,
-  matrixRtcMode,
   whiteboardHeight,
   whiteboardWidth,
 } from './constants';

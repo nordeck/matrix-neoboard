@@ -32,21 +32,20 @@ import {
   takeUntil,
   tap,
 } from 'rxjs';
-import { matrixRtcMode } from '../components/Whiteboard';
-import { isInfiniteCanvasMode } from '../lib';
+import { isInfiniteCanvasMode, isMatrixRtcMode } from '../lib';
 import { Whiteboard } from '../model';
 import { StoreType } from '../store';
 import {
   CommunicationChannel,
   FOCUS_ON_MESSAGE,
   FocusOn,
+  MatrixRtcCommunicationChannel,
+  MatrixRtcSession,
   SessionManager,
   SignalingChannel,
   WebRtcCommunicationChannel,
   isValidFocusOnMessage,
 } from './communication';
-import { isMatrixRtcSessionManager } from './communication/discovery/types';
-import { MatrixRtcCommunicationChannel } from './communication/matrixRtcCommunicationChannel';
 import { emptyCommunicationChannelStatistics } from './communication/types';
 import {
   WhiteboardDocument,
@@ -216,15 +215,12 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
   ): WhiteboardInstanceImpl {
     const enableObserveVisibilityStateSubject = new BehaviorSubject(true);
 
+    const matrixRtcMode = isMatrixRtcMode();
     let communicationChannel: CommunicationChannel | undefined = undefined;
-    if (
-      matrixRtcMode &&
-      sessionManager &&
-      isMatrixRtcSessionManager(sessionManager)
-    ) {
+    if (matrixRtcMode && sessionManager) {
       communicationChannel = new MatrixRtcCommunicationChannel(
         widgetApiPromise,
-        sessionManager,
+        sessionManager as SessionManager<MatrixRtcSession>,
         whiteboardEvent.state_key,
         enableObserveVisibilityStateSubject,
       );
@@ -435,9 +431,15 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
   }
 
   focusOn(slideId: string): void {
-    this.communicationChannel?.broadcastMessage<FocusOn>(FOCUS_ON_MESSAGE, {
-      slideId,
-    });
+    this.communicationChannel?.broadcastMessage<FocusOn>(
+      FOCUS_ON_MESSAGE,
+      {
+        slideId,
+      },
+      {
+        reliable: true,
+      },
+    );
   }
 
   getSlide(slideId: string): WhiteboardSlideInstance {

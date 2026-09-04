@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Nordeck IT + Consulting GmbH
+ * Copyright 2026 Nordeck IT + Consulting GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,13 @@
  * limitations under the License.
  */
 
-export { MatrixRtcSessionManagerImpl } from './matrixRtcSessionManagerImpl';
-export type { MatrixRtcSession } from './matrixRtcSessionManagerImpl';
+import { describe, expect, it } from 'vitest';
+import { getServerNameFromUserId } from './getServerNameFromUserId';
 
-export { SessionManagerImpl } from './sessionManagerImpl';
-export type { Session, SessionManager } from './types';
+describe('getServerNameFromUserId', () => {
+  it('should get a server name from user id', () => {
+    expect(getServerNameFromUserId('@user-id:example.com')).toEqual(
+      'example.com',
+    );
+  });
+});

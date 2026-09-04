@@ -29,7 +29,13 @@ import {
   DocumentChunk,
   DocumentCreate,
   DocumentSnapshot,
+  ROOM_EVENT_4143_RTC_MEMBER,
   RoomNameEvent,
+  RtcMember,
+  RtcMemberJoin,
+  RtcMemberLeave,
+  RtcSlot,
+  Transport,
   Whiteboard,
   WhiteboardSession,
   WhiteboardSessions,
@@ -200,6 +206,38 @@ export function mockWhiteboard({
     origin_server_ts,
     event_id,
     room_id: '!room-id:example.com',
+  };
+}
+
+export function mockRtcSlot({
+  sender = '@user-id:example.com',
+  whiteboardId = 'whiteboard-0',
+  event_id = '$event-id-0',
+  content = {},
+  origin_server_ts = 0,
+  room_id = '!room-id:example.com',
+}: {
+  sender?: string;
+  whiteboardId?: string;
+  event_id?: string;
+  content?: Partial<RtcSlot>;
+  origin_server_ts?: number;
+  room_id?: string;
+} = {}): StateEvent<RtcSlot> {
+  return {
+    type: 'org.matrix.msc4143.rtc.slot',
+    sender,
+    content: {
+      status: 'open',
+      application: {
+        type: 'net.nordeck.whiteboard',
+      },
+      ...content,
+    },
+    state_key: `net.nordeck.whiteboard#${whiteboardId}`,
+    origin_server_ts,
+    event_id,
+    room_id,
   };
 }
 
@@ -441,6 +479,97 @@ export function mockWhiteboardSessions({
     origin_server_ts,
     event_id: '$event-id-0',
     room_id: '!room-id:example.com',
+  };
+}
+
+export function mockRtcMember({
+  sender = '@user-id:example.com',
+  content = mockRtcMemberJoinContent(),
+  event_id = '$event-id-0',
+  origin_server_ts = 0,
+  room_id = '!room-id:example.com',
+  stickyDurationMs = 3600000,
+}: {
+  sender?: string;
+  content?: RtcMember;
+  event_id?: string;
+  origin_server_ts?: number;
+  room_id?: string;
+  stickyDurationMs?: number;
+}): RoomEvent<RtcMember> {
+  return {
+    type: ROOM_EVENT_4143_RTC_MEMBER,
+    sender,
+    content,
+    origin_server_ts,
+    event_id,
+    room_id,
+    msc4354_sticky: {
+      duration_ms: stickyDurationMs,
+    },
+  };
+}
+
+export function mockRtcMemberJoinContent({
+  whiteboardId = 'whiteboard-id',
+  memberId = '$member-id-0',
+  deviceId = '$device-id-0',
+  transports = {
+    published: [
+      {
+        type: 'livekit',
+        livekit_service_url: 'https://livekit-jwt.example.com',
+      },
+    ],
+    can_subscribe: ['livekit'],
+  },
+}: {
+  whiteboardId?: string;
+  memberId?: string;
+  deviceId?: string;
+  transports?: {
+    published: Transport[];
+    can_subscribe: string[];
+  };
+} = {}): RtcMemberJoin {
+  return {
+    slot_id: `net.nordeck.whiteboard#${whiteboardId}`,
+    member: {
+      id: memberId,
+      membership: 'join',
+      device_id: deviceId,
+    },
+    application: {
+      type: 'net.nordeck.whiteboard',
+      whiteboard_id: whiteboardId,
+    },
+    transports,
+    msc4354_sticky_key: memberId,
+  };
+}
+
+export function mockRtcMemberLeaveContent({
+  whiteboardId = 'whiteboard-id',
+  memberId = '$member-id-0',
+  deviceId = '$device-id-0',
+  leaveReasonCode = 'leave',
+}: {
+  whiteboardId?: string;
+  memberId?: string;
+  deviceId?: string;
+  leaveReasonCode?: 'leave' | 'delayed_leave' | 'slot_closed';
+} = {}): RtcMemberLeave {
+  return {
+    slot_id: `net.nordeck.whiteboard#${whiteboardId}`,
+    member: {
+      id: memberId,
+      membership: 'leave',
+      device_id: deviceId,
+    },
+    leave_reason: {
+      code: leaveReasonCode,
+    },
+    msc4354_sticky_key: memberId,
   };
 }
 

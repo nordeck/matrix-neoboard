@@ -65,8 +65,36 @@ Check the following steps to develop for the widget:
 You need to install Node.js (`>= 20.0.0`, prefer using an LTS version) and run
 `yarn` to work on this package.
 The minimal Element version to use this widget is `1.11.46`.
-If you are using `MatrixRTC`, it is recommended to use Synapse with the minimal version `1.127.0`
-that has delayed events support.
+
+#### `MatrixRTC`
+
+Element with the minimal version `1.12.26` that has RTC transports support for widgets.
+
+Synapse with the minimal version `1.154.0` is required with several extra configurations.
+
+Delayed events have to be enabled, example: `max_event_delay_duration: 24h`.
+
+Both MSC4143 MatrixRTC and MSC4354 Sticky Events have to be enabled:
+
+```
+experimental_features:
+  msc4143_enabled: true
+  msc4354_enabled: true
+```
+
+RTC transports including a livekit transport have to configured, example:
+
+```
+matrix_rtc:
+  transports:
+  - type: livekit
+    livekit_service_url: https://matrix-rtc.example.com/livekit/jwt
+```
+
+A [LiveKit Authorization Service](https://github.com/element-hq/lk-jwt-service) instance to provide JWT token
+to connect to LiveKit.
+
+A [LiveKit SFU](https://github.com/livekit/livekit) instance to share realtime data.
 
 ### Dependencies
 
