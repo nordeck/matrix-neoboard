@@ -67,6 +67,7 @@ export class MatrixRtcSessionManagerImpl implements SessionManager<MatrixRtcSess
   private joinState:
     | {
         whiteboardId: string;
+        slotId: string;
         sessionId: string;
         userId: string;
         deviceId: string;
@@ -156,6 +157,15 @@ export class MatrixRtcSessionManagerImpl implements SessionManager<MatrixRtcSess
       `Joining whiteboard ${whiteboardId} as session ${sessionId}, member ${memberId}`,
     );
 
+    this.joinState = {
+      sessionId,
+      whiteboardId,
+      slotId: `net.nordeck.whiteboard#${whiteboardId}`,
+      userId,
+      deviceId,
+      memberId,
+    };
+
     const leftSet = new Set<string>();
     let ownJoinEventReceived: boolean = false;
     from(Promise.resolve(this.widgetApiPromise))
@@ -165,6 +175,7 @@ export class MatrixRtcSessionManagerImpl implements SessionManager<MatrixRtcSess
         ),
         filter(isRoomEventCurrentlySticky),
         filter(isValidWhiteboardRtcMemberEvent),
+        filter((event) => event.content.slot_id === this.joinState?.slotId),
         filter((event) => {
           if (ownJoinEventReceived) {
             // do not filter events
@@ -204,8 +215,6 @@ export class MatrixRtcSessionManagerImpl implements SessionManager<MatrixRtcSess
       whiteboardId,
     );
     await this.scheduleRestartRtcMemberLeaveDelayedEvent(widgetApi, memberId);
-
-    this.joinState = { sessionId, whiteboardId, userId, deviceId, memberId };
 
     return { sessionId, userId, memberId, livekitTransport };
   }

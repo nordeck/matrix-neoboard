@@ -629,6 +629,18 @@ describe('MatrixRtcSessionManagerImpl', () => {
 
     await rtcSessionManager.join('whiteboard-id');
 
+    // member event with another whiteboard id (another slot id)
+    widgetApi.mockSendRoomEvent(
+      mockRtcMember({
+        sender: '@another-user-id-1:example.com',
+        content: mockRtcMemberJoinContent({
+          whiteboardId: 'whiteboard-id-1',
+          deviceId: 'DEVICE2',
+          memberId: 'memberB',
+        }),
+      }),
+    );
+
     widgetApi.mockSendRoomEvent(
       mockRtcMember({
         sender: '@another-user-id:example.com',
