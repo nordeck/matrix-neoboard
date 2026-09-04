@@ -42,7 +42,7 @@ export function DocumentSyncStatisticsView({
           <StyledDevtoolsHeaderCell
             content={t(
               'boardBar.developerToolsDialog.documentSyncStatistics.binaryJsonSize',
-              'Binary / JSON Size (bytes)',
+              'Binary Size / JSON Size',
             )}
           />
           <StyledDevtoolsHeaderCell
