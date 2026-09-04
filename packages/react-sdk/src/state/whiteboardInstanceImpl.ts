@@ -431,9 +431,15 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
   }
 
   focusOn(slideId: string): void {
-    this.communicationChannel?.broadcastMessage<FocusOn>(FOCUS_ON_MESSAGE, {
-      slideId,
-    });
+    this.communicationChannel?.broadcastMessage<FocusOn>(
+      FOCUS_ON_MESSAGE,
+      {
+        slideId,
+      },
+      {
+        reliable: true,
+      },
+    );
   }
 
   getSlide(slideId: string): WhiteboardSlideInstance {
