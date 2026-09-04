@@ -1,13 +1,14 @@
 # MatrixRTC Events Data Model
 
-Having the option to use MatrixRTC as an alternative to WebRTC introduces some
+Having the option to use [MSC4143: MatrixRTC][MSC4143] as an alternative to WebRTC introduces some
 changes:
 
 We add the `m.rtc.slot` state event (or the unstable `org.matrix.msc4143.rtc.slot`).
-It is defined in MatrixRTC as applicaiton virtual location.
+It is defined in MatrixRTC as an application virtual location.
 
 We replace the `net.nordeck.whiteboard.sessions` state event with the
-MatrixRTC `m.rtc.member` membership **sticky** event (or the unstable `org.matrix.msc4143.rtc.member`).
+MatrixRTC `m.rtc.member` **sticky** membership event (or the unstable `org.matrix.msc4143.rtc.member`).
+Sticky events are defined by [MSC4354: Sticky Event][MSC4354].
 
 We no longer need to use To Device Messages for establishing peer connections.
 All signaling and connection logic is now handled by the LiveKit Client SDK and LiveKit Server backend.
@@ -31,7 +32,7 @@ All other events and relations remain as described in [Matrix Events](matrix-eve
 
 ### `org.matrix.msc4143.rtc.slot` (State event)
 
-This is a new [MSC4143: MatrixRTC][MSC4143] state event with the fields: `status`, `applicaiton.type`.
+This is a new MatrixRTC state event with the fields: `status`, `applicaiton.type`.
 
 It holds a slot ID as a state key that is specific to Nordeck whiteboard
 and has the form: `net.nordeck.whiteboard#<whiteboard-id>`.
@@ -167,4 +168,5 @@ The `leave_reason.code` is set to `delayed_leave` when user's [MSC4140 delayed e
 
 [matrix-events]: ./matrix-events.md
 [MSC4143]: https://github.com/matrix-org/matrix-spec-proposals/blob/toger5/matrixRTC/proposals/4143-matrix-rtc.md
+[MSC4354]: https://github.com/matrix-org/matrix-spec-proposals/blob/kegan/persist-edu/proposals/4354-sticky-events.md
 [MSC4140]: https://github.com/matrix-org/matrix-spec-proposals/blob/toger5/expiring-events-keep-alive/proposals/4140-delayed-events-futures.md
