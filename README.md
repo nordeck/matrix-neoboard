@@ -68,6 +68,8 @@ The minimal Element version to use this widget is `1.11.46`.
 
 #### `MatrixRTC`
 
+Element with the minimal version `1.12.26` that has RTC transports support for widgets.
+
 Synapse with the minimal version `1.154.0` is required with several extra configurations.
 
 Delayed events have to be enabled, example: `max_event_delay_duration: 24h`.
