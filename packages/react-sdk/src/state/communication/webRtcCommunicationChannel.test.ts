@@ -189,7 +189,9 @@ describe('WebRtcCommunicationChannel', () => {
       // Make the tab visible again
       mockDocumentVisibilityState('visible');
 
-      expect(sessionManager.join).toHaveBeenCalledTimes(2);
+      await vi.waitFor(() => {
+        expect(sessionManager.join).toHaveBeenCalledTimes(2);
+      });
       expect(sessionManager.join).toHaveBeenCalledWith('whiteboard-id');
     });
 

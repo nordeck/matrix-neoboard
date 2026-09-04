@@ -22,13 +22,13 @@ import {
   NEVER,
   Observable,
   Subject,
+  concatMap,
   distinctUntilChanged,
   filter,
   firstValueFrom,
   from,
   interval,
   map,
-  mergeMap,
   switchMap,
   takeUntil,
   timeout,
@@ -103,7 +103,7 @@ export class WebRtcCommunicationChannel implements CommunicationChannel {
           // Wait with unsubscribing the session left events till we processed
           // all of then, which is after completing the disconnect
           this.destroySubject.pipe(
-            mergeMap(async () => {
+            switchMap(async () => {
               this.logger.log(
                 'Communication channel destroyed, disconnecting…',
               );
@@ -132,7 +132,7 @@ export class WebRtcCommunicationChannel implements CommunicationChannel {
         switchMap((enableObserveVisibilityState) =>
           observeVisibilityState(visibilityTimeout).pipe(
             takeUntil(this.destroySubject),
-            mergeMap(async (v) => {
+            concatMap(async (v) => {
               if (v === 'visible') {
                 try {
                   this.logger.log('Visibility changed to visible, connecting…');
