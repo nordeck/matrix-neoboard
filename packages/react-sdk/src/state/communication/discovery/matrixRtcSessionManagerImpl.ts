@@ -22,7 +22,7 @@ import {
 import { nanoid } from '@reduxjs/toolkit';
 import isError from 'lodash/isError';
 import { getLogger } from 'loglevel';
-import { UpdateDelayedEventAction } from 'matrix-widget-api';
+import { IRtcTransport, UpdateDelayedEventAction } from 'matrix-widget-api';
 import {
   Observable,
   Subject,
@@ -204,7 +204,7 @@ export class MatrixRtcSessionManagerImpl implements SessionManager<MatrixRtcSess
         await this.handleRtcMemberEvent(rtcMemberEvent);
       });
 
-    const transports: Transport[] = await widgetApi.getRtcTransports();
+    const transports: Transport[] = await getRtcTransports(widgetApi);
     const livekitTransport = getLivekitTransport(transports);
 
     await this.sendRtcMemberJoinEvent(memberId, whiteboardId, transports);
@@ -542,7 +542,7 @@ export class MatrixRtcSessionManagerImpl implements SessionManager<MatrixRtcSess
       },
       transports: {
         published: transports,
-        can_subscribe: ['livekit'],
+        can_subscribe: ['m.livekit'],
       },
       msc4354_sticky_key: memberId,
     };
@@ -589,6 +589,15 @@ export class MatrixRtcSessionManagerImpl implements SessionManager<MatrixRtcSess
       this.logger.error('Error while sending RTC member leave event', ex);
     }
   }
+}
+
+async function getRtcTransports(widgetApi: WidgetApi): Promise<Transport[]> {
+  const rtcTransports: IRtcTransport[] = await widgetApi.getRtcTransports();
+  return rtcTransports.map((transport) =>
+    transport.type === 'livekit'
+      ? { ...transport, type: 'm.livekit' }
+      : transport,
+  );
 }
 
 function getLivekitTransport(transports: Transport[]): {

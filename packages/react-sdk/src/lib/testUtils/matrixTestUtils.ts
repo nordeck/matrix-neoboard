@@ -517,11 +517,11 @@ export function mockRtcMemberJoinContent({
   transports = {
     published: [
       {
-        type: 'livekit',
+        type: 'm.livekit',
         livekit_service_url: 'https://livekit-jwt.example.com',
       },
     ],
-    can_subscribe: ['livekit'],
+    can_subscribe: ['m.livekit'],
   },
 }: {
   whiteboardId?: string;

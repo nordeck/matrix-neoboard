@@ -40,11 +40,11 @@ describe('isValidWhiteboardRtcMemberEvent', () => {
           transports: {
             published: [
               {
-                type: 'livekit',
+                type: 'm.livekit',
                 livekit_service_url: 'https://livekit-jwt.example.com',
               },
             ],
-            can_subscribe: ['livekit'],
+            can_subscribe: ['m.livekit'],
           },
           msc4354_sticky_key: '$member-id-0',
         },
@@ -84,11 +84,11 @@ describe('isValidWhiteboardRtcMemberEvent', () => {
             transports: {
               published: [
                 {
-                  type: 'livekit',
+                  type: 'm.livekit',
                   livekit_service_url: 'https://livekit-jwt.example.com',
                 },
               ],
-              can_subscribe: ['livekit'],
+              can_subscribe: ['m.livekit'],
             },
             msc4354_sticky_key: '$member-id-0',
             ...patch,
@@ -130,11 +130,11 @@ describe('isValidWhiteboardRtcMemberEvent', () => {
             transports: {
               published: [
                 {
-                  type: 'livekit',
+                  type: 'm.livekit',
                   livekit_service_url: 'https://livekit-jwt.example.com',
                 },
               ],
-              can_subscribe: ['livekit'],
+              can_subscribe: ['m.livekit'],
             },
             msc4354_sticky_key: '$member-id-0',
           },
@@ -174,11 +174,11 @@ describe('isValidWhiteboardRtcMemberEvent', () => {
             transports: {
               published: [
                 {
-                  type: 'livekit',
+                  type: 'm.livekit',
                   livekit_service_url: 'https://livekit-jwt.example.com',
                 },
               ],
-              can_subscribe: ['livekit'],
+              can_subscribe: ['m.livekit'],
             },
             msc4354_sticky_key: '$member-id-0',
           },
@@ -219,11 +219,11 @@ describe('isValidWhiteboardRtcMemberEvent', () => {
             transports: {
               published: [
                 {
-                  type: 'livekit',
+                  type: 'm.livekit',
                   livekit_service_url: 'https://livekit-jwt.example.com',
                 },
               ],
-              can_subscribe: ['livekit'],
+              can_subscribe: ['m.livekit'],
               ...patch,
             },
             msc4354_sticky_key: '$member-id-0',
@@ -405,7 +405,7 @@ describe('isLivekitTransport', () => {
   it('should return true for livekit transport', () => {
     expect(
       isLivekitTransport({
-        type: 'livekit',
+        type: 'm.livekit',
         livekit_service_url: 'https://livekit-jwt.example.com',
       }),
     ).toBe(true);
@@ -414,7 +414,7 @@ describe('isLivekitTransport', () => {
   it('should return false for invalid livekit transport', () => {
     expect(
       isLivekitTransport({
-        type: 'livekit',
+        type: 'm.livekit',
       }),
     ).toBe(false);
   });
@@ -423,6 +423,14 @@ describe('isLivekitTransport', () => {
     expect(
       isLivekitTransport({
         type: 'something',
+      }),
+    ).toBe(false);
+  });
+
+  it('should return false for "livekit" transport type', () => {
+    expect(
+      isLivekitTransport({
+        type: 'livekit',
       }),
     ).toBe(false);
   });

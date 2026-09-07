@@ -42,7 +42,7 @@ const transportSchema = Joi.object({
 }).unknown();
 
 export type LivekitTransport = Transport & {
-  type: 'livekit';
+  type: 'm.livekit';
   livekit_service_url: string;
 };
 
@@ -82,7 +82,7 @@ const rtcMemberJoinSchema = rtcMemberBaseSchema
     transports: Joi.object({
       published: Joi.array().items(transportSchema).required(),
       can_subscribe: Joi.array()
-        .items(Joi.string().valid('livekit'))
+        .items(Joi.string().valid('m.livekit'))
         .length(1)
         .required(),
     })
@@ -149,5 +149,5 @@ export function isRtcMemberLeaveEvent(
 export function isLivekitTransport(
   transport: Transport,
 ): transport is LivekitTransport {
-  return transport.type === 'livekit' && 'livekit_service_url' in transport;
+  return transport.type === 'm.livekit' && 'livekit_service_url' in transport;
 }

@@ -63,7 +63,7 @@ describe('MatrixRtcSessionManagerImpl', () => {
 
     widgetApi.getRtcTransports.mockResolvedValue([
       {
-        type: 'livekit',
+        type: 'm.livekit',
         livekit_service_url: 'https://livekit-jwt.example.com',
       },
     ]);
@@ -114,11 +114,90 @@ describe('MatrixRtcSessionManagerImpl', () => {
         transports: {
           published: [
             {
-              type: 'livekit',
+              type: 'm.livekit',
               livekit_service_url: 'https://livekit-jwt.example.com',
             },
           ],
-          can_subscribe: ['livekit'],
+          can_subscribe: ['m.livekit'],
+        },
+        msc4354_sticky_key: 'memberA',
+      },
+      { stickyDurationMs: 3600000 },
+    );
+    expect(widgetApi.sendDelayedRoomEvent).toHaveBeenCalledWith(
+      ROOM_EVENT_4143_RTC_MEMBER,
+      {
+        slot_id: 'net.nordeck.whiteboard#whiteboard-id',
+        member: {
+          id: 'memberA',
+          membership: 'leave',
+          device_id: 'DEVICE1',
+        },
+        leave_reason: {
+          code: 'delayed_leave',
+        },
+        msc4354_sticky_key: 'memberA',
+      },
+      removeSessionDelay,
+      { stickyDurationMs: 3600000 },
+    );
+    expect(rtcSessionManager.getRemoveSessionDelayId()).toEqual(
+      'syd_wlGAStYmBRRdjnWiHSDA',
+    );
+    await expect(joinedPromise).resolves.toEqual([
+      {
+        sessionId: 'vtdiVgWoeLb2NR7dph94uv/R4+U6uQTmCYE9Q0BlgUw',
+        userId: '@user-id:example.com',
+        memberId: 'memberA',
+        livekitTransport: {
+          livekitServiceUrl: 'https://livekit-jwt.example.com',
+        },
+      },
+    ]);
+  });
+
+  it('should join a whiteboard if rtc transports return a "livekit" transport', async () => {
+    widgetApi.getRtcTransports.mockResolvedValue([
+      {
+        type: 'livekit',
+        livekit_service_url: 'https://livekit-jwt.example.com',
+      },
+    ]);
+
+    const joinedPromise = firstValueFrom(
+      rtcSessionManager.observeSessionJoined().pipe(take(1), toArray()),
+    );
+
+    await expect(rtcSessionManager.join('whiteboard-id')).resolves.toEqual({
+      userId: '@user-id:example.com',
+      sessionId: 'vtdiVgWoeLb2NR7dph94uv/R4+U6uQTmCYE9Q0BlgUw',
+      memberId: 'memberA',
+      livekitTransport: {
+        livekitServiceUrl: 'https://livekit-jwt.example.com',
+      },
+    });
+
+    expect(widgetApi.sendRoomEvent).toHaveBeenCalledWith(
+      ROOM_EVENT_4143_RTC_MEMBER,
+      {
+        slot_id: 'net.nordeck.whiteboard#whiteboard-id',
+        member: {
+          id: 'memberA',
+          membership: 'join',
+          device_id: 'DEVICE1',
+        },
+        application: {
+          type: 'net.nordeck.whiteboard',
+          whiteboard_id: 'whiteboard-id',
+        },
+        transports: {
+          published: [
+            {
+              type: 'm.livekit',
+              livekit_service_url: 'https://livekit-jwt.example.com',
+            },
+          ],
+          can_subscribe: ['m.livekit'],
         },
         msc4354_sticky_key: 'memberA',
       },
@@ -258,11 +337,11 @@ describe('MatrixRtcSessionManagerImpl', () => {
         transports: {
           published: [
             {
-              type: 'livekit',
+              type: 'm.livekit',
               livekit_service_url: 'https://livekit-jwt.example.com',
             },
           ],
-          can_subscribe: ['livekit'],
+          can_subscribe: ['m.livekit'],
         },
         msc4354_sticky_key: 'memberB',
       },
@@ -338,11 +417,11 @@ describe('MatrixRtcSessionManagerImpl', () => {
         transports: {
           published: [
             {
-              type: 'livekit',
+              type: 'm.livekit',
               livekit_service_url: 'https://livekit-jwt.example.com',
             },
           ],
-          can_subscribe: ['livekit'],
+          can_subscribe: ['m.livekit'],
         },
         msc4354_sticky_key: 'memberB',
       },
@@ -394,11 +473,11 @@ describe('MatrixRtcSessionManagerImpl', () => {
         transports: {
           published: [
             {
-              type: 'livekit',
+              type: 'm.livekit',
               livekit_service_url: 'https://livekit-jwt.example.com',
             },
           ],
-          can_subscribe: ['livekit'],
+          can_subscribe: ['m.livekit'],
         },
         msc4354_sticky_key: 'memberA',
       },
@@ -448,11 +527,11 @@ describe('MatrixRtcSessionManagerImpl', () => {
         transports: {
           published: [
             {
-              type: 'livekit',
+              type: 'm.livekit',
               livekit_service_url: 'https://livekit-jwt.example.com',
             },
           ],
-          can_subscribe: ['livekit'],
+          can_subscribe: ['m.livekit'],
         },
         msc4354_sticky_key: 'memberA',
       },
@@ -486,11 +565,11 @@ describe('MatrixRtcSessionManagerImpl', () => {
         transports: {
           published: [
             {
-              type: 'livekit',
+              type: 'm.livekit',
               livekit_service_url: 'https://livekit-jwt.example.com',
             },
           ],
-          can_subscribe: ['livekit'],
+          can_subscribe: ['m.livekit'],
         },
         msc4354_sticky_key: 'memberA',
       },

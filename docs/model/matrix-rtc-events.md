@@ -74,17 +74,17 @@ Sending a `m.rtc.member` event with `membership` equal to `join` for an opened s
 
 #### Fields
 
-| Field                       | Type                       | Description                                                                     |
-| --------------------------- | -------------------------- | ------------------------------------------------------------------------------- |
-| `slot_id`                   | `string`                   | A MatrixRTC slot ID, example: `net.nordeck.whiteboard#whiteboard-id`            |
-| `member.id`                 | `string`                   | A unique user identifier for each join, even for the same user and device.      |
-| `member.membership`         | `'join'`                   | Identifies membership event as `join`.                                          |
-| `member.deviceId`           | `string`                   | The Device ID of the user's client.                                             |
-| `application.type`          | `'net.nordeck.whiteboard'` | Nordeck whiteboard application identifier.                                      |
-| `application.whiteboard_id` | `string`                   | A whiteboard id.                                                                |
-| `transports.published[]`    | `array`                    | Array of transports used by member to publish media, see MatrixRTC transports.  |
-| `transports.can_subscribe`  | `array`                    | Array of transports member can subscribe to. At the moment: `['livekit']` only. |
-| `msc4354_sticky_key`        | `string`                   | The sticky key. Must be the same as `member.id`.                                |
+| Field                       | Type                       | Description                                                                       |
+| --------------------------- | -------------------------- | --------------------------------------------------------------------------------- |
+| `slot_id`                   | `string`                   | A MatrixRTC slot ID, example: `net.nordeck.whiteboard#whiteboard-id`              |
+| `member.id`                 | `string`                   | A unique user identifier for each join, even for the same user and device.        |
+| `member.membership`         | `'join'`                   | Identifies membership event as `join`.                                            |
+| `member.deviceId`           | `string`                   | The Device ID of the user's client.                                               |
+| `application.type`          | `'net.nordeck.whiteboard'` | Nordeck whiteboard application identifier.                                        |
+| `application.whiteboard_id` | `string`                   | A whiteboard id.                                                                  |
+| `transports.published[]`    | `array`                    | Array of transports used by member to publish media, see MatrixRTC transports.    |
+| `transports.can_subscribe`  | `array`                    | Array of transports member can subscribe to. At the moment: `['m.livekit']` only. |
+| `msc4354_sticky_key`        | `string`                   | The sticky key. Must be the same as `member.id`.                                  |
 
 #### Example
 
