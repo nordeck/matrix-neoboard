@@ -64,37 +64,42 @@ Check the following steps to develop for the widget:
 
 You need to install Node.js (`>= 20.0.0`, prefer using an LTS version) and run
 `yarn` to work on this package.
-The minimal Element version to use this widget is `1.11.46`.
 
-#### `MatrixRTC`
+#### Legacy WebRTC
 
-Element with the minimal version `1.12.26` that has RTC transports support for widgets.
+This widget requires at least Element Web `1.11.46` to work properly when using
+[legacy WebRTC](./docs/adrs/adr006-webrtc-for-real-time-communication.md)
+for realtime collaboration.
 
-Synapse with the minimal version `1.154.0` is required with several extra configurations.
+A homeserver that implements at least v1.11 of the Matrix spec is also required,
+such as Synapse `1.98.0` or later.
 
-Delayed events have to be enabled, example: `max_event_delay_duration: 24h`.
+#### Latest MatrixRTC spec proposal
 
-Both MSC4143 MatrixRTC and MSC4354 Sticky Events have to be enabled:
+To use the latest [MatrixRTC with LiveKit transport](./docs/adrs/adr009-matrix-rtc-livekit.md)
+implementation, the following is required:
+
+- [Element Web](https://github.com/element-hq/element-web) `1.12.26` or later
+- [LiveKit Authorization Service](https://github.com/element-hq/lk-jwt-service) `0.5.0` or later
+- [LiveKit server](https://github.com/livekit/livekit) `1.13.1` or later
+- [Synapse Homeserver](https://github.com/element-hq/synapse) `1.154.0` or later, with the following configuration options:
 
 ```
+# Enable delayed events
+max_event_delay_duration: 24h
+
 experimental_features:
+  # MatrixRTC
   msc4143_enabled: true
+  # Sticky Events
   msc4354_enabled: true
-```
 
-RTC transports including a livekit transport have to configured, example:
-
-```
+# Add LiveKit to the RTC transports registry
 matrix_rtc:
   transports:
   - type: livekit
     livekit_service_url: https://matrix-rtc.example.com/livekit/jwt
 ```
-
-A [LiveKit Authorization Service](https://github.com/element-hq/lk-jwt-service) instance to provide JWT token
-to connect to LiveKit.
-
-A [LiveKit SFU](https://github.com/livekit/livekit) instance to share realtime data.
 
 ### Dependencies
 
