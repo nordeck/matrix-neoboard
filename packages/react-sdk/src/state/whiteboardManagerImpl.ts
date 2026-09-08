@@ -48,6 +48,7 @@ export class WhiteboardManagerImpl implements WhiteboardManager {
   selectActiveWhiteboardInstance(
     whiteboardEvent: StateEvent<Whiteboard>,
     userId: string,
+    documentReadonly?: boolean,
   ) {
     if (
       this.activeWhiteboardSubject.value?.getWhiteboardId() !==
@@ -62,6 +63,7 @@ export class WhiteboardManagerImpl implements WhiteboardManager {
           this.signalingChannel,
           whiteboardEvent,
           userId,
+          documentReadonly,
         ),
       );
     }

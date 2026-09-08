@@ -37,6 +37,7 @@ export type WhiteboardManager = {
   selectActiveWhiteboardInstance(
     whiteboardEvent: StateEvent<Whiteboard>,
     userId: string,
+    documentReadonly?: boolean,
   ): void;
   /** Get the active whiteboard instance */
   getActiveWhiteboardInstance(): WhiteboardInstance | undefined;

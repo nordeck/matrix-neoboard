@@ -1021,7 +1021,9 @@ describe('SynchronizedDocumentImpl', () => {
 
       doc.performChange((doc) => doc.set('num', 10));
 
-      synchronizedDocument.persist();
+      await synchronizedDocument.persist();
+
+      expect(widgetApi.sendRoomEvent).toHaveBeenCalled();
 
       expect(await outstandingStatistics).toEqual([
         {
@@ -1053,6 +1055,30 @@ describe('SynchronizedDocumentImpl', () => {
       });
     });
 
+    it('should not create a snapshot when there are changes but document persist is disabled', async () => {
+      const doc = createExampleDocument();
+      const store = createStore({ widgetApi });
+
+      const synchronizedDocument = new SynchronizedDocumentImpl(
+        doc,
+        store,
+        communicationChannel,
+        storage,
+        '$document-0',
+        undefined,
+        undefined,
+        {
+          disableDocumentPersist: true,
+        },
+      );
+
+      doc.performChange((doc) => doc.set('num', 10));
+
+      await synchronizedDocument.persist();
+
+      expect(widgetApi.sendRoomEvent).not.toHaveBeenCalled();
+    });
+
     it('should not create a snapshot when there are no changes', async () => {
       const doc = createExampleDocument();
       const store = createStore({ widgetApi });
@@ -1071,7 +1097,7 @@ describe('SynchronizedDocumentImpl', () => {
           .pipe(filter((loading) => !loading)),
       );
 
-      synchronizedDocument.persist();
+      await synchronizedDocument.persist();
 
       expect(widgetApi.sendRoomEvent).not.toHaveBeenCalled();
     });

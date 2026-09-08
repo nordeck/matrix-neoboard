@@ -212,6 +212,7 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
     signalingChannel: SignalingChannel | undefined,
     whiteboardEvent: StateEvent<Whiteboard>,
     userId: string,
+    documentReadonly: boolean | undefined,
   ): WhiteboardInstanceImpl {
     const enableObserveVisibilityStateSubject = new BehaviorSubject(true);
 
@@ -250,6 +251,9 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
         snapshotValidator: isValidWhiteboardDocumentSnapshot,
       },
       whiteboardEvent.room_id,
+      {
+        disableDocumentPersist: documentReadonly,
+      },
     );
 
     return new WhiteboardInstanceImpl(
