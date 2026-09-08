@@ -548,6 +548,7 @@ describe('WhiteboardInstanceImpl', () => {
     expect(communicationChannel.broadcastMessage).toHaveBeenCalledWith(
       'net.nordeck.whiteboard.focus_on',
       { slideId: slide0 },
+      { reliable: true },
     );
   });
 
