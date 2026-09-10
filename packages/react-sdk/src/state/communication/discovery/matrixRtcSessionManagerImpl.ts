@@ -384,7 +384,7 @@ export class MatrixRtcSessionManagerImpl implements SessionManager<MatrixRtcSess
 
     if (isRtcMemberLeaveEvent(event)) {
       if (sessionId === this.joinState?.sessionId) {
-        this.logger.log(`Leaving session ${sessionId}`);
+        this.logger.debug(`Leaving session ${sessionId}`);
         // Reset the join state
         this.joinState = undefined;
       }
@@ -403,7 +403,7 @@ export class MatrixRtcSessionManagerImpl implements SessionManager<MatrixRtcSess
         timer(this.stickyDurationMs * 0.9)
           .pipe(takeUntil(this.destroySubject), takeUntil(this.leaveSubject))
           .subscribe(async () => {
-            this.logger.log(`Updating RTC member for memberId: ${memberId}`);
+            this.logger.debug(`Updating RTC member for memberId: ${memberId}`);
 
             await this.sendRtcMemberJoinEvent(
               memberId,
@@ -414,7 +414,7 @@ export class MatrixRtcSessionManagerImpl implements SessionManager<MatrixRtcSess
             const widgetApi = await this.widgetApiPromise;
 
             if (this.removeSessionDelayId) {
-              this.logger.log(
+              this.logger.debug(
                 `Cancelling RTC removeSessionDelayId: ${this.removeSessionDelayId}`,
               );
               await widgetApi.updateDelayedEvent(

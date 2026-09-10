@@ -216,7 +216,7 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
   }
 
   private async handleSessionJoined(session: MatrixRtcSession): Promise<void> {
-    this.logger.log('Joined', session.sessionId, session.userId);
+    this.logger.debug('Joined', session.sessionId, session.userId);
     this.addSessionStatistics(session.sessionId, session);
 
     const widgetApi = await this.widgetApiPromise;
@@ -249,11 +249,11 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
   }
 
   private async handleSessionLeft(session: MatrixRtcSession): Promise<void> {
-    this.logger.log('Left', session.sessionId, session.userId);
+    this.logger.debug('Left', session.sessionId, session.userId);
     this.addSessionStatistics(session.sessionId);
 
     if (this.statistics.localSession?.sessionId === session.sessionId) {
-      this.logger.log('Observe own session left, rejoin peer connections');
+      this.logger.debug('Observe own session left, rejoin peer connections');
 
       const {
         sessionId,
@@ -273,7 +273,7 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
           const existingPeerConnection = peerConnectionWrapper.connection;
           const connectionId = existingPeerConnection.getConnectionId();
 
-          this.logger.log(
+          this.logger.debug(
             `Close peer connection to ${connectionId} for session ${session.sessionId}`,
           );
 
@@ -303,9 +303,9 @@ export class MatrixRtcCommunicationChannel implements CommunicationChannel {
     let peerConnectionWrapper: PeerConnectionWrapper | undefined =
       this.peerConnections.get(livekitServiceUrl);
     if (peerConnectionWrapper) {
-      this.logger.log(`Use existing peer connection to ${livekitServiceUrl}`);
+      this.logger.debug(`Use existing peer connection to ${livekitServiceUrl}`);
     } else {
-      this.logger.log(`Create peer connection to ${livekitServiceUrl}`);
+      this.logger.debug(`Create peer connection to ${livekitServiceUrl}`);
     }
     if (!peerConnectionWrapper) {
       peerConnectionWrapper = {
