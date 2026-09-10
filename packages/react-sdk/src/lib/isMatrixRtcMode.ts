@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Nordeck IT + Consulting GmbH
+ * Copyright 2025 Nordeck IT + Consulting GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-export { MatrixRtcSessionManagerImpl } from './matrixRtcSessionManagerImpl';
-export type { MatrixRtcSession } from './matrixRtcSessionManagerImpl';
+import { getEnvironment } from '@matrix-widget-toolkit/mui';
 
-export { SessionManagerImpl } from './sessionManagerImpl';
-export type { Session, SessionManager } from './types';
+export function isMatrixRtcMode(): boolean {
+  return getEnvironment('REACT_APP_RTC') === 'matrixrtc';
+}

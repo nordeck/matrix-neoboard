@@ -16,8 +16,8 @@
 
 import { Box, Table, TableBody, TableRow, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
+import { isMatrixRtcMode } from '../../lib';
 import { PeerConnectionStatistics } from '../../state/communication';
-import { matrixRtcMode } from '../Whiteboard';
 import { StyledDevtoolsTableCell } from './StyledDevtoolsTable';
 
 export function PeerConnectionDetail({
@@ -28,36 +28,67 @@ export function PeerConnectionDetail({
   peerConnection: PeerConnectionStatistics;
 }) {
   const { t } = useTranslation('neoboard');
+  const matrixRtcMode = isMatrixRtcMode();
 
   return (
     <>
       <Typography variant="subtitle1" gutterBottom>
-        {`${peerConnection.remoteUserId}: ${connectionId}`}
+        {connectionId}
       </Typography>
       <Table size="small">
         <TableBody>
-          <TableRow>
-            <StyledDevtoolsTableCell>
-              {t(
-                'boardBar.developerToolsDialog.communicationChannelStatistics.remoteSessionId',
-                'Remote Session Id',
-              )}
-            </StyledDevtoolsTableCell>
-            <StyledDevtoolsTableCell>
-              {peerConnection.remoteSessionId}
-            </StyledDevtoolsTableCell>
-          </TableRow>
-          <TableRow>
-            <StyledDevtoolsTableCell>
-              {t(
-                'boardBar.developerToolsDialog.communicationChannelStatistics.userId',
-                'User Id',
-              )}
-            </StyledDevtoolsTableCell>
-            <StyledDevtoolsTableCell>
-              {peerConnection.remoteUserId}
-            </StyledDevtoolsTableCell>
-          </TableRow>
+          {!matrixRtcMode && (
+            <TableRow>
+              <StyledDevtoolsTableCell>
+                {t(
+                  'boardBar.developerToolsDialog.communicationChannelStatistics.remoteSessionId',
+                  'Remote Session Id',
+                )}
+              </StyledDevtoolsTableCell>
+              <StyledDevtoolsTableCell>
+                {peerConnection.remoteSessionId}
+              </StyledDevtoolsTableCell>
+            </TableRow>
+          )}
+          {!matrixRtcMode && (
+            <TableRow>
+              <StyledDevtoolsTableCell>
+                {t(
+                  'boardBar.developerToolsDialog.communicationChannelStatistics.remoteUserId',
+                  'Remote User Id',
+                )}
+              </StyledDevtoolsTableCell>
+              <StyledDevtoolsTableCell>
+                {peerConnection.remoteUserId}
+              </StyledDevtoolsTableCell>
+            </TableRow>
+          )}
+          {matrixRtcMode && (
+            <TableRow>
+              <StyledDevtoolsTableCell>
+                {t(
+                  'boardBar.developerToolsDialog.communicationChannelStatistics.localParticipantIdentity',
+                  'Local Participant Identity',
+                )}
+              </StyledDevtoolsTableCell>
+              <StyledDevtoolsTableCell>
+                {peerConnection.localParticipantIdentity}
+              </StyledDevtoolsTableCell>
+            </TableRow>
+          )}
+          {matrixRtcMode && (
+            <TableRow>
+              <StyledDevtoolsTableCell>
+                {t(
+                  'boardBar.developerToolsDialog.communicationChannelStatistics.remoteParticipantIdentities',
+                  'Remote Participant Identities',
+                )}
+              </StyledDevtoolsTableCell>
+              <StyledDevtoolsTableCell>
+                {peerConnection.remoteParticipantIdentities?.join(', ')}
+              </StyledDevtoolsTableCell>
+            </TableRow>
+          )}
           {!matrixRtcMode && (
             <TableRow>
               <StyledDevtoolsTableCell>

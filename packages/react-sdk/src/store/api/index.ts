@@ -31,6 +31,13 @@ export {
   useGetRoomMembersQuery,
 } from './roomMemberApi';
 export { roomNameApi, useGetRoomNameQuery } from './roomNameApi';
+export {
+  rtcSlotApi,
+  selectAllRtcSlots,
+  selectRtcSlotById,
+  useGetRtcSlotsQuery,
+  useUpdateRtcSlotMutation,
+} from './rtcSlotApi';
 export { useUserDetails } from './useUserDetails';
 export {
   selectAllWhiteboards,

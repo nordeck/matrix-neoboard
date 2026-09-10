@@ -88,6 +88,10 @@ export class SynchronizedDocumentImpl<
       documentValidator: DocumentValidator<T>;
     },
     private roomId?: string,
+    private options: {
+      // Do not persist document changes
+      disableDocumentPersist?: boolean;
+    } = {},
   ) {
     communicationChannel
       ?.observeMessages()
@@ -174,34 +178,40 @@ export class SynchronizedDocumentImpl<
       )
       .subscribe();
 
-    combineLatest({
-      loading: this.observeIsLoading().pipe(filter((loading) => !loading)),
-      doc: this.document.observePersist().pipe(
-        tap(() => {
-          this.statistics.snapshotOutstanding = true;
-          this.notifyStatistics();
-        }),
-      ),
-    })
-      .pipe(
-        takeUntil(this.destroySubject),
-        // TODO: consider a different/random throttle interval to avoid two users storing at the same time
-        throttleTime(5000, undefined, { leading: false, trailing: true }),
-        // deduplicate the requests in case the snapshot creation is slower than 5000ms
-        throttle(
-          async ({ doc }) => {
-            try {
-              await this.persistDocument(doc);
-              this.store.dispatch(setSnapshotSaveSuccessful());
-            } catch (e) {
-              this.logger.error('Could not store snapshot for', documentId, e);
-              this.store.dispatch(setSnapshotSaveFailed());
-            }
-          },
-          { leading: true, trailing: true },
+    if (!options.disableDocumentPersist) {
+      combineLatest({
+        loading: this.observeIsLoading().pipe(filter((loading) => !loading)),
+        doc: this.document.observePersist().pipe(
+          tap(() => {
+            this.statistics.snapshotOutstanding = true;
+            this.notifyStatistics();
+          }),
         ),
-      )
-      .subscribe();
+      })
+        .pipe(
+          takeUntil(this.destroySubject),
+          // TODO: consider a different/random throttle interval to avoid two users storing at the same time
+          throttleTime(5000, undefined, { leading: false, trailing: true }),
+          // deduplicate the requests in case the snapshot creation is slower than 5000ms
+          throttle(
+            async ({ doc }) => {
+              try {
+                await this.persistDocument(doc);
+                this.store.dispatch(setSnapshotSaveSuccessful());
+              } catch (e) {
+                this.logger.error(
+                  'Could not store snapshot for',
+                  documentId,
+                  e,
+                );
+                this.store.dispatch(setSnapshotSaveFailed());
+              }
+            },
+            { leading: true, trailing: true },
+          ),
+        )
+        .subscribe();
+    }
 
     this.document
       .observeStatistics()
@@ -239,7 +249,10 @@ export class SynchronizedDocumentImpl<
   }
 
   private async persistDocument(doc: Document<T>) {
-    if (!this.statistics.snapshotOutstanding) {
+    if (
+      this.options.disableDocumentPersist ||
+      !this.statistics.snapshotOutstanding
+    ) {
       // No outstanding snapshot, do nothing
       return;
     }

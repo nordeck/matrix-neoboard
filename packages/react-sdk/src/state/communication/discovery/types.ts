@@ -15,36 +15,28 @@
  */
 
 import { Observable } from 'rxjs';
-import { RTCFocus } from './matrixRtcFocus';
-import { SessionState } from './sessionManagerImpl';
 
 export type Session = { userId: string; sessionId: string };
 
-export type SessionManager = {
+export type SessionManager<S extends Session = Session> = {
   /** Gets the current session id, if joined. */
   getSessionId(): string | undefined;
-  /** Gets a list of all active sessions, excluding the own session. */
-  getSessions(): Session[];
+  /** Gets a list of active sessions */
+  getSessions(): S[];
   /**
    * Observes new sessions that joined the current whiteboard.
-   * Is never triggered for the own session.
    */
-  observeSessionJoined(): Observable<Session>;
+  observeSessionJoined(): Observable<S>;
   /**
-   * Observes sessions that left the current whiteboard, like expired
+   * Observes sessions that left the current whiteboard
    * sessions.
-   * Is never triggered for the own session.
    */
-  observeSessionLeft(): Observable<Session>;
-  /**
-   * Observes sessions in the current whiteboard.
-   */
-  observeSession(): Observable<SessionState>;
+  observeSessionLeft(): Observable<S>;
   /**
    * Join a whiteboard session.
    * Session join and leave events are related to the joined whiteboard.
    */
-  join(whiteboardId: string): Promise<{ sessionId: string }>;
+  join(whiteboardId: string): Promise<S>;
   /**
    * Leaves the current whiteboard.
    */
@@ -55,25 +47,3 @@ export type SessionManager = {
    */
   destroy(): void;
 };
-
-export type MatrixRtcSessionManager = SessionManager & {
-  /** Initialize RTC Foci Discovery */
-  initFociDiscovery(): void;
-  /** Gets the current active focus, if discovered */
-  getActiveFocus(): RTCFocus | undefined;
-  /**
-   * Observe active focus changes.
-   * This will emit the current active focus when it changes.
-   */
-  observeActiveFocus(): Observable<RTCFocus>;
-};
-
-export function isMatrixRtcSessionManager(
-  manager: SessionManager,
-): manager is MatrixRtcSessionManager {
-  return (
-    typeof (manager as MatrixRtcSessionManager).getActiveFocus === 'function' &&
-    typeof (manager as MatrixRtcSessionManager).observeActiveFocus ===
-      'function'
-  );
-}

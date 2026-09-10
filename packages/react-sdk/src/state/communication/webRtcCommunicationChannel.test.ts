@@ -42,7 +42,6 @@ import {
   WebRtcPeerConnection,
 } from './connection';
 import { Session, SessionManager } from './discovery';
-import { SessionState } from './discovery/sessionManagerImpl';
 import { SignalingChannel } from './signaling';
 import { WebRtcCommunicationChannel } from './webRtcCommunicationChannel';
 
@@ -85,7 +84,6 @@ describe('WebRtcCommunicationChannel', () => {
   let signalingChannel: SignalingChannel;
   let peerConnection: Mocked<PeerConnection>;
   let channel: WebRtcCommunicationChannel;
-  let sessionSubject: Subject<SessionState>;
   let joinedSubject: Subject<Session>;
   let leftSubject: Subject<Session>;
   let statisticsSubject: Subject<PeerConnectionStatistics>;
@@ -104,13 +102,11 @@ describe('WebRtcCommunicationChannel', () => {
       sendDescription: vi.fn().mockImplementation(async () => {}),
     };
 
-    sessionSubject = new Subject();
     joinedSubject = new Subject();
     leftSubject = new Subject();
     sessionManager = {
       getSessionId: vi.fn(() => currentSessionId),
       getSessions: vi.fn().mockReturnValue([]),
-      observeSession: vi.fn().mockReturnValue(sessionSubject),
       observeSessionJoined: vi.fn().mockReturnValue(joinedSubject),
       observeSessionLeft: vi.fn().mockReturnValue(leftSubject),
       join: vi.fn().mockImplementation(async () => {
@@ -163,9 +159,15 @@ describe('WebRtcCommunicationChannel', () => {
 
       expect(peerConnection.close).toHaveBeenCalled();
       expect(channel.getStatistics()).toEqual({
-        localSessionId: 'session-id',
+        localSession: {
+          sessionId: 'session-id',
+        },
         peerConnections: {},
-        sessions: [],
+        sessions: {
+          'another-session-id': {
+            userId: '@another-user-id:example.com',
+          },
+        },
       });
     });
 
@@ -241,18 +243,30 @@ describe('WebRtcCommunicationChannel', () => {
       statisticsSubject.next(peerConnectionStatistics);
 
       expect(channel.getStatistics()).toEqual({
-        localSessionId: 'session-id',
+        localSession: {
+          sessionId: 'session-id',
+        },
         peerConnections: {
           'connection-id': peerConnectionStatistics,
         },
-        sessions: [],
+        sessions: {
+          'another-session-id': {
+            userId: '@another-user-id:example.com',
+          },
+        },
       });
       await expect(statisticsPromise).resolves.toEqual({
-        localSessionId: 'session-id',
+        localSession: {
+          sessionId: 'session-id',
+        },
         peerConnections: {
           'connection-id': peerConnectionStatistics,
         },
-        sessions: [],
+        sessions: {
+          'another-session-id': {
+            userId: '@another-user-id:example.com',
+          },
+        },
       });
     });
 
@@ -325,7 +339,9 @@ describe('WebRtcCommunicationChannel', () => {
     it('should add peer connections for joined sessions', async () => {
       expect(sessionManager.join).toHaveBeenCalledWith('whiteboard-id');
       expect(channel.getStatistics()).toMatchObject({
-        localSessionId: 'session-id',
+        localSession: {
+          sessionId: 'session-id',
+        },
       });
 
       joinedSubject.next(anotherSession);

@@ -136,13 +136,16 @@ describe('useActiveWhiteboardInstanceStatistics', () => {
 
     expect(result.current).toEqual({
       communicationChannel: {
-        localSessionId: 'own',
+        localSession: {
+          sessionId: 'own',
+        },
         peerConnections: {
           'peer-0': mockPeerConnectionStatistics(
             '@user-alice:example.com',
             'connected',
           ),
         },
+        sessions: {},
       },
     });
   });
@@ -166,19 +169,28 @@ describe('useActiveWhiteboardInstanceStatistics', () => {
 
     expect(result.current).toEqual({
       communicationChannel: {
-        localSessionId: 'own',
+        localSession: {
+          sessionId: 'own',
+        },
         peerConnections: {
           'peer-0': mockPeerConnectionStatistics(
             '@user-alice:example.com',
             'connected',
           ),
         },
+        sessions: {},
       },
     });
 
     act(() => {
       const whiteboardStatistics = {
-        communicationChannel: { localSessionId: 'own', peerConnections: {} },
+        communicationChannel: {
+          localSession: {
+            sessionId: 'own',
+          },
+          peerConnections: {},
+          sessions: {},
+        },
         document: {
           contentSizeInBytes: 0,
           documentSizeInBytes: 0,
@@ -192,7 +204,13 @@ describe('useActiveWhiteboardInstanceStatistics', () => {
     });
 
     expect(result.current).toEqual({
-      communicationChannel: { localSessionId: 'own', peerConnections: {} },
+      communicationChannel: {
+        localSession: {
+          sessionId: 'own',
+        },
+        peerConnections: {},
+        sessions: {},
+      },
       document: {
         contentSizeInBytes: 0,
         documentSizeInBytes: 0,

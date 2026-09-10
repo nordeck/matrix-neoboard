@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Nordeck IT + Consulting GmbH
+ * Copyright 2026 Nordeck IT + Consulting GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,55 +25,49 @@ import isError from 'lodash/isError';
 import last from 'lodash/last';
 import { bufferTime, filter } from 'rxjs';
 import {
-  isValidWhiteboardStateEvent,
-  STATE_EVENT_WHITEBOARD,
-  Whiteboard,
+  isValidWhiteboardRtcSlotEvent,
+  RtcSlot,
+  STATE_EVENT_4143_RTC_SLOT,
 } from '../../model';
 import { ThunkExtraArgument } from '../store';
 import { baseApi } from './baseApi';
 
-const whiteboardsEntityAdapter = createEntityAdapter<
-  StateEvent<Whiteboard>,
-  string
->({
-  selectId: (event: StateEvent<Whiteboard>) => event.state_key,
+const rtcSlotsEntityAdapter = createEntityAdapter<StateEvent<RtcSlot>, string>({
+  selectId: (event: StateEvent<RtcSlot>) => event.state_key,
   sortComparer: compareOriginServerTS,
 });
 
 /**
- * Endpoints to receive specific whiteboard.
+ * Endpoints to receive specific whiteboard rtc slot.
  *
  * @remarks This api extends the {@link baseApi} and should
  *          not be registered at the store.
  */
-export const whiteboardApi = baseApi.injectEndpoints({
+export const rtcSlotApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    /** Receive the list of all whiteboards in the current room */
-    getWhiteboards: builder.query<
-      EntityState<StateEvent<Whiteboard>, string>,
-      void
-    >({
+    /** Receive the list of all whiteboard rtc slots in the current room */
+    getRtcSlots: builder.query<EntityState<StateEvent<RtcSlot>, string>, void>({
       // do the initial loading
       async queryFn(_, { extra }) {
         const widgetApi = await (extra as ThunkExtraArgument).widgetApi;
 
         try {
-          const initialState = whiteboardsEntityAdapter.getInitialState();
+          const initialState = rtcSlotsEntityAdapter.getInitialState();
           const events = await widgetApi.receiveStateEvents(
-            STATE_EVENT_WHITEBOARD,
+            STATE_EVENT_4143_RTC_SLOT,
           );
 
           return {
-            data: whiteboardsEntityAdapter.addMany(
+            data: rtcSlotsEntityAdapter.addMany(
               initialState,
-              events.filter(isValidWhiteboardStateEvent),
+              events.filter(isValidWhiteboardRtcSlotEvent),
             ),
           };
         } catch (e) {
           return {
             error: {
               name: 'LoadFailed',
-              message: `Could not load whiteboards: ${
+              message: `Could not load whiteboard rtc slots: ${
                 isError(e) ? e.message : JSON.stringify(e)
               }`,
             },
@@ -93,24 +87,25 @@ export const whiteboardApi = baseApi.injectEndpoints({
         await cacheDataLoaded;
 
         const subscription = widgetApi
-          .observeStateEvents(STATE_EVENT_WHITEBOARD)
+          .observeStateEvents(STATE_EVENT_4143_RTC_SLOT)
           .pipe(
             bufferTime(0),
             filter((list) => list.length > 0),
           )
           .subscribe((events) => {
             // update the cached data if the event changes in the room
-            const eventsToUpdate = events.filter(isValidWhiteboardStateEvent);
+            const eventsToUpdate = events.filter(isValidWhiteboardRtcSlotEvent);
             const eventIdsToDelete = events
               .filter(
                 (e) =>
-                  e.type === STATE_EVENT_WHITEBOARD && isEqual(e.content, {}),
+                  e.type === STATE_EVENT_4143_RTC_SLOT &&
+                  isEqual(e.content, {}),
               )
               .map((e) => e.state_key);
 
             updateCachedData((state) => {
-              whiteboardsEntityAdapter.upsertMany(state, eventsToUpdate);
-              whiteboardsEntityAdapter.removeMany(state, eventIdsToDelete);
+              rtcSlotsEntityAdapter.upsertMany(state, eventsToUpdate);
+              rtcSlotsEntityAdapter.removeMany(state, eventIdsToDelete);
             });
           });
 
@@ -124,37 +119,37 @@ export const whiteboardApi = baseApi.injectEndpoints({
     /**
      * Update the whiteboard event in the current room.
      */
-    updateWhiteboard: builder.mutation<
-      { event: StateEvent<Whiteboard> },
-      { whiteboardId: string; content: Whiteboard }
+    updateRtcSlot: builder.mutation<
+      { event: StateEvent<RtcSlot> },
+      { slotId: string; content: RtcSlot }
     >({
-      async queryFn({ whiteboardId, content }, { extra }) {
+      async queryFn({ slotId, content }, { extra }) {
         const widgetApi = await (extra as ThunkExtraArgument).widgetApi;
 
         try {
-          const whiteboardEvents = await widgetApi.receiveStateEvents(
-            STATE_EVENT_WHITEBOARD,
-            { stateKey: whiteboardId },
+          const rtcSlotEvents = await widgetApi.receiveStateEvents(
+            STATE_EVENT_4143_RTC_SLOT,
+            { stateKey: slotId },
           );
-          const whiteboardEvent = last(
-            whiteboardEvents.filter(isValidWhiteboardStateEvent),
+          const rtcSlotEvent = last(
+            rtcSlotEvents.filter(isValidWhiteboardRtcSlotEvent),
           );
 
           // No recursive merge!
-          const whiteboard = {
-            ...(whiteboardEvent?.content ?? {}),
+          const rtcSlot = {
+            ...(rtcSlotEvent?.content ?? {}),
             ...content,
           };
 
-          if (whiteboardEvent && isEqual(whiteboardEvent.content, whiteboard)) {
+          if (rtcSlotEvent && isEqual(rtcSlotEvent.content, rtcSlot)) {
             // No change necessary
-            return { data: { event: whiteboardEvent } };
+            return { data: { event: rtcSlotEvent } };
           }
 
           const result = await widgetApi.sendStateEvent(
-            STATE_EVENT_WHITEBOARD,
-            whiteboard,
-            { stateKey: whiteboardId },
+            STATE_EVENT_4143_RTC_SLOT,
+            rtcSlot,
+            { stateKey: slotId },
           );
 
           if (widgetApi.widgetParameters.userId === undefined) {
@@ -164,9 +159,9 @@ export const whiteboardApi = baseApi.injectEndpoints({
           return {
             data: {
               event: makeEventFromSendStateEventResult(
-                STATE_EVENT_WHITEBOARD,
-                whiteboardId,
-                whiteboard,
+                STATE_EVENT_4143_RTC_SLOT,
+                slotId,
+                rtcSlot,
                 widgetApi.widgetParameters.userId,
                 result,
               ),
@@ -176,7 +171,7 @@ export const whiteboardApi = baseApi.injectEndpoints({
           return {
             error: {
               name: 'UpdateFailed',
-              message: `Could not update whiteboard: ${
+              message: `Could not update whiteboard rtc slot: ${
                 isError(e) ? e.message : e
               }`,
             },
@@ -188,10 +183,7 @@ export const whiteboardApi = baseApi.injectEndpoints({
 });
 
 // consume the store using the hooks generated by RTK Query
-export const { useGetWhiteboardsQuery, useUpdateWhiteboardMutation } =
-  whiteboardApi;
+export const { useGetRtcSlotsQuery, useUpdateRtcSlotMutation } = rtcSlotApi;
 
-export const {
-  selectAll: selectAllWhiteboards,
-  selectById: selectWhiteboardById,
-} = whiteboardsEntityAdapter.getSelectors();
+export const { selectAll: selectAllRtcSlots, selectById: selectRtcSlotById } =
+  rtcSlotsEntityAdapter.getSelectors();

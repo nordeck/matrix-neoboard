@@ -80,9 +80,12 @@ describe('WhiteboardSlideInstanceImpl', () => {
     communicationChannel = {
       broadcastMessage: vi.fn(),
       observeMessages: vi.fn().mockReturnValue(messageChannel),
-      getStatistics: vi
-        .fn()
-        .mockReturnValue({ localSessionId: 'own', peerConnections: {} }),
+      getStatistics: vi.fn().mockReturnValue({
+        localSession: {
+          sessionId: 'own',
+        },
+        peerConnections: {},
+      }),
       observeStatistics: vi.fn().mockReturnValue(observeStatisticsSubject),
       destroy: vi.fn(),
     };

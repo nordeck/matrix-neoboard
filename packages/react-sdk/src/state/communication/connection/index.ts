@@ -17,6 +17,7 @@
 export { MatrixRtcPeerConnection } from './matrixRtcPeerConnection';
 export type {
   Message,
+  MessageOptions,
   PeerConnection,
   PeerConnectionStatistics,
 } from './types';

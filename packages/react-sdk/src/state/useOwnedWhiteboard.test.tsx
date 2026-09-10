@@ -15,12 +15,13 @@
  */
 
 import { RoomEvent, StateEvent } from '@matrix-widget-toolkit/api';
+import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { WidgetApiMockProvider } from '@matrix-widget-toolkit/react';
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { renderHook, waitFor } from '@testing-library/react';
 import { ComponentType, PropsWithChildren, useState } from 'react';
 import { Provider } from 'react-redux';
-import { afterEach, beforeEach, describe, expect, it, test } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, test, vi } from 'vitest';
 import {
   mockDocumentCreate,
   mockPowerLevelsEvent,
@@ -33,11 +34,24 @@ import {
 import { createStore } from '../store';
 import { useOwnedWhiteboard } from './useOwnedWhiteboard';
 
+vi.mock('@matrix-widget-toolkit/mui', async () => ({
+  ...(await vi.importActual<typeof import('@matrix-widget-toolkit/mui')>(
+    '@matrix-widget-toolkit/mui',
+  )),
+  getEnvironment: vi.fn(),
+}));
+
 let widgetApi: MockedWidgetApi;
 
 afterEach(() => widgetApi.stop());
 
-beforeEach(() => (widgetApi = mockWidgetApi()));
+beforeEach(() => {
+  vi.mocked(getEnvironment).mockImplementation(
+    (_, defaultValue) => defaultValue,
+  );
+
+  widgetApi = mockWidgetApi();
+});
 
 describe('useOwnedWhiteboard', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
@@ -231,6 +245,131 @@ describe('useOwnedWhiteboard', () => {
       { documentId },
       { stateKey: 'widget-id' },
     );
+
+    await waitFor(() => {
+      expect(result.current).toEqual({
+        loading: false,
+        value: {
+          type: 'whiteboard',
+          event: mockWhiteboard({
+            content: { documentId },
+            event_id: expect.any(String),
+            origin_server_ts: expect.any(Number),
+            state_key: 'widget-id',
+          }),
+        },
+      });
+    });
+  });
+
+  it('should return an existing whiteboard and send a slot if slot is missing in MatrixRTC mode', async () => {
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+      name === 'REACT_APP_RTC' ? 'matrixrtc' : defaultValue,
+    );
+
+    widgetApi.mockSendStateEvent(mockPowerLevelsEvent());
+
+    const whiteboard = widgetApi.mockSendStateEvent(mockWhiteboard());
+
+    const { result } = renderHook(() => useOwnedWhiteboard(), {
+      wrapper: Wrapper,
+    });
+
+    expect(result.current).toEqual({ loading: true });
+
+    expect(widgetApi.sendRoomEvent).not.toHaveBeenCalledWith(
+      'net.nordeck.whiteboard.document.create',
+      expect.anything(),
+    );
+    expect(widgetApi.sendStateEvent).not.toHaveBeenCalledWith(
+      'net.nordeck.whiteboard',
+      expect.anything(),
+      expect.anything(),
+    );
+    await waitFor(() => {
+      expect(widgetApi.sendStateEvent).toHaveBeenCalledWith(
+        'org.matrix.msc4143.rtc.slot',
+        {
+          status: 'open',
+          application: {
+            type: 'net.nordeck.whiteboard',
+          },
+        },
+        { stateKey: 'net.nordeck.whiteboard#whiteboard-0' },
+      );
+    });
+
+    await waitFor(() => {
+      expect(result.current).toEqual({
+        loading: false,
+        value: {
+          type: 'whiteboard',
+          event: whiteboard,
+        },
+      });
+    });
+  });
+
+  it('should create a new document, snapshot, whiteboard and slot in MatrixRTC mode', async () => {
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+      name === 'REACT_APP_RTC' ? 'matrixrtc' : defaultValue,
+    );
+
+    widgetApi.mockSendStateEvent(mockPowerLevelsEvent());
+
+    const { result } = renderHook(() => useOwnedWhiteboard(), {
+      wrapper: Wrapper,
+    });
+
+    await waitFor(() => {
+      expect(result.current).toEqual({ loading: true });
+    });
+
+    expect(widgetApi.sendStateEvent).not.toHaveBeenCalledWith(
+      'm.room.power_levels',
+      {
+        events: { 'net.nordeck.whiteboard.sessions': 0 },
+        users_default: 100,
+      },
+    );
+
+    expect(widgetApi.sendRoomEvent).toHaveBeenCalledWith(
+      'net.nordeck.whiteboard.document.create',
+      {},
+    );
+
+    // Expect a snapshot with a chunk
+    expect(widgetApi.sendRoomEvent).toHaveBeenCalledWith(
+      ROOM_EVENT_DOCUMENT_SNAPSHOT,
+      expect.anything(),
+    );
+    expect(widgetApi.sendRoomEvent).toHaveBeenCalledWith(
+      ROOM_EVENT_DOCUMENT_CHUNK,
+      expect.anything(),
+    );
+
+    const documentId = await widgetApi.sendRoomEvent.mock.results[0].value.then(
+      (e: RoomEvent) => e.event_id,
+    );
+
+    expect(widgetApi.sendStateEvent).toHaveBeenCalledWith(
+      'net.nordeck.whiteboard',
+      { documentId },
+      { stateKey: 'widget-id' },
+    );
+
+    await waitFor(() => {
+      expect(widgetApi.sendStateEvent).toHaveBeenCalledWith(
+        'org.matrix.msc4143.rtc.slot',
+        {
+          status: 'open',
+          application: {
+            type: 'net.nordeck.whiteboard',
+          },
+        },
+        { stateKey: 'net.nordeck.whiteboard#widget-id' },
+      );
+    });
 
     await waitFor(() => {
       expect(result.current).toEqual({

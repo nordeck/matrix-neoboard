@@ -14,48 +14,72 @@
  * limitations under the License.
  */
 
-import { ConnectionState, RoomEvent } from 'livekit-client';
-import { bufferTime, firstValueFrom, toArray } from 'rxjs';
+import {
+  ConnectionState,
+  RemoteParticipant,
+  Room,
+  RoomEvent,
+} from 'livekit-client';
+import { firstValueFrom, toArray } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   MockLivekitRoom,
   mockLivekitRoom,
-} from '../../../lib/testUtils/matrixRtcMock';
-import { Session } from '../discovery';
-import { SFUConfig } from '../matrixRtcCommunicationChannel';
+} from '../../../lib/testUtils/livekitMock';
 import { MatrixRtcPeerConnection } from './matrixRtcPeerConnection';
 
+vi.mock('livekit-client', async () => ({
+  ...(await vi.importActual('livekit-client')),
+  Room: vi.fn(),
+}));
+
 describe('MatrixRtcPeerConnection', () => {
+  let remoteParticipants: Map<string, RemoteParticipant>;
   let mockRoom: MockLivekitRoom;
-  const session: Session = {
-    sessionId: 'session-a',
-    userId: '@user-id:example.com',
-  };
-  const sfuConfig: SFUConfig = {
-    url: 'wss://livekit-server',
-    jwt: 'dummy-jwt',
-  };
+  let livekitServiceUrl: string;
+  let livekitUrl: string;
+  let livekitToken: string;
+  let getUserId: (sessionId: string) => string | undefined;
 
   beforeEach(() => {
-    vi.stubEnv('REACT_APP_RTC', 'matrixrtc');
-    mockRoom = mockLivekitRoom();
+    remoteParticipants = new Map<string, RemoteParticipant>();
+    mockRoom = mockLivekitRoom({
+      remoteParticipants,
+    });
+    livekitServiceUrl = 'https://livekit-jwt.example.com';
+    livekitUrl = 'wss://livekit-server';
+    livekitToken = 'dummy-jwt';
+    getUserId = vi.fn().mockImplementation((sessionId) => {
+      if (sessionId === 'sBDICto7qQGve1yoevllcuYOnxSoJ9wpRP6XJ8e1rB0') {
+        return '@another-user-id:example.com';
+      } else if (sessionId === 'J+T45tGruxc+HrUOqJJlyQSV33m728Cme4+vt8/SWrU') {
+        return '@alice:example.com';
+      }
+
+      return undefined;
+    });
+    vi.mocked(Room).mockImplementation(() => mockRoom);
   });
 
-  afterEach(() => {
-    vi.unstubAllEnvs();
-  });
-
-  it('should try to connect to LiveKit on creation', async () => {
-    const connection = new MatrixRtcPeerConnection(session, sfuConfig);
-    const spy = vi.spyOn(connection.room, 'connect');
-
-    await vi.waitFor(() => expect(spy).toHaveBeenCalledOnce());
+  it('should connect on creation', async () => {
+    const connection = new MatrixRtcPeerConnection(
+      livekitServiceUrl,
+      livekitUrl,
+      livekitToken,
+      getUserId,
+    );
+    expect(mockRoom.connect).toHaveBeenCalledOnce();
 
     connection.close();
   });
 
   it('should close connection', async () => {
-    const connection = new MatrixRtcPeerConnection(session, sfuConfig);
+    const connection = new MatrixRtcPeerConnection(
+      livekitServiceUrl,
+      livekitUrl,
+      livekitToken,
+      getUserId,
+    );
 
     const statisticsPromise = firstValueFrom(
       connection.observeStatistics().pipe(toArray()),
@@ -74,16 +98,12 @@ describe('MatrixRtcPeerConnection', () => {
     let connection: MatrixRtcPeerConnection;
 
     beforeEach(() => {
-      connection = new MatrixRtcPeerConnection(session, sfuConfig);
-
-      Object.defineProperty(connection, 'room', {
-        value: mockRoom,
-        writable: false,
-      });
-
-      mockRoom.eventEmitter.on(RoomEvent.DataReceived, (...args) => {
-        connection.handleDataReceived(args[0], args[1]);
-      });
+      connection = new MatrixRtcPeerConnection(
+        livekitServiceUrl,
+        livekitUrl,
+        livekitToken,
+        getUserId,
+      );
     });
 
     afterEach(() => {
@@ -103,124 +123,150 @@ describe('MatrixRtcPeerConnection', () => {
 
       const messagePromise = firstValueFrom(connection.observeMessages());
 
-      const validMessageData = {
+      const message = {
         type: 'com.example.test',
         content: { key: 'value', nested: { prop: true } },
       };
 
-      const encodedData = new TextEncoder().encode(
-        JSON.stringify(validMessageData),
-      );
+      const encodedData = new TextEncoder().encode(JSON.stringify(message));
 
-      const mockParticipant = {
-        identity: '@remote-user-id:example.com:6jjRubIAWv',
-        sid: 'remote-session-id',
+      const participant: Partial<RemoteParticipant> = {
+        identity: 'sBDICto7qQGve1yoevllcuYOnxSoJ9wpRP6XJ8e1rB0',
       };
 
-      mockRoom.emitEvent(RoomEvent.DataReceived, encodedData, mockParticipant);
+      mockRoom.emitEvent(RoomEvent.DataReceived, encodedData, participant);
 
       await expect(messagePromise).resolves.toEqual({
+        senderSessionId: 'sBDICto7qQGve1yoevllcuYOnxSoJ9wpRP6XJ8e1rB0',
+        senderUserId: '@another-user-id:example.com',
         type: 'com.example.test',
         content: { key: 'value', nested: { prop: true } },
-        senderSessionId: '_@remote-user-id:example.com_6jjRubIAWv',
-        senderUserId: '@remote-user-id:example.com',
       });
     });
 
-    it('should not receive message with invalid participant identity', async () => {
+    it('should ignore message if no session for participant identity', async () => {
       mockRoom.setConnectionState(ConnectionState.Connected);
 
       const messagePromise = firstValueFrom(connection.observeMessages());
 
-      const validMessageData = {
+      const message = {
         type: 'com.example.test',
         content: { key: 'value', nested: { prop: true } },
       };
 
-      const encodedData = new TextEncoder().encode(
-        JSON.stringify(validMessageData),
-      );
+      const encodedData = new TextEncoder().encode(JSON.stringify(message));
 
       mockRoom.emitEvent(RoomEvent.DataReceived, encodedData, {
-        identity: '@remote-user-id',
-        sid: 'remote-session-id',
+        identity: 'unexpected-identity',
       });
       mockRoom.emitEvent(RoomEvent.DataReceived, encodedData, {
-        identity: '@remote-user-id:example.com:6jjRubIAWv',
-        sid: 'remote-session-id',
+        identity: 'sBDICto7qQGve1yoevllcuYOnxSoJ9wpRP6XJ8e1rB0',
       });
 
       await expect(messagePromise).resolves.toEqual({
+        senderSessionId: 'sBDICto7qQGve1yoevllcuYOnxSoJ9wpRP6XJ8e1rB0',
+        senderUserId: '@another-user-id:example.com',
         type: 'com.example.test',
         content: { key: 'value', nested: { prop: true } },
-        senderSessionId: '_@remote-user-id:example.com_6jjRubIAWv',
-        senderUserId: '@remote-user-id:example.com',
       });
     });
 
-    it('should ignore invalid payload JSON', async () => {
+    it('should ignore message if invalid', async () => {
       mockRoom.setConnectionState(ConnectionState.Connected);
 
-      const messagePromise = firstValueFrom(
-        connection.observeMessages().pipe(bufferTime(100)),
-      );
+      const messagePromise = firstValueFrom(connection.observeMessages());
 
-      const mockParticipant = {
-        identity: '@remote-user-id:example.com',
-        sid: 'remote-session-id',
+      mockRoom.emitEvent(RoomEvent.DataReceived, 'invalid-data', {
+        identity: 'sBDICto7qQGve1yoevllcuYOnxSoJ9wpRP6XJ8e1rB0',
+      });
+
+      const message = {
+        type: 'com.example.test',
+        content: { key: 'value', nested: { prop: true } },
       };
 
-      mockRoom.emitEvent(
-        RoomEvent.DataReceived,
-        'invalid-data',
-        mockParticipant,
-      );
+      const encodedData = new TextEncoder().encode(JSON.stringify(message));
 
-      await expect(messagePromise).resolves.toEqual([]);
+      mockRoom.emitEvent(RoomEvent.DataReceived, encodedData, {
+        identity: 'sBDICto7qQGve1yoevllcuYOnxSoJ9wpRP6XJ8e1rB0',
+      });
+
+      await expect(messagePromise).resolves.toEqual({
+        senderSessionId: 'sBDICto7qQGve1yoevllcuYOnxSoJ9wpRP6XJ8e1rB0',
+        senderUserId: '@another-user-id:example.com',
+        type: 'com.example.test',
+        content: { key: 'value', nested: { prop: true } },
+      });
     });
 
     it('should ignore invalid payload schema', async () => {
       mockRoom.setConnectionState(ConnectionState.Connected);
 
-      const messagePromise = firstValueFrom(
-        connection.observeMessages().pipe(bufferTime(100)),
-      );
+      const messagePromise = firstValueFrom(connection.observeMessages());
 
-      const mockParticipant = {
-        identity: '@remote-user-id:example.com',
-        sid: 'remote-session-id',
+      mockRoom.emitEvent(RoomEvent.DataReceived, '{}', {
+        identity: 'sBDICto7qQGve1yoevllcuYOnxSoJ9wpRP6XJ8e1rB0',
+      });
+
+      const message = {
+        type: 'com.example.test',
+        content: { key: 'value', nested: { prop: true } },
       };
 
-      mockRoom.emitEvent(RoomEvent.DataReceived, '{}', mockParticipant);
+      const encodedData = new TextEncoder().encode(JSON.stringify(message));
 
-      await expect(messagePromise).resolves.toEqual([]);
+      mockRoom.emitEvent(RoomEvent.DataReceived, encodedData, {
+        identity: 'sBDICto7qQGve1yoevllcuYOnxSoJ9wpRP6XJ8e1rB0',
+      });
+
+      await expect(messagePromise).resolves.toEqual({
+        senderSessionId: 'sBDICto7qQGve1yoevllcuYOnxSoJ9wpRP6XJ8e1rB0',
+        senderUserId: '@another-user-id:example.com',
+        type: 'com.example.test',
+        content: { key: 'value', nested: { prop: true } },
+      });
     });
   });
 
-  describe('statistics and connection state', () => {
+  describe('statistics', () => {
     let connection: MatrixRtcPeerConnection;
 
     beforeEach(() => {
-      connection = new MatrixRtcPeerConnection(session, sfuConfig);
+      const identity = 'sBDICto7qQGve1yoevllcuYOnxSoJ9wpRP6XJ8e1rB0';
+      const participant: Partial<RemoteParticipant> = {
+        identity,
+      };
+      remoteParticipants.set(identity, participant as RemoteParticipant);
 
-      Object.defineProperty(connection, 'room', {
-        value: mockRoom,
-        writable: false,
-      });
+      mockRoom.emitEvent(RoomEvent.ParticipantConnected, participant);
 
-      mockRoom.eventEmitter.on(RoomEvent.ConnectionStateChanged, (...args) => {
-        connection.updateStatistics({ connectionState: args[0] });
-      });
+      connection = new MatrixRtcPeerConnection(
+        livekitServiceUrl,
+        livekitUrl,
+        livekitToken,
+        getUserId,
+      );
     });
 
     afterEach(() => {
       connection.close();
     });
 
+    it('should connect on creation and emit statistics with remote identity and participants', async () => {
+      const statisticsPromise = firstValueFrom(connection.observeStatistics());
+
+      await expect(statisticsPromise).resolves.toMatchObject({
+        localParticipantIdentity: 'vtdiVgWoeLb2NR7dph94uv/R4+U6uQTmCYE9Q0BlgUw',
+        remoteParticipantIdentities: [
+          'sBDICto7qQGve1yoevllcuYOnxSoJ9wpRP6XJ8e1rB0',
+        ],
+      });
+    });
+
     it('should handle connection state changes', async () => {
       const connectionStates: string[] = [];
       const subscription = connection.observeStatistics().subscribe((stats) => {
-        connectionStates.push(stats.connectionState as string);
+        connectionStates.push(stats.connectionState);
       });
 
       mockRoom.setConnectionState(ConnectionState.Connected);
@@ -234,6 +280,25 @@ describe('MatrixRtcPeerConnection', () => {
       });
 
       subscription.unsubscribe();
+    });
+
+    it('should handle remote participants changes', async () => {
+      const statisticsPromise = firstValueFrom(connection.observeStatistics());
+
+      const identity = 'J+T45tGruxc+HrUOqJJlyQSV33m728Cme4+vt8/SWrU';
+      const participant: Partial<RemoteParticipant> = {
+        identity,
+      };
+      remoteParticipants.set(identity, participant as RemoteParticipant);
+
+      mockRoom.emitEvent(RoomEvent.ParticipantConnected, participant);
+
+      await expect(statisticsPromise).resolves.toMatchObject({
+        remoteParticipantIdentities: [
+          'sBDICto7qQGve1yoevllcuYOnxSoJ9wpRP6XJ8e1rB0',
+          'J+T45tGruxc+HrUOqJJlyQSV33m728Cme4+vt8/SWrU',
+        ],
+      });
     });
 
     it('should disconnect on peer close', async () => {

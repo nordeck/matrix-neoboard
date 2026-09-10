@@ -139,23 +139,29 @@ export function mockWhiteboardManager(
     broadcastMessage: vi.fn(),
     observeMessages: vi.fn(() => messageSubject),
     getStatistics: vi.fn(() => ({
-      localSessionId: 'own',
+      localSession: {
+        sessionId: 'own',
+      },
       peerConnections: {
         'peer-0': mockPeerConnectionStatistics(
           '@user-alice:example.com',
           'connected',
         ),
       },
+      sessions: {},
     })),
     observeStatistics: vi.fn(() =>
       of({
-        localSessionId: 'own',
+        localSession: {
+          sessionId: 'own',
+        },
         peerConnections: {
           'peer-0': mockPeerConnectionStatistics(
             '@user-alice:example.com',
             'connected',
           ),
         },
+        sessions: {},
       }),
     ),
     destroy: vi.fn(),
@@ -294,11 +300,13 @@ export function mockPeerConnectionStatistics(
   remoteUserId: string,
   connectionState: string,
   remoteSessionId: string = 'other',
+  remoteParticipantIdentities?: string[],
 ): PeerConnectionStatistics {
   return {
     remoteUserId,
     connectionState,
     remoteSessionId,
+    remoteParticipantIdentities,
     impolite: true,
     bytesReceived: 0,
     bytesSent: 0,

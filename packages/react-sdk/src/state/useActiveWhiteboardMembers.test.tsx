@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { renderHook } from '@testing-library/react';
 import { act, ComponentType, PropsWithChildren } from 'react';
@@ -27,7 +28,6 @@ import {
   Mocked,
   vi,
 } from 'vitest';
-import * as constants from '../components/Whiteboard/constants';
 import {
   mockPeerConnectionStatistics,
   mockWhiteboardManager,
@@ -36,11 +36,22 @@ import {
 import { WhiteboardManager, WhiteboardStatistics } from './types';
 import { useActiveWhiteboardMembers } from './useActiveWhiteboardMembers';
 
+vi.mock('@matrix-widget-toolkit/mui', async () => ({
+  ...(await vi.importActual<typeof import('@matrix-widget-toolkit/mui')>(
+    '@matrix-widget-toolkit/mui',
+  )),
+  getEnvironment: vi.fn(),
+}));
+
 let widgetApi: MockedWidgetApi;
 
 afterEach(() => widgetApi.stop());
 
 beforeEach(() => {
+  vi.mocked(getEnvironment).mockImplementation(
+    (_, defaultValue) => defaultValue,
+  );
+
   widgetApi = mockWidgetApi();
 });
 
@@ -67,8 +78,11 @@ describe('useActiveWhiteboardMembers', () => {
     it('should return no members', () => {
       const statistics = {
         communicationChannel: {
-          localSessionId: 'own',
+          localSession: {
+            sessionId: 'own',
+          },
           peerConnections: {},
+          sessions: {},
         },
         document: {
           contentSizeInBytes: 0,
@@ -96,7 +110,9 @@ describe('useActiveWhiteboardMembers', () => {
     it('should return active members', () => {
       const statistics = {
         communicationChannel: {
-          localSessionId: 'own',
+          localSession: {
+            sessionId: 'own',
+          },
           peerConnections: {
             'peer-0': mockPeerConnectionStatistics(
               '@user-0:example.com',
@@ -121,6 +137,7 @@ describe('useActiveWhiteboardMembers', () => {
               'failed',
             ),
           },
+          sessions: {},
         },
         document: {
           contentSizeInBytes: 0,
@@ -151,13 +168,16 @@ describe('useActiveWhiteboardMembers', () => {
     it('should update the active members if the statistics change', () => {
       let statistics: WhiteboardStatistics = {
         communicationChannel: {
-          localSessionId: 'own',
+          localSession: {
+            sessionId: 'own',
+          },
           peerConnections: {
             'peer-0': mockPeerConnectionStatistics(
               '@user-0:example.com',
               'connected',
             ),
           },
+          sessions: {},
         },
         document: {
           contentSizeInBytes: 0,
@@ -188,7 +208,9 @@ describe('useActiveWhiteboardMembers', () => {
       act(() => {
         statistics = {
           communicationChannel: {
-            localSessionId: 'own',
+            localSession: {
+              sessionId: 'own',
+            },
             peerConnections: {
               'peer-0': mockPeerConnectionStatistics(
                 '@user-0:example.com',
@@ -213,6 +235,7 @@ describe('useActiveWhiteboardMembers', () => {
                 'failed',
               ),
             },
+            sessions: {},
           },
           document: {
             contentSizeInBytes: 0,
@@ -235,7 +258,9 @@ describe('useActiveWhiteboardMembers', () => {
 
   describe('MatrixRTC mode', () => {
     beforeEach(() => {
-      vi.spyOn(constants, 'matrixRtcMode', 'get').mockReturnValue(true);
+      vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+        name === 'REACT_APP_RTC' ? 'matrixrtc' : defaultValue,
+      );
     });
 
     afterEach(() => {
@@ -245,9 +270,11 @@ describe('useActiveWhiteboardMembers', () => {
     it('should return no members', () => {
       const statistics = {
         communicationChannel: {
-          localSessionId: 'own',
+          localSession: {
+            sessionId: 'own',
+          },
           peerConnections: {},
-          sessions: [],
+          sessions: {},
         },
         document: {
           contentSizeInBytes: 0,
@@ -273,24 +300,27 @@ describe('useActiveWhiteboardMembers', () => {
     });
 
     it('should return active members', () => {
-      const statistics = {
+      const statistics: WhiteboardStatistics = {
         communicationChannel: {
-          localSessionId: 'own',
-          peerConnections: {},
-          sessions: [
-            {
+          localSession: {
+            sessionId: 'own',
+          },
+          peerConnections: {
+            'https://livekit-jwt.example.com': mockPeerConnectionStatistics(
+              '@user:example.com',
+              'connected',
+              'other',
+              ['session-0', 'session-1'],
+            ),
+          },
+          sessions: {
+            'session-0': {
               userId: '@user-0:example.com',
-              expiresTs: Date.now() + 1000,
-              sessionId: 'session-0',
-              whiteboardId: 'whiteboard-id',
             },
-            {
+            'session-1': {
               userId: '@user-1:example.com',
-              expiresTs: Date.now() + 1000,
-              sessionId: 'session-1',
-              whiteboardId: 'whiteboard-id',
             },
-          ],
+          },
         },
         document: {
           contentSizeInBytes: 0,
@@ -321,16 +351,22 @@ describe('useActiveWhiteboardMembers', () => {
     it('should update the active members if the statistics change', () => {
       let statistics: WhiteboardStatistics = {
         communicationChannel: {
-          localSessionId: 'own',
-          peerConnections: {},
-          sessions: [
-            {
+          localSession: {
+            sessionId: 'own',
+          },
+          peerConnections: {
+            'https://livekit-jwt.example.com': mockPeerConnectionStatistics(
+              '@user:example.com',
+              'connected',
+              'other',
+              ['session-0'],
+            ),
+          },
+          sessions: {
+            'session-0': {
               userId: '@user-0:example.com',
-              expiresTs: Date.now() + 1000,
-              sessionId: 'session-0',
-              whiteboardId: 'whiteboard-id',
             },
-          ],
+          },
         },
         document: {
           contentSizeInBytes: 0,
@@ -361,22 +397,25 @@ describe('useActiveWhiteboardMembers', () => {
       act(() => {
         statistics = {
           communicationChannel: {
-            localSessionId: 'own',
-            peerConnections: {},
-            sessions: [
-              {
+            localSession: {
+              sessionId: 'own',
+            },
+            peerConnections: {
+              'https://livekit-jwt.example.com': mockPeerConnectionStatistics(
+                '@user:example.com',
+                'connected',
+                'other',
+                ['session-0', 'session-1'],
+              ),
+            },
+            sessions: {
+              'session-0': {
                 userId: '@user-0:example.com',
-                expiresTs: Date.now() + 1000,
-                sessionId: 'session-0',
-                whiteboardId: 'whiteboard-id',
               },
-              {
+              'session-1': {
                 userId: '@user-1:example.com',
-                expiresTs: Date.now() + 1000,
-                sessionId: 'session-1',
-                whiteboardId: 'whiteboard-id',
               },
-            ],
+            },
           },
           document: {
             contentSizeInBytes: 0,

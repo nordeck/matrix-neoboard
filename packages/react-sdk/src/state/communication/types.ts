@@ -15,30 +15,48 @@
  */
 
 import { Observable } from 'rxjs';
-import { Message, PeerConnectionStatistics } from './connection';
-import { SessionState } from './discovery/sessionManagerImpl';
+import {
+  Message,
+  MessageOptions,
+  PeerConnectionStatistics,
+} from './connection';
 
 export type { Message, PeerConnectionStatistics } from './connection';
 
 export type CommunicationChannelStatistics = {
-  /** The local session id, if connected. */
-  localSessionId?: string;
+  /** The local session, if connected. */
+  localSession?: {
+    /** Session id */
+    sessionId: string;
+    /** Member id, if Matrix RTC session */
+    memberId?: string;
+    /** Livekit service URL, if Matrix RTC session */
+    livekitServiceUrl?: string;
+  };
   /** Statistics for each peer connection, indexed by the connection id. */
   peerConnections: Record<string, PeerConnectionStatistics>;
-  /**All sessions */
-  sessions?: SessionState[];
+  /** Sessions, indexed by session id */
+  sessions: Record<string, SessionStatistics>;
+};
+
+export type SessionStatistics = {
+  userId: string;
 };
 
 export function emptyCommunicationChannelStatistics(): CommunicationChannelStatistics {
   return {
     peerConnections: {},
-    sessions: [],
+    sessions: {},
   };
 }
 
 export type CommunicationChannel = {
   /** Sends a message to all connected peers. */
-  broadcastMessage<T = unknown>(type: string, content: T): void;
+  broadcastMessage<T = unknown>(
+    type: string,
+    content: T,
+    options?: MessageOptions,
+  ): void;
   /** Observe messages from all connected peers. */
   observeMessages(): Observable<Message>;
 

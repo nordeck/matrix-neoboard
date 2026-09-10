@@ -354,6 +354,7 @@ describe('<SideOverviewBar/>', () => {
     expect(communicationChannel.broadcastMessage).toHaveBeenCalledWith(
       'net.nordeck.whiteboard.focus_on',
       { slideId: 'slide-1' },
+      { reliable: true },
     );
   });
 

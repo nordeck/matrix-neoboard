@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -36,14 +37,24 @@ import {
 import { mockRoomMember } from '../../../lib/testUtils/matrixTestUtils';
 import { WhiteboardManager, WhiteboardStatistics } from '../../../state';
 import { Toolbar } from '../../common/Toolbar';
-import * as constants from '../../Whiteboard/constants';
 import { Collaborators } from './Collaborators';
+
+vi.mock('@matrix-widget-toolkit/mui', async () => ({
+  ...(await vi.importActual<typeof import('@matrix-widget-toolkit/mui')>(
+    '@matrix-widget-toolkit/mui',
+  )),
+  getEnvironment: vi.fn(),
+}));
 
 let widgetApi: MockedWidgetApi;
 
 afterEach(() => widgetApi.stop());
 
 beforeEach(() => {
+  vi.mocked(getEnvironment).mockImplementation(
+    (_, defaultValue) => defaultValue,
+  );
+
   widgetApi = mockWidgetApi();
 });
 
@@ -110,7 +121,9 @@ describe('<Collaborators>', () => {
 
     statistics = {
       communicationChannel: {
-        localSessionId: 'own',
+        localSession: {
+          sessionId: 'own',
+        },
         peerConnections: {
           'peer-0': mockPeerConnectionStatistics(
             '@user-bob:example.com',
@@ -141,50 +154,29 @@ describe('<Collaborators>', () => {
             'connected',
           ),
         },
-        sessions: [
-          {
+        sessions: {
+          'session-0': {
             userId: '@user-bob:example.com',
-            expiresTs: Date.now() + 1000,
-            sessionId: 'session-0',
-            whiteboardId: 'whiteboard-id',
           },
-          {
+          'session-1': {
             userId: '@user-charlie:example.com',
-            expiresTs: Date.now() - 1000,
-            sessionId: 'session-1',
-            whiteboardId: 'whiteboard-id',
           },
-          {
+          'session-2': {
             userId: '@user-dave:example.com',
-            expiresTs: Date.now() - 1000,
-            sessionId: 'session-2',
-            whiteboardId: 'whiteboard-id',
           },
-          {
+          'session-3': {
             userId: '@user-erin:example.com',
-            expiresTs: Date.now() + 1000,
-            sessionId: 'session-3',
-            whiteboardId: 'whiteboard-id',
           },
-          {
+          'session-4': {
             userId: '@user-frank:example.com',
-            expiresTs: Date.now() + 1000,
-            sessionId: 'session-4',
-            whiteboardId: 'whiteboard-id',
           },
-          {
+          'session-5': {
             userId: '@user-grace:example.com',
-            expiresTs: Date.now() + 1000,
-            sessionId: 'session-5',
-            whiteboardId: 'whiteboard-id',
           },
-          {
+          'session-6': {
             userId: '@user-heidi:example.com',
-            expiresTs: Date.now() + 1000,
-            sessionId: 'session-6',
-            whiteboardId: 'whiteboard-id',
           },
-        ],
+        },
       },
       document: {
         contentSizeInBytes: 0,
@@ -380,7 +372,9 @@ describe('<Collaborators>', () => {
 
   describe('MatrixRTC mode', () => {
     beforeEach(() => {
-      vi.spyOn(constants, 'matrixRtcMode', 'get').mockReturnValue(true);
+      vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+        name === 'REACT_APP_RTC' ? 'matrixrtc' : defaultValue,
+      );
     });
 
     afterEach(() => {
@@ -388,32 +382,22 @@ describe('<Collaborators>', () => {
     });
 
     it('should show active users', async () => {
-      statistics.communicationChannel.sessions = [
-        {
+      statistics.communicationChannel.peerConnections = {
+        'https://livekit-jwt.example.com': mockPeerConnectionStatistics(
+          '@user:example.com',
+          'connected',
+          'other',
+          ['session-0', 'session-3'],
+        ),
+      };
+      statistics.communicationChannel.sessions = {
+        'session-0': {
           userId: '@user-bob:example.com',
-          expiresTs: Date.now() + 1000,
-          sessionId: 'session-0',
-          whiteboardId: 'whiteboard-id',
         },
-        {
-          userId: '@user-charlie:example.com',
-          expiresTs: Date.now() - 1000,
-          sessionId: 'session-1',
-          whiteboardId: 'whiteboard-id',
-        },
-        {
-          userId: '@user-dave:example.com',
-          expiresTs: Date.now() - 1000,
-          sessionId: 'session-2',
-          whiteboardId: 'whiteboard-id',
-        },
-        {
+        'session-3': {
           userId: '@user-erin:example.com',
-          expiresTs: Date.now() + 1000,
-          sessionId: 'session-3',
-          whiteboardId: 'whiteboard-id',
         },
-      ];
+      };
 
       render(<Collaborators />, { wrapper: Wrapper });
 
@@ -429,6 +413,14 @@ describe('<Collaborators>', () => {
     });
 
     it('should show more button for more than six users', async () => {
+      statistics.communicationChannel.peerConnections = {
+        'https://livekit-jwt.example.com': mockPeerConnectionStatistics(
+          '@user:example.com',
+          'connected',
+          'other',
+          ['session-0', 'session-3', 'session-4', 'session-5', 'session-6'],
+        ),
+      };
       render(<Collaborators />, { wrapper: Wrapper });
 
       const group = screen.getByRole('group', { name: 'Collaborators' });
@@ -456,50 +448,41 @@ describe('<Collaborators>', () => {
     });
 
     it('should show more button for more users', async () => {
-      statistics.communicationChannel.sessions = [
-        {
+      statistics.communicationChannel.peerConnections = {
+        'https://livekit-jwt.example.com': mockPeerConnectionStatistics(
+          '@user:example.com',
+          'connected',
+          'other',
+          [
+            'session-0',
+            'session-2',
+            'session-3',
+            'session-4',
+            'session-5',
+            'session-6',
+          ],
+        ),
+      };
+      statistics.communicationChannel.sessions = {
+        'session-0': {
           userId: '@user-bob:example.com',
-          expiresTs: Date.now() + 1000,
-          sessionId: 'session-0',
-          whiteboardId: 'whiteboard-id',
         },
-        {
-          userId: '@user-charlie:example.com',
-          expiresTs: Date.now() - 1000,
-          sessionId: 'session-1',
-          whiteboardId: 'whiteboard-id',
-        },
-        {
+        'session-2': {
           userId: '@user-dave:example.com',
-          expiresTs: Date.now() + 1000,
-          sessionId: 'session-2',
-          whiteboardId: 'whiteboard-id',
         },
-        {
+        'session-3': {
           userId: '@user-erin:example.com',
-          expiresTs: Date.now() + 1000,
-          sessionId: 'session-3',
-          whiteboardId: 'whiteboard-id',
         },
-        {
+        'session-4': {
           userId: '@user-frank:example.com',
-          expiresTs: Date.now() + 1000,
-          sessionId: 'session-4',
-          whiteboardId: 'whiteboard-id',
         },
-        {
+        'session-5': {
           userId: '@user-grace:example.com',
-          expiresTs: Date.now() + 1000,
-          sessionId: 'session-5',
-          whiteboardId: 'whiteboard-id',
         },
-        {
+        'session-6': {
           userId: '@user-heidi:example.com',
-          expiresTs: Date.now() + 1000,
-          sessionId: 'session-6',
-          whiteboardId: 'whiteboard-id',
         },
-      ];
+      };
 
       render(<Collaborators />, { wrapper: Wrapper });
 

@@ -15,4 +15,6 @@
  */
 
 export { convertMxcToHttpUrl } from './convertMxcToHttpUrl';
+export { getServerNameFromUserId } from './getServerNameFromUserId';
+export { matrixRtcParticipantIdentity } from './matrixRtcParticipantIdentity';
 export { WidgetApiActionError } from './WidgetApiActionError';

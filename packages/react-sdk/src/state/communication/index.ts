@@ -23,5 +23,6 @@ export type {
   CommunicationChannelStatistics,
   Message,
   PeerConnectionStatistics,
+  SessionStatistics,
 } from './types';
 export { WebRtcCommunicationChannel } from './webRtcCommunicationChannel';

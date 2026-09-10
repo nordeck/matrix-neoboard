@@ -16,7 +16,6 @@
 
 import { getRoomMemberDisplayName } from '@matrix-widget-toolkit/api';
 import { useCallback } from 'react';
-import { normalizeMatrixUserId } from '../../lib/matrixRtcMode';
 import {
   selectRoomMember,
   selectRoomMembers,
@@ -36,7 +35,6 @@ export function useUserDetails(): UseUserDetailsReturn {
 
   const getUserDisplayName = useCallback(
     (userId: string) => {
-      userId = normalizeMatrixUserId(userId);
       const memberEvent = roomMembers
         ? selectRoomMember(roomMembers, userId)
         : undefined;

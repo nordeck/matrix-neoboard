@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Nordeck IT + Consulting GmbH
+ * Copyright 2026 Nordeck IT + Consulting GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,10 @@
  * limitations under the License.
  */
 
-import { getEnvironment } from '@matrix-widget-toolkit/mui';
-
-export function isMatrixRtcMode(): boolean {
-  return getEnvironment('REACT_APP_RTC') === 'matrixrtc';
-}
-
-export function normalizeMatrixUserId(userId: string): string {
-  if (isMatrixRtcMode()) {
-    // in MatrixRTC mode, the userId has an additional livekit session component
-    // so we remove it (ie. @user:domain:sessionId -> @user:domain)
-    userId = userId.split(':', 2).join(':');
-  }
-  return userId;
+/**
+ * Gets a server name from user id, example: @user-id:example.com -> example.com
+ * @param userId matrix user id
+ */
+export function getServerNameFromUserId(userId: string): string {
+  return userId.split(':').splice(1).join(':');
 }

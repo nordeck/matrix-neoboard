@@ -16,7 +16,7 @@
 
 import { StateEvent, WidgetApi } from '@matrix-widget-toolkit/api';
 import { BehaviorSubject } from 'rxjs';
-import { matrixRtcMode } from '../components/Whiteboard';
+import { isMatrixRtcMode } from '../lib';
 import { Whiteboard } from '../model';
 import { StoreType } from '../store';
 import {
@@ -48,6 +48,7 @@ export class WhiteboardManagerImpl implements WhiteboardManager {
   selectActiveWhiteboardInstance(
     whiteboardEvent: StateEvent<Whiteboard>,
     userId: string,
+    documentReadonly?: boolean,
   ) {
     if (
       this.activeWhiteboardSubject.value?.getWhiteboardId() !==
@@ -62,6 +63,7 @@ export class WhiteboardManagerImpl implements WhiteboardManager {
           this.signalingChannel,
           whiteboardEvent,
           userId,
+          documentReadonly,
         ),
       );
     }
@@ -91,16 +93,18 @@ export function createWhiteboardManager(
   let sessionManager: SessionManager | undefined;
   let signalingChannel: SignalingChannel | undefined;
 
+  const matrixRtcMode = isMatrixRtcMode();
   if (!disableRtc) {
-    // Initialize signaling channel only for P2P WebRTC mode
     if (!matrixRtcMode) {
       signalingChannel = new ToDeviceMessageSignalingChannel(widgetApiPromise);
     }
 
     // Initialize session manager based on RTC mode
-    sessionManager = matrixRtcMode
-      ? new MatrixRtcSessionManagerImpl(widgetApiPromise)
-      : new SessionManagerImpl(widgetApiPromise);
+    if (matrixRtcMode) {
+      sessionManager = new MatrixRtcSessionManagerImpl(widgetApiPromise);
+    } else {
+      sessionManager = new SessionManagerImpl(widgetApiPromise);
+    }
   }
 
   return new WhiteboardManagerImpl(

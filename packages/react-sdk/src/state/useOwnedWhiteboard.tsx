@@ -19,21 +19,19 @@ import { useWidgetApi } from '@matrix-widget-toolkit/react';
 import first from 'lodash/first';
 import loglevel from 'loglevel';
 import { useAsync } from 'react-use';
-import { matrixRtcMode } from '../components/Whiteboard';
-import { isInfiniteCanvasMode } from '../lib';
-import {
-  STATE_EVENT_RTC_MEMBER,
-  STATE_EVENT_WHITEBOARD_SESSIONS,
-  Whiteboard,
-} from '../model';
+import { isInfiniteCanvasMode, isMatrixRtcMode } from '../lib';
+import { RtcSlot, STATE_EVENT_WHITEBOARD_SESSIONS, Whiteboard } from '../model';
 import { useAppDispatch } from '../store';
 import {
   documentSnapshotApi,
   selectAllWhiteboards,
+  selectRtcSlotById,
   selectWhiteboardById,
   useCreateDocumentMutation,
+  useGetRtcSlotsQuery,
   useGetWhiteboardsQuery,
   usePatchPowerLevelsMutation,
+  useUpdateRtcSlotMutation,
   useUpdateWhiteboardMutation,
 } from '../store/api';
 import { usePowerLevels } from '../store/api/usePowerLevels';
@@ -58,6 +56,7 @@ export function useOwnedWhiteboard(): UseOwnedWhiteboardResponse {
   const dispatch = useAppDispatch();
   const [createDocument] = useCreateDocumentMutation();
   const [updateWhiteboard] = useUpdateWhiteboardMutation();
+  const [updateRtcSlot] = useUpdateRtcSlotMutation();
   const [patchPowerLevels] = usePatchPowerLevelsMutation();
   const { canInitializeWhiteboard } = usePowerLevels();
 
@@ -67,11 +66,28 @@ export function useOwnedWhiteboard(): UseOwnedWhiteboardResponse {
     isError,
   } = useGetWhiteboardsQuery();
 
+  const {
+    data: rtcSlotsState,
+    isLoading: isRtcSlotApiLoading,
+    isError: isRtcSlotApiInError,
+  } = useGetRtcSlotsQuery(undefined, {
+    skip: !isMatrixRtcMode(),
+  });
+
   // TODO: Build UI to select the whiteboard to display it in the widget
   // For now we select the own / first whiteboard we find.
   const whiteboard = whiteboardsState
     ? (selectWhiteboardById(whiteboardsState, widgetApi.widgetId) ??
       first(selectAllWhiteboards(whiteboardsState)))
+    : undefined;
+
+  const rtcSlot = rtcSlotsState
+    ? whiteboard
+      ? selectRtcSlotById(
+          rtcSlotsState,
+          `net.nordeck.whiteboard#${whiteboard.state_key}`,
+        )
+      : undefined
     : undefined;
 
   const {
@@ -80,22 +96,21 @@ export function useOwnedWhiteboard(): UseOwnedWhiteboardResponse {
     error,
   } = useAsync(async () => {
     if (canInitializeWhiteboard && !whiteboard && !isLoading && !isError) {
-      try {
-        // TODO: We only set the power level once, if it's later changed we can't
-        // handle it. It would be better to show a UI to a moderator to repair
-        // the power level setting if it is wrong.
-        const sessionStateEvent = matrixRtcMode
-          ? STATE_EVENT_RTC_MEMBER
-          : STATE_EVENT_WHITEBOARD_SESSIONS;
-        await patchPowerLevels({
-          changes: {
-            events: {
-              [sessionStateEvent]: 0,
+      if (!isMatrixRtcMode()) {
+        try {
+          // TODO: We only set the power level once, if it's later changed we can't
+          // handle it. It would be better to show a UI to a moderator to repair
+          // the power level setting if it is wrong.
+          await patchPowerLevels({
+            changes: {
+              events: {
+                [STATE_EVENT_WHITEBOARD_SESSIONS]: 0,
+              },
             },
-          },
-        }).unwrap();
-      } catch (err) {
-        loglevel.error('could not configure power level', err);
+          }).unwrap();
+        } catch (err) {
+          loglevel.error('could not configure power level', err);
+        }
       }
 
       const documentId = (await createDocument().unwrap()).event.event_id;
@@ -113,14 +128,38 @@ export function useOwnedWhiteboard(): UseOwnedWhiteboardResponse {
         }),
       ).unwrap();
 
+      const whiteboardId = widgetApi.widgetId;
       const result = await updateWhiteboard({
-        whiteboardId: widgetApi.widgetId,
+        whiteboardId,
         content: {
           documentId,
         },
       }).unwrap();
 
       return result.event;
+    }
+
+    if (
+      isMatrixRtcMode() &&
+      canInitializeWhiteboard &&
+      whiteboard &&
+      !rtcSlot &&
+      !isLoading &&
+      !isError &&
+      !isRtcSlotApiLoading &&
+      !isRtcSlotApiInError
+    ) {
+      const whiteboardId = whiteboard.state_key;
+      const whiteboardRtcSlot: RtcSlot = {
+        status: 'open',
+        application: {
+          type: 'net.nordeck.whiteboard',
+        },
+      };
+      await updateRtcSlot({
+        slotId: `net.nordeck.whiteboard#${whiteboardId}`,
+        content: whiteboardRtcSlot,
+      });
     }
 
     return whiteboard;
@@ -130,6 +169,9 @@ export function useOwnedWhiteboard(): UseOwnedWhiteboardResponse {
     whiteboard,
     isLoading,
     isError,
+    rtcSlot,
+    isRtcSlotApiLoading,
+    isRtcSlotApiInError,
     !!canInitializeWhiteboard,
   ]);
 

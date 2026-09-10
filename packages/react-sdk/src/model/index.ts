@@ -35,16 +35,27 @@ export {
   isValidDocumentSnapshotRoomEvent,
 } from './documentSnapshot';
 export type { DocumentSnapshot } from './documentSnapshot';
-export {
-  STATE_EVENT_RTC_MEMBER,
-  isRTCSessionNotExpired,
-  isValidRTCSessionStateEvent,
-  isWhiteboardRTCSessionStateEvent,
-  newRTCSession,
-} from './matrixRtcSessions';
-export type { RTCSessionEventContent } from './matrixRtcSessions';
 export { STATE_EVENT_ROOM_NAME, isValidRoomNameEvent } from './roomNameEvent';
 export type { RoomNameEvent } from './roomNameEvent';
+export {
+  ROOM_EVENT_4143_RTC_MEMBER,
+  isLivekitTransport,
+  isRtcMemberJoinEvent,
+  isRtcMemberLeaveEvent,
+  isValidWhiteboardRtcMemberEvent,
+} from './rtcMember';
+export type {
+  LivekitTransport,
+  RtcMember,
+  RtcMemberJoin,
+  RtcMemberLeave,
+  Transport,
+} from './rtcMember';
+export {
+  STATE_EVENT_4143_RTC_SLOT,
+  isValidWhiteboardRtcSlotEvent,
+} from './rtcSlot';
+export type { RtcSlot } from './rtcSlot';
 export {
   STATE_EVENT_WHITEBOARD,
   isValidWhiteboardStateEvent,
