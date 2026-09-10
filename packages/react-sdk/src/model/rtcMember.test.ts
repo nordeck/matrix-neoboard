@@ -18,7 +18,7 @@ import { describe, expect, it } from 'vitest';
 import {
   isLivekitTransport,
   isValidWhiteboardRtcMemberEvent,
-} from './matrixRtcMember';
+} from './rtcMember';
 
 describe('isValidWhiteboardRtcMemberEvent', () => {
   it('should accept rtc member join event', () => {
