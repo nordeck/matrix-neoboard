@@ -49,13 +49,13 @@ export type {
   RtcMemberLeave,
   Transport,
 } from './matrixRtcMember';
+export { STATE_EVENT_ROOM_NAME, isValidRoomNameEvent } from './roomNameEvent';
+export type { RoomNameEvent } from './roomNameEvent';
 export {
   STATE_EVENT_4143_RTC_SLOT,
   isValidWhiteboardRtcSlotEvent,
-} from './matrixRtcSlot';
-export type { RtcSlot } from './matrixRtcSlot';
-export { STATE_EVENT_ROOM_NAME, isValidRoomNameEvent } from './roomNameEvent';
-export type { RoomNameEvent } from './roomNameEvent';
+} from './rtcSlot';
+export type { RtcSlot } from './rtcSlot';
 export {
   STATE_EVENT_WHITEBOARD,
   isValidWhiteboardStateEvent,

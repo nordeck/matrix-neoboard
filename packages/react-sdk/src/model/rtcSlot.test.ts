@@ -18,7 +18,7 @@ import { describe, expect, it } from 'vitest';
 import {
   isValidWhiteboardRtcSlotEvent,
   STATE_EVENT_4143_RTC_SLOT,
-} from './matrixRtcSlot';
+} from './rtcSlot';
 
 describe('isValidWhiteboardRtcSlotEvent', () => {
   it('should accept event', () => {
