@@ -21,15 +21,15 @@ specifying a baseline realtime session management concept, which then can be
 extended to support specific application features, like ringing, answering and
 rejecting a call, for video and audio calls.
 
-With the introduction of [LiveKit][MSC4195] as a backend, Element Call was able to
+With the introduction of [LiveKit][MSC4195] as a transport, Element Call was able to
 provide a E2EE group call experience that can scale to hundreds of realtime participants.
 
 ## Decision
 
-We will use MatrixRTC with a LiveKit backend ([MSC4195][MSC4195]) to provide the
-realtime data exchange between NeoBoard users. This is fundamentally different
-from the peer-to-peer connection mesh that was established before: a participant
-connects to LiveKit backends instead of to every other participant.
+We will use LiveKit Transport for MatrixRTC with multi-SFU support ([MSC4195][MSC4195])
+to provide the realtime data exchange between NeoBoard users. This is fundamentally
+different from the peer-to-peer connection mesh that was established before: a
+participant connects to LiveKit backends instead of to every other participant.
 
 A participant publishes its data to the LiveKit backend of its own homeserver,
 which forwards it to everyone subscribed there, and subscribes to the backend of
@@ -84,9 +84,7 @@ the `net.nordeck.whiteboard.sessions` state event with the user's MXID as the
 
 These are **not** state events. They are sticky room events as defined by
 [MSC4354][MSC4354]: a room event that the homeserver keeps in the sync response
-for a bounded duration and that is addressed by a `msc4354_sticky_key` instead
-of a state key. Membership therefore does not overwrite shared state and every
-join can be tracked individually.
+for the specified duration until it expires.
 
 ```json
 {
@@ -217,9 +215,8 @@ one connection per LiveKit service URL.
 We use [delayed events][MSC4140] with a few seconds refresh while the widget is
 active, so that when it becomes inactive, a "hangup" is applied in the room. The
 delayed event is a member event with a `leave` membership and a
-`leave_reason.code` of `delayed_leave`; it is restarted at 75% of its delay
-through the widget API ([MSC4157][MSC4157]) and re-armed whenever the sticky join
-event is renewed.
+`leave_reason.code` of `delayed_leave`; it is sent immediatly after the sticky
+join and restarted at 75% of its delay while the user session is active.
 
 Leaving intentionally sends a `leave` member event with a `leave_reason.code` of
 `leave` and cancels the pending delayed event. This also happens when the widget
@@ -263,15 +260,13 @@ sessions, and exposes its own metadata to them in the same way.
 
 ### Relevant MSCs
 
-- [MSC3898: Native Matrix VoIP signalling for cascaded SFUs][MSC3898]
-- [MSC4143: MatrixRTC][MSC4143]
+- [MSC4143: MatrixRTC – Real-time communication over Matrix][MSC4143]
 - [MSC4140: Cancellable delayed events][MSC4140]
-- [MSC4157: Widget API for delayed events][MSC4157]
-- [MSC4195: MatrixRTC using LiveKit backend][MSC4195]
-- [MSC4196: MatrixRTC voice and video conferencing application m.call][MSC4196]
+- [MSC4157: Delayed Events (Widget API)][MSC4157]
+- [MSC4195: LiveKit transport for MatrixRTC][MSC4195]
 - [MSC4354: Sticky events][MSC4354]
-- [MSC4407: Widget API for sticky events][MSC4407]
-- [MSC4515: Widget API for RTC transports][MSC4515]
+- [MSC4407: Sticky Events (Widget API)][MSC4407]
+- [MSC4515: RTC Transports discovery for widgets][MSC4515]
 
 also related:
 
@@ -279,6 +274,8 @@ also related:
 - [MSC3401: Native Group VoIP Signalling][MSC3401]
 - [MSC3419: Guest State Events][MSC3419]
 - [MSC3757: Restricting who can overwrite a state event][MSC3757]
+- [MSC3898: Native Matrix VoIP signalling for cascaded SFUs][MSC3898]
+- [MSC4196: MatrixRTC voice and video conferencing application m.call][MSC4196]
 
 <!-- references -->
 
@@ -288,12 +285,12 @@ also related:
 [MSC4143]: https://github.com/matrix-org/matrix-spec-proposals/blob/toger5/matrixRTC/proposals/4143-matrix-rtc.md
 [MSC3898]: https://github.com/matrix-org/matrix-spec-proposals/blob/SimonBrandner/msc/sfu/proposals/3898-sfu.md
 [MSC4140]: https://github.com/matrix-org/matrix-spec-proposals/blob/toger5/expiring-events-keep-alive/proposals/4140-delayed-events-futures.md
-[MSC4157]: https://github.com/matrix-org/matrix-spec-proposals/pull/4157
+[MSC4157]: https://github.com/matrix-org/matrix-spec-proposals/blob/toger5/future-widget-api/proposals/4157-delayed-events-widget-api.md
 [MSC4195]: https://github.com/hughns/matrix-spec-proposals/blob/hughns/matrixrtc-livekit/proposals/4195-matrixrtc-livekit.md
 [MSC4196]: https://github.com/matrix-org/matrix-spec-proposals/blob/hughns/matrixrtc-m-call/proposals/4196-matrixrtc-m-call.md
 [MSC4354]: https://github.com/matrix-org/matrix-spec-proposals/blob/kegan/persist-edu/proposals/4354-sticky-events.md
-[MSC4407]: https://github.com/matrix-org/matrix-spec-proposals/pull/4407
-[MSC4515]: https://github.com/matrix-org/matrix-spec-proposals/pull/4515
+[MSC4407]: https://github.com/matrix-org/matrix-spec-proposals/blob/toger5/sticky-events-widget-api/proposals/4407-sticky-events-widget-api.md
+[MSC4515]: https://github.com/BillCarsonFr/matrix-doc/blob/valere/rtc/widget_action_rtc_transport/proposals/4515-rtc-transports-widget-action.md
 [MSC2746]: https://github.com/matrix-org/matrix-spec-proposals/blob/dbkr/msc2746/proposals/2746-reliable-voip.md
 [MSC3401]: https://github.com/matrix-org/matrix-spec-proposals/blob/matthew/group-voip/proposals/3401-group-voip.md
 [MSC3419]: https://github.com/matrix-org/matrix-spec-proposals/blob/matthew/guest-state-events/proposals/3419-guest-state-events.md
