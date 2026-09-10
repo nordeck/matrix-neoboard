@@ -42,8 +42,7 @@ connected.
 We decide to keep the existing software design abstractions but include an
 alternative implementation for discovery, peer connection tracking and communication
 channels, with minimal impact to other whiteboard components. The MatrixRTC
-implementation is activated with `REACT_APP_RTC=matrixrtc` (see
-`lib/matrixRtcMode.ts`).
+implementation is activated with `REACT_APP_RTC=matrixrtc`.
 
 ### Slots
 
