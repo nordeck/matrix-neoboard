@@ -188,7 +188,6 @@ jobs:
           ct install --config=".github/k8s_config.yaml" --target-branch ${{ github.event.repository.default_branch }} --helm-extra-set-args="--set=image.tag=${{ needs.build.outputs.docker-tag }}"
 
   build-standalone:
-    if: false
     needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 15
