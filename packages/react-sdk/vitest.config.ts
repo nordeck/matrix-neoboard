@@ -34,6 +34,12 @@ export default defineConfig({
   test: {
     // Happy-Dom has no support for the blob: scheme. So we need to use jsdom
     environment: 'jsdom',
+    // Pin the feature flags that are read via `getEnvironment` so tests never
+    // depend on a developer's `.env` / `.env.local`
+    env: {
+      REACT_APP_INFINITE_CANVAS: 'true',
+      REACT_APP_RTC: 'webrtc',
+    },
     setupFiles: [path.resolve(__dirname, './src/setupTests.ts')],
     exclude: ['build', 'lib'],
     server: {

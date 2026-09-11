@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { ComponentType, PropsWithChildren } from 'react';
@@ -52,13 +51,6 @@ vi.mock('./SvgCanvas/utils', async () => ({
   calculateSvgCoords: (position: Point) => position,
 }));
 
-vi.mock('@matrix-widget-toolkit/mui', async () => ({
-  ...(await vi.importActual<typeof import('@matrix-widget-toolkit/mui')>(
-    '@matrix-widget-toolkit/mui',
-  )),
-  getEnvironment: vi.fn(),
-}));
-
 vi.mock('./SvgCanvas/useMeasure', () => ({
   useMeasure: vi.fn().mockReturnValue([vi.fn(), { width: 1920, height: 1080 }]),
 }));
@@ -72,16 +64,10 @@ describe('MovableElement', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
 
   beforeEach(() => {
-    vi.mocked(getEnvironment).mockImplementation(
-      (_, defaultValue) => defaultValue,
-    );
-
     document.elementsFromPoint = vi.fn().mockReturnValue([]);
 
     // Enable infinite canvas mode for this test
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-    );
+    vi.stubEnv('REACT_APP_INFINITE_CANVAS', 'true');
     vi.spyOn(constants, 'infiniteCanvasMode', 'get').mockReturnValue(true);
     vi.spyOn(constants, 'whiteboardWidth', 'get').mockReturnValue(19200);
     vi.spyOn(constants, 'whiteboardHeight', 'get').mockReturnValue(10800);

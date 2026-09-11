@@ -14,25 +14,17 @@
  * limitations under the License.
  */
 
-import { getEnvironment } from '@matrix-widget-toolkit/mui';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import {
   isInfiniteCanvasPresentationEdit,
   isWhiteboardUndoManagerContext,
   PresentationState,
 } from './types';
 
-vi.mock('@matrix-widget-toolkit/mui', async () => ({
-  ...(await vi.importActual<typeof import('@matrix-widget-toolkit/mui')>(
-    '@matrix-widget-toolkit/mui',
-  )),
-  getEnvironment: vi.fn(),
-}));
-
-beforeEach(() => {
-  vi.mocked(getEnvironment).mockImplementation(
-    (_, defaultValue) => defaultValue,
-  );
+// This suite covers the legacy slides mode. It is pinned before the imports are
+// evaluated because the flag is read while the module graph is loaded.
+vi.hoisted(() => {
+  process.env.REACT_APP_INFINITE_CANVAS = 'false';
 });
 
 describe('isWhiteboardUndoManagerContext', () => {
@@ -92,9 +84,7 @@ describe('isWhiteboardUndoManagerContext', () => {
 
 describe('isInfiniteCanvasPresentationEdit', () => {
   it('should return true if we are in the infinite canvas mode in presentation mode and edit is enabled', () => {
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-    );
+    vi.stubEnv('REACT_APP_INFINITE_CANVAS', 'true');
 
     expect(
       isInfiniteCanvasPresentationEdit({
@@ -125,9 +115,7 @@ describe('isInfiniteCanvasPresentationEdit', () => {
       isEditMode: false,
     },
   ])('should return false for %j', (object) => {
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-    );
+    vi.stubEnv('REACT_APP_INFINITE_CANVAS', 'true');
     expect(isInfiniteCanvasPresentationEdit(object)).toBe(false);
   });
 });

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { act, renderHook } from '@testing-library/react';
 import { ComponentType, PropsWithChildren } from 'react';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
@@ -39,22 +38,17 @@ import {
   useWhiteboardSlideOrFrameIds,
 } from './useWhiteboardSlideInstance';
 
-vi.mock('@matrix-widget-toolkit/mui', async () => ({
-  ...(await vi.importActual<typeof import('@matrix-widget-toolkit/mui')>(
-    '@matrix-widget-toolkit/mui',
-  )),
-  getEnvironment: vi.fn(),
-}));
+// This suite covers the legacy slides mode. It is pinned before the imports are
+// evaluated because the flag is read while the module graph is loaded.
+vi.hoisted(() => {
+  process.env.REACT_APP_INFINITE_CANVAS = 'false';
+});
 
 let Wrapper: ComponentType<PropsWithChildren<{}>>;
 let whiteboardManager: Mocked<WhiteboardManager>;
 let activeWhiteboardInstance: WhiteboardInstance;
 
 beforeEach(() => {
-  vi.mocked(getEnvironment).mockImplementation(
-    (_, defaultValue) => defaultValue,
-  );
-
   ({ whiteboardManager } = mockWhiteboardManager({
     slides: [
       [
@@ -137,9 +131,7 @@ describe('useWhiteboardSlideOrFrameIds', () => {
   });
 
   it('should return frame ids', () => {
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-    );
+    vi.stubEnv('REACT_APP_INFINITE_CANVAS', 'true');
 
     const { result } = renderHook(() => useWhiteboardSlideOrFrameIds(), {
       wrapper: Wrapper,
