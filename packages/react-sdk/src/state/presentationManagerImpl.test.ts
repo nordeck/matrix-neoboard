@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { BehaviorSubject, firstValueFrom, Subject, take, toArray } from 'rxjs';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
 import { mockPeerConnectionStatistics } from '../lib/testUtils/documentTestUtils';
@@ -26,12 +25,11 @@ import {
 import { PresentationManagerImpl } from './presentationManagerImpl';
 import { WhiteboardInstance } from './types';
 
-vi.mock('@matrix-widget-toolkit/mui', async () => ({
-  ...(await vi.importActual<typeof import('@matrix-widget-toolkit/mui')>(
-    '@matrix-widget-toolkit/mui',
-  )),
-  getEnvironment: vi.fn(),
-}));
+// This suite covers the legacy slides mode. It is pinned before the imports are
+// evaluated because the flag is read while the module graph is loaded.
+vi.hoisted(() => {
+  process.env.REACT_APP_INFINITE_CANVAS = 'false';
+});
 
 describe('presentationManager', () => {
   let communicationStatistics: CommunicationChannelStatistics;
@@ -45,10 +43,6 @@ describe('presentationManager', () => {
   let presentationManager: PresentationManagerImpl;
 
   beforeEach(async () => {
-    vi.mocked(getEnvironment).mockImplementation(
-      (_, defaultValue) => defaultValue,
-    );
-
     communicationStatistics = {
       localSession: {
         sessionId: 'own',
@@ -164,9 +158,7 @@ describe('presentationManager', () => {
   });
 
   it('should start the presentation for active frame in infinite canvas mode', async () => {
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-    );
+    vi.stubEnv('REACT_APP_INFINITE_CANVAS', 'true');
 
     const states = firstValueFrom(
       presentationManager.observePresentationState().pipe(take(2), toArray()),
@@ -200,16 +192,8 @@ describe('presentationManager', () => {
       sessions: {},
     };
 
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) => {
-      switch (name) {
-        case 'REACT_APP_INFINITE_CANVAS':
-          return 'true';
-        case 'REACT_APP_RTC':
-          return 'matrixrtc';
-        default:
-          return defaultValue;
-      }
-    });
+    vi.stubEnv('REACT_APP_INFINITE_CANVAS', 'true');
+    vi.stubEnv('REACT_APP_RTC', 'matrixrtc');
 
     const states = firstValueFrom(
       presentationManager.observePresentationState().pipe(take(2), toArray()),
@@ -258,9 +242,7 @@ describe('presentationManager', () => {
   });
 
   it('should stop the presentation for active frame in infinite canvas mode', async () => {
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-    );
+    vi.stubEnv('REACT_APP_INFINITE_CANVAS', 'true');
 
     presentationManager.startPresentation('frame-0');
 
@@ -295,16 +277,8 @@ describe('presentationManager', () => {
       sessions: {},
     };
 
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) => {
-      switch (name) {
-        case 'REACT_APP_INFINITE_CANVAS':
-          return 'true';
-        case 'REACT_APP_RTC':
-          return 'matrixrtc';
-        default:
-          return defaultValue;
-      }
-    });
+    vi.stubEnv('REACT_APP_INFINITE_CANVAS', 'true');
+    vi.stubEnv('REACT_APP_RTC', 'matrixrtc');
 
     presentationManager.startPresentation('frame-0');
 
@@ -357,9 +331,7 @@ describe('presentationManager', () => {
   });
 
   it('should accept presentation start of a different user in infinite canvas mode', async () => {
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-    );
+    vi.stubEnv('REACT_APP_INFINITE_CANVAS', 'true');
 
     const states = firstValueFrom(
       presentationManager.observePresentationState().pipe(take(2), toArray()),
@@ -402,16 +374,8 @@ describe('presentationManager', () => {
       },
     };
 
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) => {
-      switch (name) {
-        case 'REACT_APP_INFINITE_CANVAS':
-          return 'true';
-        case 'REACT_APP_RTC':
-          return 'matrixrtc';
-        default:
-          return defaultValue;
-      }
-    });
+    vi.stubEnv('REACT_APP_INFINITE_CANVAS', 'true');
+    vi.stubEnv('REACT_APP_RTC', 'matrixrtc');
 
     const states = firstValueFrom(
       presentationManager.observePresentationState().pipe(take(2), toArray()),
@@ -477,9 +441,7 @@ describe('presentationManager', () => {
   });
 
   it('should accept presentation stop of a different user in infinite canvas mode', async () => {
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-    );
+    vi.stubEnv('REACT_APP_INFINITE_CANVAS', 'true');
 
     messageSubject.next({
       senderUserId: '@user-bob:example.com',
@@ -532,16 +494,8 @@ describe('presentationManager', () => {
       },
     };
 
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) => {
-      switch (name) {
-        case 'REACT_APP_INFINITE_CANVAS':
-          return 'true';
-        case 'REACT_APP_RTC':
-          return 'matrixrtc';
-        default:
-          return defaultValue;
-      }
-    });
+    vi.stubEnv('REACT_APP_INFINITE_CANVAS', 'true');
+    vi.stubEnv('REACT_APP_RTC', 'matrixrtc');
 
     messageSubject.next({
       senderUserId: '@user-bob:example.com',
@@ -613,9 +567,7 @@ describe('presentationManager', () => {
   });
 
   it('should accept the edit mode from a different user in infinite canvas mode', async () => {
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-    );
+    vi.stubEnv('REACT_APP_INFINITE_CANVAS', 'true');
 
     const states = firstValueFrom(
       presentationManager.observePresentationState().pipe(take(3), toArray()),
@@ -726,9 +678,7 @@ describe('presentationManager', () => {
   });
 
   it('should broadcast the active frame when it changes in infinite canvas mode', async () => {
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-    );
+    vi.stubEnv('REACT_APP_INFINITE_CANVAS', 'true');
 
     presentationManager.startPresentation('frame-0');
     observeActiveFrameElementIdSubject.next('frame-1');
@@ -802,9 +752,7 @@ describe('presentationManager', () => {
   });
 
   it('should broadcast the active frame when a new session is connected in infinite canvas mode', async () => {
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-    );
+    vi.stubEnv('REACT_APP_INFINITE_CANVAS', 'true');
 
     presentationManager.startPresentation('frame-0');
 
@@ -853,16 +801,8 @@ describe('presentationManager', () => {
       sessions: {},
     };
 
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) => {
-      switch (name) {
-        case 'REACT_APP_INFINITE_CANVAS':
-          return 'true';
-        case 'REACT_APP_RTC':
-          return 'matrixrtc';
-        default:
-          return defaultValue;
-      }
-    });
+    vi.stubEnv('REACT_APP_INFINITE_CANVAS', 'true');
+    vi.stubEnv('REACT_APP_RTC', 'matrixrtc');
 
     presentationManager.startPresentation('frame-0');
 
@@ -932,9 +872,7 @@ describe('presentationManager', () => {
   });
 
   it('should skip broadcasting the active frame when the presentation was cancelled in infinite canvas mode', async () => {
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-    );
+    vi.stubEnv('REACT_APP_INFINITE_CANVAS', 'true');
 
     presentationManager.startPresentation('frame-0');
     observeActiveFrameElementIdSubject.next('frame-1');
@@ -1042,9 +980,7 @@ describe('presentationManager', () => {
   });
 
   it('should toggle the edit mode in infinite canvas mode', async () => {
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-    );
+    vi.stubEnv('REACT_APP_INFINITE_CANVAS', 'true');
 
     const states = firstValueFrom(
       presentationManager.observePresentationState().pipe(take(4), toArray()),
@@ -1130,9 +1066,7 @@ describe('presentationManager', () => {
   });
 
   it('should deactivate the edit mode when the frame changes in infinite canvas mode', async () => {
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-    );
+    vi.stubEnv('REACT_APP_INFINITE_CANVAS', 'true');
 
     const states = firstValueFrom(
       presentationManager.observePresentationState().pipe(take(4), toArray()),
@@ -1189,9 +1123,7 @@ describe('presentationManager', () => {
   });
 
   it('should clear the undo manager in infinite canvas mode', async () => {
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-    );
+    vi.stubEnv('REACT_APP_INFINITE_CANVAS', 'true');
 
     messageSubject.next({
       senderUserId: '@user-bob:example.com',
@@ -1221,9 +1153,7 @@ describe('presentationManager', () => {
   });
 
   it('should not clear the undo manager in infinite canvas mode', async () => {
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-    );
+    vi.stubEnv('REACT_APP_INFINITE_CANVAS', 'true');
 
     presentationManager.toggleEditMode();
 

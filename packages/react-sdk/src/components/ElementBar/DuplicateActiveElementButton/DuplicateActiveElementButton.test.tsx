@@ -17,7 +17,7 @@
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { render, screen } from '@testing-library/react';
 import { ComponentType, PropsWithChildren } from 'react';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   mockFrameElement,
   mockWhiteboardManager,
@@ -30,6 +30,12 @@ import {
   duplicate,
   DuplicateActiveElementButton,
 } from './DuplicateActiveElementButton';
+
+// This suite covers the legacy slides mode. It is pinned before the imports are
+// evaluated because the flag is read while the module graph is loaded.
+vi.hoisted(() => {
+  process.env.REACT_APP_INFINITE_CANVAS = 'false';
+});
 
 describe('duplicate', () => {
   it('should duplicate a points element', async () => {

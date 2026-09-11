@@ -24,7 +24,7 @@ import { AxeResults } from 'axe-core';
 import log from 'loglevel';
 import { webcrypto } from 'node:crypto';
 import { TextDecoder, TextEncoder } from 'util';
-import { afterEach, expect, vi } from 'vitest';
+import { afterAll, afterEach, expect, vi } from 'vitest';
 import createFetchMock from 'vitest-fetch-mock';
 import './i18n';
 import { setLocale } from './lib/locale';
@@ -145,8 +145,18 @@ fetchMocker.enableMocks();
 // Mock the onLine prop
 Object.defineProperty(navigator, 'onLine', { value: true, writable: true });
 
+// Environment variables are process wide and a test file may pin feature flags
+// before its imports are evaluated, so restore them for the following tests and
+// test files.
+const initialEnvironment = { ...process.env };
+
 afterEach(() => {
   cleanup();
+  vi.unstubAllEnvs();
+});
+
+afterAll(() => {
+  process.env = { ...initialEnvironment };
 });
 
 // @ts-expect-error This is a polyfill for pdfjs

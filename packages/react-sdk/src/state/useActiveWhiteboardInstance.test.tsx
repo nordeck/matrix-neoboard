@@ -41,6 +41,12 @@ import {
 import { WhiteboardManagerProvider } from './useWhiteboardManager';
 import { SlideProvider } from './useWhiteboardSlideInstance';
 
+// This suite covers the legacy slides mode. It is pinned before the imports are
+// evaluated because the flag is read while the module graph is loaded.
+vi.hoisted(() => {
+  process.env.REACT_APP_INFINITE_CANVAS = 'false';
+});
+
 let Wrapper: ComponentType<PropsWithChildren<{}>>;
 let whiteboardManager: Mocked<WhiteboardManager>;
 let activeWhiteboardInstance: WhiteboardInstance;

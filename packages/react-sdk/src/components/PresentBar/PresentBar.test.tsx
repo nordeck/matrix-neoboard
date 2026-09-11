@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -48,22 +47,17 @@ import { Message } from '../../state/communication';
 import { LayoutStateProvider } from '../Layout';
 import { PresentBar } from './PresentBar';
 
-let widgetApi: MockedWidgetApi;
+// This suite covers the legacy slides mode. It is pinned before the imports are
+// evaluated because the flag is read while the module graph is loaded.
+vi.hoisted(() => {
+  process.env.REACT_APP_INFINITE_CANVAS = 'false';
+});
 
-vi.mock('@matrix-widget-toolkit/mui', async () => ({
-  ...(await vi.importActual<typeof import('@matrix-widget-toolkit/mui')>(
-    '@matrix-widget-toolkit/mui',
-  )),
-  getEnvironment: vi.fn(),
-}));
+let widgetApi: MockedWidgetApi;
 
 afterEach(() => widgetApi.stop());
 
 beforeEach(() => {
-  vi.mocked(getEnvironment).mockImplementation(
-    (_, defaultValue) => defaultValue,
-  );
-
   widgetApi = mockWidgetApi();
 });
 
@@ -117,9 +111,7 @@ describe('<PresentBar/>', () => {
   });
 
   it('should render without frames in infinite canvas mode', async () => {
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-    );
+    vi.stubEnv('REACT_APP_INFINITE_CANVAS', 'true');
 
     render(<PresentBar />, { wrapper: Wrapper });
 
@@ -186,9 +178,7 @@ describe('<PresentBar/>', () => {
   });
 
   it('should start the presentation in infinite canvas mode', async () => {
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-    );
+    vi.stubEnv('REACT_APP_INFINITE_CANVAS', 'true');
 
     activeSlide.addElement(mockFrameElement());
 
@@ -247,9 +237,7 @@ describe('<PresentBar/>', () => {
   });
 
   it('should stop the presentation in infinite canvas mode', async () => {
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-    );
+    vi.stubEnv('REACT_APP_INFINITE_CANVAS', 'true');
 
     const frameId = activeSlide.addElement(mockFrameElement());
 
@@ -301,9 +289,7 @@ describe('<PresentBar/>', () => {
   });
 
   it('should change to the next frame in infinite canvas mode', async () => {
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-    );
+    vi.stubEnv('REACT_APP_INFINITE_CANVAS', 'true');
 
     const frameId0 = activeSlide.addElement(mockFrameElement());
     const frameId1 = activeSlide.addElement(mockFrameElement());
@@ -356,9 +342,7 @@ describe('<PresentBar/>', () => {
   });
 
   it('should change to the previous frame in infinite canvas mode', async () => {
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-    );
+    vi.stubEnv('REACT_APP_INFINITE_CANVAS', 'true');
 
     const frameId0 = activeSlide.addElement(mockFrameElement());
     const frameId1 = activeSlide.addElement(mockFrameElement());
@@ -409,9 +393,7 @@ describe('<PresentBar/>', () => {
   });
 
   it('should disabled next frame button if the last frame active in infinite canvas mode', async () => {
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-    );
+    vi.stubEnv('REACT_APP_INFINITE_CANVAS', 'true');
 
     activeSlide.addElement(mockFrameElement());
     const frameId1 = activeSlide.addElement(mockFrameElement());
@@ -459,9 +441,7 @@ describe('<PresentBar/>', () => {
   });
 
   it('should disabled previous frame button if the first frame active in infinite canvas mode', async () => {
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-    );
+    vi.stubEnv('REACT_APP_INFINITE_CANVAS', 'true');
 
     activeSlide.addElement(mockFrameElement());
 
@@ -557,9 +537,7 @@ describe('<PresentBar/>', () => {
   });
 
   it('should be able to end presentation of another user if can moderate in infinite canvas mode', async () => {
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-    );
+    vi.stubEnv('REACT_APP_INFINITE_CANVAS', 'true');
 
     const frameId0 = activeSlide.addElement(mockFrameElement());
 
@@ -647,9 +625,7 @@ describe('<PresentBar/>', () => {
   });
 
   it('should not be able to end presentation of another user if cannot moderate in infinite canvas mode', async () => {
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-    );
+    vi.stubEnv('REACT_APP_INFINITE_CANVAS', 'true');
 
     const frameId0 = activeSlide.addElement(mockFrameElement());
 

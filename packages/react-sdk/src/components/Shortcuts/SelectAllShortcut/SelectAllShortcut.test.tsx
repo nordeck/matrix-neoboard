@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -44,22 +43,17 @@ import {
 import { WhiteboardHotkeysProvider } from '../../WhiteboardHotkeysProvider';
 import { SelectAllShortcut } from './SelectAllShortcut';
 
-let widgetApi: MockedWidgetApi;
+// This suite covers the legacy slides mode. It is pinned before the imports are
+// evaluated because the flag is read while the module graph is loaded.
+vi.hoisted(() => {
+  process.env.REACT_APP_INFINITE_CANVAS = 'false';
+});
 
-vi.mock('@matrix-widget-toolkit/mui', async () => ({
-  ...(await vi.importActual<typeof import('@matrix-widget-toolkit/mui')>(
-    '@matrix-widget-toolkit/mui',
-  )),
-  getEnvironment: vi.fn(),
-}));
+let widgetApi: MockedWidgetApi;
 
 afterEach(() => widgetApi.stop());
 
 beforeEach(() => {
-  vi.mocked(getEnvironment).mockImplementation(
-    (_, defaultValue) => defaultValue,
-  );
-
   widgetApi = mockWidgetApi();
 });
 
@@ -197,9 +191,7 @@ describe('<SelectAllShortcut>', () => {
 
   describe('presentation mode for frames', () => {
     beforeEach(() => {
-      vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-        name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-      );
+      vi.stubEnv('REACT_APP_INFINITE_CANVAS', 'true');
     });
 
     it('should ignore select all', async () => {

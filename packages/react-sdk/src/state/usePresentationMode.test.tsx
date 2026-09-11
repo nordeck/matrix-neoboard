@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { act, renderHook } from '@testing-library/react';
 import { ComponentType, PropsWithChildren } from 'react';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
@@ -22,13 +21,6 @@ import { mockFrameElement, mockWhiteboardManager } from '../lib/testUtils';
 import { WhiteboardManager } from './types';
 import { usePresentationMode } from './usePresentationMode';
 import { WhiteboardManagerProvider } from './useWhiteboardManager';
-
-vi.mock('@matrix-widget-toolkit/mui', async () => ({
-  ...(await vi.importActual<typeof import('@matrix-widget-toolkit/mui')>(
-    '@matrix-widget-toolkit/mui',
-  )),
-  getEnvironment: vi.fn(),
-}));
 
 describe('usePresentationMode', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
@@ -85,9 +77,7 @@ describe('usePresentationMode', () => {
   });
 
   it('should start and stop the presentation in infinite canvas mode', async () => {
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-    );
+    vi.stubEnv('REACT_APP_INFINITE_CANVAS', 'true');
 
     ({ whiteboardManager } = mockWhiteboardManager({
       slides: [['slide-0', [['frame-0', mockFrameElement()]]]],
