@@ -18,7 +18,15 @@ import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ComponentType, PropsWithChildren } from 'react';
-import { Mocked, afterEach, beforeEach, describe, expect, it } from 'vitest';
+import {
+  Mocked,
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
 import {
   WhiteboardTestingContextProvider,
   mockEllipseElement,
@@ -27,6 +35,12 @@ import {
 import { WhiteboardInstance, WhiteboardManager } from '../../../state';
 import { WhiteboardHotkeysProvider } from '../../WhiteboardHotkeysProvider';
 import { PresentationShortcuts } from './PresentationShortcuts';
+
+// This suite covers the legacy slides mode. It is pinned before the imports are
+// evaluated because the flag is read while the module graph is loaded.
+vi.hoisted(() => {
+  process.env.REACT_APP_INFINITE_CANVAS = 'false';
+});
 
 describe('PresentationShortcuts', () => {
   let widgetApi: MockedWidgetApi;

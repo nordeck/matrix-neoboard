@@ -34,7 +34,8 @@ REACT_APP_EMBEDDED=false
 # optional: Select the Realtime Communication (RTC) implementation (defaults to `webrtc`, otherwise `matrixrtc`)
 REACT_APP_RTC=webrtc
 
-# optional: Use infinite canvas instead of slides mode (defaults to `false`)
+# optional: Set to `false` to use the legacy slides mode instead of the
+# infinite canvas (default: infinite canvas)
 REACT_APP_INFINITE_CANVAS=false
 ```
 

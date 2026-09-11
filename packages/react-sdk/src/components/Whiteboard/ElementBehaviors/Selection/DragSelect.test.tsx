@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { ComponentType, PropsWithChildren } from 'react';
@@ -48,13 +47,6 @@ import { DragSelect } from './DragSelect';
 // Mock to avoid SVG native functions not available in the test context
 vi.mock('../../SvgCanvas/utils');
 
-vi.mock('@matrix-widget-toolkit/mui', async () => ({
-  ...(await vi.importActual<typeof import('@matrix-widget-toolkit/mui')>(
-    '@matrix-widget-toolkit/mui',
-  )),
-  getEnvironment: vi.fn(),
-}));
-
 describe('<DragSelect/>', () => {
   let activeSlide: WhiteboardSlideInstance;
   let dragSelectStartCoords: Point | undefined;
@@ -69,10 +61,6 @@ describe('<DragSelect/>', () => {
   ) => void;
 
   beforeEach(() => {
-    vi.mocked(getEnvironment).mockImplementation(
-      (_, defaultValue) => defaultValue,
-    );
-
     widgetApi = mockWidgetApi();
 
     ({ whiteboardManager, setPresentationMode } = mockWhiteboardManager({
@@ -225,9 +213,7 @@ describe('<DragSelect/>', () => {
   });
 
   it('should should select an element attached to active frame in infinite canvas mode in the presentation mode if edit mode is enabled', () => {
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-    );
+    vi.stubEnv('REACT_APP_INFINITE_CANVAS', 'true');
 
     // attached existing element to active frame
     activeSlide.updateElements([
@@ -263,9 +249,7 @@ describe('<DragSelect/>', () => {
   });
 
   it('should should not select an element without frame in infinite canvas mode in the presentation mode if edit mode is enabled', () => {
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-    );
+    vi.stubEnv('REACT_APP_INFINITE_CANVAS', 'true');
 
     setPresentationMode(true, true);
 
@@ -285,9 +269,7 @@ describe('<DragSelect/>', () => {
   });
 
   it('should should not select an element attached to non active frame in infinite canvas mode in the presentation mode if edit mode is enabled', () => {
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-    );
+    vi.stubEnv('REACT_APP_INFINITE_CANVAS', 'true');
 
     // create one more frame
     const frameId1 = activeSlide.addElement(mockFrameElement());

@@ -33,6 +33,8 @@ import {
 } from '../../lib/testUtils';
 import {
   FrameElement,
+  frameHeight,
+  frameWidth,
   WhiteboardManager,
   WhiteboardSlideInstance,
 } from '../../state';
@@ -56,16 +58,6 @@ describe('useCreateFrame', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
 
   beforeEach(() => {
-    // Enable infinite canvas mode for this test
-    vi.spyOn(whiteboardConstants, 'infiniteCanvasMode', 'get').mockReturnValue(
-      true,
-    );
-    vi.spyOn(whiteboardConstants, 'whiteboardWidth', 'get').mockReturnValue(
-      19200,
-    );
-    vi.spyOn(whiteboardConstants, 'whiteboardHeight', 'get').mockReturnValue(
-      10800,
-    );
     svgScaleContextPartial = {
       containerDimensions: {
         width: 600,
@@ -117,8 +109,8 @@ describe('useCreateFrame', () => {
     expect(frames[0].width).toBe(1920);
     expect(frames[0].height).toBe(1080);
     expect(frames[0].position).toEqual({
-      x: 3000 - 1920 / 2, // centre - frame width / 2
-      y: 4000 - 1080 / 2,
+      x: 3000 - frameWidth / 2,
+      y: 4000 - frameHeight / 2,
     });
   });
 
@@ -153,7 +145,7 @@ describe('useCreateFrame', () => {
     expect(frames[1].width).toBe(1920);
     expect(frames[1].height).toBe(1080);
     expect(frames[1].position).toEqual({
-      x: 1920 + whiteboardConstants.gridCellSize,
+      x: frameWidth + whiteboardConstants.gridCellSize,
       y: 0,
     });
   });
@@ -163,7 +155,7 @@ describe('useCreateFrame', () => {
       'top',
       { x: 5000, y: 0 },
       {
-        x: 5000 - 1920 / 2, // centre - frame width / 2
+        x: 5000 - frameWidth / 2,
         y: 0,
       },
     ],
@@ -180,7 +172,7 @@ describe('useCreateFrame', () => {
       { x: 0, y: 3000 },
       {
         x: 0,
-        y: 3000 - 1080 / 2,
+        y: 3000 - frameHeight / 2,
       },
     ],
     [
@@ -188,15 +180,15 @@ describe('useCreateFrame', () => {
       { x: 0, y: whiteboardConstants.whiteboardHeight },
       {
         x: 0,
-        y: whiteboardConstants.whiteboardHeight - 1080 / 2,
+        y: whiteboardConstants.whiteboardHeight - frameHeight,
       },
     ],
     [
       'bottom',
       { x: 5000, y: whiteboardConstants.whiteboardHeight },
       {
-        x: 5000 - 1920 / 2,
-        y: whiteboardConstants.whiteboardHeight - 1080 / 2,
+        x: 5000 - frameWidth / 2,
+        y: whiteboardConstants.whiteboardHeight - frameHeight,
       },
     ],
     [
@@ -206,8 +198,8 @@ describe('useCreateFrame', () => {
         y: whiteboardConstants.whiteboardHeight,
       },
       {
-        x: whiteboardConstants.whiteboardWidth - 1920 / 2,
-        y: whiteboardConstants.whiteboardHeight - 1080 / 2,
+        x: whiteboardConstants.whiteboardWidth - frameWidth,
+        y: whiteboardConstants.whiteboardHeight - frameHeight,
       },
     ],
     [
@@ -217,8 +209,8 @@ describe('useCreateFrame', () => {
         y: 3000,
       },
       {
-        x: whiteboardConstants.whiteboardWidth - 1920 / 2,
-        y: 3000 - 1080 / 2,
+        x: whiteboardConstants.whiteboardWidth - frameWidth,
+        y: 3000 - frameHeight / 2,
       },
     ],
     [
@@ -228,7 +220,7 @@ describe('useCreateFrame', () => {
         y: 0,
       },
       {
-        x: whiteboardConstants.whiteboardWidth - 1920 / 2,
+        x: whiteboardConstants.whiteboardWidth - frameWidth,
         y: 0,
       },
     ],

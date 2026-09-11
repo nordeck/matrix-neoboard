@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -47,22 +46,17 @@ import { LayoutStateProvider } from '../Layout/useLayoutState';
 import { SnackbarProvider } from '../Snackbar';
 import { BoardBar } from './BoardBar';
 
-vi.mock('@matrix-widget-toolkit/mui', async () => ({
-  ...(await vi.importActual<typeof import('@matrix-widget-toolkit/mui')>(
-    '@matrix-widget-toolkit/mui',
-  )),
-  getEnvironment: vi.fn(),
-}));
+// This suite covers the legacy slides mode. It is pinned before the imports are
+// evaluated because the flag is read while the module graph is loaded.
+vi.hoisted(() => {
+  process.env.REACT_APP_INFINITE_CANVAS = 'false';
+});
 
 let widgetApi: MockedWidgetApi;
 
 afterEach(() => widgetApi.stop());
 
 beforeEach(() => {
-  vi.mocked(getEnvironment).mockImplementation(
-    (_, defaultValue) => defaultValue,
-  );
-
   widgetApi = mockWidgetApi();
 });
 
@@ -110,9 +104,7 @@ describe('<BoardBar/>', () => {
   });
 
   it('should render without frames in infinite canvas mode', async () => {
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-    );
+    vi.stubEnv('REACT_APP_INFINITE_CANVAS', 'true');
 
     render(<BoardBar />, { wrapper: Wrapper });
 
@@ -130,9 +122,7 @@ describe('<BoardBar/>', () => {
   });
 
   it('should render with frames in infinite canvas mode', async () => {
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-    );
+    vi.stubEnv('REACT_APP_INFINITE_CANVAS', 'true');
 
     ({ whiteboardManager } = mockWhiteboardManager({
       slides: [['slide-0', [['frame-0', mockFrameElement()]]]],
@@ -203,9 +193,7 @@ describe('<BoardBar/>', () => {
   });
 
   it('should toggle the frame overview in infinite canvas mode', async () => {
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-    );
+    vi.stubEnv('REACT_APP_INFINITE_CANVAS', 'true');
 
     activeSlide.addElement(mockFrameElement());
 

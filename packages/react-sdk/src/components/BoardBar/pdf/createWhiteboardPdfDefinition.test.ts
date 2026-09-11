@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { Content, ContentStack } from 'pdfmake/interfaces';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -30,12 +29,11 @@ import * as whiteboardConstants from '../../Whiteboard/constants';
 import { createWhiteboardPdfDefinition } from './createWhiteboardPdfDefinition';
 import * as font from './forceLoadFontFamily';
 
-vi.mock('@matrix-widget-toolkit/mui', async () => ({
-  ...(await vi.importActual<typeof import('@matrix-widget-toolkit/mui')>(
-    '@matrix-widget-toolkit/mui',
-  )),
-  getEnvironment: vi.fn(),
-}));
+// This suite covers the legacy slides mode. It is pinned before the imports are
+// evaluated because the flag is read while the module graph is loaded.
+vi.hoisted(() => {
+  process.env.REACT_APP_INFINITE_CANVAS = 'false';
+});
 
 describe('createWhiteboardPdfDefinition', () => {
   beforeEach(() => {
@@ -208,9 +206,7 @@ describe('createWhiteboardPdfDefinition in infinite canvas mode', () => {
     whiteboardInstance = whiteboardManager.getActiveWhiteboardInstance()!;
 
     // Enable infinite canvas mode for this test
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-    );
+    vi.stubEnv('REACT_APP_INFINITE_CANVAS', 'true');
     vi.spyOn(whiteboardConstants, 'infiniteCanvasMode', 'get').mockReturnValue(
       true,
     );
