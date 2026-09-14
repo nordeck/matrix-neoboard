@@ -34,6 +34,7 @@ import {
   mockEllipseElement,
   mockFrameElement,
   mockLineElement,
+  mockPolylineElement,
   mockTextElement,
   mockWhiteboardManager,
   WhiteboardTestingContextProvider,
@@ -1616,5 +1617,74 @@ describe('<WhiteboardHost/>', () => {
     render(<WhiteboardHost />, { wrapper: Wrapper });
 
     expect(screen.queryByTestId(`rotate-handle`)).not.toBeInTheDocument();
+  });
+
+  it('should change the thickness of a selected polyline without a stroke width', async () => {
+    const polylineId = activeSlide.addElement(
+      mockPolylineElement({ strokeWidth: undefined }),
+    );
+    activeSlide.setActiveElementId(polylineId);
+
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    const select = screen.getByRole('combobox', {
+      name: 'Select Line Thickness',
+    });
+
+    // verify that we show the default value of line thickness when it's undefined
+    expect(select).toHaveTextContent(`${constants.defaultStrokeWidth}`);
+
+    await userEvent.click(select);
+    await userEvent.click(screen.getByRole('option', { name: '8' }));
+
+    expect(activeSlide.getElement(polylineId)).toEqual(
+      expect.objectContaining({ strokeWidth: 8 }),
+    );
+  });
+
+  it('should use the last applied line thickness for a newly drawn polyline', async () => {
+    const polylineId = activeSlide.addElement(
+      mockPolylineElement({ strokeWidth: 8 }),
+    );
+    activeSlide.setActiveElementId(polylineId);
+
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    await userEvent.click(
+      screen.getByRole('combobox', { name: 'Select Line Thickness' }),
+    );
+    await userEvent.click(screen.getByRole('option', { name: '16' }));
+
+    act(() => setActiveTool('polyline'));
+
+    const draftHandler = screen.getByTestId('draft-pointer-handler');
+
+    await userEvent.pointer([
+      {
+        keys: '[MouseLeft>]',
+        target: draftHandler,
+        coords: { clientX: 50, clientY: 101 },
+      },
+      {
+        pointerName: 'mouse',
+        target: draftHandler,
+        coords: { clientX: 50 + 20, clientY: 100 + 20 },
+      },
+      {
+        keys: '[/MouseLeft]',
+        target: draftHandler,
+      },
+    ]);
+
+    expect(activeSlide.getActiveElementIds().length).toBe(1);
+
+    const newElementId = activeSlide.getActiveElementIds()[0];
+
+    expect(activeSlide.getElement(newElementId)).toEqual(
+      expect.objectContaining({
+        kind: 'polyline',
+        strokeWidth: 16,
+      }),
+    );
   });
 });
