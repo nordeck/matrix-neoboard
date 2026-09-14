@@ -76,7 +76,21 @@ affinity: {}
 settings:
   hostname: neoboard.local
 
-# Extra env variables to pass to the container
+# Extra env variables to pass to the container. Replace `[]` with the entries
+# you need.
+#
+# Realtime collaboration uses MatrixRTC with a LiveKit transport by default. It
+# requires Element Web 1.12.26+, LiveKit Authorization Service 0.5.0+, LiveKit
+# server 1.13.1+ and Synapse 1.154.0+ with `msc4143_enabled`, `msc4354_enabled`
+# and a `matrix_rtc.transports` entry. Fall back to the legacy peer-to-peer
+# WebRTC implementation with:
+#   - name: REACT_APP_RTC
+#     value: "webrtc"
+#
+# Boards are shown on an infinite canvas, where existing slides are migrated
+# into frames. Keep the legacy slides mode with:
+#   - name: REACT_APP_INFINITE_CANVAS
+#     value: "false"
 env: []
 
 # Configuration related to the nginx within the container which serves the widget.
