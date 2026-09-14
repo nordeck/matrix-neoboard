@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -39,20 +38,9 @@ import { LayoutStateProvider } from '../Layout';
 import { SnackbarProvider } from '../Snackbar';
 import { ToolsBar } from './ToolsBar';
 
-vi.mock('@matrix-widget-toolkit/mui', async () => ({
-  ...(await vi.importActual<typeof import('@matrix-widget-toolkit/mui')>(
-    '@matrix-widget-toolkit/mui',
-  )),
-  getEnvironment: vi.fn(),
-}));
-
 let widgetApi: MockedWidgetApi;
 
 beforeEach(() => {
-  vi.mocked(getEnvironment).mockImplementation(
-    (_, defaultValue) => defaultValue,
-  );
-
   widgetApi = mockWidgetApi();
 });
 
@@ -221,24 +209,22 @@ describe('<ToolsBar/>', () => {
     expect(slide?.getActiveElementIds()).toEqual([]);
   });
 
-  it('should not show the create frame button by default', () => {
-    render(<ToolsBar />, { wrapper: Wrapper });
-
-    expect(
-      screen.queryByRole('button', { name: 'Create frame' }),
-    ).not.toBeInTheDocument();
-  });
-
-  it('should show the create frame button in infinite canvas mode', () => {
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-    );
-
+  it('should show the create frame button by default', () => {
     render(<ToolsBar />, { wrapper: Wrapper });
 
     expect(
       screen.getByRole('button', { name: 'Create frame' }),
     ).toBeInTheDocument();
+  });
+
+  it('should not show the create frame button in slides mode', () => {
+    vi.stubEnv('REACT_APP_INFINITE_CANVAS', 'false');
+
+    render(<ToolsBar />, { wrapper: Wrapper });
+
+    expect(
+      screen.queryByRole('button', { name: 'Create frame' }),
+    ).not.toBeInTheDocument();
   });
 
   it.each<{ type: 'presenting' | 'presentation'; isEditMode: boolean }>([
@@ -251,9 +237,7 @@ describe('<ToolsBar/>', () => {
     ({ type: presentationType, isEditMode }) => {
       setPresentationMode(true, isEditMode, presentationType);
 
-      vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-        name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-      );
+      vi.stubEnv('REACT_APP_INFINITE_CANVAS', 'true');
 
       render(<ToolsBar />, { wrapper: Wrapper });
 

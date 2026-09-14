@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { renderHook } from '@testing-library/react';
 import { act, ComponentType, PropsWithChildren } from 'react';
@@ -36,22 +35,11 @@ import {
 import { WhiteboardManager, WhiteboardStatistics } from './types';
 import { useActiveWhiteboardMembers } from './useActiveWhiteboardMembers';
 
-vi.mock('@matrix-widget-toolkit/mui', async () => ({
-  ...(await vi.importActual<typeof import('@matrix-widget-toolkit/mui')>(
-    '@matrix-widget-toolkit/mui',
-  )),
-  getEnvironment: vi.fn(),
-}));
-
 let widgetApi: MockedWidgetApi;
 
 afterEach(() => widgetApi.stop());
 
 beforeEach(() => {
-  vi.mocked(getEnvironment).mockImplementation(
-    (_, defaultValue) => defaultValue,
-  );
-
   widgetApi = mockWidgetApi();
 });
 
@@ -75,6 +63,10 @@ describe('useActiveWhiteboardMembers', () => {
   });
 
   describe('WebRTC P2P mode', () => {
+    beforeEach(() => {
+      vi.stubEnv('REACT_APP_RTC', 'webrtc');
+    });
+
     it('should return no members', () => {
       const statistics = {
         communicationChannel: {
@@ -258,13 +250,7 @@ describe('useActiveWhiteboardMembers', () => {
 
   describe('MatrixRTC mode', () => {
     beforeEach(() => {
-      vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-        name === 'REACT_APP_RTC' ? 'matrixrtc' : defaultValue,
-      );
-    });
-
-    afterEach(() => {
-      vi.restoreAllMocks();
+      vi.stubEnv('REACT_APP_RTC', 'matrixrtc');
     });
 
     it('should return no members', () => {

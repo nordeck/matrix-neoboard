@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { TabPanel } from '@mui/base';
 import { render, screen, waitFor, within } from '@testing-library/react';
@@ -46,22 +45,17 @@ import { SnackbarProvider } from '../Snackbar';
 import { WhiteboardHotkeysProvider } from '../WhiteboardHotkeysProvider';
 import { SlideOverviewBar } from './SlideOverviewBar';
 
-vi.mock('@matrix-widget-toolkit/mui', async () => ({
-  ...(await vi.importActual<typeof import('@matrix-widget-toolkit/mui')>(
-    '@matrix-widget-toolkit/mui',
-  )),
-  getEnvironment: vi.fn(),
-}));
+// This suite covers the legacy slides mode. It is pinned before the imports are
+// evaluated because the flag is read while the module graph is loaded.
+vi.hoisted(() => {
+  process.env.REACT_APP_INFINITE_CANVAS = 'false';
+});
 
 let widgetApi: MockedWidgetApi;
 
 afterEach(() => widgetApi.stop());
 
 beforeEach(() => {
-  vi.mocked(getEnvironment).mockImplementation(
-    (_, defaultValue) => defaultValue,
-  );
-
   widgetApi = mockWidgetApi();
 });
 
@@ -153,9 +147,7 @@ describe('<SideOverviewBar/>', () => {
   });
 
   it('should render without exploding for frames', async () => {
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-    );
+    vi.stubEnv('REACT_APP_INFINITE_CANVAS', 'true');
 
     render(<SlideOverviewBar />, { wrapper: Wrapper });
 
@@ -199,9 +191,7 @@ describe('<SideOverviewBar/>', () => {
   });
 
   it('should have no accessibility violations for frames', async () => {
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-    );
+    vi.stubEnv('REACT_APP_INFINITE_CANVAS', 'true');
 
     const { container } = render(<SlideOverviewBar />, { wrapper: Wrapper });
 
@@ -411,9 +401,7 @@ describe('<SideOverviewBar/>', () => {
   });
 
   it('should select the active frame', async () => {
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-    );
+    vi.stubEnv('REACT_APP_INFINITE_CANVAS', 'true');
 
     render(<SlideOverviewBar />, { wrapper: Wrapper });
 
@@ -449,9 +437,7 @@ describe('<SideOverviewBar/>', () => {
   });
 
   it('should select the active frame via keyboard', async () => {
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-    );
+    vi.stubEnv('REACT_APP_INFINITE_CANVAS', 'true');
 
     render(<SlideOverviewBar />, { wrapper: Wrapper });
 
@@ -518,9 +504,7 @@ describe('<SideOverviewBar/>', () => {
   });
 
   it('should reorder frames via keyboard', async () => {
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-    );
+    vi.stubEnv('REACT_APP_INFINITE_CANVAS', 'true');
 
     const { baseElement } = render(<SlideOverviewBar />, { wrapper: Wrapper });
 

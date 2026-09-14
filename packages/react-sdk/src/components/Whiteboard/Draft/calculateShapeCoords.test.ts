@@ -14,10 +14,16 @@
  * limitations under the License.
  */
 
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { Point, ShapeKind } from '../../../state';
 import { ShapeSizesState } from '../../../store/shapeSizesSlice';
 import { calculateShapeCoords } from './calculateShapeCoords';
+
+// This suite covers the legacy slides mode. It is pinned before the imports are
+// evaluated because the flag is read while the module graph is loaded.
+vi.hoisted(() => {
+  process.env.REACT_APP_INFINITE_CANVAS = 'false';
+});
 
 const shapeSizes: ShapeSizesState = {
   rectangle: { width: 300, height: 200 },

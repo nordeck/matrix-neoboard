@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { firstValueFrom, Subject, take, toArray } from 'rxjs';
 import {
@@ -64,13 +63,6 @@ import {
 } from './whiteboardInstanceImpl';
 import { WhiteboardSlideInstanceImpl } from './whiteboardSlideInstanceImpl';
 
-vi.mock('@matrix-widget-toolkit/mui', async () => ({
-  ...(await vi.importActual<typeof import('@matrix-widget-toolkit/mui')>(
-    '@matrix-widget-toolkit/mui',
-  )),
-  getEnvironment: vi.fn(),
-}));
-
 let widgetApi: MockedWidgetApi;
 
 afterEach(() => widgetApi.stop());
@@ -93,10 +85,6 @@ describe('WhiteboardInstanceImpl', () => {
   let document: Document<WhiteboardDocument>;
 
   beforeEach(async () => {
-    vi.mocked(getEnvironment).mockImplementation(
-      (_, defaultValue) => defaultValue,
-    );
-
     observeCommunicationStatisticsSubject =
       new Subject<CommunicationChannelStatistics>();
     observeIsLoadingSubject = new Subject<boolean>();
@@ -657,9 +645,7 @@ describe('WhiteboardInstanceImpl', () => {
 
     synchronizedDocument.getDocument.mockReturnValue(document1);
 
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-    );
+    vi.stubEnv('REACT_APP_INFINITE_CANVAS', 'true');
 
     const whiteboardInstance = new WhiteboardInstanceImpl(
       synchronizedDocument,
@@ -716,9 +702,7 @@ describe('WhiteboardInstanceImpl', () => {
 
     synchronizedDocument.getDocument.mockReturnValue(document1);
 
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-    );
+    vi.stubEnv('REACT_APP_INFINITE_CANVAS', 'true');
 
     const whiteboardInstance = new WhiteboardInstanceImpl(
       synchronizedDocument,

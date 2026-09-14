@@ -32,6 +32,12 @@ export default defineConfig({
   },
   test: {
     environment: 'jsdom',
+    // Pin the feature flags that are read via `getEnvironment` so tests never
+    // depend on a developer's `.env` / `.env.local`
+    env: {
+      REACT_APP_INFINITE_CANVAS: 'true',
+      REACT_APP_RTC: 'matrixrtc',
+    },
     setupFiles: [path.resolve(__dirname, './src/setupTests.ts')],
     exclude: ['build', 'lib'],
     server: {

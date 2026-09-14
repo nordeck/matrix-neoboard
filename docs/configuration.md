@@ -21,21 +21,27 @@ REACT_APP_DEVTOOLS=true
 
 ### Customization
 
-More environment variables exist for UI customization and are inherited from and documented by our framework [@matrix-widget-toolkit/mui](https://www.npmjs.com/package/@matrix-widget-toolkit/mui#customization).
+More environment variables exist for UI customization and are inherited from and
+documented by our framework [@matrix-widget-toolkit/mui](https://www.npmjs.com/package/@matrix-widget-toolkit/mui#customization).
 
-### Experimental Features
+### Experimental / Legacy Features
 
-We sometimes use feature flags during development of bigger new features when using a long running feature branch would mean too much work spent on rebasing repeatedly.
+We sometimes use feature flags during development of bigger new features when
+using a long running feature branch would mean too much work spent on rebasing repeatedly.
+
+We also keep some options to use legacy features until we fully deprecate them.
 
 ```sh
 # optional: Indicate if the widget is embedded, e.g. in standalone mode, to enable/disable respective features.
 REACT_APP_EMBEDDED=false
 
-# optional: Select the Realtime Communication (RTC) implementation (defaults to `webrtc`, otherwise `matrixrtc`)
-REACT_APP_RTC=webrtc
+# optional: Set to `webrtc` to use the legacy peer-to-peer WebRTC implementation
+# instead of MatrixRTC (default: `matrixrtc`)
+REACT_APP_RTC=matrixrtc
 
-# optional: Use infinite canvas instead of slides mode (defaults to `false`)
-REACT_APP_INFINITE_CANVAS=false
+# optional: Set to `false` to use the legacy slides mode instead of the
+# infinite canvas (default: true)
+REACT_APP_INFINITE_CANVAS=true
 ```
 
 ## Room power level
@@ -43,16 +49,20 @@ REACT_APP_INFINITE_CANVAS=false
 User needs to have permissions to send these events to initialize a whiteboard:
 
 - `net.nordeck.whiteboard` state event that creates a new board
-- `net.nordeck.whiteboard.sessions` state event that enables real-time collaboration with this user on the board
+- `org.matrix.msc4143.rtc.slot` state event that enables real-time collaboration on the board,
+  or `net.nordeck.whiteboard.sessions` when using the legacy WebRTC implementation
 
-User will need to wait for the moderator to join and initialize the room and whiteboard if the user doesn't have these permissions.
+User will need to wait for the moderator to join and initialize the room and
+whiteboard if the user doesn't have these permissions.
 
 ## Rate limiting settings
 
 For a good NeoBoard experience rate limiting settings need to be tweaked.
 
-NeoBoard sends one snapshot every 5 seconds, if the board changed. One snapshot may consist of multiple chunk events.
-If you added images to the board, there is one media upload per image. Uploads also happen when importing a NeoBoard.
+NeoBoard sends one snapshot every 5 seconds, if the board changed. One snapshot
+may consist of multiple chunk events.
+If you added images to the board, there is one media upload per image. Uploads
+also happen when importing a NeoBoard.
 
 Because of that we recommend at least the following settings (using Synapse as an example):
 
@@ -70,6 +80,9 @@ The calculation base for these settings is:
 - 1 snapshot with 10 chunks = 11 events in 5 seconds + additional messages sent by the user
 - It is possible to import a NeoBoard with 100 images
 
-You can find more information about where to set the rate limiting settings [in the Synapse configuration manual](https://element-hq.github.io/synapse/latest/usage/configuration/config_documentation.html#ratelimiting).
+You can find more information about where to set the rate limiting settings
+[in the Synapse configuration manual](https://element-hq.github.io/synapse/latest/usage/configuration/config_documentation.html#ratelimiting).
 
-Loosening the rate limiting settings also means people are allowed to send more messages to a room or upload more media files within a short time outside of NeoBoard, so these settings should be adjusted with care.
+Loosening the rate limiting settings also means people are allowed to send more
+messages to a room or upload more media files within a short time outside of
+NeoBoard, so these settings should be adjusted with care.

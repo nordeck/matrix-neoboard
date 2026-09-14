@@ -15,7 +15,6 @@
  */
 
 import { RoomEvent, StateEvent } from '@matrix-widget-toolkit/api';
-import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { WidgetApiMockProvider } from '@matrix-widget-toolkit/react';
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { renderHook, waitFor } from '@testing-library/react';
@@ -34,21 +33,14 @@ import {
 import { createStore } from '../store';
 import { useOwnedWhiteboard } from './useOwnedWhiteboard';
 
-vi.mock('@matrix-widget-toolkit/mui', async () => ({
-  ...(await vi.importActual<typeof import('@matrix-widget-toolkit/mui')>(
-    '@matrix-widget-toolkit/mui',
-  )),
-  getEnvironment: vi.fn(),
-}));
-
 let widgetApi: MockedWidgetApi;
 
 afterEach(() => widgetApi.stop());
 
 beforeEach(() => {
-  vi.mocked(getEnvironment).mockImplementation(
-    (_, defaultValue) => defaultValue,
-  );
+  // Pin the mode for the whole suite: only the session power level patch and
+  // the event ids below depend on it. The MatrixRTC tests stub it back.
+  vi.stubEnv('REACT_APP_RTC', 'webrtc');
 
   widgetApi = mockWidgetApi();
 });
@@ -263,9 +255,7 @@ describe('useOwnedWhiteboard', () => {
   });
 
   it('should return an existing whiteboard and send a slot if slot is missing in MatrixRTC mode', async () => {
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_RTC' ? 'matrixrtc' : defaultValue,
-    );
+    vi.stubEnv('REACT_APP_RTC', 'matrixrtc');
 
     widgetApi.mockSendStateEvent(mockPowerLevelsEvent());
 
@@ -311,9 +301,7 @@ describe('useOwnedWhiteboard', () => {
   });
 
   it('should create a new document, snapshot, whiteboard and slot in MatrixRTC mode', async () => {
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_RTC' ? 'matrixrtc' : defaultValue,
-    );
+    vi.stubEnv('REACT_APP_RTC', 'matrixrtc');
 
     widgetApi.mockSendStateEvent(mockPowerLevelsEvent());
 

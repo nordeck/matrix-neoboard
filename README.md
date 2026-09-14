@@ -69,15 +69,15 @@ You need to install Node.js (`>= 20.0.0`, prefer using an LTS version) and run
 
 This widget requires at least Element Web `1.11.46` to work properly when using
 [legacy WebRTC](./docs/adrs/adr006-webrtc-for-real-time-communication.md)
-for realtime collaboration.
+for realtime collaboration. Select it with `REACT_APP_RTC=webrtc`.
 
 A homeserver that implements at least v1.11 of the Matrix spec is also required,
 such as Synapse `1.98.0` or later.
 
 #### Latest MatrixRTC spec proposal
 
-To use the latest [MatrixRTC with LiveKit transport](./docs/adrs/adr009-matrix-rtc-livekit.md)
-implementation, the following is required:
+[MatrixRTC with LiveKit transport](./docs/adrs/adr009-matrix-rtc-livekit.md) is
+used by default. It requires the following:
 
 - [Element Web](https://github.com/element-hq/element-web) `1.12.26` or later
 - [LiveKit Authorization Service](https://github.com/element-hq/lk-jwt-service) `0.5.0` or later

@@ -1,6 +1,6 @@
 # ADR009: MatrixRTC + LiveKit for Real Time Communication
 
-Status: draft
+Status: accepted
 
 ## Context
 
@@ -42,7 +42,8 @@ connected.
 We decide to keep the existing software design abstractions but include an
 alternative implementation for discovery, peer connection tracking and communication
 channels, with minimal impact to other whiteboard components. The MatrixRTC
-implementation is activated with `REACT_APP_RTC=matrixrtc`.
+implementation is the default and the legacy WebRTC implementation can be
+selected with `REACT_APP_RTC=webrtc`.
 
 ### Slots
 

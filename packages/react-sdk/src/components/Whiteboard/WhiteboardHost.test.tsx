@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -51,6 +50,12 @@ import { WhiteboardHotkeysProvider } from '../WhiteboardHotkeysProvider';
 import * as constants from './constants';
 import { SvgScaleContextType, useSvgScaleContext } from './SvgScaleContext';
 
+// This suite covers the legacy slides mode. It is pinned before the imports are
+// evaluated because the flag is read while the module graph is loaded.
+vi.hoisted(() => {
+  process.env.REACT_APP_INFINITE_CANVAS = 'false';
+});
+
 vi.mock('./SvgCanvas/useMeasure', () => ({
   useMeasure: vi.fn().mockReturnValue([vi.fn(), { width: 1920, height: 1080 }]),
 }));
@@ -58,13 +63,6 @@ vi.mock('./SvgCanvas/useMeasure', () => ({
 vi.mock('./SvgCanvas/utils', async () => ({
   ...(await vi.importActual('./SvgCanvas/utils')),
   calculateSvgCoords: (position: Point) => position,
-}));
-
-vi.mock('@matrix-widget-toolkit/mui', async () => ({
-  ...(await vi.importActual<typeof import('@matrix-widget-toolkit/mui')>(
-    '@matrix-widget-toolkit/mui',
-  )),
-  getEnvironment: vi.fn(),
 }));
 
 describe('<WhiteboardHost/>', () => {
@@ -84,10 +82,6 @@ describe('<WhiteboardHost/>', () => {
   ) => void;
 
   beforeEach(() => {
-    vi.mocked(getEnvironment).mockImplementation(
-      (_, defaultValue) => defaultValue,
-    );
-
     document.elementsFromPoint = vi.fn().mockReturnValue([]);
 
     widgetApi = mockWidgetApi();
@@ -829,9 +823,7 @@ describe('<WhiteboardHost/>', () => {
   });
 
   it('should select an element attached to active frame with left button in infinite canvas mode in the presentation mode if edit mode is enabled', async () => {
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-    );
+    vi.stubEnv('REACT_APP_INFINITE_CANVAS', 'true');
 
     // attached existing element to new frame
     activeSlide.updateElements([
@@ -865,9 +857,7 @@ describe('<WhiteboardHost/>', () => {
   });
 
   it('should not select an element without frame with left button in infinite canvas mode in the presentation mode if edit mode is enabled', () => {
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-    );
+    vi.stubEnv('REACT_APP_INFINITE_CANVAS', 'true');
 
     setPresentationMode(true, true);
 
@@ -883,9 +873,7 @@ describe('<WhiteboardHost/>', () => {
   });
 
   it('should not select an element attached to non active frame with left button in infinite canvas mode in the presentation mode if edit mode is enabled', () => {
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-    );
+    vi.stubEnv('REACT_APP_INFINITE_CANVAS', 'true');
 
     // create one more frame
     const frameId1 = activeSlide.addElement(mockFrameElement());
@@ -920,9 +908,7 @@ describe('<WhiteboardHost/>', () => {
   });
 
   it('should not select a frame element with left button in infinite canvas mode in the presentation mode if edit mode is enabled', () => {
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-    );
+    vi.stubEnv('REACT_APP_INFINITE_CANVAS', 'true');
 
     setPresentationMode(true, true);
 
@@ -1350,9 +1336,7 @@ describe('<WhiteboardHost/>', () => {
       const button = 2;
       const buttons = 2;
 
-      vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-        name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-      );
+      vi.stubEnv('REACT_APP_INFINITE_CANVAS', 'true');
 
       vi.spyOn(constants, 'infiniteCanvasMode', 'get').mockReturnValue(true);
       vi.spyOn(constants, 'whiteboardWidth', 'get').mockReturnValue(19200);
@@ -1432,9 +1416,7 @@ describe('<WhiteboardHost/>', () => {
     async ({ type: presentationType, isEditMode }) => {
       const button = 2;
 
-      vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-        name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-      );
+      vi.stubEnv('REACT_APP_INFINITE_CANVAS', 'true');
 
       vi.spyOn(constants, 'infiniteCanvasMode', 'get').mockReturnValue(true);
       vi.spyOn(constants, 'whiteboardWidth', 'get').mockReturnValue(19200);
@@ -1463,9 +1445,7 @@ describe('<WhiteboardHost/>', () => {
   );
 
   it("should not pan the infinite canvas by dragging canvas with the right mouse button in presentation mode type 'presentation' if edit mode is not active", async () => {
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-    );
+    vi.stubEnv('REACT_APP_INFINITE_CANVAS', 'true');
 
     vi.spyOn(constants, 'infiniteCanvasMode', 'get').mockReturnValue(true);
     vi.spyOn(constants, 'whiteboardWidth', 'get').mockReturnValue(19200);
