@@ -38,7 +38,7 @@ export default defineConfig({
     // depend on a developer's `.env` / `.env.local`
     env: {
       REACT_APP_INFINITE_CANVAS: 'true',
-      REACT_APP_RTC: 'webrtc',
+      REACT_APP_RTC: 'matrixrtc',
     },
     setupFiles: [path.resolve(__dirname, './src/setupTests.ts')],
     exclude: ['build', 'lib'],

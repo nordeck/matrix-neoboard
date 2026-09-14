@@ -151,7 +151,9 @@ describe('useActiveWhiteboardInstanceStatistics', () => {
             'connected',
           ),
         },
-        sessions: {},
+        sessions: {
+          other: { userId: '@user-alice:example.com' },
+        },
       },
     });
   });
@@ -184,7 +186,9 @@ describe('useActiveWhiteboardInstanceStatistics', () => {
             'connected',
           ),
         },
-        sessions: {},
+        sessions: {
+          other: { userId: '@user-alice:example.com' },
+        },
       },
     });
 

@@ -44,6 +44,7 @@ import {
 } from '../../state';
 import {
   CommunicationChannel,
+  CommunicationChannelStatistics,
   Message,
   PeerConnectionStatistics,
 } from '../../state/communication';
@@ -135,35 +136,25 @@ export function mockWhiteboardManager(
   document.getUndoManager().clear();
 
   const messageSubject = new Subject<Message>();
+  const statistics: CommunicationChannelStatistics = {
+    localSession: {
+      sessionId: 'own',
+    },
+    peerConnections: {
+      'peer-0': mockPeerConnectionStatistics(
+        '@user-alice:example.com',
+        'connected',
+      ),
+    },
+    sessions: {
+      other: { userId: '@user-alice:example.com' },
+    },
+  };
   const communicationChannel = {
     broadcastMessage: vi.fn(),
     observeMessages: vi.fn(() => messageSubject),
-    getStatistics: vi.fn(() => ({
-      localSession: {
-        sessionId: 'own',
-      },
-      peerConnections: {
-        'peer-0': mockPeerConnectionStatistics(
-          '@user-alice:example.com',
-          'connected',
-        ),
-      },
-      sessions: {},
-    })),
-    observeStatistics: vi.fn(() =>
-      of({
-        localSession: {
-          sessionId: 'own',
-        },
-        peerConnections: {
-          'peer-0': mockPeerConnectionStatistics(
-            '@user-alice:example.com',
-            'connected',
-          ),
-        },
-        sessions: {},
-      }),
-    ),
+    getStatistics: vi.fn(() => statistics),
+    observeStatistics: vi.fn(() => of(statistics)),
     destroy: vi.fn(),
   };
 

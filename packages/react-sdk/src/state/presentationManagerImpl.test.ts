@@ -43,6 +43,10 @@ describe('presentationManager', () => {
   let presentationManager: PresentationManagerImpl;
 
   beforeEach(async () => {
+    // The remote peers below are modelled as WebRTC peer connections, so pin
+    // the mode for the whole suite. The MatrixRTC counterparts stub it back.
+    vi.stubEnv('REACT_APP_RTC', 'webrtc');
+
     communicationStatistics = {
       localSession: {
         sessionId: 'own',

@@ -31,8 +31,9 @@ We sometimes use feature flags during development of bigger new features when us
 # optional: Indicate if the widget is embedded, e.g. in standalone mode, to enable/disable respective features.
 REACT_APP_EMBEDDED=false
 
-# optional: Select the Realtime Communication (RTC) implementation (defaults to `webrtc`, otherwise `matrixrtc`)
-REACT_APP_RTC=webrtc
+# optional: Set to `webrtc` to use the legacy peer-to-peer WebRTC implementation
+# instead of MatrixRTC (default: `matrixrtc`)
+REACT_APP_RTC=matrixrtc
 
 # optional: Set to `false` to use the legacy slides mode instead of the
 # infinite canvas (default: infinite canvas)
@@ -44,7 +45,8 @@ REACT_APP_INFINITE_CANVAS=false
 User needs to have permissions to send these events to initialize a whiteboard:
 
 - `net.nordeck.whiteboard` state event that creates a new board
-- `net.nordeck.whiteboard.sessions` state event that enables real-time collaboration with this user on the board
+- `org.matrix.msc4143.rtc.slot` state event that enables real-time collaboration on the board,
+  or `net.nordeck.whiteboard.sessions` when using the legacy WebRTC implementation
 
 User will need to wait for the moderator to join and initialize the room and whiteboard if the user doesn't have these permissions.
 
