@@ -33,6 +33,7 @@ import {
   mockWhiteboardManager,
   WhiteboardTestingContextProvider,
 } from '../../../../lib/testUtils/documentTestUtils';
+import { firePointerMoveEvent } from '../../../../lib/testUtils/domTestUtils';
 import {
   Point,
   WhiteboardManager,
@@ -165,7 +166,7 @@ describe('<DragSelect/>', () => {
     render(<DragSelect />, { wrapper: Wrapper });
 
     vi.mocked(svgUtils.calculateSvgCoords).mockReturnValue({ x: 50, y: 50 });
-    fireEvent.pointerMove(screen.getByTestId('drag-select-layer'), {
+    firePointerMoveEvent(screen.getByTestId('drag-select-layer'), {
       clientX: 50,
       clientY: 50,
     });
@@ -181,7 +182,7 @@ describe('<DragSelect/>', () => {
       setDragSelectStartCoords({ x: 0, y: 0 });
     });
     vi.mocked(svgUtils.calculateSvgCoords).mockReturnValue({ x: 50, y: 50 });
-    fireEvent.pointerMove(screen.getByTestId('drag-select-layer'), {
+    firePointerMoveEvent(screen.getByTestId('drag-select-layer'), {
       clientX: 50,
       clientY: 50,
     });
@@ -198,7 +199,7 @@ describe('<DragSelect/>', () => {
       setDragSelectStartCoords({ x: 60, y: 60 });
     });
     vi.mocked(svgUtils.calculateSvgCoords).mockReturnValue({ x: 70, y: 70 });
-    fireEvent.pointerMove(screen.getByTestId('drag-select-layer'), {
+    firePointerMoveEvent(screen.getByTestId('drag-select-layer'), {
       clientX: 70,
       clientY: 70,
     });
@@ -210,7 +211,7 @@ describe('<DragSelect/>', () => {
 
     // Now extend the selection to the corner where element-0 is located
     vi.mocked(svgUtils.calculateSvgCoords).mockReturnValue({ x: 0, y: 0 });
-    fireEvent.pointerMove(screen.getByTestId('drag-select-layer'), {
+    firePointerMoveEvent(screen.getByTestId('drag-select-layer'), {
       clientX: 0,
       clientY: 0,
     });
@@ -224,7 +225,7 @@ describe('<DragSelect/>', () => {
     expect(activeSlide.getActiveElementIds()).not.toContain('frame-0');
   });
 
-  it('should should select an element attached to active frame in infinite canvas mode in the presentation mode if edit mode is enabled', () => {
+  it('should select an element attached to active frame in infinite canvas mode in the presentation mode if edit mode is enabled', () => {
     vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
       name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
     );
@@ -254,7 +255,7 @@ describe('<DragSelect/>', () => {
       setDragSelectStartCoords({ x: 60, y: 60 });
     });
     vi.mocked(svgUtils.calculateSvgCoords).mockReturnValue({ x: 70, y: 70 });
-    fireEvent.pointerMove(screen.getByTestId('drag-select-layer'), {
+    firePointerMoveEvent(screen.getByTestId('drag-select-layer'), {
       clientX: 70,
       clientY: 70,
     });
@@ -262,7 +263,7 @@ describe('<DragSelect/>', () => {
     expect(activeSlide.getActiveElementIds()).toEqual(['element-1']);
   });
 
-  it('should should not select an element without frame in infinite canvas mode in the presentation mode if edit mode is enabled', () => {
+  it('should not select an element without frame in infinite canvas mode in the presentation mode if edit mode is enabled', () => {
     vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
       name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
     );
@@ -276,7 +277,7 @@ describe('<DragSelect/>', () => {
       setDragSelectStartCoords({ x: 60, y: 60 });
     });
     vi.mocked(svgUtils.calculateSvgCoords).mockReturnValue({ x: 70, y: 70 });
-    fireEvent.pointerMove(screen.getByTestId('drag-select-layer'), {
+    firePointerMoveEvent(screen.getByTestId('drag-select-layer'), {
       clientX: 70,
       clientY: 70,
     });
@@ -317,11 +318,28 @@ describe('<DragSelect/>', () => {
       setDragSelectStartCoords({ x: 60, y: 60 });
     });
     vi.mocked(svgUtils.calculateSvgCoords).mockReturnValue({ x: 70, y: 70 });
-    fireEvent.pointerMove(screen.getByTestId('drag-select-layer'), {
+    firePointerMoveEvent(screen.getByTestId('drag-select-layer'), {
       clientX: 70,
       clientY: 70,
     });
 
     expect(activeSlide.getActiveElementIds()).toEqual([]);
+  });
+
+  it('should immediately cancel drag select if pen is not touching the surface', () => {
+    render(<DragSelect />, { wrapper: Wrapper });
+    act(() => {
+      setDragSelectStartCoords({ x: 60, y: 60 });
+    });
+
+    firePointerMoveEvent(screen.getByTestId('drag-select-layer'), {
+      isPrimary: true,
+      pointerType: 'pen',
+      button: -1,
+      buttons: 0, // not touching the surface
+      clientX: 50,
+      clientY: 50,
+    });
+    expect(dragSelectStartCoords).toBeUndefined();
   });
 });
