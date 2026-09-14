@@ -36,11 +36,11 @@
     "react-beautiful-dnd": "^13.1.1",
     "react-draggable": "^4.4.6",
     "react-dropzone": "^14.3.8",
-    "react-hotkeys-hook": "^5.3.2",
+    "react-hotkeys-hook": "^5.3.3",
     "react-joyride": "^2.9.3",
     "react-redux": "^9.2.0",
     "react-transition-group": "^4.4.5",
-    "react-use": "^17.6.0",
+    "react-use": "^17.6.1",
     "rxjs": "^7.8.2",
     "tinycolor2": "^1.6.0",
     "yjs": "^13.6.31"
