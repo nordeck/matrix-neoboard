@@ -73,5 +73,9 @@
       "prettier --write"
     ]
   },
-  "packageManager": "yarn@1.22.22+sha1.ac34549e6aa8e7ead463a7407e1c7390f61a6610"
+  "packageManager": "yarn@1.22.22+sha1.ac34549e6aa8e7ead463a7407e1c7390f61a6610",
+  "resolutions": {
+    "@types/react": "18.3.26",
+    "csstype": "3.2.3"
+  }
 }
