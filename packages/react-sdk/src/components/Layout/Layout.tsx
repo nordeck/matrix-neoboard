@@ -37,6 +37,7 @@ import { GuidedTour } from '../GuidedTour';
 import { HelpCenterBar } from '../HelpCenterBar';
 import { ImageUploadProvider } from '../ImageUpload';
 import { ImportWhiteboardDialogProvider } from '../ImportWhiteboardDialog/ImportWhiteboardDialogProvider';
+import { PenElementBarWrapper } from '../PenElementBar';
 import { PresentBar } from '../PresentBar';
 import { Shortcuts } from '../Shortcuts';
 import { SlideOverviewBar } from '../SlideOverviewBar';
@@ -170,6 +171,11 @@ function ContentArea() {
     isViewingPresentation && presentationState.isEditMode;
   const { canStopPresentation } = usePowerLevels();
   const [sizeRef, { width: toolbarWidth }] = useMeasure<HTMLDivElement>();
+  const [toolsBarRowRef, { height: toolsBarRowHeight }] =
+    useMeasure<HTMLDivElement>();
+
+  const { activeTool } = useLayoutState();
+  const isInPenMode = activeTool === 'polyline';
 
   return (
     <SvgScaleContextProvider>
@@ -197,22 +203,31 @@ function ContentArea() {
       <WhiteboardHost />
 
       {(!isViewingPresentation || isViewingPresentationInEditMode) && (
-        <ToolbarCanvasContainer ref={sizeRef}>
-          <ToolbarContainer bottom={(theme) => theme.spacing(1)}>
-            {infiniteCanvasMode && presentationState.type === 'idle' && (
-              <ZoomBar />
-            )}
+        <>
+          <ToolbarCanvasContainer ref={sizeRef}>
+            <ToolbarContainer
+              ref={toolsBarRowRef}
+              bottom={(theme) => theme.spacing(1)}
+            >
+              {infiniteCanvasMode && presentationState.type === 'idle' && (
+                <ZoomBar />
+              )}
 
-            <Box flex="1" />
+              <Box flex="1" />
 
-            <ToolsBar />
-            {toolbarWidth > 515 && <UndoRedoBar />}
+              <ToolsBar />
+              {toolbarWidth > 515 && <UndoRedoBar />}
 
-            <Box display="flex" justifyContent="flex-end" flex="1">
-              {toolbarWidth > 600 && <HelpCenterBar />}
-            </Box>
-          </ToolbarContainer>
-        </ToolbarCanvasContainer>
+              <Box display="flex" justifyContent="flex-end" flex="1">
+                {toolbarWidth > 600 && <HelpCenterBar />}
+              </Box>
+            </ToolbarContainer>
+          </ToolbarCanvasContainer>
+
+          {isInPenMode && (
+            <PenElementBarWrapper bottomOffset={toolsBarRowHeight} />
+          )}
+        </>
       )}
     </SvgScaleContextProvider>
   );

@@ -20,7 +20,14 @@ import { useTranslation } from 'react-i18next';
 import { useActiveElements, useWhiteboardSlideInstance } from '../../../state';
 import { ToolbarButton } from '../../common/Toolbar';
 
-export function DeleteActiveElementButton() {
+export type DeleteActiveElementButtonProps = {
+  /** If set, overrides the computed aria-label of the button. */
+  label?: string;
+};
+
+export function DeleteActiveElementButton({
+  label,
+}: DeleteActiveElementButtonProps = {}) {
   const { t } = useTranslation('neoboard');
   const { activeElementIds } = useActiveElements();
   const slideInstance = useWhiteboardSlideInstance();
@@ -31,11 +38,12 @@ export function DeleteActiveElementButton() {
     }
   }, [activeElementIds, slideInstance]);
 
-  const deleteActiveElementLabel = t(
-    'elementBar.deleteElement',
-    'Delete element',
-    { count: activeElementIds.length, defaultValue_other: 'Delete elements' },
-  );
+  const deleteActiveElementLabel =
+    label ??
+    t('elementBar.deleteElement', 'Delete element', {
+      count: activeElementIds.length,
+      defaultValue_other: 'Delete elements',
+    });
 
   return (
     <ToolbarButton aria-label={deleteActiveElementLabel} onClick={handleDelete}>
