@@ -15,21 +15,25 @@
  */
 
 import { Stack, StackProps } from '@mui/material';
+import { forwardRef } from 'react';
 
-export function ToolbarContainer(props: StackProps) {
-  return (
-    <Stack
-      position="absolute"
-      direction="row"
-      flexWrap="wrap"
-      gap={1}
-      alignItems="center"
-      justifyContent="center"
-      left={(theme) => theme.spacing(1)}
-      right={(theme) => theme.spacing(1)}
-      zIndex={(theme) => theme.zIndex.appBar}
-      {...props}
-      sx={{ ...props.sx, pointerEvents: 'none' }}
-    />
-  );
-}
+export const ToolbarContainer = forwardRef<HTMLDivElement, StackProps>(
+  function ToolbarContainer(props, ref) {
+    return (
+      <Stack
+        ref={ref}
+        position="absolute"
+        direction="row"
+        flexWrap="wrap"
+        gap={1}
+        alignItems="center"
+        justifyContent="center"
+        left={(theme) => theme.spacing(1)}
+        right={(theme) => theme.spacing(1)}
+        zIndex={(theme) => theme.zIndex.appBar}
+        {...props}
+        sx={{ ...props.sx, pointerEvents: 'none' }}
+      />
+    );
+  },
+);
