@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { fireEvent, render } from '@testing-library/react';
 import { ComponentType, PropsWithChildren, useEffect } from 'react';
@@ -48,11 +49,22 @@ import { WhiteboardHotkeysProvider } from '../../WhiteboardHotkeysProvider';
 import { ClipboardShortcuts } from './ClipboardShortcuts';
 import { deserializeFromHtml, serializeToClipboard } from './serialization';
 
+vi.mock('@matrix-widget-toolkit/mui', async () => ({
+  ...(await vi.importActual<typeof import('@matrix-widget-toolkit/mui')>(
+    '@matrix-widget-toolkit/mui',
+  )),
+  getEnvironment: vi.fn(),
+}));
+
 let widgetApi: MockedWidgetApi;
 
 afterEach(() => widgetApi.stop());
 
 beforeEach(() => {
+  vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+    name === 'REACT_APP_INFINITE_CANVAS' ? 'false' : defaultValue,
+  );
+
   widgetApi = mockWidgetApi();
 });
 

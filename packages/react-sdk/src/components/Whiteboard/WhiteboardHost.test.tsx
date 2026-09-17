@@ -811,6 +811,10 @@ describe('<WhiteboardHost/>', () => {
   });
 
   it('should select element with left button in the presentation mode if edit mode is enabled', async () => {
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+      name === 'REACT_APP_INFINITE_CANVAS' ? 'false' : defaultValue,
+    );
+
     setPresentationMode(true, true);
 
     render(<WhiteboardHost />, { wrapper: Wrapper });

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { act, renderHook } from '@testing-library/react';
 import { ComponentType, PropsWithChildren } from 'react';
 import { Subject, of } from 'rxjs';
@@ -41,11 +42,22 @@ import {
 import { WhiteboardManagerProvider } from './useWhiteboardManager';
 import { SlideProvider } from './useWhiteboardSlideInstance';
 
+vi.mock('@matrix-widget-toolkit/mui', async () => ({
+  ...(await vi.importActual<typeof import('@matrix-widget-toolkit/mui')>(
+    '@matrix-widget-toolkit/mui',
+  )),
+  getEnvironment: vi.fn(),
+}));
+
 let Wrapper: ComponentType<PropsWithChildren<{}>>;
 let whiteboardManager: Mocked<WhiteboardManager>;
 let activeWhiteboardInstance: WhiteboardInstance;
 
 beforeEach(() => {
+  vi.mocked(getEnvironment).mockImplementation(
+    (_, defaultValue) => defaultValue,
+  );
+
   ({ whiteboardManager } = mockWhiteboardManager());
   activeWhiteboardInstance = whiteboardManager.getActiveWhiteboardInstance()!;
 
@@ -145,7 +157,9 @@ describe('useActiveWhiteboardInstanceStatistics', () => {
             'connected',
           ),
         },
-        sessions: {},
+        sessions: {
+          other: { userId: '@user-alice:example.com' },
+        },
       },
     });
   });
@@ -178,7 +192,9 @@ describe('useActiveWhiteboardInstanceStatistics', () => {
             'connected',
           ),
         },
-        sessions: {},
+        sessions: {
+          other: { userId: '@user-alice:example.com' },
+        },
       },
     });
 
@@ -362,6 +378,10 @@ describe('useActiveSlideOrFrame', () => {
   });
 
   it('should return first slide', () => {
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+      name === 'REACT_APP_INFINITE_CANVAS' ? 'false' : defaultValue,
+    );
+
     const { result } = renderHook(() => useActiveSlideOrFrame(), {
       wrapper: Wrapper,
     });
@@ -374,6 +394,10 @@ describe('useActiveSlideOrFrame', () => {
   });
 
   it('should return middle slide', () => {
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+      name === 'REACT_APP_INFINITE_CANVAS' ? 'false' : defaultValue,
+    );
+
     activeWhiteboardInstance.setActiveSlideId('slide-1');
 
     const { result } = renderHook(() => useActiveSlideOrFrame(), {
@@ -388,6 +412,10 @@ describe('useActiveSlideOrFrame', () => {
   });
 
   it('should return last slide', () => {
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+      name === 'REACT_APP_INFINITE_CANVAS' ? 'false' : defaultValue,
+    );
+
     activeWhiteboardInstance.setActiveSlideId('slide-2');
 
     const { result } = renderHook(() => useActiveSlideOrFrame(), {
@@ -402,6 +430,10 @@ describe('useActiveSlideOrFrame', () => {
   });
 
   it('should observe slides', () => {
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+      name === 'REACT_APP_INFINITE_CANVAS' ? 'false' : defaultValue,
+    );
+
     const { result } = renderHook(() => useActiveSlideOrFrame(), {
       wrapper: Wrapper,
     });

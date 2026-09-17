@@ -139,6 +139,12 @@ describe('<SelectAllShortcut>', () => {
   });
 
   describe('presentation mode for slides', () => {
+    beforeEach(() => {
+      vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+        name === 'REACT_APP_INFINITE_CANVAS' ? 'false' : defaultValue,
+      );
+    });
+
     it('should ignore select all', async () => {
       setPresentationMode(true, false);
 
@@ -196,12 +202,6 @@ describe('<SelectAllShortcut>', () => {
   });
 
   describe('presentation mode for frames', () => {
-    beforeEach(() => {
-      vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-        name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-      );
-    });
-
     it('should ignore select all', async () => {
       setPresentationMode(true, false);
 

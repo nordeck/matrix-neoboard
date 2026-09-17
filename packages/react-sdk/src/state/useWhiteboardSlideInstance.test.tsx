@@ -130,6 +130,10 @@ describe('useWhiteboardSlideInstance', () => {
 
 describe('useWhiteboardSlideOrFrameIds', () => {
   it('should return slide ids', () => {
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+      name === 'REACT_APP_INFINITE_CANVAS' ? 'false' : defaultValue,
+    );
+
     const { result } = renderHook(() => useWhiteboardSlideOrFrameIds(), {
       wrapper: Wrapper,
     });

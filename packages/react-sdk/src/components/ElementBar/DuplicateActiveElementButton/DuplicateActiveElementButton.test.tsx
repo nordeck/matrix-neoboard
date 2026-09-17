@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
+import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { render, screen } from '@testing-library/react';
 import { ComponentType, PropsWithChildren } from 'react';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   mockFrameElement,
   mockWhiteboardManager,
@@ -30,6 +31,19 @@ import {
   duplicate,
   DuplicateActiveElementButton,
 } from './DuplicateActiveElementButton';
+
+vi.mock('@matrix-widget-toolkit/mui', async () => ({
+  ...(await vi.importActual<typeof import('@matrix-widget-toolkit/mui')>(
+    '@matrix-widget-toolkit/mui',
+  )),
+  getEnvironment: vi.fn(),
+}));
+
+beforeEach(() => {
+  vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+    name === 'REACT_APP_INFINITE_CANVAS' ? 'false' : defaultValue,
+  );
+});
 
 describe('duplicate', () => {
   it('should duplicate a points element', async () => {

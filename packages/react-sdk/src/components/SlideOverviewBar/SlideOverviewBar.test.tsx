@@ -58,8 +58,8 @@ let widgetApi: MockedWidgetApi;
 afterEach(() => widgetApi.stop());
 
 beforeEach(() => {
-  vi.mocked(getEnvironment).mockImplementation(
-    (_, defaultValue) => defaultValue,
+  vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+    name === 'REACT_APP_INFINITE_CANVAS' ? 'false' : defaultValue,
   );
 
   widgetApi = mockWidgetApi();
