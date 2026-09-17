@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { renderHook } from '@testing-library/react';
 import { ComponentType, PropsWithChildren } from 'react';
@@ -43,10 +44,23 @@ import {
 } from '../Whiteboard/SvgScaleContext';
 import { useCreateFrame } from './useCreateFrame';
 
+vi.mock('@matrix-widget-toolkit/mui', async () => ({
+  ...(await vi.importActual<typeof import('@matrix-widget-toolkit/mui')>(
+    '@matrix-widget-toolkit/mui',
+  )),
+  getEnvironment: vi.fn(),
+}));
+
 vi.mock('../Whiteboard/SvgScaleContext/context', async (importActual) => ({
   ...(await importActual()),
   useSvgScaleContext: vi.fn(),
 }));
+
+beforeEach(() => {
+  vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+    name === 'REACT_APP_INFINITE_CANVAS' ? 'false' : defaultValue,
+  );
+});
 
 describe('useCreateFrame', () => {
   let widgetApi: MockedWidgetApi;

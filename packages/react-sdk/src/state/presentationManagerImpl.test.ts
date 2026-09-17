@@ -49,6 +49,8 @@ describe('presentationManager', () => {
       switch (name) {
         case 'REACT_APP_RTC':
           return 'webrtc';
+        case 'REACT_APP_INFINITE_CANVAS':
+          return 'false';
         default:
           return defaultValue;
       }

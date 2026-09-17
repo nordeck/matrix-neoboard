@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-import { describe, expect, it } from 'vitest';
+import { getEnvironment } from '@matrix-widget-toolkit/mui';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { mockEllipseElement, mockLineElement } from '../../../lib/testUtils';
 import {
   ClipboardContent,
@@ -27,6 +28,19 @@ import {
   serializeAsPlainText,
   serializeToClipboard,
 } from './serialization';
+
+vi.mock('@matrix-widget-toolkit/mui', async () => ({
+  ...(await vi.importActual<typeof import('@matrix-widget-toolkit/mui')>(
+    '@matrix-widget-toolkit/mui',
+  )),
+  getEnvironment: vi.fn(),
+}));
+
+beforeEach(() => {
+  vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+    name === 'REACT_APP_INFINITE_CANVAS' ? 'false' : defaultValue,
+  );
+});
 
 describe('isValidElementsObject', () => {
   it('should accept elements', () => {

@@ -106,6 +106,10 @@ describe('isInfiniteCanvasPresentationEdit', () => {
   });
 
   it('should return false if we are not in infinite canvas mode', () => {
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+      name === 'REACT_APP_INFINITE_CANVAS' ? 'false' : defaultValue,
+    );
+
     expect(
       isInfiniteCanvasPresentationEdit({
         type: 'presentation',

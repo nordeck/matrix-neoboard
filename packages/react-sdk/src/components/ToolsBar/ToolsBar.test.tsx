@@ -49,8 +49,8 @@ vi.mock('@matrix-widget-toolkit/mui', async () => ({
 let widgetApi: MockedWidgetApi;
 
 beforeEach(() => {
-  vi.mocked(getEnvironment).mockImplementation(
-    (_, defaultValue) => defaultValue,
+  vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+    name === 'REACT_APP_INFINITE_CANVAS' ? 'false' : defaultValue,
   );
 
   widgetApi = mockWidgetApi();

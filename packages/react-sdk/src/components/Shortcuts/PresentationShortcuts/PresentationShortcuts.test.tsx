@@ -14,11 +14,20 @@
  * limitations under the License.
  */
 
+import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ComponentType, PropsWithChildren } from 'react';
-import { Mocked, afterEach, beforeEach, describe, expect, it } from 'vitest';
+import {
+  Mocked,
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
 import {
   WhiteboardTestingContextProvider,
   mockEllipseElement,
@@ -28,6 +37,13 @@ import { WhiteboardInstance, WhiteboardManager } from '../../../state';
 import { WhiteboardHotkeysProvider } from '../../WhiteboardHotkeysProvider';
 import { PresentationShortcuts } from './PresentationShortcuts';
 
+vi.mock('@matrix-widget-toolkit/mui', async () => ({
+  ...(await vi.importActual<typeof import('@matrix-widget-toolkit/mui')>(
+    '@matrix-widget-toolkit/mui',
+  )),
+  getEnvironment: vi.fn(),
+}));
+
 describe('PresentationShortcuts', () => {
   let widgetApi: MockedWidgetApi;
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
@@ -35,6 +51,10 @@ describe('PresentationShortcuts', () => {
   let activeWhiteboardInstance: WhiteboardInstance;
 
   beforeEach(() => {
+    vi.mocked(getEnvironment).mockImplementation(
+      (_, defaultValue) => defaultValue,
+    );
+
     widgetApi = mockWidgetApi();
     ({ whiteboardManager } = mockWhiteboardManager({
       slides: [
@@ -80,6 +100,10 @@ describe('PresentationShortcuts', () => {
   );
 
   it('when presenting, it should change the slides by arrow keys and space', async () => {
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+      name === 'REACT_APP_INFINITE_CANVAS' ? 'false' : defaultValue,
+    );
+
     activeWhiteboardInstance.getPresentationManager()?.startPresentation();
     render(<PresentationShortcuts />, { wrapper: Wrapper });
 
