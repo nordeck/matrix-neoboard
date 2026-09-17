@@ -23,19 +23,23 @@ REACT_APP_DEVTOOLS=true
 
 More environment variables exist for UI customization and are inherited from and documented by our framework [@matrix-widget-toolkit/mui](https://www.npmjs.com/package/@matrix-widget-toolkit/mui#customization).
 
-### Experimental Features
+### Experimental and Legacy Features
 
-We sometimes use feature flags during development of bigger new features when using a long running feature branch would mean too much work spent on rebasing repeatedly.
+We sometimes use feature flags during development of bigger new features when
+using a long running feature branch would mean too much work spent on rebasing repeatedly.
+
+We also keep some options to use legacy features until we fully deprecate them.
 
 ```sh
 # optional: Indicate if the widget is embedded, e.g. in standalone mode, to enable/disable respective features.
 REACT_APP_EMBEDDED=false
 
-# optional: Select the Realtime Communication (RTC) implementation (defaults to `webrtc`, otherwise `matrixrtc`)
-REACT_APP_RTC=webrtc
+# optional: Set to `webrtc` to use the legacy peer-to-peer WebRTC implementation
+# instead of MatrixRTC (default: `matrixrtc`)
+REACT_APP_RTC=matrixrtc
 
-# optional: Use infinite canvas instead of slides mode (defaults to `false`)
-REACT_APP_INFINITE_CANVAS=false
+# infinite canvas (default: true)
+REACT_APP_INFINITE_CANVAS=true
 ```
 
 ## Room power level
