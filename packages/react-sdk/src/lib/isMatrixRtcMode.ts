@@ -17,5 +17,5 @@
 import { getEnvironment } from '@matrix-widget-toolkit/mui';
 
 export function isMatrixRtcMode(): boolean {
-  return getEnvironment('REACT_APP_RTC') === 'matrixrtc';
+  return getEnvironment('REACT_APP_RTC', 'matrixrtc') === 'matrixrtc';
 }

@@ -46,6 +46,7 @@ import {
   CommunicationChannel,
   Message,
   PeerConnectionStatistics,
+  SessionStatistics,
 } from '../../state/communication';
 import { SharedMap, YArray, YMap } from '../../state/crdt/y';
 import {
@@ -56,6 +57,7 @@ import {
 import { WhiteboardInstanceImpl } from '../../state/whiteboardInstanceImpl';
 import { createStore } from '../../store';
 import { isInfiniteCanvasMode } from '../isInfiniteCanvasMode';
+import { isMatrixRtcMode } from '../isMatrixRtcMode';
 import { mockWhiteboard } from './matrixTestUtils';
 
 type MockWhiteboardOptions =
@@ -135,6 +137,17 @@ export function mockWhiteboardManager(
   document.getUndoManager().clear();
 
   const messageSubject = new Subject<Message>();
+  const peerConnections = {
+    'peer-0': mockPeerConnectionStatistics(
+      '@user-alice:example.com',
+      'connected',
+    ),
+  };
+  const sessions: Record<string, SessionStatistics> = isMatrixRtcMode()
+    ? {
+        other: { userId: '@user-alice:example.com' },
+      }
+    : {};
   const communicationChannel = {
     broadcastMessage: vi.fn(),
     observeMessages: vi.fn(() => messageSubject),
@@ -142,26 +155,16 @@ export function mockWhiteboardManager(
       localSession: {
         sessionId: 'own',
       },
-      peerConnections: {
-        'peer-0': mockPeerConnectionStatistics(
-          '@user-alice:example.com',
-          'connected',
-        ),
-      },
-      sessions: {},
+      peerConnections,
+      sessions,
     })),
     observeStatistics: vi.fn(() =>
       of({
         localSession: {
           sessionId: 'own',
         },
-        peerConnections: {
-          'peer-0': mockPeerConnectionStatistics(
-            '@user-alice:example.com',
-            'connected',
-          ),
-        },
-        sessions: {},
+        peerConnections,
+        sessions,
       }),
     ),
     destroy: vi.fn(),

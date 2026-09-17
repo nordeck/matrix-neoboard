@@ -45,9 +45,14 @@ describe('presentationManager', () => {
   let presentationManager: PresentationManagerImpl;
 
   beforeEach(async () => {
-    vi.mocked(getEnvironment).mockImplementation(
-      (_, defaultValue) => defaultValue,
-    );
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) => {
+      switch (name) {
+        case 'REACT_APP_RTC':
+          return 'webrtc';
+        default:
+          return defaultValue;
+      }
+    });
 
     communicationStatistics = {
       localSession: {
@@ -357,9 +362,16 @@ describe('presentationManager', () => {
   });
 
   it('should accept presentation start of a different user in infinite canvas mode', async () => {
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-    );
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) => {
+      switch (name) {
+        case 'REACT_APP_INFINITE_CANVAS':
+          return 'true';
+        case 'REACT_APP_RTC':
+          return 'webrtc';
+        default:
+          return defaultValue;
+      }
+    });
 
     const states = firstValueFrom(
       presentationManager.observePresentationState().pipe(take(2), toArray()),
@@ -477,9 +489,16 @@ describe('presentationManager', () => {
   });
 
   it('should accept presentation stop of a different user in infinite canvas mode', async () => {
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-    );
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) => {
+      switch (name) {
+        case 'REACT_APP_INFINITE_CANVAS':
+          return 'true';
+        case 'REACT_APP_RTC':
+          return 'webrtc';
+        default:
+          return defaultValue;
+      }
+    });
 
     messageSubject.next({
       senderUserId: '@user-bob:example.com',
@@ -613,9 +632,16 @@ describe('presentationManager', () => {
   });
 
   it('should accept the edit mode from a different user in infinite canvas mode', async () => {
-    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
-    );
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) => {
+      switch (name) {
+        case 'REACT_APP_INFINITE_CANVAS':
+          return 'true';
+        case 'REACT_APP_RTC':
+          return 'webrtc';
+        default:
+          return defaultValue;
+      }
+    });
 
     const states = firstValueFrom(
       presentationManager.observePresentationState().pipe(take(3), toArray()),
