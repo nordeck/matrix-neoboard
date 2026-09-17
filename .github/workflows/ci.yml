@@ -211,7 +211,9 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version-file: 'matrix-neoboard-standalone/package.json'
+          # Temporarily using a fixed Node.js version due to matrix-js-sdk requirements
+          # node-version-file: 'matrix-neoboard-standalone/package.json'
+          node-version: 24
           cache: 'yarn'
           cache-dependency-path: |
             matrix-neoboard-standalone/yarn.lock
@@ -220,6 +222,10 @@ jobs:
       - name: yarn install neoboard
         working-directory: ./matrix-neoboard/
         run: yarn install --frozen-lockfile
+
+      # Temporarily while we build from an unreleased JS SDK
+      - name: Install pnpm
+        run: npm install --global pnpm@12
 
       - name: yarn install neoboard standalone
         working-directory: ./matrix-neoboard-standalone/
