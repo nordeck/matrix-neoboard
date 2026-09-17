@@ -1,5 +1,17 @@
 # @nordeck/matrix-neoboard-widget
 
+## 3.0.0
+
+### Major Changes
+
+- 888becf: Set `REACT_APP_INFINITE_CANVAS` to `true` and `REACT_APP_RTC` to `'matrixrtc'` by default
+
+### Patch Changes
+
+- Updated dependencies [888becf]
+- Updated dependencies [23295a4]
+  - @nordeck/matrix-neoboard-react-sdk@2.0.0
+
 ## 2.5.0
 
 ### Minor Changes

@@ -1,5 +1,15 @@
 # @nordeck/matrix-neoboard-react-sdk
 
+## 2.0.0
+
+### Major Changes
+
+- 888becf: Set `REACT_APP_INFINITE_CANVAS` to `true` and `REACT_APP_RTC` to `'matrixrtc'` by default
+
+### Minor Changes
+
+- 23295a4: The element bar and resize handles no longer obstruct the canvas while drawing with the Pen tool.
+
 ## 1.5.0
 
 ### Minor Changes
