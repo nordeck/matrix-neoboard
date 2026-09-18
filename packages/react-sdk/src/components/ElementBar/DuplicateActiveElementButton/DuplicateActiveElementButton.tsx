@@ -62,7 +62,14 @@ export function duplicate(
   };
 }
 
-export function DuplicateActiveElementButton() {
+export type DuplicateActiveElementButtonProps = {
+  /** If set, overrides the computed aria-label of the button. */
+  label?: string;
+};
+
+export function DuplicateActiveElementButton({
+  label,
+}: DuplicateActiveElementButtonProps = {}) {
   const { t } = useTranslation('neoboard');
   const slideInstance = useWhiteboardSlideInstance();
   const { activeElementIds } = useActiveElements();
@@ -90,14 +97,12 @@ export function DuplicateActiveElementButton() {
     slideInstance.addElementsWithRelations(duplicatedElements);
   }, [activeElementIds, slideInstance]);
 
-  const duplicateActiveElementLabel = t(
-    'elementBar.duplicateActiveElement',
-    'Duplicate the active element',
-    {
+  const duplicateActiveElementLabel =
+    label ??
+    t('elementBar.duplicateActiveElement', 'Duplicate the active element', {
       count: activeElementIds.length,
       defaultValue_other: 'Duplicate the active elements',
-    },
-  );
+    });
 
   const onlyFramesSelected = activeElements.every((e) => e.type === 'frame');
 
