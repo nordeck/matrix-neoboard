@@ -1,5 +1,11 @@
 # @nordeck/matrix-neoboard-react-sdk
 
+## 2.0.1
+
+### Patch Changes
+
+- 65c2cee: Fix command+D, delete shortcuts for single element
+
 ## 2.0.0
 
 ### Major Changes
