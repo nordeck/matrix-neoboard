@@ -140,12 +140,13 @@ export class PresentationManagerImpl implements PresentationManager {
             if (content.view) {
               this.setCurrentPresenter(senderSessionId);
 
-              // clear the undo manager unless the user is already in edit mode
-              if (!this.isEditMode && content.view.isEditMode) {
+              const wasEditMode = this.isEditMode;
+              this.setEditMode(content.view.isEditMode);
+
+              // clear the undo manager only when transitioning into edit mode
+              if (!wasEditMode && content.view.isEditMode) {
                 whiteboardInstance.clearUndoManager();
               }
-
-              this.setEditMode(content.view.isEditMode);
               const frameId = content.view.frameId;
               whiteboardInstance.setActiveFrameElementId(frameId);
             } else {
