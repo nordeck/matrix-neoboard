@@ -332,7 +332,6 @@ export function TextEditor({
   return (
     <Editable
       style={{ color }}
-      role="textbox"
       contentEditable={editable}
       editMode={isEditMode}
       textAlign={contentAlignment}
