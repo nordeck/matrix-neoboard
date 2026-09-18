@@ -24,7 +24,12 @@ import { ChangeEvent, ReactElement, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { isInfiniteCanvasMode } from '../../lib';
 import { useSlideIsLocked, useWhiteboardSlideInstance } from '../../state';
-import { Toolbar, ToolbarButton, ToolbarRadioGroup } from '../common/Toolbar';
+import {
+  Toolbar,
+  ToolbarButton,
+  ToolbarItemSecondaryMenu,
+  ToolbarRadioGroup,
+} from '../common/Toolbar';
 import { ToolbarRadio } from '../common/Toolbar/ToolbarRadio';
 import { CursorDefaultIcon } from '../icons/CursorDefaultIcon';
 import { LineIcon } from '../icons/LineIcon';
@@ -34,6 +39,7 @@ import { TriangleIcon } from '../icons/TriangleIcon';
 import { UploadIcon } from '../icons/UploadIcon';
 import { useSlideImageUpload } from '../ImageUpload';
 import { ActiveTool, useLayoutState } from '../Layout';
+import { PenElementBar } from '../PenElementBar';
 import { FrameButton } from './FrameButton';
 
 export function ToolsBar() {
@@ -125,18 +131,34 @@ export function ToolsBar() {
         data-guided-tour-target="toolsbar"
       >
         <ToolbarRadioGroup flexWrap="wrap" aria-label={toolsBarTitle}>
-          {tools.map(({ label, icon, value }) => (
-            <ToolbarRadio
-              inputProps={{ 'aria-label': label }}
-              disabled={isLocked}
-              icon={icon}
-              checkedIcon={icon}
-              key={value}
-              value={value}
-              checked={activeTool === value && !isLocked}
-              onChange={handleRadioClick}
-            />
-          ))}
+          {tools.map(({ label, icon, value }) => {
+            const isPenActiveTool =
+              activeTool === 'polyline' && value === 'polyline';
+
+            const button = (
+              <ToolbarRadio
+                inputProps={{ 'aria-label': label }}
+                disabled={isLocked}
+                icon={icon}
+                checkedIcon={icon}
+                value={value}
+                checked={activeTool === value && !isLocked}
+                onChange={handleRadioClick}
+              />
+            );
+
+            if (isPenActiveTool) {
+              return (
+                <ToolbarItemSecondaryMenu
+                  key={value}
+                  secondaryMenu={<PenElementBar />}
+                  item={button}
+                />
+              );
+            }
+
+            return button;
+          })}
           {isInfiniteCanvasMode() && <FrameButton />}
           <ToolbarButton
             aria-label={t('toolsBar.imageUploadTool', 'Upload image')}
