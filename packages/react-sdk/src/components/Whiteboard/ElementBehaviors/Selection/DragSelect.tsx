@@ -137,12 +137,18 @@ export function DragSelect() {
   const lastMoveRef = useRef(0);
   const handlePointerMove = useCallback(
     (event: PointerEvent<SVGRectElement>) => {
+      // If the pen isn't touhing the surface we should cancel the drag select mode immediately.
+      if (event.pointerType === 'pen' && event.buttons === 0) {
+        setDragSelectStartCoords();
+        return;
+      }
+
       const now = Date.now();
       if (now - lastMoveRef.current < POINTER_MOVE_THROTTLE_MS) return;
       lastMoveRef.current = now;
       setEndCoords(calculateSvgCoords({ x: event.clientX, y: event.clientY }));
     },
-    [calculateSvgCoords],
+    [calculateSvgCoords, setDragSelectStartCoords],
   );
 
   return (
