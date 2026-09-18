@@ -57,7 +57,7 @@ export const ShadePicker: React.FC<ShadePickerProps> = function ({
 
     return (
       <Box
-        key={index}
+        key={shade}
         role="radio"
         aria-label={shadeLabels[index]}
         aria-checked={shade === activeColor}
