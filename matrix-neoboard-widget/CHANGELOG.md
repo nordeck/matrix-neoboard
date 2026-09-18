@@ -1,5 +1,13 @@
 # @nordeck/matrix-neoboard-widget
 
+## 3.0.1
+
+### Patch Changes
+
+- 65c2cee: Fix command+D, delete shortcuts for single element
+- Updated dependencies [65c2cee]
+  - @nordeck/matrix-neoboard-react-sdk@2.0.1
+
 ## 3.0.0
 
 ### Major Changes
