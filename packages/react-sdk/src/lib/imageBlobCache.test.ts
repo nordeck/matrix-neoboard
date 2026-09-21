@@ -26,7 +26,7 @@ describe('imageBlobCache', () => {
   });
 
   afterEach(() => {
-    vi.restoreAllMocks();
+    vi.resetAllMocks();
   });
 
   describe('acquireImageUrl', () => {

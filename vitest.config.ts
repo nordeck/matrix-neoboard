@@ -14,5 +14,10 @@
  * limitations under the License.
  */
 
-// These are all the packages using vitest.
-export default ['matrix-neoboard-widget', 'packages/*'];
+import { defineConfig } from 'vitest/config';
+
+export default defineConfig({
+  test: {
+    projects: ['matrix-neoboard-widget', 'packages/*'],
+  },
+});

@@ -45,12 +45,7 @@ describe('WebRtcPeerConnection', () => {
     description?: RTCSessionDescription | undefined;
     candidates?: (RTCIceCandidate | null)[] | undefined;
   }>;
-  let connectionSpy: MockInstance<
-    (
-      this: RTCPeerConnection,
-      configuration?: RTCConfiguration | undefined,
-    ) => RTCPeerConnection
-  >;
+  let connectionSpy: MockInstance<typeof RTCPeerConnection>;
 
   beforeEach(() => {
     signalingSubject = new Subject();
@@ -67,7 +62,9 @@ describe('WebRtcPeerConnection', () => {
 
     connectionSpy = vi
       .spyOn(window, 'RTCPeerConnection')
-      .mockReturnValue(rtcPeerConnection);
+      .mockImplementation(function () {
+        return rtcPeerConnection;
+      });
   });
 
   it('should pass fallback stun server to WebRTC on creation', () => {
