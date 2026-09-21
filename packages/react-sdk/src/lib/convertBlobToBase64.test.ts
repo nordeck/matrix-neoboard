@@ -31,7 +31,7 @@ describe('convertBlobToBase64', () => {
   beforeEach(() => {
     fileReader = new FileReader();
     readAsDataURLSpy = vi.spyOn(fileReader, 'readAsDataURL');
-    vi.spyOn(global, 'FileReader').mockImplementation(() => {
+    vi.spyOn(global, 'FileReader').mockImplementation(function () {
       return fileReader;
     });
   });

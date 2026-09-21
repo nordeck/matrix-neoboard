@@ -14,10 +14,7 @@
  * limitations under the License.
  */
 
-import path from 'path';
 import { defineConfig } from 'vitest/config';
-
-const __dirname = path.dirname(__filename);
 
 export default defineConfig({
   resolve: {
@@ -34,7 +31,7 @@ export default defineConfig({
   test: {
     // Happy-Dom has no support for the blob: scheme. So we need to use jsdom
     environment: 'jsdom',
-    setupFiles: [path.resolve(__dirname, './src/setupTests.ts')],
+    setupFiles: ['./src/setupTests.ts'],
     exclude: ['build', 'lib'],
     server: {
       deps: {

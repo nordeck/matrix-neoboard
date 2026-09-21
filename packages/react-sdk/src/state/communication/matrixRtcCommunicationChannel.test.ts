@@ -126,26 +126,26 @@ describe('MatrixRtcCommunicationChannel', () => {
       destroy: vi.fn(),
     };
     let peerConnectionCount = 0;
-    vi.mocked(MatrixRtcPeerConnection).mockImplementation(
-      (livekitServiceUrl) => {
-        const newPeerConnection = mockPeerConnection({
-          connectionId: livekitServiceUrl,
-          messageSubject:
-            peerConnectionCount === 0 ? messageSubject : messageSubjectAnother,
-          statisticsSubject:
-            peerConnectionCount === 0
-              ? statisticsSubject
-              : statisticsAnotherSubject,
-        });
-        if (peerConnectionCount === 0) {
-          peerConnection = newPeerConnection;
-        } else {
-          peerConnectionAnother = newPeerConnection;
-        }
-        peerConnectionCount++;
-        return newPeerConnection as unknown as MatrixRtcPeerConnection;
-      },
-    );
+    vi.mocked(MatrixRtcPeerConnection).mockImplementation(function (
+      livekitServiceUrl: string,
+    ) {
+      const newPeerConnection = mockPeerConnection({
+        connectionId: livekitServiceUrl,
+        messageSubject:
+          peerConnectionCount === 0 ? messageSubject : messageSubjectAnother,
+        statisticsSubject:
+          peerConnectionCount === 0
+            ? statisticsSubject
+            : statisticsAnotherSubject,
+      });
+      if (peerConnectionCount === 0) {
+        peerConnection = newPeerConnection;
+      } else {
+        peerConnectionAnother = newPeerConnection;
+      }
+      peerConnectionCount++;
+      return newPeerConnection;
+    });
     vi.spyOn(AutoDiscovery, 'getSFUConfigWithOpenID').mockImplementation(
       (_widgetApi, livekitServiceUrl) => {
         let sfuConfig: SFUConfig;

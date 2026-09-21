@@ -14,10 +14,7 @@
  * limitations under the License.
  */
 
-import path from 'path';
 import { defineConfig } from 'vitest/config';
-
-const __dirname = path.dirname(__filename);
 
 export default defineConfig({
   resolve: {
@@ -32,7 +29,7 @@ export default defineConfig({
   },
   test: {
     environment: 'jsdom',
-    setupFiles: [path.resolve(__dirname, './src/setupTests.ts')],
+    setupFiles: ['./src/setupTests.ts'],
     exclude: ['build', 'lib'],
     server: {
       deps: {

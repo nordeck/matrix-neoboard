@@ -136,9 +136,9 @@ describe('WebRtcCommunicationChannel', () => {
       observeStatistics: vi.fn().mockReturnValue(statisticsSubject),
       observeConnectionState: vi.fn(),
     };
-    vi.mocked(WebRtcPeerConnection).mockReturnValue(
-      peerConnection as unknown as WebRtcPeerConnection,
-    );
+    vi.mocked(WebRtcPeerConnection).mockImplementation(function () {
+      return peerConnection;
+    });
   });
 
   afterEach(() => {

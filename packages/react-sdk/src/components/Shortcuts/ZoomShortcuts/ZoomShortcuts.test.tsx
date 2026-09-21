@@ -81,7 +81,7 @@ describe('ZoomShortcuts', () => {
   afterEach(() => {
     widgetApi.stop();
     // restore the mock on window.navigator.userAgent
-    vi.restoreAllMocks();
+    vi.resetAllMocks();
   });
 
   it.each([['{Control>}+'], ['{Control>}=']])(

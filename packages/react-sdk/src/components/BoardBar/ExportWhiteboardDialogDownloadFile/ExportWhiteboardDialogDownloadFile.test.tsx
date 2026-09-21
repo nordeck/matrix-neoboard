@@ -150,14 +150,16 @@ describe('<ExportWhiteboardDialogDownloadFile />', () => {
   });
 
   it('should download the correct whiteboard content', async () => {
-    const blobSpy = vi.spyOn(global, 'Blob').mockReturnValue({
-      size: 0,
-      type: '',
-      arrayBuffer: vi.fn(),
-      slice: vi.fn(),
-      stream: vi.fn(),
-      text: vi.fn(),
-    } as unknown as Blob);
+    const blobSpy = vi.spyOn(global, 'Blob').mockImplementation(function () {
+      return {
+        size: 0,
+        type: '',
+        arrayBuffer: vi.fn(),
+        slice: vi.fn(),
+        stream: vi.fn(),
+        text: vi.fn(),
+      } as unknown as Blob;
+    });
 
     render(
       <ExportWhiteboardDialogDownloadFile onClick={onClick}>

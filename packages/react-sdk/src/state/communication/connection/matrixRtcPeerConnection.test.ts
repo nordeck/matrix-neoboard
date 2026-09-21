@@ -58,7 +58,9 @@ describe('MatrixRtcPeerConnection', () => {
 
       return undefined;
     });
-    vi.mocked(Room).mockImplementation(() => mockRoom);
+    vi.mocked(Room).mockImplementation(function () {
+      return mockRoom;
+    });
   });
 
   it('should connect on creation', async () => {
