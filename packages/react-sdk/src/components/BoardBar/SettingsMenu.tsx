@@ -23,6 +23,10 @@ import { useTranslation } from 'react-i18next';
 import { usePowerLevels } from '../../store/api/usePowerLevels';
 import { useImportWhiteboardDialog } from '../ImportWhiteboardDialog/useImportWhiteboardDialog';
 import { useLayoutState } from '../Layout';
+import {
+  HOTKEY_SCOPE_WHITEBOARD,
+  usePauseHotkeysScope,
+} from '../WhiteboardHotkeysProvider';
 import { MenuItemSwitch } from '../common/MenuItemSwitch';
 import { ToolbarSubMenu } from '../common/Toolbar';
 import { DotsGridIcon } from '../icons/DotsGridIcon';
@@ -55,6 +59,7 @@ export function SettingsMenu() {
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
+  usePauseHotkeysScope(HOTKEY_SCOPE_WHITEBOARD, open);
 
   const [openExportDialog, setOpenExportDialog] = useState(false);
   const { canImportWhiteboard } = usePowerLevels();
@@ -136,6 +141,7 @@ export function SettingsMenu() {
           [buttonId],
         )}
         id={menuId}
+        disableRestoreFocus={true}
       >
         {canImportWhiteboard && <ImportMenuItem onClose={handleClose} />}
         <MenuItem onClick={handleExportClick}>
