@@ -34,7 +34,9 @@ import { TriangleIcon } from '../icons/TriangleIcon';
 import { UploadIcon } from '../icons/UploadIcon';
 import { useSlideImageUpload } from '../ImageUpload';
 import { ActiveTool, useLayoutState } from '../Layout';
+import { PenElementBar } from '../PenElementBar';
 import { FrameButton } from './FrameButton';
+import { ToolsBarSecondaryMenu } from './ToolsBarSecondaryMenu';
 
 export function ToolsBar() {
   const { t } = useTranslation('neoboard');
@@ -125,18 +127,34 @@ export function ToolsBar() {
         data-guided-tour-target="toolsbar"
       >
         <ToolbarRadioGroup flexWrap="wrap" aria-label={toolsBarTitle}>
-          {tools.map(({ label, icon, value }) => (
-            <ToolbarRadio
-              inputProps={{ 'aria-label': label }}
-              disabled={isLocked}
-              icon={icon}
-              checkedIcon={icon}
-              key={value}
-              value={value}
-              checked={activeTool === value && !isLocked}
-              onChange={handleRadioClick}
-            />
-          ))}
+          {tools.map(({ label, icon, value }) => {
+            const isPenActiveTool =
+              activeTool === 'polyline' && value === 'polyline';
+
+            const button = (
+              <ToolbarRadio
+                inputProps={{ 'aria-label': label }}
+                disabled={isLocked}
+                icon={icon}
+                checkedIcon={icon}
+                value={value}
+                checked={activeTool === value && !isLocked}
+                onChange={handleRadioClick}
+              />
+            );
+
+            if (isPenActiveTool) {
+              return (
+                <ToolsBarSecondaryMenu
+                  key={value}
+                  secondaryMenu={<PenElementBar />}
+                  item={button}
+                />
+              );
+            }
+
+            return button;
+          })}
           {isInfiniteCanvasMode() && <FrameButton />}
           <ToolbarButton
             aria-label={t('toolsBar.imageUploadTool', 'Upload image')}
