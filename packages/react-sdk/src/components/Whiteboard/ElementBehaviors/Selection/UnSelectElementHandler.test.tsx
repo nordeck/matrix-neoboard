@@ -15,7 +15,7 @@
  */
 
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ComponentType, PropsWithChildren } from 'react';
 import {
@@ -33,7 +33,6 @@ import {
   mockEllipseElement,
   mockWhiteboardManager,
 } from '../../../../lib/testUtils/documentTestUtils';
-import { firePointerMoveEvent } from '../../../../lib/testUtils/domTestUtils';
 import { Point, WhiteboardSlideInstance } from '../../../../state';
 import { LayoutStateProvider, useLayoutState } from '../../../Layout';
 import * as constants from '../../constants';
@@ -151,7 +150,7 @@ describe('<UnSelectElementHandler/>', () => {
     await userEvent.pointer({ keys: '[TouchA>]', target: layer });
 
     // Should ignore when the pen is hovering above the surface
-    firePointerMoveEvent(layer, {
+    fireEvent.pointerMove(layer, {
       isPrimary: true,
       pointerType: 'pen',
       button: -1,

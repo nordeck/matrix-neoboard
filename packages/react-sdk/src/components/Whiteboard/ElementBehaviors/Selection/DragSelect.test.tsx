@@ -33,7 +33,6 @@ import {
   mockWhiteboardManager,
   WhiteboardTestingContextProvider,
 } from '../../../../lib/testUtils/documentTestUtils';
-import { firePointerMoveEvent } from '../../../../lib/testUtils/domTestUtils';
 import {
   Point,
   WhiteboardManager,
@@ -166,7 +165,7 @@ describe('<DragSelect/>', () => {
     render(<DragSelect />, { wrapper: Wrapper });
 
     vi.mocked(svgUtils.calculateSvgCoords).mockReturnValue({ x: 50, y: 50 });
-    firePointerMoveEvent(screen.getByTestId('drag-select-layer'), {
+    fireEvent.pointerMove(screen.getByTestId('drag-select-layer'), {
       clientX: 50,
       clientY: 50,
     });
@@ -182,7 +181,7 @@ describe('<DragSelect/>', () => {
       setDragSelectStartCoords({ x: 0, y: 0 });
     });
     vi.mocked(svgUtils.calculateSvgCoords).mockReturnValue({ x: 50, y: 50 });
-    firePointerMoveEvent(screen.getByTestId('drag-select-layer'), {
+    fireEvent.pointerMove(screen.getByTestId('drag-select-layer'), {
       clientX: 50,
       clientY: 50,
     });
@@ -199,7 +198,7 @@ describe('<DragSelect/>', () => {
       setDragSelectStartCoords({ x: 60, y: 60 });
     });
     vi.mocked(svgUtils.calculateSvgCoords).mockReturnValue({ x: 70, y: 70 });
-    firePointerMoveEvent(screen.getByTestId('drag-select-layer'), {
+    fireEvent.pointerMove(screen.getByTestId('drag-select-layer'), {
       clientX: 70,
       clientY: 70,
     });
@@ -211,7 +210,7 @@ describe('<DragSelect/>', () => {
 
     // Now extend the selection to the corner where element-0 is located
     vi.mocked(svgUtils.calculateSvgCoords).mockReturnValue({ x: 0, y: 0 });
-    firePointerMoveEvent(screen.getByTestId('drag-select-layer'), {
+    fireEvent.pointerMove(screen.getByTestId('drag-select-layer'), {
       clientX: 0,
       clientY: 0,
     });
@@ -255,7 +254,7 @@ describe('<DragSelect/>', () => {
       setDragSelectStartCoords({ x: 60, y: 60 });
     });
     vi.mocked(svgUtils.calculateSvgCoords).mockReturnValue({ x: 70, y: 70 });
-    firePointerMoveEvent(screen.getByTestId('drag-select-layer'), {
+    fireEvent.pointerMove(screen.getByTestId('drag-select-layer'), {
       clientX: 70,
       clientY: 70,
     });
@@ -277,7 +276,7 @@ describe('<DragSelect/>', () => {
       setDragSelectStartCoords({ x: 60, y: 60 });
     });
     vi.mocked(svgUtils.calculateSvgCoords).mockReturnValue({ x: 70, y: 70 });
-    firePointerMoveEvent(screen.getByTestId('drag-select-layer'), {
+    fireEvent.pointerMove(screen.getByTestId('drag-select-layer'), {
       clientX: 70,
       clientY: 70,
     });
@@ -318,7 +317,7 @@ describe('<DragSelect/>', () => {
       setDragSelectStartCoords({ x: 60, y: 60 });
     });
     vi.mocked(svgUtils.calculateSvgCoords).mockReturnValue({ x: 70, y: 70 });
-    firePointerMoveEvent(screen.getByTestId('drag-select-layer'), {
+    fireEvent.pointerMove(screen.getByTestId('drag-select-layer'), {
       clientX: 70,
       clientY: 70,
     });
@@ -332,7 +331,7 @@ describe('<DragSelect/>', () => {
       setDragSelectStartCoords({ x: 60, y: 60 });
     });
 
-    firePointerMoveEvent(screen.getByTestId('drag-select-layer'), {
+    fireEvent.pointerMove(screen.getByTestId('drag-select-layer'), {
       isPrimary: true,
       pointerType: 'pen',
       button: -1,

@@ -137,7 +137,7 @@ export function DragSelect() {
   const lastMoveRef = useRef(0);
   const handlePointerMove = useCallback(
     (event: PointerEvent<SVGRectElement>) => {
-      // If the pen isn't touhing the surface we should cancel the drag select mode immediately.
+      // If the pen isn't touching the surface we should cancel the drag select mode immediately.
       if (event.pointerType === 'pen' && event.buttons === 0) {
         setDragSelectStartCoords();
         return;
