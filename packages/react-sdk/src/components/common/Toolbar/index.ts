@@ -19,7 +19,6 @@ export { ToolbarAvatar } from './ToolbarAvatar';
 export { ToolbarAvatarGroup } from './ToolbarAvatarGroup';
 export { ToolbarAvatarMoreButton } from './ToolbarAvatarMoreButton';
 export { ToolbarButton } from './ToolbarButton';
-export { ToolbarItemSecondaryMenu } from './ToolbarItemSecondaryMenu';
 export { ToolbarRadio } from './ToolbarRadio';
 export { ToolbarRadioGroup } from './ToolbarRadioGroup';
 export { ToolbarSubMenu } from './ToolbarSubMenu';
