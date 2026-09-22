@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import {
   Element,
   ElementUpdate,
@@ -40,6 +40,11 @@ type UseLineThicknessResult = {
    * @param value - the stroke width to apply
    */
   applyLineThickness: (value: number) => void;
+
+  /**
+   * Returns the fist polyline in the selection, if exists.
+   */
+  firstSelectedPolyline?: PathElement;
 };
 
 function isPolyline(element: Element): element is PathElement {
@@ -52,10 +57,14 @@ export const useLineThickness = (): UseLineThicknessResult => {
   const { activePolylineThickness, setActivePolylineThickness } =
     useLayoutState();
   const activeElements = useElements(activeElementIds);
-  const elements = Object.values(activeElements);
+
+  const firstSelectedPolyline = useMemo(() => {
+    const elements = Object.values(activeElements);
+    return elements.find(isPolyline);
+  }, [activeElements]);
 
   const lineThickness: number =
-    elements.find(isPolyline)?.strokeWidth ??
+    firstSelectedPolyline?.strokeWidth ??
     activePolylineThickness ??
     defaultStrokeWidth;
 
@@ -77,6 +86,7 @@ export const useLineThickness = (): UseLineThicknessResult => {
   );
 
   return {
+    firstSelectedPolyline,
     lineThickness,
     applyLineThickness,
   };

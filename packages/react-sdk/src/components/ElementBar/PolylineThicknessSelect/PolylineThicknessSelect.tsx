@@ -17,17 +17,14 @@
 import { MenuItem, Select, Tooltip } from '@mui/material';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useActiveElements, useElements } from '../../../state';
 import { useLineThickness } from './useLineThickness';
 
 const STROKE_WIDTHS = [4, 6, 8, 10, 12, 14, 16];
 
 export function PolylineThicknessSelect() {
   const { t } = useTranslation('neoboard');
-  const { lineThickness, applyLineThickness } = useLineThickness();
-
-  const { activeElementIds } = useActiveElements();
-  const elements = useElements(activeElementIds);
+  const { lineThickness, applyLineThickness, firstSelectedPolyline } =
+    useLineThickness();
 
   const strokeWidths = useMemo(
     () =>
@@ -37,11 +34,7 @@ export function PolylineThicknessSelect() {
     [lineThickness],
   );
 
-  const hasPolylinePath = Object.values(elements).find(
-    (element) => element.type === 'path' && element.kind === 'polyline',
-  );
-
-  if (!hasPolylinePath) {
+  if (!firstSelectedPolyline) {
     return null;
   }
 
