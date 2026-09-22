@@ -18,7 +18,7 @@ import { Popper, PopperProps } from '@mui/material';
 import noop from 'lodash/noop';
 import { ReactNode, Ref, useEffect, useRef, useState } from 'react';
 
-export type ToolbarItemSecondaryMenuProps = {
+export type ToolsBarSecondaryMenuProps = {
   /**
    * The toolbar item to render, e.g. a ToolbarRadio. It is wrapped in a
    * plain element used to anchor the secondary menu, so the item itself
@@ -44,10 +44,10 @@ type PopperInstance =
  * Wraps a single toolbar item and gives it the ability to hold a floating
  * secondary menu centered above it.
  */
-export function ToolbarItemSecondaryMenu({
+export function ToolsBarSecondaryMenu({
   item,
   secondaryMenu,
-}: ToolbarItemSecondaryMenuProps) {
+}: ToolsBarSecondaryMenuProps) {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const popperInstanceRef = useRef<PopperInstance | null>(null);
   const [menuContentEl, setMenuContentEl] = useState<HTMLDivElement | null>(
@@ -81,6 +81,7 @@ export function ToolbarItemSecondaryMenu({
       <span ref={setAnchorEl}>{item}</span>
       {secondaryMenu && (
         <Popper
+          data-testid="tools-bar-secondary-menu-popper"
           open={true}
           anchorEl={anchorEl}
           placement="top"

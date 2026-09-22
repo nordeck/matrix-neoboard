@@ -15,3 +15,4 @@
  */
 
 export { ToolsBar } from './ToolsBar';
+export { ToolsBarSecondaryMenu } from './ToolsBarSecondaryMenu';

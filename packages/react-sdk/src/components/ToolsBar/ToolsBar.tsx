@@ -24,12 +24,7 @@ import { ChangeEvent, ReactElement, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { isInfiniteCanvasMode } from '../../lib';
 import { useSlideIsLocked, useWhiteboardSlideInstance } from '../../state';
-import {
-  Toolbar,
-  ToolbarButton,
-  ToolbarItemSecondaryMenu,
-  ToolbarRadioGroup,
-} from '../common/Toolbar';
+import { Toolbar, ToolbarButton, ToolbarRadioGroup } from '../common/Toolbar';
 import { ToolbarRadio } from '../common/Toolbar/ToolbarRadio';
 import { CursorDefaultIcon } from '../icons/CursorDefaultIcon';
 import { LineIcon } from '../icons/LineIcon';
@@ -41,6 +36,7 @@ import { useSlideImageUpload } from '../ImageUpload';
 import { ActiveTool, useLayoutState } from '../Layout';
 import { PenElementBar } from '../PenElementBar';
 import { FrameButton } from './FrameButton';
+import { ToolsBarSecondaryMenu } from './ToolsBarSecondaryMenu';
 
 export function ToolsBar() {
   const { t } = useTranslation('neoboard');
@@ -149,7 +145,7 @@ export function ToolsBar() {
 
             if (isPenActiveTool) {
               return (
-                <ToolbarItemSecondaryMenu
+                <ToolsBarSecondaryMenu
                   key={value}
                   secondaryMenu={<PenElementBar />}
                   item={button}
