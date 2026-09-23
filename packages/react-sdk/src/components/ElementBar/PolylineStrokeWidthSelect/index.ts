@@ -14,5 +14,5 @@
  * limitations under the License.
  */
 
-export { PolylineThicknessSelect } from './PolylineThicknessSelect';
-export { useLineThickness } from './useLineThickness';
+export { PolylineStrokeWidthSelect } from './PolylineStrokeWidthSelect';
+export { usePolylineStrokeWidth } from './usePolylineStrokeWidth';

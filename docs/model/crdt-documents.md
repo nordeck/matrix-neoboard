@@ -169,19 +169,19 @@ An element that consists of points.
 
 #### Fields
 
-| Field                   | Type                             | Description                                                                                                                              |
-| ----------------------- | -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| `type`                  | `'path'`                         | Identifies the element as a path.                                                                                                        |
-| `kind`                  | `'line' \| 'polyline'`           | The kind of path, either a straight `line` between two points or a `polyline` with many points.                                          |
-| `position`              | `Point`                          | The position of the path on the whiteboard canvas.                                                                                       |
-| `points`                | `Point[]`                        | The points of the path in relative coordinates to its position.                                                                          |
-| `strokeColor`           | `string`                         | The stroke color of the path as [CSS color value][csscolor].                                                                             |
-| `strokeWidth`           | `number \| undefined`            | The stroke width of the path in pixels. Only applicable to `polyline` paths at this time. Has a default width of 4 if undefined or zero. |
-| `startMarker`           | `'arrow-head-line' \| undefined` | An optional marker for the end of a path.                                                                                                |
-| `endMarker`             | `'arrow-head-line' \| undefined` | An optional marker for the end of a path.                                                                                                |
-| `connectedElementStart` | `string \| undefined`            | The ID of connected element on the first point. Currently shapes can be connected.                                                       |
-| `connectedElementEnd`   | `string \| undefined`            | The ID of connected element on the last point. Currently shapes can be connected.                                                        |
-| `attachedFrame`         | `string \| undefined`            | The ID of the frame this element is attached to.                                                                                         |
+| Field                   | Type                             | Description                                                                                     |
+| ----------------------- | -------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `type`                  | `'path'`                         | Identifies the element as a path.                                                               |
+| `kind`                  | `'line' \| 'polyline'`           | The kind of path, either a straight `line` between two points or a `polyline` with many points. |
+| `position`              | `Point`                          | The position of the path on the whiteboard canvas.                                              |
+| `points`                | `Point[]`                        | The points of the path in relative coordinates to its position.                                 |
+| `strokeColor`           | `string`                         | The stroke color of the path as [CSS color value][csscolor].                                    |
+| `strokeWidth`           | `number \| undefined`            | The stroke width of the path. Must be a number greater than 0 if set.                           |
+| `startMarker`           | `'arrow-head-line' \| undefined` | An optional marker for the end of a path.                                                       |
+| `endMarker`             | `'arrow-head-line' \| undefined` | An optional marker for the end of a path.                                                       |
+| `connectedElementStart` | `string \| undefined`            | The ID of connected element on the first point. Currently shapes can be connected.              |
+| `connectedElementEnd`   | `string \| undefined`            | The ID of connected element on the last point. Currently shapes can be connected.               |
+| `attachedFrame`         | `string \| undefined`            | The ID of the frame this element is attached to.                                                |
 
 #### Example
 

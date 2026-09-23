@@ -24,6 +24,7 @@ import { afterEach, beforeEach, describe, expect, it, Mocked } from 'vitest';
 import {
   mockEllipseElement,
   mockLineElement,
+  mockPolylineElement,
   mockWhiteboardManager,
   WhiteboardTestingContextProvider,
 } from '../../lib/testUtils/documentTestUtils';
@@ -58,6 +59,7 @@ describe('<ElementBar/>', () => {
             ['element-1', mockEllipseElement()],
             ['element-2', mockLineElement()],
             ['element-3', mockEllipseElement({ text: 'test' })],
+            ['element-4', mockPolylineElement()],
           ],
         ],
       ],
@@ -211,6 +213,32 @@ describe('<ElementBar/>', () => {
     expect(
       within(toolbar).getByRole('button', { name: 'Delete element' }),
     ).toBeInTheDocument();
+  });
+
+  it('should show the polyline stroke width select when a polyline is selected', () => {
+    activeSlide.setActiveElementIds(['element-4']);
+    render(<ElementBar />, { wrapper: Wrapper });
+
+    const toolbar = screen.getByRole('toolbar', { name: 'Element' });
+
+    expect(
+      within(toolbar).getByRole('combobox', {
+        name: 'Select Polyline Stroke Width',
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it('should not show the polyline stroke width select when the active element is not a polyline', () => {
+    activeSlide.setActiveElementIds(['element-1']);
+    render(<ElementBar />, { wrapper: Wrapper });
+
+    const toolbar = screen.getByRole('toolbar', { name: 'Element' });
+
+    expect(
+      within(toolbar).queryByRole('combobox', {
+        name: 'Select Polyline Stroke Width',
+      }),
+    ).not.toBeInTheDocument();
   });
 
   it.each([

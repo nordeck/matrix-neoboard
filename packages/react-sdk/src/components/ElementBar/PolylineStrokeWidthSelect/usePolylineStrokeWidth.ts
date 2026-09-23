@@ -23,39 +23,28 @@ import {
   useElements,
   useWhiteboardSlideInstance,
 } from '../../../state';
-import { useLayoutState } from '../../Layout';
-import { defaultStrokeWidth } from '../../Whiteboard/constants';
+import { defaultStrokeWidth } from '../../common/consts';
 
-type UseLineThicknessResult = {
+type UsePolylineStrokeWidthResult = {
   /**
-   * The stroke width of the first selected polyline in the active elements, falling back to the
-   * last applied polyline thickness, or the default stroke width if neither
-   * is available.
+   * The stroke width of the first selected polyline, undefined if no polylines in the selection.
    */
-  lineThickness: number;
+  strokeWidth: number | undefined;
   /**
-   * Apply the given stroke width to all selected polylines and remember it
-   * as the thickness to use for new polylines in the LayoutState.activePolylineThickness
+   * Apply the given stroke width to all selected polylines.
    *
    * @param value - the stroke width to apply
    */
-  applyLineThickness: (value: number) => void;
-
-  /**
-   * Returns the fist polyline in the selection, if exists.
-   */
-  firstSelectedPolyline?: PathElement;
+  applyStrokeWidth: (value: number) => void;
 };
 
 function isPolyline(element: Element): element is PathElement {
   return element.type === 'path' && element.kind === 'polyline';
 }
 
-export const useLineThickness = (): UseLineThicknessResult => {
+export const usePolylineStrokeWidth = (): UsePolylineStrokeWidthResult => {
   const slideInstance = useWhiteboardSlideInstance();
   const { activeElementIds } = useActiveElements();
-  const { activePolylineThickness, setActivePolylineThickness } =
-    useLayoutState();
   const activeElements = useElements(activeElementIds);
 
   const firstSelectedPolyline = useMemo(() => {
@@ -63,12 +52,11 @@ export const useLineThickness = (): UseLineThicknessResult => {
     return elements.find(isPolyline);
   }, [activeElements]);
 
-  const lineThickness: number =
-    firstSelectedPolyline?.strokeWidth ??
-    activePolylineThickness ??
-    defaultStrokeWidth;
+  const strokeWidth = firstSelectedPolyline
+    ? (firstSelectedPolyline.strokeWidth ?? defaultStrokeWidth)
+    : undefined;
 
-  const applyLineThickness = useCallback(
+  const applyStrokeWidth = useCallback(
     (value: number) => {
       const updates: ElementUpdate[] = [];
       for (const [elementId, element] of Object.entries(activeElements)) {
@@ -79,15 +67,13 @@ export const useLineThickness = (): UseLineThicknessResult => {
 
       if (updates.length > 0) {
         slideInstance.updateElements(updates);
-        setActivePolylineThickness(value);
       }
     },
-    [activeElements, slideInstance, setActivePolylineThickness],
+    [activeElements, slideInstance],
   );
 
   return {
-    firstSelectedPolyline,
-    lineThickness,
-    applyLineThickness,
+    strokeWidth,
+    applyStrokeWidth,
   };
 };

@@ -186,7 +186,7 @@ export function createShapeFromPoints({
     connectedElementEnd,
   };
 
-  if (kind === 'polyline') {
+  if (kind === 'polyline' && strokeWidth !== undefined) {
     pathElement.strokeWidth = strokeWidth;
   }
 

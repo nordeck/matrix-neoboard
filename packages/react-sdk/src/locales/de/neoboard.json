@@ -166,7 +166,7 @@
     "lineEnd": "Linienende",
     "lineMarkerSwitch": "Linienmarkierung tauschen",
     "lineStart": "Linienanfang",
-    "lineThickness": "Linienstärke wählen",
+    "polylineStrokeWidth": "Polylinien-Strichstärke wählen",
     "textAlignment": "Textausrichtung",
     "textAlignmentCenter": "Zentriert",
     "textAlignmentLeft": "Links",

@@ -166,7 +166,7 @@
     "lineEnd": "Line End",
     "lineMarkerSwitch": "Line Marker Switch",
     "lineStart": "Line Start",
-    "lineThickness": "Select Line Thickness",
+    "polylineStrokeWidth": "Select Polyline Stroke Width",
     "textAlignment": "Text Alignment",
     "textAlignmentCenter": "Center",
     "textAlignmentLeft": "Left",

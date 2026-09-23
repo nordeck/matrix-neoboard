@@ -15,8 +15,8 @@
  */
 
 import { PathElement, Point } from '../../../state';
+import { defaultStrokeWidth } from '../../common/consts';
 import { ElementRenderProperties } from '../../Whiteboard';
-import { defaultStrokeWidth } from '../../Whiteboard/constants';
 
 type PolylineRenderProperties = {
   points: { start: Point; end: Point };

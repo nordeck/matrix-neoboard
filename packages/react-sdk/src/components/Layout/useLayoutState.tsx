@@ -28,6 +28,7 @@ import {
   LineMarker,
   TextFontFamily,
 } from '../../state/crdt/documents/elements';
+import { defaultStrokeWidth } from '../common/consts';
 import { useFullscreenMode } from './useFullscreenMode';
 
 export type ActiveTool =
@@ -60,7 +61,7 @@ type LayoutState = {
   activeShapeTextShade: number;
   activeStartLineMarker: LineMarker | undefined;
   activeEndLineMarker: LineMarker | undefined;
-  activePolylineThickness: number | undefined;
+  activePolylineStrokeWidth: number;
   isRotating: boolean;
   isPinchZooming: boolean;
 
@@ -82,7 +83,7 @@ type LayoutState = {
   setActiveEndLineMarker: (marker: LineMarker | undefined) => void;
   setIsRotating: (value: boolean) => void;
   setIsPinchZooming: (value: boolean) => void;
-  setActivePolylineThickness: (value: number | undefined) => void;
+  setActivePolylineStrokeWidth: (value: number) => void;
 
   /**
    * Whether the layout is displayed in fullscreen mode.
@@ -153,9 +154,8 @@ export function LayoutStateProvider({ children }: PropsWithChildren<{}>) {
   };
   const [isRotating, setIsRotating] = useState<boolean>(false);
 
-  const [activePolylineThickness, setActivePolylineThickness] = useState<
-    number | undefined
-  >();
+  const [activePolylineStrokeWidth, setActivePolylineStrokeWidth] =
+    useState<number>(defaultStrokeWidth);
 
   const value = useMemo(
     () => ({
@@ -176,7 +176,7 @@ export function LayoutStateProvider({ children }: PropsWithChildren<{}>) {
       activeShapeTextShade,
       activeStartLineMarker,
       activeEndLineMarker,
-      activePolylineThickness,
+      activePolylineStrokeWidth,
       setSlideOverviewVisible,
       setDeveloperToolsVisible,
       setShowCollaboratorsCursors,
@@ -191,7 +191,7 @@ export function LayoutStateProvider({ children }: PropsWithChildren<{}>) {
       setActiveShapeShade,
       setActiveShapeTextColor,
       setActiveShapeTextShade,
-      setActivePolylineThickness,
+      setActivePolylineStrokeWidth,
       isFullscreenMode,
       setFullscreenMode,
       dragSelectStartCoords,
@@ -229,8 +229,8 @@ export function LayoutStateProvider({ children }: PropsWithChildren<{}>) {
       setIsRotating,
       isPinchZooming,
       setIsPinchZooming,
-      activePolylineThickness,
-      setActivePolylineThickness,
+      activePolylineStrokeWidth,
+      setActivePolylineStrokeWidth,
     ],
   );
 

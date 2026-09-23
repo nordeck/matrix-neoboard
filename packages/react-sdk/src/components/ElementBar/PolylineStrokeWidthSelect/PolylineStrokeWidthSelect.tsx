@@ -17,35 +17,38 @@
 import { MenuItem, Select, Tooltip } from '@mui/material';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLineThickness } from './useLineThickness';
+import { useLayoutState } from '../../Layout';
+import { usePolylineStrokeWidth } from './usePolylineStrokeWidth';
 
 const STROKE_WIDTHS = [4, 6, 8, 10, 12, 14, 16];
 
-export function PolylineThicknessSelect() {
+export function PolylineStrokeWidthSelect() {
   const { t } = useTranslation('neoboard');
-  const { lineThickness, applyLineThickness, firstSelectedPolyline } =
-    useLineThickness();
+  const { strokeWidth, applyStrokeWidth } = usePolylineStrokeWidth();
+  const { setActivePolylineStrokeWidth } = useLayoutState();
 
-  const strokeWidths = useMemo(
-    () =>
-      STROKE_WIDTHS.includes(lineThickness)
-        ? STROKE_WIDTHS
-        : [...STROKE_WIDTHS, lineThickness].sort((a, b) => a - b),
-    [lineThickness],
+  const strokeWidths = useMemo(() => {
+    if (strokeWidth === undefined || STROKE_WIDTHS.includes(strokeWidth)) {
+      return STROKE_WIDTHS;
+    }
+    return [...STROKE_WIDTHS, strokeWidth].sort((a, b) => a - b);
+  }, [strokeWidth]);
+
+  const label = t(
+    'elementBar.polylineStrokeWidth',
+    'Select Polyline Stroke Width',
   );
 
-  if (!firstSelectedPolyline) {
+  if (strokeWidth === undefined) {
     return null;
   }
-
-  const label = t('elementBar.lineThickness', 'Select Line Thickness');
 
   return (
     <Select
       size="small"
       variant="standard"
       disableUnderline={true}
-      value={lineThickness}
+      value={strokeWidth}
       inputProps={{
         'aria-label': label,
       }}
@@ -57,27 +60,28 @@ export function PolylineThicknessSelect() {
         },
       }}
       onChange={(event) => {
-        applyLineThickness(event.target.value as number);
+        const value = event.target.value as number;
+        applyStrokeWidth(value);
+        setActivePolylineStrokeWidth(value);
       }}
+      // renderValue only adds the tooltip to the dropdown, not the list items.
+      // Tooltip needs a real DOM element (ex. div), plain value won't work.
+      renderValue={(value) => (
+        <Tooltip title={label}>
+          <div>{value}</div>
+        </Tooltip>
+      )}
       sx={{
         // Set a min-width to prevent change of the select width depending on the value
         minWidth: '64px',
         padding: '0 5px 0 8px',
       }}
     >
-      {strokeWidths.map((value) => {
-        return (
-          <MenuItem value={value} key={value}>
-            {lineThickness === value && (
-              <Tooltip title={label}>
-                <div>{value}</div>
-              </Tooltip>
-            )}
-
-            {lineThickness !== value && value}
-          </MenuItem>
-        );
-      })}
+      {strokeWidths.map((value) => (
+        <MenuItem value={value} key={value}>
+          {value}
+        </MenuItem>
+      ))}
     </Select>
   );
 }

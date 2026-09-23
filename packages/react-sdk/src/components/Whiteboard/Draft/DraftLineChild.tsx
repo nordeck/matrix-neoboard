@@ -53,7 +53,7 @@ export const DraftLineChild = ({
   const [cursorPoints, setCursorPoints] = useState<Point[]>();
   const [connectedElementStart, setConnectedElementStart] = useState<string>();
   const [connectedElementEnd, setConnectedElementEnd] = useState<string>();
-  const { activeColor: strokeColor, activePolylineThickness } =
+  const { activeColor: strokeColor, activePolylineStrokeWidth } =
     useLayoutState();
   const slideInstance = useWhiteboardSlideInstance();
   const { setActiveTool } = useLayoutState();
@@ -68,8 +68,7 @@ export const DraftLineChild = ({
             kind,
             cursorPoints,
             strokeColor,
-            strokeWidth:
-              kind === 'polyline' ? activePolylineThickness : undefined,
+            strokeWidth: activePolylineStrokeWidth,
             frameElements: slideInstance.getFrameElements(),
             gridCellSize: isShowGrid ? gridCellSize : undefined,
             onlyStartAndEndPoints,
@@ -89,19 +88,19 @@ export const DraftLineChild = ({
       setConnectElementIds([]);
     }
   }, [
+    setActiveTool,
     cursorPoints,
-    setConnectElementIds,
     slideInstance,
     kind,
     strokeColor,
-    activePolylineThickness,
+    activePolylineStrokeWidth,
     isShowGrid,
     onlyStartAndEndPoints,
     startMarker,
     endMarker,
     connectedElementStart,
     connectedElementEnd,
-    setActiveTool,
+    setConnectElementIds,
   ]);
 
   const handlePointerMove = useCallback(
@@ -154,8 +153,7 @@ export const DraftLineChild = ({
             kind,
             cursorPoints,
             strokeColor,
-            strokeWidth:
-              kind === 'polyline' ? activePolylineThickness : undefined,
+            strokeWidth: activePolylineStrokeWidth,
             gridCellSize: isShowGrid ? gridCellSize : undefined,
             onlyStartAndEndPoints,
             startMarker,
@@ -168,7 +166,7 @@ export const DraftLineChild = ({
       cursorPoints,
       kind,
       strokeColor,
-      activePolylineThickness,
+      activePolylineStrokeWidth,
       isShowGrid,
       onlyStartAndEndPoints,
       startMarker,
