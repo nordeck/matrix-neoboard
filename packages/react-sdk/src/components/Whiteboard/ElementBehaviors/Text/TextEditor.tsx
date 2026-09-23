@@ -228,14 +228,7 @@ export function TextEditor({
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
-      // The element is focusable (and thus can receive key events) as soon as
-      // editable=true, even before  "edit mode" state is entered, so ignore
-      // key events until edit mode is actually active.
-      if (!isEditMode) {
-        return;
-      }
-
-      if (e.key === 'Escape') {
+      if (isEditMode && e.key === 'Escape') {
         e.preventDefault();
         onBlur();
         setEditMode(false);
