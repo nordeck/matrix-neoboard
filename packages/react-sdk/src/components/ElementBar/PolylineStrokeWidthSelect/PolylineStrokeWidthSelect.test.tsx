@@ -125,7 +125,7 @@ describe('<PolylineStrokeWidthSelect/>', () => {
     render(<PolylineStrokeWidthSelect />, { wrapper: Wrapper });
 
     const select = screen.getByRole('combobox', {
-      name: 'Select Polyline Stroke Width',
+      name: 'Select Stroke Width',
     });
 
     expect(select).toBeInTheDocument();
@@ -137,7 +137,7 @@ describe('<PolylineStrokeWidthSelect/>', () => {
     });
 
     expect(
-      screen.getByRole('combobox', { name: 'Select Polyline Stroke Width' }),
+      screen.getByRole('combobox', { name: 'Select Stroke Width' }),
     ).toBeInTheDocument();
 
     expect(await axe.run(container)).toHaveNoViolations();
@@ -148,7 +148,7 @@ describe('<PolylineStrokeWidthSelect/>', () => {
     render(<PolylineStrokeWidthSelect />, { wrapper: Wrapper });
 
     const select = screen.getByRole('combobox', {
-      name: 'Select Polyline Stroke Width',
+      name: 'Select Stroke Width',
     });
 
     expect(select).toHaveTextContent('7');
@@ -159,7 +159,7 @@ describe('<PolylineStrokeWidthSelect/>', () => {
     render(<PolylineStrokeWidthSelect />, { wrapper: Wrapper });
 
     const select = screen.getByRole('combobox', {
-      name: 'Select Polyline Stroke Width',
+      name: 'Select Stroke Width',
     });
 
     expect(select).toHaveTextContent('4');
@@ -170,7 +170,7 @@ describe('<PolylineStrokeWidthSelect/>', () => {
     render(<PolylineStrokeWidthSelect />, { wrapper: Wrapper });
 
     const select = screen.getByRole('combobox', {
-      name: 'Select Polyline Stroke Width',
+      name: 'Select Stroke Width',
     });
 
     expect(select).toHaveTextContent('7');
@@ -181,7 +181,7 @@ describe('<PolylineStrokeWidthSelect/>', () => {
     render(<PolylineStrokeWidthSelect />, { wrapper: Wrapper });
 
     await userEvent.click(
-      screen.getByRole('combobox', { name: 'Select Polyline Stroke Width' }),
+      screen.getByRole('combobox', { name: 'Select Stroke Width' }),
     );
 
     expect(
@@ -193,7 +193,7 @@ describe('<PolylineStrokeWidthSelect/>', () => {
     render(<PolylineStrokeWidthSelect />, { wrapper: Wrapper });
 
     const select = screen.getByRole('combobox', {
-      name: 'Select Polyline Stroke Width',
+      name: 'Select Stroke Width',
     });
 
     expect(select).toHaveTextContent('8');
@@ -215,7 +215,7 @@ describe('<PolylineStrokeWidthSelect/>', () => {
     render(<WhiteboardHost />, { wrapper: Wrapper });
 
     await userEvent.click(
-      screen.getByRole('combobox', { name: 'Select Polyline Stroke Width' }),
+      screen.getByRole('combobox', { name: 'Select Stroke Width' }),
     );
     await userEvent.click(screen.getByRole('option', { name: '16' }));
 

@@ -34,10 +34,7 @@ export function PolylineStrokeWidthSelect() {
     return [...STROKE_WIDTHS, strokeWidth].sort((a, b) => a - b);
   }, [strokeWidth]);
 
-  const label = t(
-    'elementBar.polylineStrokeWidth',
-    'Select Polyline Stroke Width',
-  );
+  const label = t('elementBar.polylineStrokeWidth', 'Select Stroke Width');
 
   return (
     <Select
