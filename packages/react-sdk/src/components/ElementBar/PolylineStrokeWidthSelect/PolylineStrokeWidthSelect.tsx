@@ -39,10 +39,6 @@ export function PolylineStrokeWidthSelect() {
     'Select Polyline Stroke Width',
   );
 
-  if (strokeWidth === undefined) {
-    return null;
-  }
-
   return (
     <Select
       size="small"
