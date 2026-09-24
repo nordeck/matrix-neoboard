@@ -146,19 +146,19 @@ describe('<ElementContextMenu/>', () => {
     const menu = screen.getByRole('menu', { name: 'Element' });
 
     expect(
-      within(menu).getByRole('menuitem', { name: 'Bring forward Ctrl + ↑' }),
+      within(menu).getByRole('menuitem', { name: 'Bring forward Ctrl+↑' }),
     ).toBeInTheDocument();
     expect(
-      within(menu).getByRole('menuitem', { name: 'Bring backward Ctrl + ↓' }),
+      within(menu).getByRole('menuitem', { name: 'Bring backward Ctrl+↓' }),
     ).toBeInTheDocument();
     expect(
       within(menu).getByRole('menuitem', {
-        name: 'Bring to front Ctrl + Shift + ↑',
+        name: 'Bring to front Ctrl+Shift+↑',
       }),
     ).toBeInTheDocument();
     expect(
       within(menu).getByRole('menuitem', {
-        name: 'Bring to back Ctrl + Shift + ↓',
+        name: 'Bring to back Ctrl+Shift+↓',
       }),
     ).toBeInTheDocument();
     expect(
@@ -417,16 +417,16 @@ describe('<ElementContextMenu/>', () => {
     const menu = screen.getByRole('menu', { name: 'Element' });
 
     expect(
-      within(menu).getByRole('menuitem', { name: 'Bring forward ⌘ ↑' }),
+      within(menu).getByRole('menuitem', { name: 'Bring forward ⌘↑' }),
     ).toBeInTheDocument();
     expect(
-      within(menu).getByRole('menuitem', { name: 'Bring backward ⌘ ↓' }),
+      within(menu).getByRole('menuitem', { name: 'Bring backward ⌘↓' }),
     ).toBeInTheDocument();
     expect(
-      within(menu).getByRole('menuitem', { name: 'Bring to front ⌘ ⇧ ↑' }),
+      within(menu).getByRole('menuitem', { name: 'Bring to front ⌘⇧↑' }),
     ).toBeInTheDocument();
     expect(
-      within(menu).getByRole('menuitem', { name: 'Bring to back ⌘ ⇧ ↓' }),
+      within(menu).getByRole('menuitem', { name: 'Bring to back ⌘⇧↓' }),
     ).toBeInTheDocument();
     expect(
       within(menu).getByRole('menuitem', { name: 'Delete ⌫' }),

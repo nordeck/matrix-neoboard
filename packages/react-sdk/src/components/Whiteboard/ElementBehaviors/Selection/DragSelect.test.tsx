@@ -224,7 +224,7 @@ describe('<DragSelect/>', () => {
     expect(activeSlide.getActiveElementIds()).not.toContain('frame-0');
   });
 
-  it('should should select an element attached to active frame in infinite canvas mode in the presentation mode if edit mode is enabled', () => {
+  it('should select an element attached to active frame in infinite canvas mode in the presentation mode if edit mode is enabled', () => {
     vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
       name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
     );
@@ -262,7 +262,7 @@ describe('<DragSelect/>', () => {
     expect(activeSlide.getActiveElementIds()).toEqual(['element-1']);
   });
 
-  it('should should not select an element without frame in infinite canvas mode in the presentation mode if edit mode is enabled', () => {
+  it('should not select an element without frame in infinite canvas mode in the presentation mode if edit mode is enabled', () => {
     vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
       name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
     );
@@ -323,5 +323,22 @@ describe('<DragSelect/>', () => {
     });
 
     expect(activeSlide.getActiveElementIds()).toEqual([]);
+  });
+
+  it('should immediately cancel drag select if pen is not touching the surface', () => {
+    render(<DragSelect />, { wrapper: Wrapper });
+    act(() => {
+      setDragSelectStartCoords({ x: 60, y: 60 });
+    });
+
+    fireEvent.pointerMove(screen.getByTestId('drag-select-layer'), {
+      isPrimary: true,
+      pointerType: 'pen',
+      button: -1,
+      buttons: 0, // not touching the surface
+      clientX: 50,
+      clientY: 50,
+    });
+    expect(dragSelectStartCoords).toBeUndefined();
   });
 });
