@@ -662,6 +662,7 @@ describe('<WhiteboardHost/>', () => {
         y: 100,
       },
       strokeColor: '#9e9e9e',
+      strokeWidth: 4,
     });
   });
 
@@ -718,6 +719,7 @@ describe('<WhiteboardHost/>', () => {
         y: 100,
       },
       strokeColor: '#9e9e9e',
+      strokeWidth: 4,
     });
   });
 

@@ -109,6 +109,32 @@ describe('isValidElement', () => {
     expect(isValidElement(data)).toBe(true);
   });
 
+  it('should accept path with strokeWidth', () => {
+    const data = {
+      type: 'path',
+      position: { x: 1, y: 2 },
+      kind: 'polyline',
+      points: [],
+      strokeColor: 'red',
+      strokeWidth: 4,
+    };
+
+    expect(isValidElement(data)).toBe(true);
+  });
+
+  it('should accept path with undefined strokeWidth', () => {
+    const data = {
+      type: 'path',
+      position: { x: 1, y: 2 },
+      kind: 'polyline',
+      points: [],
+      strokeColor: 'red',
+      strokeWidth: undefined,
+    };
+
+    expect(isValidElement(data)).toBe(true);
+  });
+
   it.each(['rectangle', 'circle', 'ellipse', 'triangle', 'block-arrow'])(
     'should accept %j shape event',
     (kind) => {
@@ -312,6 +338,9 @@ describe('isValidElement', () => {
     { strokeColor: null },
     { strokeColor: 111 },
     { strokeColor: '' },
+    { strokeWidth: 0 },
+    { strokeWidth: -1 },
+    { strokeWidth: null },
     { startMarker: null },
     { startMarker: 111 },
     { startMarker: '' },

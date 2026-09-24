@@ -296,6 +296,46 @@ describe('createShapeFromPoints', () => {
     });
   });
 
+  it('should set the stroke width for a polyline', () => {
+    const cursorPoints = [
+      { x: 10, y: 20 },
+      { x: 30, y: 40 },
+      { x: 50, y: 60 },
+    ];
+    const result = createShapeFromPoints({
+      kind: 'polyline',
+      cursorPoints,
+      strokeColor: '#000000',
+      strokeWidth: 12,
+    });
+    expect(result).toEqual({
+      points: [
+        { x: 0, y: 0 },
+        { x: 20, y: 20 },
+        { x: 40, y: 40 },
+      ],
+      position: { x: 10, y: 20 },
+      strokeColor: '#000000',
+      strokeWidth: 12,
+      type: 'path',
+      kind: 'polyline',
+    });
+  });
+
+  it('should not add undefined strokeWidth', () => {
+    const cursorPoints = [
+      { x: 10, y: 20 },
+      { x: 30, y: 40 },
+    ];
+    const result = createShapeFromPoints({
+      kind: 'polyline',
+      cursorPoints,
+      strokeColor: '#000000',
+      strokeWidth: undefined,
+    });
+    expect(result).not.toHaveProperty('strokeWidth');
+  });
+
   it('should create basic line with an end marker', () => {
     const cursorPoints = [
       { x: 10, y: 20 },

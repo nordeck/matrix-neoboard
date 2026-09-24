@@ -176,6 +176,7 @@ An element that consists of points.
 | `position`              | `Point`                          | The position of the path on the whiteboard canvas.                                              |
 | `points`                | `Point[]`                        | The points of the path in relative coordinates to its position.                                 |
 | `strokeColor`           | `string`                         | The stroke color of the path as [CSS color value][csscolor].                                    |
+| `strokeWidth`           | `number \| undefined`            | The stroke width of the path. Must be a number greater than 0 if set.                           |
 | `startMarker`           | `'arrow-head-line' \| undefined` | An optional marker for the end of a path.                                                       |
 | `endMarker`             | `'arrow-head-line' \| undefined` | An optional marker for the end of a path.                                                       |
 | `connectedElementStart` | `string \| undefined`            | The ID of connected element on the first point. Currently shapes can be connected.              |
