@@ -24,7 +24,7 @@ export { isInfiniteCanvasMode } from './isInfiniteCanvasMode';
 export { isMatrixRtcMode } from './isMatrixRtcMode';
 export { setLocale } from './locale';
 export * from './matrix';
-export { segmentsToSvgPath, simplifyPathPaperSegments } from './pathSmoothing';
+export { simplifyPointsToD } from './pathSmoothing';
 export { findColor, useColorPalette } from './useColorPalette';
 export type { Color } from './useColorPalette';
 export { FontsLoadedContextProvider, useFontsLoaded } from './useFontsLoaded';

@@ -14,9 +14,13 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useState } from 'react';
-import { segmentsToSvgPath, simplifyPathPaperSegments } from '../../../lib';
-import { calculateBoundingRectForPoints, PathElement } from '../../../state';
+import React, { useEffect } from 'react';
+import { simplifyPointsToD } from '../../../lib/pathSmoothing';
+import {
+  calculateBoundingRectForPoints,
+  PathElement,
+  useWhiteboardSlideInstance,
+} from '../../../state';
 import {
   ElementContextMenu,
   MoveableElement,
@@ -39,27 +43,30 @@ const PolylineDisplay = ({
 }: PolylineElementProps) => {
   const { strokeColor, strokeWidth, points } = getRenderProperties(element);
   const boundingRect = calculateBoundingRectForPoints(element.points);
+  const slideInstance = useWhiteboardSlideInstance();
 
-  const [d, setD] = useState('');
+  const { svgPathD } = element;
 
   useEffect(() => {
     if (elementId === 'draft') return;
 
+    // don't overwrite existing curve
+    if (svgPathD) return;
+
     // Timeout should make the UI more responsive if many paths are being siplified at the same time (initial load for example).
     const timer = setTimeout(() => {
-      const segments = simplifyPathPaperSegments(points);
-      const d = segmentsToSvgPath(segments, 4);
-      setD(d);
+      const d = simplifyPointsToD(points);
+      slideInstance.updateElement(elementId, { svgPathD: d });
     }, 0);
 
     return () => clearTimeout(timer);
-  }, [points, elementId]);
+  }, [svgPathD, points, elementId, slideInstance]);
 
   const renderedChild = (
-    <g>
-      {d ? (
+    <g data-testid={`element-${elementId}`}>
+      {svgPathD ? (
         <path
-          d={d}
+          d={svgPathD}
           fill="none"
           stroke={strokeColor}
           strokeWidth={strokeWidth}

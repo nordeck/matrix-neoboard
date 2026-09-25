@@ -125,7 +125,11 @@ export type PathElement = ElementBase & {
   connectedElementStart?: string;
   connectedElementEnd?: string;
   attachedFrame?: string;
+  svgPathD?: string;
 };
+
+// Matches only the characters allowed in an SVG `<path d="...">` attribute
+const svgPathDPattern = /^[MmLlHhVvCcSsQqTtAaZz0-9.,eE+\-\s]*$/;
 
 export const pathElementSchema = elementBaseSchema
   .append<PathElement>({
@@ -138,6 +142,7 @@ export const pathElementSchema = elementBaseSchema
     connectedElementStart: Joi.string().not(...disallowElementIds),
     connectedElementEnd: Joi.string().not(...disallowElementIds),
     attachedFrame: Joi.string().not(...disallowElementIds),
+    svgPathD: Joi.string().pattern(svgPathDPattern).optional(),
   })
   .required();
 

@@ -16,7 +16,7 @@
 
 import { describe, expect, it } from 'vitest';
 import { Point } from '../state';
-import { segmentsToSvgPath, simplifyPathPaperSegments } from './pathSmoothing';
+import { simplifyPointsToD } from './pathSmoothing';
 
 // Sample 5 points along a single sine hump (half a period), which a
 // cubic bezier curve can approximate with only 2 segments.
@@ -28,79 +28,30 @@ function createSinePoints(): Point[] {
 }
 
 describe('simplifyPathPaperSegments', () => {
-  it('should reduce the number of segments when simplifying a smooth curve', () => {
-    const points = createSinePoints();
-
-    const segments = simplifyPathPaperSegments(points);
-
-    expect(segments).toEqual([
-      {
-        point: { x: expect.closeTo(0, 2), y: expect.closeTo(0, 2) },
-        handleIn: { x: expect.closeTo(0, 2), y: expect.closeTo(0, 2) },
-        handleOut: {
-          x: expect.closeTo(25.99, 2),
-          y: expect.closeTo(23.4, 2),
-        },
-      },
-      {
-        point: { x: expect.closeTo(62.83, 2), y: expect.closeTo(0, 2) },
-        handleIn: {
-          x: expect.closeTo(-25.99, 2),
-          y: expect.closeTo(23.4, 2),
-        },
-        handleOut: { x: expect.closeTo(0, 2), y: expect.closeTo(0, 2) },
-      },
-    ]);
-  });
-
-  it('should return a single segment with zero-length handles for a single point', () => {
-    const segments = simplifyPathPaperSegments([{ x: 5, y: 5 }]);
-
-    expect(segments).toEqual([
-      {
-        point: { x: 5, y: 5 },
-        handleIn: { x: 0, y: 0 },
-        handleOut: { x: 0, y: 0 },
-      },
-    ]);
-  });
-
-  it('should return no segments for an empty points array', () => {
-    const segments = simplifyPathPaperSegments([]);
-
-    expect(segments).toEqual([]);
-  });
-
   it('should produce a SVG d path definition', () => {
     const points = createSinePoints();
-    const segments = simplifyPathPaperSegments(points);
-    const d = segmentsToSvgPath(segments);
+    const d = simplifyPointsToD(points);
     expect(d).toBe(
-      'M 0,0 C 25.988199279851244,23.39759983919243 36.84365379194462,23.397599839192427 62.83185307179586,2.4492935982947065e-15',
+      'M0,0c5.23599,4.71405 9.76471,10.35854 15.70796,14.14214c20.34769,12.95374 32.39891,-0.88499 47.12389,-14.14214',
     );
   });
 
   it('should produce a SVG d path definition with precision 2', () => {
     const points = createSinePoints();
-    const segments = simplifyPathPaperSegments(points);
-    const d = segmentsToSvgPath(segments, 2);
-    expect(d).toBe('M 0,0 C 25.99,23.4 36.84,23.4 62.83,0');
+    const d = simplifyPointsToD(points, 2.5, 2);
+    expect(d).toBe(
+      'M0,0c5.24,4.71 9.76,10.36 15.71,14.14c20.35,12.95 32.4,-0.88 47.12,-14.14',
+    );
   });
 
   it('should produce a move-only path definition for a single segment', () => {
-    const d = segmentsToSvgPath([
-      {
-        point: { x: 5, y: 5 },
-        handleIn: { x: 0, y: 0 },
-        handleOut: { x: 0, y: 0 },
-      },
-    ]);
+    const d = simplifyPointsToD([{ x: 5, y: 5 }]);
 
     expect(d).toBe('M 5,5');
   });
 
   it('should return an empty string for no segments', () => {
-    const d = segmentsToSvgPath([]);
+    const d = simplifyPointsToD([]);
 
     expect(d).toBe('');
   });
