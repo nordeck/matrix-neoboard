@@ -15,17 +15,20 @@
  */
 
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
-import { render, screen } from '@testing-library/react';
+import { act, render, renderHook, screen } from '@testing-library/react';
 import { ComponentType, PropsWithChildren } from 'react';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { simplifyPointsToD } from '../../../lib/pathSmoothing';
 import {
   WhiteboardTestingContextProvider,
   mockPolylineElement,
   mockWhiteboardManager,
 } from '../../../lib/testUtils';
+import { useElement } from '../../../state';
 import { LayoutStateProvider } from '../../Layout';
 import { SvgCanvas } from '../../Whiteboard/SvgCanvas';
 import Display from './Display';
+import { getRenderProperties } from './getRenderProperties';
 
 describe('<Display />', () => {
   let widgetApi: MockedWidgetApi;
@@ -54,6 +57,7 @@ describe('<Display />', () => {
 
   afterEach(() => {
     widgetApi.stop();
+    vi.useRealTimers();
   });
 
   it('should render a plain polyline while no smoothed path is available yet', () => {
@@ -117,5 +121,57 @@ describe('<Display />', () => {
         />
       </g>
     `);
+  });
+
+  it('should compute the curve after initial render and persist it', () => {
+    vi.useFakeTimers();
+
+    const element = mockPolylineElement();
+    const { whiteboardManager } = mockWhiteboardManager({
+      slides: [['slide-0', [['polyline-0', element]]]],
+    });
+
+    const LocalWrapper = ({ children }: PropsWithChildren<{}>) => (
+      <LayoutStateProvider>
+        <WhiteboardTestingContextProvider
+          whiteboardManager={whiteboardManager}
+          widgetApi={widgetApi}
+        >
+          <SvgCanvas viewportWidth={200} viewportHeight={200}>
+            {children}
+          </SvgCanvas>
+        </WhiteboardTestingContextProvider>
+      </LayoutStateProvider>
+    );
+
+    render(
+      <Display
+        elementId="polyline-0"
+        activeElementIds={['polyline-0']}
+        elements={{}}
+        {...element}
+        active={false}
+        readOnly={false}
+      />,
+      {
+        wrapper: LocalWrapper,
+      },
+    );
+
+    const { result } = renderHook(() => useElement('polyline-0'), {
+      wrapper: LocalWrapper,
+    });
+
+    expect(result.current).toEqual(element);
+
+    act(() => {
+      vi.advanceTimersByTime(1);
+    });
+
+    const { points } = getRenderProperties(element);
+    const expectedD = simplifyPointsToD(points);
+
+    // expect the async curve simplification to finish
+    expect(result.current).toEqual({ ...element, svgPathD: expectedD });
   });
 });
