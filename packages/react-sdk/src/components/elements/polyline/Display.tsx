@@ -55,17 +55,18 @@ const PolylineDisplay = ({
 
     // Timeout should make the UI more responsive if many paths are being siplified at the same time (initial load for example).
     const timer = setTimeout(() => {
-      const d = simplifyPointsToD(points);
+      const d = simplifyPointsToD(element.points);
       slideInstance.updateElement(elementId, { svgPathD: d });
     }, 0);
 
     return () => clearTimeout(timer);
-  }, [svgPathD, points, elementId, slideInstance]);
+  }, [svgPathD, elementId, slideInstance, element.points]);
 
   const renderedChild = (
     <g data-testid={`element-${elementId}`}>
       {svgPathD ? (
         <path
+          transform={`translate(${element.position.x}, ${element.position.y})`}
           d={svgPathD}
           fill="none"
           stroke={strokeColor}

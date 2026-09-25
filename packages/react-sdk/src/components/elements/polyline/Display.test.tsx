@@ -28,7 +28,6 @@ import { useElement } from '../../../state';
 import { LayoutStateProvider } from '../../Layout';
 import { SvgCanvas } from '../../Whiteboard/SvgCanvas';
 import Display from './Display';
-import { getRenderProperties } from './getRenderProperties';
 
 describe('<Display />', () => {
   let widgetApi: MockedWidgetApi;
@@ -93,7 +92,7 @@ describe('<Display />', () => {
 
   it('should render the precomputed smoothed SVG path when svgPathD is set', () => {
     const element = mockPolylineElement({
-      svgPathD: 'M0,2 C2,4 4,6 4,6',
+      svgPathD: 'M0,0 C2,4 4,6 4,6',
     });
     render(
       <Display
@@ -114,10 +113,11 @@ describe('<Display />', () => {
         data-testid="element-element-0"
       >
         <path
-          d="M0,2 C2,4 4,6 4,6"
+          d="M0,0 C2,4 4,6 4,6"
           fill="none"
           stroke="#ffffff"
           stroke-width="4"
+          transform="translate(0, 1)"
         />
       </g>
     `);
@@ -162,14 +162,14 @@ describe('<Display />', () => {
       wrapper: LocalWrapper,
     });
 
+    // before path simplification
     expect(result.current).toEqual(element);
 
     act(() => {
       vi.advanceTimersByTime(1);
     });
 
-    const { points } = getRenderProperties(element);
-    const expectedD = simplifyPointsToD(points);
+    const expectedD = simplifyPointsToD(element.points);
 
     // expect the async curve simplification to finish
     expect(result.current).toEqual({ ...element, svgPathD: expectedD });
