@@ -31,11 +31,13 @@ import { WhiteboardHost } from '../..';
 import {
   mockEllipseElement,
   mockFrameElement,
+  mockPolylineElement,
   mockTextElement,
   mockWhiteboardManager,
   WhiteboardTestingContextProvider,
 } from '../../../../lib/testUtils';
 import {
+  PathElement,
   Point,
   WhiteboardInstance,
   WhiteboardManager,
@@ -116,6 +118,20 @@ describe('MovableElement', () => {
                 width: 100,
                 height: 100,
                 attachedFrame: 'frame-0',
+              }),
+            ],
+            [
+              'polyline-0',
+              mockPolylineElement({
+                position: { x: 300, y: 300 },
+                points: [
+                  { x: 0, y: 0 },
+                  { x: 20, y: 20 },
+                  { x: 40, y: 0 },
+                ],
+                // pre-computed curve
+                svgPathD:
+                  'M0,0c6.66667,6.66667 13.33333,6.66667 20,6.66667c13.33333,0 26.66667,-6.66667 20,-13.33333',
               }),
             ],
           ],
@@ -254,6 +270,57 @@ describe('MovableElement', () => {
     // check that ellipse is connected to the frame
     expect(activeSlide.getElement('ellipse-in-frame-0')).toMatchObject({
       attachedFrame: 'frame-0',
+    });
+  });
+
+  it('should not change the cached svgPathD of a polyline while drag-moving it', () => {
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    const element = screen.getByTestId('element-polyline-0');
+    const oldPolyline = activeSlide.getElement('polyline-0') as PathElement;
+
+    // select the polyline before starting the drag, so the move is applied
+    act(() => activeSlide.setActiveElementIds(['polyline-0']));
+
+    fireEvent.touchStart(element, {
+      touches: [
+        {
+          identifier: 0,
+          clientX: 300,
+          clientY: 300,
+          isPrimary: true,
+        },
+      ],
+    });
+
+    fireEvent.touchMove(element, {
+      touches: [
+        {
+          identifier: 0,
+          clientX: 350,
+          clientY: 350,
+          isPrimary: true,
+        },
+      ],
+    });
+
+    fireEvent.touchEnd(element, {
+      touches: [],
+      changedTouches: [
+        {
+          identifier: 0,
+          clientX: 350,
+          clientY: 350,
+        },
+      ],
+    });
+
+    const newPolyline = activeSlide.getElement('polyline-0');
+
+    // the element actually moved, but curve stays the same
+    expect(newPolyline).toEqual({
+      ...oldPolyline,
+      position: newPolyline?.position,
     });
   });
 });

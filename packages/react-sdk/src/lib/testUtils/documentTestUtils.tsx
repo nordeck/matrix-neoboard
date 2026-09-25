@@ -416,7 +416,9 @@ export function mockLineElement(path: Partial<PathElement> = {}): PathElement {
   };
 }
 
-export function mockPolylineElement(path: Partial<PathElement> = {}): Element {
+export function mockPolylineElement(
+  path: Partial<PathElement> = {},
+): PathElement {
   return {
     type: 'path',
     kind: 'polyline',

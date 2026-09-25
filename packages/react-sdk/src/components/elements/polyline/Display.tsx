@@ -14,8 +14,13 @@
  * limitations under the License.
  */
 
-import React from 'react';
-import { calculateBoundingRectForPoints, PathElement } from '../../../state';
+import React, { useEffect } from 'react';
+import { simplifyPointsToD } from '../../../lib/pathSmoothing';
+import {
+  calculateBoundingRectForPoints,
+  PathElement,
+  useWhiteboardSlideInstance,
+} from '../../../state';
 import {
   ElementContextMenu,
   MoveableElement,
@@ -38,16 +43,44 @@ const PolylineDisplay = ({
 }: PolylineElementProps) => {
   const { strokeColor, strokeWidth, points } = getRenderProperties(element);
   const boundingRect = calculateBoundingRectForPoints(element.points);
+  const slideInstance = useWhiteboardSlideInstance();
+
+  const { svgPathD } = element;
+
+  useEffect(() => {
+    if (elementId === 'draft') return;
+
+    // don't overwrite existing curve
+    if (svgPathD) return;
+
+    // Timeout should make the UI more responsive if many paths are being siplified at the same time (initial load for example).
+    const timer = setTimeout(() => {
+      const d = simplifyPointsToD(element.points);
+      slideInstance.updateElement(elementId, { svgPathD: d });
+    }, 0);
+
+    return () => clearTimeout(timer);
+  }, [svgPathD, elementId, slideInstance, element.points]);
 
   const renderedChild = (
-    <g>
-      <polyline
-        fill="none"
-        points={points.map(({ x, y }) => `${x},${y}`).join(' ')}
-        stroke={strokeColor}
-        strokeLinejoin="round"
-        strokeWidth={strokeWidth}
-      />
+    <g data-testid={`element-${elementId}`}>
+      {svgPathD ? (
+        <path
+          transform={`translate(${element.position.x}, ${element.position.y})`}
+          d={svgPathD}
+          fill="none"
+          stroke={strokeColor}
+          strokeWidth={strokeWidth}
+        ></path>
+      ) : (
+        <polyline
+          fill="none"
+          points={points.map(({ x, y }) => `${x},${y}`).join(' ')}
+          stroke={strokeColor}
+          strokeLinejoin="round"
+          strokeWidth={strokeWidth}
+        />
+      )}
     </g>
   );
 
