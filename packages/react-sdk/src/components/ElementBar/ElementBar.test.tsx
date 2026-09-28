@@ -223,7 +223,7 @@ describe('<ElementBar/>', () => {
 
     expect(
       within(toolbar).getByRole('combobox', {
-        name: 'Select Stroke Width',
+        name: 'Select stroke width',
       }),
     ).toBeInTheDocument();
   });
@@ -236,7 +236,7 @@ describe('<ElementBar/>', () => {
 
     expect(
       within(toolbar).queryByRole('combobox', {
-        name: 'Select Stroke Width',
+        name: 'Select stroke width',
       }),
     ).not.toBeInTheDocument();
   });

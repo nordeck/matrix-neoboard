@@ -14,19 +14,26 @@
  * limitations under the License.
  */
 
-import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import axe from 'axe-core';
 import { act, ComponentType, PropsWithChildren } from 'react';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  Mocked,
+  vi,
+} from 'vitest';
 import {
   mockPolylineElement,
   mockWhiteboardManager,
   WhiteboardTestingContextProvider,
 } from '../../../lib/testUtils/documentTestUtils';
-import { Point, WhiteboardSlideInstance } from '../../../state';
+import { WhiteboardManager, WhiteboardSlideInstance } from '../../../state';
 import { defaultStrokeWidth } from '../../common/consts';
 import { Toolbar } from '../../common/Toolbar';
 import { ConnectionPointProvider } from '../../ConnectionPointProvider';
@@ -37,43 +44,22 @@ import * as constants from '../../Whiteboard/constants';
 import { WhiteboardHotkeysProvider } from '../../WhiteboardHotkeysProvider';
 import { PolylineStrokeWidthSelect } from './PolylineStrokeWidthSelect';
 
-vi.mock('../../Whiteboard/SvgCanvas/useMeasure', () => ({
-  useMeasure: vi.fn().mockReturnValue([vi.fn(), { width: 1920, height: 1080 }]),
-}));
-
-vi.mock('../../Whiteboard/SvgCanvas/utils', async () => ({
-  ...(await vi.importActual('../../Whiteboard/SvgCanvas/utils')),
-  calculateSvgCoords: (position: Point) => position,
-}));
-
-vi.mock('@matrix-widget-toolkit/mui', async () => ({
-  ...(await vi.importActual<typeof import('@matrix-widget-toolkit/mui')>(
-    '@matrix-widget-toolkit/mui',
-  )),
-  getEnvironment: vi.fn(),
-}));
-
-let widgetApi: MockedWidgetApi;
-
-afterEach(() => widgetApi.stop());
-
-beforeEach(() => {
-  widgetApi = mockWidgetApi();
-});
-
 describe('<PolylineStrokeWidthSelect/>', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
   let slide: WhiteboardSlideInstance;
   let setActiveTool: (value: ActiveTool) => void;
+  let widgetApi: MockedWidgetApi;
+  let whiteboardManager: Mocked<WhiteboardManager>;
+
+  function LayoutStateExtractor() {
+    ({ setActiveTool } = useLayoutState());
+    return null;
+  }
 
   beforeEach(() => {
-    vi.mocked(getEnvironment).mockImplementation(
-      (_, defaultValue) => defaultValue,
-    );
+    widgetApi = mockWidgetApi();
 
-    document.elementsFromPoint = vi.fn().mockReturnValue([]);
-
-    const { whiteboardManager } = mockWhiteboardManager({
+    ({ whiteboardManager } = mockWhiteboardManager({
       slides: [
         [
           'slide-0',
@@ -87,16 +73,11 @@ describe('<PolylineStrokeWidthSelect/>', () => {
           ],
         ],
       ],
-    });
+    }));
     slide = whiteboardManager
       .getActiveWhiteboardInstance()!
       .getSlide('slide-0');
     slide.setActiveElementIds(['element-0']);
-
-    function LayoutStateExtractor() {
-      ({ setActiveTool } = useLayoutState());
-      return null;
-    }
 
     Wrapper = ({ children }) => (
       <LayoutStateProvider>
@@ -121,23 +102,28 @@ describe('<PolylineStrokeWidthSelect/>', () => {
     vi.spyOn(constants, 'whiteboardHeight', 'get').mockReturnValue(1080);
   });
 
+  afterEach(() => widgetApi.stop());
+
   it('should render without exploding', async () => {
-    render(<PolylineStrokeWidthSelect />, { wrapper: Wrapper });
+    render(<PolylineStrokeWidthSelect strokeWidth={8} />, { wrapper: Wrapper });
 
     const select = screen.getByRole('combobox', {
-      name: 'Select Stroke Width',
+      name: 'Select stroke width',
     });
 
     expect(select).toBeInTheDocument();
   });
 
   it('should have no accessibility violations', async () => {
-    const { container } = render(<PolylineStrokeWidthSelect />, {
-      wrapper: Wrapper,
-    });
+    const { container } = render(
+      <PolylineStrokeWidthSelect strokeWidth={8} />,
+      {
+        wrapper: Wrapper,
+      },
+    );
 
     expect(
-      screen.getByRole('combobox', { name: 'Select Stroke Width' }),
+      screen.getByRole('combobox', { name: 'Select stroke width' }),
     ).toBeInTheDocument();
 
     expect(await axe.run(container)).toHaveNoViolations();
@@ -145,10 +131,10 @@ describe('<PolylineStrokeWidthSelect/>', () => {
 
   it('should show the stroke width of the active element', async () => {
     slide.setActiveElementId('element-7');
-    render(<PolylineStrokeWidthSelect />, { wrapper: Wrapper });
+    render(<PolylineStrokeWidthSelect strokeWidth={7} />, { wrapper: Wrapper });
 
     const select = screen.getByRole('combobox', {
-      name: 'Select Stroke Width',
+      name: 'Select stroke width',
     });
 
     expect(select).toHaveTextContent('7');
@@ -156,10 +142,12 @@ describe('<PolylineStrokeWidthSelect/>', () => {
 
   it('should show the default stroke width if the active element has none', async () => {
     slide.setActiveElementId('element-undefined');
-    render(<PolylineStrokeWidthSelect />, { wrapper: Wrapper });
+    render(<PolylineStrokeWidthSelect strokeWidth={defaultStrokeWidth} />, {
+      wrapper: Wrapper,
+    });
 
     const select = screen.getByRole('combobox', {
-      name: 'Select Stroke Width',
+      name: 'Select stroke width',
     });
 
     expect(select).toHaveTextContent('4');
@@ -167,10 +155,10 @@ describe('<PolylineStrokeWidthSelect/>', () => {
 
   it('should show the stroke width of the first selected element if several elements are active', async () => {
     slide.setActiveElementIds(['element-7', 'element-0']);
-    render(<PolylineStrokeWidthSelect />, { wrapper: Wrapper });
+    render(<PolylineStrokeWidthSelect strokeWidth={7} />, { wrapper: Wrapper });
 
     const select = screen.getByRole('combobox', {
-      name: 'Select Stroke Width',
+      name: 'Select stroke width',
     });
 
     expect(select).toHaveTextContent('7');
@@ -178,10 +166,10 @@ describe('<PolylineStrokeWidthSelect/>', () => {
 
   it('should always contain the default stroke width as an option', async () => {
     slide.setActiveElementId('element-7');
-    render(<PolylineStrokeWidthSelect />, { wrapper: Wrapper });
+    render(<PolylineStrokeWidthSelect strokeWidth={7} />, { wrapper: Wrapper });
 
     await userEvent.click(
-      screen.getByRole('combobox', { name: 'Select Stroke Width' }),
+      screen.getByRole('combobox', { name: 'Select stroke width' }),
     );
 
     expect(
@@ -190,10 +178,10 @@ describe('<PolylineStrokeWidthSelect/>', () => {
   });
 
   it('should apply a new stroke width for the selected polyline', async () => {
-    render(<PolylineStrokeWidthSelect />, { wrapper: Wrapper });
+    render(<PolylineStrokeWidthSelect strokeWidth={8} />, { wrapper: Wrapper });
 
     const select = screen.getByRole('combobox', {
-      name: 'Select Stroke Width',
+      name: 'Select stroke width',
     });
 
     expect(select).toHaveTextContent('8');
@@ -210,15 +198,38 @@ describe('<PolylineStrokeWidthSelect/>', () => {
     const polylineId = slide.addElement(
       mockPolylineElement({ strokeWidth: 8 }),
     );
+
+    // mocks for WhiteboardHost
+    vi.mocked(document.elementsFromPoint).mockReturnValue([]);
+
+    const WhiteboardHostWrapper: ComponentType<PropsWithChildren<{}>> = ({
+      children,
+    }) => (
+      <LayoutStateProvider>
+        <LayoutStateExtractor />
+        <WhiteboardHotkeysProvider>
+          <WhiteboardTestingContextProvider
+            whiteboardManager={whiteboardManager}
+            widgetApi={widgetApi}
+          >
+            <ElementOverridesProvider>
+              <ConnectionPointProvider>{children}</ConnectionPointProvider>
+            </ElementOverridesProvider>
+          </WhiteboardTestingContextProvider>
+        </WhiteboardHotkeysProvider>
+      </LayoutStateProvider>
+    );
+
+    render(<WhiteboardHost />, { wrapper: WhiteboardHostWrapper });
+
+    // apply new stroke width 16
     slide.setActiveElementId(polylineId);
-
-    render(<WhiteboardHost />, { wrapper: Wrapper });
-
     await userEvent.click(
-      screen.getByRole('combobox', { name: 'Select Stroke Width' }),
+      screen.getByRole('combobox', { name: 'Select stroke width' }),
     );
     await userEvent.click(screen.getByRole('option', { name: '16' }));
 
+    // draw a new stroke
     act(() => setActiveTool('polyline'));
 
     const draftHandler = screen.getByTestId('draft-pointer-handler');
@@ -239,6 +250,8 @@ describe('<PolylineStrokeWidthSelect/>', () => {
         target: draftHandler,
       },
     ]);
+
+    // verify the stroke's current width
 
     expect(slide.getActiveElementIds().length).toBe(1);
 

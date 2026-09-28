@@ -14,27 +14,36 @@
  * limitations under the License.
  */
 
-import { MenuItem, Select, Tooltip } from '@mui/material';
+import { MenuItem, Select } from '@mui/material';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLayoutState } from '../../Layout';
-import { usePolylineStrokeWidth } from './usePolylineStrokeWidth';
+import { useApplyActivePolylineStrokeWidth } from './useApplyActivePolylineStrokeWidth';
 
 const STROKE_WIDTHS = [4, 6, 8, 10, 12, 14, 16];
 
-export function PolylineStrokeWidthSelect() {
+type PolylineStrokeWidthSelectProps = {
+  /**
+   * The selected stroke width value.
+   */
+  strokeWidth: number;
+};
+
+export function PolylineStrokeWidthSelect({
+  strokeWidth,
+}: PolylineStrokeWidthSelectProps) {
   const { t } = useTranslation('neoboard');
-  const { strokeWidth, applyStrokeWidth } = usePolylineStrokeWidth();
+  const { applyStrokeWidth } = useApplyActivePolylineStrokeWidth();
   const { setActivePolylineStrokeWidth } = useLayoutState();
 
   const strokeWidths = useMemo(() => {
-    if (strokeWidth === undefined || STROKE_WIDTHS.includes(strokeWidth)) {
+    if (STROKE_WIDTHS.includes(strokeWidth)) {
       return STROKE_WIDTHS;
     }
     return [...STROKE_WIDTHS, strokeWidth].sort((a, b) => a - b);
   }, [strokeWidth]);
 
-  const label = t('elementBar.polylineStrokeWidth', 'Select Stroke Width');
+  const label = t('elementBar.polylineStrokeWidth', 'Select stroke width');
 
   return (
     <Select
@@ -57,13 +66,6 @@ export function PolylineStrokeWidthSelect() {
         applyStrokeWidth(value);
         setActivePolylineStrokeWidth(value);
       }}
-      // renderValue only adds the tooltip to the dropdown, not the list items.
-      // Tooltip needs a real DOM element (ex. div), plain value won't work.
-      renderValue={(value) => (
-        <Tooltip title={label}>
-          <div>{value}</div>
-        </Tooltip>
-      )}
       sx={{
         // Set a min-width to prevent change of the select width depending on the value
         minWidth: '64px',

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { useCallback, useMemo } from 'react';
+import { useCallback } from 'react';
 import {
   Element,
   ElementUpdate,
@@ -23,13 +23,12 @@ import {
   useElements,
   useWhiteboardSlideInstance,
 } from '../../../state';
-import { defaultStrokeWidth } from '../../common/consts';
 
-type UsePolylineStrokeWidthResult = {
-  /**
-   * The stroke width of the first selected polyline, undefined if no polylines in the selection.
-   */
-  strokeWidth: number | undefined;
+function isPolyline(element: Element): element is PathElement {
+  return element.type === 'path' && element.kind === 'polyline';
+}
+
+type UseApplyActivePolylineStrokeWidthResult = {
   /**
    * Apply the given stroke width to all selected polylines.
    *
@@ -38,23 +37,10 @@ type UsePolylineStrokeWidthResult = {
   applyStrokeWidth: (value: number) => void;
 };
 
-function isPolyline(element: Element): element is PathElement {
-  return element.type === 'path' && element.kind === 'polyline';
-}
-
-export const usePolylineStrokeWidth = (): UsePolylineStrokeWidthResult => {
+export function useApplyActivePolylineStrokeWidth(): UseApplyActivePolylineStrokeWidthResult {
   const slideInstance = useWhiteboardSlideInstance();
   const { activeElementIds } = useActiveElements();
   const activeElements = useElements(activeElementIds);
-
-  const firstSelectedPolyline = useMemo(() => {
-    const elements = Object.values(activeElements);
-    return elements.find(isPolyline);
-  }, [activeElements]);
-
-  const strokeWidth = firstSelectedPolyline
-    ? (firstSelectedPolyline.strokeWidth ?? defaultStrokeWidth)
-    : undefined;
 
   const applyStrokeWidth = useCallback(
     (value: number) => {
@@ -72,8 +58,5 @@ export const usePolylineStrokeWidth = (): UsePolylineStrokeWidthResult => {
     [activeElements, slideInstance],
   );
 
-  return {
-    strokeWidth,
-    applyStrokeWidth,
-  };
-};
+  return { applyStrokeWidth };
+}
