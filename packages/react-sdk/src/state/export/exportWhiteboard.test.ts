@@ -24,6 +24,7 @@ import {
   mockImageElement,
   mockLineElement,
   mockRectangleElement,
+  mockSvgPathDElement,
   mockTriangleElement,
 } from '../../lib/testUtils/documentTestUtils';
 import {
@@ -504,6 +505,28 @@ describe('convertWhiteboardToExportFormat', () => {
       version: 'net.nordeck.whiteboard@v2',
       whiteboard: {
         slides: [{ elements: [] }],
+      },
+    });
+  });
+
+  it('should export a svgPathD path element', async () => {
+    const document = createWhiteboardDocument();
+
+    document.performChange((doc) => {
+      const [addElement0] = generateAddElement(slide0, mockSvgPathDElement());
+      addElement0(doc);
+    });
+
+    expect(
+      await exportWhiteboard(
+        WhiteboardDocumentVersion.v1,
+        document.getData(),
+        mockWidgetApi(),
+      ),
+    ).toEqual({
+      version: 'net.nordeck.whiteboard@v2',
+      whiteboard: {
+        slides: [{ elements: [mockSvgPathDElement()] }],
       },
     });
   });
