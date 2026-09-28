@@ -607,7 +607,7 @@ describe('<WhiteboardHost/>', () => {
     });
   });
 
-  it('should use polyline tool to add polyline with mouse', async () => {
+  it('should use polyline tool to add svgPathD with mouse', async () => {
     render(<WhiteboardHost />, { wrapper: Wrapper });
 
     act(() => setActiveTool('polyline'));
@@ -642,7 +642,7 @@ describe('<WhiteboardHost/>', () => {
 
     expect(element).toEqual({
       type: 'path',
-      kind: 'polyline',
+      kind: 'svgPathD',
       points: [
         {
           x: 0,
@@ -650,10 +650,6 @@ describe('<WhiteboardHost/>', () => {
         },
         {
           x: 20,
-          y: 20,
-        },
-        {
-          x: 0,
           y: 40,
         },
       ],
@@ -663,11 +659,11 @@ describe('<WhiteboardHost/>', () => {
       },
       strokeColor: '#9e9e9e',
       svgPathD:
-        'M50,100c6.66667,6.66667 20,10.57191 20,20c0,9.42809 -13.33333,13.33333 -20,20',
+        'M0,0c6.66667,6.66667 20,10.57191 20,20c0,9.42809 -13.33333,13.33333 -20,20',
     });
   });
 
-  it('should use polyline tool to add polyline with touch', async () => {
+  it('should use polyline tool to add svgPathD with touch', async () => {
     render(<WhiteboardHost />, { wrapper: Wrapper });
 
     act(() => setActiveTool('polyline'));
@@ -700,7 +696,7 @@ describe('<WhiteboardHost/>', () => {
 
     expect(line).toEqual({
       type: 'path',
-      kind: 'polyline',
+      kind: 'svgPathD',
       points: [
         {
           x: 0,
@@ -708,10 +704,6 @@ describe('<WhiteboardHost/>', () => {
         },
         {
           x: 20,
-          y: 20,
-        },
-        {
-          x: 0,
           y: 40,
         },
       ],
@@ -721,7 +713,7 @@ describe('<WhiteboardHost/>', () => {
       },
       strokeColor: '#9e9e9e',
       svgPathD:
-        'M50,100c6.66667,6.66667 20,10.57191 20,20c0,9.42809 -13.33333,13.33333 -20,20',
+        'M0,0c6.66667,6.66667 20,10.57191 20,20c0,9.42809 -13.33333,13.33333 -20,20',
     });
   });
 

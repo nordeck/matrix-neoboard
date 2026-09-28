@@ -433,6 +433,23 @@ export function mockPolylineElement(
   };
 }
 
+export function mockSvgPathDElement(
+  path: Partial<PathElement> = {},
+): PathElement {
+  return {
+    type: 'path',
+    kind: 'svgPathD',
+    position: { x: 0, y: 1 },
+    strokeColor: '#ffffff',
+    points: [
+      { x: 0, y: 0 },
+      { x: 4, y: 6 },
+    ],
+    svgPathD: 'M0,0 C2,4 4,6 4,6',
+    ...path,
+  };
+}
+
 export function mockImageElement(
   image: Partial<ImageElement> = {},
 ): ImageElement {

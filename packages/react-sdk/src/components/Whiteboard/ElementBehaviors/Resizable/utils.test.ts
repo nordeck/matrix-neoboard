@@ -19,6 +19,7 @@ import {
   mockEllipseElement,
   mockFrameElement,
   mockLineElement,
+  mockPolylineElement,
 } from '../../../../lib/testUtils/documentTestUtils';
 import { Element, Elements, Point } from '../../../../state';
 import { DragEvent } from './ResizeHandle';
@@ -1091,6 +1092,34 @@ describe('computeElementResize', () => {
     expect(pointResizer({ x: 10, y: 10 })).toEqual({
       x: 50,
       y: 50,
+    });
+  });
+
+  it('should scale the boundary points and the svgPathD curve together', () => {
+    const element = mockPolylineElement({
+      kind: 'svgPathD',
+      position: { x: 0, y: 0 },
+      points: [
+        { x: 0, y: 0 },
+        { x: 20, y: 20 },
+      ],
+      svgPathD: 'M0,0 L20,20',
+    });
+
+    const { elementOverride } = computeElementResize(
+      element,
+      startDimensions,
+      endDimensions,
+      false,
+    );
+
+    expect(elementOverride).toEqual({
+      position: { x: 0, y: 0 },
+      points: [
+        { x: 0, y: 0 },
+        { x: 100, y: 100 },
+      ],
+      svgPathD: 'M0,0 L100,100',
     });
   });
 });

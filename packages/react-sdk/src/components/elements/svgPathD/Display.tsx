@@ -25,9 +25,9 @@ import {
 import { ElementFrameOverlay } from '../ElementFrameOverlay';
 import { getRenderProperties } from './getRenderProperties';
 
-export type PolylineElementProps = PathElement & WithExtendedSelectionProps;
+export type SvgPathDElementProps = PathElement & WithExtendedSelectionProps;
 
-const PolylineDisplay = ({
+const SvgPathDDisplay = ({
   readOnly,
   active,
   elementId,
@@ -35,19 +35,21 @@ const PolylineDisplay = ({
   elements = {},
   elementMovedHasFrame,
   ...element
-}: PolylineElementProps) => {
-  const { strokeColor, strokeWidth, points } = getRenderProperties(element);
+}: SvgPathDElementProps) => {
+  const { strokeColor, strokeWidth, svgPathD } = getRenderProperties(element);
   const boundingRect = calculateBoundingRectForPoints(element.points);
 
   const renderedChild = (
-    <g>
-      <polyline
+    <g
+      data-testid={`element-${elementId}`}
+      transform={`translate(${element.position.x}, ${element.position.y})`}
+    >
+      <path
+        d={svgPathD}
         fill="none"
-        points={points.map(({ x, y }) => `${x},${y}`).join(' ')}
         stroke={strokeColor}
-        strokeLinejoin="round"
         strokeWidth={strokeWidth}
-      />
+      ></path>
     </g>
   );
 
@@ -81,4 +83,4 @@ const PolylineDisplay = ({
   );
 };
 
-export default React.memo(PolylineDisplay);
+export default React.memo(SvgPathDDisplay);

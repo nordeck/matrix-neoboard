@@ -26,6 +26,9 @@ export function mergeElementAndOverride<T extends Element>(
       ...element,
       position: override?.position ?? element.position,
       points: override?.points ?? element.points,
+      ...(element.kind === 'svgPathD' && {
+        svgPathD: override?.svgPathD ?? element.svgPathD,
+      }),
     };
   } else if (element.type === 'shape' || element.type === 'image') {
     return {

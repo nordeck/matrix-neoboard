@@ -127,6 +127,48 @@ describe('mergeElementAndOverride', () => {
     expect(mergeElementAndOverride(element, { rotation: 45 })).toEqual(element);
   });
 
+  it(`should not include svgPathD for a non-svgPathD path element, even with an svgPathD override`, () => {
+    const element = mockPolylineElement();
+
+    expect(
+      mergeElementAndOverride(element, { svgPathD: 'M0,0 L8,12' }),
+    ).toStrictEqual(element);
+  });
+
+  it(`should replace svgPathD of path element`, () => {
+    const element = mockPolylineElement({
+      kind: 'svgPathD',
+      points: [
+        { x: 0, y: 0 },
+        { x: 4, y: 6 },
+      ],
+      svgPathD: 'M0,0 L4,6',
+    });
+    expect(
+      mergeElementAndOverride(element, { svgPathD: 'M0,0 L8,12' }),
+    ).toEqual({
+      ...element,
+      svgPathD: 'M0,0 L8,12',
+    });
+  });
+
+  it(`should keep svgPathD of path element when no override is given`, () => {
+    const element = mockPolylineElement({
+      kind: 'svgPathD',
+      points: [
+        { x: 0, y: 0 },
+        { x: 4, y: 6 },
+      ],
+      svgPathD: 'M0,0 L4,6',
+    });
+    expect(
+      mergeElementAndOverride(element, { position: { x: 20, y: 21 } }),
+    ).toEqual({
+      ...element,
+      position: { x: 20, y: 21 },
+    });
+  });
+
   it(`should replace position of frame element`, () => {
     const element = mockFrameElement();
     expect(

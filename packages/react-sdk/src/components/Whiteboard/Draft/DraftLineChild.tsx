@@ -76,7 +76,7 @@ export const DraftLineChild = ({
             connectedElementEnd,
           }),
         );
-        if (kind !== 'polyline') {
+        if (kind !== 'polyline' && kind !== 'svgPathD') {
           setActiveTool('select');
         }
       }
@@ -143,33 +143,34 @@ export const DraftLineChild = ({
     [calculateSvgCoords],
   );
 
-  const shape = useMemo(
-    () =>
-      cursorPoints?.length
-        ? createShapeFromPoints({
-            kind,
-            cursorPoints,
-            strokeColor,
-            gridCellSize: isShowGrid ? gridCellSize : undefined,
-            onlyStartAndEndPoints,
-            startMarker,
-            endMarker,
-            connectedElementStart,
-            connectedElementEnd,
-          })
-        : undefined,
-    [
-      cursorPoints,
-      kind,
-      strokeColor,
-      isShowGrid,
-      onlyStartAndEndPoints,
-      startMarker,
-      endMarker,
-      connectedElementStart,
-      connectedElementEnd,
-    ],
-  );
+  const shape = useMemo(() => {
+    // show polyline temporarily for it's speed instead of recalculating the curve
+    const draftKind = kind === 'svgPathD' ? 'polyline' : kind;
+
+    return cursorPoints?.length
+      ? createShapeFromPoints({
+          kind: draftKind,
+          cursorPoints,
+          strokeColor,
+          gridCellSize: isShowGrid ? gridCellSize : undefined,
+          onlyStartAndEndPoints,
+          startMarker,
+          endMarker,
+          connectedElementStart,
+          connectedElementEnd,
+        })
+      : undefined;
+  }, [
+    cursorPoints,
+    kind,
+    strokeColor,
+    isShowGrid,
+    onlyStartAndEndPoints,
+    startMarker,
+    endMarker,
+    connectedElementStart,
+    connectedElementEnd,
+  ]);
 
   return (
     <DraftPointerHandler

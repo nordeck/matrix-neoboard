@@ -15,9 +15,10 @@
  */
 
 import { Content } from 'pdfmake/interfaces';
-import { PathElement } from '../../../state';
+import { calculateBoundingRectForPoints, PathElement } from '../../../state';
 import { getRenderProperties as getRenderLineProperties } from '../../elements/line/getRenderProperties';
 import { getRenderProperties as getRenderPolyLineProperties } from '../../elements/polyline/getRenderProperties';
+import { getRenderProperties as getRenderSvgPathDProperties } from '../../elements/svgPathD/getRenderProperties';
 import { canvas } from './utils';
 
 export function createWhiteboardPdfElementPath(element: PathElement): Content {
@@ -27,6 +28,9 @@ export function createWhiteboardPdfElementPath(element: PathElement): Content {
 
     case 'polyline':
       return createElementPathPolyLine(element);
+
+    case 'svgPathD':
+      return createElementPathSvgPathD(element);
   }
 }
 
@@ -58,4 +62,35 @@ function createElementPathPolyLine(element: PathElement): Content {
     lineWidth: strokeWidth,
     lineColor: strokeColor,
   });
+}
+
+function createElementPathSvgPathD(element: PathElement): Content {
+  const { strokeColor, strokeWidth, svgPathD } =
+    getRenderSvgPathDProperties(element);
+  const { width, height } = calculateBoundingRectForPoints(element.points);
+
+  // pdfmake's canvas vectors (used for "line"/"polyline") only support
+  // straight segments, so a bezier curve has to go through pdfmake's `svg`
+  // content type instead, which renders a full SVG string as an image.
+  // Pad the viewBox by the stroke width on every side, since it would
+  // otherwise clip the stroke exactly at the curve's tight bounding box.
+  const padding = strokeWidth;
+  const svgWidth = width + padding * 2;
+  const svgHeight = height + padding * 2;
+
+  const svg =
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${svgWidth}" height="${svgHeight}" ` +
+    `viewBox="${-padding} ${-padding} ${svgWidth} ${svgHeight}">` +
+    `<path d="${svgPathD}" fill="none" stroke="${strokeColor}" stroke-width="${strokeWidth}" />` +
+    `</svg>`;
+
+  return {
+    svg,
+    width: svgWidth,
+    height: svgHeight,
+    absolutePosition: {
+      x: element.position.x - padding,
+      y: element.position.y - padding,
+    },
+  };
 }

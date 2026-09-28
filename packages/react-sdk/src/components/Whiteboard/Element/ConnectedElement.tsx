@@ -35,6 +35,7 @@ import ImageDisplay from '../../elements/image/ImageDisplay';
 import LineDisplay from '../../elements/line/Display';
 import PolylineDisplay from '../../elements/polyline/Display';
 import RectangleDisplay from '../../elements/rectangle/Display';
+import SvgPathDDisplay from '../../elements/svgPathD/Display';
 import TriangleDisplay from '../../elements/triangle/Display';
 import {
   ConnectableElement,
@@ -93,6 +94,8 @@ const ConnectedElement = ({
         return <LineDisplay {...element} {...otherProps} />;
       } else if (element.kind === 'polyline') {
         return <PolylineDisplay {...element} {...otherProps} />;
+      } else if (element.kind === 'svgPathD') {
+        return <SvgPathDDisplay {...element} {...otherProps} />;
       }
     } else if (element.type === 'shape') {
       let shapeChild: JSX.Element;

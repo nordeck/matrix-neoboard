@@ -15,6 +15,7 @@
  */
 
 import clamp from 'lodash/clamp';
+import { scalePathD } from '../../../../lib/svgPathDUtils';
 import {
   calculateBoundingRectForPoints,
   Element,
@@ -457,16 +458,22 @@ export function computeElementResize(
   if (element.type === 'path') {
     const scaleX = endDimensions.width / startDimensions.width;
     const scaleY = endDimensions.height / startDimensions.height;
+    const position = pointResizerUnrotated({
+      x: element.position.x,
+      y: element.position.y,
+    });
+
     return {
       elementOverride: {
-        position: pointResizerUnrotated({
-          x: element.position.x,
-          y: element.position.y,
-        }),
+        position,
         points: element.points.map((point) => ({
           x: point.x * scaleX,
           y: point.y * scaleY,
         })),
+        ...(element.kind === 'svgPathD' &&
+          element.svgPathD && {
+            svgPathD: scalePathD(element.svgPathD, scaleX, scaleY),
+          }),
       },
       pointResizer: pointResizerUnrotated,
     };

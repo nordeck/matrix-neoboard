@@ -15,6 +15,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
+import { simplifyPointsToD } from '../../../lib';
 import { mockFrameElement } from '../../../lib/testUtils';
 import { stickyColor, stickySize } from '../constants';
 import { createShape, createShapeFromPoints } from './createShape';
@@ -265,6 +266,36 @@ describe('createShapeFromPoints', () => {
       type: 'path',
       kind: 'polyline',
     });
+  });
+
+  it('should compute svgPathD boundary points to match the curve', () => {
+    const cursorPoints = [
+      { x: 10, y: 20 },
+      { x: 30, y: 60 },
+      { x: 90, y: 40 },
+    ];
+    const result = createShapeFromPoints({
+      kind: 'svgPathD',
+      cursorPoints,
+      strokeColor: '#000000',
+    });
+
+    // position/boundary points come from the raw cursor points' bounding
+    // box: x ranges 10..90 (width 80), y ranges 20..60 (height 40).
+    expect(result.position).toEqual({ x: 10, y: 20 });
+    expect(result.points).toEqual([
+      { x: 0, y: 0 },
+      { x: 80, y: 40 },
+    ]);
+
+    // the curve is generated from the same position-relative points
+    expect(result.svgPathD).toEqual(
+      simplifyPointsToD([
+        { x: 0, y: 0 },
+        { x: 20, y: 40 },
+        { x: 80, y: 20 },
+      ]),
+    );
   });
 
   it('should create line and attach to frame', () => {
