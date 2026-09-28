@@ -181,7 +181,7 @@ An element that consists of points.
 | `connectedElementStart` | `string \| undefined`                | The ID of connected element on the first point. Currently shapes can be connected.                                                                                                                        |
 | `connectedElementEnd`   | `string \| undefined`                | The ID of connected element on the last point. Currently shapes can be connected.                                                                                                                         |
 | `attachedFrame`         | `string \| undefined`                | The ID of the frame this element is attached to.                                                                                                                                                          |
-| `svgPathD`              | `string \| undefined`                | An SVG `<path d="...">` attribute value with a smoothed curve generated from a `polyline`'s points. Required when `kind` is `svgPathD`, and forbidden for any other `kind`.                               |
+| `svgPathD`              | `string \| undefined`                | An SVG `<path d="...">` attribute value. Required when `kind` is `svgPathD`, and forbidden for any other `kind`.                                                                                          |
 
 #### Example
 
