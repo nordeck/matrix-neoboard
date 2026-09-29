@@ -295,6 +295,12 @@
     "messagesSent": "Sent",
     "sent": "Sent"
   },
+  "penElementBar": {
+    "deletePreviousStroke": "Delete previous stroke",
+    "duplicatePreviousStroke": "Duplicate previous stroke",
+    "pickNextStrokeColor": "Pick the next stroke color",
+    "title": "Pen"
+  },
   "presentBar": {
     "addFrameToEnablePresentationMode": "Add a frame to enable presentation mode",
     "disableEditing": "Disable editing",

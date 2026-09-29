@@ -295,6 +295,12 @@
     "messagesSent": "Gesendet",
     "sent": "Gesendet"
   },
+  "penElementBar": {
+    "deletePreviousStroke": "Letzten Strich löschen",
+    "duplicatePreviousStroke": "Letzten Strich duplizieren",
+    "pickNextStrokeColor": "Farbe für den nächsten Strich wählen",
+    "title": "Stift"
+  },
   "presentBar": {
     "addFrameToEnablePresentationMode": "Rahmen erstellen, um Präsentationsmodus zu aktivieren",
     "disableEditing": "Bearbeitung sperren",
