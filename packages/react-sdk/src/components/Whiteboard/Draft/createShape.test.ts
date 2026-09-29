@@ -16,6 +16,7 @@
 
 import { describe, expect, it } from 'vitest';
 import { mockFrameElement } from '../../../lib/testUtils';
+import { defaultStrokeWidth } from '../../common/constants';
 import { stickyColor, stickySize } from '../constants';
 import { createShape, createShapeFromPoints } from './createShape';
 
@@ -278,7 +279,9 @@ describe('createShapeFromPoints', () => {
       cursorPoints,
       strokeColor: '#000000',
       frameElements: {
-        'frame-id-0': mockFrameElement(),
+        'frame-id-0': mockFrameElement({
+          position: { x: 10 - defaultStrokeWidth, y: 20 - defaultStrokeWidth },
+        }),
         'frame-id-1': mockFrameElement({ position: { x: 100, y: 100 } }),
       },
     });
@@ -294,6 +297,46 @@ describe('createShapeFromPoints', () => {
       kind: 'polyline',
       attachedFrame: 'frame-id-0',
     });
+  });
+
+  it('should set the stroke width for a polyline', () => {
+    const cursorPoints = [
+      { x: 10, y: 20 },
+      { x: 30, y: 40 },
+      { x: 50, y: 60 },
+    ];
+    const result = createShapeFromPoints({
+      kind: 'polyline',
+      cursorPoints,
+      strokeColor: '#000000',
+      strokeWidth: 12,
+    });
+    expect(result).toEqual({
+      points: [
+        { x: 0, y: 0 },
+        { x: 20, y: 20 },
+        { x: 40, y: 40 },
+      ],
+      position: { x: 10, y: 20 },
+      strokeColor: '#000000',
+      strokeWidth: 12,
+      type: 'path',
+      kind: 'polyline',
+    });
+  });
+
+  it('should not add undefined strokeWidth', () => {
+    const cursorPoints = [
+      { x: 10, y: 20 },
+      { x: 30, y: 40 },
+    ];
+    const result = createShapeFromPoints({
+      kind: 'polyline',
+      cursorPoints,
+      strokeColor: '#000000',
+      strokeWidth: undefined,
+    });
+    expect(result).not.toHaveProperty('strokeWidth');
   });
 
   it('should create basic line with an end marker', () => {

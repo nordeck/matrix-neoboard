@@ -15,11 +15,9 @@
  */
 
 import { useTheme } from '@mui/material';
-import {
-  calculateBoundingRectForPoints,
-  isRotatableElement,
-} from '../../../../state';
+import { isRotatableElement } from '../../../../state';
 import { useElementOverrides } from '../../../ElementOverridesProvider';
+import { getBoundingRectForElements } from '../utils';
 
 type ElementOutlineProps = {
   elementIds: Array<string>;
@@ -34,11 +32,19 @@ export function ElementOutline({ elementIds }: ElementOutlineProps) {
   return (
     <g pointerEvents="none">
       {elements.map((element, index) => {
+        let x = element.position.x;
+        let y = element.position.y;
         let width: number;
         let height: number;
 
         if (element.type === 'path') {
-          ({ width, height } = calculateBoundingRectForPoints(element.points));
+          // should contain path of any stroke width completely
+          ({
+            offsetX: x,
+            offsetY: y,
+            width,
+            height,
+          } = getBoundingRectForElements([element]));
         } else {
           ({ width, height } = element);
         }
@@ -58,8 +64,8 @@ export function ElementOutline({ elementIds }: ElementOutlineProps) {
             strokeWidth={1}
             width={width}
             transform={transform}
-            x={element.position.x}
-            y={element.position.y}
+            x={x}
+            y={y}
           />
         );
       })}

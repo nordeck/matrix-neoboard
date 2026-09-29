@@ -166,6 +166,7 @@
     "lineEnd": "Line End",
     "lineMarkerSwitch": "Line Marker Switch",
     "lineStart": "Line Start",
+    "polylineStrokeWidth": "Select stroke width",
     "textAlignment": "Text Alignment",
     "textAlignmentCenter": "Center",
     "textAlignmentLeft": "Left",
