@@ -135,13 +135,18 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
         filter((m) => m.content.slideId === this.slideId),
         scan(
           (acc, m) => {
-            return {
+            const now = Date.now();
+            const next = {
               ...acc,
               [m.senderUserId]: {
                 position: m.content.position as Point,
-                timestamp: Date.now(),
+                timestamp: now,
               },
             };
+            // Prune stale entries so the accumulator stays bounded
+            return Object.fromEntries(
+              Object.entries(next).filter(([, v]) => v.timestamp + 5000 > now),
+            );
           },
           {} as Record<string, { position: Point; timestamp: number }>,
         ),
