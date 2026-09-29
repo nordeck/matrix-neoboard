@@ -96,6 +96,98 @@ describe('isValidElement', () => {
     },
   );
 
+  it.each([
+    'M0,0',
+    'M0,0 L10,10',
+    'M0,0 L10,10 C1,2 3,4 5,6 Z',
+    'm0,0c5.24,4.71 9.76,10.36 15.71,14.14c20.35,12.95 32.4,-0.88 47.12,-14.14',
+    'M0.5,-1.5e2 L10,10',
+  ])(
+    'should accept curve path element with valid svgPathD "%s"',
+    (svgPathD) => {
+      const data = {
+        type: 'path',
+        position: { x: 1, y: 2 },
+        kind: 'curve',
+        points: [
+          { x: 0, y: 0 },
+          { x: 10, y: 10 },
+        ],
+        strokeColor: 'red',
+        svgPathD,
+      };
+
+      expect(isValidElement(data)).toBe(true);
+    },
+  );
+
+  it('should accept path element without svgPathD', () => {
+    const data = {
+      type: 'path',
+      position: { x: 1, y: 2 },
+      kind: 'line',
+      points: [],
+      strokeColor: 'red',
+    };
+
+    expect(isValidElement(data)).toBe(true);
+  });
+
+  it('should reject curve path element without svgPathD', () => {
+    const data = {
+      type: 'path',
+      position: { x: 1, y: 2 },
+      kind: 'curve',
+      points: [
+        { x: 0, y: 0 },
+        { x: 1, y: 1 },
+      ],
+      strokeColor: 'red',
+    };
+
+    expect(isValidElement(data)).toBe(false);
+  });
+
+  it.each(['line', 'polyline'])(
+    'should reject %j path element with svgPathD set',
+    (kind) => {
+      const data = {
+        type: 'path',
+        position: { x: 1, y: 2 },
+        kind,
+        points: [],
+        strokeColor: 'red',
+        svgPathD: 'M0,0 L10,10',
+      };
+
+      expect(isValidElement(data)).toBe(false);
+    },
+  );
+
+  it.each<{ x: number; y: number }[]>([
+    [],
+    [{ x: 0, y: 0 }],
+    [
+      { x: 0, y: 0 },
+      { x: 1, y: 1 },
+      { x: 2, y: 2 },
+    ],
+  ])(
+    'should reject curve path element with %j points (must be exactly 2)',
+    (points) => {
+      const data = {
+        type: 'path',
+        position: { x: 1, y: 2 },
+        kind: 'curve',
+        points,
+        strokeColor: 'red',
+        svgPathD: 'M0,0 L10,10',
+      };
+
+      expect(isValidElement(data)).toBe(false);
+    },
+  );
+
   it('should accept additional properties for path event', () => {
     const data = {
       type: 'path',
@@ -335,6 +427,12 @@ describe('isValidElement', () => {
     { attachedFrame: '' },
     { attachedFrame: '__proto__' },
     { attachedFrame: 'constructor' },
+    { svgPathD: 111 },
+    { svgPathD: null },
+    { svgPathD: '' },
+    { svgPathD: 'M0,0 L10,10 <script>alert(1)</script>' },
+    { svgPathD: 'M0,0 L10,10;' },
+    { svgPathD: 'M0,0 L10,10 #comment' },
   ])('should reject path event with patch %j', (patch: object) => {
     const data = {
       type: 'path',

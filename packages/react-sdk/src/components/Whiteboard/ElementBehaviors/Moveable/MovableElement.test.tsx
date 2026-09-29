@@ -29,6 +29,7 @@ import {
 } from 'vitest';
 import { WhiteboardHost } from '../..';
 import {
+  mockCurveElement,
   mockEllipseElement,
   mockFrameElement,
   mockTextElement,
@@ -36,6 +37,7 @@ import {
   WhiteboardTestingContextProvider,
 } from '../../../../lib/testUtils';
 import {
+  PathElement,
   Point,
   WhiteboardInstance,
   WhiteboardManager,
@@ -118,6 +120,7 @@ describe('MovableElement', () => {
                 attachedFrame: 'frame-0',
               }),
             ],
+            ['curve-0', mockCurveElement()],
           ],
         ],
       ],
@@ -254,6 +257,57 @@ describe('MovableElement', () => {
     // check that ellipse is connected to the frame
     expect(activeSlide.getElement('ellipse-in-frame-0')).toMatchObject({
       attachedFrame: 'frame-0',
+    });
+  });
+
+  it('should not change the svgPathD string while drag-moving it', () => {
+    render(<WhiteboardHost />, { wrapper: Wrapper });
+
+    const element = screen.getByTestId('element-curve-0');
+    const oldPath = activeSlide.getElement('curve-0') as PathElement;
+
+    // select the curve before starting the drag, so the move is applied
+    act(() => activeSlide.setActiveElementIds(['curve-0']));
+
+    fireEvent.touchStart(element, {
+      touches: [
+        {
+          identifier: 0,
+          clientX: 300,
+          clientY: 300,
+          isPrimary: true,
+        },
+      ],
+    });
+
+    fireEvent.touchMove(element, {
+      touches: [
+        {
+          identifier: 0,
+          clientX: 350,
+          clientY: 350,
+          isPrimary: true,
+        },
+      ],
+    });
+
+    fireEvent.touchEnd(element, {
+      touches: [],
+      changedTouches: [
+        {
+          identifier: 0,
+          clientX: 350,
+          clientY: 350,
+        },
+      ],
+    });
+
+    const newPath = activeSlide.getElement('curve-0');
+
+    // the element actually moved, but curve stays the same
+    expect(newPath).toEqual({
+      ...oldPath,
+      position: newPath?.position,
     });
   });
 });

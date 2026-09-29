@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { simplifyPointsToD } from '../../../lib';
 import {
   calculateBoundingRectForPoints,
   copyElementWithAttachedFrame,
@@ -167,7 +168,8 @@ export function createShapeFromPoints({
             : e,
       )
     : cursorPoints;
-  const { offsetX, offsetY } = calculateBoundingRectForPoints(points);
+  const { offsetX, offsetY, width, height } =
+    calculateBoundingRectForPoints(points);
 
   const pathElement: PathElement = {
     position: { x: offsetX, y: offsetY },
@@ -175,14 +177,27 @@ export function createShapeFromPoints({
     kind,
     startMarker,
     endMarker,
-    points: points.map((e) => ({
-      x: e.x - offsetX,
-      y: e.y - offsetY,
-    })),
+    points: [],
     strokeColor,
     connectedElementStart,
     connectedElementEnd,
   };
+
+  if (kind === 'curve') {
+    pathElement.svgPathD = simplifyPointsToD(
+      points.map((e) => ({ x: e.x - offsetX, y: e.y - offsetY })),
+    );
+    // Reuse boundary from the original points that generated the curve
+    pathElement.points = [
+      { x: 0, y: 0 },
+      { x: width, y: height },
+    ];
+  } else {
+    pathElement.points = points.map((e) => ({
+      x: e.x - offsetX,
+      y: e.y - offsetY,
+    }));
+  }
 
   return copyElementWithAttachedFrame(pathElement, frameElements);
 }
