@@ -76,7 +76,7 @@ export const DraftLineChild = ({
             connectedElementEnd,
           }),
         );
-        if (kind !== 'polyline' && kind !== 'svgPathD') {
+        if (kind !== 'polyline' && kind !== 'curve') {
           setActiveTool('select');
         }
       }
@@ -145,7 +145,7 @@ export const DraftLineChild = ({
 
   const shape = useMemo(() => {
     // show polyline temporarily for it's speed instead of recalculating the curve
-    const draftKind = kind === 'svgPathD' ? 'polyline' : kind;
+    const draftKind = kind === 'curve' ? 'polyline' : kind;
 
     return cursorPoints?.length
       ? createShapeFromPoints({

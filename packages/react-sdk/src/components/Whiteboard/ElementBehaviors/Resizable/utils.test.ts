@@ -1097,7 +1097,7 @@ describe('computeElementResize', () => {
 
   it('should scale the boundary points and the svgPathD curve together', () => {
     const element = mockPolylineElement({
-      kind: 'svgPathD',
+      kind: 'curve',
       position: { x: 0, y: 0 },
       points: [
         { x: 0, y: 0 },

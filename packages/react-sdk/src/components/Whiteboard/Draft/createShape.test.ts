@@ -268,14 +268,14 @@ describe('createShapeFromPoints', () => {
     });
   });
 
-  it('should compute svgPathD boundary points to match the curve', () => {
+  it('should compute curve boundary points to match the curve', () => {
     const cursorPoints = [
       { x: 10, y: 20 },
       { x: 30, y: 60 },
       { x: 90, y: 40 },
     ];
     const result = createShapeFromPoints({
-      kind: 'svgPathD',
+      kind: 'curve',
       cursorPoints,
       strokeColor: '#000000',
     });

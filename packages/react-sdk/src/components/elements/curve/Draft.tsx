@@ -18,9 +18,9 @@ import { DraftLineChild } from '../../Whiteboard';
 import PolylineDisplay from '../polyline/Display';
 
 // Renders the in-progress shape as a polyline (fast);
-// "svgPathD" is only computed once on pointer up
-const SvgPathDDraft = () => {
-  return <DraftLineChild display={PolylineDisplay} kind="svgPathD" />;
+// "curve" is only computed once on pointer up
+const CurveDraft = () => {
+  return <DraftLineChild display={PolylineDisplay} kind="curve" />;
 };
 
-export default SvgPathDDraft;
+export default CurveDraft;

@@ -25,9 +25,9 @@ import {
 import { ElementFrameOverlay } from '../ElementFrameOverlay';
 import { getRenderProperties } from './getRenderProperties';
 
-export type SvgPathDElementProps = PathElement & WithExtendedSelectionProps;
+export type CurveElementProps = PathElement & WithExtendedSelectionProps;
 
-const SvgPathDDisplay = ({
+const CurveDisplay = ({
   readOnly,
   active,
   elementId,
@@ -35,7 +35,7 @@ const SvgPathDDisplay = ({
   elements = {},
   elementMovedHasFrame,
   ...element
-}: SvgPathDElementProps) => {
+}: CurveElementProps) => {
   const { strokeColor, strokeWidth, svgPathD } = getRenderProperties(element);
   const boundingRect = calculateBoundingRectForPoints(element.points);
 
@@ -83,4 +83,4 @@ const SvgPathDDisplay = ({
   );
 };
 
-export default React.memo(SvgPathDDisplay);
+export default React.memo(CurveDisplay);

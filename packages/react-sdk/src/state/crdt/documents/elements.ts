@@ -111,7 +111,7 @@ export const shapeElementSchema = elementBaseSchema
   })
   .required();
 
-export type PathKind = 'line' | 'polyline' | 'svgPathD';
+export type PathKind = 'line' | 'polyline' | 'curve';
 
 export type LineMarker = 'arrow-head-line';
 
@@ -134,12 +134,12 @@ const svgPathDPattern = /^[MmLlHhVvCcSsQqTtAaZz0-9.,eE+\-\s]*$/;
 export const pathElementSchema = elementBaseSchema
   .append<PathElement>({
     type: Joi.string().valid('path').required(),
-    kind: Joi.string().valid('line', 'polyline', 'svgPathD').required(),
-    // For "svgPathD" the 2 points holds the curve's own bounding-box corners
+    kind: Joi.string().valid('line', 'polyline', 'curve').required(),
+    // For "curve" the 2 points holds the curve's own bounding-box corners
     points: Joi.array()
       .items(pointSchema)
       .when('kind', {
-        is: 'svgPathD',
+        is: 'curve',
         then: Joi.array().length(2).required(),
         otherwise: Joi.required(),
       }),
@@ -150,7 +150,7 @@ export const pathElementSchema = elementBaseSchema
     connectedElementEnd: Joi.string().not(...disallowElementIds),
     attachedFrame: Joi.string().not(...disallowElementIds),
     svgPathD: Joi.string().pattern(svgPathDPattern).when('kind', {
-      is: 'svgPathD',
+      is: 'curve',
       then: Joi.required(),
       otherwise: Joi.forbidden(),
     }),

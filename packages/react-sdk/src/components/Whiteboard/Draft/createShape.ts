@@ -183,7 +183,7 @@ export function createShapeFromPoints({
     connectedElementEnd,
   };
 
-  if (kind === 'svgPathD') {
+  if (kind === 'curve') {
     pathElement.svgPathD = simplifyPointsToD(
       points.map((e) => ({ x: e.x - offsetX, y: e.y - offsetY })),
     );

@@ -29,9 +29,9 @@ import {
 } from 'vitest';
 import { WhiteboardHost } from '../..';
 import {
+  mockCurveElement,
   mockEllipseElement,
   mockFrameElement,
-  mockSvgPathDElement,
   mockTextElement,
   mockWhiteboardManager,
   WhiteboardTestingContextProvider,
@@ -120,7 +120,7 @@ describe('MovableElement', () => {
                 attachedFrame: 'frame-0',
               }),
             ],
-            ['curve-0', mockSvgPathDElement()],
+            ['curve-0', mockCurveElement()],
           ],
         ],
       ],

@@ -18,10 +18,10 @@ import { ReactElement, useEffect } from 'react';
 import { useConnectionPoint } from '../../ConnectionPointProvider';
 import { useLayoutState } from '../../Layout';
 import BlockArrowDraft from '../../elements/block-arrow/Draft';
+import CurveDraft from '../../elements/curve/Draft';
 import EllipseDraft from '../../elements/ellipse/Draft';
 import LineDraft from '../../elements/line/Draft';
 import RectangleDraft from '../../elements/rectangle/Draft';
-import SvgPathDDraft from '../../elements/svgPathD/Draft';
 import TriangleDraft from '../../elements/triangle/Draft';
 import { stickyColor } from '../constants';
 
@@ -56,7 +56,7 @@ export const DraftPicker = (): ReactElement | null => {
       );
 
     case 'polyline':
-      return <SvgPathDDraft />;
+      return <CurveDraft />;
 
     case 'rectangle':
       return <RectangleDraft />;

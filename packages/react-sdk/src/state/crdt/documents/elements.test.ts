@@ -103,12 +103,12 @@ describe('isValidElement', () => {
     'm0,0c5.24,4.71 9.76,10.36 15.71,14.14c20.35,12.95 32.4,-0.88 47.12,-14.14',
     'M0.5,-1.5e2 L10,10',
   ])(
-    'should accept svgPathD path element with valid svgPathD "%s"',
+    'should accept curve path element with valid svgPathD "%s"',
     (svgPathD) => {
       const data = {
         type: 'path',
         position: { x: 1, y: 2 },
-        kind: 'svgPathD',
+        kind: 'curve',
         points: [
           { x: 0, y: 0 },
           { x: 10, y: 10 },
@@ -133,11 +133,11 @@ describe('isValidElement', () => {
     expect(isValidElement(data)).toBe(true);
   });
 
-  it('should reject svgPathD path element without svgPathD', () => {
+  it('should reject curve path element without svgPathD', () => {
     const data = {
       type: 'path',
       position: { x: 1, y: 2 },
-      kind: 'svgPathD',
+      kind: 'curve',
       points: [
         { x: 0, y: 0 },
         { x: 1, y: 1 },
@@ -173,12 +173,12 @@ describe('isValidElement', () => {
       { x: 2, y: 2 },
     ],
   ])(
-    'should reject svgPathD path element with %j points (must be exactly 2)',
+    'should reject curve path element with %j points (must be exactly 2)',
     (points) => {
       const data = {
         type: 'path',
         position: { x: 1, y: 2 },
-        kind: 'svgPathD',
+        kind: 'curve',
         points,
         strokeColor: 'red',
         svgPathD: 'M0,0 L10,10',

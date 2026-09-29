@@ -29,13 +29,13 @@ import {
   mergeElementAndOverride,
 } from '../../ElementOverridesProvider';
 import BlockArrowDisplay from '../../elements/block-arrow/Display';
+import CurveDisplay from '../../elements/curve/Display';
 import EllipseDisplay from '../../elements/ellipse/Display';
 import FrameDisplay from '../../elements/frame/Display';
 import ImageDisplay from '../../elements/image/ImageDisplay';
 import LineDisplay from '../../elements/line/Display';
 import PolylineDisplay from '../../elements/polyline/Display';
 import RectangleDisplay from '../../elements/rectangle/Display';
-import SvgPathDDisplay from '../../elements/svgPathD/Display';
 import TriangleDisplay from '../../elements/triangle/Display';
 import {
   ConnectableElement,
@@ -94,8 +94,8 @@ const ConnectedElement = ({
         return <LineDisplay {...element} {...otherProps} />;
       } else if (element.kind === 'polyline') {
         return <PolylineDisplay {...element} {...otherProps} />;
-      } else if (element.kind === 'svgPathD') {
-        return <SvgPathDDisplay {...element} {...otherProps} />;
+      } else if (element.kind === 'curve') {
+        return <CurveDisplay {...element} {...otherProps} />;
       }
     } else if (element.type === 'shape') {
       let shapeChild: JSX.Element;

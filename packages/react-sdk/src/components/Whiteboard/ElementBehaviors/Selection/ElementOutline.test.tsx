@@ -41,9 +41,9 @@ describe('<ElementOutline />', () => {
           [
             ['polyline-0', mockPolylineElement()],
             [
-              'svgPathD-0',
+              'curve-0',
               mockPolylineElement({
-                kind: 'svgPathD',
+                kind: 'curve',
                 position: { x: 10, y: 20 },
                 points: [
                   { x: 0, y: 0 },
@@ -76,26 +76,26 @@ describe('<ElementOutline />', () => {
   });
 
   it('should not render an outline for a single selected element', () => {
-    render(<ElementOutline elementIds={['svgPathD-0']} />, {
+    render(<ElementOutline elementIds={['curve-0']} />, {
       wrapper: Wrapper,
     });
 
     expect(
-      screen.queryByTestId('element-svgPathD-0-outline'),
+      screen.queryByTestId('element-curve-0-outline'),
     ).not.toBeInTheDocument();
   });
 
-  it('should render an outline for a selected svgPathD element matching its boundary points', () => {
-    render(<ElementOutline elementIds={['polyline-0', 'svgPathD-0']} />, {
+  it('should render an outline for a selected curve element matching its boundary points', () => {
+    render(<ElementOutline elementIds={['polyline-0', 'curve-0']} />, {
       wrapper: Wrapper,
     });
 
     // points are the curve's own bounding-box corners [{0,0}, {30,15}],
     // so width/height come directly from them, and x/y from position.
-    expect(screen.getByTestId('element-svgPathD-0-outline'))
+    expect(screen.getByTestId('element-curve-0-outline'))
       .toMatchInlineSnapshot(`
       <rect
-        data-testid="element-svgPathD-0-outline"
+        data-testid="element-curve-0-outline"
         fill="transparent"
         height="15"
         stroke="#1976d2"
@@ -108,7 +108,7 @@ describe('<ElementOutline />', () => {
   });
 
   it('should render an outline for a selected polyline element alongside it', () => {
-    render(<ElementOutline elementIds={['polyline-0', 'svgPathD-0']} />, {
+    render(<ElementOutline elementIds={['polyline-0', 'curve-0']} />, {
       wrapper: Wrapper,
     });
 

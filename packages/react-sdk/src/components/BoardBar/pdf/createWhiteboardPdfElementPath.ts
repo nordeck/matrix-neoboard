@@ -16,9 +16,9 @@
 
 import { Content } from 'pdfmake/interfaces';
 import { calculateBoundingRectForPoints, PathElement } from '../../../state';
+import { getRenderProperties as getRenderCurveProperties } from '../../elements/curve/getRenderProperties';
 import { getRenderProperties as getRenderLineProperties } from '../../elements/line/getRenderProperties';
 import { getRenderProperties as getRenderPolyLineProperties } from '../../elements/polyline/getRenderProperties';
-import { getRenderProperties as getRenderSvgPathDProperties } from '../../elements/svgPathD/getRenderProperties';
 import { canvas } from './utils';
 
 export function createWhiteboardPdfElementPath(element: PathElement): Content {
@@ -29,8 +29,8 @@ export function createWhiteboardPdfElementPath(element: PathElement): Content {
     case 'polyline':
       return createElementPathPolyLine(element);
 
-    case 'svgPathD':
-      return createElementPathSvgPathD(element);
+    case 'curve':
+      return createElementPathCurve(element);
   }
 }
 
@@ -64,9 +64,9 @@ function createElementPathPolyLine(element: PathElement): Content {
   });
 }
 
-function createElementPathSvgPathD(element: PathElement): Content {
+function createElementPathCurve(element: PathElement): Content {
   const { strokeColor, strokeWidth, svgPathD } =
-    getRenderSvgPathDProperties(element);
+    getRenderCurveProperties(element);
   const { width, height } = calculateBoundingRectForPoints(element.points);
 
   // pdfmake's canvas vectors (used for "line"/"polyline") only support

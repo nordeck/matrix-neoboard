@@ -26,7 +26,7 @@ export function mergeElementAndOverride<T extends Element>(
       ...element,
       position: override?.position ?? element.position,
       points: override?.points ?? element.points,
-      ...(element.kind === 'svgPathD' && {
+      ...(element.kind === 'curve' && {
         svgPathD: override?.svgPathD ?? element.svgPathD,
       }),
     };

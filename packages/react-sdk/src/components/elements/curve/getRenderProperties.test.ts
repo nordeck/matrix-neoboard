@@ -18,11 +18,11 @@ import { describe, expect, it } from 'vitest';
 import { getRenderProperties } from './getRenderProperties';
 
 describe('getRenderProperties', () => {
-  it('should provide the properties for a svgPathD element', () => {
+  it('should provide the properties for a curveelement', () => {
     expect(
       getRenderProperties({
         type: 'path',
-        kind: 'svgPathD',
+        kind: 'curve',
         position: { x: 10, y: 15 },
         strokeColor: '#00ffff',
         points: [

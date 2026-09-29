@@ -433,12 +433,10 @@ export function mockPolylineElement(
   };
 }
 
-export function mockSvgPathDElement(
-  path: Partial<PathElement> = {},
-): PathElement {
+export function mockCurveElement(path: Partial<PathElement> = {}): PathElement {
   return {
     type: 'path',
-    kind: 'svgPathD',
+    kind: 'curve',
     position: { x: 0, y: 1 },
     strokeColor: '#ffffff',
     points: [

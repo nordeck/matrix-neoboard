@@ -607,7 +607,7 @@ describe('<WhiteboardHost/>', () => {
     });
   });
 
-  it('should use polyline tool to add svgPathD with mouse', async () => {
+  it('should use polyline tool to add curve with mouse', async () => {
     render(<WhiteboardHost />, { wrapper: Wrapper });
 
     act(() => setActiveTool('polyline'));
@@ -642,7 +642,7 @@ describe('<WhiteboardHost/>', () => {
 
     expect(element).toEqual({
       type: 'path',
-      kind: 'svgPathD',
+      kind: 'curve',
       points: [
         {
           x: 0,
@@ -663,7 +663,7 @@ describe('<WhiteboardHost/>', () => {
     });
   });
 
-  it('should use polyline tool to add svgPathD with touch', async () => {
+  it('should use polyline tool to add curve with touch', async () => {
     render(<WhiteboardHost />, { wrapper: Wrapper });
 
     act(() => setActiveTool('polyline'));
@@ -696,7 +696,7 @@ describe('<WhiteboardHost/>', () => {
 
     expect(line).toEqual({
       type: 'path',
-      kind: 'svgPathD',
+      kind: 'curve',
       points: [
         {
           x: 0,

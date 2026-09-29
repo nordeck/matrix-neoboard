@@ -16,9 +16,9 @@
 
 import { describe, expect, it } from 'vitest';
 import {
+  mockCurveElement,
   mockLineElement,
   mockPolylineElement,
-  mockSvgPathDElement,
 } from '../../../lib/testUtils';
 import { createWhiteboardPdfElementPath } from './createWhiteboardPdfElementPath';
 
@@ -64,8 +64,8 @@ describe('createWhiteboardPdfElementPath', () => {
     });
   });
 
-  it('should create svg content for a svgPathD curve', () => {
-    const element = mockSvgPathDElement();
+  it('should create svg content for a curve', () => {
+    const element = mockCurveElement();
 
     // points [{0,0},{4,6}] give a bounding box of width 4, height 6; padded
     // by the stroke width (4) on every side so the stroke isn't clipped at

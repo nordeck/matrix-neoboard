@@ -127,7 +127,7 @@ describe('mergeElementAndOverride', () => {
     expect(mergeElementAndOverride(element, { rotation: 45 })).toEqual(element);
   });
 
-  it(`should not include svgPathD for a non-svgPathD path element, even with an svgPathD override`, () => {
+  it(`should not include svgPathD for a non-curve path element, even with an svgPathD override`, () => {
     const element = mockPolylineElement();
 
     expect(
@@ -137,7 +137,7 @@ describe('mergeElementAndOverride', () => {
 
   it(`should replace svgPathD of path element`, () => {
     const element = mockPolylineElement({
-      kind: 'svgPathD',
+      kind: 'curve',
       points: [
         { x: 0, y: 0 },
         { x: 4, y: 6 },
@@ -154,7 +154,7 @@ describe('mergeElementAndOverride', () => {
 
   it(`should keep svgPathD of path element when no override is given`, () => {
     const element = mockPolylineElement({
-      kind: 'svgPathD',
+      kind: 'curve',
       points: [
         { x: 0, y: 0 },
         { x: 4, y: 6 },

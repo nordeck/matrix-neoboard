@@ -470,7 +470,7 @@ export function computeElementResize(
           x: point.x * scaleX,
           y: point.y * scaleY,
         })),
-        ...(element.kind === 'svgPathD' &&
+        ...(element.kind === 'curve' &&
           element.svgPathD && {
             svgPathD: scalePathD(element.svgPathD, scaleX, scaleY),
           }),

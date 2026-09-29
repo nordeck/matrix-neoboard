@@ -17,10 +17,10 @@
 import { describe, expect, it } from 'vitest';
 import {
   mockCircleElement,
+  mockCurveElement,
   mockEllipseElement,
   mockFrameElement,
   mockLineElement,
-  mockSvgPathDElement,
   mockTriangleElement,
 } from '../../lib/testUtils/documentTestUtils';
 import {
@@ -399,11 +399,11 @@ describe('generateLoadWhiteboardFromExport', () => {
     ).toThrow('Must have a single slide');
   });
 
-  it('should load a svgPathD path element', () => {
+  it('should load a curvepath element', () => {
     const exportDocument: WhiteboardDocumentExport = {
       version: 'net.nordeck.whiteboard@v1',
       whiteboard: {
-        slides: [{ elements: [mockSvgPathDElement()] }],
+        slides: [{ elements: [mockCurveElement()] }],
       },
     };
 
@@ -425,7 +425,7 @@ describe('generateLoadWhiteboardFromExport', () => {
       slides: {
         [slide0]: {
           elements: {
-            [slide0Element0]: mockSvgPathDElement(),
+            [slide0Element0]: mockCurveElement(),
           },
           elementIds: [slide0Element0],
         },

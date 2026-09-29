@@ -27,10 +27,10 @@ import { LayoutStateProvider } from '../../Layout';
 import { SvgCanvas } from '../../Whiteboard/SvgCanvas';
 import Display from './Display';
 
-function mockSvgPathDElement(element: Partial<PathElement> = {}): PathElement {
+function mockCurveElement(element: Partial<PathElement> = {}): PathElement {
   return {
     type: 'path',
-    kind: 'svgPathD',
+    kind: 'curve',
     position: { x: 0, y: 1 },
     strokeColor: '#ffffff',
     points: [
@@ -72,7 +72,7 @@ describe('<Display />', () => {
   });
 
   it('should render the SVG path', () => {
-    const element = mockSvgPathDElement();
+    const element = mockCurveElement();
     render(
       <Display
         elementId="element-0"
