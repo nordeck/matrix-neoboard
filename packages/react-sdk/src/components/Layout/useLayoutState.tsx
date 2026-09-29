@@ -28,7 +28,7 @@ import {
   LineMarker,
   TextFontFamily,
 } from '../../state/crdt/documents/elements';
-import { defaultStrokeWidth } from '../common/consts';
+import { defaultStrokeWidth } from '../common/constants';
 import { useFullscreenMode } from './useFullscreenMode';
 
 export type ActiveTool =

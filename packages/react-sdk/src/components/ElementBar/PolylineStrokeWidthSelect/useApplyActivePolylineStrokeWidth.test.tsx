@@ -101,6 +101,7 @@ describe('useApplyActivePolylineStrokeWidth', () => {
     expect(slide.getElement('polyline-undefined')).toEqual(
       expect.objectContaining({ strokeWidth: 16 }),
     );
+    expect(slide.getElement('ellipse')).not.toHaveProperty('strokeWidth');
   });
 
   it('should not apply a stroke width if no polyline is selected', () => {

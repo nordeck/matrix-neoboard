@@ -16,6 +16,7 @@
 
 import { describe, expect, it } from 'vitest';
 import { mockFrameElement } from '../../../lib/testUtils';
+import { defaultStrokeWidth } from '../../common/constants';
 import { stickyColor, stickySize } from '../constants';
 import { createShape, createShapeFromPoints } from './createShape';
 
@@ -278,7 +279,9 @@ describe('createShapeFromPoints', () => {
       cursorPoints,
       strokeColor: '#000000',
       frameElements: {
-        'frame-id-0': mockFrameElement(),
+        'frame-id-0': mockFrameElement({
+          position: { x: 10 - defaultStrokeWidth, y: 20 - defaultStrokeWidth },
+        }),
         'frame-id-1': mockFrameElement({ position: { x: 100, y: 100 } }),
       },
     });

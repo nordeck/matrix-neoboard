@@ -18,6 +18,7 @@ import Joi from 'joi';
 import loglevel from 'loglevel';
 // Do not import from the index file to prevent cyclic dependencies
 import clamp from 'lodash/clamp';
+import { defaultStrokeWidth } from '../../../components/common/constants/pathConstants';
 import { defaultAcceptedImageTypes } from '../../../components/ImageUpload/consts';
 import { Elements } from '../../types';
 import {
@@ -134,7 +135,7 @@ export const pathElementSchema = elementBaseSchema
     kind: Joi.string().valid('line', 'polyline').required(),
     points: Joi.array().items(pointSchema).required(),
     strokeColor: Joi.string().required(),
-    strokeWidth: Joi.number().greater(0).optional(),
+    strokeWidth: Joi.number().strict().greater(0),
     startMarker: Joi.string().valid('arrow-head-line'),
     endMarker: Joi.string().valid('arrow-head-line'),
     connectedElementStart: Joi.string().not(...disallowElementIds),
@@ -274,10 +275,23 @@ function getElementBoundingPoints(element: Element): Point[] {
   }
 
   if (element.type === 'path') {
-    return element.points.map((p) => ({
-      x: element.position.x + p.x,
-      y: element.position.y + p.y,
-    }));
+    const { offsetX, offsetY, width, height } = calculateBoundingRectForPoints(
+      element.points.map((p) => ({
+        x: element.position.x + p.x,
+        y: element.position.y + p.y,
+      })),
+    );
+
+    // A stroke is centered on the path, so half of it overflows the geometry.
+    const padding =
+      (element.kind === 'polyline'
+        ? (element.strokeWidth ?? defaultStrokeWidth)
+        : defaultStrokeWidth) / 2;
+
+    return [
+      { x: offsetX - padding, y: offsetY - padding },
+      { x: offsetX + width + padding, y: offsetY + height + padding },
+    ];
   }
 
   // default way to get the boundary

@@ -57,5 +57,7 @@ function createElementPathPolyLine(element: PathElement): Content {
     points,
     lineWidth: strokeWidth,
     lineColor: strokeColor,
+    lineCap: 'round',
+    lineJoin: 'round',
   });
 }

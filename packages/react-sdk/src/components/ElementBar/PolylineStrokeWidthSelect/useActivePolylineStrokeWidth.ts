@@ -21,7 +21,7 @@ import {
   useActiveElements,
   useElements,
 } from '../../../state';
-import { defaultStrokeWidth } from '../../common/consts';
+import { defaultStrokeWidth } from '../../common/constants';
 
 function isPolyline(element: Element): element is PathElement {
   return element.type === 'path' && element.kind === 'polyline';

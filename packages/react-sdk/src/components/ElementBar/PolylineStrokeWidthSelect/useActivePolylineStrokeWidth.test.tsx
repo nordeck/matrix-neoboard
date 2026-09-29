@@ -25,7 +25,7 @@ import {
   mockWhiteboardManager,
 } from '../../../lib/testUtils/documentTestUtils';
 import { WhiteboardSlideInstance } from '../../../state';
-import { defaultStrokeWidth } from '../../common/consts';
+import { defaultStrokeWidth } from '../../common/constants';
 import { useActivePolylineStrokeWidth } from './useActivePolylineStrokeWidth';
 
 describe('useActivePolylineStrokeWidth', () => {

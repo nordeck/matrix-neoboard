@@ -34,13 +34,12 @@ import {
   WhiteboardTestingContextProvider,
 } from '../../../lib/testUtils/documentTestUtils';
 import { WhiteboardManager, WhiteboardSlideInstance } from '../../../state';
-import { defaultStrokeWidth } from '../../common/consts';
+import { defaultStrokeWidth } from '../../common/constants';
 import { Toolbar } from '../../common/Toolbar';
 import { ConnectionPointProvider } from '../../ConnectionPointProvider';
 import { ElementOverridesProvider } from '../../ElementOverridesProvider';
 import { ActiveTool, LayoutStateProvider, useLayoutState } from '../../Layout';
 import { WhiteboardHost } from '../../Whiteboard';
-import * as constants from '../../Whiteboard/constants';
 import { WhiteboardHotkeysProvider } from '../../WhiteboardHotkeysProvider';
 import { PolylineStrokeWidthSelect } from './PolylineStrokeWidthSelect';
 
@@ -96,10 +95,6 @@ describe('<PolylineStrokeWidthSelect/>', () => {
         </WhiteboardHotkeysProvider>
       </LayoutStateProvider>
     );
-
-    vi.spyOn(constants, 'infiniteCanvasMode', 'get').mockReturnValue(false);
-    vi.spyOn(constants, 'whiteboardWidth', 'get').mockReturnValue(1920);
-    vi.spyOn(constants, 'whiteboardHeight', 'get').mockReturnValue(1080);
   });
 
   afterEach(() => widgetApi.stop());

@@ -334,7 +334,9 @@ exports[`createWhiteboardPdfDefinition > should generate a pdf header and table 
             },
             "canvas": [
               {
+                "lineCap": "round",
                 "lineColor": "#ffffff",
+                "lineJoin": "round",
                 "lineWidth": 4,
                 "points": [
                   {

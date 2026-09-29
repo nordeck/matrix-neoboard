@@ -26,6 +26,7 @@ import {
 } from '../../../lib/testUtils';
 import { Element, WhiteboardSlideInstance } from '../../../state';
 import { calculateBoundingRectForElements } from '../../../state/crdt/documents/elements';
+import { defaultStrokeWidth } from '../../common/constants';
 import { Toolbar } from '../../common/Toolbar';
 import {
   duplicate,
@@ -63,7 +64,7 @@ describe('duplicate', () => {
     ).toEqual({
       ...element,
       // 10 is x, 80 is the width and 40 is the grid cell size
-      position: { x: 10 + 80 + 40, y: 20 },
+      position: { x: 10 + 80 + 40 + defaultStrokeWidth, y: 20 },
     });
   });
 
@@ -120,7 +121,7 @@ describe('duplicate', () => {
     ).toEqual({
       ...element0,
       // 10 is x, 80 is the width and 40 is the grid cell size
-      position: { x: 10 + 80 + 40, y: 20 },
+      position: { x: 10 + 80 + 40 + defaultStrokeWidth, y: 20 },
     });
 
     expect(
@@ -132,7 +133,7 @@ describe('duplicate', () => {
     ).toEqual({
       ...element1,
       // 10 is x, 80 is the width and 40 is the grid cell size
-      position: { x: 10 + 80 + 40, y: 20 },
+      position: { x: 10 + 80 + 40 + defaultStrokeWidth, y: 20 },
     });
   });
 
@@ -153,7 +154,7 @@ describe('duplicate', () => {
     ).toEqual({
       ...element,
       // 80 is the width
-      position: { x: 1920 - 80, y: 20 },
+      position: { x: 1920 - 80 - defaultStrokeWidth / 2, y: 20 },
     });
   });
 
@@ -210,7 +211,7 @@ describe('duplicate', () => {
     ).toEqual({
       ...element0,
       // 80 is the width
-      position: { x: 1920 - 80, y: 20 },
+      position: { x: 1920 - 80 - defaultStrokeWidth / 2, y: 20 },
     });
 
     expect(
@@ -222,7 +223,7 @@ describe('duplicate', () => {
     ).toEqual({
       ...element1,
       // 80 is the width
-      position: { x: 1920 - 80, y: 20 },
+      position: { x: 1920 - 80 - defaultStrokeWidth / 2, y: 20 },
     });
   });
 
@@ -243,7 +244,7 @@ describe('duplicate', () => {
     ).toEqual({
       ...element,
       // 80 is the width
-      position: { x: 1920 - 80, y: 20 },
+      position: { x: 1920 - 80 - defaultStrokeWidth / 2, y: 20 },
     });
   });
 
@@ -300,7 +301,7 @@ describe('duplicate', () => {
     ).toEqual({
       ...element0,
       // 80 is the width
-      position: { x: 1920 - 80, y: 20 },
+      position: { x: 1920 - 80 - defaultStrokeWidth / 2, y: 20 },
     });
 
     expect(
@@ -312,7 +313,7 @@ describe('duplicate', () => {
     ).toEqual({
       ...element1,
       // 80 is the width
-      position: { x: 1920 - 80, y: 20 },
+      position: { x: 1920 - 80 - defaultStrokeWidth / 2, y: 20 },
     });
   });
 });
