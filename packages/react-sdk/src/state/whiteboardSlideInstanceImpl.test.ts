@@ -42,6 +42,7 @@ import {
   createWhiteboardDocument,
   Document,
   generateAddElement,
+  generateAddElements,
   generateRemoveElement,
   getSlideLock,
   WhiteboardDocument,
@@ -1398,11 +1399,11 @@ describe('WhiteboardSlideInstanceImpl', () => {
     const frameElement1 = slideInstance.addElement(frameElement);
 
     expect(slideInstance.getElementIds()).toEqual([
+      frameElement0,
+      frameElement1,
       element0,
       element1,
       element2,
-      frameElement0,
-      frameElement1,
     ]);
 
     expect(slideInstance.getFrameElementIds()).toEqual([
@@ -1413,11 +1414,11 @@ describe('WhiteboardSlideInstanceImpl', () => {
     slideInstance.moveFrame(frameElement1, 0);
 
     expect(slideInstance.getElementIds()).toEqual([
+      frameElement0,
+      frameElement1,
       element0,
       element1,
       element2,
-      frameElement0,
-      frameElement1,
     ]);
     expect(slideInstance.getFrameElementIds()).toEqual([
       frameElement1,
@@ -2046,5 +2047,415 @@ describe('WhiteboardSlideInstanceImpl', () => {
     expect(await cursorPositions).toEqual([]);
     expect(await activeElement).toEqual([element0]);
     expect(await isLocked).toEqual([false]);
+  });
+
+  function createSlideWithElements(types: Array<'frame' | 'line'>) {
+    const slideInstance = new WhiteboardSlideInstanceImpl(
+      communicationChannel,
+      slide0,
+      document,
+      '@user-id:example.com',
+    );
+    // Add the elements directly to the document in the passed order, to also
+    // be able to create slides where the frames are not sorted
+    const [addElementsChangeFn, ids] = generateAddElements(
+      slide0,
+      types.map((type) =>
+        type === 'frame' ? mockFrameElement() : mockLineElement(),
+      ),
+    );
+    document.performChange(addElementsChangeFn);
+    return { slideInstance, ids };
+  }
+
+  it('should not need frame sorting for an empty slide', () => {
+    const { slideInstance } = createSlideWithElements([]);
+
+    expect(slideInstance.checkFramesNeedSorting()).toBe(false);
+  });
+
+  it('should not need frame sorting if there are only frames', () => {
+    const { slideInstance } = createSlideWithElements(['frame', 'frame']);
+
+    expect(slideInstance.checkFramesNeedSorting()).toBe(false);
+  });
+
+  it('should not need frame sorting if there are no frames', () => {
+    const { slideInstance } = createSlideWithElements(['line', 'line']);
+
+    expect(slideInstance.checkFramesNeedSorting()).toBe(false);
+  });
+
+  it('should not need frame sorting if all frames are below all other elements', () => {
+    const { slideInstance } = createSlideWithElements([
+      'frame',
+      'frame',
+      'line',
+      'line',
+    ]);
+
+    expect(slideInstance.checkFramesNeedSorting()).toBe(false);
+  });
+
+  it('should need frame sorting if a frame is above another element', () => {
+    const { slideInstance } = createSlideWithElements(['line', 'frame']);
+
+    expect(slideInstance.checkFramesNeedSorting()).toBe(true);
+  });
+
+  it('should need frame sorting if a non-frame element is between frames', () => {
+    const { slideInstance } = createSlideWithElements([
+      'frame',
+      'line',
+      'frame',
+    ]);
+
+    expect(slideInstance.checkFramesNeedSorting()).toBe(true);
+  });
+
+  it('should move frames to the bottom and keep the relative order', () => {
+    const {
+      slideInstance,
+      ids: [line0, frame0, line1, frame1, line2],
+    } = createSlideWithElements(['line', 'frame', 'line', 'frame', 'line']);
+
+    slideInstance.sortFrames();
+
+    expect(slideInstance.getElementIds()).toEqual([
+      frame0,
+      frame1,
+      line0,
+      line1,
+      line2,
+    ]);
+    expect(slideInstance.checkFramesNeedSorting()).toBe(false);
+  });
+
+  it('should not change a slide without frames when sorting frames', () => {
+    const {
+      slideInstance,
+      ids: [line0, line1],
+    } = createSlideWithElements(['line', 'line']);
+
+    slideInstance.sortFrames();
+
+    expect(slideInstance.getElementIds()).toEqual([line0, line1]);
+  });
+
+  it('should throw when sorting frames on a locked slide', () => {
+    const { slideInstance } = createSlideWithElements(['frame']);
+    slideInstance.lockSlide();
+
+    expect(() => slideInstance.sortFrames()).toThrow(
+      'Can not modify slide, slide is locked',
+    );
+  });
+
+  it('should not move a frame up above another element', () => {
+    const {
+      slideInstance,
+      ids: [frame0, line0],
+    } = createSlideWithElements(['frame', 'line']);
+
+    slideInstance.moveElementUp(frame0);
+
+    expect(slideInstance.getElementIds()).toEqual([frame0, line0]);
+  });
+
+  it('should move a frame up above another frame', () => {
+    const {
+      slideInstance,
+      ids: [frame0, frame1, line0],
+    } = createSlideWithElements(['frame', 'frame', 'line']);
+
+    slideInstance.moveElementUp(frame0);
+
+    expect(slideInstance.getElementIds()).toEqual([frame1, frame0, line0]);
+  });
+
+  it('should move a non-frame element up above another element', () => {
+    const {
+      slideInstance,
+      ids: [frame0, line0, line1],
+    } = createSlideWithElements(['frame', 'line', 'line']);
+
+    slideInstance.moveElementUp(line0);
+
+    expect(slideInstance.getElementIds()).toEqual([frame0, line1, line0]);
+  });
+
+  it('should not fail moving the topmost element up', () => {
+    const {
+      slideInstance,
+      ids: [line0, line1],
+    } = createSlideWithElements(['line', 'line']);
+
+    slideInstance.moveElementUp(line1);
+
+    expect(slideInstance.getElementIds()).toEqual([line0, line1]);
+  });
+
+  it('should not move a non-frame element down below a frame', () => {
+    const {
+      slideInstance,
+      ids: [frame0, line0],
+    } = createSlideWithElements(['frame', 'line']);
+
+    slideInstance.moveElementDown(line0);
+
+    expect(slideInstance.getElementIds()).toEqual([frame0, line0]);
+  });
+
+  it('should move a non-frame element down below another non-frame element', () => {
+    const {
+      slideInstance,
+      ids: [frame0, line0, line1],
+    } = createSlideWithElements(['frame', 'line', 'line']);
+
+    slideInstance.moveElementDown(line1);
+
+    expect(slideInstance.getElementIds()).toEqual([frame0, line1, line0]);
+  });
+
+  it('should move a frame down below another frame', () => {
+    const {
+      slideInstance,
+      ids: [frame0, frame1, line0],
+    } = createSlideWithElements(['frame', 'frame', 'line']);
+
+    slideInstance.moveElementDown(frame1);
+
+    expect(slideInstance.getElementIds()).toEqual([frame1, frame0, line0]);
+  });
+
+  it('should not fail moving the bottommost element down', () => {
+    const {
+      slideInstance,
+      ids: [frame0, line0],
+    } = createSlideWithElements(['frame', 'line']);
+
+    slideInstance.moveElementDown(frame0);
+
+    expect(slideInstance.getElementIds()).toEqual([frame0, line0]);
+  });
+
+  it('should move non-frame elements to the bottom but keep them above the frames', () => {
+    const {
+      slideInstance,
+      ids: [frame0, frame1, line0, line1, line2],
+    } = createSlideWithElements(['frame', 'frame', 'line', 'line', 'line']);
+
+    slideInstance.moveElementsToBottom([line2, line1]);
+
+    expect(slideInstance.getElementIds()).toEqual([
+      frame0,
+      frame1,
+      line1,
+      line2,
+      line0,
+    ]);
+  });
+
+  it('should move frames to the bottom of the slide', () => {
+    const {
+      slideInstance,
+      ids: [frame0, frame1, line0],
+    } = createSlideWithElements(['frame', 'frame', 'line']);
+
+    slideInstance.moveElementsToBottom([frame1]);
+
+    expect(slideInstance.getElementIds()).toEqual([frame1, frame0, line0]);
+  });
+
+  it('should keep frames below other elements when moving a mixed selection to the bottom', () => {
+    const {
+      slideInstance,
+      ids: [frame0, frame1, line0, line1],
+    } = createSlideWithElements(['frame', 'frame', 'line', 'line']);
+
+    slideInstance.moveElementsToBottom([line1, frame1]);
+
+    expect(slideInstance.getElementIds()).toEqual([
+      frame1,
+      frame0,
+      line1,
+      line0,
+    ]);
+  });
+
+  it('should move non-frame elements to the top of the slide', () => {
+    const {
+      slideInstance,
+      ids: [frame0, line0, line1, line2],
+    } = createSlideWithElements(['frame', 'line', 'line', 'line']);
+
+    slideInstance.moveElementsToTop([line0, line1]);
+
+    expect(slideInstance.getElementIds()).toEqual([
+      frame0,
+      line2,
+      line0,
+      line1,
+    ]);
+  });
+
+  it('should move frames to the top of the frames but not above other elements', () => {
+    const {
+      slideInstance,
+      ids: [frame0, frame1, line0],
+    } = createSlideWithElements(['frame', 'frame', 'line']);
+
+    slideInstance.moveElementsToTop([frame0]);
+
+    expect(slideInstance.getElementIds()).toEqual([frame1, frame0, line0]);
+  });
+
+  it('should keep frames below other elements when moving a mixed selection to the top', () => {
+    const {
+      slideInstance,
+      ids: [frame0, frame1, line0, line1],
+    } = createSlideWithElements(['frame', 'frame', 'line', 'line']);
+
+    slideInstance.moveElementsToTop([frame0, line0]);
+
+    expect(slideInstance.getElementIds()).toEqual([
+      frame1,
+      frame0,
+      line1,
+      line0,
+    ]);
+  });
+
+  it('should add a frame on top of the last frame but below other elements', () => {
+    const {
+      slideInstance,
+      ids: [frame0, frame1, line0],
+    } = createSlideWithElements(['frame', 'frame', 'line']);
+
+    const newFrame = slideInstance.addElement(mockFrameElement());
+
+    expect(slideInstance.getElementIds()).toEqual([
+      frame0,
+      frame1,
+      newFrame,
+      line0,
+    ]);
+  });
+
+  it('should add the first frame below all other elements', () => {
+    const {
+      slideInstance,
+      ids: [line0, line1],
+    } = createSlideWithElements(['line', 'line']);
+
+    const newFrame = slideInstance.addElement(mockFrameElement());
+
+    expect(slideInstance.getElementIds()).toEqual([newFrame, line0, line1]);
+  });
+
+  it('should add a non-frame element on top of all elements', () => {
+    const {
+      slideInstance,
+      ids: [frame0, line0],
+    } = createSlideWithElements(['frame', 'line']);
+
+    const newLine = slideInstance.addElement(mockLineElement());
+
+    expect(slideInstance.getElementIds()).toEqual([frame0, line0, newLine]);
+  });
+
+  it('should add frames on top of the last frame but below other elements', () => {
+    const {
+      slideInstance,
+      ids: [frame0, line0],
+    } = createSlideWithElements(['frame', 'line']);
+
+    const [newLine0, newFrame0, newLine1, newFrame1] =
+      slideInstance.addElements([
+        mockLineElement(),
+        mockFrameElement(),
+        mockLineElement(),
+        mockFrameElement(),
+      ]);
+
+    expect(slideInstance.getElementIds()).toEqual([
+      frame0,
+      newFrame0,
+      newFrame1,
+      line0,
+      newLine0,
+      newLine1,
+    ]);
+    expect(slideInstance.checkFramesNeedSorting()).toBe(false);
+  });
+
+  it('should add the first frames below all other elements', () => {
+    const {
+      slideInstance,
+      ids: [line0],
+    } = createSlideWithElements(['line']);
+
+    const [newFrame0, newFrame1] = slideInstance.addElements([
+      mockFrameElement(),
+      mockFrameElement(),
+    ]);
+
+    expect(slideInstance.getElementIds()).toEqual([
+      newFrame0,
+      newFrame1,
+      line0,
+    ]);
+  });
+
+  it('should add frames with relations on top of the last frame but below other elements and keep the relations', () => {
+    document = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
+
+    const {
+      slideInstance,
+      ids: [frame0, line0],
+    } = createSlideWithElements(['frame', 'line']);
+
+    const frameElement = mockFrameElement({
+      attachedElements: ['copied-shape', 'copied-line'],
+    });
+    const shapeElement = mockRectangleElement({
+      attachedFrame: 'copied-frame',
+    });
+    const lineElement = mockLineElement({
+      attachedFrame: 'copied-frame',
+    });
+
+    // the frame is deliberately not the first element
+    const [shapeId, frameId, lineId] = slideInstance.addElementsWithRelations({
+      'copied-shape': shapeElement,
+      'copied-frame': frameElement,
+      'copied-line': lineElement,
+    });
+
+    expect(slideInstance.getElementIds()).toEqual([
+      frame0,
+      frameId,
+      line0,
+      shapeId,
+      lineId,
+    ]);
+    expect(slideInstance.getElement(frameId)).toEqual({
+      ...frameElement,
+      attachedElements: [shapeId, lineId],
+    });
+    expect(slideInstance.getElement(shapeId)).toEqual({
+      ...shapeElement,
+      attachedFrame: frameId,
+    });
+    expect(slideInstance.getElement(lineId)).toEqual({
+      ...lineElement,
+      attachedFrame: frameId,
+    });
+    expect(slideInstance.getActiveElementIds()).toEqual([
+      shapeId,
+      frameId,
+      lineId,
+    ]);
+    expect(slideInstance.checkFramesNeedSorting()).toBe(false);
   });
 });

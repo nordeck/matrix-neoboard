@@ -340,6 +340,14 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
         // Reset the slide after the initial loading finished
         this.activeSlideId = activeSlideId;
         this.activeSlideIdSubject.next(activeSlideId);
+
+        // Sort the frames immediately after the initial load.
+        if (!loading) {
+          const slide = this.slides.get(activeSlideId);
+          if (slide && slide.checkFramesNeedSorting()) {
+            slide.sortFrames();
+          }
+        }
       });
 
     const documentVersion = this.synchronizedDocument

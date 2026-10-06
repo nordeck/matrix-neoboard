@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-import first from 'lodash/first';
-import last from 'lodash/last';
 import { useCallback } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import {
   useActiveElements,
-  useSlideElementIds,
+  useCanMoveActiveElementOneStep,
   useWhiteboardSlideInstance,
 } from '../../../state';
 import { HOTKEY_SCOPE_WHITEBOARD } from '../../WhiteboardHotkeysProvider';
@@ -28,12 +26,8 @@ import { HOTKEY_SCOPE_WHITEBOARD } from '../../WhiteboardHotkeysProvider';
 export function ReorderElementsShortcuts() {
   const { activeElementIds } = useActiveElements();
   const slideInstance = useWhiteboardSlideInstance();
-  const elementIds = useSlideElementIds();
-
-  const canMoveUp =
-    activeElementIds.length === 1 && last(elementIds) !== activeElementIds[0];
-  const canMoveDown =
-    activeElementIds.length === 1 && first(elementIds) !== activeElementIds[0];
+  const { canMoveUp, canMoveDown } =
+    useCanMoveActiveElementOneStep(activeElementIds);
 
   const handleClickBringForward = useCallback(() => {
     if (canMoveUp) {
@@ -47,17 +41,21 @@ export function ReorderElementsShortcuts() {
     }
   }, [activeElementIds, canMoveDown, slideInstance]);
 
+  // A single element that can move one step can also move to the top/bottom
+  const canMoveTop = canMoveUp || activeElementIds.length > 1;
+  const canMoveBottom = canMoveDown || activeElementIds.length > 1;
+
   const handleClickBringToFront = useCallback(() => {
-    if (activeElementIds.length > 0) {
+    if (canMoveTop) {
       slideInstance.moveElementsToTop(activeElementIds);
     }
-  }, [activeElementIds, slideInstance]);
+  }, [activeElementIds, canMoveTop, slideInstance]);
 
   const handleClickBringToBack = useCallback(() => {
-    if (activeElementIds.length > 0) {
+    if (canMoveBottom) {
       slideInstance.moveElementsToBottom(activeElementIds);
     }
-  }, [activeElementIds, slideInstance]);
+  }, [activeElementIds, canMoveBottom, slideInstance]);
 
   useHotkeys(
     ['ctrl+arrowup', 'meta+arrowup'],

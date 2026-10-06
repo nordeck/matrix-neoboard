@@ -72,6 +72,7 @@ describe('<DuplicateShortcut>', () => {
       ],
     }));
     activeWhiteboardInstance = whiteboardManager.getActiveWhiteboardInstance()!;
+    activeWhiteboardInstance.getActiveSlide()?.sortFrames();
 
     Wrapper = ({ children }) => (
       <WhiteboardHotkeysProvider>
@@ -172,7 +173,13 @@ describe('<DuplicateShortcut>', () => {
       const elementIds = activeSlide.getElementIds();
       expect(elementIds).toHaveLength(6);
 
-      const [newLineElementId, newFrameElementId] = elementIds.slice(4);
+      // frames are sorted, the new frame is added above the original and the new element at the top
+      const [newFrameElementId, newLineElementId] = [
+        elementIds[1],
+        elementIds[5],
+      ];
+
+      console.log({ elementIds });
 
       const newLineElement = activeSlide.getElement(newLineElementId);
       const newFrameElement = activeSlide.getElement(newFrameElementId);
