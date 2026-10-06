@@ -1,5 +1,12 @@
 # @nordeck/matrix-neoboard-react-sdk
 
+## 2.0.1
+
+### Patch Changes
+
+- 65c2cee: Fix command+D, delete shortcuts for single element
+- e18a931: Fixed getting stuck in the drag-select mode when using a pen or a drawing stylus that gets detected even when not touching the drawing surface.
+
 ## 2.0.0
 
 ### Major Changes
