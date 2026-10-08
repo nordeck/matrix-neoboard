@@ -89,8 +89,8 @@ export function GuidedTour({ disabled }: GuidedTourProps) {
         >
           <p>
             Using the settings, you can export the {'{{productName}}'} and the
-            work done and import it again (e.g. in another room) or save it as
-            a backup. You can also (de)activate the grid.
+            work done and import it again (e.g. in another room) or save it as a
+            backup. You can also (de)activate the grid.
           </p>
         </Trans>
       ),
