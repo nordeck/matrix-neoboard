@@ -56,7 +56,7 @@
       "description": "Bitte wähle dein gewünschtes Format.",
       "download": "Herunterladen",
       "fileFormat": {
-        "nwb": "NeoBoard-Datei (.nwb)",
+        "nwb": "{{productName}}-Datei (.nwb)",
         "pdf": "PDF-Datei (.pdf)",
         "title": "Dateiformat"
       },
@@ -143,8 +143,8 @@
     "dialog": {
       "confirm": "OK",
       "text": {
-        "common": "NeoBoard kann deine Daten wegen eines Verbindungsproblems im Moment nicht speichern. Diese Meldung wird ausgeblendet, sobald wieder gespeichert wurde. Um sicherzugehen, kannst du eine Kopie des Boards über die Exportfunktion herunterladen.",
-        "no_internet_connection": "NeoBoard kann deine Daten im Moment nicht speichern. Überprüfe deine Internetverbindung. Diese Meldung wird ausgeblendet, sobald wieder gespeichert wurde. Um sicherzugehen, kannst du eine Kopie des Boards über die Exportfunktion herunterladen."
+        "common": "{{productName}} kann deine Daten wegen eines Verbindungsproblems im Moment nicht speichern. Diese Meldung wird ausgeblendet, sobald wieder gespeichert wurde. Um sicherzugehen, kannst du eine Kopie des Boards über die Exportfunktion herunterladen.",
+        "no_internet_connection": "{{productName}} kann deine Daten im Moment nicht speichern. Überprüfe deine Internetverbindung. Diese Meldung wird ausgeblendet, sobald wieder gespeichert wurde. Um sicherzugehen, kannst du eine Kopie des Boards über die Exportfunktion herunterladen."
       },
       "title": "Deine Änderungen sind nicht gespeichert"
     },
@@ -191,21 +191,21 @@
   "guidedTour": {
     "back": "Zurück",
     "collaborationBar": {
-      "content": "<p>Um zu sehen, wer aktuell auf dem NeoBoard aktiv ist, schaue einfach hier nach. Es werden dir alle Teilnehmer:innen angezeigt, die gerade online sind oder es kürzlich waren. Und wenn es mal voll wird, klicke auf die Zahl rechts neben den ersten fünf Teilnehmer:innen um zu sehen, wer außerdem online ist. Mit dem kleinen Auge kannst du die Mauszeiger der anderen ein- oder ausblenden.</p>",
+      "content": "<p>Um zu sehen, wer aktuell auf dem {{productName}} aktiv ist, schaue einfach hier nach. Es werden dir alle Teilnehmer:innen angezeigt, die gerade online sind oder es kürzlich waren. Und wenn es mal voll wird, klicke auf die Zahl rechts neben den ersten fünf Teilnehmer:innen um zu sehen, wer außerdem online ist. Mit dem kleinen Auge kannst du die Mauszeiger der anderen ein- oder ausblenden.</p>",
       "title": "Kollaboration"
     },
     "complete": "Abschließen",
     "helpCenter": {
-      "content": "<p>Der Hilfebereich bietet dir einen schnellen Zugriff auf das Benutzerhandbuch und eine Übersicht aller Tastaturbefehle. Außerdem kannst du dort auch jederzeit diese Tour neu starten, um nochmal in Ruhe alles zu erkunden.</p><p>Viel Spaß, kreative Ideen und viel Erfolg mit dem NeoBoard!</p>",
+      "content": "<p>Der Hilfebereich bietet dir einen schnellen Zugriff auf das Benutzerhandbuch und eine Übersicht aller Tastaturbefehle. Außerdem kannst du dort auch jederzeit diese Tour neu starten, um nochmal in Ruhe alles zu erkunden.</p><p>Viel Spaß, kreative Ideen und viel Erfolg mit dem {{productName}}!</p>",
       "title": "Hilfebereich"
     },
     "introduction": {
-      "content": "<p>Herzlich willkommen auf dem NeoBoard. In dieser Einführung erhältst du Tipps zur Verwendung des NeoBoards, damit du im Handumdrehen mit der Gestaltung beginnen kannst. Los geht's!</p>",
+      "content": "<p>Herzlich willkommen auf dem {{productName}}. In dieser Einführung erhältst du Tipps zur Verwendung des {{productName}}s, damit du im Handumdrehen mit der Gestaltung beginnen kannst. Los geht's!</p>",
       "title": "Willkommen"
     },
     "next": "Weiter",
     "settings": {
-      "content": "<p>Du kannst das NeoBoard und damit die geleistete Arbeit exportieren und (bspw. in einem anderen Raum) wieder importieren oder als Sicherungskopie ablegen. Außerdem kannst du das Raster (de-)aktivieren.</p>",
+      "content": "<p>Du kannst das {{productName}} und damit die geleistete Arbeit exportieren und (bspw. in einem anderen Raum) wieder importieren oder als Sicherungskopie ablegen. Außerdem kannst du das Raster (de-)aktivieren.</p>",
       "title": "Einstellungen"
     },
     "slideCount": "{{index}} von {{total}}",
@@ -224,11 +224,11 @@
       "commitHash": "Commit hash",
       "showLess": "Weniger anzeigen",
       "showMore": "Mehr anzeigen",
-      "title": "Über NeoBoard",
+      "title": "Über {{productName}}",
       "version": "Version {{version}}"
     },
     "menu": {
-      "about": "Über NeoBoard",
+      "about": "Über {{productName}}",
       "helpCenter": "Hilfezentrum",
       "keyboardShortcuts": "Kurzbefehle",
       "resetOnboarding": "Einführung zurücksetzen",
@@ -390,7 +390,7 @@
   },
   "whiteboardUpdateDialog": {
     "content": "Deine vorhandenen Folien werden nun als Rahmen dargestellt - eine neue Art, deine Inhalte zu strukturieren. Bitte lade ein Backup deines Whiteboards herunter bevor du fortfährst.",
-    "contentUpgradeRequired": "Dieses Whiteboard erfordert eine aktuellere Version von NeoBoard, das Rahmen statt Folien unterstützt.",
+    "contentUpgradeRequired": "Dieses Whiteboard erfordert eine aktuellere Version von {{productName}}, das Rahmen statt Folien unterstützt.",
     "migrationFailed": "Aktualisierung von Folien zu Rahmen fehlgeschlagen",
     "title": "Folien sind jetzt Rahmen",
     "titleUpgradeRequired": "Aktualisierung erforderlich",

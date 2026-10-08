@@ -149,6 +149,26 @@ describe('<HelpCenterBar/>', () => {
     expect(menu).not.toBeInTheDocument();
   });
 
+  it('should show the configured product name in the about menu item', async () => {
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+      name === 'REACT_APP_PRODUCT_NAME' ? 'Whiteboard' : defaultValue,
+    );
+
+    render(<HelpCenterBar />, { wrapper: Wrapper });
+
+    const toolbar = screen.getByRole('toolbar', { name: 'Help center' });
+
+    await userEvent.click(
+      within(toolbar).getByRole('button', { name: 'Help' }),
+    );
+
+    const menu = screen.getByRole('menu', { name: 'Help' });
+
+    expect(
+      within(menu).getByRole('menuitem', { name: 'About Whiteboard' }),
+    ).toBeInTheDocument();
+  });
+
   it('should open the shortcuts dialog and close the menu', async () => {
     render(<HelpCenterBar />, { wrapper: Wrapper });
 

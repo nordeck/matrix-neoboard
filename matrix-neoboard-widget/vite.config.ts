@@ -63,6 +63,8 @@ export default defineConfig({
     strictPort: true,
   },
   plugins,
+  // Load .env files from the repository root, where .env.local.default lives.
+  envDir: '..',
   // Use the env prefix from CRA for backward compatibility.
   envPrefix: 'REACT_APP_',
 });

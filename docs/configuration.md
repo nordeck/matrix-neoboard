@@ -17,6 +17,10 @@ REACT_APP_HELP_CENTER_URL="https://github.com/nordeck/matrix-neoboard"
 # optional: Enable connection to React standalone devtools
 # Only works in development builds
 REACT_APP_DEVTOOLS=true
+
+# optional: Product name shown in the UI and used as the default widget name
+# (defaults to `NeoBoard`)
+REACT_APP_PRODUCT_NAME=neoboard
 ```
 
 ### Customization
