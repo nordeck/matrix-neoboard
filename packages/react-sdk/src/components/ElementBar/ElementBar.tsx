@@ -19,7 +19,7 @@ import { useTranslation } from 'react-i18next';
 import { Toolbar } from '../common/Toolbar';
 import { ElementColorPicker } from './ColorPickerButton/ElementColorPicker';
 import { TextColorPicker } from './ColorPickerButton/TextColorPicker';
-import { DeleteActiveElementButton } from './DeleteActiveElementButton/DeleteActiveElementButton';
+import { DeleteActiveElementButton } from './DeleteActiveElementButton';
 import { DuplicateActiveElementButton } from './DuplicateActiveElementButton';
 import { FontFamilyButton } from './FontFamilyButton';
 import { FontSizeButton } from './FontSizeButton';
