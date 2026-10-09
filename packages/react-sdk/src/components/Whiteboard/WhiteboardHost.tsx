@@ -29,7 +29,7 @@ import {
   type Point,
 } from '../../state';
 import { useGetElementAttachFrame } from '../ElementAttachFrameProvider';
-import ElementBar from '../ElementBar/ElementBar';
+import { ElementBar } from '../ElementBar';
 import {
   useElementOverrides,
   useGetElementOverride,

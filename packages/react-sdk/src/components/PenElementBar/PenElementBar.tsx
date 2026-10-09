@@ -17,8 +17,10 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useActiveElements } from '../../state';
-import { DeleteActiveElementButton } from '../ElementBar/DeleteActiveElementButton/DeleteActiveElementButton';
-import { DuplicateActiveElementButton } from '../ElementBar/DuplicateActiveElementButton';
+import {
+  DeleteActiveElementButton,
+  DuplicateActiveElementButton,
+} from '../ElementBar';
 import { Toolbar } from '../common/Toolbar';
 import { NextStrokeColorPicker } from './NextStrokeColorPicker';
 import { NextStrokeWidthSelect } from './NextStrokeWidthSelect';
