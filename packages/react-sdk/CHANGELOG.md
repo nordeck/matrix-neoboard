@@ -1,5 +1,11 @@
 # @nordeck/matrix-neoboard-react-sdk
 
+## 2.1.0
+
+### Minor Changes
+
+- f18d399: Add a stroke width dropdown to the element bar for polyline elements in the active selection. Element bounds now include the stroke width, so the selection border, resize handles, frame overlay and PDF export fully contain thick polylines. Polylines also have rounded caps at both ends.
+
 ## 2.0.1
 
 ### Patch Changes
