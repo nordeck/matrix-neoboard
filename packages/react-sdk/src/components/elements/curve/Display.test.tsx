@@ -96,6 +96,8 @@ describe('<Display />', () => {
           d="M0,0 C2,4 4,6 4,6"
           fill="none"
           stroke="#ffffff"
+          stroke-linecap="round"
+          stroke-linejoin="round"
           stroke-width="4"
         />
       </g>
