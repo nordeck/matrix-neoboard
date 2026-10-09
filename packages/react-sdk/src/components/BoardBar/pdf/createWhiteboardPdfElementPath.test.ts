@@ -57,6 +57,8 @@ describe('createWhiteboardPdfElementPath', () => {
           ],
           lineWidth: 4,
           lineColor: '#ffffff',
+          lineCap: 'round',
+          lineJoin: 'round',
         },
       ],
       unbreakable: true,
@@ -73,7 +75,7 @@ describe('createWhiteboardPdfElementPath', () => {
     expect(createWhiteboardPdfElementPath(element)).toEqual({
       svg:
         '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="14" viewBox="-4 -4 12 14">' +
-        '<path d="M0,0 C2,4 4,6 4,6" fill="none" stroke="#ffffff" stroke-width="4" />' +
+        '<path d="M0,0 C2,4 4,6 4,6" stroke-linecap="round" stroke-linejoin="round" fill="none" stroke="#ffffff" stroke-width="4" />' +
         '</svg>',
       width: 12,
       height: 14,

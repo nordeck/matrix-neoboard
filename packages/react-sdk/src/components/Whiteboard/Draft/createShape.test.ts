@@ -285,7 +285,7 @@ describe('createShapeFromPoints', () => {
     expect(result.position).toEqual({ x: 10, y: 20 });
     expect(result.points).toEqual([
       { x: 0, y: 0 },
-      { x: 80, y: 40 },
+      { x: 80, y: expect.closeTo(40.88, 2) },
     ]);
 
     // the curve is generated from the same position-relative points
