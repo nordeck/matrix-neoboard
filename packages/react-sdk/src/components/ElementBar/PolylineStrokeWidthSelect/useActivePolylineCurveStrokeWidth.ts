@@ -21,25 +21,26 @@ import {
   useActiveElements,
   useElements,
 } from '../../../state';
+import { isCurve } from '../../../state/crdt/documents/elements';
 
-type UseActivePolylineStrokeWidthResult = {
+type UseActivePolylineCurveStrokeWidthResult = {
   /**
    * The stroke width of the first selected polyline, undefined if no polylines in the selection.
    */
   strokeWidth: number | undefined;
 };
 
-export function useActivePolylineStrokeWidth(): UseActivePolylineStrokeWidthResult {
+export function useActivePolylineCurveStrokeWidth(): UseActivePolylineCurveStrokeWidthResult {
   const { activeElementIds } = useActiveElements();
   const activeElements = useElements(activeElementIds);
 
-  const firstSelectedPolyline = useMemo(() => {
+  const firstSelected = useMemo(() => {
     const elements = Object.values(activeElements);
-    return elements.find(isPolyline);
+    return elements.find((e) => isPolyline(e) || isCurve(e));
   }, [activeElements]);
 
-  const strokeWidth = firstSelectedPolyline
-    ? (firstSelectedPolyline.strokeWidth ?? defaultStrokeWidth)
+  const strokeWidth = firstSelected
+    ? (firstSelected.strokeWidth ?? defaultStrokeWidth)
     : undefined;
 
   return { strokeWidth };

@@ -25,9 +25,9 @@ import {
   mockWhiteboardManager,
 } from '../../../lib/testUtils/documentTestUtils';
 import { WhiteboardSlideInstance } from '../../../state';
-import { useActivePolylineStrokeWidth } from './useActivePolylineStrokeWidth';
+import { useActivePolylineCurveStrokeWidth } from './useActivePolylineCurveStrokeWidth';
 
-describe('useActivePolylineStrokeWidth', () => {
+describe('useActivePolylineCurveStrokeWidth', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
   let slide: WhiteboardSlideInstance;
   let widgetApi: MockedWidgetApi;
@@ -72,7 +72,7 @@ describe('useActivePolylineStrokeWidth', () => {
 
   it('should return the stroke width of the selected polyline', () => {
     slide.setActiveElementId('polyline-8');
-    const { result } = renderHook(useActivePolylineStrokeWidth, {
+    const { result } = renderHook(useActivePolylineCurveStrokeWidth, {
       wrapper: Wrapper,
     });
 
@@ -81,7 +81,7 @@ describe('useActivePolylineStrokeWidth', () => {
 
   it('should return the default stroke width if the selected polyline has none', () => {
     slide.setActiveElementId('polyline-undefined');
-    const { result } = renderHook(useActivePolylineStrokeWidth, {
+    const { result } = renderHook(useActivePolylineCurveStrokeWidth, {
       wrapper: Wrapper,
     });
 
@@ -90,7 +90,7 @@ describe('useActivePolylineStrokeWidth', () => {
 
   it('should return an undefined stroke width when no polyline is selected', () => {
     slide.setActiveElementIds([]);
-    const { result } = renderHook(useActivePolylineStrokeWidth, {
+    const { result } = renderHook(useActivePolylineCurveStrokeWidth, {
       wrapper: Wrapper,
     });
 
@@ -99,7 +99,7 @@ describe('useActivePolylineStrokeWidth', () => {
 
   it('should return the stroke width of the first selected polyline if several elements are active', () => {
     slide.setActiveElementIds(['polyline-undefined', 'polyline-8']);
-    const { result } = renderHook(useActivePolylineStrokeWidth, {
+    const { result } = renderHook(useActivePolylineCurveStrokeWidth, {
       wrapper: Wrapper,
     });
 
@@ -108,7 +108,7 @@ describe('useActivePolylineStrokeWidth', () => {
 
   it('should return the stroke width of the selected polyline among other selected element kinds', () => {
     slide.setActiveElementIds(['ellipse', 'polyline-8']);
-    const { result } = renderHook(useActivePolylineStrokeWidth, {
+    const { result } = renderHook(useActivePolylineCurveStrokeWidth, {
       wrapper: Wrapper,
     });
 
@@ -117,7 +117,7 @@ describe('useActivePolylineStrokeWidth', () => {
 
   it('should return an undefined stroke width if the active elements contain no polyline', () => {
     slide.setActiveElementId('ellipse');
-    const { result } = renderHook(useActivePolylineStrokeWidth, {
+    const { result } = renderHook(useActivePolylineCurveStrokeWidth, {
       wrapper: Wrapper,
     });
 

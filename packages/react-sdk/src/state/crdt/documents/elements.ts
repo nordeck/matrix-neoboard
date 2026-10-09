@@ -112,7 +112,7 @@ export const shapeElementSchema = elementBaseSchema
   })
   .required();
 
-export type PathKind = 'line' | 'polyline';
+export type PathKind = 'line' | 'polyline' | 'curve';
 
 export type LineMarker = 'arrow-head-line';
 
@@ -127,13 +127,24 @@ export type PathElement = ElementBase & {
   connectedElementStart?: string;
   connectedElementEnd?: string;
   attachedFrame?: string;
+  svgPathD?: string;
 };
+
+// Matches only the characters allowed in an SVG `<path d="...">` attribute
+const svgPathDPattern = /^[MmLlHhVvCcSsQqTtAaZz0-9.,eE+\-\s]*$/;
 
 export const pathElementSchema = elementBaseSchema
   .append<PathElement>({
     type: Joi.string().valid('path').required(),
-    kind: Joi.string().valid('line', 'polyline').required(),
-    points: Joi.array().items(pointSchema).required(),
+    kind: Joi.string().valid('line', 'polyline', 'curve').required(),
+    // For "curve" the 2 points holds the curve's own bounding-box corners
+    points: Joi.array()
+      .items(pointSchema)
+      .when('kind', {
+        is: 'curve',
+        then: Joi.array().length(2).required(),
+        otherwise: Joi.required(),
+      }),
     strokeColor: Joi.string().required(),
     strokeWidth: Joi.number().strict().greater(0),
     startMarker: Joi.string().valid('arrow-head-line'),
@@ -141,6 +152,11 @@ export const pathElementSchema = elementBaseSchema
     connectedElementStart: Joi.string().not(...disallowElementIds),
     connectedElementEnd: Joi.string().not(...disallowElementIds),
     attachedFrame: Joi.string().not(...disallowElementIds),
+    svgPathD: Joi.string().pattern(svgPathDPattern).when('kind', {
+      is: 'curve',
+      then: Joi.required(),
+      otherwise: Joi.forbidden(),
+    }),
   })
   .required();
 
@@ -284,7 +300,7 @@ function getElementBoundingPoints(element: Element): Point[] {
 
     // A stroke is centered on the path, so half of it overflows the geometry.
     const padding =
-      (element.kind === 'polyline'
+      (element.kind === 'polyline' || element.kind === 'curve'
         ? (element.strokeWidth ?? defaultStrokeWidth)
         : defaultStrokeWidth) / 2;
 
@@ -406,6 +422,10 @@ export function isShapeElementPair(
 
 export function isPolyline(element: Element): element is PathElement {
   return element.type === 'path' && element.kind === 'polyline';
+}
+
+export function isCurve(element: Element): element is PathElement {
+  return element.type === 'path' && element.kind === 'curve';
 }
 
 export function isRotatableElement(

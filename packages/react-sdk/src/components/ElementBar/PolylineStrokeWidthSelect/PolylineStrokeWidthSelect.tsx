@@ -18,7 +18,7 @@ import { MenuItem, Select } from '@mui/material';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLayoutState } from '../../Layout';
-import { useApplyActivePolylineStrokeWidth } from './useApplyActivePolylineStrokeWidth';
+import { useApplyActivePolylineCurveStrokeWidth } from './useApplyActivePolylineCurveStrokeWidth';
 
 const STROKE_WIDTHS = [4, 6, 8, 10, 12, 14, 16];
 
@@ -33,7 +33,7 @@ export function PolylineStrokeWidthSelect({
   strokeWidth,
 }: PolylineStrokeWidthSelectProps) {
   const { t } = useTranslation('neoboard');
-  const { applyStrokeWidth } = useApplyActivePolylineStrokeWidth();
+  const { applyStrokeWidth } = useApplyActivePolylineCurveStrokeWidth();
   const { setActivePolylineStrokeWidth } = useLayoutState();
 
   const strokeWidths = useMemo(() => {

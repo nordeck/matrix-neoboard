@@ -1005,6 +1005,11 @@
   dependencies:
     "@bufbuild/protobuf" "^1.10.0"
 
+"@luncheon/simplify-svg-path@0.2.0":
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/@luncheon/simplify-svg-path/-/simplify-svg-path-0.2.0.tgz#d70b6479280b477b87f6f6d4450646914160ace6"
+  integrity sha512-zBh9HwFBJUGMbUDf88HleyqcmO81d9Hiv9wxcwBeBLGGfzfEGIuaOSjyAH6f3fvh/pFxF1pEnolY2PzSJxsSAg==
+
 "@manypkg/find-root@^1.1.0":
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/@manypkg/find-root/-/find-root-1.1.0.tgz#a62d8ed1cd7e7d4c11d9d52a8397460b5d4ad29f"

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import { simplifyPointsToD } from '../../../lib';
+import { calculateBoundsForPathD } from '../../../lib/svgPathDUtils';
 import {
   calculateBoundingRectForPoints,
   copyElementWithAttachedFrame,
@@ -177,17 +179,39 @@ export function createShapeFromPoints({
     kind,
     startMarker,
     endMarker,
-    points: points.map((e) => ({
-      x: e.x - offsetX,
-      y: e.y - offsetY,
-    })),
+    points: [],
     strokeColor,
     connectedElementStart,
     connectedElementEnd,
   };
 
-  if (kind === 'polyline' && strokeWidth !== undefined) {
+  if ((kind === 'polyline' || kind === 'curve') && strokeWidth !== undefined) {
     pathElement.strokeWidth = strokeWidth;
+  }
+
+  if (kind === 'curve') {
+    const relativePoints = points.map((e) => ({
+      x: e.x - offsetX,
+      y: e.y - offsetY,
+    }));
+    // The fitted curve can overshoot the sampled points, so use the bounds of
+    // the curve itself and move the path origin to its top-left corner.
+    const { minX, minY, maxX, maxY } = calculateBoundsForPathD(
+      simplifyPointsToD(relativePoints),
+    );
+    pathElement.position = { x: offsetX + minX, y: offsetY + minY };
+    pathElement.svgPathD = simplifyPointsToD(
+      relativePoints.map((e) => ({ x: e.x - minX, y: e.y - minY })),
+    );
+    pathElement.points = [
+      { x: 0, y: 0 },
+      { x: maxX - minX, y: maxY - minY },
+    ];
+  } else {
+    pathElement.points = points.map((e) => ({
+      x: e.x - offsetX,
+      y: e.y - offsetY,
+    }));
   }
 
   return copyElementWithAttachedFrame(pathElement, frameElements);

@@ -1,0 +1,89 @@
+/*
+ * Copyright 2022 Nordeck IT + Consulting GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import React from 'react';
+import { calculateBoundingRectForElements, PathElement } from '../../../state';
+import {
+  ElementContextMenu,
+  MoveableElement,
+  SelectableElement,
+  WithExtendedSelectionProps,
+} from '../../Whiteboard';
+import { ElementFrameOverlay } from '../ElementFrameOverlay';
+import { getRenderProperties } from './getRenderProperties';
+
+export type CurveElementProps = PathElement & WithExtendedSelectionProps;
+
+const CurveDisplay = ({
+  readOnly,
+  active,
+  elementId,
+  activeElementIds = [],
+  elements = {},
+  elementMovedHasFrame,
+  ...element
+}: CurveElementProps) => {
+  const { strokeColor, strokeWidth, svgPathD } = getRenderProperties(element);
+  // includes the stroke so the overlay covers the whole curve
+  const boundingRect = calculateBoundingRectForElements([element]);
+
+  const renderedChild = (
+    <g
+      data-testid={`element-${elementId}`}
+      transform={`translate(${element.position.x}, ${element.position.y})`}
+    >
+      <path
+        d={svgPathD}
+        fill="none"
+        stroke={strokeColor}
+        strokeWidth={strokeWidth}
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      ></path>
+    </g>
+  );
+
+  if (readOnly) {
+    return renderedChild;
+  }
+
+  return (
+    <SelectableElement
+      active={active}
+      readOnly={readOnly}
+      elementId={elementId}
+    >
+      <MoveableElement elementId={elementId} elements={elements}>
+        <ElementContextMenu
+          elementId={elementId}
+          activeElementIds={activeElementIds}
+        >
+          {renderedChild}
+          {elementMovedHasFrame && (
+            <ElementFrameOverlay
+              offsetX={boundingRect.offsetX}
+              offsetY={boundingRect.offsetY}
+              width={boundingRect.width}
+              height={boundingRect.height}
+            />
+          )}
+        </ElementContextMenu>
+      </MoveableElement>
+    </SelectableElement>
+  );
+};
+
+export default React.memo(CurveDisplay);

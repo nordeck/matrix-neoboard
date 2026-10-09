@@ -17,6 +17,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   mockCircleElement,
+  mockCurveElement,
   mockEllipseElement,
   mockFrameElement,
   mockLineElement,
@@ -396,5 +397,40 @@ describe('generateLoadWhiteboardFromExport', () => {
     expect(() =>
       generateLoadWhiteboardFromExport(exportDocument, '@user-id:example.com'),
     ).toThrow('Must have a single slide');
+  });
+
+  it('should load a curvepath element', () => {
+    const exportDocument: WhiteboardDocumentExport = {
+      version: 'net.nordeck.whiteboard@v1',
+      whiteboard: {
+        slides: [{ elements: [mockCurveElement()] }],
+      },
+    };
+
+    const document = createWhiteboardDocument();
+
+    const importWhiteboard = generateLoadWhiteboardFromExport(
+      exportDocument,
+      '@user-id:example.com',
+    );
+    document.performChange(importWhiteboard);
+
+    const doc = document.getData();
+
+    const [slide0] = getNormalizedSlideIds(doc);
+
+    const [slide0Element0] = getNormalizedElementIds(doc, slide0);
+
+    expect(doc.toJSON()).toEqual({
+      slides: {
+        [slide0]: {
+          elements: {
+            [slide0Element0]: mockCurveElement(),
+          },
+          elementIds: [slide0Element0],
+        },
+      },
+      slideIds: [slide0],
+    });
   });
 });

@@ -15,4 +15,4 @@
  */
 
 export { PolylineStrokeWidthSelect } from './PolylineStrokeWidthSelect';
-export { useActivePolylineStrokeWidth } from './useActivePolylineStrokeWidth';
+export { useActivePolylineCurveStrokeWidth } from './useActivePolylineCurveStrokeWidth';
