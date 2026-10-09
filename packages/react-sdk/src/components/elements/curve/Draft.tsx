@@ -1,5 +1,5 @@
 /*
- * Copyright 2026 Nordeck IT + Consulting GmbH
+ * Copyright 2022 Nordeck IT + Consulting GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,5 +14,13 @@
  * limitations under the License.
  */
 
-export { PolylineStrokeWidthSelect } from './PolylineStrokeWidthSelect';
-export { useActivePolylineCurveStrokeWidth } from './useActivePolylineCurveStrokeWidth';
+import { DraftLineChild } from '../../Whiteboard';
+import PolylineDisplay from '../polyline/Display';
+
+// Renders the in-progress shape as a polyline (fast);
+// "curve" is only computed once on pointer up
+const CurveDraft = () => {
+  return <DraftLineChild display={PolylineDisplay} kind="curve" />;
+};
+
+export default CurveDraft;

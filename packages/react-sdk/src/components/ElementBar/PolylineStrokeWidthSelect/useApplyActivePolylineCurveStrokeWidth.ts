@@ -17,13 +17,14 @@
 import { useCallback } from 'react';
 import {
   ElementUpdate,
+  isCurve,
   isPolyline,
   useActiveElements,
   useElements,
   useWhiteboardSlideInstance,
 } from '../../../state';
 
-type UseApplyActivePolylineStrokeWidthResult = {
+type UseApplyActivePolylineCurveStrokeWidthResult = {
   /**
    * Apply the given stroke width to all selected polylines.
    *
@@ -32,7 +33,7 @@ type UseApplyActivePolylineStrokeWidthResult = {
   applyStrokeWidth: (value: number) => void;
 };
 
-export function useApplyActivePolylineStrokeWidth(): UseApplyActivePolylineStrokeWidthResult {
+export function useApplyActivePolylineCurveStrokeWidth(): UseApplyActivePolylineCurveStrokeWidthResult {
   const slideInstance = useWhiteboardSlideInstance();
   const { activeElementIds } = useActiveElements();
   const activeElements = useElements(activeElementIds);
@@ -41,7 +42,7 @@ export function useApplyActivePolylineStrokeWidth(): UseApplyActivePolylineStrok
     (value: number) => {
       const updates: ElementUpdate[] = [];
       for (const [elementId, element] of Object.entries(activeElements)) {
-        if (isPolyline(element)) {
+        if (isPolyline(element) || isCurve(element)) {
           updates.push({ elementId, patch: { strokeWidth: value } });
         }
       }

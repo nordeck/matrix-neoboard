@@ -1,0 +1,5 @@
+---
+'@nordeck/matrix-neoboard-react-sdk': minor
+---
+
+New PathElement kind 'curve' added to the document. Pen tool will simplify and smooth out the temporary polyline using the simplify-svg-path library. Added PDF export support for the curve element.
