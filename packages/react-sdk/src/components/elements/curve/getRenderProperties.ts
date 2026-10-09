@@ -1,5 +1,5 @@
 /*
- * Copyright 2026 Nordeck IT + Consulting GmbH
+ * Copyright 2023 Nordeck IT + Consulting GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,5 +14,15 @@
  * limitations under the License.
  */
 
-export { PolylineStrokeWidthSelect } from './PolylineStrokeWidthSelect';
-export { useActivePolylineCurveStrokeWidth } from './useActivePolylineCurveStrokeWidth';
+import { defaultStrokeWidth, PathElement } from '../../../state';
+import { ElementRenderProperties } from '../../Whiteboard';
+
+export function getRenderProperties(
+  element: PathElement,
+): ElementRenderProperties & { svgPathD: string } {
+  return {
+    strokeColor: element.strokeColor,
+    strokeWidth: element.strokeWidth ?? defaultStrokeWidth,
+    svgPathD: element.svgPathD ?? '',
+  };
+}

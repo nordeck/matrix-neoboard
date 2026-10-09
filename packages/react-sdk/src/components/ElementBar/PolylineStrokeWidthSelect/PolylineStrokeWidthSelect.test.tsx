@@ -186,7 +186,7 @@ describe('<PolylineStrokeWidthSelect/>', () => {
     );
   });
 
-  it('should use the last applied polyline stroke width for a newly drawn polyline', async () => {
+  it('should use the last applied polyline stroke width for a newly drawn curve', async () => {
     const polylineId = slide.addElement(
       mockPolylineElement({ strokeWidth: 8 }),
     );
@@ -243,7 +243,7 @@ describe('<PolylineStrokeWidthSelect/>', () => {
       },
     ]);
 
-    // verify the stroke's current width
+    // verify the curve's stroke width
 
     expect(slide.getActiveElementIds().length).toBe(1);
 
@@ -251,7 +251,7 @@ describe('<PolylineStrokeWidthSelect/>', () => {
 
     expect(slide.getElement(newElementId)).toEqual(
       expect.objectContaining({
-        kind: 'polyline',
+        kind: 'curve',
         strokeWidth: 16,
       }),
     );

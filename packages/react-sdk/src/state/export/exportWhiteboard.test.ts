@@ -19,6 +19,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { FetchMock } from 'vitest-fetch-mock';
 import * as lib from '../../lib';
 import {
+  mockCurveElement,
   mockEllipseElement,
   mockFrameElement,
   mockImageElement,
@@ -504,6 +505,28 @@ describe('convertWhiteboardToExportFormat', () => {
       version: 'net.nordeck.whiteboard@v2',
       whiteboard: {
         slides: [{ elements: [] }],
+      },
+    });
+  });
+
+  it('should export a curvepath element', async () => {
+    const document = createWhiteboardDocument();
+
+    document.performChange((doc) => {
+      const [addElement0] = generateAddElement(slide0, mockCurveElement());
+      addElement0(doc);
+    });
+
+    expect(
+      await exportWhiteboard(
+        WhiteboardDocumentVersion.v1,
+        document.getData(),
+        mockWidgetApi(),
+      ),
+    ).toEqual({
+      version: 'net.nordeck.whiteboard@v2',
+      whiteboard: {
+        slides: [{ elements: [mockCurveElement()] }],
       },
     });
   });

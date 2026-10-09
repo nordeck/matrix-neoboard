@@ -14,5 +14,27 @@
  * limitations under the License.
  */
 
-export { PolylineStrokeWidthSelect } from './PolylineStrokeWidthSelect';
-export { useActivePolylineCurveStrokeWidth } from './useActivePolylineCurveStrokeWidth';
+import simplifySvgPath from '@luncheon/simplify-svg-path';
+import { Point } from '../state';
+
+/**
+ * Renders sequence of points  into a
+ * string usable directly as an SVG `<path d="...">` attribute.
+ */
+export function simplifyPointsToD(
+  points: Point[],
+  tolerance: number = 2.5,
+  precision: number = 5,
+) {
+  // simplifySvgPath requires at least two points,
+  // just return a single M without throwing exceptions.
+  if (points.length === 1) {
+    return `M ${points[0].x},${points[0].y}`;
+  }
+
+  return simplifySvgPath(points, {
+    closed: false,
+    tolerance,
+    precision,
+  });
+}

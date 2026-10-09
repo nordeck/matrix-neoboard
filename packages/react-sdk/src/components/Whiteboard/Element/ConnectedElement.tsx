@@ -29,6 +29,7 @@ import {
   mergeElementAndOverride,
 } from '../../ElementOverridesProvider';
 import BlockArrowDisplay from '../../elements/block-arrow/Display';
+import CurveDisplay from '../../elements/curve/Display';
 import EllipseDisplay from '../../elements/ellipse/Display';
 import FrameDisplay from '../../elements/frame/Display';
 import ImageDisplay from '../../elements/image/ImageDisplay';
@@ -93,6 +94,8 @@ const ConnectedElement = ({
         return <LineDisplay {...element} {...otherProps} />;
       } else if (element.kind === 'polyline') {
         return <PolylineDisplay {...element} {...otherProps} />;
+      } else if (element.kind === 'curve') {
+        return <CurveDisplay {...element} {...otherProps} />;
       }
     } else if (element.type === 'shape') {
       let shapeChild: JSX.Element;

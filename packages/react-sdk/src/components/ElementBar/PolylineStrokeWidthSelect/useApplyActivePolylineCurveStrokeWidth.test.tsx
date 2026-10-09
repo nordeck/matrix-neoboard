@@ -25,9 +25,9 @@ import {
   mockWhiteboardManager,
 } from '../../../lib/testUtils/documentTestUtils';
 import { WhiteboardSlideInstance } from '../../../state';
-import { useApplyActivePolylineStrokeWidth } from './useApplyActivePolylineStrokeWidth';
+import { useApplyActivePolylineCurveStrokeWidth } from './useApplyActivePolylineCurveStrokeWidth';
 
-describe('useApplyActivePolylineStrokeWidth', () => {
+describe('useApplyActivePolylineCurveStrokeWidth', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
   let slide: WhiteboardSlideInstance;
   let widgetApi: MockedWidgetApi;
@@ -72,7 +72,7 @@ describe('useApplyActivePolylineStrokeWidth', () => {
 
   it('should apply a stroke width to the selected polyline', () => {
     slide.setActiveElementId('polyline-8');
-    const { result } = renderHook(useApplyActivePolylineStrokeWidth, {
+    const { result } = renderHook(useApplyActivePolylineCurveStrokeWidth, {
       wrapper: Wrapper,
     });
 
@@ -87,7 +87,7 @@ describe('useApplyActivePolylineStrokeWidth', () => {
 
   it('should apply a stroke width to all selected polylines', () => {
     slide.setActiveElementIds(['polyline-8', 'polyline-undefined', 'ellipse']);
-    const { result } = renderHook(useApplyActivePolylineStrokeWidth, {
+    const { result } = renderHook(useApplyActivePolylineCurveStrokeWidth, {
       wrapper: Wrapper,
     });
 
@@ -106,7 +106,7 @@ describe('useApplyActivePolylineStrokeWidth', () => {
 
   it('should not apply a stroke width if no polyline is selected', () => {
     slide.setActiveElementId('ellipse');
-    const { result } = renderHook(useApplyActivePolylineStrokeWidth, {
+    const { result } = renderHook(useApplyActivePolylineCurveStrokeWidth, {
       wrapper: Wrapper,
     });
 

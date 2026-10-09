@@ -169,19 +169,20 @@ An element that consists of points.
 
 #### Fields
 
-| Field                   | Type                             | Description                                                                                     |
-| ----------------------- | -------------------------------- | ----------------------------------------------------------------------------------------------- |
-| `type`                  | `'path'`                         | Identifies the element as a path.                                                               |
-| `kind`                  | `'line' \| 'polyline'`           | The kind of path, either a straight `line` between two points or a `polyline` with many points. |
-| `position`              | `Point`                          | The position of the path on the whiteboard canvas.                                              |
-| `points`                | `Point[]`                        | The points of the path in relative coordinates to its position.                                 |
-| `strokeColor`           | `string`                         | The stroke color of the path as [CSS color value][csscolor].                                    |
-| `strokeWidth`           | `number \| undefined`            | The stroke width of the path. Must be a number greater than 0 if set.                           |
-| `startMarker`           | `'arrow-head-line' \| undefined` | An optional marker for the end of a path.                                                       |
-| `endMarker`             | `'arrow-head-line' \| undefined` | An optional marker for the end of a path.                                                       |
-| `connectedElementStart` | `string \| undefined`            | The ID of connected element on the first point. Currently shapes can be connected.              |
-| `connectedElementEnd`   | `string \| undefined`            | The ID of connected element on the last point. Currently shapes can be connected.               |
-| `attachedFrame`         | `string \| undefined`            | The ID of the frame this element is attached to.                                                |
+| Field                   | Type                              | Description                                                                                                                                                                                            |
+| ----------------------- | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `type`                  | `'path'`                          | Identifies the element as a path.                                                                                                                                                                      |
+| `kind`                  | `'line' \| 'polyline' \| 'curve'` | The kind of path: a straight `line` between two points, a `polyline` with many points, or `curve`, a smoothed curve rendered from a precomputed `svgPathD` value.                                      |
+| `position`              | `Point`                           | The position of the path on the whiteboard canvas.                                                                                                                                                     |
+| `points`                | `Point[]`                         | The points of the path in relative coordinates to its position. For `line`/`polyline` these are the actual path vertices. For `curve`, this must be exactly 2 points, giving the curve's bounding box. |
+| `strokeColor`           | `string`                          | The stroke color of the path as [CSS color value][csscolor].                                                                                                                                           |
+| `strokeWidth`           | `number \| undefined`             | The stroke width of the path. Must be a number greater than 0 if set.                                                                                                                                  |
+| `startMarker`           | `'arrow-head-line' \| undefined`  | An optional marker for the end of a path.                                                                                                                                                              |
+| `endMarker`             | `'arrow-head-line' \| undefined`  | An optional marker for the end of a path.                                                                                                                                                              |
+| `connectedElementStart` | `string \| undefined`             | The ID of connected element on the first point. Currently shapes can be connected.                                                                                                                     |
+| `connectedElementEnd`   | `string \| undefined`             | The ID of connected element on the last point. Currently shapes can be connected.                                                                                                                      |
+| `attachedFrame`         | `string \| undefined`             | The ID of the frame this element is attached to.                                                                                                                                                       |
+| `svgPathD`              | `string \| undefined`             | An SVG `<path d="...">` attribute value. Required when `kind` is `curve`, and forbidden for any other `kind`.                                                                                          |
 
 #### Example
 
@@ -197,6 +198,22 @@ An element that consists of points.
   "strokeColor": "#ff0000",
   "startMarker": "arrow-head-line",
   "endMarker": "arrow-head-line"
+}
+```
+
+A `curve` element, with `points` holding the curve's bounding box:
+
+```json
+{
+  "type": "path",
+  "kind": "curve",
+  "position": { "x": 50, "y": 100 },
+  "points": [
+    { "x": 0, "y": 0 },
+    { "x": 40, "y": 20 }
+  ],
+  "strokeColor": "#ff0000",
+  "svgPathD": "M0,0 C10,20 30,20 40,0"
 }
 ```
 
