@@ -32,6 +32,7 @@ import {
 import { unstable_useId as useId } from '@mui/utils';
 import { DispatchWithoutAction, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useProductName } from '../../lib';
 import { CopyableText } from '../common/CopyableText';
 
 type InfoDialogProps = {
@@ -41,6 +42,7 @@ type InfoDialogProps = {
 
 export function InfoDialog({ open, onClose }: InfoDialogProps) {
   const { t } = useTranslation('neoboard');
+  const productName = useProductName();
   const [showRevision, setShowRevision] = useState(false);
 
   const version = getEnvironment('REACT_APP_VERSION', 'unset');
@@ -64,7 +66,9 @@ export function InfoDialog({ open, onClose }: InfoDialogProps) {
     >
       <Stack alignItems="baseline" direction="row">
         <DialogTitle component="h3" id={dialogTitleId} sx={{ flex: 1 }}>
-          {t('helpCenter.info.title', 'About NeoBoard')}
+          {t('helpCenter.info.title', 'About {{productName}}', {
+            productName,
+          })}
         </DialogTitle>
         <Tooltip title={t('helpCenter.info.close', 'Close')}>
           <IconButton

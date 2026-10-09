@@ -29,5 +29,6 @@ export type { Color } from './useColorPalette';
 export { FontsLoadedContextProvider, useFontsLoaded } from './useFontsLoaded';
 export { useLatestValue } from './useLatestValue';
 export { useMeasure } from './useMeasure';
+export { useProductName } from './useProductName';
 export { getUserColor } from './userColor';
 export { useZoomControls } from './useZoomControls';

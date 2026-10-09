@@ -59,6 +59,20 @@ describe('<InfoDialog/>', () => {
     ).toBeInTheDocument();
   });
 
+  it('should show the configured product name', async () => {
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+      name === 'REACT_APP_PRODUCT_NAME' ? 'Whiteboard' : defaultValue,
+    );
+
+    render(<InfoDialog open onClose={onClose} />, { wrapper: Wrapper });
+
+    const dialog = screen.getByRole('dialog', { name: 'About Whiteboard' });
+
+    expect(
+      within(dialog).getByRole('heading', { name: 'About Whiteboard' }),
+    ).toBeInTheDocument();
+  });
+
   it('should have no accessibility violations', async () => {
     const { container } = render(<InfoDialog open onClose={onClose} />, {
       wrapper: Wrapper,

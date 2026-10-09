@@ -56,7 +56,7 @@
       "description": "Please choose your preferred format.",
       "download": "Download",
       "fileFormat": {
-        "nwb": "NeoBoard file (.nwb)",
+        "nwb": "{{productName}} file (.nwb)",
         "pdf": "PDF file (.pdf)",
         "title": "File format"
       },
@@ -143,8 +143,8 @@
     "dialog": {
       "confirm": "OK",
       "text": {
-        "common": "NeoBoard cannot save your data at the moment due to a connection problem. This message will disappear as soon as it has been saved again. To be on the safe side, you can download a copy of the board using the export function.",
-        "no_internet_connection": "NeoBoard cannot save your data at the moment. Check your internet connection. This message will disappear as soon as the data has been saved again. To be on the safe side, you can download a copy of the board using the export function."
+        "common": "{{productName}} cannot save your data at the moment due to a connection problem. This message will disappear as soon as it has been saved again. To be on the safe side, you can download a copy of the board using the export function.",
+        "no_internet_connection": "{{productName}} cannot save your data at the moment. Check your internet connection. This message will disappear as soon as the data has been saved again. To be on the safe side, you can download a copy of the board using the export function."
       },
       "title": "Your changes are not saved"
     },
@@ -192,21 +192,21 @@
   "guidedTour": {
     "back": "Back",
     "collaborationBar": {
-      "content": "<p>To see who is currently active on the NeoBoard, just look here. You will see all participants who are currently online or have been online recently. And in case it gets crowded, click on the number to the right of the first five participants to see who else is online. With the small eye you can show or hide the cursors of the others.</p>",
+      "content": "<p>To see who is currently active on the {{productName}}, just look here. You will see all participants who are currently online or have been online recently. And in case it gets crowded, click on the number to the right of the first five participants to see who else is online. With the small eye you can show or hide the cursors of the others.</p>",
       "title": "Collaboration"
     },
     "complete": "Complete",
     "helpCenter": {
-      "content": "<p>The help center offers easy access to the user guide and an overview of all keyboard shortcuts. You can also restart this tour at any time so you can explore everything in more detail.</p><p>Have fun, creative ideas and success with the NeoBoard!</p>",
+      "content": "<p>The help center offers easy access to the user guide and an overview of all keyboard shortcuts. You can also restart this tour at any time so you can explore everything in more detail.</p><p>Have fun, creative ideas and success with the {{productName}}!</p>",
       "title": "Help center"
     },
     "introduction": {
-      "content": "<p>Welcome to the NeoBoard. In this introduction, you'll get tips on how to use the NeoBoard so you can start designing in no time. Let's go!</p>",
+      "content": "<p>Welcome to the {{productName}}. In this introduction, you'll get tips on how to use the {{productName}} so you can start designing in no time. Let's go!</p>",
       "title": "Welcome"
     },
     "next": "Next",
     "settings": {
-      "content": "<p>Using the settings, you can export the NeoBoard and the work done and import it again (e.g. in another room) or save it as a backup. You can also (de)activate the grid.</p>",
+      "content": "<p>Using the settings, you can export the {{productName}} and the work done and import it again (e.g. in another room) or save it as a backup. You can also (de)activate the grid.</p>",
       "title": "Settings"
     },
     "slideCount": "{{index}} of {{total}}",
@@ -225,11 +225,11 @@
       "commitHash": "Commit hash",
       "showLess": "Show less",
       "showMore": "Show more",
-      "title": "About NeoBoard",
+      "title": "About {{productName}}",
       "version": "Version {{version}}"
     },
     "menu": {
-      "about": "About NeoBoard",
+      "about": "About {{productName}}",
       "helpCenter": "Help Center",
       "keyboardShortcuts": "Keyboard shortcuts",
       "resetOnboarding": "Reset onboarding",
@@ -391,7 +391,7 @@
   },
   "whiteboardUpdateDialog": {
     "content": "Your existing Slides will now be shown as Frames - a new way to organize your content. Please download a copy of your whiteboard before continuing.",
-    "contentUpgradeRequired": "This whiteboard requires a more recent version of NeoBoard that uses Frames instead of Slides.",
+    "contentUpgradeRequired": "This whiteboard requires a more recent version of {{productName}} that uses Frames instead of Slides.",
     "migrationFailed": "An issue occurred when moving Slides into Frames",
     "title": "Slides are now Frames",
     "titleUpgradeRequired": "Upgrade required",
