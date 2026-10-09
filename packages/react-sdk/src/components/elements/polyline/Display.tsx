@@ -15,7 +15,7 @@
  */
 
 import React from 'react';
-import { calculateBoundingRectForPoints, PathElement } from '../../../state';
+import { calculateBoundingRectForElements, PathElement } from '../../../state';
 import {
   ElementContextMenu,
   MoveableElement,
@@ -37,7 +37,8 @@ const PolylineDisplay = ({
   ...element
 }: PolylineElementProps) => {
   const { strokeColor, strokeWidth, points } = getRenderProperties(element);
-  const boundingRect = calculateBoundingRectForPoints(element.points);
+  // includes the stroke so the overlay covers the whole polyline
+  const boundingRect = calculateBoundingRectForElements([element]);
 
   const renderedChild = (
     <g>
@@ -46,6 +47,7 @@ const PolylineDisplay = ({
         points={points.map(({ x, y }) => `${x},${y}`).join(' ')}
         stroke={strokeColor}
         strokeLinejoin="round"
+        strokeLinecap="round"
         strokeWidth={strokeWidth}
       />
     </g>
@@ -69,8 +71,8 @@ const PolylineDisplay = ({
           {renderedChild}
           {elementMovedHasFrame && (
             <ElementFrameOverlay
-              offsetX={element.position.x}
-              offsetY={element.position.y}
+              offsetX={boundingRect.offsetX}
+              offsetY={boundingRect.offsetY}
               width={boundingRect.width}
               height={boundingRect.height}
             />
