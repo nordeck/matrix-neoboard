@@ -21,6 +21,7 @@ import { DeleteActiveElementButton } from '../ElementBar/DeleteActiveElementButt
 import { DuplicateActiveElementButton } from '../ElementBar/DuplicateActiveElementButton';
 import { Toolbar } from '../common/Toolbar';
 import { NextStrokeColorPicker } from './NextStrokeColorPicker';
+import { NextStrokeWidthSelect } from './NextStrokeWidthSelect';
 
 export function PenElementBar() {
   const { t } = useTranslation('neoboard');
@@ -29,6 +30,7 @@ export function PenElementBar() {
 
   return (
     <Toolbar aria-label={toolbarTitle}>
+      <NextStrokeWidthSelect />
       <NextStrokeColorPicker />
       <DuplicateActiveElementButton
         label={t(

@@ -300,6 +300,7 @@
     "deletePreviousStroke": "Delete previous stroke",
     "duplicatePreviousStroke": "Duplicate previous stroke",
     "pickNextStrokeColor": "Pick the next stroke color",
+    "selectNextStrokeWidth": "Select the next stroke width",
     "title": "Pen"
   },
   "presentBar": {

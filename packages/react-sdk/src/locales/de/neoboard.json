@@ -300,6 +300,7 @@
     "deletePreviousStroke": "Letzten Strich löschen",
     "duplicatePreviousStroke": "Letzten Strich duplizieren",
     "pickNextStrokeColor": "Farbe für den nächsten Strich wählen",
+    "selectNextStrokeWidth": "Breite für den nächsten Strich wählen",
     "title": "Stift"
   },
   "presentBar": {
