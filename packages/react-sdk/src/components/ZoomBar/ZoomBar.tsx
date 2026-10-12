@@ -31,7 +31,11 @@ export const ZoomBar: React.FC = () => {
   const scalePercentage = Math.floor(100 * scale);
 
   return (
-    <Toolbar aria-label={toolbarTitle} sx={{ pointerEvents: 'initial' }}>
+    <Toolbar
+      aria-label={toolbarTitle}
+      sx={{ pointerEvents: 'initial' }}
+      data-guided-tour-target="zoombar"
+    >
       <ToolbarButton
         aria-label={t('zoomBar.zoomOut', 'Zoom out')}
         onClick={zoomOut}
