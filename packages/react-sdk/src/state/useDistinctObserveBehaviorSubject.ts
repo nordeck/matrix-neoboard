@@ -27,7 +27,7 @@ import { ObservableBehaviorSubject } from './types';
 export function useDistinctObserveBehaviorSubject<T>(
   subject: ObservableBehaviorSubject<T>,
 ): T {
-  const [value, setValue] = useState(subject.getValue());
+  const [value, setValue] = useState(() => subject.getValue());
 
   useEffect(() => {
     const subscription = subject
