@@ -56,7 +56,7 @@
       "description": "Bitte wähle dein gewünschtes Format.",
       "download": "Herunterladen",
       "fileFormat": {
-        "nwb": "{{productName}}-Datei (.nwb)",
+        "nwb": "NeoBoard-Datei (.nwb)",
         "pdf": "PDF-Datei (.pdf)",
         "title": "Dateiformat"
       },
@@ -143,8 +143,8 @@
     "dialog": {
       "confirm": "OK",
       "text": {
-        "common": "{{productName}} kann deine Daten wegen eines Verbindungsproblems im Moment nicht speichern. Diese Meldung wird ausgeblendet, sobald wieder gespeichert wurde. Um sicherzugehen, kannst du eine Kopie des Boards über die Exportfunktion herunterladen.",
-        "no_internet_connection": "{{productName}} kann deine Daten im Moment nicht speichern. Überprüfe deine Internetverbindung. Diese Meldung wird ausgeblendet, sobald wieder gespeichert wurde. Um sicherzugehen, kannst du eine Kopie des Boards über die Exportfunktion herunterladen."
+        "common": "NeoBoard kann deine Daten wegen eines Verbindungsproblems im Moment nicht speichern. Diese Meldung wird ausgeblendet, sobald wieder gespeichert wurde. Um sicherzugehen, kannst du eine Kopie des Boards über die Exportfunktion herunterladen.",
+        "no_internet_connection": "NeoBoard kann deine Daten im Moment nicht speichern. Überprüfe deine Internetverbindung. Diese Meldung wird ausgeblendet, sobald wieder gespeichert wurde. Um sicherzugehen, kannst du eine Kopie des Boards über die Exportfunktion herunterladen."
       },
       "title": "Deine Änderungen sind nicht gespeichert"
     },
@@ -240,11 +240,11 @@
       "commitHash": "Commit hash",
       "showLess": "Weniger anzeigen",
       "showMore": "Mehr anzeigen",
-      "title": "Über {{productName}}",
+      "title": "Über NeoBoard",
       "version": "Version {{version}}"
     },
     "menu": {
-      "about": "Über {{productName}}",
+      "about": "Über NeoBoard",
       "helpCenter": "Hilfezentrum",
       "keyboardShortcuts": "Kurzbefehle",
       "resetOnboarding": "Einführung zurücksetzen",
@@ -406,7 +406,7 @@
   },
   "whiteboardUpdateDialog": {
     "content": "Deine vorhandenen Folien werden nun als Rahmen dargestellt - eine neue Art, deine Inhalte zu strukturieren. Bitte lade ein Backup deines Whiteboards herunter bevor du fortfährst.",
-    "contentUpgradeRequired": "Dieses board erfordert eine aktuellere Version von {{productName}}, das Rahmen statt Folien unterstützt.",
+    "contentUpgradeRequired": "Dieses Whiteboard erfordert eine aktuellere Version von NeoBoard, das Rahmen statt Folien unterstützt.",
     "migrationFailed": "Aktualisierung von Folien zu Rahmen fehlgeschlagen",
     "title": "Folien sind jetzt Rahmen",
     "titleUpgradeRequired": "Aktualisierung erforderlich",

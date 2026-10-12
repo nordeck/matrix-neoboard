@@ -56,7 +56,7 @@
       "description": "Please choose your preferred format.",
       "download": "Download",
       "fileFormat": {
-        "nwb": "{{productName}} file (.nwb)",
+        "nwb": "NeoBoard file (.nwb)",
         "pdf": "PDF file (.pdf)",
         "title": "File format"
       },
@@ -143,8 +143,8 @@
     "dialog": {
       "confirm": "OK",
       "text": {
-        "common": "{{productName}} cannot save your data at the moment due to a connection problem. This message will disappear as soon as it has been saved again. To be on the safe side, you can download a copy of the board using the export function.",
-        "no_internet_connection": "{{productName}} cannot save your data at the moment. Check your internet connection. This message will disappear as soon as the data has been saved again. To be on the safe side, you can download a copy of the board using the export function."
+        "common": "NeoBoard cannot save your data at the moment due to a connection problem. This message will disappear as soon as it has been saved again. To be on the safe side, you can download a copy of the board using the export function.",
+        "no_internet_connection": "NeoBoard cannot save your data at the moment. Check your internet connection. This message will disappear as soon as the data has been saved again. To be on the safe side, you can download a copy of the board using the export function."
       },
       "title": "Your changes are not saved"
     },
@@ -240,11 +240,11 @@
       "commitHash": "Commit hash",
       "showLess": "Show less",
       "showMore": "Show more",
-      "title": "About {{productName}}",
+      "title": "About NeoBoard",
       "version": "Version {{version}}"
     },
     "menu": {
-      "about": "About {{productName}}",
+      "about": "About NeoBoard",
       "helpCenter": "Help Center",
       "keyboardShortcuts": "Keyboard shortcuts",
       "resetOnboarding": "Reset onboarding",
@@ -406,7 +406,7 @@
   },
   "whiteboardUpdateDialog": {
     "content": "Your existing Slides will now be shown as Frames - a new way to organize your content. Please download a copy of your whiteboard before continuing.",
-    "contentUpgradeRequired": "This board requires a more recent version of {{productName}} that uses Frames instead of Slides.",
+    "contentUpgradeRequired": "This whiteboard requires a more recent version of NeoBoard that uses Frames instead of Slides.",
     "migrationFailed": "An issue occurred when moving Slides into Frames",
     "title": "Slides are now Frames",
     "titleUpgradeRequired": "Upgrade required",
