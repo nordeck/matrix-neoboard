@@ -15,13 +15,30 @@
  */
 
 import { Grow, styled } from '@mui/material';
+import React from 'react';
 import { TransitionGroup } from 'react-transition-group';
-import { useActiveCursors } from '../../../state';
+import { Point, useActiveCursors } from '../../../state';
 import { useUserDetails } from '../../../store';
 import { Cursor } from './Cursor';
 
 const NoInteraction = styled('g')({
   pointerEvents: 'none',
+});
+
+const CursorEntry = React.memo(function CursorEntry({
+  userId,
+  position,
+  displayName,
+}: {
+  userId: string;
+  position: Point;
+  displayName: string;
+}) {
+  return (
+    <Grow timeout={200}>
+      <Cursor userId={userId} position={position} displayName={displayName} />
+    </Grow>
+  );
 });
 
 export function CursorRenderer() {
@@ -39,13 +56,12 @@ export function CursorRenderer() {
           const displayName = getUserDisplayName(userId);
 
           return (
-            <Grow timeout={200} key={userId}>
-              <Cursor
-                userId={userId}
-                position={position}
-                displayName={displayName}
-              />
-            </Grow>
+            <CursorEntry
+              key={userId}
+              userId={userId}
+              position={position}
+              displayName={displayName}
+            />
           );
         })}
       </TransitionGroup>
