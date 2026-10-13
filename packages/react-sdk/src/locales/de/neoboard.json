@@ -195,6 +195,14 @@
       "title": "Kollaboration"
     },
     "complete": "Abschließen",
+    "frameOverview": {
+      "content": "<p>Hier links kannst du deine Rahmenübersicht anzeigen lassen. Rahmen sind die Elemente, die Inhalte zusammenhalten und deine Präsentation gliedern.</p>",
+      "title": "Rahmenübersicht"
+    },
+    "header": {
+      "content": "<p>In der oberen Leiste kannst du andere Personen zu deinem Board einladen oder Einladungen zu anderen Boards annehmen. Rechts findest du deine Accounteinstellungen.</p>",
+      "title": "Vernetzung"
+    },
     "helpCenter": {
       "content": "<p>Der Hilfebereich bietet dir einen schnellen Zugriff auf das Benutzerhandbuch und eine Übersicht aller Tastaturbefehle. Außerdem kannst du dort auch jederzeit diese Tour neu starten, um nochmal in Ruhe alles zu erkunden.</p><p>Bereit? Viel Spaß!</p>",
       "title": "Hilfebereich"
@@ -213,17 +221,9 @@
       "content": "<p>Hier findest du die Folien aller Teilnehmer:innen. Klicke auf den Button, um eine Folie hinzuzufügen. Mit der rechten Maustaste öffnest du das Kontextmenü und kannst vorhandene Folien löschen, gegen Veränderungen schützen, indem du sie sperrst oder alle Teilnehmer:innen hierher holen. Mit gedrückter linker Maustaste kannst du die Reihenfolge der Folien verändern.</p>",
       "title": "Folienübersicht"
     },
-    "frameOverview": {
-      "content": "<p>Hier links kannst du deine Rahmenübersicht anzeigen lassen. Rahmen sind die Elemente, die Inhalte zusammenhalten und deine Präsentation gliedern.</p>",
-      "title": "Rahmenübersicht"
-    },
     "toolsbar": {
       "content": "<p>Hier findest du deine Werkzeuge: Gestalte mit Notizen und Grundformen, schreibe direkt in die Formen oder nutze das Textwerkzeug, ziehe Linien oder Freiformen. Lege Rahmen als Präsentationsflächen an, und lade Bilder hoch. Die Pfeile rechts dienen zum schrittweisen Zurück- und Vorwärtsgehen.</p>",
       "title": "Werkzeuge"
-    },
-    "header": {
-      "content": "<p>In der oberen Leiste kannst du andere Personen zu deinem Board einladen oder Einladungen zu anderen Boards annehmen. Rechts findest du deine Accounteinstellungen.</p>",
-      "title": "Vernetzung"
     },
     "views": {
       "content": "<p>Erweitere deine Arbeitsfläche, indem du die Vollbildansicht aktivierst.</p><p>Hier kannst du zudem deine Präsentation starten und die Mitnutzer des Boards durch deine Rahmen führen. Das gemeinsame Bearbeiten von Inhalten lässt sich dann ein- und ausschalten.</p>",

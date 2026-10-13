@@ -191,21 +191,29 @@
   "guidedTour": {
     "back": "Back",
     "collaborationBar": {
-      "content": "<p>Anyone currently active on this board is displayed here. You can show or hide other users’ cursors, whichever is most convenient for you. </p>",
+      "content": "<p>Anyone currently active on this board is displayed here. You can show or hide other users’ cursors, whichever is most convenient for you.</p>",
       "title": "Collaboration"
     },
     "complete": "Complete",
+    "frameOverview": {
+      "content": "<p>You can view your frame overview on the left-hand side here. Frames are the elements that hold content together and structure your presentation.</p>",
+      "title": "Frame overview"
+    },
+    "header": {
+      "content": "<p>In the top bar, you can invite people to your board or accept invitations to other boards. You’ll find your account settings on the right.</p>",
+      "title": "Networking"
+    },
     "helpCenter": {
       "content": "<p>The help center gives you quick access to the user manual and an overview of all keyboard shortcuts. You can also restart this tour at any time to explore everything at your own pace.</p><p>Ready? Have fun!</p>",
       "title": "Help center"
     },
     "introduction": {
-      "content": "<p>Are you new here? – Let us show you a few things so you can get started straight away. Let’s get started! </p>",
+      "content": "<p>Are you new here? – Let us show you a few things so you can get started straight away.</p><p>Let’s get started!</p>",
       "title": "Welcome"
     },
     "next": "Next",
     "settings": {
-      "content": "<p>Here you’ll find settings for importing elements and exporting your board. You can also turn the grid – which helps with positioning elements – on and off. </p>",
+      "content": "<p>Here you’ll find settings for importing elements and exporting your board. You can also toggle the grid, which helps with positioning elements.</p>",
       "title": "Settings"
     },
     "slideCount": "{{index}} of {{total}}",
@@ -213,17 +221,9 @@
       "content": "<p>This is where you can find the slides of all participants. Click on the button to add a slide. With the right mouse button you can open the context menu and delete existing slides, lock them to prevent changes or bring all participants here. Hold down the left mouse button to change the order of the slides.</p>",
       "title": "Slide overview"
     },
-    "frameOverview": {
-      "content": "<p>This is where you can find the frames of all participants. Click on the button to add a frame. With the right mouse button you can open the context menu and delete existing frames, lock them to prevent changes or bring all participants here. Hold down the left mouse button to change the order of the frames.</p>",
-      "title": "Frame overview"
-    },
     "toolsbar": {
       "content": "<p>Here you’ll find your tools: design using notes and basic shapes, write directly into the shapes or use the text tool, draw lines or free-form shapes. Create frames as presentation areas, and upload images. The arrows on the right allow you to move forwards and backwards step by step.</p>",
       "title": "Tools"
-    },
-    "header": {
-      "content": "<p>In the top bar, you can invite people to your board or accept invitations to other boards. You’ll find your account settings on the right.</p>",
-      "title": "Networking"
     },
     "views": {
       "content": "<p>Expand your workspace by switching to full-screen view.</p><p>Here, you can also start your presentation and guide other users of the board through your frames. Collaborative editing of content can then be switched on and off.</p>",
