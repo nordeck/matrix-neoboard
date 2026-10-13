@@ -34,7 +34,7 @@ export const ZoomBar: React.FC = () => {
     <Toolbar
       aria-label={toolbarTitle}
       sx={{ pointerEvents: 'initial' }}
-      data-guided-tour-target="zoombar"
+      data-guided-tour-target="zoomBar"
     >
       <ToolbarButton
         aria-label={t('zoomBar.zoomOut', 'Zoom out')}

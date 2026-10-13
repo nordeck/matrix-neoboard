@@ -129,10 +129,10 @@ export function GuidedTour({ disabled }: GuidedTourProps) {
       disableBeacon: true,
     },
     {
-      target: '[data-guided-tour-target="zoom-controls"]',
-      title: t('guidedTour.zoom.title', 'Zoom'),
+      target: '[data-guided-tour-target="zoomBar"]',
+      title: t('guidedTour.zoomBar.title', 'Zoom'),
       content: (
-        <Trans i18nKey="guidedTour.zoom.content" ns="neoboard">
+        <Trans i18nKey="guidedTour.zoomBar.content" ns="neoboard">
           <p>Here you’ll find options for zooming in and out.</p>
           <p>
             Don’t be surprised: when presentation mode is active, this button is
