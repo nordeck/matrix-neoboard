@@ -1195,12 +1195,11 @@ describe('getRotationTransformForElements', () => {
         ],
       }),
     ];
-    // the default stroke width of 4 overflows by 2 on every side
     expect(getBoundingRectForElements(elements)).toEqual({
-      offsetX: -2,
-      offsetY: -1,
-      width: 6,
-      height: 6,
+      offsetX: 0,
+      offsetY: 1,
+      width: 2,
+      height: 2,
     });
   });
 
@@ -1217,9 +1216,9 @@ describe('getRotationTransformForElements', () => {
     ];
     expect(getBoundingRectForElements(elements)).toEqual({
       offsetX: 0,
-      offsetY: -2,
-      width: 14,
-      height: 8,
+      offsetY: 0,
+      width: 12,
+      height: 6,
     });
   });
 

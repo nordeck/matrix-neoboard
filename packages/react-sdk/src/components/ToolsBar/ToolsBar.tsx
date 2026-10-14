@@ -103,7 +103,7 @@ export function ToolsBar() {
       {
         label: t('toolsBar.penTool', 'Pen'),
         icon: <EditRoundedIcon />,
-        value: 'polyline',
+        value: 'pen',
       },
       {
         label: t('toolsBar.textTool', 'Text'),

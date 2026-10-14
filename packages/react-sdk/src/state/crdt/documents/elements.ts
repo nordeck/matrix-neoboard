@@ -299,10 +299,11 @@ function getElementBoundingPoints(element: Element): Point[] {
     );
 
     // A stroke is centered on the path, so half of it overflows the geometry.
+    // lines will get 0 padding because they don't support strokeWidth yet
     const padding =
       (element.kind === 'polyline' || element.kind === 'curve'
         ? (element.strokeWidth ?? defaultStrokeWidth)
-        : defaultStrokeWidth) / 2;
+        : 0) / 2;
 
     return [
       { x: offsetX - padding, y: offsetY - padding },

@@ -607,10 +607,10 @@ describe('<WhiteboardHost/>', () => {
     });
   });
 
-  it('should use polyline tool to add curve with mouse', async () => {
+  it('should use pen tool to add curve with mouse', async () => {
     render(<WhiteboardHost />, { wrapper: Wrapper });
 
-    act(() => setActiveTool('polyline'));
+    act(() => setActiveTool('pen'));
 
     const draftHandler = screen.getByTestId('draft-pointer-handler');
 
@@ -664,10 +664,10 @@ describe('<WhiteboardHost/>', () => {
     });
   });
 
-  it('should use polyline tool to add curve with touch', async () => {
+  it('should use pen tool to add curve with touch', async () => {
     render(<WhiteboardHost />, { wrapper: Wrapper });
 
-    act(() => setActiveTool('polyline'));
+    act(() => setActiveTool('pen'));
 
     const draftHandler = screen.getByTestId('draft-pointer-handler');
 
@@ -1620,7 +1620,7 @@ describe('<WhiteboardHost/>', () => {
 
   it('should not show the element bar or resize handles when drawing with the pen tool', async () => {
     render(<WhiteboardHost />, { wrapper: Wrapper });
-    act(() => setActiveTool('polyline'));
+    act(() => setActiveTool('pen'));
     const draftHandler = screen.getByTestId('draft-pointer-handler');
     await userEvent.pointer([
       {

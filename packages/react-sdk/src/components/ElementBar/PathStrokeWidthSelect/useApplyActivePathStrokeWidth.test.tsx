@@ -15,7 +15,7 @@
  */
 
 import { MockedWidgetApi, mockWidgetApi } from '@matrix-widget-toolkit/testing';
-import { renderHook } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
 import { ComponentType, PropsWithChildren } from 'react';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
@@ -25,9 +25,9 @@ import {
   mockWhiteboardManager,
 } from '../../../lib/testUtils/documentTestUtils';
 import { WhiteboardSlideInstance } from '../../../state';
-import { useActivePolylineCurveStrokeWidth } from './useActivePolylineCurveStrokeWidth';
+import { useApplyActivePathStrokeWidth } from './useApplyActivePathStrokeWidth';
 
-describe('useActivePolylineCurveStrokeWidth', () => {
+describe('useApplyActivePathStrokeWidth', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
   let slide: WhiteboardSlideInstance;
   let widgetApi: MockedWidgetApi;
@@ -70,57 +70,52 @@ describe('useActivePolylineCurveStrokeWidth', () => {
     widgetApi.stop();
   });
 
-  it('should return the stroke width of the selected polyline', () => {
+  it('should apply a stroke width to the selected polyline', () => {
     slide.setActiveElementId('polyline-8');
-    const { result } = renderHook(useActivePolylineCurveStrokeWidth, {
+    const { result } = renderHook(useApplyActivePathStrokeWidth, {
       wrapper: Wrapper,
     });
 
-    expect(result.current.strokeWidth).toBe(8);
+    act(() => {
+      result.current.applyStrokeWidth(16);
+    });
+
+    expect(slide.getElement('polyline-8')).toEqual(
+      expect.objectContaining({ strokeWidth: 16 }),
+    );
   });
 
-  it('should return the default stroke width if the selected polyline has none', () => {
-    slide.setActiveElementId('polyline-undefined');
-    const { result } = renderHook(useActivePolylineCurveStrokeWidth, {
+  it('should apply a stroke width to all selected polylines', () => {
+    slide.setActiveElementIds(['polyline-8', 'polyline-undefined', 'ellipse']);
+    const { result } = renderHook(useApplyActivePathStrokeWidth, {
       wrapper: Wrapper,
     });
 
-    expect(result.current.strokeWidth).toBe(4);
-  });
-
-  it('should return an undefined stroke width when no polyline is selected', () => {
-    slide.setActiveElementIds([]);
-    const { result } = renderHook(useActivePolylineCurveStrokeWidth, {
-      wrapper: Wrapper,
+    act(() => {
+      result.current.applyStrokeWidth(16);
     });
 
-    expect(result.current.strokeWidth).toBeUndefined();
+    expect(slide.getElement('polyline-8')).toEqual(
+      expect.objectContaining({ strokeWidth: 16 }),
+    );
+    expect(slide.getElement('polyline-undefined')).toEqual(
+      expect.objectContaining({ strokeWidth: 16 }),
+    );
+    expect(slide.getElement('ellipse')).not.toHaveProperty('strokeWidth');
   });
 
-  it('should return the stroke width of the first selected polyline if several elements are active', () => {
-    slide.setActiveElementIds(['polyline-undefined', 'polyline-8']);
-    const { result } = renderHook(useActivePolylineCurveStrokeWidth, {
-      wrapper: Wrapper,
-    });
-
-    expect(result.current.strokeWidth).toBe(4);
-  });
-
-  it('should return the stroke width of the selected polyline among other selected element kinds', () => {
-    slide.setActiveElementIds(['ellipse', 'polyline-8']);
-    const { result } = renderHook(useActivePolylineCurveStrokeWidth, {
-      wrapper: Wrapper,
-    });
-
-    expect(result.current.strokeWidth).toBe(8);
-  });
-
-  it('should return an undefined stroke width if the active elements contain no polyline', () => {
+  it('should not apply a stroke width if no polyline is selected', () => {
     slide.setActiveElementId('ellipse');
-    const { result } = renderHook(useActivePolylineCurveStrokeWidth, {
+    const { result } = renderHook(useApplyActivePathStrokeWidth, {
       wrapper: Wrapper,
     });
 
-    expect(result.current.strokeWidth).toBeUndefined();
+    act(() => {
+      result.current.applyStrokeWidth(16);
+    });
+
+    expect(slide.getElement('ellipse')).not.toEqual(
+      expect.objectContaining({ strokeWidth: 16 }),
+    );
   });
 });

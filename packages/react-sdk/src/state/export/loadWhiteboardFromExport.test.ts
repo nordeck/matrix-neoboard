@@ -399,7 +399,7 @@ describe('generateLoadWhiteboardFromExport', () => {
     ).toThrow('Must have a single slide');
   });
 
-  it('should load a curvepath element', () => {
+  it('should load a curve element', () => {
     const exportDocument: WhiteboardDocumentExport = {
       version: 'net.nordeck.whiteboard@v1',
       whiteboard: {

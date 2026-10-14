@@ -33,7 +33,7 @@ const StickyNoteIconBase64 =
 
 const getCursorStyle = (tool: ActiveTool) => {
   switch (tool) {
-    case 'polyline':
+    case 'pen':
       return `url("${editRoundedUrl}") 3 21, crosshair`;
     case 'sticky-note':
       return `url("${StickyNoteIconBase64}") 16 16, auto`;

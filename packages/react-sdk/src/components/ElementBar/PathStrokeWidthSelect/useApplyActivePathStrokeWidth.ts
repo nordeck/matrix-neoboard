@@ -24,7 +24,7 @@ import {
   useWhiteboardSlideInstance,
 } from '../../../state';
 
-type UseApplyActivePolylineCurveStrokeWidthResult = {
+type UseApplyActivePathStrokeWidthResult = {
   /**
    * Apply the given stroke width to all selected polylines.
    *
@@ -33,7 +33,7 @@ type UseApplyActivePolylineCurveStrokeWidthResult = {
   applyStrokeWidth: (value: number) => void;
 };
 
-export function useApplyActivePolylineCurveStrokeWidth(): UseApplyActivePolylineCurveStrokeWidthResult {
+export function useApplyActivePathStrokeWidth(): UseApplyActivePathStrokeWidthResult {
   const slideInstance = useWhiteboardSlideInstance();
   const { activeElementIds } = useActiveElements();
   const activeElements = useElements(activeElementIds);

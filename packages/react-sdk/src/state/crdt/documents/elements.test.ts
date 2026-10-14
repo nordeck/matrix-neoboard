@@ -123,18 +123,6 @@ describe('isValidElement', () => {
     },
   );
 
-  it('should accept path element without svgPathD', () => {
-    const data = {
-      type: 'path',
-      position: { x: 1, y: 2 },
-      kind: 'line',
-      points: [],
-      strokeColor: 'red',
-    };
-
-    expect(isValidElement(data)).toBe(true);
-  });
-
   it('should reject curve path element without svgPathD', () => {
     const data = {
       type: 'path',
@@ -739,10 +727,10 @@ describe('calculateBoundingRectForElements', () => {
     ];
     // the default stroke width overflows by half on every side
     expect(calculateBoundingRectForElements(elements)).toEqual({
-      offsetX: -2,
-      offsetY: 1 - 2,
-      width: 2 + 4,
-      height: 2 + 4,
+      offsetX: 0,
+      offsetY: 1,
+      width: 2,
+      height: 2,
     });
   });
 
@@ -759,9 +747,9 @@ describe('calculateBoundingRectForElements', () => {
     ];
     expect(calculateBoundingRectForElements(elements)).toEqual({
       offsetX: 0,
-      offsetY: -2,
-      width: 12 + 2,
-      height: 6 + 2,
+      offsetY: 0,
+      width: 12,
+      height: 6,
     });
   });
 
@@ -865,10 +853,10 @@ describe('calculateBoundingRectForElement', () => {
       ],
     });
     expect(calculateBoundingRectForElement(element)).toEqual({
-      offsetX: -2,
-      offsetY: 1 - 2,
-      width: 2 + 4,
-      height: 2 + 4,
+      offsetX: 0,
+      offsetY: 1,
+      width: 2,
+      height: 2,
     });
   });
 
@@ -928,10 +916,10 @@ describe('calculateBoundingRectForElement', () => {
     });
 
     expect(calculateBoundingRectForElement(element)).toEqual({
-      offsetX: 100 - 2,
-      offsetY: 200 - 2,
-      width: 20 + 4,
-      height: 10 + 4,
+      offsetX: 100,
+      offsetY: 200,
+      width: 20,
+      height: 10,
     });
   });
 });

@@ -509,7 +509,7 @@ describe('convertWhiteboardToExportFormat', () => {
     });
   });
 
-  it('should export a curvepath element', async () => {
+  it('should export a curve element', async () => {
     const document = createWhiteboardDocument();
 
     document.performChange((doc) => {

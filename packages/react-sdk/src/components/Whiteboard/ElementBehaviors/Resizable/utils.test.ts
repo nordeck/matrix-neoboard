@@ -1114,12 +1114,12 @@ describe('computeElementResize', () => {
     );
 
     expect(elementOverride).toEqual({
-      position: { x: 0, y: 0 },
+      position: { x: -8, y: -8 },
       points: [
         { x: 0, y: 0 },
-        { x: 100, y: 100 },
+        { x: 116, y: 116 },
       ],
-      svgPathD: 'M0,0 L100,100',
+      svgPathD: 'M0 0L116 116',
     });
   });
 });

@@ -55,7 +55,7 @@ export const DraftPicker = (): ReactElement | null => {
         />
       );
 
-    case 'polyline':
+    case 'pen':
       return <CurveDraft />;
 
     case 'rectangle':

@@ -14,5 +14,5 @@
  * limitations under the License.
  */
 
-export { PolylineStrokeWidthSelect } from './PolylineStrokeWidthSelect';
-export { useActivePolylineCurveStrokeWidth } from './useActivePolylineCurveStrokeWidth';
+export { PathStrokeWidthSelect } from './PathStrokeWidthSelect';
+export { useActivePathStrokeWidth } from './useActivePathStrokeWidth';

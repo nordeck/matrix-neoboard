@@ -40,9 +40,9 @@ import { ElementOverridesProvider } from '../../ElementOverridesProvider';
 import { ActiveTool, LayoutStateProvider, useLayoutState } from '../../Layout';
 import { WhiteboardHost } from '../../Whiteboard';
 import { WhiteboardHotkeysProvider } from '../../WhiteboardHotkeysProvider';
-import { PolylineStrokeWidthSelect } from './PolylineStrokeWidthSelect';
+import { PathStrokeWidthSelect } from './PathStrokeWidthSelect';
 
-describe('<PolylineStrokeWidthSelect/>', () => {
+describe('<PathStrokeWidthSelect/>', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
   let slide: WhiteboardSlideInstance;
   let setActiveTool: (value: ActiveTool) => void;
@@ -99,7 +99,7 @@ describe('<PolylineStrokeWidthSelect/>', () => {
   afterEach(() => widgetApi.stop());
 
   it('should render without exploding', async () => {
-    render(<PolylineStrokeWidthSelect strokeWidth={8} />, { wrapper: Wrapper });
+    render(<PathStrokeWidthSelect strokeWidth={8} />, { wrapper: Wrapper });
 
     const select = screen.getByRole('combobox', {
       name: 'Select stroke width',
@@ -109,12 +109,9 @@ describe('<PolylineStrokeWidthSelect/>', () => {
   });
 
   it('should have no accessibility violations', async () => {
-    const { container } = render(
-      <PolylineStrokeWidthSelect strokeWidth={8} />,
-      {
-        wrapper: Wrapper,
-      },
-    );
+    const { container } = render(<PathStrokeWidthSelect strokeWidth={8} />, {
+      wrapper: Wrapper,
+    });
 
     expect(
       screen.getByRole('combobox', { name: 'Select stroke width' }),
@@ -125,7 +122,7 @@ describe('<PolylineStrokeWidthSelect/>', () => {
 
   it('should show the stroke width of the active element', async () => {
     slide.setActiveElementId('element-7');
-    render(<PolylineStrokeWidthSelect strokeWidth={7} />, { wrapper: Wrapper });
+    render(<PathStrokeWidthSelect strokeWidth={7} />, { wrapper: Wrapper });
 
     const select = screen.getByRole('combobox', {
       name: 'Select stroke width',
@@ -136,7 +133,7 @@ describe('<PolylineStrokeWidthSelect/>', () => {
 
   it('should show the default stroke width if the active element has none', async () => {
     slide.setActiveElementId('element-undefined');
-    render(<PolylineStrokeWidthSelect strokeWidth={4} />, {
+    render(<PathStrokeWidthSelect strokeWidth={4} />, {
       wrapper: Wrapper,
     });
 
@@ -149,7 +146,7 @@ describe('<PolylineStrokeWidthSelect/>', () => {
 
   it('should show the stroke width of the first selected element if several elements are active', async () => {
     slide.setActiveElementIds(['element-7', 'element-0']);
-    render(<PolylineStrokeWidthSelect strokeWidth={7} />, { wrapper: Wrapper });
+    render(<PathStrokeWidthSelect strokeWidth={7} />, { wrapper: Wrapper });
 
     const select = screen.getByRole('combobox', {
       name: 'Select stroke width',
@@ -160,7 +157,7 @@ describe('<PolylineStrokeWidthSelect/>', () => {
 
   it('should always contain the default stroke width as an option', async () => {
     slide.setActiveElementId('element-7');
-    render(<PolylineStrokeWidthSelect strokeWidth={7} />, { wrapper: Wrapper });
+    render(<PathStrokeWidthSelect strokeWidth={7} />, { wrapper: Wrapper });
 
     await userEvent.click(
       screen.getByRole('combobox', { name: 'Select stroke width' }),
@@ -170,7 +167,7 @@ describe('<PolylineStrokeWidthSelect/>', () => {
   });
 
   it('should apply a new stroke width for the selected polyline', async () => {
-    render(<PolylineStrokeWidthSelect strokeWidth={8} />, { wrapper: Wrapper });
+    render(<PathStrokeWidthSelect strokeWidth={8} />, { wrapper: Wrapper });
 
     const select = screen.getByRole('combobox', {
       name: 'Select stroke width',
@@ -222,7 +219,7 @@ describe('<PolylineStrokeWidthSelect/>', () => {
     await userEvent.click(screen.getByRole('option', { name: '16' }));
 
     // draw a new stroke
-    act(() => setActiveTool('polyline'));
+    act(() => setActiveTool('pen'));
 
     const draftHandler = screen.getByTestId('draft-pointer-handler');
 

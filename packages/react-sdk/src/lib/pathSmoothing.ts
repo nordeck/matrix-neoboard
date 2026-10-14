@@ -33,7 +33,6 @@ export function simplifyPointsToD(
   }
 
   return simplifySvgPath(points, {
-    closed: false,
     tolerance,
     precision,
   });

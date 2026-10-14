@@ -15,8 +15,9 @@
  */
 
 import clamp from 'lodash/clamp';
-import { scalePathD } from '../../../../lib/svgPathDUtils';
+import { scalePathD } from '../../../../lib';
 import {
+  calculateBoundingRectForElements,
   calculateBoundingRectForPoints,
   Element,
   Elements,
@@ -456,12 +457,35 @@ export function computeElementResize(
   );
 
   if (element.type === 'path') {
-    const scaleX = endDimensions.width / startDimensions.width;
-    const scaleY = endDimensions.height / startDimensions.height;
-    const position = pointResizerUnrotated({
-      x: element.position.x,
-      y: element.position.y,
+    // The visible boundary includes half of the stroke width around the geometry from points.
+    // Without 'position' adjustment the thick resized path will slightly shift in the direction you are resizing.
+    const fromPoints = calculateBoundingRectForPoints(element.points);
+    const visible = calculateBoundingRectForElements([element]);
+
+    const padding = (visible.width - fromPoints.width) / 2;
+
+    const newMin = pointResizerUnrotated({
+      x: visible.offsetX,
+      y: visible.offsetY,
     });
+    const newMax = pointResizerUnrotated({
+      x: visible.offsetX + visible.width,
+      y: visible.offsetY + visible.height,
+    });
+
+    const scaleX =
+      fromPoints.width > 0
+        ? Math.max(newMax.x - newMin.x - 2 * padding, 0) / fromPoints.width
+        : 1;
+    const scaleY =
+      fromPoints.height > 0
+        ? Math.max(newMax.y - newMin.y - 2 * padding, 0) / fromPoints.height
+        : 1;
+
+    const position = {
+      x: newMin.x + padding - fromPoints.offsetX * scaleX,
+      y: newMin.y + padding - fromPoints.offsetY * scaleY,
+    };
 
     return {
       elementOverride: {

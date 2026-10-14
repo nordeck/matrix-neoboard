@@ -17,20 +17,20 @@
 import { useMemo } from 'react';
 import {
   defaultStrokeWidth,
+  isCurve,
   isPolyline,
   useActiveElements,
   useElements,
 } from '../../../state';
-import { isCurve } from '../../../state/crdt/documents/elements';
 
-type UseActivePolylineCurveStrokeWidthResult = {
+type UseActivePathStrokeWidthResult = {
   /**
    * The stroke width of the first selected polyline, undefined if no polylines in the selection.
    */
   strokeWidth: number | undefined;
 };
 
-export function useActivePolylineCurveStrokeWidth(): UseActivePolylineCurveStrokeWidthResult {
+export function useActivePathStrokeWidth(): UseActivePathStrokeWidthResult {
   const { activeElementIds } = useActiveElements();
   const activeElements = useElements(activeElementIds);
 

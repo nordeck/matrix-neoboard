@@ -36,7 +36,7 @@ export type ActiveTool =
   | 'text'
   | 'rectangle'
   | 'rounded-rectangle'
-  | 'polyline'
+  | 'pen'
   | 'line'
   | 'arrow'
   | 'ellipse'
