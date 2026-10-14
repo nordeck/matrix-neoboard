@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { useTheme } from '@mui/material';
 import { Trans, useTranslation } from 'react-i18next';
 import { useLayoutState } from '../Layout';
@@ -28,6 +29,7 @@ export function GuidedTour({ disabled }: GuidedTourProps) {
   const { t } = useTranslation('neoboard');
   const theme = useTheme();
   const { setSlideOverviewVisible, isSlideOverviewVisible } = useLayoutState();
+  const embedded = getEnvironment('REACT_APP_EMBEDDED') === 'true';
 
   let guidedTourSteps = [
     {
@@ -213,6 +215,12 @@ export function GuidedTour({ disabled }: GuidedTourProps) {
     // remove the frame overview step in non-infinite canvas mode
     guidedTourSteps = guidedTourSteps.filter(
       (step) => step.target !== '[data-guided-tour-target="frame-overview"]',
+    );
+  }
+
+  if (!embedded) {
+    guidedTourSteps = guidedTourSteps.filter(
+      (step) => step.target !== '[data-guided-tour-target="header"]',
     );
   }
 
