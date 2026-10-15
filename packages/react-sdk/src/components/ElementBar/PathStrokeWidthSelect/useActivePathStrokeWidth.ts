@@ -17,29 +17,30 @@
 import { useMemo } from 'react';
 import {
   defaultStrokeWidth,
+  isCurve,
   isPolyline,
   useActiveElements,
   useElements,
 } from '../../../state';
 
-type UseActivePolylineStrokeWidthResult = {
+type UseActivePathStrokeWidthResult = {
   /**
    * The stroke width of the first selected polyline, undefined if no polylines in the selection.
    */
   strokeWidth: number | undefined;
 };
 
-export function useActivePolylineStrokeWidth(): UseActivePolylineStrokeWidthResult {
+export function useActivePathStrokeWidth(): UseActivePathStrokeWidthResult {
   const { activeElementIds } = useActiveElements();
   const activeElements = useElements(activeElementIds);
 
-  const firstSelectedPolyline = useMemo(() => {
+  const firstSelected = useMemo(() => {
     const elements = Object.values(activeElements);
-    return elements.find(isPolyline);
+    return elements.find((e) => isPolyline(e) || isCurve(e));
   }, [activeElements]);
 
-  const strokeWidth = firstSelectedPolyline
-    ? (firstSelectedPolyline.strokeWidth ?? defaultStrokeWidth)
+  const strokeWidth = firstSelected
+    ? (firstSelected.strokeWidth ?? defaultStrokeWidth)
     : undefined;
 
   return { strokeWidth };

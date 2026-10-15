@@ -22,6 +22,7 @@ export type ElementOverride = {
   width?: number;
   position?: Point;
   points?: Point[];
+  svgPathD?: string;
   rotation?: number;
 };
 

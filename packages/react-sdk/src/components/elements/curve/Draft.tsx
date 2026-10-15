@@ -14,5 +14,13 @@
  * limitations under the License.
  */
 
-export { PolylineStrokeWidthSelect } from './PolylineStrokeWidthSelect';
-export { useActivePolylineStrokeWidth } from './useActivePolylineStrokeWidth';
+import { DraftLineChild } from '../../Whiteboard';
+import PolylineDisplay from '../polyline/Display';
+
+// Renders the in-progress shape as a polyline (fast);
+// "curve" is only computed once on pointer up
+const CurveDraft = () => {
+  return <DraftLineChild display={PolylineDisplay} kind="curve" />;
+};
+
+export default CurveDraft;

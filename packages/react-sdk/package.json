@@ -15,6 +15,7 @@
   "type": "module",
   "dependencies": {
     "@fontsource/noto-emoji": "^5.2.11",
+    "@luncheon/simplify-svg-path": "0.2.0",
     "@matrix-widget-toolkit/api": "5.1.0",
     "@matrix-widget-toolkit/mui": "2.2.2",
     "@matrix-widget-toolkit/react": "2.1.2",
@@ -42,6 +43,8 @@
     "react-transition-group": "^4.4.5",
     "react-use": "^17.6.0",
     "rxjs": "^7.8.2",
+    "svg-path-bbox": "^2.1.0",
+    "svgpath": "^2.6.0",
     "tinycolor2": "^1.6.0",
     "yjs": "^13.6.31"
   },

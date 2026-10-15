@@ -101,7 +101,7 @@ const WhiteboardHost = ({
 
   const showTextTools = textToolsEnabled || hasElementWithText;
 
-  const isInPenMode = activeTool === 'polyline';
+  const isInPenMode = activeTool === 'pen';
 
   const ChildrenWrapper = infiniteCanvasMode ? PinchZoomHandler : Fragment;
 

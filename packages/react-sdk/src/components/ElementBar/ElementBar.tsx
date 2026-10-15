@@ -25,9 +25,9 @@ import { FontFamilyButton } from './FontFamilyButton';
 import { FontSizeButton } from './FontSizeButton';
 import { LineMarkerButtons } from './LineMarkerButtons';
 import {
-  PolylineStrokeWidthSelect,
-  useActivePolylineStrokeWidth,
-} from './PolylineStrokeWidthSelect';
+  PathStrokeWidthSelect,
+  useActivePathStrokeWidth,
+} from './PathStrokeWidthSelect';
 import { TextAlignmentButtons } from './TextAlignmentButtons';
 import { TextBoldButton } from './TextBoldButton';
 import { TextItalicButton } from './TextItalicButton';
@@ -38,7 +38,7 @@ function ElementBar({
 }: PropsWithChildren<{ showTextTools?: boolean }>) {
   const { t } = useTranslation('neoboard');
   const toolbarTitle = t('elementBar.title', 'Element');
-  const { strokeWidth } = useActivePolylineStrokeWidth();
+  const { strokeWidth } = useActivePathStrokeWidth();
 
   return (
     <Toolbar aria-label={toolbarTitle}>
@@ -56,7 +56,7 @@ function ElementBar({
       )}
       <ElementColorPicker />
       {strokeWidth !== undefined && (
-        <PolylineStrokeWidthSelect strokeWidth={strokeWidth} />
+        <PathStrokeWidthSelect strokeWidth={strokeWidth} />
       )}
       <DuplicateActiveElementButton />
       <DeleteActiveElementButton />

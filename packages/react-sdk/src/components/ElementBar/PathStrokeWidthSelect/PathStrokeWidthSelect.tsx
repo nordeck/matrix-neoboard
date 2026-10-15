@@ -18,23 +18,23 @@ import { MenuItem, Select } from '@mui/material';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLayoutState } from '../../Layout';
-import { useApplyActivePolylineStrokeWidth } from './useApplyActivePolylineStrokeWidth';
+import { useApplyActivePathStrokeWidth } from './useApplyActivePathStrokeWidth';
 
 const STROKE_WIDTHS = [4, 6, 8, 10, 12, 14, 16];
 
-type PolylineStrokeWidthSelectProps = {
+type PathStrokeWidthSelectProps = {
   /**
    * The selected stroke width value.
    */
   strokeWidth: number;
 };
 
-export function PolylineStrokeWidthSelect({
+export function PathStrokeWidthSelect({
   strokeWidth,
-}: PolylineStrokeWidthSelectProps) {
+}: PathStrokeWidthSelectProps) {
   const { t } = useTranslation('neoboard');
-  const { applyStrokeWidth } = useApplyActivePolylineStrokeWidth();
-  const { setActivePolylineStrokeWidth } = useLayoutState();
+  const { applyStrokeWidth } = useApplyActivePathStrokeWidth();
+  const { setActivePathStrokeWidth } = useLayoutState();
 
   const strokeWidths = useMemo(() => {
     if (STROKE_WIDTHS.includes(strokeWidth)) {
@@ -64,7 +64,7 @@ export function PolylineStrokeWidthSelect({
       onChange={(event) => {
         const value = event.target.value as number;
         applyStrokeWidth(value);
-        setActivePolylineStrokeWidth(value);
+        setActivePathStrokeWidth(value);
       }}
       sx={{
         // Set a min-width to prevent change of the select width depending on the value

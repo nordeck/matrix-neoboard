@@ -1005,6 +1005,11 @@
   dependencies:
     "@bufbuild/protobuf" "^1.10.0"
 
+"@luncheon/simplify-svg-path@0.2.0":
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/@luncheon/simplify-svg-path/-/simplify-svg-path-0.2.0.tgz#d70b6479280b477b87f6f6d4450646914160ace6"
+  integrity sha512-zBh9HwFBJUGMbUDf88HleyqcmO81d9Hiv9wxcwBeBLGGfzfEGIuaOSjyAH6f3fvh/pFxF1pEnolY2PzSJxsSAg==
+
 "@manypkg/find-root@^1.1.0":
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/@manypkg/find-root/-/find-root-1.1.0.tgz#a62d8ed1cd7e7d4c11d9d52a8397460b5d4ad29f"
@@ -6036,6 +6041,18 @@ supports-preserve-symlinks-flag@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/supports-preserve-symlinks-flag/-/supports-preserve-symlinks-flag-1.0.0.tgz#6eda4bd344a3c94aea376d4cc31bc77311039e09"
   integrity sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==
+
+svg-path-bbox@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/svg-path-bbox/-/svg-path-bbox-2.1.0.tgz#503ab769c635eb2f654146157d1467d5b1c8d59b"
+  integrity sha512-PEoSQFbBvL7FOCE4cN8Knej6L7bXdNkjPcUYsfMMpq0HpnqiO0sE2mcXTd7LX160aOyh5HbaeN/SoY8thMk5Kg==
+  dependencies:
+    svgpath "^2.6.0"
+
+svgpath@^2.6.0:
+  version "2.6.0"
+  resolved "https://registry.yarnpkg.com/svgpath/-/svgpath-2.6.0.tgz#5b160ef3d742b7dfd2d721bf90588d3450d7a90d"
+  integrity sha512-OIWR6bKzXvdXYyO4DK/UWa1VA1JeKq8E+0ug2DG98Y/vOmMpfZNj+TIG988HjfYSqtcy/hFOtZq/n/j5GSESNg==
 
 symbol-tree@^3.2.4:
   version "3.2.4"

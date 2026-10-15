@@ -53,8 +53,7 @@ export const DraftLineChild = ({
   const [cursorPoints, setCursorPoints] = useState<Point[]>();
   const [connectedElementStart, setConnectedElementStart] = useState<string>();
   const [connectedElementEnd, setConnectedElementEnd] = useState<string>();
-  const { activeColor: strokeColor, activePolylineStrokeWidth } =
-    useLayoutState();
+  const { activeColor: strokeColor, activePathStrokeWidth } = useLayoutState();
   const slideInstance = useWhiteboardSlideInstance();
   const { setActiveTool } = useLayoutState();
   const { calculateSvgCoords } = useSvgCanvasContext();
@@ -68,7 +67,7 @@ export const DraftLineChild = ({
             kind,
             cursorPoints,
             strokeColor,
-            strokeWidth: activePolylineStrokeWidth,
+            strokeWidth: activePathStrokeWidth,
             frameElements: slideInstance.getFrameElements(),
             gridCellSize: isShowGrid ? gridCellSize : undefined,
             onlyStartAndEndPoints,
@@ -78,7 +77,7 @@ export const DraftLineChild = ({
             connectedElementEnd,
           }),
         );
-        if (kind !== 'polyline') {
+        if (kind !== 'polyline' && kind !== 'curve') {
           setActiveTool('select');
         }
       }
@@ -93,7 +92,7 @@ export const DraftLineChild = ({
     slideInstance,
     kind,
     strokeColor,
-    activePolylineStrokeWidth,
+    activePathStrokeWidth,
     isShowGrid,
     onlyStartAndEndPoints,
     startMarker,
@@ -146,35 +145,36 @@ export const DraftLineChild = ({
     [calculateSvgCoords],
   );
 
-  const shape = useMemo(
-    () =>
-      cursorPoints?.length
-        ? createShapeFromPoints({
-            kind,
-            cursorPoints,
-            strokeColor,
-            strokeWidth: activePolylineStrokeWidth,
-            gridCellSize: isShowGrid ? gridCellSize : undefined,
-            onlyStartAndEndPoints,
-            startMarker,
-            endMarker,
-            connectedElementStart,
-            connectedElementEnd,
-          })
-        : undefined,
-    [
-      cursorPoints,
-      kind,
-      strokeColor,
-      activePolylineStrokeWidth,
-      isShowGrid,
-      onlyStartAndEndPoints,
-      startMarker,
-      endMarker,
-      connectedElementStart,
-      connectedElementEnd,
-    ],
-  );
+  const shape = useMemo(() => {
+    // show polyline temporarily for it's speed instead of recalculating the curve
+    const draftKind = kind === 'curve' ? 'polyline' : kind;
+
+    return cursorPoints?.length
+      ? createShapeFromPoints({
+          kind: draftKind,
+          cursorPoints,
+          strokeColor,
+          strokeWidth: activePathStrokeWidth,
+          gridCellSize: isShowGrid ? gridCellSize : undefined,
+          onlyStartAndEndPoints,
+          startMarker,
+          endMarker,
+          connectedElementStart,
+          connectedElementEnd,
+        })
+      : undefined;
+  }, [
+    cursorPoints,
+    kind,
+    strokeColor,
+    activePathStrokeWidth,
+    isShowGrid,
+    onlyStartAndEndPoints,
+    startMarker,
+    endMarker,
+    connectedElementStart,
+    connectedElementEnd,
+  ]);
 
   return (
     <DraftPointerHandler
