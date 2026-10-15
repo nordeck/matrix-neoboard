@@ -53,8 +53,7 @@ export const DraftLineChild = ({
   const [cursorPoints, setCursorPoints] = useState<Point[]>();
   const [connectedElementStart, setConnectedElementStart] = useState<string>();
   const [connectedElementEnd, setConnectedElementEnd] = useState<string>();
-  const { activeColor: strokeColor, activePolylineStrokeWidth } =
-    useLayoutState();
+  const { activeColor: strokeColor, activePathStrokeWidth } = useLayoutState();
   const slideInstance = useWhiteboardSlideInstance();
   const { setActiveTool } = useLayoutState();
   const { calculateSvgCoords } = useSvgCanvasContext();
@@ -68,7 +67,7 @@ export const DraftLineChild = ({
             kind,
             cursorPoints,
             strokeColor,
-            strokeWidth: activePolylineStrokeWidth,
+            strokeWidth: activePathStrokeWidth,
             frameElements: slideInstance.getFrameElements(),
             gridCellSize: isShowGrid ? gridCellSize : undefined,
             onlyStartAndEndPoints,
@@ -93,7 +92,7 @@ export const DraftLineChild = ({
     slideInstance,
     kind,
     strokeColor,
-    activePolylineStrokeWidth,
+    activePathStrokeWidth,
     isShowGrid,
     onlyStartAndEndPoints,
     startMarker,
@@ -155,7 +154,7 @@ export const DraftLineChild = ({
           kind: draftKind,
           cursorPoints,
           strokeColor,
-          strokeWidth: activePolylineStrokeWidth,
+          strokeWidth: activePathStrokeWidth,
           gridCellSize: isShowGrid ? gridCellSize : undefined,
           onlyStartAndEndPoints,
           startMarker,
@@ -168,7 +167,7 @@ export const DraftLineChild = ({
     cursorPoints,
     kind,
     strokeColor,
-    activePolylineStrokeWidth,
+    activePathStrokeWidth,
     isShowGrid,
     onlyStartAndEndPoints,
     startMarker,

@@ -34,7 +34,7 @@ export function PathStrokeWidthSelect({
 }: PathStrokeWidthSelectProps) {
   const { t } = useTranslation('neoboard');
   const { applyStrokeWidth } = useApplyActivePathStrokeWidth();
-  const { setActivePolylineStrokeWidth } = useLayoutState();
+  const { setActivePathStrokeWidth } = useLayoutState();
 
   const strokeWidths = useMemo(() => {
     if (STROKE_WIDTHS.includes(strokeWidth)) {
@@ -64,7 +64,7 @@ export function PathStrokeWidthSelect({
       onChange={(event) => {
         const value = event.target.value as number;
         applyStrokeWidth(value);
-        setActivePolylineStrokeWidth(value);
+        setActivePathStrokeWidth(value);
       }}
       sx={{
         // Set a min-width to prevent change of the select width depending on the value
