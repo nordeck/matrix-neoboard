@@ -55,7 +55,7 @@ export function calculateBoundsForPathD(d: string): {
   // svgPathBbox itself never throws and never reports any errors, rely on svgpath
   // lib returns Infinity for empty path, change to 0s
   const [minX, minY, maxX, maxY] =
-    d !== '' ? svgPathBbox(parseValidate(d)) : [0, 0, 0, 0];
+    d.trim() !== '' ? svgPathBbox(parseValidate(d).toString()) : [0, 0, 0, 0];
 
   return {
     minX,
