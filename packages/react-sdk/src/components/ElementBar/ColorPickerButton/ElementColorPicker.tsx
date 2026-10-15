@@ -17,21 +17,50 @@
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { findColor, useColorPalette } from '../../../lib';
-import { useActiveElements, useElements } from '../../../state';
+import {
+  useActiveElements,
+  useElements,
+  useWhiteboardSlideInstance,
+} from '../../../state';
 import { useLayoutState } from '../../Layout';
 import { ColorPicker } from './ColorPicker';
 import { ColorPickerIcon } from './ColorPickerIcon';
 import { calculateColorChangeUpdates } from './calculateColorChangeUpdates';
 import { extractFirstColor } from './extractFirstColor';
 
+export type ElementColorPickerProps = {
+  /** Accessible label of the picker button. Defaults to "Pick a color". */
+  label?: string;
+  /**
+   * If true (default), the displayed color is taken from the selected
+   * elements. If false, the color is taken from the Layout State.
+   */
+  readFromSelection?: boolean;
+  /** Where the popover opens relative to the button. Defaults to 'below'. */
+  placement?: 'above' | 'below';
+  /**
+   * Called when the user picks a color. Will replace the default handler: the color is stored as the
+   * active color and applied to the selected elements.
+   */
+  onChange?: (color: string, shade?: number) => void;
+};
+
 /**
- * Color picker will only be displayed if at least an element with a color is selected, such as shapes and paths.
+ * Color picker that by default get it's color from selected elements and applies the new color to the elements and the layout state
  */
-export function ElementColorPicker() {
+export function ElementColorPicker({
+  label,
+  readFromSelection = true,
+  placement,
+  onChange,
+}: ElementColorPickerProps = {}) {
   const { t } = useTranslation('neoboard');
+  const slideInstance = useWhiteboardSlideInstance();
   const { activeElementIds } = useActiveElements();
   const activeElementsObject = useElements(activeElementIds);
-  const activeElements = Object.values(activeElementsObject);
+  const activeElements = readFromSelection
+    ? Object.values(activeElementsObject)
+    : [];
   const {
     activeColor,
     activeShade,
@@ -45,9 +74,6 @@ export function ElementColorPicker() {
 
   const hasShape = activeElements.some((e) => e.type === 'shape');
   const hasOther = activeElements.some((e) => e.type !== 'shape');
-  const hasOnlyNonColoredElements = activeElements.every(
-    (e) => e.type !== 'shape' && e.type !== 'path',
-  );
 
   const defaultColor = hasShape ? activeShapeColor : activeColor;
   const defaultShade = hasShape ? activeShapeShade : activeShade;
@@ -90,19 +116,27 @@ export function ElementColorPicker() {
     ],
   );
 
-  if (hasOnlyNonColoredElements) {
-    return null;
-  }
+  const handleChange = useCallback(
+    (color: string, shade?: number) => {
+      setActiveColorAndShade(color, shade);
+      const updates = calculateColorChangeUpdates(activeElementsObject, color);
+
+      if (updates.length) {
+        slideInstance.updateElements(updates);
+      }
+    },
+    [activeElementsObject, setActiveColorAndShade, slideInstance],
+  );
 
   return (
     <ColorPicker
       color={color}
       shade={shade}
-      setColor={setActiveColorAndShade}
-      calculateUpdatesFn={calculateColorChangeUpdates}
+      onChange={onChange ?? handleChange}
       Icon={ColorPickerIcon}
-      label={t('colorPicker.title', 'Pick a color')}
+      label={label ?? t('colorPicker.title', 'Pick a color')}
       showTransparent={true}
+      placement={placement}
     />
   );
 }

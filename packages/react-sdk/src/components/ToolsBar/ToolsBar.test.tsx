@@ -49,6 +49,16 @@ vi.mock('@matrix-widget-toolkit/mui', async () => ({
 let widgetApi: MockedWidgetApi;
 
 beforeEach(() => {
+  // jsdom doesn't implement ResizeObserver
+  vi.stubGlobal(
+    'ResizeObserver',
+    class {
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    },
+  );
+
   vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
     name === 'REACT_APP_INFINITE_CANVAS' ? 'false' : defaultValue,
   );
@@ -57,6 +67,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  vi.unstubAllGlobals();
   widgetApi.stop();
   vi.restoreAllMocks();
 });
@@ -262,4 +273,31 @@ describe('<ToolsBar/>', () => {
       ).toBeDisabled();
     },
   );
+
+  it('should only show the pen secondary menu while the pen tool is selected', async () => {
+    render(<ToolsBar />, { wrapper: Wrapper });
+
+    const toolbar = screen.getByRole('toolbar', { name: 'Tools' });
+    const radiogroup = within(toolbar).getByRole('radiogroup', {
+      name: 'Tools',
+    });
+
+    expect(screen.queryByRole('toolbar', { name: 'Pen' })).toBeNull();
+
+    const penTool = within(radiogroup).getByRole('radio', {
+      name: 'Pen',
+      checked: false,
+    });
+    await userEvent.click(penTool);
+
+    expect(screen.getByRole('toolbar', { name: 'Pen' })).toBeInTheDocument();
+
+    const selectTool = within(radiogroup).getByRole('radio', {
+      name: 'Select',
+      checked: false,
+    });
+    await userEvent.click(selectTool);
+
+    expect(screen.queryByRole('toolbar', { name: 'Pen' })).toBeNull();
+  });
 });

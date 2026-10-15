@@ -96,16 +96,19 @@ export function Toolbar({
 
       // Keyboard interactions are based on
       // https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/toolbar_role#keyboard_interactions
+      // Stops propagating so that arrow interactions are contained within the toolbar.
       switch (event.key) {
         case 'ArrowLeft':
           if (orientation === 'horizontal') {
             event.preventDefault();
+            event.stopPropagation();
             moveFocus(list, currentFocus, previousItem);
           }
           break;
         case 'ArrowRight':
           if (orientation === 'horizontal') {
             event.preventDefault();
+            event.stopPropagation();
             moveFocus(list, currentFocus, nextItem);
           }
           break;
@@ -114,6 +117,7 @@ export function Toolbar({
           // https://developer.mozilla.org/en-US/docs/web/accessibility/aria/roles/radiogroup_role#keyboard_interactions
           if (isRadioInput(currentFocus)) {
             event.preventDefault();
+            event.stopPropagation();
             moveFocus(
               findParentRadioGroup(currentFocus, list),
               currentFocus,
@@ -127,6 +131,7 @@ export function Toolbar({
         case 'ArrowDown':
           if (isRadioInput(currentFocus)) {
             event.preventDefault();
+            event.stopPropagation();
             moveFocus(
               findParentRadioGroup(currentFocus, list),
               currentFocus,
@@ -134,15 +139,18 @@ export function Toolbar({
             );
           } else if (orientation === 'vertical') {
             event.preventDefault();
+            event.stopPropagation();
             moveFocus(list, currentFocus, nextItem);
           }
           break;
         case 'Home':
           event.preventDefault();
+          event.stopPropagation();
           moveFocus(list, null, nextItem);
           break;
         case 'End':
           event.preventDefault();
+          event.stopPropagation();
           moveFocus(list, null, previousItem);
           break;
       }

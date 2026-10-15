@@ -20,7 +20,8 @@ import ForwardIcon from '@mui/icons-material/Forward';
 import NorthEastIcon from '@mui/icons-material/NorthEast';
 import SquareIcon from '@mui/icons-material/Square';
 import TitleRoundedIcon from '@mui/icons-material/TitleRounded';
-import { ChangeEvent, ReactElement, useCallback } from 'react';
+import { visuallyHidden } from '@mui/utils';
+import { ChangeEvent, ReactElement, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { isInfiniteCanvasMode } from '../../lib';
 import { useSlideIsLocked, useWhiteboardSlideInstance } from '../../state';
@@ -34,13 +35,19 @@ import { TriangleIcon } from '../icons/TriangleIcon';
 import { UploadIcon } from '../icons/UploadIcon';
 import { useSlideImageUpload } from '../ImageUpload';
 import { ActiveTool, useLayoutState } from '../Layout';
+import { PenToolsBar } from '../PenToolsBar';
 import { FrameButton } from './FrameButton';
+import { ToolsBarSecondaryMenu } from './ToolsBarSecondaryMenu';
 
 export function ToolsBar() {
   const { t } = useTranslation('neoboard');
   const isLocked = useSlideIsLocked();
   const slide = useWhiteboardSlideInstance();
   const { activeTool, setActiveTool } = useLayoutState();
+  // Secondary menus are rendered here, directly after the toolbar, so that the
+  // Tab order leads from the toolbar into the menu.
+  const [secondaryMenuContainer, setSecondaryMenuContainer] =
+    useState<HTMLDivElement | null>(null);
 
   const handleRadioClick = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
@@ -125,18 +132,36 @@ export function ToolsBar() {
         data-guided-tour-target="toolsbar"
       >
         <ToolbarRadioGroup flexWrap="wrap" aria-label={toolsBarTitle}>
-          {tools.map(({ label, icon, value }) => (
-            <ToolbarRadio
-              inputProps={{ 'aria-label': label }}
-              disabled={isLocked}
-              icon={icon}
-              checkedIcon={icon}
-              key={value}
-              value={value}
-              checked={activeTool === value && !isLocked}
-              onChange={handleRadioClick}
-            />
-          ))}
+          {tools.map(({ label, icon, value }) => {
+            const button = (
+              <ToolbarRadio
+                inputProps={{ 'aria-label': label }}
+                disabled={isLocked}
+                icon={icon}
+                checkedIcon={icon}
+                key={value}
+                value={value}
+                checked={activeTool === value && !isLocked}
+                onChange={handleRadioClick}
+              />
+            );
+
+            // Pen tool may display a secondary menu when active
+            if (value === 'pen') {
+              return (
+                <ToolsBarSecondaryMenu
+                  key={value}
+                  secondaryMenu={
+                    activeTool === 'pen' ? <PenToolsBar /> : undefined
+                  }
+                  item={button}
+                  container={secondaryMenuContainer}
+                />
+              );
+            }
+
+            return button;
+          })}
           {isInfiniteCanvasMode() && <FrameButton />}
           <ToolbarButton
             aria-label={t('toolsBar.imageUploadTool', 'Upload image')}
@@ -150,6 +175,17 @@ export function ToolsBar() {
           </ToolbarButton>
         </ToolbarRadioGroup>
       </Toolbar>
+      {/* Container is directly after Toolbar in DOM so that you can enter the secondary toolbar by using tab and back using shift-tab */}
+      <div ref={setSecondaryMenuContainer} />
+      {/* Announces the appearance of the pen toolbar to screen readers */}
+      <div role="status" style={visuallyHidden}>
+        {activeTool === 'pen' && !isLocked
+          ? t(
+              'toolsBar.penToolsBarAnnouncement',
+              'Pen toolbar available. Press Tab to move into it.',
+            )
+          : ''}
+      </div>
     </>
   );
 }
