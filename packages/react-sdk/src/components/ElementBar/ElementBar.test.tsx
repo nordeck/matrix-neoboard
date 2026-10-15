@@ -23,8 +23,11 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, Mocked } from 'vitest';
 import {
   mockEllipseElement,
+  mockFrameElement,
+  mockImageElement,
   mockLineElement,
   mockPolylineElement,
+  mockTextElement,
   mockWhiteboardManager,
   WhiteboardTestingContextProvider,
 } from '../../lib/testUtils/documentTestUtils';
@@ -238,6 +241,45 @@ describe('<ElementBar/>', () => {
       within(toolbar).queryByRole('combobox', {
         name: 'Select stroke width',
       }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('should show the color picker when a shape is selected', () => {
+    activeSlide.setActiveElementIds(['element-1']);
+    render(<ElementBar />, { wrapper: Wrapper });
+
+    expect(
+      screen.getByRole('button', { name: 'Pick a color' }),
+    ).toBeInTheDocument();
+  });
+
+  it('should show the color picker when only text elements are selected', () => {
+    const elementId = activeSlide.addElement(mockTextElement());
+    activeSlide.setActiveElementIds([elementId]);
+    render(<ElementBar />, { wrapper: Wrapper });
+
+    expect(
+      screen.getByRole('button', { name: 'Pick a color' }),
+    ).toBeInTheDocument();
+  });
+
+  it('should hide the color picker when only image elements are selected', () => {
+    const elementId = activeSlide.addElement(mockImageElement());
+    activeSlide.setActiveElementIds([elementId]);
+    render(<ElementBar />, { wrapper: Wrapper });
+
+    expect(
+      screen.queryByRole('button', { name: 'Pick a color' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('should hide the color picker when only frame elements are selected', () => {
+    const elementId = activeSlide.addElement(mockFrameElement());
+    activeSlide.setActiveElementIds([elementId]);
+    render(<ElementBar />, { wrapper: Wrapper });
+
+    expect(
+      screen.queryByRole('button', { name: 'Pick a color' }),
     ).not.toBeInTheDocument();
   });
 

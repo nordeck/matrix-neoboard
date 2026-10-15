@@ -27,10 +27,22 @@ type PathStrokeWidthSelectProps = {
    * The selected stroke width value.
    */
   strokeWidth: number;
+  /**
+   * Accessible label of the select. Defaults to "Select stroke width".
+   */
+  label?: string;
+  /**
+   * If true (default), the selected stroke width is also applied to the
+   * selected polylines. If false, only the active stroke width state is
+   * updated.
+   */
+  applyToSelection?: boolean;
 };
 
 export function PathStrokeWidthSelect({
   strokeWidth,
+  label,
+  applyToSelection = true,
 }: PathStrokeWidthSelectProps) {
   const { t } = useTranslation('neoboard');
   const { applyStrokeWidth } = useApplyActivePathStrokeWidth();
@@ -43,7 +55,8 @@ export function PathStrokeWidthSelect({
     return [...STROKE_WIDTHS, strokeWidth].sort((a, b) => a - b);
   }, [strokeWidth]);
 
-  const label = t('elementBar.polylineStrokeWidth', 'Select stroke width');
+  const selectLabel =
+    label ?? t('elementBar.polylineStrokeWidth', 'Select stroke width');
 
   return (
     <Select
@@ -52,7 +65,7 @@ export function PathStrokeWidthSelect({
       disableUnderline={true}
       value={strokeWidth}
       inputProps={{
-        'aria-label': label,
+        'aria-label': selectLabel,
       }}
       SelectDisplayProps={{
         style: {
@@ -63,7 +76,9 @@ export function PathStrokeWidthSelect({
       }}
       onChange={(event) => {
         const value = event.target.value as number;
-        applyStrokeWidth(value);
+        if (applyToSelection) {
+          applyStrokeWidth(value);
+        }
         setActivePathStrokeWidth(value);
       }}
       sx={{

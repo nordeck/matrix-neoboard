@@ -33,7 +33,11 @@ import {
   mockWhiteboardManager,
   WhiteboardTestingContextProvider,
 } from '../../../lib/testUtils/documentTestUtils';
-import { WhiteboardManager, WhiteboardSlideInstance } from '../../../state';
+import {
+  defaultStrokeWidth,
+  WhiteboardManager,
+  WhiteboardSlideInstance,
+} from '../../../state';
 import { Toolbar } from '../../common/Toolbar';
 import { ConnectionPointProvider } from '../../ConnectionPointProvider';
 import { ElementOverridesProvider } from '../../ElementOverridesProvider';
@@ -252,5 +256,95 @@ describe('<PathStrokeWidthSelect/>', () => {
         strokeWidth: 16,
       }),
     );
+  });
+});
+
+describe('<PathStrokeWidthSelect applyToSelection={false}/>', () => {
+  let Wrapper: ComponentType<PropsWithChildren<{}>>;
+  let widgetApi: MockedWidgetApi;
+  let whiteboardManager: Mocked<WhiteboardManager>;
+  let activeSlide: WhiteboardSlideInstance;
+  let activePathStrokeWidth: number;
+  let setActivePathStrokeWidth: (value: number) => void;
+
+  const label = 'Select the next stroke width';
+
+  function ActiveWidthSelect() {
+    ({ activePathStrokeWidth, setActivePathStrokeWidth } = useLayoutState());
+
+    return (
+      <PathStrokeWidthSelect
+        strokeWidth={activePathStrokeWidth}
+        label={label}
+        applyToSelection={false}
+      />
+    );
+  }
+
+  beforeEach(() => {
+    widgetApi = mockWidgetApi();
+
+    ({ whiteboardManager } = mockWhiteboardManager({
+      slides: [['slide-0', []]],
+    }));
+    activeSlide = whiteboardManager
+      .getActiveWhiteboardInstance()!
+      .getSlide('slide-0');
+
+    Wrapper = ({ children }) => (
+      <LayoutStateProvider>
+        <WhiteboardTestingContextProvider
+          whiteboardManager={whiteboardManager}
+          widgetApi={widgetApi}
+        >
+          <Toolbar>{children}</Toolbar>
+        </WhiteboardTestingContextProvider>
+      </LayoutStateProvider>
+    );
+  });
+
+  afterEach(() => widgetApi.stop());
+
+  it('should render with the custom label and the active stroke width', () => {
+    render(<ActiveWidthSelect />, { wrapper: Wrapper });
+
+    expect(screen.getByRole('combobox', { name: label })).toHaveTextContent(
+      String(defaultStrokeWidth),
+    );
+  });
+
+  it('should have no accessibility violations', async () => {
+    const { container } = render(<ActiveWidthSelect />, { wrapper: Wrapper });
+
+    expect(screen.getByRole('combobox', { name: label })).toBeInTheDocument();
+
+    expect(await axe.run(container)).toHaveNoViolations();
+  });
+
+  it('should offer a custom active stroke width as an option', async () => {
+    render(<ActiveWidthSelect />, { wrapper: Wrapper });
+
+    act(() => setActivePathStrokeWidth(7));
+
+    await userEvent.click(screen.getByRole('combobox', { name: label }));
+
+    expect(screen.getByRole('option', { name: '7' })).toBeInTheDocument();
+  });
+
+  it('should change the active stroke width without altering the selected polyline', async () => {
+    const polylineId = activeSlide.addElement(
+      mockPolylineElement({ strokeWidth: 8 }),
+    );
+    activeSlide.setActiveElementIds([polylineId]);
+
+    render(<ActiveWidthSelect />, { wrapper: Wrapper });
+
+    await userEvent.click(screen.getByRole('combobox', { name: label }));
+    await userEvent.click(screen.getByRole('option', { name: '16' }));
+
+    expect(activePathStrokeWidth).toEqual(16);
+    expect(activeSlide.getElement(polylineId)).toMatchObject({
+      strokeWidth: 8,
+    });
   });
 });

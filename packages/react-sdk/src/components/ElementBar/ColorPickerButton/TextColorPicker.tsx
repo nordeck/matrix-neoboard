@@ -22,6 +22,7 @@ import {
   includesTextShape,
   useActiveElements,
   useElements,
+  useWhiteboardSlideInstance,
 } from '../../../state';
 import { useLayoutState } from '../../Layout';
 import { ColorPicker } from './ColorPicker';
@@ -31,6 +32,7 @@ import { extractFirstTextColor } from './extractFirstTextColor';
 
 export function TextColorPicker() {
   const { t } = useTranslation('neoboard');
+  const slideInstance = useWhiteboardSlideInstance();
   const {
     activeTextShade,
     activeShapeTextShade,
@@ -86,8 +88,19 @@ export function TextColorPicker() {
           setActiveShapeTextShade(shade);
         }
       }
+
+      const updates = calculateTextColorChangeUpdates(
+        activeElementsObject,
+        color,
+      );
+
+      if (updates.length) {
+        slideInstance.updateElements(updates);
+      }
     },
     [
+      activeElementsObject,
+      slideInstance,
       hasText,
       hasTextShape,
       setActiveTextColor,
@@ -99,10 +112,9 @@ export function TextColorPicker() {
 
   return (
     <ColorPicker
-      calculateUpdatesFn={calculateTextColorChangeUpdates}
       color={color}
       shade={shade}
-      setColor={handleChange}
+      onChange={handleChange}
       Icon={TextColorPickerIcon}
       label={t('textColorPicker.title', 'Pick a text color')}
     />

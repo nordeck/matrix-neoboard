@@ -16,6 +16,7 @@
 
 import React, { PropsWithChildren } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useActiveElements, useElements } from '../../state';
 import { Toolbar } from '../common/Toolbar';
 import { ElementColorPicker } from './ColorPickerButton/ElementColorPicker';
 import { TextColorPicker } from './ColorPickerButton/TextColorPicker';
@@ -39,6 +40,12 @@ function ElementBar({
   const { t } = useTranslation('neoboard');
   const toolbarTitle = t('elementBar.title', 'Element');
   const { strokeWidth } = useActivePathStrokeWidth();
+  const { activeElementIds } = useActiveElements();
+  const activeElements = Object.values(useElements(activeElementIds));
+
+  const hasColoredElements = activeElements.some(
+    (e) => e.type === 'shape' || e.type === 'path',
+  );
 
   return (
     <Toolbar aria-label={toolbarTitle}>
@@ -54,7 +61,7 @@ function ElementBar({
           <TextColorPicker />
         </>
       )}
-      <ElementColorPicker />
+      {hasColoredElements && <ElementColorPicker />}
       {strokeWidth !== undefined && (
         <PathStrokeWidthSelect strokeWidth={strokeWidth} />
       )}
