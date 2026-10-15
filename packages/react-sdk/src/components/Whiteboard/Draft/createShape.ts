@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-import { simplifyPointsToD } from '../../../lib';
-import { calculateBoundsForPathD } from '../../../lib/svgPathDUtils';
+import { calculateBoundsForPathD, simplifyPointsToD } from '../../../lib';
 import {
   calculateBoundingRectForPoints,
   copyElementWithAttachedFrame,

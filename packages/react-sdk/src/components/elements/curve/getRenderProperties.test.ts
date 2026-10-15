@@ -18,7 +18,7 @@ import { describe, expect, it } from 'vitest';
 import { getRenderProperties } from './getRenderProperties';
 
 describe('getRenderProperties', () => {
-  it('should provide the properties for a curveelement', () => {
+  it('should provide the properties for a curve element', () => {
     expect(
       getRenderProperties({
         type: 'path',

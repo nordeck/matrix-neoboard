@@ -25,7 +25,7 @@ export { isMatrixRtcMode } from './isMatrixRtcMode';
 export { setLocale } from './locale';
 export * from './matrix';
 export { simplifyPointsToD } from './pathSmoothing';
-export { scalePathD } from './svgPathDUtils';
+export { calculateBoundsForPathD, scalePathD } from './svgPathDUtils';
 export { findColor, useColorPalette } from './useColorPalette';
 export type { Color } from './useColorPalette';
 export { FontsLoadedContextProvider, useFontsLoaded } from './useFontsLoaded';
