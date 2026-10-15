@@ -32,7 +32,7 @@ export type ColorPickerProps = {
   /**
    * Called when the user picks a color.
    */
-  onChange: (color: string, shade?: number) => void;
+  onChange?: (color: string, shade?: number) => void;
   /** The icon component to be used for the color picker in the element bar */
   Icon: ComponentType<{ color: string }>;
   label: string;
