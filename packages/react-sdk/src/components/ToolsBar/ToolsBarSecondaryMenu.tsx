@@ -25,8 +25,15 @@ export type ToolsBarSecondaryMenuProps = {
    */
   item: ReactNode;
 
+  /**
+   * Element the menu is rendered into. Place it right after the primary
+   * toolbar in the DOM, so that the Tab order continues from the primary
+   * toolbar into the menu and then on to the rest of the page.
+   */
+  container?: HTMLElement | null;
+
   /** If undefined, no menu holder (Popper) is rendered. */
-  secondaryMenu: ReactNode;
+  secondaryMenu?: ReactNode;
 };
 
 const popperModifiers: PopperProps['modifiers'] = [
@@ -46,6 +53,7 @@ type PopperInstance =
 export function ToolsBarSecondaryMenu({
   item,
   secondaryMenu,
+  container,
 }: ToolsBarSecondaryMenuProps) {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const popperInstanceRef = useRef<PopperInstance | null>(null);
@@ -73,20 +81,26 @@ export function ToolsBarSecondaryMenu({
       {/* Flex/grid containers "blockify" span children, so it sizes to fit the item without affecting layout. */}
       <span ref={setAnchorEl}>{item}</span>
 
-      <Popper
-        data-testid="tools-bar-secondary-menu-popper"
-        open={true}
-        anchorEl={anchorEl}
-        placement="top"
-        modifiers={popperModifiers}
-        popperRef={popperInstanceRef}
-        sx={{
-          zIndex: (theme) => theme.zIndex.appBar,
-          pointerEvents: 'initial',
-        }}
-      >
-        <div ref={setMenuContentEl}>{secondaryMenu}</div>
-      </Popper>
+      {secondaryMenu && (
+        <Popper
+          data-testid="tools-bar-secondary-menu-popper"
+          open={true}
+          //Popper defaults to role="tooltip", which would wrap the toolbar
+          // in an extra unwanted tooltip node in the accessibility tree
+          role="presentation"
+          container={container}
+          anchorEl={anchorEl}
+          placement="top"
+          modifiers={popperModifiers}
+          popperRef={popperInstanceRef}
+          sx={{
+            zIndex: (theme) => theme.zIndex.appBar,
+            pointerEvents: 'initial',
+          }}
+        >
+          <div ref={setMenuContentEl}>{secondaryMenu}</div>
+        </Popper>
+      )}
     </>
   );
 }

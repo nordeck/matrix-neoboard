@@ -93,7 +93,16 @@ export const moveFocus = (
       (nextFocus as HTMLInputElement).disabled ||
       nextFocus.getAttribute('aria-disabled') === 'true';
 
-    if (!nextFocus.hasAttribute('tabindex') || nextFocusDisabled) {
+    // Skip elements hidden from assistive technology.
+    // For example the MUI dropdown has a hidden input that gets announced as "section"
+    // by the assistive voice and we should not move focus into it.
+    const nextFocusHidden = nextFocus.closest('[aria-hidden="true"]') !== null;
+
+    if (
+      !nextFocus.hasAttribute('tabindex') ||
+      nextFocusDisabled ||
+      nextFocusHidden
+    ) {
       // Move to the next element.
       nextFocus = traversalFunction(list, nextFocus);
     } else {

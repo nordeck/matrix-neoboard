@@ -176,4 +176,23 @@ describe('ToolsBarSecondaryMenu', () => {
       }),
     ).toBeInTheDocument();
   });
+
+  it('should move the focus from the pen tool into the secondary menu with Tab and back with Shift+Tab', async () => {
+    render(<ToolsBar />, { wrapper: Wrapper });
+
+    const penRadio = screen.getByRole('radio', { name: 'Pen' });
+    await userEvent.click(penRadio);
+
+    const penToolbar = screen.getByRole('toolbar', { name: 'Pen' });
+    const strokeWidthSelect = within(penToolbar).getByRole('combobox', {
+      name: 'Select the next stroke width',
+    });
+    expect(penRadio).toHaveFocus();
+
+    await userEvent.tab();
+    expect(strokeWidthSelect).toHaveFocus();
+
+    await userEvent.tab({ shift: true });
+    expect(penRadio).toHaveFocus();
+  });
 });

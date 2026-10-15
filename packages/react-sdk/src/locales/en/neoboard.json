@@ -379,6 +379,7 @@
     "imageUploadTool": "Upload image",
     "lineTool": "Line",
     "penTool": "Pen",
+    "penToolsBarAnnouncement": "Pen toolbar available. Press Tab to move into it.",
     "rectangleTool": "Rectangle",
     "roundedRectangleTool": "Rounded rectangle",
     "selectTool": "Select",

@@ -108,6 +108,58 @@ describe('<PenToolsBar/>', () => {
     ).toBeInTheDocument();
   });
 
+  it('should move focus through all items with the arrow keys', async () => {
+    activeSlide.setActiveElementIds(['element-1']);
+
+    render(<PenToolsBar />, { wrapper: Wrapper });
+
+    screen
+      .getByRole('combobox', { name: 'Select the next stroke width' })
+      .focus();
+
+    await userEvent.keyboard('{ArrowRight}');
+    expect(
+      screen.getByRole('button', { name: 'Pick the next stroke color' }),
+    ).toHaveFocus();
+
+    await userEvent.keyboard('{ArrowRight}');
+    expect(
+      screen.getByRole('button', { name: 'Duplicate last stroke' }),
+    ).toHaveFocus();
+
+    await userEvent.keyboard('{ArrowRight}');
+    expect(
+      screen.getByRole('button', { name: 'Delete last stroke' }),
+    ).toHaveFocus();
+
+    await userEvent.keyboard('{ArrowLeft}');
+    expect(
+      screen.getByRole('button', { name: 'Duplicate last stroke' }),
+    ).toHaveFocus();
+  });
+
+  it('should wrap the focus around the items with the arrow keys', async () => {
+    activeSlide.setActiveElementIds(['element-1']);
+
+    render(<PenToolsBar />, { wrapper: Wrapper });
+
+    const strokeWidthSelect = screen.getByRole('combobox', {
+      name: 'Select the next stroke width',
+    });
+    const deleteButton = screen.getByRole('button', {
+      name: 'Delete last stroke',
+    });
+
+    // from the last item to the first item
+    deleteButton.focus();
+    await userEvent.keyboard('{ArrowRight}');
+    expect(strokeWidthSelect).toHaveFocus();
+
+    // from the first item to the last item
+    await userEvent.keyboard('{ArrowLeft}');
+    expect(deleteButton).toHaveFocus();
+  });
+
   it('should not render the duplicate and delete buttons when nothing is selected', () => {
     render(<PenToolsBar />, { wrapper: Wrapper });
 

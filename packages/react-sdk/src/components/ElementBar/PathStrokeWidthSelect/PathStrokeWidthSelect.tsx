@@ -85,6 +85,17 @@ export function PathStrokeWidthSelect({
         // Set a min-width to prevent change of the select width depending on the value
         minWidth: '64px',
         padding: '0 5px 0 8px',
+
+        // Fix for the missing blue outline when dropdown is focused in Firefox
+        borderRadius: (theme) => `${theme.shape.borderRadius}px`,
+        '&:has(.MuiSelect-select:focus:not([aria-expanded="true"]))': {
+          outlineColor: 'Highlight',
+          outlineStyle: 'auto',
+          outlineWidth: '2px',
+          // Things are doubled here because Highlight is only supported by
+          // Firefox
+          outline: 'auto 2px -webkit-focus-ring-color',
+        },
       }}
     >
       {strokeWidths.map((value) => (
