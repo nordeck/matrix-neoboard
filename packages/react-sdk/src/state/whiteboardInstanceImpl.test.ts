@@ -44,6 +44,7 @@ import {
   Document,
   DocumentStatistics,
   generateAddElement,
+  generateAddElements,
   generateAddSlide,
   generateMoveSlide,
   generateRemoveSlide,
@@ -1006,6 +1007,54 @@ describe('WhiteboardInstanceImpl', () => {
     expect(communicationChannel.destroy).toHaveBeenCalled();
 
     expect(destroySlideSpy).toHaveBeenCalled();
+  });
+
+  it('should sort the frames of the document after it was loaded initially', () => {
+    const whiteboardInstance = new WhiteboardInstanceImpl(
+      synchronizedDocument,
+      communicationChannel,
+      mockWhiteboard(),
+      '@user-id:example.com',
+    );
+
+    // simulate a loaded document where frames are mixed with other elements
+    const slide = whiteboardInstance.getSlide(slide0);
+    const [addElementsChangeFn, [line0, frame0, line1, frame1]] =
+      generateAddElements(slide0, [
+        mockLineElement(),
+        mockFrameElement(),
+        mockLineElement(),
+        mockFrameElement(),
+      ]);
+    document.performChange(addElementsChangeFn);
+
+    expect(whiteboardInstance.isLoading()).toBe(true);
+    expect(slide.getElementIds()).toEqual([line0, frame0, line1, frame1]);
+
+    observeIsLoadingSubject.next(false);
+
+    expect(whiteboardInstance.isLoading()).toBe(false);
+    expect(slide.getElementIds()).toEqual([frame0, frame1, line0, line1]);
+  });
+
+  it('should not change the order if the frames are already sorted after the document was loaded initially', () => {
+    const whiteboardInstance = new WhiteboardInstanceImpl(
+      synchronizedDocument,
+      communicationChannel,
+      mockWhiteboard(),
+      '@user-id:example.com',
+    );
+
+    const slide = whiteboardInstance.getSlide(slide0);
+    const [addElementsChangeFn, [frame0, line0, line1]] = generateAddElements(
+      slide0,
+      [mockFrameElement(), mockLineElement(), mockLineElement()],
+    );
+    document.performChange(addElementsChangeFn);
+
+    observeIsLoadingSubject.next(false);
+
+    expect(slide.getElementIds()).toEqual([frame0, line0, line1]);
   });
 });
 
