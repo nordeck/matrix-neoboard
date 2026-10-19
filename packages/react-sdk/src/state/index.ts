@@ -44,6 +44,7 @@ export {
 } from './useActiveWhiteboardInstance';
 export { useActiveWhiteboardMembers } from './useActiveWhiteboardMembers';
 export type { ActiveWhiteboardMember } from './useActiveWhiteboardMembers';
+export { useCanMoveActiveElementOneStep } from './useCanMoveActiveElementOneStep';
 export { useOwnedWhiteboard } from './useOwnedWhiteboard';
 export { usePresentationMode } from './usePresentationMode';
 export {

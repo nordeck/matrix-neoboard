@@ -252,14 +252,24 @@ export type WhiteboardSlideInstance = {
    * @param updates - the properties to add/override for each element.
    */
   updateElements(updates: ElementUpdate[]): void;
-  /** Move the element one level down. */
+  /** Move the element one level down. Other elements never go below a frame. */
   moveElementDown(elementId: string): void;
-  /** Move the elements to the bottom of the slide. Moved elements retain their order on the slide.*/
+  /**
+   * Move the elements to the bottom of the slide. Moved elements retain their order on the slide.
+   * Frames always stay below all other elements.
+   */
   moveElementsToBottom(elementIds: string[]): void;
-  /** Move the element one level up. */
+  /** Move the element one level up. Frames never go above other elements. */
   moveElementUp(elementId: string): void;
-  /** Move the elements to the top of the slide. Moved elements retain their order on the slide.*/
+  /**
+   * Move the elements to the top of the slide. Moved elements retain their order on the slide.
+   * Frames only go to the top of the frames, below all other elements.
+   */
   moveElementsToTop(elementIds: string[]): void;
+  /** Checks whether the frames need to be sorted, i.e. whether any non-frame element lies below a frame in the z-order. */
+  checkFramesNeedSorting(): boolean;
+  /** Moves all frames to the bottom of the slide. The relative z-order of the frames and of all other elements is preserved. */
+  sortFrames(): void;
   /** Move frame into another presentation position. */
   moveFrame(frameElementId: string, index: number): void;
   /** Returns the element or undefined if it not exists. */
