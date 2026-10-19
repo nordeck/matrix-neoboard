@@ -84,7 +84,7 @@ export function ToolsBarSecondaryMenu({
       {secondaryMenu && (
         <Popper
           data-testid="tools-bar-secondary-menu-popper"
-          open={true}
+          open={Boolean(anchorEl)}
           //Popper defaults to role="tooltip", which would wrap the toolbar
           // in an extra unwanted tooltip node in the accessibility tree
           role="presentation"
