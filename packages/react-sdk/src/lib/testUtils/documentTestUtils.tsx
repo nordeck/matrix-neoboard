@@ -28,10 +28,12 @@ import {
   usePauseHotkeysScope,
 } from '../../components/WhiteboardHotkeysProvider';
 import {
+  CurvePathElement,
   Element,
   FrameElement,
   ImageElement,
-  PathElement,
+  LinePathElement,
+  PolylinePathElement,
   ShapeElement,
   Slide,
   SlideProvider,
@@ -402,7 +404,9 @@ export function mockEllipseElement(
   };
 }
 
-export function mockLineElement(path: Partial<PathElement> = {}): PathElement {
+export function mockLineElement(
+  path: Partial<LinePathElement> = {},
+): LinePathElement {
   return {
     type: 'path',
     kind: 'line',
@@ -417,8 +421,8 @@ export function mockLineElement(path: Partial<PathElement> = {}): PathElement {
 }
 
 export function mockPolylineElement(
-  path: Partial<PathElement> = {},
-): PathElement {
+  path: Partial<PolylinePathElement> = {},
+): PolylinePathElement {
   return {
     type: 'path',
     kind: 'polyline',
@@ -433,7 +437,9 @@ export function mockPolylineElement(
   };
 }
 
-export function mockCurveElement(path: Partial<PathElement> = {}): PathElement {
+export function mockCurveElement(
+  path: Partial<CurvePathElement> = {},
+): CurvePathElement {
   return {
     type: 'path',
     kind: 'curve',

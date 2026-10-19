@@ -15,7 +15,13 @@
  */
 
 import { Content } from 'pdfmake/interfaces';
-import { calculateBoundingRectForPoints, PathElement } from '../../../state';
+import {
+  calculateBoundingRectForPoints,
+  CurvePathElement,
+  LinePathElement,
+  PathElement,
+  PolylinePathElement,
+} from '../../../state';
 import { getRenderProperties as getRenderCurveProperties } from '../../elements/curve/getRenderProperties';
 import { getRenderProperties as getRenderLineProperties } from '../../elements/line/getRenderProperties';
 import { getRenderProperties as getRenderPolyLineProperties } from '../../elements/polyline/getRenderProperties';
@@ -34,7 +40,7 @@ export function createWhiteboardPdfElementPath(element: PathElement): Content {
   }
 }
 
-function createElementPathLine(element: PathElement): Content {
+function createElementPathLine(element: LinePathElement): Content {
   const {
     strokeColor,
     strokeWidth,
@@ -52,7 +58,7 @@ function createElementPathLine(element: PathElement): Content {
   });
 }
 
-function createElementPathPolyLine(element: PathElement): Content {
+function createElementPathPolyLine(element: PolylinePathElement): Content {
   const { strokeColor, strokeWidth, points } =
     getRenderPolyLineProperties(element);
 
@@ -66,7 +72,7 @@ function createElementPathPolyLine(element: PathElement): Content {
   });
 }
 
-function createElementPathCurve(element: PathElement): Content {
+function createElementPathCurve(element: CurvePathElement): Content {
   const { strokeColor, strokeWidth, svgPathD } =
     getRenderCurveProperties(element);
   const { width, height } = calculateBoundingRectForPoints(element.points);

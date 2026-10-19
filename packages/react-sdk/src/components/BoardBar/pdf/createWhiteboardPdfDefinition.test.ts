@@ -109,8 +109,16 @@ describe('createWhiteboardPdfDefinition', () => {
         [
           'slide-1',
           [
-            ['element-line', mockLineElement({ kind: 'line' })],
-            ['element-polyline', mockLineElement({ kind: 'polyline' })],
+            ['element-line', mockLineElement()],
+            [
+              'element-polyline',
+              mockPolylineElement({
+                points: [
+                  { x: 0, y: 1 },
+                  { x: 2, y: 3 },
+                ],
+              }),
+            ],
           ],
         ],
       ],

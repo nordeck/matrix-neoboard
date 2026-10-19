@@ -282,6 +282,7 @@ describe('createShapeFromPoints', () => {
 
     // position/boundary points come from the raw cursor points' bounding
     // box: x ranges 10..90 (width 80), y ranges 20..60 (height 40).
+    expect(result.kind).toBe('curve');
     expect(result.position).toEqual({ x: 10, y: 20 });
     expect(result.points).toEqual([
       { x: 0, y: 0 },
@@ -289,13 +290,21 @@ describe('createShapeFromPoints', () => {
     ]);
 
     // the curve is generated from the same position-relative points
-    expect(result.svgPathD).toEqual(
-      simplifyPointsToD([
+    expect(result).toEqual({
+      type: 'path',
+      kind: 'curve',
+      strokeColor: '#000000',
+      position: { x: 10, y: 20 },
+      points: [
+        { x: 0, y: 0 },
+        { x: 80, y: expect.closeTo(40.88, 2) },
+      ],
+      svgPathD: simplifyPointsToD([
         { x: 0, y: 0 },
         { x: 20, y: 40 },
         { x: 80, y: 20 },
       ]),
-    );
+    });
   });
 
   it('should create line and attach to frame', () => {

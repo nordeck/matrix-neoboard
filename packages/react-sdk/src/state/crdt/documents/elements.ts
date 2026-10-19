@@ -116,19 +116,36 @@ export type PathKind = 'line' | 'polyline' | 'curve';
 
 export type LineMarker = 'arrow-head-line';
 
-export type PathElement = ElementBase & {
+type PathElementBase = ElementBase & {
   type: 'path';
-  kind: PathKind;
   points: Point[];
   strokeColor: string;
-  strokeWidth?: number;
   startMarker?: LineMarker;
   endMarker?: LineMarker;
   connectedElementStart?: string;
   connectedElementEnd?: string;
   attachedFrame?: string;
-  svgPathD?: string;
 };
+
+export type LinePathElement = PathElementBase & {
+  kind: 'line';
+};
+
+export type PolylinePathElement = PathElementBase & {
+  kind: 'polyline';
+  strokeWidth?: number;
+};
+
+export type CurvePathElement = PathElementBase & {
+  kind: 'curve';
+  strokeWidth?: number;
+  svgPathD: string;
+};
+
+export type PathElement =
+  | LinePathElement
+  | PolylinePathElement
+  | CurvePathElement;
 
 // Matches only the characters allowed in an SVG `<path d="...">` attribute
 const svgPathDPattern = /^[MmLlHhVvCcSsQqTtAaZz0-9.,eE+\-\s]*$/;
@@ -421,11 +438,21 @@ export function isShapeElementPair(
   return pair[1].type === 'shape';
 }
 
-export function isPolyline(element: Element): element is PathElement {
+export function isLinePathElement(
+  element: Element,
+): element is LinePathElement {
+  return element.type === 'path' && element.kind === 'line';
+}
+
+export function isPolylinePathElement(
+  element: Element,
+): element is PolylinePathElement {
   return element.type === 'path' && element.kind === 'polyline';
 }
 
-export function isCurve(element: Element): element is PathElement {
+export function isCurvePathElement(
+  element: Element,
+): element is CurvePathElement {
   return element.type === 'path' && element.kind === 'curve';
 }
 

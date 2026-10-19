@@ -22,12 +22,14 @@ import {
   WhiteboardTestingContextProvider,
   mockWhiteboardManager,
 } from '../../../lib/testUtils';
-import { PathElement } from '../../../state';
+import { CurvePathElement } from '../../../state';
 import { LayoutStateProvider } from '../../Layout';
 import { SvgCanvas } from '../../Whiteboard/SvgCanvas';
 import Display from './Display';
 
-function mockCurveElement(element: Partial<PathElement> = {}): PathElement {
+function mockCurveElement(
+  element: Partial<CurvePathElement> = {},
+): CurvePathElement {
   return {
     type: 'path',
     kind: 'curve',

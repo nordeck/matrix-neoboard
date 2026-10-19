@@ -16,6 +16,7 @@
 
 import { describe, expect, it } from 'vitest';
 import {
+  mockCurveElement,
   mockEllipseElement,
   mockFrameElement,
   mockImageElement,
@@ -136,8 +137,7 @@ describe('mergeElementAndOverride', () => {
   });
 
   it(`should replace svgPathD of path element`, () => {
-    const element = mockPolylineElement({
-      kind: 'curve',
+    const element = mockCurveElement({
       points: [
         { x: 0, y: 0 },
         { x: 4, y: 6 },
@@ -153,8 +153,7 @@ describe('mergeElementAndOverride', () => {
   });
 
   it(`should keep svgPathD of path element when no override is given`, () => {
-    const element = mockPolylineElement({
-      kind: 'curve',
+    const element = mockCurveElement({
       points: [
         { x: 0, y: 0 },
         { x: 4, y: 6 },

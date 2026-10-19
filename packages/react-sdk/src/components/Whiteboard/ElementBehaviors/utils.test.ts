@@ -19,6 +19,7 @@ import {
   mockEllipseElement,
   mockFrameElement,
   mockLineElement,
+  mockPolylineElement,
   mockRectangleElement,
   mockTriangleElement,
 } from '../../../lib/testUtils';
@@ -1254,8 +1255,7 @@ describe('getRotationTransformForElements', () => {
 describe('getBoundingRectForElements with strokeWidth', () => {
   it('should contain the whole stroke of a path', () => {
     const elements = [
-      mockLineElement({
-        kind: 'polyline',
+      mockPolylineElement({
         position: { x: 10, y: 10 },
         points: [
           { x: 0, y: 0 },
@@ -1274,8 +1274,7 @@ describe('getBoundingRectForElements with strokeWidth', () => {
 
   it('should pad polylines at boundary corners', () => {
     const elements = [
-      mockLineElement({
-        kind: 'polyline',
+      mockPolylineElement({
         position: { x: 100, y: 100 },
         points: [
           { x: 0, y: 0 },
@@ -1283,8 +1282,7 @@ describe('getBoundingRectForElements with strokeWidth', () => {
         ],
         strokeWidth: 20,
       }),
-      mockLineElement({
-        kind: 'polyline',
+      mockPolylineElement({
         position: { x: 300, y: 300 },
         points: [
           { x: 0, y: 0 },
@@ -1313,8 +1311,7 @@ describe('getBoundingRectForElements with strokeWidth', () => {
 
   it('should use the default stroke width if the path has none', () => {
     const elements = [
-      mockLineElement({
-        kind: 'polyline',
+      mockPolylineElement({
         position: { x: 10, y: 10 },
         points: [
           { x: 0, y: 0 },

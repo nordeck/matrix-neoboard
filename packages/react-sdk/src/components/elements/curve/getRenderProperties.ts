@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-import { defaultStrokeWidth, PathElement } from '../../../state';
+import { CurvePathElement, defaultStrokeWidth } from '../../../state';
 import { ElementRenderProperties } from '../../Whiteboard';
 
 export function getRenderProperties(
-  element: PathElement,
+  element: CurvePathElement,
 ): ElementRenderProperties & { svgPathD: string } {
   return {
     strokeColor: element.strokeColor,
     strokeWidth: element.strokeWidth ?? defaultStrokeWidth,
-    svgPathD: element.svgPathD ?? '',
+    svgPathD: element.svgPathD,
   };
 }

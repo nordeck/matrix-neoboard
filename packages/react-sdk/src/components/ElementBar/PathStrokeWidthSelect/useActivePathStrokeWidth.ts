@@ -17,8 +17,8 @@
 import { useMemo } from 'react';
 import {
   defaultStrokeWidth,
-  isCurve,
-  isPolyline,
+  isCurvePathElement,
+  isPolylinePathElement,
   useActiveElements,
   useElements,
 } from '../../../state';
@@ -36,7 +36,9 @@ export function useActivePathStrokeWidth(): UseActivePathStrokeWidthResult {
 
   const firstSelected = useMemo(() => {
     const elements = Object.values(activeElements);
-    return elements.find((e) => isPolyline(e) || isCurve(e));
+    return elements.find(
+      (e) => isPolylinePathElement(e) || isCurvePathElement(e),
+    );
   }, [activeElements]);
 
   const strokeWidth = firstSelected

@@ -32,7 +32,7 @@ import {
   elementSchema,
   findFrameToAttach,
   includesTextShape,
-  isCurve,
+  isCurvePathElement,
   isRotatableElement,
   isShapeWithText,
   isTextShape,
@@ -903,25 +903,6 @@ describe('calculateBoundingRectForElement', () => {
       height: 32,
     });
   });
-
-  it('should ignore the stroke width of a line and use the default', () => {
-    const element = mockLineElement({
-      kind: 'line',
-      position: { x: 100, y: 200 },
-      points: [
-        { x: 0, y: 0 },
-        { x: 20, y: 10 },
-      ],
-      strokeWidth: 10,
-    });
-
-    expect(calculateBoundingRectForElement(element)).toEqual({
-      offsetX: 100,
-      offsetY: 200,
-      width: 20,
-      height: 10,
-    });
-  });
 });
 
 describe('calculateFittedElementSize', () => {
@@ -1307,20 +1288,20 @@ describe('isRotatableElement', () => {
 
 describe('isCurve', () => {
   it('should return true for curve', () => {
-    expect(isCurve(mockCurveElement())).toBe(true);
+    expect(isCurvePathElement(mockCurveElement())).toBe(true);
   });
 
   it('should return false for polyline', () => {
-    expect(isCurve(mockPolylineElement())).toBe(false);
+    expect(isCurvePathElement(mockPolylineElement())).toBe(false);
   });
 
   it('should return false for line', () => {
-    expect(isCurve(mockLineElement())).toBe(false);
+    expect(isCurvePathElement(mockLineElement())).toBe(false);
   });
 
   it('should return false for non-path elements', () => {
-    expect(isCurve(mockRectangleElement())).toBe(false);
-    expect(isCurve(mockImageElement())).toBe(false);
-    expect(isCurve(mockFrameElement())).toBe(false);
+    expect(isCurvePathElement(mockRectangleElement())).toBe(false);
+    expect(isCurvePathElement(mockImageElement())).toBe(false);
+    expect(isCurvePathElement(mockFrameElement())).toBe(false);
   });
 });

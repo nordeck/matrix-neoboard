@@ -17,8 +17,8 @@
 import { useCallback } from 'react';
 import {
   ElementUpdate,
-  isCurve,
-  isPolyline,
+  isCurvePathElement,
+  isPolylinePathElement,
   useActiveElements,
   useElements,
   useWhiteboardSlideInstance,
@@ -42,7 +42,7 @@ export function useApplyActivePathStrokeWidth(): UseApplyActivePathStrokeWidthRe
     (value: number) => {
       const updates: ElementUpdate[] = [];
       for (const [elementId, element] of Object.entries(activeElements)) {
-        if (isPolyline(element) || isCurve(element)) {
+        if (isPolylinePathElement(element) || isCurvePathElement(element)) {
           updates.push({ elementId, patch: { strokeWidth: value } });
         }
       }
