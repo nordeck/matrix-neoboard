@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { defaultStrokeWidth, PathElement, Point } from '../../../state';
+import { defaultStrokeWidth, Point, PolylinePathElement } from '../../../state';
 import { ElementRenderProperties } from '../../Whiteboard';
 
 type PolylineRenderProperties = {
@@ -22,7 +22,7 @@ type PolylineRenderProperties = {
 };
 
 export function getRenderProperties(
-  element: PathElement,
+  element: PolylinePathElement,
 ): ElementRenderProperties & PolylineRenderProperties {
   return {
     strokeColor: element.strokeColor,

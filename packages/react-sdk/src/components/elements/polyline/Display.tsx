@@ -15,7 +15,11 @@
  */
 
 import React from 'react';
-import { calculateBoundingRectForElements, PathElement } from '../../../state';
+import {
+  calculateBoundingRectForElements,
+  PathElement,
+  PolylinePathElement,
+} from '../../../state';
 import {
   ElementContextMenu,
   MoveableElement,
@@ -36,7 +40,9 @@ const PolylineDisplay = ({
   elementMovedHasFrame,
   ...element
 }: PolylineElementProps) => {
-  const { strokeColor, strokeWidth, points } = getRenderProperties(element);
+  const { strokeColor, strokeWidth, points } = getRenderProperties(
+    element as PolylinePathElement,
+  );
   // includes the stroke so the overlay covers the whole polyline
   const boundingRect = calculateBoundingRectForElements([element]);
 

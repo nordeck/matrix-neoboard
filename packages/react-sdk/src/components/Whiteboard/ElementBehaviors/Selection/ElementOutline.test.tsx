@@ -20,6 +20,7 @@ import { ComponentType, PropsWithChildren } from 'react';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
   WhiteboardTestingContextProvider,
+  mockCurveElement,
   mockEllipseElement,
   mockPolylineElement,
   mockWhiteboardManager,
@@ -66,8 +67,7 @@ describe('<ElementOutline />', () => {
             ['polyline-0', mockPolylineElement()],
             [
               'curve-0',
-              mockPolylineElement({
-                kind: 'curve',
+              mockCurveElement({
                 position: { x: 10, y: 20 },
                 points: [
                   { x: 0, y: 0 },

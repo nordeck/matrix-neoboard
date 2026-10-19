@@ -172,45 +172,71 @@ export function createShapeFromPoints({
     : cursorPoints;
   const { offsetX, offsetY } = calculateBoundingRectForPoints(points);
 
-  const pathElement: PathElement = {
+  let pathElement: PathElement;
+
+  const basePathElement = {
     position: { x: offsetX, y: offsetY },
-    type: 'path',
-    kind,
     startMarker,
     endMarker,
-    points: [],
     strokeColor,
     connectedElementStart,
     connectedElementEnd,
   };
 
-  if ((kind === 'polyline' || kind === 'curve') && strokeWidth !== undefined) {
-    pathElement.strokeWidth = strokeWidth;
-  }
+  if (kind === 'line') {
+    pathElement = {
+      ...basePathElement,
+      type: 'path',
+      kind: 'line',
+      points: points.map((e) => ({
+        x: e.x - offsetX,
+        y: e.y - offsetY,
+      })),
+    };
+  } else if (kind === 'polyline') {
+    pathElement = {
+      ...basePathElement,
+      type: 'path',
+      kind: 'polyline',
+      points: points.map((e) => ({
+        x: e.x - offsetX,
+        y: e.y - offsetY,
+      })),
+    };
 
-  if (kind === 'curve') {
+    if (strokeWidth !== undefined) {
+      pathElement.strokeWidth = strokeWidth;
+    }
+  } else if (kind === 'curve') {
     const relativePoints = points.map((e) => ({
       x: e.x - offsetX,
       y: e.y - offsetY,
     }));
+
     // The fitted curve can overshoot the sampled points, so use the bounds of
     // the curve itself and move the path origin to its top-left corner.
     const { minX, minY, maxX, maxY } = calculateBoundsForPathD(
       simplifyPointsToD(relativePoints),
     );
-    pathElement.position = { x: offsetX + minX, y: offsetY + minY };
-    pathElement.svgPathD = simplifyPointsToD(
-      relativePoints.map((e) => ({ x: e.x - minX, y: e.y - minY })),
-    );
-    pathElement.points = [
-      { x: 0, y: 0 },
-      { x: maxX - minX, y: maxY - minY },
-    ];
+
+    pathElement = {
+      ...basePathElement,
+      type: 'path',
+      kind: 'curve',
+      points: [
+        { x: 0, y: 0 },
+        { x: maxX - minX, y: maxY - minY },
+      ],
+      svgPathD: simplifyPointsToD(
+        relativePoints.map((e) => ({ x: e.x - minX, y: e.y - minY })),
+      ),
+    };
+
+    if (strokeWidth !== undefined) {
+      pathElement.strokeWidth = strokeWidth;
+    }
   } else {
-    pathElement.points = points.map((e) => ({
-      x: e.x - offsetX,
-      y: e.y - offsetY,
-    }));
+    throw new Error(`Unexpected path of kind ${kind}`);
   }
 
   return copyElementWithAttachedFrame(pathElement, frameElements);

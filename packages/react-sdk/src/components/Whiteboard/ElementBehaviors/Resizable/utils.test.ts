@@ -16,10 +16,10 @@
 
 import { beforeEach, describe, expect, it } from 'vitest';
 import {
+  mockCurveElement,
   mockEllipseElement,
   mockFrameElement,
   mockLineElement,
-  mockPolylineElement,
 } from '../../../../lib/testUtils/documentTestUtils';
 import { Element, Elements, Point } from '../../../../state';
 import { DragEvent } from './ResizeHandle';
@@ -1096,8 +1096,7 @@ describe('computeElementResize', () => {
   });
 
   it('should scale the boundary points and the svgPathD curve together', () => {
-    const element = mockPolylineElement({
-      kind: 'curve',
+    const element = mockCurveElement({
       position: { x: 0, y: 0 },
       points: [
         { x: 0, y: 0 },

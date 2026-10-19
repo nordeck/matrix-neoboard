@@ -15,7 +15,11 @@
  */
 
 import React from 'react';
-import { calculateBoundingRectForElements, PathElement } from '../../../state';
+import {
+  calculateBoundingRectForElements,
+  CurvePathElement,
+  PathElement,
+} from '../../../state';
 import {
   ElementContextMenu,
   MoveableElement,
@@ -36,7 +40,9 @@ const CurveDisplay = ({
   elementMovedHasFrame,
   ...element
 }: CurveElementProps) => {
-  const { strokeColor, strokeWidth, svgPathD } = getRenderProperties(element);
+  const { strokeColor, strokeWidth, svgPathD } = getRenderProperties(
+    element as CurvePathElement,
+  );
   // includes the stroke so the overlay covers the whole curve
   const boundingRect = calculateBoundingRectForElements([element]);
 
