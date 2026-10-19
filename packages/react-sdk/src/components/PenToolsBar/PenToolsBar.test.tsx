@@ -33,7 +33,7 @@ import {
   WhiteboardSlideInstance,
 } from '../../state';
 import { LayoutStateProvider, useLayoutState } from '../Layout';
-import PenToolsBar from './PenToolsBar';
+import { PenToolsBar } from './PenToolsBar';
 
 let widgetApi: MockedWidgetApi;
 

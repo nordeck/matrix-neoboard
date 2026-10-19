@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useActiveElements } from '../../state';
 import {
@@ -81,5 +81,3 @@ export function PenToolsBar() {
     </Toolbar>
   );
 }
-
-export default React.memo(PenToolsBar);
