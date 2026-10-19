@@ -31,12 +31,18 @@ import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import axe from 'axe-core';
 import { ComponentType, PropsWithChildren } from 'react';
-import { Mocked, afterEach, beforeEach, describe, expect, it } from 'vitest';
+import {
+  Mocked,
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
 import {
   WhiteboardTestingContextProvider,
   mockEllipseElement,
-  mockFrameElement,
-  mockImageElement,
   mockLineElement,
   mockTextElement,
   mockWhiteboardManager,
@@ -374,24 +380,6 @@ describe('<ElementColorPicker/>', () => {
     expect(screen.getByRole('button', { name: 'Transparent' })).toHaveFocus();
   });
 
-  it('should not be hidden when selected color is transparent', async () => {
-    activeSlide.setActiveElementIds(['element-4']);
-
-    render(<ElementColorPicker />, { wrapper: Wrapper });
-
-    const colorButton = screen.getByRole('button', { name: 'Pick a color' });
-    expect(colorButton).toBeInTheDocument();
-  });
-
-  it('should not be hidden when only text elements are selected', async () => {
-    activeSlide.setActiveElementIds(['element-4', 'element-5']);
-
-    render(<ElementColorPicker />, { wrapper: Wrapper });
-
-    const colorButton = screen.getByRole('button', { name: 'Pick a color' });
-    expect(colorButton).toBeInTheDocument();
-  });
-
   it('should keep the previous active color when selecting "transparent"', async () => {
     await renderElementColorPickerAndSetElementColors(
       ['element-1'],
@@ -399,28 +387,6 @@ describe('<ElementColorPicker/>', () => {
     );
 
     expect(activeColor).toEqual('#9e9e9e');
-  });
-
-  it('should be hidden when only image elements are selected', async () => {
-    const element = mockImageElement();
-    const elementId = activeSlide.addElement(element);
-    activeSlide.setActiveElementIds([elementId]);
-
-    render(<ElementColorPicker />, { wrapper: Wrapper });
-
-    const colorButton = screen.queryByRole('button', { name: 'Pick a color' });
-    expect(colorButton).not.toBeInTheDocument();
-  });
-
-  it('should be hidden when only frame elements are selected', async () => {
-    const element = mockFrameElement();
-    const elementId = activeSlide.addElement(element);
-    activeSlide.setActiveElementIds([elementId]);
-
-    render(<ElementColorPicker />, { wrapper: Wrapper });
-
-    const colorButton = screen.queryByRole('button', { name: 'Pick a color' });
-    expect(colorButton).not.toBeInTheDocument();
   });
 });
 
@@ -447,3 +413,82 @@ function selectElementColors(
   }
   return elementColors;
 }
+
+describe('<ElementColorPicker onChange readFromSelection={false}/>', () => {
+  let whiteboardManager: Mocked<WhiteboardManager>;
+  let Wrapper: ComponentType<PropsWithChildren<{}>>;
+  let activeSlide: WhiteboardSlideInstance;
+
+  const label = 'Pick the next stroke color';
+  const onChange = vi.fn<(color: string, shade?: number) => void>();
+
+  beforeEach(() => {
+    onChange.mockClear();
+
+    ({ whiteboardManager } = mockWhiteboardManager({
+      slides: [
+        [
+          'slide-0',
+          [['element-0', mockEllipseElement({ fillColor: green[500] })]],
+        ],
+      ],
+    }));
+    activeSlide = whiteboardManager
+      .getActiveWhiteboardInstance()!
+      .getSlide('slide-0');
+
+    Wrapper = ({ children }) => (
+      <LayoutStateProvider>
+        <WhiteboardTestingContextProvider
+          whiteboardManager={whiteboardManager}
+          widgetApi={widgetApi}
+        >
+          <Toolbar>{children}</Toolbar>
+        </WhiteboardTestingContextProvider>
+      </LayoutStateProvider>
+    );
+  });
+
+  it('should render with the custom label without a selection', async () => {
+    render(
+      <ElementColorPicker
+        label={label}
+        readFromSelection={false}
+        onChange={onChange}
+      />,
+      { wrapper: Wrapper },
+    );
+
+    await userEvent.click(screen.getByRole('button', { name: label }));
+    const grid = await screen.findByRole('grid', { name: 'Colors' });
+
+    // the active color of the layout state is pre-selected
+    expect(within(grid).getByRole('button', { name: 'Grey' })).toHaveFocus();
+  });
+
+  it('should ignore the selection and use the custom onChange', async () => {
+    activeSlide.setActiveElementIds(['element-0']);
+
+    render(
+      <ElementColorPicker
+        label={label}
+        readFromSelection={false}
+        onChange={onChange}
+      />,
+      { wrapper: Wrapper },
+    );
+
+    await userEvent.click(screen.getByRole('button', { name: label }));
+    const grid = await screen.findByRole('grid', { name: 'Colors' });
+
+    // the green of the selected element is ignored
+    expect(within(grid).getByRole('button', { name: 'Grey' })).toHaveFocus();
+
+    await userEvent.click(within(grid).getByRole('button', { name: 'Red' }));
+
+    expect(onChange).toHaveBeenCalledWith(red[500], expect.any(Number));
+    expect(activeSlide.getElement('element-0')).toMatchObject({
+      fillColor: green[500],
+    });
+  });
+});

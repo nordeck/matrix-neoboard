@@ -296,6 +296,13 @@
     "messagesSent": "Sent",
     "sent": "Sent"
   },
+  "penToolsBar": {
+    "deleteLastStroke": "Delete last stroke",
+    "duplicateLastStroke": "Duplicate last stroke",
+    "pickNextStrokeColor": "Pick the next stroke color",
+    "selectNextStrokeWidth": "Select the next stroke width",
+    "title": "Pen"
+  },
   "presentBar": {
     "addFrameToEnablePresentationMode": "Add a frame to enable presentation mode",
     "disableEditing": "Disable editing",
@@ -372,6 +379,7 @@
     "imageUploadTool": "Upload image",
     "lineTool": "Line",
     "penTool": "Pen",
+    "penToolsBarAnnouncement": "Pen toolbar available. Press Tab to move into it.",
     "rectangleTool": "Rectangle",
     "roundedRectangleTool": "Rounded rectangle",
     "selectTool": "Select",

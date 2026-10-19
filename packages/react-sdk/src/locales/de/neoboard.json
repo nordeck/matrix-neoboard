@@ -296,6 +296,13 @@
     "messagesSent": "Gesendet",
     "sent": "Gesendet"
   },
+  "penToolsBar": {
+    "deleteLastStroke": "Letzten Strich löschen",
+    "duplicateLastStroke": "Letzten Strich duplizieren",
+    "pickNextStrokeColor": "Farbe für den nächsten Strich wählen",
+    "selectNextStrokeWidth": "Breite für den nächsten Strich wählen",
+    "title": "Stift"
+  },
   "presentBar": {
     "addFrameToEnablePresentationMode": "Rahmen erstellen, um Präsentationsmodus zu aktivieren",
     "disableEditing": "Bearbeitung sperren",
@@ -372,6 +379,7 @@
     "imageUploadTool": "Bild hochladen",
     "lineTool": "Linie",
     "penTool": "Stift",
+    "penToolsBarAnnouncement": "Stift-Werkzeugleiste verfügbar. Mit der Tabulatortaste gelangst du dorthin.",
     "rectangleTool": "Rechteck",
     "roundedRectangleTool": "Abgerundetes Rechteck",
     "selectTool": "Auswählen",

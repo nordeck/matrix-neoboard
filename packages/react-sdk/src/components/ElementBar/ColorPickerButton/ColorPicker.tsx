@@ -23,12 +23,6 @@ import {
   useMemo,
   useState,
 } from 'react';
-import {
-  useActiveElements,
-  useElements,
-  useWhiteboardSlideInstance,
-} from '../../../state';
-import { ElementUpdate, Elements } from '../../../state/types';
 import { ToolbarSubMenu } from '../../common/Toolbar';
 import { ColorsGrid } from './ColorsGrid';
 
@@ -36,31 +30,30 @@ export type ColorPickerProps = {
   color?: string;
   shade: number;
   /**
-   * @param color - color code
-   * @param shade - index of the color shade, if any
+   * Called when the user picks a color.
    */
-  setColor?: (color: string, shade?: number) => void;
+  onChange?: (color: string, shade?: number) => void;
   /** The icon component to be used for the color picker in the element bar */
   Icon: ComponentType<{ color: string }>;
-  /** Function that calculates the element updates to apply the color change */
-  calculateUpdatesFn: (elements: Elements, color: string) => ElementUpdate[];
   label: string;
   /** If true, the color picker also shows the transparent color */
   showTransparent?: boolean;
+  /**
+   * Where the popover opens relative to the button. Use 'above' if the
+   * toolbar is close to the bottom edge of the screen. Defaults to 'below'.
+   */
+  placement?: 'above' | 'below';
 };
 
 export function ColorPicker({
   color,
   shade,
-  setColor,
-  calculateUpdatesFn,
+  onChange,
   Icon,
   label,
   showTransparent,
+  placement = 'below',
 }: ColorPickerProps) {
-  const slideInstance = useWhiteboardSlideInstance();
-  const { activeElementIds } = useActiveElements();
-  const activeElements = useElements(activeElementIds);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
@@ -71,18 +64,6 @@ export function ColorPicker({
   const handleClose = useCallback(() => {
     setAnchorEl(null);
   }, []);
-
-  const handleOnChange = useCallback(
-    ({ color, shade }: { color: string; shade?: number }) => {
-      setColor?.(color, shade);
-      const updates = calculateUpdatesFn(activeElements, color);
-
-      if (updates.length) {
-        slideInstance.updateElements(updates);
-      }
-    },
-    [activeElements, calculateUpdatesFn, setColor, slideInstance],
-  );
 
   const buttonId = useId();
   const gridId = useId();
@@ -99,6 +80,13 @@ export function ColorPicker({
       },
     }),
     [handleClose],
+  );
+
+  const handleOnChange = useCallback(
+    ({ color, shade }: { color: string; shade?: number }) => {
+      onChange?.(color, shade);
+    },
+    [onChange],
   );
 
   if (color === undefined) {
@@ -124,11 +112,11 @@ export function ColorPicker({
         open={open}
         onClose={handleClose}
         anchorOrigin={{
-          vertical: 'bottom',
+          vertical: placement === 'above' ? 'top' : 'bottom',
           horizontal: 'center',
         }}
         transformOrigin={{
-          vertical: 'top',
+          vertical: placement === 'above' ? 'bottom' : 'top',
           horizontal: 'center',
         }}
         componentsProps={componentsProps}
