@@ -37,16 +37,16 @@ import { useSlideImageUpload } from '../ImageUpload';
 import { ActiveTool, useLayoutState } from '../Layout';
 import { PenToolsBar } from '../PenToolsBar';
 import { FrameButton } from './FrameButton';
-import { ToolsBarSecondaryMenu } from './ToolsBarSecondaryMenu';
+import { SecondaryToolbarWrapper } from './SecondaryToolbarWrapper';
 
 export function ToolsBar() {
   const { t } = useTranslation('neoboard');
   const isLocked = useSlideIsLocked();
   const slide = useWhiteboardSlideInstance();
   const { activeTool, setActiveTool } = useLayoutState();
-  // Secondary menus are rendered here, directly after the toolbar, so that the
-  // Tab order leads from the toolbar into the menu.
-  const [secondaryMenuContainer, setSecondaryMenuContainer] =
+  // Secondary toolbars are rendered here, directly after the toolbar, so that the
+  // Tab order leads from the primary toolbar into secondary.
+  const [secondaryToolbarContainer, setSecondaryToolbarContainer] =
     useState<HTMLDivElement | null>(null);
 
   const handleRadioClick = useCallback(
@@ -146,16 +146,16 @@ export function ToolsBar() {
               />
             );
 
-            // Pen tool may display a secondary menu when active
+            // Pen tool displays a secondary toolbar when active
             if (value === 'pen') {
               return (
-                <ToolsBarSecondaryMenu
+                <SecondaryToolbarWrapper
                   key={value}
-                  secondaryMenu={
+                  item={button}
+                  container={secondaryToolbarContainer}
+                  secondaryToolbar={
                     activeTool === 'pen' ? <PenToolsBar /> : undefined
                   }
-                  item={button}
-                  container={secondaryMenuContainer}
                 />
               );
             }
@@ -176,7 +176,7 @@ export function ToolsBar() {
         </ToolbarRadioGroup>
       </Toolbar>
       {/* Container is directly after Toolbar in DOM so that you can enter the secondary toolbar by using tab and back using shift-tab */}
-      <div ref={setSecondaryMenuContainer} />
+      <div ref={setSecondaryToolbarContainer} />
       {/* Announces the appearance of the pen toolbar to screen readers */}
       <div role="status" style={visuallyHidden}>
         {activeTool === 'pen' && !isLocked

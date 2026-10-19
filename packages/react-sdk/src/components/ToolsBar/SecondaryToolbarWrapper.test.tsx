@@ -35,8 +35,8 @@ import { SnackbarProvider } from '../Snackbar';
 import { WhiteboardHost } from '../Whiteboard';
 import * as constants from '../Whiteboard/constants';
 import { WhiteboardHotkeysProvider } from '../WhiteboardHotkeysProvider';
+import { SecondaryToolbarWrapper } from './SecondaryToolbarWrapper';
 import { ToolsBar } from './ToolsBar';
-import { ToolsBarSecondaryMenu } from './ToolsBarSecondaryMenu';
 
 vi.mock('../Whiteboard/SvgCanvas/useMeasure', () => ({
   useMeasure: vi.fn().mockReturnValue([vi.fn(), { width: 1920, height: 1080 }]),
@@ -108,9 +108,9 @@ describe('ToolsBarSecondaryMenu', () => {
 
   it('should render the item and secondary menu', () => {
     render(
-      <ToolsBarSecondaryMenu
+      <SecondaryToolbarWrapper
         item={<button>Item</button>}
-        secondaryMenu={<PenToolsBar />}
+        secondaryToolbar={<PenToolsBar />}
       />,
       { wrapper: Wrapper },
     );
@@ -121,9 +121,9 @@ describe('ToolsBarSecondaryMenu', () => {
 
   it('should have no accessibility violations', async () => {
     const { container } = render(
-      <ToolsBarSecondaryMenu
+      <SecondaryToolbarWrapper
         item={<button>Item</button>}
-        secondaryMenu={<PenToolsBar />}
+        secondaryToolbar={<PenToolsBar />}
       />,
       { wrapper: Wrapper },
     );

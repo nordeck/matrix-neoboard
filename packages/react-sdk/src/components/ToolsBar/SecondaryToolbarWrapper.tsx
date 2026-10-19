@@ -17,23 +17,23 @@
 import { Popper, PopperProps } from '@mui/material';
 import { ReactNode, Ref, useEffect, useRef, useState } from 'react';
 
-export type ToolsBarSecondaryMenuProps = {
+export type SecondaryToolbarWrapperProps = {
   /**
    * The toolbar item to render, e.g. a ToolbarRadio. It is wrapped in a
-   * plain element used to anchor the secondary menu, so the item itself
+   * plain element used to anchor the secondary toolbar, so the item itself
    * doesn't need to support refs.
    */
   item: ReactNode;
 
   /**
-   * Element the menu is rendered into. Place it right after the primary
+   * Element the toolbar is rendered into. Place it right after the primary
    * toolbar in the DOM, so that the Tab order continues from the primary
-   * toolbar into the menu and then on to the rest of the page.
+   * toolbar into the secondary toolbar and then on to the rest of the page.
    */
   container?: HTMLElement | null;
 
-  /** If undefined, no menu holder (Popper) is rendered. */
-  secondaryMenu?: ReactNode;
+  /** A secondary toolbar If undefined, no toolbar holder (Popper) is rendered. */
+  secondaryToolbar?: ReactNode;
 };
 
 const popperModifiers: PopperProps['modifiers'] = [
@@ -48,23 +48,22 @@ type PopperInstance =
 
 /**
  * Wraps a single toolbar item and gives it the ability to hold a floating
- * secondary menu centered above it.
+ * secondary toolbar centered above it.
  */
-export function ToolsBarSecondaryMenu({
+export function SecondaryToolbarWrapper({
   item,
-  secondaryMenu,
+  secondaryToolbar,
   container,
-}: ToolsBarSecondaryMenuProps) {
+}: SecondaryToolbarWrapperProps) {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const popperInstanceRef = useRef<PopperInstance | null>(null);
-  const [menuContentEl, setMenuContentEl] = useState<HTMLDivElement | null>(
-    null,
-  );
+  const [secondaryToolbarContentEl, setSecondaryToolbarContentEl] =
+    useState<HTMLDivElement | null>(null);
 
   // Registers an observer for the event when the secondaryMenu grows or shrinks.
   // This will tell Popper to recalculate the position.
   useEffect(() => {
-    if (!menuContentEl) {
+    if (!secondaryToolbarContentEl) {
       return;
     }
 
@@ -72,18 +71,18 @@ export function ToolsBarSecondaryMenu({
       popperInstanceRef.current?.update();
     });
 
-    observer.observe(menuContentEl);
+    observer.observe(secondaryToolbarContentEl);
     return () => observer.disconnect();
-  }, [menuContentEl]);
+  }, [secondaryToolbarContentEl]);
 
   return (
     <>
       {/* Flex/grid containers "blockify" span children, so it sizes to fit the item without affecting layout. */}
       <span ref={setAnchorEl}>{item}</span>
 
-      {secondaryMenu && (
+      {secondaryToolbar && (
         <Popper
-          data-testid="tools-bar-secondary-menu-popper"
+          data-testid="tools-bar-secondary-toolbar-popper"
           open={Boolean(anchorEl)}
           //Popper defaults to role="tooltip", which would wrap the toolbar
           // in an extra unwanted tooltip node in the accessibility tree
@@ -98,7 +97,7 @@ export function ToolsBarSecondaryMenu({
             pointerEvents: 'initial',
           }}
         >
-          <div ref={setMenuContentEl}>{secondaryMenu}</div>
+          <div ref={setSecondaryToolbarContentEl}>{secondaryToolbar}</div>
         </Popper>
       )}
     </>

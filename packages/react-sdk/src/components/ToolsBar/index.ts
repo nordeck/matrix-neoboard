@@ -14,5 +14,5 @@
  * limitations under the License.
  */
 
+export { SecondaryToolbarWrapper } from './SecondaryToolbarWrapper';
 export { ToolsBar } from './ToolsBar';
-export { ToolsBarSecondaryMenu } from './ToolsBarSecondaryMenu';
