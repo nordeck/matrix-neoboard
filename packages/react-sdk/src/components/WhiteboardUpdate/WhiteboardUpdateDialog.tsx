@@ -28,6 +28,7 @@ import {
 import { unstable_useId as useId } from '@mui/utils';
 import { Fragment, ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useProductName } from '../../lib';
 
 type WhiteboardUpdateDialogProps = {
   open: boolean;
@@ -51,6 +52,7 @@ export function WhiteboardUpdateDialog({
   additionalButtons,
 }: WhiteboardUpdateDialogProps) {
   const { t } = useTranslation('neoboard');
+  const productName = useProductName();
 
   const dialogTitleId = useId();
   const dialogDescriptionId = useId();
@@ -92,7 +94,8 @@ export function WhiteboardUpdateDialog({
               )
             : t(
                 'whiteboardUpdateDialog.contentUpgradeRequired',
-                'This whiteboard requires a more recent version of NeoBoard that uses Frames instead of Slides.',
+                'This whiteboard requires a more recent version of {{productName}} that uses Frames instead of Slides.',
+                { productName },
               )}
         </DialogContentText>
       </DialogContent>

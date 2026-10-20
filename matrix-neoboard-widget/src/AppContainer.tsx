@@ -32,6 +32,7 @@ import {
   SnackbarProvider,
   SnapshotLoadStateDialog,
   StoreType,
+  useProductName,
   WhiteboardHotkeysProvider,
   WhiteboardManager,
   WhiteboardManagerProvider,
@@ -48,6 +49,8 @@ export const AppContainer = ({
   store: StoreType;
   whiteboardManager: WhiteboardManager;
 }) => {
+  const productName = useProductName();
+
   return (
     <Provider store={store}>
       <WhiteboardManagerProvider whiteboardManager={whiteboardManager}>
@@ -60,7 +63,7 @@ export const AppContainer = ({
             <MuiWidgetApiProvider
               widgetApiPromise={widgetApiPromise}
               widgetRegistration={{
-                name: 'NeoBoard',
+                name: productName,
                 // "pad" suffix to get a custom icon
                 type: 'net.nordeck.whiteboard:pad',
                 requiredParameters: [WidgetParameter.DeviceId],
