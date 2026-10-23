@@ -1,7 +1,9 @@
 # Use this file to add configurations for the dev environment and the PR deployments
 
 env:
-  - name: REACT_APP_HELP_CENTER_URL
-    value: "https://github.com/nordeck/matrix-neoboard"
+  - name: REACT_APP_HELP_CENTER_URL_EN
+    value: "https://github.com/nordeck/matrix-neoboard-standalone/blob/main/docs/manuals/neoboard/en/user-guide.pdf"
+  - name: REACT_APP_HELP_CENTER_URL_DE
+    value: "https://github.com/nordeck/matrix-neoboard-standalone/blob/main/docs/manuals/neoboard/de/handbuch.pdf"
   - name: REACT_APP_HOME_SERVER_URL
     value: "https://synapse.dev.nordeck.io"

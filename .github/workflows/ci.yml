@@ -295,7 +295,8 @@ jobs:
         run: |
           cat <<EOF > .env.local
           REACT_APP_HOME_SERVER_URL=https://matrix-client.matrix.org
-          REACT_APP_HELP_CENTER_URL="https://github.com/nordeck/matrix-neoboard"
+          REACT_APP_HELP_CENTER_URL_EN="https://github.com/nordeck/matrix-neoboard-standalone/blob/main/docs/manuals/neoboard/en/user-guide.pdf"
+          REACT_APP_HELP_CENTER_URL_DE="https://github.com/nordeck/matrix-neoboard-standalone/blob/main/docs/manuals/neoboard/de/handbuch.pdf"
           EOF
 
           sed -i 's,"homepage": "/","homepage": "/matrix-neoboard",' matrix-neoboard-widget/package.json
