@@ -15,6 +15,7 @@
  */
 
 import { nanoid } from '@reduxjs/toolkit';
+import findLastIndex from 'lodash/findLastIndex';
 import uniq from 'lodash/uniq';
 import { ChangeFn } from '../types';
 import { SharedMap, YArray, YMap } from '../y';
@@ -585,6 +586,50 @@ export function generate(
     for (const change of changes) {
       change(doc);
     }
+  };
+}
+
+/**
+ * Wraps a change that appends new elements at the top of the slide so that
+ * new frames are placed on top of the last existing frame instead, below all
+ * other elements. The order of the new frames is preserved.
+ * @param slideId - the id of the slide
+ * @param addChangeFn - the change that adds the elements
+ * @param newElementIds - ids of the new elements
+ * @param newElements - the new elements, in the same order as the ids
+ */
+export function keepFramesBelowAddedElements(
+  slideId: string,
+  addChangeFn: ChangeFn<WhiteboardDocument>,
+  newElementIds: string[],
+  newElements: Element[],
+): ChangeFn<WhiteboardDocument> {
+  const newFrameIds = newElementIds.filter(
+    (_, index) => newElements[index].type === 'frame',
+  );
+
+  if (newFrameIds.length === 0) {
+    return addChangeFn;
+  }
+
+  return (doc) => {
+    const slide = getSlide(doc, slideId);
+
+    if (!slide) {
+      throw new Error(`Slide not found: ${slideId}`);
+    }
+
+    const elements = slide.get('elements');
+    const lastFrameIndex = findLastIndex(
+      getNormalizedElementIds(doc, slideId),
+      (id) => elements.get(id)?.get('type') === 'frame',
+    );
+
+    addChangeFn(doc);
+
+    newFrameIds.forEach((frameId, index) => {
+      generateMoveElement(slideId, frameId, lastFrameIndex + 1 + index)(doc);
+    });
   };
 }
 

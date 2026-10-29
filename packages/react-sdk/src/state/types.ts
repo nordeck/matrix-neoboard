@@ -269,7 +269,7 @@ export type WhiteboardSlideInstance = {
   /** Checks whether the frames need to be sorted, i.e. whether any non-frame element lies below a frame in the z-order. */
   checkFramesNeedSorting(): boolean;
   /** Moves all frames to the bottom of the slide. The relative z-order of the frames and of all other elements is preserved. */
-  sortFrames(): void;
+  sortFramesToBack(): void;
   /** Move frame into another presentation position. */
   moveFrame(frameElementId: string, index: number): void;
   /** Returns the element or undefined if it not exists. */
