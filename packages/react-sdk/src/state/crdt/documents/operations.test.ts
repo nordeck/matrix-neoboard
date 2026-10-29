@@ -48,6 +48,7 @@ import {
   getNormalizedSlideIds,
   getSlide,
   getSlideLock,
+  keepFramesBelowAddedElements,
 } from './operations';
 import {
   createWhiteboardDocument,
@@ -1893,5 +1894,134 @@ describe('generate', () => {
         strokeColor: '#000000',
       },
     );
+  });
+});
+
+describe('keepFramesBelowAddedElements', () => {
+  let doc: Document<WhiteboardDocument>;
+
+  beforeEach(() => {
+    doc = createWhiteboardDocument();
+  });
+
+  it('should return the change unchanged if no frames are added', () => {
+    const newElements = [mockLineElement(), mockEllipseElement()];
+    const [addChangeFn, newElementIds] = generateAddElements(
+      slide0,
+      newElements,
+    );
+
+    expect(
+      keepFramesBelowAddedElements(
+        slide0,
+        addChangeFn,
+        newElementIds,
+        newElements,
+      ),
+    ).toBe(addChangeFn);
+  });
+
+  it('should add a frame above the last frame and below other elements', () => {
+    const [addExistingChangeFn, [frame0, frame1, line0]] = generateAddElements(
+      slide0,
+      [mockFrameElement(), mockFrameElement(), mockLineElement()],
+    );
+    doc.performChange(addExistingChangeFn);
+
+    const newElements = [mockFrameElement()];
+    const [addChangeFn, [newFrame]] = generateAddElements(slide0, newElements);
+    doc.performChange(
+      keepFramesBelowAddedElements(
+        slide0,
+        addChangeFn,
+        [newFrame],
+        newElements,
+      ),
+    );
+
+    expect(getNormalizedElementIds(doc.getData(), slide0)).toEqual([
+      frame0,
+      frame1,
+      newFrame,
+      line0,
+    ]);
+  });
+
+  it('should add a frame at the bottom if the slide has no frames', () => {
+    const [addExistingChangeFn, [line0, line1]] = generateAddElements(slide0, [
+      mockLineElement(),
+      mockLineElement(),
+    ]);
+    doc.performChange(addExistingChangeFn);
+
+    const newElements = [mockFrameElement()];
+    const [addChangeFn, [newFrame]] = generateAddElements(slide0, newElements);
+    doc.performChange(
+      keepFramesBelowAddedElements(
+        slide0,
+        addChangeFn,
+        [newFrame],
+        newElements,
+      ),
+    );
+
+    expect(getNormalizedElementIds(doc.getData(), slide0)).toEqual([
+      newFrame,
+      line0,
+      line1,
+    ]);
+  });
+
+  it('should keep the order of multiple new frames and move only frames', () => {
+    const [addExistingChangeFn, [frame0, line0]] = generateAddElements(slide0, [
+      mockFrameElement(),
+      mockLineElement(),
+    ]);
+    doc.performChange(addExistingChangeFn);
+
+    const newElements = [
+      mockFrameElement(),
+      mockLineElement(),
+      mockFrameElement(),
+    ];
+    const [addChangeFn, [newFrame0, newLine, newFrame1]] = generateAddElements(
+      slide0,
+      newElements,
+    );
+    doc.performChange(
+      keepFramesBelowAddedElements(
+        slide0,
+        addChangeFn,
+        [newFrame0, newLine, newFrame1],
+        newElements,
+      ),
+    );
+
+    expect(getNormalizedElementIds(doc.getData(), slide0)).toEqual([
+      frame0,
+      newFrame0,
+      newFrame1,
+      line0,
+      newLine,
+    ]);
+  });
+
+  it('should throw if the slide does not exist', () => {
+    const newElements = [mockFrameElement()];
+    const [addChangeFn, newElementIds] = generateAddElements(
+      'not-exists',
+      newElements,
+    );
+
+    expect(() =>
+      doc.performChange(
+        keepFramesBelowAddedElements(
+          'not-exists',
+          addChangeFn,
+          newElementIds,
+          newElements,
+        ),
+      ),
+    ).toThrow('Slide not found: not-exists');
   });
 });

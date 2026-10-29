@@ -72,7 +72,7 @@ describe('<DuplicateShortcut>', () => {
       ],
     }));
     activeWhiteboardInstance = whiteboardManager.getActiveWhiteboardInstance()!;
-    activeWhiteboardInstance.getActiveSlide()?.sortFrames();
+    activeWhiteboardInstance.getActiveSlide()?.sortFramesToBack();
 
     Wrapper = ({ children }) => (
       <WhiteboardHotkeysProvider>

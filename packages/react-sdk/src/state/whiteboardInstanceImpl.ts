@@ -345,7 +345,8 @@ export class WhiteboardInstanceImpl implements WhiteboardInstance {
         if (!loading) {
           const slide = this.slides.get(activeSlideId);
           if (slide && slide.checkFramesNeedSorting()) {
-            slide.sortFrames();
+            slide.sortFramesToBack();
+            this.clearUndoManager();
           }
         }
       });

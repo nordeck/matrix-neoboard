@@ -15,7 +15,6 @@
  */
 
 import { nanoid } from '@reduxjs/toolkit';
-import findLastIndex from 'lodash/findLastIndex';
 import first from 'lodash/first';
 import isEqual from 'lodash/isEqual';
 import uniq from 'lodash/uniq';
@@ -43,7 +42,6 @@ import {
   isValidCursorUpdateMessage,
 } from './communication';
 import {
-  ChangeFn,
   Document,
   Element,
   FrameElement,
@@ -68,8 +66,8 @@ import {
 } from './crdt';
 import {
   generate,
-  generateMoveElement,
   generateRemoveElements,
+  keepFramesBelowAddedElements,
 } from './crdt/documents/operations';
 import {
   ElementUpdate,
@@ -223,7 +221,8 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
       this.slideId,
       newElement,
     );
-    const changeFn = this.keepFramesBelowOtherElements(
+    const changeFn = keepFramesBelowAddedElements(
+      this.slideId,
       addElementChangeFn,
       [elementId],
       [newElement],
@@ -382,7 +381,8 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
       this.slideId,
       newElements,
     );
-    const changeFn = this.keepFramesBelowOtherElements(
+    const changeFn = keepFramesBelowAddedElements(
+      this.slideId,
       addElementsChangeFn,
       elementIds,
       newElements,
@@ -531,7 +531,8 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
       Object.keys(newElements),
     );
 
-    const addElementsInLayersChangeFn = this.keepFramesBelowOtherElements(
+    const addElementsInLayersChangeFn = keepFramesBelowAddedElements(
+      this.slideId,
       addElementsChangeFn,
       elementIds,
       Object.values(newElements),
@@ -749,47 +750,6 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
   }
 
   /**
-   * Wraps a change that appends new elements at the top of the slide so that
-   * new frames are placed on top of the last existing frame instead, below all
-   * other elements. The order of the new frames is preserved.
-   * @param addChangeFn - the change that adds the elements
-   * @param newElementIds - ids of the new elements
-   * @param newElements - the new elements, in the same order as the ids
-   */
-  private keepFramesBelowOtherElements(
-    addChangeFn: ChangeFn<WhiteboardDocument>,
-    newElementIds: string[],
-    newElements: Element[],
-  ): ChangeFn<WhiteboardDocument> {
-    const newFrameIds = newElementIds.filter(
-      (_, index) => newElements[index].type === 'frame',
-    );
-
-    if (newFrameIds.length === 0) {
-      return addChangeFn;
-    }
-
-    const elementIds = this.getElementIds();
-    const elements = this.getElements(elementIds);
-    const lastFrameIndex = findLastIndex(
-      elementIds,
-      (id) => elements[id]?.type === 'frame',
-    );
-
-    return (doc) => {
-      addChangeFn(doc);
-
-      newFrameIds.forEach((frameId, index) => {
-        generateMoveElement(
-          this.slideId,
-          frameId,
-          lastFrameIndex + 1 + index,
-        )(doc);
-      });
-    };
-  }
-
-  /**
    * Splits the ids into the selected frames, the selected other elements and
    * the not selected frames. All lists are sorted by their order in the slide.
    */
@@ -844,7 +804,7 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
     return false;
   }
 
-  sortFrames(): void {
+  sortFramesToBack(): void {
     this.assertLocked();
 
     const elementIds = this.getElementIds();

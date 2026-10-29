@@ -1037,6 +1037,34 @@ describe('WhiteboardInstanceImpl', () => {
     expect(slide.getElementIds()).toEqual([frame0, frame1, line0, line1]);
   });
 
+  it('should clear the undo manager after the frames were sorted', async () => {
+    const whiteboardInstance = new WhiteboardInstanceImpl(
+      synchronizedDocument,
+      communicationChannel,
+      mockWhiteboard(),
+      '@user-id:example.com',
+    );
+
+    const undoRedoStates = firstValueFrom(
+      whiteboardInstance.observeUndoRedoState().pipe(take(3), toArray()),
+    );
+
+    // simulate a loaded document where a frame is behind another element
+    const [addElementsChangeFn] = generateAddElements(slide0, [
+      mockLineElement(),
+      mockFrameElement(),
+    ]);
+    document.performChange(addElementsChangeFn);
+
+    observeIsLoadingSubject.next(false);
+
+    expect(await undoRedoStates).toEqual([
+      { canUndo: false, canRedo: false }, // at start
+      { canUndo: true, canRedo: false }, // after add elements
+      { canUndo: false, canRedo: false }, // after sort and clear
+    ]);
+  });
+
   it('should not change the order if the frames are already sorted after the document was loaded initially', () => {
     const whiteboardInstance = new WhiteboardInstanceImpl(
       synchronizedDocument,

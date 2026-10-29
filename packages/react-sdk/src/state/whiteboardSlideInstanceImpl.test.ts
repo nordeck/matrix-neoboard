@@ -2129,7 +2129,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       mockLineElement(),
     ]);
 
-    slideInstance.sortFrames();
+    slideInstance.sortFramesToBack();
 
     expect(slideInstance.getElementIds()).toEqual([
       frame0,
@@ -2147,7 +2147,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       ids: [line0, line1],
     } = createSlideWithElements([mockLineElement(), mockLineElement()]);
 
-    slideInstance.sortFrames();
+    slideInstance.sortFramesToBack();
 
     expect(slideInstance.getElementIds()).toEqual([line0, line1]);
   });
@@ -2156,7 +2156,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
     const { slideInstance } = createSlideWithElements([mockFrameElement()]);
     slideInstance.lockSlide();
 
-    expect(() => slideInstance.sortFrames()).toThrow(
+    expect(() => slideInstance.sortFramesToBack()).toThrow(
       'Can not modify slide, slide is locked',
     );
   });
