@@ -176,7 +176,6 @@ describe('MatrixRtcCommunicationChannel', () => {
 
   afterEach(() => {
     channel.destroy();
-    vi.clearAllMocks();
   });
 
   it('should join', async () => {
