@@ -132,7 +132,6 @@ describe('useWheelZoom', () => {
 
   afterEach(() => {
     vi.useRealTimers();
-    vi.clearAllMocks();
   });
 
   describe('Linux/Windows behavior', () => {
