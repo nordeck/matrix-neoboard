@@ -35,6 +35,7 @@ import {
 import { unstable_useId as useId, visuallyHidden } from '@mui/utils';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useProductName } from '../../lib';
 import { ExportWhiteboardDialogDownloadFile } from './ExportWhiteboardDialogDownloadFile';
 import { ExportWhiteboardDialogDownloadPdf } from './ExportWhiteboardDialogDownloadPdf';
 
@@ -78,6 +79,7 @@ function ExportWhiteboardDialogContent({
   onClose: () => void;
 }) {
   const { t } = useTranslation('neoboard');
+  const productName = useProductName();
 
   const [error, setError] = useState<string>();
 
@@ -141,7 +143,8 @@ function ExportWhiteboardDialogContent({
             <MenuItem value="nwb">
               {t(
                 'boardBar.exportWhiteboardDialog.fileFormat.nwb',
-                'NeoBoard file (.nwb)',
+                '{{productName}} file (.nwb)',
+                { productName },
               )}
             </MenuItem>
           </Select>

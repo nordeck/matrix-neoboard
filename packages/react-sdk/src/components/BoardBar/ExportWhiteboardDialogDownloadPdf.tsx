@@ -23,6 +23,7 @@ import { unstable_useId as useId, visuallyHidden } from '@mui/utils';
 import { getLogger } from 'loglevel';
 import { Dispatch, PropsWithChildren, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useProductName } from '../../lib';
 import { useActiveWhiteboardInstance } from '../../state';
 import { useGetRoomNameQuery, useUserDetails } from '../../store';
 import { createWhiteboardPdf } from './pdf';
@@ -40,7 +41,8 @@ export function ExportWhiteboardDialogDownloadPdf({
   const { t } = useTranslation('neoboard');
 
   const { data: roomNameStateEvent } = useGetRoomNameQuery();
-  const roomName = roomNameStateEvent?.event?.content.name ?? 'NeoBoard';
+  const productName = useProductName();
+  const roomName = roomNameStateEvent?.event?.content.name ?? productName;
 
   const downloadUrl = useGeneratePdf(roomName, onError);
 
