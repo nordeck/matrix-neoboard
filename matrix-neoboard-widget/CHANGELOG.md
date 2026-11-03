@@ -1,5 +1,16 @@
 # @nordeck/matrix-neoboard-widget
 
+## 3.0.2
+
+### Patch Changes
+
+- 4492f0b: Update `widget-server` base image to v1.2.4
+- Updated dependencies [6ff8586]
+- Updated dependencies [74fc88d]
+- Updated dependencies [16026a1]
+- Updated dependencies [f18d399]
+  - @nordeck/matrix-neoboard-react-sdk@2.1.0
+
 ## 3.0.1
 
 ### Patch Changes

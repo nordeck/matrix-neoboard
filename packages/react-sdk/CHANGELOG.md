@@ -1,5 +1,17 @@
 # @nordeck/matrix-neoboard-react-sdk
 
+## 2.1.0
+
+### Minor Changes
+
+- 6ff8586: Add a new toolbar above the Pen tool for modifying the properties of the next stroke and duplicating or deleting the last stroke.
+- 74fc88d: Smooth out strokes drawn freehand with the Pen tool and introduce a new path element kind 'curve'.
+- f18d399: Add a stroke width dropdown to the element bar for polyline elements in the active selection. Element bounds now include the stroke width, so the selection border, resize handles, frame overlay and PDF export fully contain thick polylines. Polylines also have rounded caps at both ends.
+
+### Patch Changes
+
+- 16026a1: Refactor elements.ts to use a union type to represent line, polyline, curve path elements
+
 ## 2.0.1
 
 ### Patch Changes
