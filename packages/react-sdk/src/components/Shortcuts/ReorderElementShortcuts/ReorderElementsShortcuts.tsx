@@ -26,8 +26,14 @@ import { HOTKEY_SCOPE_WHITEBOARD } from '../../WhiteboardHotkeysProvider';
 export function ReorderElementsShortcuts() {
   const { activeElementIds } = useActiveElements();
   const slideInstance = useWhiteboardSlideInstance();
-  const { canMoveUp, canMoveDown } =
-    useCanMoveActiveElementOneStep(activeElementIds);
+  const isSingleActiveElement = activeElementIds.length === 1;
+  const canMoveActiveElementOneStep = useCanMoveActiveElementOneStep(
+    activeElementIds[0],
+  );
+  const canMoveUp =
+    isSingleActiveElement && canMoveActiveElementOneStep.canMoveUp;
+  const canMoveDown =
+    isSingleActiveElement && canMoveActiveElementOneStep.canMoveDown;
 
   const handleClickBringForward = useCallback(() => {
     if (canMoveUp) {

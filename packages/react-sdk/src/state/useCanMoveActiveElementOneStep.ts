@@ -19,15 +19,12 @@ import { useElement, useSlideElementIds } from './useWhiteboardSlideInstance';
 /**
  * Whether the active element can be moved one step forward / backward in the z-order.
  * Frames always stay below all other elements.
- * Moving one step is only possible if exactly one element is active.
- * @param activeElementIds ids of the active elements
+ * @param elementId id of the active element
  */
-export function useCanMoveActiveElementOneStep(activeElementIds: string[]): {
+export function useCanMoveActiveElementOneStep(elementId: string | undefined): {
   canMoveUp: boolean;
   canMoveDown: boolean;
 } {
-  const elementId =
-    activeElementIds.length === 1 ? activeElementIds[0] : undefined;
   const elementIds = useSlideElementIds();
   const index = elementId ? elementIds.indexOf(elementId) : -1;
 

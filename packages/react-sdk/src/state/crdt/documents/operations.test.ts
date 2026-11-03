@@ -48,7 +48,7 @@ import {
   getNormalizedSlideIds,
   getSlide,
   getSlideLock,
-  keepFramesBelowAddedElements,
+  keepFramesBelowOtherElements,
 } from './operations';
 import {
   createWhiteboardDocument,
@@ -1897,7 +1897,7 @@ describe('generate', () => {
   });
 });
 
-describe('keepFramesBelowAddedElements', () => {
+describe('keepFramesBelowOtherElements', () => {
   let doc: Document<WhiteboardDocument>;
 
   beforeEach(() => {
@@ -1912,7 +1912,7 @@ describe('keepFramesBelowAddedElements', () => {
     );
 
     expect(
-      keepFramesBelowAddedElements(
+      keepFramesBelowOtherElements(
         slide0,
         addChangeFn,
         newElementIds,
@@ -1931,7 +1931,7 @@ describe('keepFramesBelowAddedElements', () => {
     const newElements = [mockFrameElement()];
     const [addChangeFn, [newFrame]] = generateAddElements(slide0, newElements);
     doc.performChange(
-      keepFramesBelowAddedElements(
+      keepFramesBelowOtherElements(
         slide0,
         addChangeFn,
         [newFrame],
@@ -1957,7 +1957,7 @@ describe('keepFramesBelowAddedElements', () => {
     const newElements = [mockFrameElement()];
     const [addChangeFn, [newFrame]] = generateAddElements(slide0, newElements);
     doc.performChange(
-      keepFramesBelowAddedElements(
+      keepFramesBelowOtherElements(
         slide0,
         addChangeFn,
         [newFrame],
@@ -1989,7 +1989,7 @@ describe('keepFramesBelowAddedElements', () => {
       newElements,
     );
     doc.performChange(
-      keepFramesBelowAddedElements(
+      keepFramesBelowOtherElements(
         slide0,
         addChangeFn,
         [newFrame0, newLine, newFrame1],
@@ -2015,7 +2015,7 @@ describe('keepFramesBelowAddedElements', () => {
 
     expect(() =>
       doc.performChange(
-        keepFramesBelowAddedElements(
+        keepFramesBelowOtherElements(
           'not-exists',
           addChangeFn,
           newElementIds,

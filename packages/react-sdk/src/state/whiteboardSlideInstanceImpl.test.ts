@@ -77,8 +77,10 @@ describe('WhiteboardSlideInstanceImpl', () => {
   let communicationChannel: Mocked<CommunicationChannel>;
   let document: Document<WhiteboardDocument>;
 
-  // helper to directly add elements to the slide0 without auto sorting the frames
+  // Helper to directly add elements to the slide0 without auto sorting the frames.
+  // Creates document v1 for getFrameElementIds support.
   function createSlideWithElements(elements: Element[]) {
+    document = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
     const slideInstance = new WhiteboardSlideInstanceImpl(
       communicationChannel,
       slide0,
@@ -2288,7 +2290,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
     ]);
   });
 
-  it('should move frames to the bottom of the slide', () => {
+  it('should move frame to the bottom of the slide', () => {
     const {
       slideInstance,
       ids: [frame0, frame1, line0],
@@ -2345,7 +2347,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
     ]);
   });
 
-  it('should move frames to the top of the frames but not above other elements', () => {
+  it('should move frame to the top of the frames but not above other elements', () => {
     const {
       slideInstance,
       ids: [frame0, frame1, line0],

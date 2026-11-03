@@ -71,17 +71,20 @@ describe('useCanMoveActiveElementOneStep', () => {
     };
   });
 
-  it('should not allow moving without an active element', () => {
-    const { result } = renderHook(() => useCanMoveActiveElementOneStep([]), {
-      wrapper: Wrapper,
-    });
+  it('should not allow moving for an unknown element id', () => {
+    const { result } = renderHook(
+      () => useCanMoveActiveElementOneStep('unknown-element'),
+      {
+        wrapper: Wrapper,
+      },
+    );
 
     expect(result.current).toEqual({ canMoveUp: false, canMoveDown: false });
   });
 
   it('should only allow moving the bottom frame up', () => {
     const { result } = renderHook(
-      () => useCanMoveActiveElementOneStep(['frame-0']),
+      () => useCanMoveActiveElementOneStep('frame-0'),
       {
         wrapper: Wrapper,
       },
@@ -92,7 +95,7 @@ describe('useCanMoveActiveElementOneStep', () => {
 
   it('should only allow moving the top frame down', () => {
     const { result } = renderHook(
-      () => useCanMoveActiveElementOneStep(['frame-1']),
+      () => useCanMoveActiveElementOneStep('frame-1'),
       {
         wrapper: Wrapper,
       },
@@ -103,7 +106,7 @@ describe('useCanMoveActiveElementOneStep', () => {
 
   it('should only allow moving the lowest non-frame element up', () => {
     const { result } = renderHook(
-      () => useCanMoveActiveElementOneStep(['element-0']),
+      () => useCanMoveActiveElementOneStep('element-0'),
       {
         wrapper: Wrapper,
       },
@@ -114,7 +117,25 @@ describe('useCanMoveActiveElementOneStep', () => {
 
   it('should allow moving a middle non-frame element up and down', () => {
     const { result } = renderHook(
-      () => useCanMoveActiveElementOneStep(['element-1']),
+      () => useCanMoveActiveElementOneStep('element-1'),
+      {
+        wrapper: Wrapper,
+      },
+    );
+
+    expect(result.current).toEqual({ canMoveUp: true, canMoveDown: true });
+  });
+
+  it('should allow moving a middle frame element up and down', () => {
+    // frame-1 will be in the middle after adding a new frame
+    act(() => {
+      activeWhiteboardInstance
+        .getSlide('slide-0')
+        .addElement(mockFrameElement());
+    });
+
+    const { result } = renderHook(
+      () => useCanMoveActiveElementOneStep('frame-1'),
       {
         wrapper: Wrapper,
       },
@@ -125,7 +146,7 @@ describe('useCanMoveActiveElementOneStep', () => {
 
   it('should only allow moving the top element down', () => {
     const { result } = renderHook(
-      () => useCanMoveActiveElementOneStep(['element-2']),
+      () => useCanMoveActiveElementOneStep('element-2'),
       {
         wrapper: Wrapper,
       },
@@ -140,7 +161,7 @@ describe('useCanMoveActiveElementOneStep', () => {
     }));
 
     const { result } = renderHook(
-      () => useCanMoveActiveElementOneStep(['frame-0']),
+      () => useCanMoveActiveElementOneStep('frame-0'),
       {
         wrapper: Wrapper,
       },
@@ -151,7 +172,7 @@ describe('useCanMoveActiveElementOneStep', () => {
 
   it('should update if the element order changes', () => {
     const { result } = renderHook(
-      () => useCanMoveActiveElementOneStep(['element-2']),
+      () => useCanMoveActiveElementOneStep('element-2'),
       {
         wrapper: Wrapper,
       },

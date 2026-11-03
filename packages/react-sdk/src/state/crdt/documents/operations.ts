@@ -598,7 +598,7 @@ export function generate(
  * @param newElementIds - ids of the new elements
  * @param newElements - the new elements, in the same order as the ids
  */
-export function keepFramesBelowAddedElements(
+export function keepFramesBelowOtherElements(
   slideId: string,
   addChangeFn: ChangeFn<WhiteboardDocument>,
   newElementIds: string[],

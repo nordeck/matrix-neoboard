@@ -1010,6 +1010,10 @@ describe('WhiteboardInstanceImpl', () => {
   });
 
   it('should sort the frames of the document after it was loaded initially', () => {
+    // frameElementIds only exist in v1 documents
+    document = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
+    synchronizedDocument.getDocument.mockReturnValue(document);
+
     const whiteboardInstance = new WhiteboardInstanceImpl(
       synchronizedDocument,
       communicationChannel,
@@ -1038,6 +1042,10 @@ describe('WhiteboardInstanceImpl', () => {
   });
 
   it('should clear the undo manager after the frames were sorted', async () => {
+    // frameElementIds only exist in v1 documents
+    document = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
+    synchronizedDocument.getDocument.mockReturnValue(document);
+
     const whiteboardInstance = new WhiteboardInstanceImpl(
       synchronizedDocument,
       communicationChannel,
@@ -1066,6 +1074,10 @@ describe('WhiteboardInstanceImpl', () => {
   });
 
   it('should not change the order if the frames are already sorted after the document was loaded initially', () => {
+    // frameElementIds only exist in v1 documents
+    document = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
+    synchronizedDocument.getDocument.mockReturnValue(document);
+
     const whiteboardInstance = new WhiteboardInstanceImpl(
       synchronizedDocument,
       communicationChannel,

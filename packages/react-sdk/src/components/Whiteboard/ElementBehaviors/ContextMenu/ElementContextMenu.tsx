@@ -210,8 +210,14 @@ function ContextMenuOptions({
   const menuTitle = t('elementContextMenu.title', 'Element');
   const [open, setOpen] = useState(true);
 
-  const { canMoveUp, canMoveDown } =
-    useCanMoveActiveElementOneStep(activeElementIds);
+  const isSingleActiveElement = activeElementIds.length === 1;
+  const canMoveActiveElementOneStep = useCanMoveActiveElementOneStep(
+    activeElementIds[0],
+  );
+  const canMoveUp =
+    isSingleActiveElement && canMoveActiveElementOneStep.canMoveUp;
+  const canMoveDown =
+    isSingleActiveElement && canMoveActiveElementOneStep.canMoveDown;
   const canMoveTop = canMoveUp || activeElementIds.length > 1;
   const canMoveBottom = canMoveDown || activeElementIds.length > 1;
 

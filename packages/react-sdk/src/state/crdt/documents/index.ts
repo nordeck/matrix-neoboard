@@ -80,7 +80,7 @@ export {
   getNormalizedSlideIds,
   getSlide,
   getSlideLock,
-  keepFramesBelowAddedElements,
+  keepFramesBelowOtherElements,
 } from './operations';
 export type { UpdateElementPatch } from './operations';
 export {
