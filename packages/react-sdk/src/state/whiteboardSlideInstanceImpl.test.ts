@@ -33,7 +33,6 @@ import {
   mockLineElement,
   mockRectangleElement,
 } from '../lib/testUtils';
-import { Element } from '../state';
 import {
   CommunicationChannel,
   CommunicationChannelStatistics,
@@ -76,19 +75,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
   let messageChannel: Subject<Message>;
   let communicationChannel: Mocked<CommunicationChannel>;
   let document: Document<WhiteboardDocument>;
-
-  // Helper to directly add elements to the slide0 without auto sorting the frames.
-  function createSlideWithElements(elements: Element[]) {
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id:example.com',
-    );
-    const [addElementsChangeFn, ids] = generateAddElements(slide0, elements);
-    document.performChange(addElementsChangeFn);
-    return { slideInstance, ids };
-  }
+  let slideInstance: WhiteboardSlideInstanceImpl;
 
   beforeEach(async () => {
     messageChannel = new Subject<Message>();
@@ -106,16 +93,16 @@ describe('WhiteboardSlideInstanceImpl', () => {
     };
 
     document = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
-  });
 
-  it('should lock slide', () => {
-    const slideInstance = new WhiteboardSlideInstanceImpl(
+    slideInstance = new WhiteboardSlideInstanceImpl(
       communicationChannel,
       slide0,
       document,
       '@user-id:example.com',
     );
+  });
 
+  it('should lock slide', () => {
     slideInstance.lockSlide();
 
     expect(getSlideLock(document.getData(), slide0)).toEqual({
@@ -125,13 +112,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should unlock a slide', () => {
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id:example.com',
-    );
-
     slideInstance.lockSlide();
     slideInstance.unlockSlide();
 
@@ -139,13 +119,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should add element and select it as active element', () => {
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id:example.com',
-    );
-
     const element = mockLineElement();
     const element0 = slideInstance.addElement(element);
 
@@ -154,13 +127,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should delete connection data when shape element is added', () => {
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id:example.com',
-    );
-
     const element = mockEllipseElement({ connectedPaths: ['element-id-1'] });
     const element0 = slideInstance.addElement(element);
 
@@ -169,15 +135,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should delete attach frame data when line element is added', () => {
-    document = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
-
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id',
-    );
-
     const element = mockLineElement({ attachedFrame: 'frame-id-1' });
     const element0 = slideInstance.addElement(element);
 
@@ -186,15 +143,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should add shape element and attach to existing frame element', () => {
-    document = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
-
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id',
-    );
-
     const frameElement1 = mockFrameElement();
     const frameElementId1 = slideInstance.addElement(frameElement1);
 
@@ -212,15 +160,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should add frames and elements', () => {
-    document = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
-
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id',
-    );
-
     const frameElement1 = mockFrameElement();
     const frameElementId1 = slideInstance.addElement(frameElement1);
     const frameElement2 = mockFrameElement();
@@ -263,15 +202,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should add shape element and filter out unknown frame', () => {
-    document = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
-
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id',
-    );
-
     const shapeElement = mockRectangleElement({
       attachedFrame: 'unknown-frame-id',
     });
@@ -285,13 +215,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should add line element and connect to existing shape elements', () => {
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id:example.com',
-    );
-
     const elementShape1 = mockRectangleElement();
     const elementShapeId1 = slideInstance.addElement(elementShape1);
     const elementShape2 = mockRectangleElement();
@@ -320,13 +243,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should add line element and connect to existing shape element and filter out unknown connection start', () => {
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id:example.com',
-    );
-
     const elementShape1 = mockRectangleElement();
     const elementShapeId1 = slideInstance.addElement(elementShape1);
 
@@ -349,13 +265,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should add line element and connect to existing shape element and filter out unknown connection end', () => {
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id:example.com',
-    );
-
     const elementShape1 = mockRectangleElement();
     const elementShapeId1 = slideInstance.addElement(elementShape1);
 
@@ -378,13 +287,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should add line and shape elements and connect', () => {
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id:example.com',
-    );
-
     const elementLine = mockLineElement();
     const elementLineId = slideInstance.addElement(elementLine);
     const elementShape = mockRectangleElement();
@@ -416,15 +318,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should add line element and attach to existing frame element', () => {
-    document = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
-
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id',
-    );
-
     const frameElement1 = mockFrameElement();
     const frameElementId1 = slideInstance.addElement(frameElement1);
 
@@ -442,15 +335,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should add line element and filter out unknown frame', () => {
-    document = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
-
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id',
-    );
-
     const lineElement = mockLineElement({
       attachedFrame: 'unknown-frame-id',
     });
@@ -464,13 +348,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should add elements and select them as active elements', () => {
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id:example.com',
-    );
-
     const element0 = mockEllipseElement();
     const element1 = mockLineElement();
     const elementIds = slideInstance.addElements([element0, element1]);
@@ -481,13 +358,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should add elements without connections and select them as active elements', () => {
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id:example.com',
-    );
-
     const element0 = mockEllipseElement();
     const element1 = mockLineElement();
 
@@ -507,13 +377,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should add connected elements and select them as active elements', () => {
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id:example.com',
-    );
-
     const element0 = mockEllipseElement();
     const element1 = mockLineElement({
       connectedElementStart: 'element-id-2',
@@ -554,13 +417,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should add connected elements and filter out unknown connection data and select them as active elements', () => {
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id:example.com',
-    );
-
     const element0 = mockEllipseElement();
     const element1 = mockLineElement({
       connectedElementStart: 'unknown-id-1',
@@ -598,15 +454,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should add frame with attached elements and select them as active elements', () => {
-    document = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
-
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id',
-    );
-
     const frameElement = mockFrameElement({
       attachedElements: ['element-id-1', 'element-id-2'],
     });
@@ -649,15 +496,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should add frame with attached elements and filer out unknown attach data and select them as active elements', () => {
-    document = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
-
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id',
-    );
-
     const frameElement = mockFrameElement({
       attachedElements: ['element-id-1', 'unknown-element-id-1'],
     });
@@ -700,15 +538,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should add elements and attach to existing frame element and select them as active elements', () => {
-    document = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
-
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id',
-    );
-
     const frameElement1 = mockFrameElement();
     const frameElement2 = mockFrameElement();
     const frameElementId1 = slideInstance.addElement(frameElement1);
@@ -749,12 +578,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should throw when adding element to a locked slide', () => {
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id:example.com',
-    );
     slideInstance.lockSlide();
 
     const element = mockLineElement();
@@ -765,13 +588,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should select the active element before adding the element to the document', () => {
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id:example.com',
-    );
-
     const setActiveElementIdSpy = vi.spyOn(slideInstance, 'setActiveElementId');
 
     const performChangeSpy = vi
@@ -792,13 +608,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should remove a single element', () => {
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id:example.com',
-    );
-
     const element = mockLineElement();
     const element0 = slideInstance.addElement(element);
 
@@ -811,13 +620,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
 
   describe('removeElements', () => {
     it('should remove multiple elements', () => {
-      const slideInstance = new WhiteboardSlideInstanceImpl(
-        communicationChannel,
-        slide0,
-        document,
-        '@user-id:example.com',
-      );
-
       const element1 = mockLineElement();
       const element1Id = slideInstance.addElement(element1);
       const element2 = mockLineElement();
@@ -837,13 +639,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should remove connected shape', () => {
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id:example.com',
-    );
-
     const elementLine = mockLineElement();
     const elementLineId = slideInstance.addElement(elementLine);
     const elementShape = mockRectangleElement();
@@ -869,13 +664,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should remove connected line', () => {
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id:example.com',
-    );
-
     const elementLine = mockLineElement();
     const elementLineId = slideInstance.addElement(elementLine);
     const elementShape = mockRectangleElement();
@@ -901,13 +689,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should remove connected line with two connections to shape', () => {
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id:example.com',
-    );
-
     const elementLine = mockLineElement();
     const elementLineId = slideInstance.addElement(elementLine);
     const elementShape = mockRectangleElement();
@@ -934,15 +715,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should remove attached frame', () => {
-    document = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
-
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id',
-    );
-
     const elementFrame = mockFrameElement();
     const elementFrameId = slideInstance.addElement(elementFrame);
     const elementShape = mockRectangleElement();
@@ -972,13 +744,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should remove attached element', () => {
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id',
-    );
-
     const elementFrame = mockFrameElement();
     const elementFrameId = slideInstance.addElement(elementFrame);
     const elementShape = mockRectangleElement();
@@ -1004,12 +769,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should throw when removing element from a locked slide', () => {
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id:example.com',
-    );
     const element = mockLineElement();
     const element0 = slideInstance.addElement(element);
     slideInstance.lockSlide();
@@ -1020,13 +779,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should update element', () => {
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id:example.com',
-    );
-
     const element = mockLineElement();
     const element0 = slideInstance.addElement(element);
 
@@ -1043,13 +795,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should update elements', () => {
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id:example.com',
-    );
-
     const element = mockLineElement();
     const element1 = mockEllipseElement();
     const elementId0 = slideInstance.addElement(element);
@@ -1085,12 +830,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should throw when updating element on a locked slide', () => {
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id:example.com',
-    );
     const element = mockLineElement();
     const element0 = slideInstance.addElement(element);
     slideInstance.lockSlide();
@@ -1103,13 +842,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should move element to bottom', () => {
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id:example.com',
-    );
-
     const element = mockLineElement();
     const element0 = slideInstance.addElement(element);
     const element1 = slideInstance.addElement(element);
@@ -1131,13 +863,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should move elements to bottom', () => {
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id:example.com',
-    );
-
     const element = mockLineElement();
     const element0 = slideInstance.addElement(element);
     const element1 = slideInstance.addElement(element);
@@ -1159,13 +884,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should move elements to bottom when order is different to elements in the slide', () => {
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id:example.com',
-    );
-
     const element = mockLineElement();
     const element0 = slideInstance.addElement(element);
     const element1 = slideInstance.addElement(element);
@@ -1187,13 +905,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should throw when moving element to bottom on a locked slide', () => {
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id:example.com',
-    );
-
     const element = mockLineElement();
     const element0 = slideInstance.addElement(element);
     slideInstance.lockSlide();
@@ -1204,13 +915,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should move element down', () => {
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id:example.com',
-    );
-
     const element = mockLineElement();
     const element0 = slideInstance.addElement(element);
     const element1 = slideInstance.addElement(element);
@@ -1232,13 +936,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should throw when moving element down on a locked slide', () => {
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id:example.com',
-    );
-
     const element = mockLineElement();
     const element0 = slideInstance.addElement(element);
     slideInstance.lockSlide();
@@ -1249,13 +946,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should move element up', () => {
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id:example.com',
-    );
-
     const element = mockLineElement();
     const element0 = slideInstance.addElement(element);
     const element1 = slideInstance.addElement(element);
@@ -1277,13 +967,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should throw when moving element up on a locked slide', () => {
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id:example.com',
-    );
-
     const element = mockLineElement();
     const element0 = slideInstance.addElement(element);
     slideInstance.lockSlide();
@@ -1294,13 +977,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should move element to top', () => {
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id:example.com',
-    );
-
     const element = mockLineElement();
     const element0 = slideInstance.addElement(element);
     const element1 = slideInstance.addElement(element);
@@ -1322,13 +998,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should move elements to top', () => {
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id:example.com',
-    );
-
     const element = mockLineElement();
     const element0 = slideInstance.addElement(element);
     const element1 = slideInstance.addElement(element);
@@ -1350,13 +1019,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should move elements to top when order is different to elements in the slide', () => {
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id:example.com',
-    );
-
     const element = mockLineElement();
     const element0 = slideInstance.addElement(element);
     const element1 = slideInstance.addElement(element);
@@ -1378,13 +1040,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should throw when moving element to top on a locked slide', () => {
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id:example.com',
-    );
-
     const element = mockLineElement();
     const element0 = slideInstance.addElement(element);
     slideInstance.lockSlide();
@@ -1395,15 +1050,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should move a frame', () => {
-    document = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
-
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id:example.com',
-    );
-
     const element = mockLineElement();
     const element0 = slideInstance.addElement(element);
     const element1 = slideInstance.addElement(element);
@@ -1441,13 +1087,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should observe element', async () => {
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id:example.com',
-    );
-
     const element = mockLineElement();
     const element0 = slideInstance.addElement(element);
 
@@ -1468,13 +1107,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should observe elements', async () => {
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id:example.com',
-    );
-
     const element = mockLineElement();
     const element1 = mockEllipseElement();
     const elementId0 = slideInstance.addElement(element);
@@ -1502,15 +1134,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should observe frame elements', async () => {
-    document = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
-
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id',
-    );
-
     const frameElement1 = mockFrameElement();
     const frameElementId1 = slideInstance.addElement(frameElement1);
     const frameElement2 = mockFrameElement();
@@ -1551,13 +1174,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should observe element ids', async () => {
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id:example.com',
-    );
-
     const elementIds = firstValueFrom(
       slideInstance.observeElementIds().pipe(take(4), toArray()),
     );
@@ -1576,15 +1192,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should observe frame element ids', async () => {
-    document = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
-
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id:example.com',
-    );
-
     const frameElementIds = firstValueFrom(
       slideInstance.observeFrameElementIds().pipe(take(3), toArray()),
     );
@@ -1601,13 +1208,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
 
   it('should observe cursor positions', async () => {
     vi.useFakeTimers();
-
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id:example.com',
-    );
 
     const cursorPositions = firstValueFrom(
       slideInstance.observeCursorPositions().pipe(take(1), toArray()),
@@ -1646,13 +1246,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   it('should combine cursor positions from different sessions of the same user', async () => {
     vi.useFakeTimers();
 
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id:example.com',
-    );
-
     const cursorPositions = firstValueFrom(
       slideInstance.observeCursorPositions().pipe(take(2), toArray()),
     );
@@ -1690,13 +1283,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   it('should ignore cursor positions for other slides', async () => {
     vi.useFakeTimers();
 
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id:example.com',
-    );
-
     const cursorPositions = firstValueFrom(
       slideInstance.observeCursorPositions().pipe(take(1), toArray()),
     );
@@ -1733,13 +1319,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   it('should forget cursors after 5 seconds', async () => {
     vi.useFakeTimers();
 
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id:example.com',
-    );
-
     const firstCursorPosition = firstValueFrom(
       slideInstance.observeCursorPositions().pipe(take(1)),
     );
@@ -1767,13 +1346,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should publish cursor position', async () => {
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id:example.com',
-    );
-
     slideInstance.publishCursorPosition({ x: 1, y: 2 });
 
     await waitFor(() => {
@@ -1785,13 +1357,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should throttle publishing cursor position', async () => {
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id:example.com',
-    );
-
     slideInstance.publishCursorPosition({ x: 1, y: 2 });
     slideInstance.publishCursorPosition({ x: 3, y: 4 });
     slideInstance.publishCursorPosition({ x: 5, y: 6 });
@@ -1812,13 +1377,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should switch to a specific element', async () => {
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id:example.com',
-    );
-
     const observedActiveElement = firstValueFrom(
       slideInstance.observeActiveElementId().pipe(take(4), toArray()),
     );
@@ -1837,13 +1395,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should select multiple elements', async () => {
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id:example.com',
-    );
-
     const element0 = slideInstance.addElement(mockLineElement());
     const element1 = slideInstance.addElement(mockLineElement());
     slideInstance.setActiveElementId('not-exists');
@@ -1867,13 +1418,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should unset a selected element to a specific element', async () => {
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id:example.com',
-    );
-
     const observedActiveElement = firstValueFrom(
       slideInstance.observeActiveElementId().pipe(take(3), toArray()),
     );
@@ -1891,13 +1435,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should keep the selected element id to a specific element', async () => {
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id:example.com',
-    );
-
     const [addElement, element0] = generateAddElement(
       slide0,
       mockLineElement(),
@@ -1917,13 +1454,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should unselect specific elements when multiple elements are selected', async () => {
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id:example.com',
-    );
-
     const element0 = slideInstance.addElement(mockLineElement());
     const element1 = slideInstance.addElement(mockLineElement());
     slideInstance.setActiveElementId('not-exists');
@@ -1948,13 +1478,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should sort given element IDs based on the order of element IDs in the slide ignoring unknown ones', () => {
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id:example.com',
-    );
-
     const element = mockLineElement();
     const element0 = slideInstance.addElement(element);
     const element1 = slideInstance.addElement(element);
@@ -1965,13 +1488,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should check if specific element is active when multiple elements are selected', async () => {
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id:example.com',
-    );
-
     const element0 = slideInstance.addElement(mockLineElement());
     const element1 = slideInstance.addElement(mockLineElement());
     slideInstance.setActiveElementId(undefined);
@@ -1984,13 +1500,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should deselect the active element when removed', async () => {
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id:example.com',
-    );
-
     const observedActiveElement = firstValueFrom(
       slideInstance.observeActiveElementId().pipe(take(3), toArray()),
     );
@@ -2009,13 +1518,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should observe locked state', async () => {
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id:example.com',
-    );
-
     const lockUpdates = firstValueFrom(
       slideInstance.observeIsLocked().pipe(take(3), toArray()),
     );
@@ -2028,13 +1530,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should close observables on destroy', async () => {
-    const slideInstance = new WhiteboardSlideInstanceImpl(
-      communicationChannel,
-      slide0,
-      document,
-      '@user-id:example.com',
-    );
-
     const element = mockLineElement();
     const element0 = slideInstance.addElement(element);
 
@@ -2064,70 +1559,75 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should not need frame sorting for an empty slide', () => {
-    const { slideInstance } = createSlideWithElements([]);
+    const [addElementsChangeFn] = generateAddElements(slide0, []);
+    document.performChange(addElementsChangeFn);
 
     expect(slideInstance.checkFramesNeedSorting()).toBe(false);
   });
 
   it('should not need frame sorting if there are only frames', () => {
-    const { slideInstance } = createSlideWithElements([
+    const [addElementsChangeFn] = generateAddElements(slide0, [
       mockFrameElement(),
       mockFrameElement(),
     ]);
+    document.performChange(addElementsChangeFn);
 
     expect(slideInstance.checkFramesNeedSorting()).toBe(false);
   });
 
   it('should not need frame sorting if there are no frames', () => {
-    const { slideInstance } = createSlideWithElements([
+    const [addElementsChangeFn] = generateAddElements(slide0, [
       mockLineElement(),
       mockLineElement(),
     ]);
+    document.performChange(addElementsChangeFn);
 
     expect(slideInstance.checkFramesNeedSorting()).toBe(false);
   });
 
   it('should not need frame sorting if all frames are below all other elements', () => {
-    const { slideInstance } = createSlideWithElements([
+    const [addElementsChangeFn] = generateAddElements(slide0, [
       mockFrameElement(),
       mockFrameElement(),
       mockLineElement(),
       mockLineElement(),
     ]);
+    document.performChange(addElementsChangeFn);
 
     expect(slideInstance.checkFramesNeedSorting()).toBe(false);
   });
 
   it('should need frame sorting if a frame is above another element', () => {
-    const { slideInstance } = createSlideWithElements([
+    const [addElementsChangeFn] = generateAddElements(slide0, [
       mockLineElement(),
       mockFrameElement(),
     ]);
+    document.performChange(addElementsChangeFn);
 
     expect(slideInstance.checkFramesNeedSorting()).toBe(true);
   });
 
   it('should need frame sorting if a non-frame element is between frames', () => {
-    const { slideInstance } = createSlideWithElements([
+    const [addElementsChangeFn] = generateAddElements(slide0, [
       mockFrameElement(),
       mockLineElement(),
       mockFrameElement(),
     ]);
+    document.performChange(addElementsChangeFn);
 
     expect(slideInstance.checkFramesNeedSorting()).toBe(true);
   });
 
   it('should move frames to the bottom and keep the relative order', () => {
-    const {
-      slideInstance,
-      ids: [line0, frame0, line1, frame1, line2],
-    } = createSlideWithElements([
+    const [addElementsChangeFn, ids] = generateAddElements(slide0, [
       mockLineElement(),
       mockFrameElement(),
       mockLineElement(),
       mockFrameElement(),
       mockLineElement(),
     ]);
+    document.performChange(addElementsChangeFn);
+    const [line0, frame0, line1, frame1, line2] = ids;
 
     slideInstance.sortFramesToBack();
 
@@ -2142,10 +1642,12 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should not change a slide without frames when sorting frames', () => {
-    const {
-      slideInstance,
-      ids: [line0, line1],
-    } = createSlideWithElements([mockLineElement(), mockLineElement()]);
+    const [addElementsChangeFn, ids] = generateAddElements(slide0, [
+      mockLineElement(),
+      mockLineElement(),
+    ]);
+    document.performChange(addElementsChangeFn);
+    const [line0, line1] = ids;
 
     slideInstance.sortFramesToBack();
 
@@ -2153,7 +1655,10 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should throw when sorting frames on a locked slide', () => {
-    const { slideInstance } = createSlideWithElements([mockFrameElement()]);
+    const [addElementsChangeFn] = generateAddElements(slide0, [
+      mockFrameElement(),
+    ]);
+    document.performChange(addElementsChangeFn);
     slideInstance.lockSlide();
 
     expect(() => slideInstance.sortFramesToBack()).toThrow(
@@ -2162,10 +1667,12 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should not move a frame up above another element', () => {
-    const {
-      slideInstance,
-      ids: [frame0, line0],
-    } = createSlideWithElements([mockFrameElement(), mockLineElement()]);
+    const [addElementsChangeFn, ids] = generateAddElements(slide0, [
+      mockFrameElement(),
+      mockLineElement(),
+    ]);
+    document.performChange(addElementsChangeFn);
+    const [frame0, line0] = ids;
 
     slideInstance.moveElementUp(frame0);
 
@@ -2173,14 +1680,13 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should move a frame up above another frame', () => {
-    const {
-      slideInstance,
-      ids: [frame0, frame1, line0],
-    } = createSlideWithElements([
+    const [addElementsChangeFn, ids] = generateAddElements(slide0, [
       mockFrameElement(),
       mockFrameElement(),
       mockLineElement(),
     ]);
+    document.performChange(addElementsChangeFn);
+    const [frame0, frame1, line0] = ids;
 
     slideInstance.moveElementUp(frame0);
 
@@ -2188,14 +1694,13 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should move a non-frame element up above another element', () => {
-    const {
-      slideInstance,
-      ids: [frame0, line0, line1],
-    } = createSlideWithElements([
+    const [addElementsChangeFn, ids] = generateAddElements(slide0, [
       mockFrameElement(),
       mockLineElement(),
       mockLineElement(),
     ]);
+    document.performChange(addElementsChangeFn);
+    const [frame0, line0, line1] = ids;
 
     slideInstance.moveElementUp(line0);
 
@@ -2203,10 +1708,12 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should not fail moving the topmost element up', () => {
-    const {
-      slideInstance,
-      ids: [line0, line1],
-    } = createSlideWithElements([mockLineElement(), mockLineElement()]);
+    const [addElementsChangeFn, ids] = generateAddElements(slide0, [
+      mockLineElement(),
+      mockLineElement(),
+    ]);
+    document.performChange(addElementsChangeFn);
+    const [line0, line1] = ids;
 
     slideInstance.moveElementUp(line1);
 
@@ -2214,10 +1721,12 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should not move a non-frame element down below a frame', () => {
-    const {
-      slideInstance,
-      ids: [frame0, line0],
-    } = createSlideWithElements([mockFrameElement(), mockLineElement()]);
+    const [addElementsChangeFn, ids] = generateAddElements(slide0, [
+      mockFrameElement(),
+      mockLineElement(),
+    ]);
+    document.performChange(addElementsChangeFn);
+    const [frame0, line0] = ids;
 
     slideInstance.moveElementDown(line0);
 
@@ -2225,14 +1734,13 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should move a non-frame element down below another non-frame element', () => {
-    const {
-      slideInstance,
-      ids: [frame0, line0, line1],
-    } = createSlideWithElements([
+    const [addElementsChangeFn, ids] = generateAddElements(slide0, [
       mockFrameElement(),
       mockLineElement(),
       mockLineElement(),
     ]);
+    document.performChange(addElementsChangeFn);
+    const [frame0, line0, line1] = ids;
 
     slideInstance.moveElementDown(line1);
 
@@ -2240,14 +1748,13 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should move a frame down below another frame', () => {
-    const {
-      slideInstance,
-      ids: [frame0, frame1, line0],
-    } = createSlideWithElements([
+    const [addElementsChangeFn, ids] = generateAddElements(slide0, [
       mockFrameElement(),
       mockFrameElement(),
       mockLineElement(),
     ]);
+    document.performChange(addElementsChangeFn);
+    const [frame0, frame1, line0] = ids;
 
     slideInstance.moveElementDown(frame1);
 
@@ -2255,10 +1762,12 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should not fail moving the bottommost element down', () => {
-    const {
-      slideInstance,
-      ids: [frame0, line0],
-    } = createSlideWithElements([mockFrameElement(), mockLineElement()]);
+    const [addElementsChangeFn, ids] = generateAddElements(slide0, [
+      mockFrameElement(),
+      mockLineElement(),
+    ]);
+    document.performChange(addElementsChangeFn);
+    const [frame0, line0] = ids;
 
     slideInstance.moveElementDown(frame0);
 
@@ -2266,16 +1775,15 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should move non-frame elements to the bottom but keep them above the frames', () => {
-    const {
-      slideInstance,
-      ids: [frame0, frame1, line0, line1, line2],
-    } = createSlideWithElements([
+    const [addElementsChangeFn, ids] = generateAddElements(slide0, [
       mockFrameElement(),
       mockFrameElement(),
       mockLineElement(),
       mockLineElement(),
       mockLineElement(),
     ]);
+    document.performChange(addElementsChangeFn);
+    const [frame0, frame1, line0, line1, line2] = ids;
 
     slideInstance.moveElementsToBottom([line2, line1]);
 
@@ -2289,14 +1797,13 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should move frame to the bottom of the slide', () => {
-    const {
-      slideInstance,
-      ids: [frame0, frame1, line0],
-    } = createSlideWithElements([
+    const [addElementsChangeFn, ids] = generateAddElements(slide0, [
       mockFrameElement(),
       mockFrameElement(),
       mockLineElement(),
     ]);
+    document.performChange(addElementsChangeFn);
+    const [frame0, frame1, line0] = ids;
 
     slideInstance.moveElementsToBottom([frame1]);
 
@@ -2304,15 +1811,14 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should keep frames below other elements when moving a mixed selection to the bottom', () => {
-    const {
-      slideInstance,
-      ids: [frame0, frame1, line0, line1],
-    } = createSlideWithElements([
+    const [addElementsChangeFn, ids] = generateAddElements(slide0, [
       mockFrameElement(),
       mockFrameElement(),
       mockLineElement(),
       mockLineElement(),
     ]);
+    document.performChange(addElementsChangeFn);
+    const [frame0, frame1, line0, line1] = ids;
 
     slideInstance.moveElementsToBottom([line1, frame1]);
 
@@ -2325,15 +1831,14 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should move non-frame elements to the top of the slide', () => {
-    const {
-      slideInstance,
-      ids: [frame0, line0, line1, line2],
-    } = createSlideWithElements([
+    const [addElementsChangeFn, ids] = generateAddElements(slide0, [
       mockFrameElement(),
       mockLineElement(),
       mockLineElement(),
       mockLineElement(),
     ]);
+    document.performChange(addElementsChangeFn);
+    const [frame0, line0, line1, line2] = ids;
 
     slideInstance.moveElementsToTop([line0, line1]);
 
@@ -2346,14 +1851,13 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should move frame to the top of the frames but not above other elements', () => {
-    const {
-      slideInstance,
-      ids: [frame0, frame1, line0],
-    } = createSlideWithElements([
+    const [addElementsChangeFn, ids] = generateAddElements(slide0, [
       mockFrameElement(),
       mockFrameElement(),
       mockLineElement(),
     ]);
+    document.performChange(addElementsChangeFn);
+    const [frame0, frame1, line0] = ids;
 
     slideInstance.moveElementsToTop([frame0]);
 
@@ -2361,15 +1865,14 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should keep frames below other elements when moving a mixed selection to the top', () => {
-    const {
-      slideInstance,
-      ids: [frame0, frame1, line0, line1],
-    } = createSlideWithElements([
+    const [addElementsChangeFn, ids] = generateAddElements(slide0, [
       mockFrameElement(),
       mockFrameElement(),
       mockLineElement(),
       mockLineElement(),
     ]);
+    document.performChange(addElementsChangeFn);
+    const [frame0, frame1, line0, line1] = ids;
 
     slideInstance.moveElementsToTop([frame0, line0]);
 
@@ -2382,14 +1885,13 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should add a frame on top of the last frame but below other elements', () => {
-    const {
-      slideInstance,
-      ids: [frame0, frame1, line0],
-    } = createSlideWithElements([
+    const [addElementsChangeFn, ids] = generateAddElements(slide0, [
       mockFrameElement(),
       mockFrameElement(),
       mockLineElement(),
     ]);
+    document.performChange(addElementsChangeFn);
+    const [frame0, frame1, line0] = ids;
 
     const newFrame = slideInstance.addElement(mockFrameElement());
 
@@ -2402,10 +1904,12 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should add the first frame below all other elements', () => {
-    const {
-      slideInstance,
-      ids: [line0, line1],
-    } = createSlideWithElements([mockLineElement(), mockLineElement()]);
+    const [addElementsChangeFn, ids] = generateAddElements(slide0, [
+      mockLineElement(),
+      mockLineElement(),
+    ]);
+    document.performChange(addElementsChangeFn);
+    const [line0, line1] = ids;
 
     const newFrame = slideInstance.addElement(mockFrameElement());
 
@@ -2413,10 +1917,12 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should add a non-frame element on top of all elements', () => {
-    const {
-      slideInstance,
-      ids: [frame0, line0],
-    } = createSlideWithElements([mockFrameElement(), mockLineElement()]);
+    const [addElementsChangeFn, ids] = generateAddElements(slide0, [
+      mockFrameElement(),
+      mockLineElement(),
+    ]);
+    document.performChange(addElementsChangeFn);
+    const [frame0, line0] = ids;
 
     const newLine = slideInstance.addElement(mockLineElement());
 
@@ -2424,10 +1930,12 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should add frames on top of the last frame but below other elements', () => {
-    const {
-      slideInstance,
-      ids: [frame0, line0],
-    } = createSlideWithElements([mockFrameElement(), mockLineElement()]);
+    const [addElementsChangeFn, ids] = generateAddElements(slide0, [
+      mockFrameElement(),
+      mockLineElement(),
+    ]);
+    document.performChange(addElementsChangeFn);
+    const [frame0, line0] = ids;
 
     const [newLine0, newFrame0, newLine1, newFrame1] =
       slideInstance.addElements([
@@ -2449,10 +1957,11 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should add the first frames below all other elements', () => {
-    const {
-      slideInstance,
-      ids: [line0],
-    } = createSlideWithElements([mockLineElement()]);
+    const [addElementsChangeFn, ids] = generateAddElements(slide0, [
+      mockLineElement(),
+    ]);
+    document.performChange(addElementsChangeFn);
+    const [line0] = ids;
 
     const [newFrame0, newFrame1] = slideInstance.addElements([
       mockFrameElement(),
@@ -2467,12 +1976,12 @@ describe('WhiteboardSlideInstanceImpl', () => {
   });
 
   it('should add frames with relations on top of the last frame but below other elements and keep the relations', () => {
-    document = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
-
-    const {
-      slideInstance,
-      ids: [frame0, line0],
-    } = createSlideWithElements([mockFrameElement(), mockLineElement()]);
+    const [addElementsChangeFn, ids] = generateAddElements(slide0, [
+      mockFrameElement(),
+      mockLineElement(),
+    ]);
+    document.performChange(addElementsChangeFn);
+    const [frame0, line0] = ids;
 
     const frameElement = mockFrameElement({
       attachedElements: ['copied-shape', 'copied-line'],
