@@ -128,11 +128,7 @@ describe('useCanMoveActiveElementOneStep', () => {
 
   it('should allow moving a middle frame element up and down', () => {
     // frame-1 will be in the middle after adding a new frame
-    act(() => {
-      activeWhiteboardInstance
-        .getSlide('slide-0')
-        .addElement(mockFrameElement());
-    });
+    activeWhiteboardInstance.getSlide('slide-0').addElement(mockFrameElement());
 
     const { result } = renderHook(
       () => useCanMoveActiveElementOneStep('frame-1'),

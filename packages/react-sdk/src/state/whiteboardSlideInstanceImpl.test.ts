@@ -78,9 +78,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
   let document: Document<WhiteboardDocument>;
 
   // Helper to directly add elements to the slide0 without auto sorting the frames.
-  // Creates document v1 for getFrameElementIds support.
   function createSlideWithElements(elements: Element[]) {
-    document = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
     const slideInstance = new WhiteboardSlideInstanceImpl(
       communicationChannel,
       slide0,
@@ -107,7 +105,7 @@ describe('WhiteboardSlideInstanceImpl', () => {
       destroy: vi.fn(),
     };
 
-    document = createWhiteboardDocument();
+    document = createWhiteboardDocument(WhiteboardDocumentVersion.v1);
   });
 
   it('should lock slide', () => {
