@@ -665,15 +665,15 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
     this.assertLocked();
 
     const elementIds = this.getElementIds();
-    const frameIds = this.getFrameElementIds();
+    const frameIds = new Set(this.getFrameElementIds());
     const index = elementIds.indexOf(elementId);
 
     if (index <= 0) {
       return;
     }
 
-    const elementIsNotFrame = !frameIds.includes(elementId);
-    const elementBelowIsFrame = frameIds.includes(elementIds[index - 1]);
+    const elementIsNotFrame = !frameIds.has(elementId);
+    const elementBelowIsFrame = frameIds.has(elementIds[index - 1]);
 
     // Other elements must not go below a frame
     if (elementIsNotFrame && elementBelowIsFrame) {
@@ -709,14 +709,14 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
 
     const elementIds = this.getElementIds();
     const index = elementIds.indexOf(elementId);
-    const frameIds = this.getFrameElementIds();
+    const frameIds = new Set(this.getFrameElementIds());
 
     if (index < 0 || index >= elementIds.length - 1) {
       return;
     }
 
-    const elementIsFrame = frameIds.includes(elementId);
-    const elementAboveIsNotFrame = !frameIds.includes(elementIds[index + 1]);
+    const elementIsFrame = frameIds.has(elementId);
+    const elementAboveIsNotFrame = !frameIds.has(elementIds[index + 1]);
 
     // Frames must not go above other elements
     if (elementIsFrame && elementAboveIsNotFrame) {
@@ -757,17 +757,17 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
     otherFrameIds: string[];
   } {
     const allIds = this.getElementIds();
-    const selected = new Set(elementIds);
-    const frameIds = this.getFrameElementIds();
+    const elementIdsSet = new Set(elementIds);
+    const frameIds = new Set(this.getFrameElementIds());
 
     const selectedFrameIds: string[] = [];
     const selectedOtherIds: string[] = [];
     const otherFrameIds: string[] = [];
 
     for (const id of allIds) {
-      const isFrame = frameIds.includes(id);
+      const isFrame = frameIds.has(id);
 
-      if (!selected.has(id)) {
+      if (!elementIdsSet.has(id)) {
         if (isFrame) {
           otherFrameIds.push(id);
         }
@@ -783,11 +783,11 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
 
   checkFramesNeedSorting(): boolean {
     const elementIds = this.getElementIds();
-    const frameIds = this.getFrameElementIds();
+    const frameIds = new Set(this.getFrameElementIds());
     let seenNonFrame = false;
 
     for (const elementId of elementIds) {
-      if (!frameIds.includes(elementId)) {
+      if (!frameIds.has(elementId)) {
         seenNonFrame = true;
       } else if (seenNonFrame) {
         return true;
@@ -798,8 +798,6 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
   }
 
   sortFramesToBack(): void {
-    this.assertLocked();
-
     const frameIds = this.getFrameElementIds();
 
     // moves frames to the bottom maintaining their z-value

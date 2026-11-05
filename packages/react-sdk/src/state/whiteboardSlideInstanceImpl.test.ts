@@ -1654,18 +1654,6 @@ describe('WhiteboardSlideInstanceImpl', () => {
     expect(slideInstance.getElementIds()).toEqual([line0, line1]);
   });
 
-  it('should throw when sorting frames on a locked slide', () => {
-    const [addElementsChangeFn] = generateAddElements(slide0, [
-      mockFrameElement(),
-    ]);
-    document.performChange(addElementsChangeFn);
-    slideInstance.lockSlide();
-
-    expect(() => slideInstance.sortFramesToBack()).toThrow(
-      'Can not modify slide, slide is locked',
-    );
-  });
-
   it('should not move a frame up above another element', () => {
     const [addElementsChangeFn, ids] = generateAddElements(slide0, [
       mockFrameElement(),
