@@ -230,10 +230,10 @@
     },
     "menu": {
       "about": "About NeoBoard",
-      "helpCenter": "Help Center",
       "keyboardShortcuts": "Keyboard shortcuts",
       "resetOnboarding": "Reset onboarding",
-      "title": "Help"
+      "title": "Help",
+      "userGuide": "User guide"
     },
     "shortcuts": {
       "close": "Close",
