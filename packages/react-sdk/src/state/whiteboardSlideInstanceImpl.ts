@@ -64,7 +64,11 @@ import {
   getNormalizedFrameElementIds,
   getSlideLock,
 } from './crdt';
-import { generate, generateRemoveElements } from './crdt/documents/operations';
+import {
+  generate,
+  generateRemoveElements,
+  keepFramesBelowOtherElements,
+} from './crdt/documents/operations';
 import {
   ElementUpdate,
   Elements,
@@ -213,7 +217,16 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
     this.assertLocked();
 
     const newElement = deleteRelations(element);
-    const [changeFn, elementId] = generateAddElement(this.slideId, newElement);
+    const [addElementChangeFn, elementId] = generateAddElement(
+      this.slideId,
+      newElement,
+    );
+    const changeFn = keepFramesBelowOtherElements(
+      this.slideId,
+      addElementChangeFn,
+      [elementId],
+      [newElement],
+    );
 
     // set the active element ID first, so it is captured in the undomanager
     this.setActiveElementId(elementId);
@@ -364,8 +377,14 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
     this.assertLocked();
 
     const newElements = elements.map((e) => deleteRelations(e));
-    const [changeFn, elementIds] = generateAddElements(
+    const [addElementsChangeFn, elementIds] = generateAddElements(
       this.slideId,
+      newElements,
+    );
+    const changeFn = keepFramesBelowOtherElements(
+      this.slideId,
+      addElementsChangeFn,
+      elementIds,
       newElements,
     );
 
@@ -512,12 +531,19 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
       Object.keys(newElements),
     );
 
+    const changeFn = keepFramesBelowOtherElements(
+      this.slideId,
+      addElementsChangeFn,
+      elementIds,
+      Object.values(newElements),
+    );
+
     // set the active element IDs first, so it is captured in the undo manager
     this.setActiveElementIds(elementIds);
 
     this.document.performChange(
       generate([
-        addElementsChangeFn,
+        changeFn,
         ...framesUpdates.map(({ elementId, patch }) =>
           generateUpdateElement(this.slideId, elementId, patch),
         ),
@@ -638,20 +664,64 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
   moveElementDown(elementId: string): void {
     this.assertLocked();
 
+    const elementIds = this.getElementIds();
+    const frameIds = new Set(this.getFrameElementIds());
+    const index = elementIds.indexOf(elementId);
+
+    if (index <= 0) {
+      return;
+    }
+
+    const elementIsNotFrame = !frameIds.has(elementId);
+    const elementBelowIsFrame = frameIds.has(elementIds[index - 1]);
+
+    // Other elements must not go below a frame
+    if (elementIsNotFrame && elementBelowIsFrame) {
+      return;
+    }
+
     this.document.performChange(generateMoveDown(this.slideId, elementId));
   }
 
   moveElementsToBottom(elementIds: string[]): void {
     this.assertLocked();
 
-    const elementIdsSorted = this.sortElementIds(elementIds).reverse();
-    this.document.performChange(
-      generateMoveElements(this.slideId, elementIdsSorted, 'bottom'),
-    );
+    const { selectedFrameIds, otherFrameIds, selectedOtherIds } =
+      this.splitElementIdsByType(elementIds);
+
+    // The selected elements go to the bottom, the frames stay below them
+    this.document.performChange((doc) => {
+      generateMoveElements(
+        this.slideId,
+        [...selectedOtherIds].reverse(),
+        'bottom',
+      )(doc);
+      generateMoveElements(
+        this.slideId,
+        [...selectedFrameIds, ...otherFrameIds].reverse(),
+        'bottom',
+      )(doc);
+    });
   }
 
   moveElementUp(elementId: string): void {
     this.assertLocked();
+
+    const elementIds = this.getElementIds();
+    const index = elementIds.indexOf(elementId);
+    const frameIds = new Set(this.getFrameElementIds());
+
+    if (index < 0 || index >= elementIds.length - 1) {
+      return;
+    }
+
+    const elementIsFrame = frameIds.has(elementId);
+    const elementAboveIsNotFrame = !frameIds.has(elementIds[index + 1]);
+
+    // Frames must not go above other elements
+    if (elementIsFrame && elementAboveIsNotFrame) {
+      return;
+    }
 
     this.document.performChange(generateMoveUp(this.slideId, elementId));
   }
@@ -659,10 +729,84 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
   moveElementsToTop(elementIds: string[]): void {
     this.assertLocked();
 
-    const elementIdsSorted = this.sortElementIds(elementIds);
-    this.document.performChange(
-      generateMoveElements(this.slideId, elementIdsSorted, 'top'),
-    );
+    const { selectedFrameIds, otherFrameIds, selectedOtherIds } =
+      this.splitElementIdsByType(elementIds);
+
+    this.document.performChange((doc) => {
+      // Other elements go to the very top
+      generateMoveElements(this.slideId, selectedOtherIds, 'top')(doc);
+
+      // Frames only go to the top of the frames, below all other elements
+      if (selectedFrameIds.length > 0) {
+        generateMoveElements(
+          this.slideId,
+          [...otherFrameIds, ...selectedFrameIds].reverse(),
+          'bottom',
+        )(doc);
+      }
+    });
+  }
+
+  /**
+   * Splits the ids into the selected frames, the selected other elements and
+   * the not selected frames. All lists are sorted by their order in the slide.
+   */
+  private splitElementIdsByType(elementIds: string[]): {
+    selectedFrameIds: string[];
+    selectedOtherIds: string[];
+    otherFrameIds: string[];
+  } {
+    const allIds = this.getElementIds();
+    const elementIdsSet = new Set(elementIds);
+    const frameIds = new Set(this.getFrameElementIds());
+
+    const selectedFrameIds: string[] = [];
+    const selectedOtherIds: string[] = [];
+    const otherFrameIds: string[] = [];
+
+    for (const id of allIds) {
+      const isFrame = frameIds.has(id);
+
+      if (!elementIdsSet.has(id)) {
+        if (isFrame) {
+          otherFrameIds.push(id);
+        }
+      } else if (isFrame) {
+        selectedFrameIds.push(id);
+      } else {
+        selectedOtherIds.push(id);
+      }
+    }
+
+    return { selectedFrameIds, selectedOtherIds, otherFrameIds };
+  }
+
+  checkFramesNeedSorting(): boolean {
+    const elementIds = this.getElementIds();
+    const frameIds = new Set(this.getFrameElementIds());
+    let seenNonFrame = false;
+
+    for (const elementId of elementIds) {
+      if (!frameIds.has(elementId)) {
+        seenNonFrame = true;
+      } else if (seenNonFrame) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  sortFramesToBack(): void {
+    const frameIds = this.getFrameElementIds();
+
+    // moves frames to the bottom maintaining their z-value
+    if (frameIds.length > 0) {
+      const frameIdsSorted = this.sortElementIds(frameIds).reverse();
+      this.document.performChange(
+        generateMoveElements(this.slideId, frameIdsSorted, 'bottom'),
+      );
+    }
   }
 
   moveFrame(frameElementId: string, index: number): void {

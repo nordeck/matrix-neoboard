@@ -22,8 +22,6 @@ import {
   PopoverPosition,
   Typography,
 } from '@mui/material';
-import first from 'lodash/first';
-import last from 'lodash/last';
 import {
   MouseEvent,
   PointerEvent,
@@ -37,7 +35,7 @@ import { useTranslation } from 'react-i18next';
 import {
   isPositionClose,
   Point,
-  useSlideElementIds,
+  useCanMoveActiveElementOneStep,
   useSlideIsLocked,
   useWhiteboardSlideInstance,
 } from '../../../../state';
@@ -208,16 +206,19 @@ function ContextMenuOptions({
 }: ContextMenuOptionsProps) {
   const isLocked = useSlideIsLocked();
   const slideInstance = useWhiteboardSlideInstance();
-  const elementIds = useSlideElementIds();
   const { t } = useTranslation('neoboard');
   const menuTitle = t('elementContextMenu.title', 'Element');
   const [open, setOpen] = useState(true);
 
+  const isSingleActiveElement = activeElementIds.length === 1;
+  const canMoveActiveElementOneStep = useCanMoveActiveElementOneStep(
+    activeElementIds[0],
+  );
   const canMoveUp =
-    activeElementIds.length === 1 && last(elementIds) !== activeElementIds[0];
-  const canMoveTop = canMoveUp || activeElementIds.length > 1;
+    isSingleActiveElement && canMoveActiveElementOneStep.canMoveUp;
   const canMoveDown =
-    activeElementIds.length === 1 && first(elementIds) !== activeElementIds[0];
+    isSingleActiveElement && canMoveActiveElementOneStep.canMoveDown;
+  const canMoveTop = canMoveUp || activeElementIds.length > 1;
   const canMoveBottom = canMoveDown || activeElementIds.length > 1;
 
   const handleContextMenu = useCallback((event: MouseEvent<HTMLDivElement>) => {
