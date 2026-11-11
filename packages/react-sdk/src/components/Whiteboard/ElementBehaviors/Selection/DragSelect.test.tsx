@@ -41,6 +41,7 @@ import {
 import { ConnectionPointProvider } from '../../../ConnectionPointProvider';
 import { LayoutStateProvider, useLayoutState } from '../../../Layout';
 import { WhiteboardHotkeysProvider } from '../../../WhiteboardHotkeysProvider';
+import FrameDisplay from '../../../elements/frame/Display';
 import { SvgCanvas } from '../../SvgCanvas';
 import * as svgUtils from '../../SvgCanvas/utils';
 import { DragSelect } from './DragSelect';
@@ -340,5 +341,257 @@ describe('<DragSelect/>', () => {
       clientY: 50,
     });
     expect(dragSelectStartCoords).toBeUndefined();
+  });
+
+  it('should select elements with a pen if the drag select starts above an unselected frame', () => {
+    const frameElement = mockFrameElement({
+      position: { x: 0, y: 0 },
+      width: 200,
+      height: 200,
+    });
+    const frameId = activeSlide.addElement(frameElement);
+    // adding an element selects it
+    activeSlide.setActiveElementId(undefined);
+
+    render(
+      <>
+        <FrameDisplay
+          elementId={frameId}
+          active={false}
+          readOnly={false}
+          {...frameElement}
+        />
+        <DragSelect />
+      </>,
+      { wrapper: Wrapper },
+    );
+
+    // Touch the frame with the pen and start to move
+    vi.mocked(svgUtils.calculateSvgCoords).mockReturnValue({ x: 60, y: 60 });
+    fireEvent.pointerDown(screen.getByTestId(`element-frame-${frameId}`), {
+      isPrimary: true,
+      pointerType: 'pen',
+      button: 0,
+      buttons: 1,
+      clientX: 60,
+      clientY: 60,
+    });
+    fireEvent.pointerMove(screen.getByTestId(`element-frame-${frameId}`), {
+      isPrimary: true,
+      pointerType: 'pen',
+      button: -1,
+      buttons: 1,
+      clientX: 65,
+      clientY: 65,
+    });
+
+    expect(dragSelectStartCoords).toEqual({ x: 60, y: 60 });
+
+    // Select an area with only element-1 inside
+    vi.mocked(svgUtils.calculateSvgCoords).mockReturnValue({ x: 70, y: 70 });
+    fireEvent.pointerMove(screen.getByTestId('drag-select-layer'), {
+      isPrimary: true,
+      pointerType: 'pen',
+      button: -1,
+      buttons: 1,
+      clientX: 70,
+      clientY: 70,
+    });
+
+    expect(activeSlide.getActiveElementIds()).toEqual(['element-1']);
+  });
+
+  it('should not start the drag select with a pen above a selected frame', () => {
+    const frameElement = mockFrameElement({
+      position: { x: 0, y: 0 },
+      width: 200,
+      height: 200,
+    });
+    const frameId = activeSlide.addElement(frameElement);
+    activeSlide.setActiveElementIds([frameId]);
+
+    render(
+      <>
+        <FrameDisplay
+          elementId={frameId}
+          active={true}
+          readOnly={false}
+          {...frameElement}
+        />
+        <DragSelect />
+      </>,
+      { wrapper: Wrapper },
+    );
+
+    // Touch the frame with the pen and start to move
+    vi.mocked(svgUtils.calculateSvgCoords).mockReturnValue({ x: 60, y: 60 });
+    fireEvent.pointerDown(screen.getByTestId(`element-frame-${frameId}`), {
+      isPrimary: true,
+      pointerType: 'pen',
+      button: 0,
+      buttons: 1,
+      clientX: 60,
+      clientY: 60,
+    });
+    fireEvent.pointerMove(screen.getByTestId(`element-frame-${frameId}`), {
+      isPrimary: true,
+      pointerType: 'pen',
+      button: -1,
+      buttons: 1,
+      clientX: 65,
+      clientY: 65,
+    });
+
+    expect(dragSelectStartCoords).toBeUndefined();
+    expect(activeSlide.getActiveElementIds()).toEqual([frameId]);
+  });
+
+  it('should not start the drag select with a touch above an unselected frame', () => {
+    const frameElement = mockFrameElement({
+      position: { x: 0, y: 0 },
+      width: 200,
+      height: 200,
+    });
+    const frameId = activeSlide.addElement(frameElement);
+    // adding an element selects it
+    activeSlide.setActiveElementId(undefined);
+
+    render(
+      <>
+        <FrameDisplay
+          elementId={frameId}
+          active={false}
+          readOnly={false}
+          {...frameElement}
+        />
+        <DragSelect />
+      </>,
+      { wrapper: Wrapper },
+    );
+
+    // Touch the frame with a finger and start to move
+    vi.mocked(svgUtils.calculateSvgCoords).mockReturnValue({ x: 60, y: 60 });
+    fireEvent.pointerDown(screen.getByTestId(`element-frame-${frameId}`), {
+      isPrimary: true,
+      pointerType: 'touch',
+      button: 0,
+      buttons: 1,
+      clientX: 60,
+      clientY: 60,
+    });
+    fireEvent.pointerMove(screen.getByTestId(`element-frame-${frameId}`), {
+      isPrimary: true,
+      pointerType: 'touch',
+      button: -1,
+      buttons: 1,
+      clientX: 65,
+      clientY: 65,
+    });
+
+    expect(dragSelectStartCoords).toBeUndefined();
+    expect(activeSlide.getActiveElementIds()).toEqual([]);
+  });
+
+  it('should select elements with the left mouse button if the drag select starts above an unselected frame', () => {
+    const frameElement = mockFrameElement({
+      position: { x: 0, y: 0 },
+      width: 200,
+      height: 200,
+    });
+    const frameId = activeSlide.addElement(frameElement);
+    // adding an element selects it
+    activeSlide.setActiveElementId(undefined);
+
+    render(
+      <>
+        <FrameDisplay
+          elementId={frameId}
+          active={false}
+          readOnly={false}
+          {...frameElement}
+        />
+        <DragSelect />
+      </>,
+      { wrapper: Wrapper },
+    );
+
+    // Press the left mouse button on the frame and start to move
+    vi.mocked(svgUtils.calculateSvgCoords).mockReturnValue({ x: 60, y: 60 });
+    fireEvent.pointerDown(screen.getByTestId(`element-frame-${frameId}`), {
+      isPrimary: true,
+      pointerType: 'mouse',
+      button: 0,
+      buttons: 1,
+      clientX: 60,
+      clientY: 60,
+    });
+    fireEvent.pointerMove(screen.getByTestId(`element-frame-${frameId}`), {
+      isPrimary: true,
+      pointerType: 'mouse',
+      button: -1,
+      buttons: 1,
+      clientX: 65,
+      clientY: 65,
+    });
+
+    expect(dragSelectStartCoords).toEqual({ x: 60, y: 60 });
+
+    // Select an area with only element-1 inside
+    vi.mocked(svgUtils.calculateSvgCoords).mockReturnValue({ x: 70, y: 70 });
+    fireEvent.pointerMove(screen.getByTestId('drag-select-layer'), {
+      isPrimary: true,
+      pointerType: 'mouse',
+      button: -1,
+      buttons: 1,
+      clientX: 70,
+      clientY: 70,
+    });
+
+    expect(activeSlide.getActiveElementIds()).toEqual(['element-1']);
+  });
+
+  it('should not start the drag select with the left mouse button above a selected frame', () => {
+    const frameElement = mockFrameElement({
+      position: { x: 0, y: 0 },
+      width: 200,
+      height: 200,
+    });
+    const frameId = activeSlide.addElement(frameElement);
+    activeSlide.setActiveElementIds([frameId]);
+
+    render(
+      <>
+        <FrameDisplay
+          elementId={frameId}
+          active={true}
+          readOnly={false}
+          {...frameElement}
+        />
+        <DragSelect />
+      </>,
+      { wrapper: Wrapper },
+    );
+
+    // Press the left mouse button on the frame and start to move
+    vi.mocked(svgUtils.calculateSvgCoords).mockReturnValue({ x: 60, y: 60 });
+    fireEvent.pointerDown(screen.getByTestId(`element-frame-${frameId}`), {
+      isPrimary: true,
+      pointerType: 'mouse',
+      button: 0,
+      buttons: 1,
+      clientX: 60,
+      clientY: 60,
+    });
+    fireEvent.pointerMove(screen.getByTestId(`element-frame-${frameId}`), {
+      isPrimary: true,
+      pointerType: 'mouse',
+      button: -1,
+      buttons: 1,
+      clientX: 65,
+      clientY: 65,
+    });
+
+    expect(dragSelectStartCoords).toBeUndefined();
+    expect(activeSlide.getActiveElementIds()).toEqual([frameId]);
   });
 });
