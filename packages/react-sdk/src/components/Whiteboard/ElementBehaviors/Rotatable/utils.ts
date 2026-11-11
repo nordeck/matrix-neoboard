@@ -114,9 +114,9 @@ export function rotateConnectedPaths(
   for (const [pathElementId, pathElement] of Object.entries(
     connectingPathElements,
   )) {
-    if (
-      !(pathElement.connectedElementStart || pathElement.connectedElementEnd)
-    ) {
+    if (!(
+      pathElement.connectedElementStart || pathElement.connectedElementEnd
+    )) {
       continue;
     }
 

@@ -163,18 +163,10 @@ Therefore, we will implement reordering via splitting the data structure into tw
 ```json
 {
   "entities": {
-    "a": {
-      /* Here follows the actual content of the entities */
-    },
-    "b": {
-      /* … */
-    },
-    "c": {
-      /* … */
-    },
-    "d": {
-      /* … */
-    }
+    "a": {/* Here follows the actual content of the entities */},
+    "b": {/* … */},
+    "c": {/* … */},
+    "d": {/* … */}
   },
   // The order of the entities
   "entityIds": ["a", "b", "c", "d"]

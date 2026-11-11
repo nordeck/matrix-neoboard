@@ -165,10 +165,7 @@ export class WhiteboardSlideInstanceImpl implements WhiteboardSlideInstance {
   private cursorPosition: Point | undefined;
 
   private activeElementSelectionPointerType:
-    | 'mouse'
-    | 'pen'
-    | 'touch'
-    | undefined;
+    'mouse' | 'pen' | 'touch' | undefined;
 
   constructor(
     private readonly communicationChannel: CommunicationChannel | undefined,

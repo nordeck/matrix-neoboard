@@ -178,8 +178,7 @@ export function useWhiteboardSlideIds(): string[] {
 }
 
 export function useWhiteboardMismatchedSnapshotDetails():
-  | MismatchedSnapshotDetails
-  | undefined {
+  MismatchedSnapshotDetails | undefined {
   const whiteboardInstance = useActiveWhiteboardInstance();
 
   return useLatestValue(

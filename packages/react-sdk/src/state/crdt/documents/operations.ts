@@ -418,7 +418,7 @@ export function generateMoveDown(
 // helper type to allow us to omit properties from a union type
 export type DistributiveOmit<
   T,
-  K extends T extends unknown ? keyof T : never,
+  K extends (T extends unknown ? keyof T : never),
 > = T extends unknown
   ? {
       [P in keyof Omit<T, Extract<keyof T, K>>]: Omit<
