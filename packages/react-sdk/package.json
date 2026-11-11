@@ -16,7 +16,7 @@
   "dependencies": {
     "@fontsource/noto-emoji": "^5.2.11",
     "@luncheon/simplify-svg-path": "0.2.0",
-    "@matrix-widget-toolkit/api": "5.1.0",
+    "@matrix-widget-toolkit/api": "5.1.1",
     "@matrix-widget-toolkit/mui": "2.2.2",
     "@matrix-widget-toolkit/react": "2.1.2",
     "@mui/base": "^5.0.0-beta.70",
