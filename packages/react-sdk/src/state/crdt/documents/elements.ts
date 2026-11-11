@@ -45,20 +45,10 @@ const elementBaseSchema = Joi.object<ElementBase, true>({
   .required();
 
 export type ShapeKind =
-  | 'rectangle'
-  | 'circle'
-  | 'ellipse'
-  | 'triangle'
-  | 'block-arrow';
+  'rectangle' | 'circle' | 'ellipse' | 'triangle' | 'block-arrow';
 export type TextAlignment = 'left' | 'center' | 'right';
 export type TextFontFamily =
-  | 'Abel'
-  | 'Actor'
-  | 'Adamina'
-  | 'Chewy'
-  | 'Gwendolyn'
-  | 'Inter'
-  | 'Pirata One';
+  'Abel' | 'Actor' | 'Adamina' | 'Chewy' | 'Gwendolyn' | 'Inter' | 'Pirata One';
 
 export type ShapeElement = ElementBase & {
   type: 'shape';
@@ -143,9 +133,7 @@ export type CurvePathElement = PathElementBase & {
 };
 
 export type PathElement =
-  | LinePathElement
-  | PolylinePathElement
-  | CurvePathElement;
+  LinePathElement | PolylinePathElement | CurvePathElement;
 
 // Matches only the characters allowed in an SVG `<path d="...">` attribute
 const svgPathDPattern = /^[MmLlHhVvCcSsQqTtAaZz0-9.,eE+\-\s]*$/;
@@ -196,10 +184,7 @@ export const frameElementSchema = elementBaseSchema
   .required();
 
 export type ImageMimeType =
-  | 'image/gif'
-  | 'image/jpeg'
-  | 'image/png'
-  | 'image/svg+xml';
+  'image/gif' | 'image/jpeg' | 'image/png' | 'image/svg+xml';
 
 export type ImageElement = ElementBase & {
   type: 'image';

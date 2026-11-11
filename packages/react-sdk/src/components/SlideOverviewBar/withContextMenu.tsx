@@ -39,8 +39,7 @@ import { MenuItemSwitch } from '../common/MenuItemSwitch';
 import { useImportWhiteboardDialog } from '../ImportWhiteboardDialog/useImportWhiteboardDialog';
 
 type ContextMenuState =
-  | { slideId: string; position: PopoverPosition }
-  | undefined;
+  { slideId: string; position: PopoverPosition } | undefined;
 
 type WithContextMenuProps = {
   slideId: string;

@@ -24,9 +24,7 @@ import loglevel from 'loglevel';
 
 export function isValidEvent(
   event:
-    | RoomEvent<unknown>
-    | StateEvent<unknown>
-    | ToDeviceMessageEvent<unknown>,
+    RoomEvent<unknown> | StateEvent<unknown> | ToDeviceMessageEvent<unknown>,
   eventType: string,
   schema: Joi.AnySchema,
   allowEmptyContent = false,

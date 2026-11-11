@@ -29,5 +29,4 @@ type PromiseRejectedResult = {
  * {@link https://github.com/vuejs/vue-cli/issues/7228}
  */
 export type PromiseSettledResult<T> =
-  | PromiseFulfilledResult<T>
-  | PromiseRejectedResult;
+  PromiseFulfilledResult<T> | PromiseRejectedResult;
