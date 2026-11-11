@@ -103,7 +103,8 @@ export function MoveableElement({
 
   const selectionSizeAtStartRef = useRef(0);
 
-  // Remember the pointer type to disable movement with pen, but allow with touch/mouse.
+  // Remember the pointer type to disable canvas pan with pen, but allow with touch/mouse.
+  // Draggable can't distinguish by itself.
   const pointerTypeRef = useRef<string>();
   const handlePointerDown = useCallback((event: PointerEvent) => {
     if (!event.isPrimary) return;
@@ -176,7 +177,7 @@ export function MoveableElement({
       if (
         (isMouseEvent(event) && isButtonToPan(event.buttons)) ||
         (event.type === 'touchmove' &&
-          // a pen never pans the canvas
+          // a pen should not pan the canvas (it's performing a drag select)
           pointerTypeRef.current !== 'pen' &&
           !isPinchZooming &&
           elementId &&
