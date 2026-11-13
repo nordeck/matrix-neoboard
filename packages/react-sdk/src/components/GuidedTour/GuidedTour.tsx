@@ -149,7 +149,7 @@ export function GuidedTour({ disabled }: GuidedTourProps) {
             time so you can explore everything in more detail.
           </p>
           <p>
-            Have fun, creative ideas and success with the {'{{productName}}'}!
+            Have fun, creative ideas and success with {'{{productName}}'}!
           </p>
         </Trans>
       ),
