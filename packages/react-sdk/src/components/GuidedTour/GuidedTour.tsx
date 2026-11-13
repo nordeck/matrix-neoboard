@@ -123,7 +123,7 @@ export function GuidedTour({ disabled }: GuidedTourProps) {
           values={{ productName }}
         >
           <p>
-            To see who is currently active on the {'{{productName}}'}, just look
+            To see who is currently active on the board, just look
             here. You will see all participants who are currently online or have
             been online recently. And in case it gets crowded, click on the
             number to the right of the first five participants to see who else
