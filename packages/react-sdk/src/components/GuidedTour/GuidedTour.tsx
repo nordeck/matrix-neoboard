@@ -43,7 +43,7 @@ export function GuidedTour({ disabled }: GuidedTourProps) {
         >
           <p>
             Welcome to {'{{productName}}'}. In this introduction, you'll get
-            tips on how to use the {'{{productName}}'} so you can start
+            tips on how to use {'{{productName}}'} so you can start
             designing in no time. Let's go!
           </p>
         </Trans>
@@ -88,8 +88,7 @@ export function GuidedTour({ disabled }: GuidedTourProps) {
           values={{ productName }}
         >
           <p>
-            Using the settings, you can export the {'{{productName}}'} and the
-            work done and import it again (e.g. in another room) or save it as a
+            Using the settings, you can export your board data and import it again (e.g. in another room) or save it as a
             backup. You can also (de)activate the grid.
           </p>
         </Trans>
