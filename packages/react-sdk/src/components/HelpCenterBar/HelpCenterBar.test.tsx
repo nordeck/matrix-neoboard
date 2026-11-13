@@ -19,8 +19,14 @@ import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import axe from 'axe-core';
 import { ComponentType, PropsWithChildren } from 'react';
+import { useHotkeysContext } from 'react-hotkeys-hook';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { GuidedTourProvider, useGuidedTour } from '../GuidedTour';
+import {
+  HOTKEY_SCOPE_GLOBAL,
+  HOTKEY_SCOPE_WHITEBOARD,
+  WhiteboardHotkeysProvider,
+} from '../WhiteboardHotkeysProvider';
 import { HelpCenterBar } from './HelpCenterBar';
 
 vi.mock('@matrix-widget-toolkit/mui', async () => ({
@@ -35,6 +41,11 @@ function TestComponent() {
   return <p>Tour running: {isRunning ? 'YES' : 'NO'}</p>;
 }
 
+function EnabledScopes() {
+  const { activeScopes } = useHotkeysContext();
+  return <div data-testid="enabled-scopes">{activeScopes.join(',')}</div>;
+}
+
 describe('<HelpCenterBar/>', () => {
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
 
@@ -44,10 +55,12 @@ describe('<HelpCenterBar/>', () => {
     );
 
     Wrapper = ({ children }) => (
-      <GuidedTourProvider>
-        {children}
-        <TestComponent />
-      </GuidedTourProvider>
+      <WhiteboardHotkeysProvider>
+        <GuidedTourProvider>
+          {children}
+          <TestComponent />
+        </GuidedTourProvider>
+      </WhiteboardHotkeysProvider>
     );
   });
 
@@ -120,6 +133,65 @@ describe('<HelpCenterBar/>', () => {
     await waitFor(() => {
       expect(menu).not.toBeInTheDocument();
     });
+  });
+
+  it('should pause the whiteboard hotkeys scope while the help menu is open', async () => {
+    render(
+      <>
+        <HelpCenterBar />
+        <EnabledScopes />
+      </>,
+      { wrapper: Wrapper },
+    );
+
+    expect(screen.getByTestId('enabled-scopes').textContent).toEqual(
+      `${HOTKEY_SCOPE_WHITEBOARD},${HOTKEY_SCOPE_GLOBAL}`,
+    );
+
+    const toolbar = screen.getByRole('toolbar', { name: 'Help center' });
+
+    await userEvent.click(
+      within(toolbar).getByRole('button', { name: 'Help' }),
+    );
+
+    const menu = screen.getByRole('menu', { name: 'Help' });
+
+    await waitFor(() => {
+      expect(menu).toBeInTheDocument();
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('enabled-scopes').textContent).toEqual(
+        HOTKEY_SCOPE_GLOBAL,
+      );
+    });
+
+    await userEvent.keyboard('[Escape]');
+
+    await waitFor(() => {
+      expect(menu).not.toBeInTheDocument();
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('enabled-scopes').textContent).toEqual(
+        `${HOTKEY_SCOPE_GLOBAL},${HOTKEY_SCOPE_WHITEBOARD}`,
+      );
+    });
+  });
+
+  it('should not restore focus to the help button after the help menu is closed', async () => {
+    render(<HelpCenterBar />, { wrapper: Wrapper });
+
+    const toolbar = screen.getByRole('toolbar', { name: 'Help center' });
+
+    const menuHelpButton = within(toolbar).getByRole('button', {
+      name: 'Help',
+    });
+
+    await userEvent.click(menuHelpButton);
+
+    await userEvent.keyboard('[Escape]');
+    expect(menuHelpButton).not.toHaveFocus();
   });
 
   it('should open the about dialog and close the menu', async () => {
