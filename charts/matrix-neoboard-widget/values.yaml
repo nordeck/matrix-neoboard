@@ -8,7 +8,7 @@ image:
   repository: ghcr.io/nordeck/matrix-neoboard-widget
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+  tag: "@sha256:1a3541acdafb834645d3a841cd012397b418c505385b6e5bda878d1d8badd863"
 
 imagePullSecrets: []
 nameOverride: ""
