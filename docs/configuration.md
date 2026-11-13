@@ -20,7 +20,7 @@ REACT_APP_DEVTOOLS=true
 
 # optional: Product name shown in the UI and used as the default widget name
 # (defaults to `NeoBoard`)
-REACT_APP_PRODUCT_NAME=neoboard
+REACT_APP_PRODUCT_NAME=NeoBoard
 ```
 
 ### Customization
