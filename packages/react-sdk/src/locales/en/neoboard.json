@@ -191,21 +191,21 @@
   "guidedTour": {
     "back": "Back",
     "collaborationBar": {
-      "content": "<p>To see who is currently active on the {{productName}}, just look here. You will see all participants who are currently online or have been online recently. And in case it gets crowded, click on the number to the right of the first five participants to see who else is online. With the small eye you can show or hide the cursors of the others.</p>",
+      "content": "<p>To see who is currently active on the board, just look here. You will see all participants who are currently online or have been online recently. And in case it gets crowded, click on the number to the right of the first five participants to see who else is online. With the small eye you can show or hide the cursors of the others.</p>",
       "title": "Collaboration"
     },
     "complete": "Complete",
     "helpCenter": {
-      "content": "<p>The help center offers easy access to the user guide and an overview of all keyboard shortcuts. You can also restart this tour at any time so you can explore everything in more detail.</p><p>Have fun, creative ideas and success with the {{productName}}!</p>",
+      "content": "<p>The help center offers easy access to the user guide and an overview of all keyboard shortcuts. You can also restart this tour at any time so you can explore everything in more detail.</p><p>Have fun, creative ideas and success with {{productName}}!</p>",
       "title": "Help center"
     },
     "introduction": {
-      "content": "<p>Welcome to the {{productName}}. In this introduction, you'll get tips on how to use the {{productName}} so you can start designing in no time. Let's go!</p>",
+      "content": "<p>Welcome to {{productName}}. In this introduction, you'll get tips on how to use {{productName}} so you can start designing in no time. Let's go!</p>",
       "title": "Welcome"
     },
     "next": "Next",
     "settings": {
-      "content": "<p>Using the settings, you can export the {{productName}} and the work done and import it again (e.g. in another room) or save it as a backup. You can also (de)activate the grid.</p>",
+      "content": "<p>Using the settings, you can export your board data and import it again (e.g. in another room) or save it as a backup. You can also (de)activate the grid.</p>",
       "title": "Settings"
     },
     "slideCount": "{{index}} of {{total}}",
@@ -390,7 +390,7 @@
   },
   "whiteboardUpdateDialog": {
     "content": "Your existing Slides will now be shown as Frames - a new way to organize your content. Please download a copy of your whiteboard before continuing.",
-    "contentUpgradeRequired": "This whiteboard requires a more recent version of {{productName}} that uses Frames instead of Slides.",
+    "contentUpgradeRequired": "This board requires a more recent version of {{productName}} that uses Frames instead of Slides.",
     "migrationFailed": "An issue occurred when moving Slides into Frames",
     "title": "Slides are now Frames",
     "titleUpgradeRequired": "Upgrade required",

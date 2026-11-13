@@ -191,7 +191,7 @@
   "guidedTour": {
     "back": "Zurück",
     "collaborationBar": {
-      "content": "<p>Um zu sehen, wer aktuell auf dem {{productName}} aktiv ist, schaue einfach hier nach. Es werden dir alle Teilnehmer:innen angezeigt, die gerade online sind oder es kürzlich waren. Und wenn es mal voll wird, klicke auf die Zahl rechts neben den ersten fünf Teilnehmer:innen um zu sehen, wer außerdem online ist. Mit dem kleinen Auge kannst du die Mauszeiger der anderen ein- oder ausblenden.</p>",
+      "content": "<p>Um zu sehen, wer aktuell auf dem Board aktiv ist, schaue einfach hier nach. Es werden dir alle Teilnehmer:innen angezeigt, die gerade online sind oder es kürzlich waren. Und wenn es mal voll wird, klicke auf die Zahl rechts neben den ersten fünf Teilnehmer:innen um zu sehen, wer außerdem online ist. Mit dem kleinen Auge kannst du die Mauszeiger der anderen ein- oder ausblenden.</p>",
       "title": "Kollaboration"
     },
     "complete": "Abschließen",
@@ -205,7 +205,7 @@
     },
     "next": "Weiter",
     "settings": {
-      "content": "<p>Du kannst das {{productName}} und damit die geleistete Arbeit exportieren und (bspw. in einem anderen Raum) wieder importieren oder als Sicherungskopie ablegen. Außerdem kannst du das Raster (de-)aktivieren.</p>",
+      "content": "<p>Du kannst die Board-Daten exportieren und (bspw. in einem anderen Raum) wieder importieren oder als Sicherungskopie ablegen. Außerdem kannst du das Raster (de-)aktivieren.</p>",
       "title": "Einstellungen"
     },
     "slideCount": "{{index}} von {{total}}",
@@ -390,7 +390,7 @@
   },
   "whiteboardUpdateDialog": {
     "content": "Deine vorhandenen Folien werden nun als Rahmen dargestellt - eine neue Art, deine Inhalte zu strukturieren. Bitte lade ein Backup deines Whiteboards herunter bevor du fortfährst.",
-    "contentUpgradeRequired": "Dieses Whiteboard erfordert eine aktuellere Version von {{productName}}, das Rahmen statt Folien unterstützt.",
+    "contentUpgradeRequired": "Dieses Board erfordert eine aktuellere Version von {{productName}}, das Rahmen statt Folien unterstützt.",
     "migrationFailed": "Aktualisierung von Folien zu Rahmen fehlgeschlagen",
     "title": "Folien sind jetzt Rahmen",
     "titleUpgradeRequired": "Aktualisierung erforderlich",

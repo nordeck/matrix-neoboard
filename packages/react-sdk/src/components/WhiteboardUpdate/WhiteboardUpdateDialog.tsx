@@ -94,7 +94,7 @@ export function WhiteboardUpdateDialog({
               )
             : t(
                 'whiteboardUpdateDialog.contentUpgradeRequired',
-                'This whiteboard requires a more recent version of {{productName}} that uses Frames instead of Slides.',
+                'This board requires a more recent version of {{productName}} that uses Frames instead of Slides.',
                 { productName },
               )}
         </DialogContentText>

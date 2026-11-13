@@ -42,9 +42,9 @@ export function GuidedTour({ disabled }: GuidedTourProps) {
           values={{ productName }}
         >
           <p>
-            Welcome to the {'{{productName}}'}. In this introduction, you'll get
-            tips on how to use the {'{{productName}}'} so you can start
-            designing in no time. Let's go!
+            Welcome to {'{{productName}}'}. In this introduction, you'll get
+            tips on how to use {'{{productName}}'} so you can start designing in
+            no time. Let's go!
           </p>
         </Trans>
       ),
@@ -88,9 +88,9 @@ export function GuidedTour({ disabled }: GuidedTourProps) {
           values={{ productName }}
         >
           <p>
-            Using the settings, you can export the {'{{productName}}'} and the
-            work done and import it again (e.g. in another room) or save it as a
-            backup. You can also (de)activate the grid.
+            Using the settings, you can export your board data and import it
+            again (e.g. in another room) or save it as a backup. You can also
+            (de)activate the grid.
           </p>
         </Trans>
       ),
@@ -123,12 +123,11 @@ export function GuidedTour({ disabled }: GuidedTourProps) {
           values={{ productName }}
         >
           <p>
-            To see who is currently active on the {'{{productName}}'}, just look
-            here. You will see all participants who are currently online or have
-            been online recently. And in case it gets crowded, click on the
-            number to the right of the first five participants to see who else
-            is online. With the small eye you can show or hide the cursors of
-            the others.
+            To see who is currently active on the board, just look here. You
+            will see all participants who are currently online or have been
+            online recently. And in case it gets crowded, click on the number to
+            the right of the first five participants to see who else is online.
+            With the small eye you can show or hide the cursors of the others.
           </p>
         </Trans>
       ),
@@ -148,9 +147,7 @@ export function GuidedTour({ disabled }: GuidedTourProps) {
             of all keyboard shortcuts. You can also restart this tour at any
             time so you can explore everything in more detail.
           </p>
-          <p>
-            Have fun, creative ideas and success with the {'{{productName}}'}!
-          </p>
+          <p>Have fun, creative ideas and success with {'{{productName}}'}!</p>
         </Trans>
       ),
       placement: 'top' as const,
