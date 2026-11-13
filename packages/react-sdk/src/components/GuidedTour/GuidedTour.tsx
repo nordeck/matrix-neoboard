@@ -42,7 +42,7 @@ export function GuidedTour({ disabled }: GuidedTourProps) {
           values={{ productName }}
         >
           <p>
-            Welcome to the {'{{productName}}'}. In this introduction, you'll get
+            Welcome to {'{{productName}}'}. In this introduction, you'll get
             tips on how to use the {'{{productName}}'} so you can start
             designing in no time. Let's go!
           </p>
