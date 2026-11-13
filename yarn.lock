@@ -907,7 +907,17 @@
     globby "^11.0.0"
     read-yaml-file "^1.1.0"
 
-"@matrix-widget-toolkit/api@5.1.0", "@matrix-widget-toolkit/api@^5.1.0":
+"@matrix-widget-toolkit/api@5.1.1", "@matrix-widget-toolkit/api@^5.1.1":
+  version "5.1.1"
+  resolved "https://registry.yarnpkg.com/@matrix-widget-toolkit/api/-/api-5.1.1.tgz#2f8e4cc0336dce7b7a675999b9e16584d8731f71"
+  integrity sha512-hKLIvTA8YvmnLHq7l9QKhc3gQbENe2kLGjBtYvFMRUKrk/6zAz5o1SQrywKw+jtO5hdyx967ZVui/SiZldnPDQ==
+  dependencies:
+    "@matrix-widget-toolkit/events" "^1.0.0"
+    matrix-widget-api "^1.18.0"
+    qs "^6.16.0"
+    rxjs "^7.8.2"
+
+"@matrix-widget-toolkit/api@^5.1.0":
   version "5.1.0"
   resolved "https://registry.yarnpkg.com/@matrix-widget-toolkit/api/-/api-5.1.0.tgz#43e5ff0a3152728b6836409fd5bddc3a121a1326"
   integrity sha512-mOGg1nwh3Zw9vSzFtvRQAtsz3dvUrBWLhcBuT4XwKhpI2dmQGb7EniG+1xjqLNW7D2lnk/Vla9EM3sygLncw9g==
@@ -916,6 +926,13 @@
     matrix-widget-api "^1.18.0"
     qs "^6.15.3"
     rxjs "^7.8.2"
+
+"@matrix-widget-toolkit/events@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@matrix-widget-toolkit/events/-/events-1.0.0.tgz#863fc4facb295a42b4be2d98aac8f4711c90fd13"
+  integrity sha512-1kr3UsmCGnImuUxbBa3XSW3Jrp/GAIFnFZKLHWN04JbCm5MIyIbBfsJk02AK8ZhkP9i6nKSo3eYHerxlIPZMzA==
+  dependencies:
+    joi "^17.13.6"
 
 "@matrix-widget-toolkit/mui@2.2.2", "@matrix-widget-toolkit/mui@^2.2.2":
   version "2.2.2"
@@ -3847,7 +3864,7 @@ jiti@^2.6.1:
   resolved "https://registry.yarnpkg.com/jiti/-/jiti-2.6.1.tgz#178ef2fc9a1a594248c20627cd820187a4d78d92"
   integrity sha512-ekilCSN1jwRvIbgeg/57YFh8qQDNbwDb9xT/qu2DAHbFFZUicIl4ygVaAvzveMhMVr3LnpSKTNnwt8PoOfmKhQ==
 
-joi@^17.13.4, joi@^17.13.7:
+joi@^17.13.4, joi@^17.13.6, joi@^17.13.7:
   version "17.13.9"
   resolved "https://registry.yarnpkg.com/joi/-/joi-17.13.9.tgz#d763ef4b1e992a5e39fb36f2018671e489ca53e8"
   integrity sha512-llFCT2rVtfwgBCaIqxtjim+iHqrgss4ONiGSYiiGH9jnjWq90ppSRffqmqKvwpa8W+YfILyQV6XyGcegXX2T4g==
@@ -4784,6 +4801,14 @@ qs@^6.15.3:
   version "6.16.0"
   resolved "https://registry.yarnpkg.com/qs/-/qs-6.16.0.tgz#c22c723a28a920f3aacdce8289fabd43eccb79fd"
   integrity sha512-h6fhOIaRrID2CbEY2fqs+7t+UXZo+MLAnU5gRIq85uFtdiUPCdsApMlHhXogKVM4HM2DVbIjGNTTYH2OcmP1vA==
+  dependencies:
+    es-define-property "^1.0.1"
+    side-channel "^1.1.1"
+
+qs@^6.16.0:
+  version "6.17.1"
+  resolved "https://registry.yarnpkg.com/qs/-/qs-6.17.1.tgz#43ac71d29ca0e9d0eed16a218e35b6cde5628e81"
+  integrity sha512-jd3COkaKVgGUW+ZHyEHCG9bH7RoaaiWuMgzsIBjUMVjLAaWGWpoUAVwljVvBHxRu/2qEHnadLGZrkutYUBPQJA==
   dependencies:
     es-define-property "^1.0.1"
     side-channel "^1.1.1"
