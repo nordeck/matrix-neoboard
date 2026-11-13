@@ -18,6 +18,7 @@ import { useWidgetApi } from '@matrix-widget-toolkit/react';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { Button } from '@mui/material';
 import { PropsWithChildren, useCallback, useState } from 'react';
+import { useProductName } from '../../../lib';
 import { useActiveWhiteboardInstance } from '../../../state';
 import { useGetRoomNameQuery } from '../../../store';
 import { downloadData } from './download';
@@ -54,7 +55,8 @@ function useWhiteboardDownload(
   resetLoadingOnDownload: boolean,
 ) {
   const { data: roomNameStateEvent } = useGetRoomNameQuery();
-  const roomName = roomNameStateEvent?.event?.content.name ?? 'NeoBoard';
+  const productName = useProductName();
+  const roomName = roomNameStateEvent?.event?.content.name ?? productName;
   const whiteboard = useActiveWhiteboardInstance();
   const [isDownloading, setIsDownloading] = useState(false);
   const widgetApi = useWidgetApi();
