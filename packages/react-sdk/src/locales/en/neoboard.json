@@ -196,7 +196,7 @@
     },
     "complete": "Complete",
     "helpCenter": {
-      "content": "<p>The help center offers easy access to the user guide and an overview of all keyboard shortcuts. You can also restart this tour at any time so you can explore everything in more detail.</p><p>Have fun, creative ideas and success with the {{productName}}!</p>",
+      "content": "<p>The help center offers easy access to the user guide and an overview of all keyboard shortcuts. You can also restart this tour at any time so you can explore everything in more detail.</p><p>Have fun, creative ideas and success with {{productName}}!</p>",
       "title": "Help center"
     },
     "introduction": {
