@@ -23,6 +23,7 @@ import {
   WhiteboardSlideInstance,
 } from '../../../../state';
 import { useLayoutState } from '../../../Layout';
+import { useSvgCanvasContext } from '../../SvgCanvas';
 import { WithSelectionProps } from './types';
 
 export type SelectableElementProps = PropsWithChildren<WithSelectionProps>;
@@ -37,8 +38,11 @@ export function SelectableElement({
     time: number;
     position: Point;
   }>();
+  const positionForDragSelectRef = useRef<Point>();
+
   const slideInstance = useWhiteboardSlideInstance();
-  const { activeTool } = useLayoutState();
+  const { activeTool, setDragSelectStartCoords } = useLayoutState();
+  const { calculateSvgCoords } = useSvgCanvasContext();
   const isInSelectionMode = activeTool === 'select';
 
   const handlePointerDown = useCallback(
@@ -46,6 +50,8 @@ export function SelectableElement({
       if (!isInSelectionMode) return;
 
       event.stopPropagation();
+
+      positionForDragSelectRef.current = undefined;
 
       if (event.pointerType === 'touch') {
         if (isFrameElement) {
@@ -87,11 +93,11 @@ export function SelectableElement({
         );
       } else if (event.button === 0 && isFrameElement) {
         const activeElementIds = slideInstance.getActiveElementIds();
-        if (
-          activeElementIds.length > 0 &&
-          !activeElementIds.includes(elementId)
-        ) {
+        const touchedFrameIsSelected = activeElementIds.includes(elementId);
+
+        if (activeElementIds.length > 0 && !touchedFrameIsSelected) {
           slideInstance.setActiveElementId(undefined);
+          window.getSelection()?.empty();
         } else {
           positionRef.current = {
             isPrimary: event.isPrimary,
@@ -100,6 +106,14 @@ export function SelectableElement({
               x: event.clientX,
               y: event.clientY,
             },
+          };
+        }
+
+        // An unselected frame can initiate drag select (like the empty canvas area).
+        if (!touchedFrameIsSelected) {
+          positionForDragSelectRef.current = {
+            x: event.clientX,
+            y: event.clientY,
           };
         }
       } else {
@@ -116,8 +130,53 @@ export function SelectableElement({
     [elementId, isFrameElement, isInSelectionMode, slideInstance],
   );
 
+  const handlePointerMove = useCallback(
+    (event: PointerEvent) => {
+      const startPosition = positionForDragSelectRef.current;
+
+      if (!startPosition) return;
+
+      // Only the mouse or pen tip starts a drag select.
+      if (
+        event.pointerType === 'touch' ||
+        event.buttons !== 1 ||
+        !event.isPrimary
+      ) {
+        positionForDragSelectRef.current = undefined;
+        return;
+      }
+
+      // Ignore small movements
+      if (
+        isPositionClose(startPosition, {
+          x: event.clientX,
+          y: event.clientY,
+        })
+      ) {
+        return;
+      }
+
+      positionForDragSelectRef.current = undefined;
+      positionRef.current = undefined;
+
+      setDragSelectStartCoords(calculateSvgCoords(startPosition));
+
+      if (
+        event.pointerType === 'pen' &&
+        event.target instanceof Element &&
+        event.target.hasPointerCapture(event.pointerId)
+      ) {
+        // release the event capture, or the drag select layer won't get pointer move events
+        event.target.releasePointerCapture(event.pointerId);
+      }
+    },
+    [calculateSvgCoords, setDragSelectStartCoords],
+  );
+
   const handlePointerUp = useCallback(
     (event: PointerEvent) => {
+      positionForDragSelectRef.current = undefined;
+
       if (!isInSelectionMode) return;
 
       event.stopPropagation();
@@ -160,7 +219,11 @@ export function SelectableElement({
   );
 
   return (
-    <g onPointerDown={handlePointerDown} onPointerUp={handlePointerUp}>
+    <g
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+    >
       {children}
     </g>
   );

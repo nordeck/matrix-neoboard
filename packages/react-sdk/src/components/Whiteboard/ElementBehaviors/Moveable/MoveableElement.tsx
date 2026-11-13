@@ -17,6 +17,7 @@
 import { styled } from '@mui/material';
 import {
   MouseEvent,
+  PointerEvent,
   PropsWithChildren,
   RefObject,
   useCallback,
@@ -102,6 +103,14 @@ export function MoveableElement({
 
   const selectionSizeAtStartRef = useRef(0);
 
+  // Remember the pointer type to disable canvas pan with pen, but allow with touch/mouse.
+  // Draggable can't distinguish by itself.
+  const pointerTypeRef = useRef<string>();
+  const handlePointerDown = useCallback((event: PointerEvent) => {
+    if (!event.isPrimary) return;
+    pointerTypeRef.current = event.pointerType;
+  }, []);
+
   useUnmount(() => {
     if (isDragging.current) {
       removeUserSelectStyles();
@@ -168,6 +177,8 @@ export function MoveableElement({
       if (
         (isMouseEvent(event) && isButtonToPan(event.buttons)) ||
         (event.type === 'touchmove' &&
+          // a pen should not pan the canvas (it's performing a drag select)
+          pointerTypeRef.current !== 'pen' &&
           !isPinchZooming &&
           elementId &&
           !slideInstance.getActiveElementIds().includes(elementId))
@@ -322,7 +333,11 @@ export function MoveableElement({
       scale={scale}
       allowAnyClick={infiniteCanvasMode ? true : undefined}
     >
-      <DraggableGroup ref={nodeRef} cursor={cursor}>
+      <DraggableGroup
+        ref={nodeRef}
+        cursor={cursor}
+        onPointerDown={handlePointerDown}
+      >
         {children}
       </DraggableGroup>
     </DraggableCore>
