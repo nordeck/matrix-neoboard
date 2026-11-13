@@ -18,7 +18,9 @@ import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import axe from 'axe-core';
+import i18next, { i18n as _i18n } from 'i18next';
 import { ComponentType, PropsWithChildren } from 'react';
+import { I18nextProvider } from 'react-i18next';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { GuidedTourProvider, useGuidedTour } from '../GuidedTour';
 import { HelpCenterBar } from './HelpCenterBar';
@@ -29,6 +31,26 @@ vi.mock('@matrix-widget-toolkit/mui', async () => ({
   )),
   getEnvironment: vi.fn(),
 }));
+
+// The instance is passed via I18nextProvider and not registered globally with
+// initReactI18next, so the other tests keep using the default instance
+function setupI18n(instance: _i18n) {
+  instance.init({
+    lng: 'de',
+    resources: {
+      de: {
+        neoboard: {
+          helpCenter: {
+            menu: {
+              userGuide: 'Handbuch',
+            },
+          },
+        },
+      },
+    },
+  });
+  return instance;
+}
 
 function TestComponent() {
   const { isRunning } = useGuidedTour();
@@ -96,7 +118,7 @@ describe('<HelpCenterBar/>', () => {
 
   it('should open the help center and close the menu', async () => {
     vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_HELP_CENTER_URL'
+      name === 'REACT_APP_HELP_CENTER_URL_EN'
         ? 'https://example.com'
         : defaultValue,
     );
@@ -110,16 +132,53 @@ describe('<HelpCenterBar/>', () => {
 
     const menu = screen.getByRole('menu', { name: 'Help' });
     const helpCenterButton = screen.getByRole('menuitem', {
-      name: 'Help Center',
+      name: 'User guide',
     });
 
     expect(helpCenterButton).toHaveAttribute('href', 'https://example.com');
+    expect(helpCenterButton).toHaveAttribute('target', '_blank');
+    expect(helpCenterButton).toHaveAttribute('rel', 'noopener noreferrer');
 
     await userEvent.click(helpCenterButton);
 
     await waitFor(() => {
       expect(menu).not.toBeInTheDocument();
     });
+  });
+
+  it('should link to the manual in the selected language', async () => {
+    vi.mocked(getEnvironment).mockImplementation(
+      (name: string, defaultValue: string) => {
+        switch (name) {
+          case 'REACT_APP_HELP_CENTER_URL_EN':
+            return 'https://example.com/user-guide.pdf';
+          case 'REACT_APP_HELP_CENTER_URL_DE':
+            return 'https://example.com/handbuch.pdf';
+          default:
+            return defaultValue;
+        }
+      },
+    );
+
+    const i18n = setupI18n(i18next.createInstance());
+
+    render(
+      <I18nextProvider i18n={i18n}>
+        <HelpCenterBar />
+      </I18nextProvider>,
+      { wrapper: Wrapper },
+    );
+
+    const toolbar = screen.getByRole('toolbar', { name: 'Help center' });
+
+    await userEvent.click(
+      within(toolbar).getByRole('button', { name: 'Help' }),
+    );
+
+    expect(screen.getByRole('menuitem', { name: 'Handbuch' })).toHaveAttribute(
+      'href',
+      'https://example.com/handbuch.pdf',
+    );
   });
 
   it('should open the about dialog and close the menu', async () => {
@@ -176,7 +235,7 @@ describe('<HelpCenterBar/>', () => {
 
   it('should only show the help center if the URL is configured', async () => {
     vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
-      name === 'REACT_APP_HELP_CENTER_URL'
+      name === 'REACT_APP_HELP_CENTER_URL_EN'
         ? 'https://example.com'
         : defaultValue,
     );
@@ -186,9 +245,11 @@ describe('<HelpCenterBar/>', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Help' }));
 
     const menu = screen.getByRole('menu', { name: 'Help' });
-    const helpCenter = within(menu).queryByRole('menuitem', {
-      name: 'Help Center',
+    const helpCenter = within(menu).getByRole('menuitem', {
+      name: 'User guide',
     });
+
+    expect(helpCenter).toBeInTheDocument();
 
     // rerender after disabling the config
     vi.mocked(getEnvironment).mockImplementation(

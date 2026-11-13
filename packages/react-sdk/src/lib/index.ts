@@ -29,6 +29,7 @@ export { calculateBoundsForPathD, scalePathD } from './svgPathDUtils';
 export { findColor, useColorPalette } from './useColorPalette';
 export type { Color } from './useColorPalette';
 export { FontsLoadedContextProvider, useFontsLoaded } from './useFontsLoaded';
+export { useHelpCenterUrl } from './useHelpCenterUrl';
 export { useLatestValue } from './useLatestValue';
 export { useMeasure } from './useMeasure';
 export { getUserColor } from './userColor';
