@@ -42,7 +42,9 @@ export const SlideOverviewBar = forwardRef<
       mr={1}
       borderRadius={1}
       height="100%"
-      data-guided-tour-target="slide-overview"
+      data-guided-tour-target={
+        isInfiniteCanvasMode() ? 'frame-overview' : 'slide-overview'
+      }
     >
       {!isInfiniteCanvasMode() && (
         <Box m={1}>

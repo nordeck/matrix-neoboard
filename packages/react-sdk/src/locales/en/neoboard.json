@@ -192,21 +192,29 @@
   "guidedTour": {
     "back": "Back",
     "collaborationBar": {
-      "content": "<p>To see who is currently active on the NeoBoard, just look here. You will see all participants who are currently online or have been online recently. And in case it gets crowded, click on the number to the right of the first five participants to see who else is online. With the small eye you can show or hide the cursors of the others.</p>",
+      "content": "<p>Anyone currently active on this board is displayed here. You can show or hide other users’ cursors, whichever is most convenient for you.</p>",
       "title": "Collaboration"
     },
     "complete": "Complete",
+    "frameOverview": {
+      "content": "<p>You can view your frame overview on the left-hand side here. Frames are the elements that hold content together and structure your presentation.</p>",
+      "title": "Frame overview"
+    },
+    "header": {
+      "content": "<p>In the top bar, you can invite people to your board or accept invitations to other boards. You’ll find your account settings on the right.</p>",
+      "title": "Networking"
+    },
     "helpCenter": {
-      "content": "<p>The help center offers easy access to the user guide and an overview of all keyboard shortcuts. You can also restart this tour at any time so you can explore everything in more detail.</p><p>Have fun, creative ideas and success with the NeoBoard!</p>",
+      "content": "<p>The help center gives you quick access to the user manual and an overview of all keyboard shortcuts. You can also restart this tour at any time to explore everything at your own pace.</p><p>Ready? Have fun!</p>",
       "title": "Help center"
     },
     "introduction": {
-      "content": "<p>Welcome to the NeoBoard. In this introduction, you'll get tips on how to use the NeoBoard so you can start designing in no time. Let's go!</p>",
+      "content": "<p>Are you new here? – Let us show you a few things so you can get started straight away.</p><p>Let’s get started!</p>",
       "title": "Welcome"
     },
     "next": "Next",
     "settings": {
-      "content": "<p>Using the settings, you can export the NeoBoard and the work done and import it again (e.g. in another room) or save it as a backup. You can also (de)activate the grid.</p>",
+      "content": "<p>Here you’ll find settings for importing elements and exporting your board. You can also toggle the grid, which helps with positioning elements.</p>",
       "title": "Settings"
     },
     "slideCount": "{{index}} of {{total}}",
@@ -215,8 +223,16 @@
       "title": "Slide overview"
     },
     "toolsbar": {
-      "content": "<p>The toolbar contains all the tools and objects available for designing your slide. Select an object and move the mouse anywhere on the slide to place it. Draw shapes by moving the mouse while holding down the left mouse button. You can place text in the same way and start typing right away.</p>",
+      "content": "<p>Here you’ll find your tools: design using notes and basic shapes, write directly into the shapes or use the text tool, draw lines or free-form shapes. Create frames as presentation areas, and upload images. The arrows on the right allow you to move forwards and backwards step by step.</p>",
       "title": "Tools"
+    },
+    "views": {
+      "content": "<p>Expand your workspace by switching to full-screen view.</p><p>Here, you can also start your presentation and guide other users of the board through your frames. Collaborative editing of content can then be switched on and off.</p>",
+      "title": "Views"
+    },
+    "zoomBar": {
+      "content": "<p>Here you’ll find options for zooming in and out.</p><p>Don’t be surprised: when presentation mode is active, this button is hidden so that the focus remains on the selected frame.</p>",
+      "title": "Zoom"
     }
   },
   "helpCenter": {

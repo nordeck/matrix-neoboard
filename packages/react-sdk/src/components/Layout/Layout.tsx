@@ -188,6 +188,7 @@ function ContentArea() {
           position="relative"
           left={0}
           right={0}
+          data-guided-tour-target="views"
         >
           <FullscreenModeBar />
           {(!isViewingPresentation || canStopPresentation) && <PresentBar />}
