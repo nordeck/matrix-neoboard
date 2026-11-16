@@ -477,6 +477,56 @@ describe('<SideOverviewBar/>', () => {
     expect(secondTab).toHaveFocus();
   });
 
+  it('should deactivate the active frame when clicking it again', async () => {
+    vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+      name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
+    );
+    const whiteboardInstance = whiteboardManager.getActiveWhiteboardInstance()!;
+
+    render(<SlideOverviewBar />, { wrapper: Wrapper });
+
+    const tab = await screen.findByRole('tab', { name: 'Frame 2' });
+
+    await userEvent.click(tab);
+    expect(tab).toHaveAttribute('aria-selected', 'true');
+    expect(whiteboardInstance.getActiveFrameElementId()).toBe('frame-1');
+
+    await userEvent.click(tab);
+    expect(tab).toHaveAttribute('aria-selected', 'false');
+    expect(whiteboardInstance.getActiveFrameElementId()).toBeUndefined();
+  });
+
+  it.each(['[Space]', '{Enter}'])(
+    'should activate and deactivate the frame via keyboard with %s',
+    async (key) => {
+      vi.mocked(getEnvironment).mockImplementation((name, defaultValue) =>
+        name === 'REACT_APP_INFINITE_CANVAS' ? 'true' : defaultValue,
+      );
+      const whiteboardInstance =
+        whiteboardManager.getActiveWhiteboardInstance()!;
+
+      render(<SlideOverviewBar />, { wrapper: Wrapper });
+
+      const tab = await screen.findByRole('tab', {
+        name: 'Frame 1',
+        selected: false,
+      });
+
+      await waitFor(() => tab.focus());
+
+      // pressing the key on an inactive frame activates it
+      await userEvent.keyboard(key);
+      expect(tab).toHaveAttribute('aria-selected', 'true');
+      expect(whiteboardInstance.getActiveFrameElementId()).toBe('frame-0');
+
+      // pressing it again deactivates it
+      await userEvent.keyboard(key);
+      expect(tab).toHaveAttribute('aria-selected', 'false');
+      expect(whiteboardInstance.getActiveFrameElementId()).toBeUndefined();
+      expect(tab).toHaveFocus();
+    },
+  );
+
   it('should reorder slides via keyboard', async () => {
     const { baseElement } = render(<SlideOverviewBar />, { wrapper: Wrapper });
 

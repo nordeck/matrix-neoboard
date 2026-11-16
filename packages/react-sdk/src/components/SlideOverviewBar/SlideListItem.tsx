@@ -18,10 +18,16 @@ import { Tab } from '@mui/base';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { alpha, Stack, styled, Tooltip, Typography } from '@mui/material';
 import { unstable_useId as useId, visuallyHidden } from '@mui/utils';
+import { KeyboardEvent, MouseEvent, useCallback } from 'react';
 import { Draggable } from 'react-beautiful-dnd';
 import { useTranslation } from 'react-i18next';
 import { isInfiniteCanvasMode } from '../../lib';
-import { SlideProvider, useActiveSlide, useSlideIsLocked } from '../../state';
+import {
+  SlideProvider,
+  useActiveSlide,
+  useActiveWhiteboardInstance,
+  useSlideIsLocked,
+} from '../../state';
 import { SlidePreview } from '../Whiteboard';
 import { withContextMenu } from './withContextMenu';
 
@@ -66,6 +72,42 @@ export function SlideListItem({
   const titleId = useId();
   const descriptionId = useId();
 
+  const whiteboardInstance = useActiveWhiteboardInstance();
+
+  const handleClick = useCallback(
+    (event: MouseEvent | KeyboardEvent) => {
+      if (!isInfiniteCanvasMode()) return;
+
+      // MUI also calls the click handler for Enter (keydown) and Space (keyup)
+      if (event.type !== 'click') {
+        event.preventDefault();
+        return;
+      }
+
+      if (!active) return;
+
+      // MUI quirk, without it the frame will get reactivated again
+      event.preventDefault();
+
+      whiteboardInstance.setActiveFrameElementId(undefined);
+    },
+    [active, whiteboardInstance],
+  );
+
+  const handleKeyDown = useCallback(
+    (event: KeyboardEvent & { defaultMuiPrevented?: boolean }) => {
+      if (!isInfiniteCanvasMode() || !active) return;
+      if (event.key !== ' ' && event.key !== 'Enter') return;
+
+      // Skip the MUI keyboard handling, it would select the item again
+      event.defaultMuiPrevented = true;
+      event.preventDefault();
+
+      whiteboardInstance.setActiveFrameElementId(undefined);
+    },
+    [active, whiteboardInstance],
+  );
+
   return (
     <Draggable
       draggableId={slideId}
@@ -75,6 +117,10 @@ export function SlideListItem({
       {(provided, snapshot) => (
         <TabWithContextMenu
           slots={{ root: 'div' }}
+          // MUI quirk, have to handle clicks on the root slot
+          slotProps={{
+            root: { onClick: handleClick, onKeyDown: handleKeyDown },
+          }}
           innerRef={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
