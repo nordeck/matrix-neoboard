@@ -4,7 +4,7 @@ FROM aquasec/trivy:0.71.2@sha256:f5d0e600ecda7449e2a9b272805aef698631d3bb3f3a739
 COPY --from=root yarn.lock /tmp
 RUN trivy fs --format spdx-json --scanners "license" /tmp/yarn.lock > /tmp/sbom.spdx.json
 
-FROM ghcr.io/nordeck/matrix-widget-toolkit/widget-server:1.2.5@sha256:???
+FROM ghcr.io/nordeck/matrix-widget-toolkit/widget-server:1.2.5@sha256:67caa0811f39a4a34514e40c935ebd472ef0b3a8eb826dbe4a7300152959f0ce
 
 ARG REACT_APP_VERSION
 ARG REACT_APP_REVISION
