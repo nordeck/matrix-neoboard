@@ -1,5 +1,11 @@
 # @nordeck/matrix-neoboard-react-sdk
 
+## 2.2.0
+
+### Minor Changes
+
+- f45f9ec: Sort frames behind all other elements immediately after a document is loaded. Reordering shortcuts and the context menu no longer move frames above shapes.
+
 ## 2.1.0
 
 ### Minor Changes

@@ -1,5 +1,13 @@
 # @nordeck/matrix-neoboard-widget
 
+## 3.0.3
+
+### Patch Changes
+
+- ecff403: Bump widget server to 1.2.5
+- Updated dependencies [f45f9ec]
+  - @nordeck/matrix-neoboard-react-sdk@2.2.0
+
 ## 3.0.2
 
 ### Patch Changes
