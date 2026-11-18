@@ -21,6 +21,10 @@ import { unstable_useId as useId } from '@mui/utils';
 import { MouseEvent, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useGuidedTour } from '../GuidedTour';
+import {
+  HOTKEY_SCOPE_WHITEBOARD,
+  usePauseHotkeysScope,
+} from '../WhiteboardHotkeysProvider';
 import { ToolbarSubMenu } from '../common/Toolbar';
 import { InfoDialog } from './InfoDialog';
 import { ShortcutsDialog } from './ShortcutsDialog';
@@ -33,6 +37,7 @@ export function HelpMenu() {
   const embedded = getEnvironment('REACT_APP_EMBEDDED') === 'true';
 
   const open = Boolean(anchorEl);
+  usePauseHotkeysScope(HOTKEY_SCOPE_WHITEBOARD, open);
 
   const handleClick = useCallback((event: MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -121,6 +126,7 @@ export function HelpMenu() {
           ),
         }}
         id={menuId}
+        disableRestoreFocus={true}
       >
         {helpCenterUrl && (
           <MenuItem
