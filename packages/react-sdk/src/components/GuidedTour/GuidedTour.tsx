@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { useTheme } from '@mui/material';
 import { Trans, useTranslation } from 'react-i18next';
 import { useLayoutState } from '../Layout';
@@ -28,6 +29,7 @@ export function GuidedTour({ disabled }: GuidedTourProps) {
   const { t } = useTranslation('neoboard');
   const theme = useTheme();
   const { setSlideOverviewVisible, isSlideOverviewVisible } = useLayoutState();
+  const embedded = getEnvironment('REACT_APP_EMBEDDED') === 'true';
 
   let guidedTourSteps = [
     {
@@ -36,14 +38,31 @@ export function GuidedTour({ disabled }: GuidedTourProps) {
       content: (
         <Trans i18nKey="guidedTour.introduction.content" ns="neoboard">
           <p>
-            Welcome to the NeoBoard. In this introduction, you'll get tips on
-            how to use the NeoBoard so you can start designing in no time. Let's
-            go!
+            Are you new here? – Let us show you a few things so you can get
+            started straight away.
           </p>
+          <p>Let’s get started!</p>
         </Trans>
       ),
       disableBeacon: true,
       placement: 'center' as const,
+    },
+    {
+      target: '[data-guided-tour-target="toolsbar"]',
+      title: t('guidedTour.toolsbar.title', 'Tools'),
+      content: (
+        <Trans i18nKey="guidedTour.toolsbar.content" ns="neoboard">
+          <p>
+            Here you’ll find your tools: design using notes and basic shapes,
+            write directly into the shapes or use the text tool, draw lines or
+            free-form shapes. Create frames as presentation areas, and upload
+            images. The arrows on the right allow you to move forwards and
+            backwards step by step.
+          </p>
+        </Trans>
+      ),
+      disableBeacon: true,
+      placement: 'top' as const,
     },
     {
       target: '[data-guided-tour-target="slide-overview"]',
@@ -73,30 +92,53 @@ export function GuidedTour({ disabled }: GuidedTourProps) {
       },
     },
     {
+      target: '[data-guided-tour-target="frame-overview"]',
+      title: t('guidedTour.frameOverview.title', 'Frame overview'),
+      content: (
+        <Trans i18nKey="guidedTour.frameOverview.content" ns="neoboard">
+          <p>
+            You can view your frame overview on the left-hand side here. Frames
+            are the elements that hold content together and structure your
+            presentation.
+          </p>
+        </Trans>
+      ),
+      disableBeacon: true,
+      placement: 'right' as const,
+      onEnter: () => {
+        if (!isSlideOverviewVisible) {
+          setSlideOverviewVisible(true);
+          return { delay: theme.transitions.duration.standard * 1.5 };
+        }
+      },
+      onLeave: () => {
+        setSlideOverviewVisible(false);
+        return { delay: theme.transitions.duration.standard * 1.5 };
+      },
+    },
+    {
       target: '[data-guided-tour-target="settings"]',
       title: t('guidedTour.settings.title', 'Settings'),
       content: (
         <Trans i18nKey="guidedTour.settings.content" ns="neoboard">
           <p>
-            Using the settings, you can export the NeoBoard and the work done
-            and import it again (e.g. in another room) or save it as a backup.
-            You can also (de)activate the grid.
+            Here you’ll find settings for importing elements and exporting your
+            board. You can also toggle the grid, which helps with positioning
+            elements.
           </p>
         </Trans>
       ),
       disableBeacon: true,
     },
     {
-      target: '[data-guided-tour-target="toolsbar"]',
-      title: t('guidedTour.toolsbar.title', 'Tools'),
+      target: '[data-guided-tour-target="zoomBar"]',
+      title: t('guidedTour.zoomBar.title', 'Zoom'),
       content: (
-        <Trans i18nKey="guidedTour.toolsbar.content" ns="neoboard">
+        <Trans i18nKey="guidedTour.zoomBar.content" ns="neoboard">
+          <p>Here you’ll find options for zooming in and out.</p>
           <p>
-            The toolbar contains all the tools and objects available for
-            designing your slide. Select an object and move the mouse anywhere
-            on the slide to place it. Draw shapes by moving the mouse while
-            holding down the left mouse button. You can place text in the same
-            way and start typing right away.
+            Don’t be surprised: when presentation mode is active, this button is
+            hidden so that the focus remains on the selected frame.
           </p>
         </Trans>
       ),
@@ -104,16 +146,43 @@ export function GuidedTour({ disabled }: GuidedTourProps) {
       placement: 'top' as const,
     },
     {
+      target: '[data-guided-tour-target="header"]',
+      title: t('guidedTour.header.title', 'Networking'),
+      content: (
+        <Trans i18nKey="guidedTour.header.content" ns="neoboard">
+          <p>
+            In the top bar, you can invite people to your board or accept
+            invitations to other boards. You’ll find your account settings on
+            the right.
+          </p>
+        </Trans>
+      ),
+      disableBeacon: true,
+    },
+    {
       target: '[data-guided-tour-target="collaborationbar"]',
       title: t('guidedTour.collaborationBar.title', 'Collaboration'),
       content: (
         <Trans i18nKey="guidedTour.collaborationBar.content" ns="neoboard">
           <p>
-            To see who is currently active on the NeoBoard, just look here. You
-            will see all participants who are currently online or have been
-            online recently. And in case it gets crowded, click on the number to
-            the right of the first five participants to see who else is online.
-            With the small eye you can show or hide the cursors of the others.
+            Anyone currently active on this board is displayed here. You can
+            show or hide other users’ cursors, whichever is most convenient for
+            you.
+          </p>
+        </Trans>
+      ),
+      disableBeacon: true,
+    },
+    {
+      target: '[data-guided-tour-target="views"]',
+      title: t('guidedTour.views.title', 'Views'),
+      content: (
+        <Trans i18nKey="guidedTour.views.content" ns="neoboard">
+          <p>Expand your workspace by switching to full-screen view.</p>
+          <p>
+            Here, you can also start your presentation and guide other users of
+            the board through your frames. Collaborative editing of content can
+            then be switched on and off.
           </p>
         </Trans>
       ),
@@ -125,11 +194,11 @@ export function GuidedTour({ disabled }: GuidedTourProps) {
       content: (
         <Trans i18nKey="guidedTour.helpCenter.content" ns="neoboard">
           <p>
-            The help center offers easy access to the user guide and an overview
-            of all keyboard shortcuts. You can also restart this tour at any
-            time so you can explore everything in more detail.
+            The help center gives you quick access to the user manual and an
+            overview of all keyboard shortcuts. You can also restart this tour
+            at any time to explore everything at your own pace.
           </p>
-          <p>Have fun, creative ideas and success with the NeoBoard!</p>
+          <p>Ready? Have fun!</p>
         </Trans>
       ),
       placement: 'top' as const,
@@ -141,6 +210,17 @@ export function GuidedTour({ disabled }: GuidedTourProps) {
     // remove the slide overview step in infinite canvas mode
     guidedTourSteps = guidedTourSteps.filter(
       (step) => step.target !== '[data-guided-tour-target="slide-overview"]',
+    );
+  } else {
+    // remove the frame overview step in non-infinite canvas mode
+    guidedTourSteps = guidedTourSteps.filter(
+      (step) => step.target !== '[data-guided-tour-target="frame-overview"]',
+    );
+  }
+
+  if (!embedded) {
+    guidedTourSteps = guidedTourSteps.filter(
+      (step) => step.target !== '[data-guided-tour-target="header"]',
     );
   }
 
