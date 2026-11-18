@@ -24,12 +24,12 @@ import {
 } from '@mui/material';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useProductName } from '../../lib';
+import { getProductName } from '../../lib';
 import { useConnectionState } from './useConnectionState';
 
 export const ConnectionStateDialog: React.FC = () => {
   const { t } = useTranslation('neoboard');
-  const productName = useProductName();
+  const productName = getProductName();
   const {
     connectionState,
     connectionStateDialogOpen,

@@ -28,7 +28,7 @@ import {
 import { unstable_useId as useId } from '@mui/utils';
 import { Fragment, ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useProductName } from '../../lib';
+import { getProductName } from '../../lib';
 
 type WhiteboardUpdateDialogProps = {
   open: boolean;
@@ -52,7 +52,7 @@ export function WhiteboardUpdateDialog({
   additionalButtons,
 }: WhiteboardUpdateDialogProps) {
   const { t } = useTranslation('neoboard');
-  const productName = useProductName();
+  const productName = getProductName();
 
   const dialogTitleId = useId();
   const dialogDescriptionId = useId();

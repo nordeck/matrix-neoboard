@@ -35,7 +35,7 @@ import {
 import { unstable_useId as useId, visuallyHidden } from '@mui/utils';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useProductName } from '../../lib';
+import { getProductName } from '../../lib';
 import { ExportWhiteboardDialogDownloadFile } from './ExportWhiteboardDialogDownloadFile';
 import { ExportWhiteboardDialogDownloadPdf } from './ExportWhiteboardDialogDownloadPdf';
 
@@ -79,7 +79,7 @@ function ExportWhiteboardDialogContent({
   onClose: () => void;
 }) {
   const { t } = useTranslation('neoboard');
-  const productName = useProductName();
+  const productName = getProductName();
 
   const [error, setError] = useState<string>();
 

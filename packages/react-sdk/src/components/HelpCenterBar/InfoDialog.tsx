@@ -32,7 +32,7 @@ import {
 import { unstable_useId as useId } from '@mui/utils';
 import { DispatchWithoutAction, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useProductName } from '../../lib';
+import { getProductName } from '../../lib';
 import { CopyableText } from '../common/CopyableText';
 
 type InfoDialogProps = {
@@ -42,7 +42,7 @@ type InfoDialogProps = {
 
 export function InfoDialog({ open, onClose }: InfoDialogProps) {
   const { t } = useTranslation('neoboard');
-  const productName = useProductName();
+  const productName = getProductName();
   const [showRevision, setShowRevision] = useState(false);
 
   const version = getEnvironment('REACT_APP_VERSION', 'unset');

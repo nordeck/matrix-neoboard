@@ -20,7 +20,7 @@ import { Link, ListItemText, Menu, MenuItem } from '@mui/material';
 import { unstable_useId as useId } from '@mui/utils';
 import { MouseEvent, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useProductName } from '../../lib';
+import { getProductName } from '../../lib';
 import { useGuidedTour } from '../GuidedTour';
 import { ToolbarSubMenu } from '../common/Toolbar';
 import { InfoDialog } from './InfoDialog';
@@ -28,7 +28,7 @@ import { ShortcutsDialog } from './ShortcutsDialog';
 
 export function HelpMenu() {
   const { t } = useTranslation('neoboard');
-  const productName = useProductName();
+  const productName = getProductName();
   const helpCenterUrl = getEnvironment('REACT_APP_HELP_CENTER_URL');
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const { restartGuidedTour } = useGuidedTour();

@@ -25,6 +25,7 @@ import {
   ConnectionStateProvider,
   DraggableStyles,
   FontsLoadedContextProvider,
+  getProductName,
   GuidedTourProvider,
   LayoutStateProvider,
   PageLoader,
@@ -32,7 +33,6 @@ import {
   SnackbarProvider,
   SnapshotLoadStateDialog,
   StoreType,
-  useProductName,
   WhiteboardHotkeysProvider,
   WhiteboardManager,
   WhiteboardManagerProvider,
@@ -49,7 +49,7 @@ export const AppContainer = ({
   store: StoreType;
   whiteboardManager: WhiteboardManager;
 }) => {
-  const productName = useProductName();
+  const productName = getProductName();
 
   return (
     <Provider store={store}>

@@ -15,15 +15,11 @@
  */
 
 import { getEnvironment } from '@matrix-widget-toolkit/mui';
-import { useMemo } from 'react';
 
 /**
  * Returns the configured product name (`REACT_APP_PRODUCT_NAME`, defaults to
  * `NeoBoard`) to be used in UI texts, e.g. as `productName` translation value.
  */
-export function useProductName(): string {
-  return useMemo(
-    () => getEnvironment('REACT_APP_PRODUCT_NAME', 'NeoBoard'),
-    [],
-  );
+export function getProductName(): string {
+  return getEnvironment('REACT_APP_PRODUCT_NAME', 'NeoBoard');
 }

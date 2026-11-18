@@ -15,9 +15,8 @@
  */
 
 import { getEnvironment } from '@matrix-widget-toolkit/mui';
-import { renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { useProductName } from './useProductName';
+import { getProductName } from './getProductName';
 
 vi.mock('@matrix-widget-toolkit/mui', async () => ({
   ...(await vi.importActual<typeof import('@matrix-widget-toolkit/mui')>(
@@ -26,7 +25,7 @@ vi.mock('@matrix-widget-toolkit/mui', async () => ({
   getEnvironment: vi.fn(),
 }));
 
-describe('useProductName', () => {
+describe('getProductName', () => {
   beforeEach(() => {
     vi.mocked(getEnvironment).mockImplementation(
       (_, defaultValue) => defaultValue,
@@ -34,13 +33,11 @@ describe('useProductName', () => {
   });
 
   it('should return NeoBoard if no product name is configured', () => {
-    const { result } = renderHook(() => useProductName());
-
-    expect(result.current).toBe('NeoBoard');
+    expect(getProductName()).toBe('NeoBoard');
   });
 
   it('should read the product name from REACT_APP_PRODUCT_NAME', () => {
-    renderHook(() => useProductName());
+    getProductName();
 
     expect(getEnvironment).toHaveBeenCalledWith(
       'REACT_APP_PRODUCT_NAME',
@@ -53,18 +50,6 @@ describe('useProductName', () => {
       name === 'REACT_APP_PRODUCT_NAME' ? 'Whiteboard' : defaultValue,
     );
 
-    const { result } = renderHook(() => useProductName());
-
-    expect(result.current).toBe('Whiteboard');
-  });
-
-  it('should keep the product name stable across rerenders', () => {
-    vi.mocked(getEnvironment).mockClear();
-
-    const { result, rerender } = renderHook(() => useProductName());
-    rerender();
-
-    expect(result.current).toBe('NeoBoard');
-    expect(getEnvironment).toHaveBeenCalledTimes(1);
+    expect(getProductName()).toBe('Whiteboard');
   });
 });

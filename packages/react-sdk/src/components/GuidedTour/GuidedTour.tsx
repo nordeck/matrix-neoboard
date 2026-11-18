@@ -16,7 +16,7 @@
 
 import { useTheme } from '@mui/material';
 import { Trans, useTranslation } from 'react-i18next';
-import { useProductName } from '../../lib';
+import { getProductName } from '../../lib';
 import { useLayoutState } from '../Layout';
 import { infiniteCanvasMode } from '../Whiteboard';
 import { StyledJoyride } from './StyledJoyride';
@@ -27,7 +27,7 @@ type GuidedTourProps = {
 
 export function GuidedTour({ disabled }: GuidedTourProps) {
   const { t } = useTranslation('neoboard');
-  const productName = useProductName();
+  const productName = getProductName();
   const theme = useTheme();
   const { setSlideOverviewVisible, isSlideOverviewVisible } = useLayoutState();
 
