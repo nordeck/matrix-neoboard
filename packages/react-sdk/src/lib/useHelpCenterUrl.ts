@@ -74,7 +74,7 @@ export function getEnvironmentUrl(name: string): string | undefined {
  *
  * 1. The URL for the given language.
  * 2. The URL for english.
- * 3. The URL for any other language.
+ * 3. The first URL in the list, if there is no match for both the user language and the default language
  *
  * @param urls - The configured URLs, keyed by language code.
  * @param language - The current language, defaults to `en` if not available.
