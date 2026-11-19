@@ -20,6 +20,7 @@ import { Link, ListItemText, Menu, MenuItem } from '@mui/material';
 import { unstable_useId as useId } from '@mui/utils';
 import { MouseEvent, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useHelpCenterUrl } from '../../lib';
 import { useGuidedTour } from '../GuidedTour';
 import { ToolbarSubMenu } from '../common/Toolbar';
 import { InfoDialog } from './InfoDialog';
@@ -27,7 +28,7 @@ import { ShortcutsDialog } from './ShortcutsDialog';
 
 export function HelpMenu() {
   const { t } = useTranslation('neoboard');
-  const helpCenterUrl = getEnvironment('REACT_APP_HELP_CENTER_URL');
+  const helpCenterUrl = useHelpCenterUrl();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const { restartGuidedTour } = useGuidedTour();
   const embedded = getEnvironment('REACT_APP_EMBEDDED') === 'true';
@@ -128,9 +129,10 @@ export function HelpMenu() {
             component={Link}
             href={helpCenterUrl}
             target="_blank"
+            rel="noopener noreferrer"
           >
             <ListItemText>
-              {t('helpCenter.menu.helpCenter', 'Help Center')}
+              {t('helpCenter.menu.userGuide', 'User guide')}
             </ListItemText>
           </MenuItem>
         )}
