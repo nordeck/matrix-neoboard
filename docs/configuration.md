@@ -14,7 +14,6 @@ REACT_APP_HOME_SERVER_URL=https://matrix-client.matrix.org
 # optional: Links to the documentation in each language that will be shown in the help menu
 # The link for the user's language is used, otherwise the english link, otherwise the link of
 # any other language. If no link is set, the menu item is hidden.
-# Only http(s) URLs are supported, other links are ignored
 REACT_APP_HELP_CENTER_URL_EN="https://nordeck.github.io/matrix-neoboard-standalone/docs/manuals/neoboard/en/user-guide.pdf"
 REACT_APP_HELP_CENTER_URL_DE="https://nordeck.github.io/matrix-neoboard-standalone/docs/manuals/neoboard/de/handbuch.pdf"
 # deprecated: REACT_APP_HELP_CENTER_URL is still used as the english link if

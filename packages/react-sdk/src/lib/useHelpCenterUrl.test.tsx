@@ -15,76 +15,32 @@
  */
 
 import { act, renderHook } from '@testing-library/react';
-import i18next, { i18n as _i18n } from 'i18next';
+import { i18n as _i18n } from 'i18next';
 import { ComponentType, PropsWithChildren } from 'react';
 import { I18nextProvider } from 'react-i18next';
-import {
-  afterEach,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  MockInstance,
-  vi,
-} from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { mockEnvironment } from './testUtils/environmentTestUtils';
-import {
-  getEnvironmentUrl,
-  isValidUrl,
-  selectHelpCenterUrl,
-  useHelpCenterUrl,
-  warnOnce,
-} from './useHelpCenterUrl';
-
-// The instance is passed via I18nextProvider and not registered globally with
-// initReactI18next, so the other tests keep using the default instance
-function setupI18n(instance: _i18n) {
-  instance.init({
-    lng: 'en',
-    resources: {
-      en: {
-        neoboard: {
-          helpCenter: {},
-        },
-      },
-      de: {
-        neoboard: {
-          helpCenter: {},
-        },
-      },
-    },
-  });
-  return instance;
-}
-
-beforeEach(() => {
-  // Each test should see its own warnings
-  warnOnce.cache.clear?.();
-});
+import { setupI18n } from './testUtils/i18nTestUtils';
+import { selectHelpCenterUrl, useHelpCenterUrl } from './useHelpCenterUrl';
 
 describe('useHelpCenterUrl', () => {
   let i18n: _i18n;
   let Wrapper: ComponentType<PropsWithChildren<{}>>;
-  let consoleWarnSpy: MockInstance;
 
   beforeEach(() => {
-    consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-
     mockEnvironment({
       REACT_APP_HELP_CENTER_URL_EN: 'https://example.com/user-guide.pdf',
       REACT_APP_HELP_CENTER_URL_DE: 'https://example.com/handbuch.pdf',
     });
 
-    i18n = i18next.createInstance();
-    setupI18n(i18n);
+    i18n = setupI18n('en', {
+      en: { neoboard: { helpCenter: {} } },
+      de: { neoboard: { helpCenter: {} } },
+    });
 
     Wrapper = ({ children }) => (
       <I18nextProvider i18n={i18n}>{children}</I18nextProvider>
     );
-  });
-
-  afterEach(() => {
-    consoleWarnSpy.mockRestore();
   });
 
   it('should return undefined if no URL is configured', () => {
@@ -138,23 +94,6 @@ describe('useHelpCenterUrl', () => {
     expect(result.current).toBe('https://example.com/user-guide.pdf');
   });
 
-  it('should ignore an invalid URL and fall back to the english URL', async () => {
-    mockEnvironment({
-      REACT_APP_HELP_CENTER_URL_EN: 'https://example.com/user-guide.pdf',
-      REACT_APP_HELP_CENTER_URL_DE: 'javascript:alert(1)',
-    });
-    await i18n.changeLanguage('de');
-
-    const { result } = renderHook(() => useHelpCenterUrl(), {
-      wrapper: Wrapper,
-    });
-
-    expect(result.current).toBe('https://example.com/user-guide.pdf');
-    expect(console.warn).toHaveBeenCalledWith(
-      'Environment variable "REACT_APP_HELP_CENTER_URL_DE" value is invalid: "javascript:alert(1)"',
-    );
-  });
-
   it('should fall back to the english URL for an unsupported language', async () => {
     await i18n.changeLanguage('fr');
 
@@ -177,21 +116,16 @@ describe('useHelpCenterUrl', () => {
     expect(result.current).toBe('https://example.com/handbuch.pdf');
   });
 
-  it('should use the deprecated REACT_APP_HELP_CENTER_URL as english URL and warn once', () => {
+  it('should use the deprecated REACT_APP_HELP_CENTER_URL as english URL', () => {
     mockEnvironment({
       REACT_APP_HELP_CENTER_URL: 'https://example.com/manual.pdf',
     });
 
-    const { result, rerender } = renderHook(() => useHelpCenterUrl(), {
+    const { result } = renderHook(() => useHelpCenterUrl(), {
       wrapper: Wrapper,
     });
-    rerender();
 
     expect(result.current).toBe('https://example.com/manual.pdf');
-    expect(console.warn).toHaveBeenCalledTimes(1);
-    expect(console.warn).toHaveBeenCalledWith(
-      'Environment variable "REACT_APP_HELP_CENTER_URL" is deprecated, use "REACT_APP_HELP_CENTER_URL_EN" and "REACT_APP_HELP_CENTER_URL_DE" instead',
-    );
   });
 
   it('should use the deprecated REACT_APP_HELP_CENTER_URL for other languages', async () => {
@@ -220,17 +154,14 @@ describe('useHelpCenterUrl', () => {
     expect(result.current).toBe('https://example.com/user-guide.pdf');
   });
 
-  it('should ignore an invalid deprecated REACT_APP_HELP_CENTER_URL', () => {
-    mockEnvironment({ REACT_APP_HELP_CENTER_URL: 'javascript:alert(1)' });
+  it('should accept a relative path in the deprecated REACT_APP_HELP_CENTER_URL', () => {
+    mockEnvironment({ REACT_APP_HELP_CENTER_URL: '/manuals/user-guide.pdf' });
 
     const { result } = renderHook(() => useHelpCenterUrl(), {
       wrapper: Wrapper,
     });
 
-    expect(result.current).toBeUndefined();
-    expect(console.warn).toHaveBeenCalledWith(
-      'Environment variable "REACT_APP_HELP_CENTER_URL" value is invalid: "javascript:alert(1)"',
-    );
+    expect(result.current).toBe('/manuals/user-guide.pdf');
   });
 
   it('should update the URL when the language changes', async () => {
@@ -245,76 +176,6 @@ describe('useHelpCenterUrl', () => {
     });
 
     expect(result.current).toBe('https://example.com/handbuch.pdf');
-  });
-});
-
-describe('isValidUrl', () => {
-  it.each(['http://example.com', 'https://example.com'])(
-    'should return true for valid URL: %s',
-    (value) => {
-      expect(isValidUrl(value)).toBe(true);
-    },
-  );
-
-  it.each([
-    'example.com',
-    'www.example.com',
-    'other',
-    'manuals/en/user-guide.pdf',
-    '/manuals/en/user-guide.pdf',
-    'javascript:alert(1)',
-    'data:text/html,<p>Manual</p>',
-    'https://[invalid',
-  ])('should return false for invalid URL: %s', (value) => {
-    expect(isValidUrl(value)).toBe(false);
-  });
-});
-
-describe('getEnvironmentUrl', () => {
-  let consoleWarnSpy: MockInstance;
-
-  beforeEach(() => {
-    consoleWarnSpy = vi.spyOn(console, 'warn');
-  });
-
-  afterEach(() => {
-    consoleWarnSpy.mockRestore();
-  });
-
-  it('should return URL from environment', () => {
-    mockEnvironment({ REACT_APP_URL: 'https://example.com' });
-
-    expect(getEnvironmentUrl('REACT_APP_URL')).toBe('https://example.com');
-  });
-
-  it('should return undefined if URL is not set', () => {
-    mockEnvironment({});
-
-    expect(getEnvironmentUrl('REACT_APP_URL')).toBeUndefined();
-    expect(console.warn).not.toHaveBeenCalled();
-  });
-
-  it('should return undefined if URL is not valid', () => {
-    vi.mocked(console.warn).mockImplementation(() => {});
-
-    mockEnvironment({ REACT_APP_URL: 'example' });
-
-    expect(getEnvironmentUrl('REACT_APP_URL')).toBeUndefined();
-
-    expect(console.warn).toHaveBeenCalledWith(
-      'Environment variable "REACT_APP_URL" value is invalid: "example"',
-    );
-  });
-
-  it('should warn only once about the same invalid URL', () => {
-    vi.mocked(console.warn).mockImplementation(() => {});
-
-    mockEnvironment({ REACT_APP_URL: 'example' });
-
-    getEnvironmentUrl('REACT_APP_URL');
-    getEnvironmentUrl('REACT_APP_URL');
-
-    expect(console.warn).toHaveBeenCalledTimes(1);
   });
 });
 

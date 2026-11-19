@@ -22,7 +22,7 @@ export { acquireImageUrl, releaseImageUrl } from './imageBlobCache';
 export { isDefined } from './isDefined';
 export { isInfiniteCanvasMode } from './isInfiniteCanvasMode';
 export { isMatrixRtcMode } from './isMatrixRtcMode';
-export { setLocale } from './locale';
+export { defaultLanguage, setLocale, supportedLanguages } from './locale';
 export * from './matrix';
 export { simplifyPointsToD } from './pathSmoothing';
 export { calculateBoundsForPathD, scalePathD } from './svgPathDUtils';

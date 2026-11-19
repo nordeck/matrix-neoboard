@@ -19,6 +19,7 @@ import { WidgetToolkitI18nBackend } from '@matrix-widget-toolkit/mui';
 import {
   WhiteboardReactI18nBackend,
   setLocale,
+  supportedLanguages,
 } from '@nordeck/matrix-neoboard-react-sdk';
 import i18n from 'i18next';
 import LanguageDetector, {
@@ -62,7 +63,7 @@ i18n
     interpolation: {
       escapeValue: false, // not needed for react as it escapes by default
     },
-    supportedLngs: ['en', 'de'],
+    supportedLngs: supportedLanguages,
     nonExplicitSupportedLngs: true,
     defaultNS: 'neoboard',
   });

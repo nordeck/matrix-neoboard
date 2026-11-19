@@ -18,10 +18,10 @@ import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import axe from 'axe-core';
-import i18next, { i18n as _i18n } from 'i18next';
 import { ComponentType, PropsWithChildren } from 'react';
 import { I18nextProvider } from 'react-i18next';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { setupI18n } from '../../lib/testUtils/i18nTestUtils';
 import { GuidedTourProvider, useGuidedTour } from '../GuidedTour';
 import { HelpCenterBar } from './HelpCenterBar';
 
@@ -31,26 +31,6 @@ vi.mock('@matrix-widget-toolkit/mui', async () => ({
   )),
   getEnvironment: vi.fn(),
 }));
-
-// The instance is passed via I18nextProvider and not registered globally with
-// initReactI18next, so the other tests keep using the default instance
-function setupI18n(instance: _i18n) {
-  instance.init({
-    lng: 'de',
-    resources: {
-      de: {
-        neoboard: {
-          helpCenter: {
-            menu: {
-              userGuide: 'Handbuch',
-            },
-          },
-        },
-      },
-    },
-  });
-  return instance;
-}
 
 function TestComponent() {
   const { isRunning } = useGuidedTour();
@@ -160,7 +140,17 @@ describe('<HelpCenterBar/>', () => {
       },
     );
 
-    const i18n = setupI18n(i18next.createInstance());
+    const i18n = setupI18n('de', {
+      de: {
+        neoboard: {
+          helpCenter: {
+            menu: {
+              userGuide: 'Handbuch',
+            },
+          },
+        },
+      },
+    });
 
     render(
       <I18nextProvider i18n={i18n}>

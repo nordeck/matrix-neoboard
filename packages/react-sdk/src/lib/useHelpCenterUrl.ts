@@ -15,58 +15,8 @@
  */
 
 import { getEnvironment } from '@matrix-widget-toolkit/mui';
-import memoize from 'lodash/memoize';
 import { useTranslation } from 'react-i18next';
-
-// Languages with translations in `src/locales`
-const helpCenterLanguages = ['en', 'de'];
-const defaultLanguage = 'en';
-const allowedProtocols = ['http:', 'https:'];
-
-/**
- * Logs each warning message only once, as the environment is read on every
- * render.
- */
-export const warnOnce = memoize((message: string): void => {
-  console.warn(message);
-});
-
-/**
- * Checks whether the value is a valid URL. Only `http(s)` URLs are accepted
- * to avoid e.g. `javascript:` links.
- *
- * @param value - The URL to check.
- * @returns true if the URL is valid, false otherwise
- */
-export function isValidUrl(value: string): boolean {
-  try {
-    const { protocol } = new URL(value);
-    return allowedProtocols.includes(protocol);
-  } catch {
-    return false;
-  }
-}
-
-/**
- * Reads the environment variable and return the value if is a valid URL.
- * Warns once about an invalid value.
- * @param name variable name
- * @returns URL or undefined if missing or not valid
- */
-export function getEnvironmentUrl(name: string): string | undefined {
-  const value = getEnvironment(name);
-
-  if (!value) {
-    return undefined;
-  }
-
-  if (!isValidUrl(value)) {
-    warnOnce(`Environment variable "${name}" value is invalid: "${value}"`);
-    return undefined;
-  }
-
-  return value;
-}
+import { defaultLanguage, supportedLanguages } from './locale';
 
 /**
  * Selects the help center URL for the given language. The configured URLs are
@@ -96,29 +46,22 @@ export function selectHelpCenterUrl(
  * `REACT_APP_HELP_CENTER_URL_<LANGUAGE>` (e.g. `REACT_APP_HELP_CENTER_URL_DE`).
  * The deprecated `REACT_APP_HELP_CENTER_URL` is used as the english URL if
  * `REACT_APP_HELP_CENTER_URL_EN` is not set. Falls back to the english or any
- * other configured URL. Invalid URLs are ignored. Updates when the language
- * changes.
+ * other configured URL. Updates when the language changes.
  *
- * @returns The URL or `undefined` if no valid URL is configured.
+ * @returns The URL or `undefined` if no URL is configured.
  */
 export function useHelpCenterUrl(): string | undefined {
   const { i18n } = useTranslation('neoboard');
 
-  if (getEnvironment('REACT_APP_HELP_CENTER_URL')) {
-    warnOnce(
-      'Environment variable "REACT_APP_HELP_CENTER_URL" is deprecated, use "REACT_APP_HELP_CENTER_URL_EN" and "REACT_APP_HELP_CENTER_URL_DE" instead',
-    );
-  }
-
   const urls: Partial<Record<string, string>> = Object.fromEntries(
-    helpCenterLanguages.map((language) => [
+    supportedLanguages.map((language) => [
       language,
-      getEnvironmentUrl(`REACT_APP_HELP_CENTER_URL_${language.toUpperCase()}`),
+      getEnvironment(`REACT_APP_HELP_CENTER_URL_${language.toUpperCase()}`),
     ]),
   );
 
   // TODO: Remove the deprecated variable in the next major version
-  urls[defaultLanguage] ??= getEnvironmentUrl('REACT_APP_HELP_CENTER_URL');
+  urls[defaultLanguage] ??= getEnvironment('REACT_APP_HELP_CENTER_URL');
 
   return selectHelpCenterUrl(urls, i18n.resolvedLanguage);
 }
