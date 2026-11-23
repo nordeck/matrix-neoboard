@@ -17,6 +17,7 @@
 import { getEnvironment } from '@matrix-widget-toolkit/mui';
 import { useTheme } from '@mui/material';
 import { Trans, useTranslation } from 'react-i18next';
+import { useWhiteboardSlideOrFrameIds } from '../../state';
 import { useLayoutState } from '../Layout';
 import { infiniteCanvasMode } from '../Whiteboard';
 import { StyledJoyride } from './StyledJoyride';
@@ -30,6 +31,7 @@ export function GuidedTour({ disabled }: GuidedTourProps) {
   const theme = useTheme();
   const { setSlideOverviewVisible, isSlideOverviewVisible } = useLayoutState();
   const embedded = getEnvironment('REACT_APP_EMBEDDED') === 'true';
+  const slideOrFrameIds = useWhiteboardSlideOrFrameIds();
 
   let guidedTourSteps = [
     {
@@ -147,13 +149,14 @@ export function GuidedTour({ disabled }: GuidedTourProps) {
     },
     {
       target: '[data-guided-tour-target="header"]',
-      title: t('guidedTour.header.title', 'Networking'),
+      title: t('guidedTour.header.title', 'Board & sharing'),
       content: (
         <Trans i18nKey="guidedTour.header.content" ns="neoboard">
           <p>
-            In the top bar, you can invite people to your board or accept
-            invitations to other boards. You’ll find your account settings on
-            the right.
+            In the top bar, you can rename your board by clicking its name, if
+            you have the permission to do so. On the right, you can invite
+            people to your board, accept invitations to other boards and open
+            your account settings.
           </p>
         </Trans>
       ),
@@ -211,8 +214,11 @@ export function GuidedTour({ disabled }: GuidedTourProps) {
     guidedTourSteps = guidedTourSteps.filter(
       (step) => step.target !== '[data-guided-tour-target="slide-overview"]',
     );
-  } else {
-    // remove the frame overview step in non-infinite canvas mode
+  }
+
+  if (!infiniteCanvasMode || slideOrFrameIds.length === 0) {
+    // remove the frame overview step in non-infinite canvas mode or if the
+    // board has no frames
     guidedTourSteps = guidedTourSteps.filter(
       (step) => step.target !== '[data-guided-tour-target="frame-overview"]',
     );

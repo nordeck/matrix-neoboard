@@ -200,8 +200,8 @@
       "title": "Frame overview"
     },
     "header": {
-      "content": "<p>In the top bar, you can invite people to your board or accept invitations to other boards. You’ll find your account settings on the right.</p>",
-      "title": "Networking"
+      "content": "<p>In the top bar, you can rename your board by clicking its name, if you have the permission to do so. On the right, you can invite people to your board, accept invitations to other boards and open your account settings.</p>",
+      "title": "Board & sharing"
     },
     "helpCenter": {
       "content": "<p>The help center gives you quick access to the user manual and an overview of all keyboard shortcuts. You can also restart this tour at any time to explore everything at your own pace.</p><p>Ready? Have fun!</p>",
