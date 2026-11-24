@@ -157,7 +157,7 @@ jobs:
         with:
           fetch-depth: 0 # need main branch to diff against
       - name: Set up Helm
-        uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5
+        uses: azure/setup-helm@2f5e7bc67f1f9972ab16657bb795f36d8f04de0e # v5
       - uses: actions/setup-python@v5
         with:
           python-version: '3.14'
@@ -450,7 +450,7 @@ jobs:
           persist-credentials: false
 
       - name: Set up Helm
-        uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5
+        uses: azure/setup-helm@2f5e7bc67f1f9972ab16657bb795f36d8f04de0e # v5
 
       - name: Create Kubeconfig
         run: |
