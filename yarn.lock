@@ -3501,6 +3501,11 @@ i18next@^25.10.10:
   dependencies:
     "@babel/runtime" "^7.29.2"
 
+i18next@^26.0.0:
+  version "26.7.2"
+  resolved "https://registry.yarnpkg.com/i18next/-/i18next-26.7.2.tgz#56e7550d479f05d0150479fbb345e6c29b78bbd1"
+  integrity sha512-RsOY3BeaCDdkk52NeJSFAXELQ2rQXBO/tOub6L8ue2ICPfR/FRDWDOfEDg4xMPd1SqO5goVYQ6i72qWEUB/PPw==
+
 iconv-lite@^0.7.0, iconv-lite@^0.7.1, iconv-lite@^0.7.2:
   version "0.7.2"
   resolved "https://registry.yarnpkg.com/iconv-lite/-/iconv-lite-0.7.2.tgz#d0bdeac3f12b4835b7359c2ad89c422a4d1cc72e"
