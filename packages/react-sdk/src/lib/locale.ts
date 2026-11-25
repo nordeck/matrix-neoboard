@@ -14,6 +14,16 @@
  * limitations under the License.
  */
 
+/**
+ * The languages with translations in `src/locales`.
+ */
+export const supportedLanguages = ['en', 'de'];
+
+/**
+ * The language used if no translation is available for the user's language.
+ */
+export const defaultLanguage = 'en';
+
 export function setLocale(locale: string): void {
   document.documentElement.lang = locale;
 }
