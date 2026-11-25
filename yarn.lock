@@ -1519,10 +1519,10 @@
   dependencies:
     "@types/node" "*"
 
-"@types/pdfmake@^0.2.11":
-  version "0.2.11"
-  resolved "https://registry.yarnpkg.com/@types/pdfmake/-/pdfmake-0.2.11.tgz#ca5475efe44c966e88aed90040670f562ac1eebc"
-  integrity sha512-gglgMQhnG6C2kco13DJlvokqTxL+XKxHwCejElH8fSCNF9ZCkRK6Mzo011jQ0zuug+YlIgn6BpcpZrARyWdW3Q==
+"@types/pdfmake@^0.3.0":
+  version "0.3.5"
+  resolved "https://registry.yarnpkg.com/@types/pdfmake/-/pdfmake-0.3.5.tgz#9788fa53fe16e97d994c7181ebac742119bd5004"
+  integrity sha512-AQI4ISWzt7qmnKaipkikibz9x2XIvU/1zqfEHwKhBU7vP6oIhlGoLB9KsSIAryH7f9uuJebXScldb6F4ebwFxg==
   dependencies:
     "@types/node" "*"
     "@types/pdfkit" "*"
@@ -2008,10 +2008,10 @@ available-typed-arrays@^1.0.7:
   dependencies:
     possible-typed-array-names "^1.0.0"
 
-axe-core@^4.11.3:
-  version "4.11.4"
-  resolved "https://registry.yarnpkg.com/axe-core/-/axe-core-4.11.4.tgz#5b535e381ff1e61ffdd615e5483d16186d3b46a5"
-  integrity sha512-KunSNx+TVpkAw/6ULfhnx+HWRecjqZGTOyquAoWHYLRSdK1tB5Ihce1ZW+UY3fj33bYAFWPu7W/GRSmmrCGuxA==
+axe-core@^4.14.0:
+  version "4.14.1"
+  resolved "https://registry.yarnpkg.com/axe-core/-/axe-core-4.14.1.tgz#14d8a6f3f085afd126b8b5ca1e42e50e17fb1d99"
+  integrity sha512-FHfa+lmNjQZfJz1q8wKqIDwC6DExcHt/pkjNQb09a3NPjCKg2rhu5qb2S4r76ASyFNNtuFooJpZe37OgudVGtQ==
 
 babel-plugin-macros@^3.1.0:
   version "3.1.0"
