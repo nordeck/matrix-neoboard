@@ -15,14 +15,27 @@
  */
 
 import { useTheme } from '@mui/material';
-import React from 'react';
-import { FrameElement } from '../../../state';
+import React, {
+  PointerEvent,
+  PropsWithChildren,
+  TouchEvent,
+  useCallback,
+  useRef,
+} from 'react';
+import {
+  FrameElement,
+  isPositionClose,
+  Point,
+  useWhiteboardSlideInstance,
+} from '../../../state';
+import { useLayoutState } from '../../Layout';
 import {
   ElementContextMenu,
   MoveableElement,
   SelectableElement,
   WithExtendedSelectionProps,
 } from '../../Whiteboard';
+import { useSvgCanvasContext } from '../../Whiteboard/SvgCanvas';
 
 type DisplayProps = FrameElement & WithExtendedSelectionProps;
 
@@ -60,22 +73,138 @@ const FrameDisplay: React.FC<DisplayProps> = ({
   }
 
   return (
-    <SelectableElement
-      active={active}
-      readOnly={readOnly}
-      elementId={elementId}
-      isFrameElement={true}
-    >
-      <MoveableElement elementId={elementId} elements={elements}>
-        <ElementContextMenu
-          elementId={elementId}
-          activeElementIds={activeElementIds}
-        >
-          {renderedChild}
-        </ElementContextMenu>
-      </MoveableElement>
-    </SelectableElement>
+    <FrameDragSelect elementId={elementId}>
+      <SelectableElement
+        active={active}
+        readOnly={readOnly}
+        elementId={elementId}
+        isFrameElement={true}
+      >
+        <MoveableElement elementId={elementId} elements={elements}>
+          <ElementContextMenu
+            elementId={elementId}
+            activeElementIds={activeElementIds}
+          >
+            {renderedChild}
+          </ElementContextMenu>
+        </MoveableElement>
+      </SelectableElement>
+    </FrameDragSelect>
   );
 };
 
 export default React.memo(FrameDisplay);
+
+/**
+ * Wrapper component that allows starting a drag select above an unselected frame (like on the empty
+ * canvas area) with the mouse left button or a pen.
+ * Can't have  this in FrameDisplay directly because useLayoutState hook can't be used in SlidePreview (readOnly condition).
+ */
+function FrameDragSelect({
+  elementId,
+  children,
+}: PropsWithChildren<{ elementId: string }>) {
+  const slideInstance = useWhiteboardSlideInstance();
+  const { activeTool, setDragSelectStartCoords } = useLayoutState();
+  const { calculateSvgCoords } = useSvgCanvasContext();
+  const isInSelectionMode = activeTool === 'select';
+
+  const dragSelectStartPositionRef = useRef<Point>();
+
+  // Remember whether the gesture is performed by a pen on an unselected frame,
+  // the DraggableCore can't tell a pen and a finger apart.
+  const isPenOnUnselectedFrameRef = useRef(false);
+
+  const handlePointerDownCapture = useCallback(
+    (event: PointerEvent) => {
+      dragSelectStartPositionRef.current = undefined;
+
+      if (!event.isPrimary) return;
+
+      isPenOnUnselectedFrameRef.current = false;
+
+      if (
+        !isInSelectionMode ||
+        event.pointerType === 'touch' ||
+        event.button !== 0
+      ) {
+        return;
+      }
+
+      const activeElementIds = slideInstance.getActiveElementIds();
+      if (activeElementIds.includes(elementId)) return;
+
+      isPenOnUnselectedFrameRef.current = event.pointerType === 'pen';
+
+      dragSelectStartPositionRef.current = {
+        x: event.clientX,
+        y: event.clientY,
+      };
+    },
+    [elementId, isInSelectionMode, slideInstance],
+  );
+
+  const handlePointerMoveCapture = useCallback(
+    (event: PointerEvent) => {
+      const startPosition = dragSelectStartPositionRef.current;
+
+      if (!startPosition) return;
+
+      // Only the mouse or pen tip starts a drag select.
+      if (
+        event.pointerType === 'touch' ||
+        event.buttons !== 1 ||
+        !event.isPrimary
+      ) {
+        dragSelectStartPositionRef.current = undefined;
+        return;
+      }
+
+      // Ignore small movements
+      if (
+        isPositionClose(startPosition, { x: event.clientX, y: event.clientY })
+      ) {
+        return;
+      }
+
+      dragSelectStartPositionRef.current = undefined;
+
+      setDragSelectStartCoords(calculateSvgCoords(startPosition));
+
+      if (
+        event.pointerType === 'pen' &&
+        event.target instanceof Element &&
+        event.target.hasPointerCapture(event.pointerId)
+      ) {
+        // release the event capture, or the drag select layer won't get pointer move events
+        event.target.releasePointerCapture(event.pointerId);
+      }
+    },
+    [calculateSvgCoords, setDragSelectStartCoords],
+  );
+
+  const handlePointerUpCapture = useCallback(() => {
+    dragSelectStartPositionRef.current = undefined;
+  }, []);
+
+  const handleTouchStartCapture = useCallback((event: TouchEvent) => {
+    if (isPenOnUnselectedFrameRef.current) {
+      // A pen performs a drag select, so don't let the frame start a drag
+      // which would pan the canvas at the same time.
+      event.stopPropagation();
+    }
+  }, []);
+
+  // The handlers are registered in the capture phase, so they run before the
+  // inner selectable element, which stops the propagation of pointer events to Selectable/Movable
+  return (
+    <g
+      onPointerDownCapture={handlePointerDownCapture}
+      onPointerMoveCapture={handlePointerMoveCapture}
+      onPointerUpCapture={handlePointerUpCapture}
+      onTouchStartCapture={handleTouchStartCapture}
+    >
+      {children}
+    </g>
+  );
+}
