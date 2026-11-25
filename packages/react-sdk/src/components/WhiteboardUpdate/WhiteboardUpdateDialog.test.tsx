@@ -69,7 +69,7 @@ describe('<WhiteboardUpdateDialog/>', () => {
     const dialog = screen.getByRole('dialog', {
       name: 'Upgrade required',
       description:
-        'This whiteboard requires a more recent version of NeoBoard that uses Frames instead of Slides.',
+        'This board requires a more recent version of NeoBoard that uses Frames instead of Slides.',
     });
 
     expect(
@@ -77,7 +77,7 @@ describe('<WhiteboardUpdateDialog/>', () => {
     ).toBeInTheDocument();
     expect(
       within(dialog).getByText(
-        'This whiteboard requires a more recent version of NeoBoard that uses Frames instead of Slides.',
+        'This board requires a more recent version of NeoBoard that uses Frames instead of Slides.',
       ),
     ).toBeInTheDocument();
     expect(
