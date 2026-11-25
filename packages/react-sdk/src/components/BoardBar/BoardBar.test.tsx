@@ -20,6 +20,7 @@ import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import axe from 'axe-core';
 import { ComponentType, PropsWithChildren } from 'react';
+import { useHotkeysContext } from 'react-hotkeys-hook';
 import {
   Mocked,
   afterEach,
@@ -33,7 +34,7 @@ import {
   WhiteboardTestingContextProvider,
   mockFrameElement,
   mockWhiteboardManager,
-} from '../../lib/testUtils/documentTestUtils';
+} from '../../lib/testUtils';
 import { mockPowerLevelsEvent } from '../../lib/testUtils/matrixTestUtils';
 import {
   WhiteboardDocumentExport,
@@ -43,9 +44,21 @@ import {
 } from '../../state';
 import { ImageUploadProvider } from '../ImageUpload';
 import { ImportWhiteboardDialogProvider } from '../ImportWhiteboardDialog/ImportWhiteboardDialogProvider';
-import { LayoutStateProvider } from '../Layout/useLayoutState';
+import { LayoutStateProvider } from '../Layout';
 import { SnackbarProvider } from '../Snackbar';
+import {
+  HOTKEY_SCOPE_GLOBAL,
+  HOTKEY_SCOPE_WHITEBOARD,
+  WhiteboardHotkeysProvider,
+} from '../WhiteboardHotkeysProvider';
 import { BoardBar } from './BoardBar';
+
+// Exposes the hotkeys scopes that are currently active, so tests can assert
+// on them without depending on any concrete hotkey being bound to the scope.
+function EnabledScopes() {
+  const { activeScopes } = useHotkeysContext();
+  return <div data-testid="enabled-scopes">{activeScopes.join(',')}</div>;
+}
 
 vi.mock('@matrix-widget-toolkit/mui', async () => ({
   ...(await vi.importActual<typeof import('@matrix-widget-toolkit/mui')>(
@@ -78,18 +91,20 @@ describe('<BoardBar/>', () => {
     activeSlide = activeWhiteboard.getSlide('slide-0');
 
     Wrapper = ({ children }) => (
-      <WhiteboardTestingContextProvider
-        whiteboardManager={whiteboardManager}
-        widgetApi={widgetApi}
-      >
-        <SnackbarProvider>
-          <ImageUploadProvider>
-            <ImportWhiteboardDialogProvider>
-              <LayoutStateProvider>{children}</LayoutStateProvider>
-            </ImportWhiteboardDialogProvider>
-          </ImageUploadProvider>
-        </SnackbarProvider>
-      </WhiteboardTestingContextProvider>
+      <WhiteboardHotkeysProvider>
+        <WhiteboardTestingContextProvider
+          whiteboardManager={whiteboardManager}
+          widgetApi={widgetApi}
+        >
+          <SnackbarProvider>
+            <ImageUploadProvider>
+              <ImportWhiteboardDialogProvider>
+                <LayoutStateProvider>{children}</LayoutStateProvider>
+              </ImportWhiteboardDialogProvider>
+            </ImageUploadProvider>
+          </SnackbarProvider>
+        </WhiteboardTestingContextProvider>
+      </WhiteboardHotkeysProvider>
     );
   });
 
@@ -260,6 +275,67 @@ describe('<BoardBar/>', () => {
     await waitFor(() => {
       expect(settingsMenu).not.toBeInTheDocument();
     });
+  });
+
+  it('should pause the whiteboard hotkeys scope while the settings menu is open', async () => {
+    render(
+      <>
+        <BoardBar />
+        <EnabledScopes />
+      </>,
+      { wrapper: Wrapper },
+    );
+
+    expect(screen.getByTestId('enabled-scopes').textContent).toEqual(
+      `${HOTKEY_SCOPE_WHITEBOARD},${HOTKEY_SCOPE_GLOBAL}`,
+    );
+
+    const toolbar = screen.getByRole('toolbar', { name: 'Board' });
+
+    await userEvent.click(
+      within(toolbar).getByRole('button', { name: 'Settings' }),
+    );
+
+    const settingsMenu = screen.getByRole('menu', {
+      name: 'Settings',
+    });
+
+    await waitFor(() => {
+      expect(settingsMenu).toBeInTheDocument();
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('enabled-scopes').textContent).toEqual(
+        HOTKEY_SCOPE_GLOBAL,
+      );
+    });
+
+    await userEvent.keyboard('[Escape]');
+
+    await waitFor(() => {
+      expect(settingsMenu).not.toBeInTheDocument();
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('enabled-scopes').textContent).toEqual(
+        `${HOTKEY_SCOPE_GLOBAL},${HOTKEY_SCOPE_WHITEBOARD}`,
+      );
+    });
+  });
+
+  it('should not restore focus to the settings button after the settings menu is closed', async () => {
+    render(<BoardBar />, { wrapper: Wrapper });
+
+    const toolbar = screen.getByRole('toolbar', { name: 'Board' });
+
+    const menuSettingsMenu = within(toolbar).getByRole('button', {
+      name: 'Settings',
+    });
+
+    await userEvent.click(menuSettingsMenu);
+
+    await userEvent.keyboard('[Escape]');
+    expect(menuSettingsMenu).not.toHaveFocus();
   });
 
   it('should open the settings menu and show import button for user with the right power level and not show if no power level', async () => {
